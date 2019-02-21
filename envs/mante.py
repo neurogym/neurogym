@@ -14,7 +14,8 @@ import gym
 from gym import spaces, logger
 from gym.utils import seeding
 
-from pyrl import tasktools
+import tasktools
+
 
 # Inputs
 inputs = tasktools.to_map('MOTION', 'COLOR',
