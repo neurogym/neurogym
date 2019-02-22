@@ -5,13 +5,31 @@ Spyder Editor
 This is a temporary script file.
 """
 
-import mante
 
-env = mante.Mante(dt=0.2)
-print(env.action_space)
+import sys
 
-state, rew, status = env.step(env.action_space.sample())
+print(sys.argv[1])
 
-print(state)
-print(status)
-print(rew)
+if sys.argv[1] == 'mante':
+    import mante
+
+    env = mante.Mante(dt=0.2)
+    print(env.action_space)
+
+    state, rew, status = env.step(env.action_space.sample())
+
+    print(state)
+    print(status)
+    print(rew)
+elif sys.argv[1] == 'priors':
+    import priors
+
+    env = priors.Priors(dt=0.2)
+    print(env.action_space)
+    for stp in range(11):
+        state, rew, status, info = env.step(env.action_space.sample())
+
+        print(state)
+        print(status)
+        print(rew)
+        print(info)
