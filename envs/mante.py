@@ -126,7 +126,7 @@ class Mante(gym.Env):
         'video.frames_per_second': 50
     }
 
-    def __init__(self, dt):
+    def __init__(self, dt=1):
         high = np.array([1])
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-high, high, dtype=np.float32)
@@ -218,7 +218,7 @@ class Mante(gym.Env):
 
         self.t += 1
 
-        return u, reward, status
+        return u, reward, status, {}
 
     def step_obsolete(self, action):
         assert self.action_space.contains(action), "%r (%s) invalid" % (
