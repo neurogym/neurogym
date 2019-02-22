@@ -14,15 +14,11 @@ class ngym(gym.Env):
     two-alternative forced choice task where the probability of repeating the
     previous choice is parametrized
     """
-    def __init__(self, dt=0.1, n_act=3, exp_dur=10**3):
+    def __init__(self, dt=0.1):
+        # TODO super.__init__()
         self.dt = dt
         self.t = 0
         self.trial = 1
-        self.exp_dur = exp_dur
-        # num actions
-        self.num_actions = n_act
-        # number of trials
-        self.num_tr = 0
 
     def step(self, action):
         """

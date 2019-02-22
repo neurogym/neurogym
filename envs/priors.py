@@ -10,17 +10,25 @@ import numpy as np
 import ngym
 from gym import spaces
 
+
 class Priors(ngym.ngym):
     """
     two-alternative forced choice task where the probability of repeating the
     previous choice is parametrized
     """
-    def __init__(self, dt=0.1, trial_dur=10, exp_dur=10**3, rep_prob=(.2, .8),
+    def __init__(self, dt=0.1, trial_dur=5, exp_dur=10**4, rep_prob=(.2, .8),
                  rewards=(0.1, -0.1, 1.0, -1.0), block_dur=200, stim_ev=0.5):
         # call ngm __init__ function
-        super().__init__(dt=dt, n_act=3, exp_dur=exp_dur)
-        # num steps per trial
-        self.trial_dur = trial_dur
+        super().__init__(dt=dt)
+
+        # time step
+        self.dt = dt
+        # duration of the experiment (in num of trials)
+        self.exp_dur = exp_dur
+        # num actions
+        self.num_actions = 3
+        # num steps per trial (trial_dur input is provided in seconds)
+        self.trial_dur = trial_dur / self.dt
         # rewards given for: stop fixating, keep fixating, correct, wrong
         self.rewards = rewards
         # number of trials per blocks

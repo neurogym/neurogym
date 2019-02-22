@@ -43,22 +43,24 @@ R_ABORTED = -1
 R_CORRECT = +1
 
 # Epoch durations
-fixation   = 750
-stimulus   = 750
-delay_min  = 300
+fixation = 750
+stimulus = 750
+delay_min = 300
 delay_mean = 300
-delay_max  = 1200
-decision   = 500
-tmax       = fixation + stimulus + delay_min + delay_max + decision
+delay_max = 1200
+decision = 500
+tmax = fixation + stimulus + delay_min + delay_max + decision
+
 
 def get_condition(rng, dt, context={}):
-    #-------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     # Epochs
-    #-------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------
 
     delay = context.get('delay')
     if delay is None:
-        delay = delay_min + tasktools.truncated_exponential(rng, dt, delay_mean,
+        delay = delay_min + tasktools.truncated_exponential(rng, dt,
+                                                            delay_mean,
                                                             xmax=delay_max)
 
     durations = {
