@@ -9,15 +9,16 @@ Created on Fri Feb 22 08:52:21 2019
 import gym
 
 
-class ngym(gym.env):
+class ngym(gym.Env):
     """
     two-alternative forced choice task where the probability of repeating the
     previous choice is parametrized
     """
-    def __init__(self, dt=0.1, n_act=3):
+    def __init__(self, dt=0.1, n_act=3, exp_dur=10**3):
         self.dt = dt
         self.t = 0
         self.trial = 1
+        self.exp_dur = exp_dur
         # num actions
         self.num_actions = n_act
         # number of trials
