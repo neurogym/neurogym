@@ -285,4 +285,4 @@ class Mante(gym.Env):
     def terminate(perf):
         p_decision, p_correct = tasktools.correct_2AFC(perf)
 
-        return p_decision >= 0.99 and p_correct >= 0.85
+        return p_decision >= 0.99 and p_correct >= 0.85 
