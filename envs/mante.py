@@ -26,13 +26,13 @@ inputs = tasktools.to_map('MOTION', 'COLOR',
 actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT', 'CHOOSE-RIGHT')
 
 # Trial conditions
-contexts     = ['m', 'c']
-left_rights  = [-1, 1]
-cohs         = [5, 15, 50]
+contexts = ['m', 'c']
+left_rights = [-1, 1]
+cohs = [5, 15, 50]
 n_conditions = len(contexts) * (len(left_rights)*len(cohs))**2
 
 # Training
-n_gradient   = n_conditions
+n_gradient = n_conditions
 n_validation = 50*n_conditions
 
 # Input noise
@@ -50,72 +50,6 @@ delay_mean = 300
 delay_max = 1200
 decision = 500
 tmax = fixation + stimulus + delay_min + delay_max + decision
-
-
-def get_condition(rng, dt, context={}):
-    # -----------------------------------------------------------------------
-    # Epochs
-    # -----------------------------------------------------------------------
-
-    delay = context.get('delay')
-    if delay is None:
-        delay = delay_min + tasktools.truncated_exponential(rng, dt,
-                                                            delay_mean,
-                                                            xmax=delay_max)
-
-    durations = {
-        'fixation':  (0, fixation),
-        'stimulus':  (fixation, fixation + stimulus),
-        'delay':     (fixation + stimulus, fixation + stimulus + delay),
-        'decision':  (fixation + stimulus + delay, tmax),
-        'tmax':      tmax
-        }
-    time, epochs = tasktools.get_epochs_idx(dt, durations)
-
-    #-------------------------------------------------------------------------------------
-    # Trial
-    #-------------------------------------------------------------------------------------
-
-    context_ = context.get('context')
-    if context_ is None:
-        context_ = rng.choice(contexts)
-
-    left_right_m = context.get('left_right_m')
-    if left_right_m is None:
-        left_right_m = rng.choice(left_rights)
-
-    left_right_c = context.get('left_right_c')
-    if left_right_c is None:
-        left_right_c = rng.choice(left_rights)
-
-    coh_m = context.get('coh_m')
-    if coh_m is None:
-        coh_m = rng.choice(cohs)
-
-    coh_c = context.get('coh_c')
-    if coh_c is None:
-        coh_c = rng.choice(cohs)
-
-    return {
-        'durations':    durations,
-        'time':         time,
-        'epochs':       epochs,
-        'context':      context_,
-        'left_right_m': left_right_m,
-        'left_right_c': left_right_c,
-        'coh_m':        coh_m,
-        'coh_c':        coh_c
-        }
-
-# Input scaling
-def scale(coh):
-    return (1 + coh/100)/2
-
-
-def terminate(perf):
-    p_decision, p_correct = tasktools.correct_2AFC(perf)
-
-    return p_decision >= 0.99 and p_correct >= 0.85
 
 
 class Mante(gym.Env):
@@ -208,16 +142,20 @@ class Mante(gym.Env):
             low_c = inputs['COLOR-LEFT']
 
         u = np.zeros(len(inputs))
-        if self.t in epochs['fixation'] or self.t in epochs['stimulus'] or self.t in epochs['delay']:
+        if self.t in epochs['fixation'] or self.t in epochs['stimulus'] or\
+           self.t in epochs['delay']:
             u[context] = 1
         if self.t in epochs['stimulus']:
-            u[high_m] = scale(+trial['coh_m']) + rng.normal(scale=sigma) / np.sqrt(dt)
-            u[low_m] = scale(-trial['coh_m']) + rng.normal(scale=sigma) / np.sqrt(dt)
-            u[high_c] = scale(+trial['coh_c']) + rng.normal(scale=sigma) / np.sqrt(dt)
-            u[low_c] = scale(-trial['coh_c']) + rng.normal(scale=sigma) / np.sqrt(dt)
+            u[high_m] = self.scale(+trial['coh_m']) +\
+                rng.normal(scale=sigma) / np.sqrt(dt)
+            u[low_m] = self.scale(-trial['coh_m']) +\
+                rng.normal(scale=sigma) / np.sqrt(dt)
+            u[high_c] = self.scale(+trial['coh_c']) +\
+                rng.normal(scale=sigma) / np.sqrt(dt)
+            u[low_c] = self.scale(-trial['coh_c']) +\
+                rng.normal(scale=sigma) / np.sqrt(dt)
 
         # -------------------------------------------------------------------------------------
-
         self.t += 1
 
         return u, reward, status, {}
@@ -258,8 +196,11 @@ class Mante(gym.Env):
             self.steps_beyond_done = 0
         else:
             if self.steps_beyond_done == 0:
-                logger.warn(
-                    "You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior.")
+                logger.warn("You are calling 'step()' even though this " +
+                            " environment has already returned done = True." +
+                            "  You should always call 'reset()' once you " +
+                            " receive 'done = True' -- any further steps are" +
+                            "  undefined behavior.")
             self.steps_beyond_done += 1
 
         if self.observe_state:
@@ -270,7 +211,7 @@ class Mante(gym.Env):
         return obs, reward, done, {}
 
     def reset(self):
-        trial = get_condition(self.rng, self.dt)
+        trial = self.get_condition(self.rng, self.dt)
         self.trial = trial
         self.t = 0
 
@@ -278,4 +219,70 @@ class Mante(gym.Env):
         raise NotImplementedError
 
     def close(self):
-        if self.viewer: self.viewer.close()
+        if self.viewer:
+            self.viewer.close()
+
+    def get_condition(self, rng, dt, context={}):
+        # -----------------------------------------------------------------------
+        # Epochs
+        # -----------------------------------------------------------------------
+
+        delay = context.get('delay')
+        if delay is None:
+            delay = delay_min + tasktools.truncated_exponential(rng, dt,
+                                                                delay_mean,
+                                                                xmax=delay_max)
+        durations = {
+            'fixation':  (0, fixation),
+            'stimulus':  (fixation, fixation + stimulus),
+            'delay':     (fixation + stimulus, fixation + stimulus + delay),
+            'decision':  (fixation + stimulus + delay, tmax),
+            'tmax':      tmax
+            }
+        time, epochs = tasktools.get_epochs_idx(dt, durations)
+
+        # -------------------------------------------------------------------------
+        # Trial
+        # -------------------------------------------------------------------------
+
+        context_ = context.get('context')
+        if context_ is None:
+            context_ = rng.choice(contexts)
+
+        left_right_m = context.get('left_right_m')
+        if left_right_m is None:
+            left_right_m = rng.choice(left_rights)
+
+        left_right_c = context.get('left_right_c')
+        if left_right_c is None:
+            left_right_c = rng.choice(left_rights)
+
+        coh_m = context.get('coh_m')
+        if coh_m is None:
+            coh_m = rng.choice(cohs)
+
+        coh_c = context.get('coh_c')
+        if coh_c is None:
+            coh_c = rng.choice(cohs)
+
+        return {
+            'durations':    durations,
+            'time':         time,
+            'epochs':       epochs,
+            'context':      context_,
+            'left_right_m': left_right_m,
+            'left_right_c': left_right_c,
+            'coh_m':        coh_m,
+            'coh_c':        coh_c
+            }
+
+    def scale(coh):
+        """
+        Input scaling
+        """
+        return (1 + coh/100)/2
+
+    def terminate(perf):
+        p_decision, p_correct = tasktools.correct_2AFC(perf)
+
+        return p_decision >= 0.99 and p_correct >= 0.85
