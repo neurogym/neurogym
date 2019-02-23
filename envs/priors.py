@@ -55,8 +55,7 @@ class Priors(ngym.ngym):
         # action space
         self.action_space = spaces.Discrete(3)
         # observation space
-        obs_range = np.array([10])
-        self.observation_space = spaces.Box(-obs_range, obs_range,
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3, 1),
                                             dtype=np.float32)
 
         print('--------------- Priors experiment ---------------')
