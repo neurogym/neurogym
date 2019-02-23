@@ -17,45 +17,44 @@ from gym.utils import seeding
 import tasktools
 
 
-# Inputs
-inputs = tasktools.to_map('MOTION', 'COLOR',
-                          'MOTION-LEFT', 'MOTION-RIGHT',
-                          'COLOR-LEFT', 'COLOR-RIGHT')
-
-# Actions
-actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT', 'CHOOSE-RIGHT')
-
-# Trial conditions
-contexts = ['m', 'c']
-left_rights = [-1, 1]
-cohs = [5, 15, 50]
-n_conditions = len(contexts) * (len(left_rights)*len(cohs))**2
-
-# Training
-n_gradient = n_conditions
-n_validation = 50*n_conditions
-
-# Input noise
-sigma = np.sqrt(2*100*0.02)
-
-# Rewards
-R_ABORTED = -1
-R_CORRECT = +1
-
-# Epoch durations
-fixation = 750
-stimulus = 750
-delay_min = 300
-delay_mean = 300
-delay_max = 1200
-decision = 500
-tmax = fixation + stimulus + delay_min + delay_max + decision
-
-
 class Mante(gym.Env):
     """
     Mante task
     """
+
+    # Inputs
+    inputs = tasktools.to_map('MOTION', 'COLOR',
+                              'MOTION-LEFT', 'MOTION-RIGHT',
+                              'COLOR-LEFT', 'COLOR-RIGHT')
+
+    # Actions
+    actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT', 'CHOOSE-RIGHT')
+
+    # Trial conditions
+    contexts = ['m', 'c']
+    left_rights = [-1, 1]
+    cohs = [5, 15, 50]
+    n_conditions = len(contexts) * (len(left_rights)*len(cohs))**2
+
+    # Training
+    n_gradient = n_conditions
+    n_validation = 50*n_conditions
+
+    # Input noise
+    sigma = np.sqrt(2*100*0.02)
+
+    # Rewards
+    R_ABORTED = -1
+    R_CORRECT = +1
+
+    # Epoch durations
+    fixation = 750
+    stimulus = 750
+    delay_min = 300
+    delay_mean = 300
+    delay_max = 1200
+    decision = 500
+    tmax = fixation + stimulus + delay_min + delay_max + decision
 
     metadata = {
         'render.modes': ['human', 'rgb_array'],
@@ -93,11 +92,11 @@ class Mante(gym.Env):
         status = {'continue': True}
         reward = 0
         if self.t - 1 not in epochs['decision']:
-            if action != actions['FIXATE']:
+            if action != self.actions['FIXATE']:
                 status['continue'] = False
-                reward = R_ABORTED
+                reward = self.R_ABORTED
         elif self.t - 1 in epochs['decision']:
-            if action == actions['CHOOSE-LEFT']:
+            if action == self.actions['CHOOSE-LEFT']:
                 status['continue'] = False
                 status['choice'] = 'L'
                 status['t_choice'] = self.t - 1
@@ -106,8 +105,8 @@ class Mante(gym.Env):
                 else:
                     status['correct'] = (trial['left_right_c'] < 0)
                 if status['correct']:
-                    reward = R_CORRECT
-            elif action == actions['CHOOSE-RIGHT']:
+                    reward = self.R_CORRECT
+            elif action == self.actions['CHOOSE-RIGHT']:
                 status['continue'] = False
                 status['choice'] = 'R'
                 status['t_choice'] = self.t - 1
@@ -116,44 +115,44 @@ class Mante(gym.Env):
                 else:
                     status['correct'] = (trial['left_right_c'] > 0)
                 if status['correct']:
-                    reward = R_CORRECT
+                    reward = self.R_CORRECT
 
         # -------------------------------------------------------------------------------------
         # Inputs
         # -------------------------------------------------------------------------------------
 
         if trial['context'] == 'm':
-            context = inputs['MOTION']
+            context = self.inputs['MOTION']
         else:
-            context = inputs['COLOR']
+            context = self.inputs['COLOR']
 
         if trial['left_right_m'] < 0:
-            high_m = inputs['MOTION-LEFT']
-            low_m = inputs['MOTION-RIGHT']
+            high_m = self.inputs['MOTION-LEFT']
+            low_m = self.inputs['MOTION-RIGHT']
         else:
-            high_m = inputs['MOTION-RIGHT']
-            low_m = inputs['MOTION-LEFT']
+            high_m = self.inputs['MOTION-RIGHT']
+            low_m = self.inputs['MOTION-LEFT']
 
         if trial['left_right_c'] < 0:
-            high_c = inputs['COLOR-LEFT']
-            low_c = inputs['COLOR-RIGHT']
+            high_c = self.inputs['COLOR-LEFT']
+            low_c = self.inputs['COLOR-RIGHT']
         else:
-            high_c = inputs['COLOR-RIGHT']
-            low_c = inputs['COLOR-LEFT']
+            high_c = self.inputs['COLOR-RIGHT']
+            low_c = self.inputs['COLOR-LEFT']
 
-        u = np.zeros(len(inputs))
+        u = np.zeros(len(self.inputs))
         if self.t in epochs['fixation'] or self.t in epochs['stimulus'] or\
            self.t in epochs['delay']:
             u[context] = 1
         if self.t in epochs['stimulus']:
             u[high_m] = self.scale(+trial['coh_m']) +\
-                rng.normal(scale=sigma) / np.sqrt(dt)
+                rng.normal(scale=self.sigma) / np.sqrt(dt)
             u[low_m] = self.scale(-trial['coh_m']) +\
-                rng.normal(scale=sigma) / np.sqrt(dt)
+                rng.normal(scale=self.sigma) / np.sqrt(dt)
             u[high_c] = self.scale(+trial['coh_c']) +\
-                rng.normal(scale=sigma) / np.sqrt(dt)
+                rng.normal(scale=self.sigma) / np.sqrt(dt)
             u[low_c] = self.scale(-trial['coh_c']) +\
-                rng.normal(scale=sigma) / np.sqrt(dt)
+                rng.normal(scale=self.sigma) / np.sqrt(dt)
 
         # -------------------------------------------------------------------------------------
         self.t += 1
@@ -229,15 +228,16 @@ class Mante(gym.Env):
 
         delay = context.get('delay')
         if delay is None:
-            delay = delay_min + tasktools.truncated_exponential(rng, dt,
-                                                                delay_mean,
-                                                                xmax=delay_max)
+            delay = self.delay_min +\
+                tasktools.truncated_exponential(rng, dt, self.delay_mean,
+                                                xmax=self.delay_max)
         durations = {
-            'fixation':  (0, fixation),
-            'stimulus':  (fixation, fixation + stimulus),
-            'delay':     (fixation + stimulus, fixation + stimulus + delay),
-            'decision':  (fixation + stimulus + delay, tmax),
-            'tmax':      tmax
+            'fixation':  (0, self.fixation),
+            'stimulus':  (self.fixation, self.fixation + self.stimulus),
+            'delay':     (self.fixation + self.stimulus,
+                          self.fixation + self.stimulus + delay),
+            'decision':  (self.fixation + self.stimulus + delay, self.tmax),
+            'tmax':      self.tmax
             }
         time, epochs = tasktools.get_epochs_idx(dt, durations)
 
@@ -247,23 +247,23 @@ class Mante(gym.Env):
 
         context_ = context.get('context')
         if context_ is None:
-            context_ = rng.choice(contexts)
+            context_ = rng.choice(self.contexts)
 
         left_right_m = context.get('left_right_m')
         if left_right_m is None:
-            left_right_m = rng.choice(left_rights)
+            left_right_m = rng.choice(self.left_rights)
 
         left_right_c = context.get('left_right_c')
         if left_right_c is None:
-            left_right_c = rng.choice(left_rights)
+            left_right_c = rng.choice(self.left_rights)
 
         coh_m = context.get('coh_m')
         if coh_m is None:
-            coh_m = rng.choice(cohs)
+            coh_m = rng.choice(self.cohs)
 
         coh_c = context.get('coh_c')
         if coh_c is None:
-            coh_c = rng.choice(cohs)
+            coh_c = rng.choice(self.cohs)
 
         return {
             'durations':    durations,
@@ -285,4 +285,4 @@ class Mante(gym.Env):
     def terminate(perf):
         p_decision, p_correct = tasktools.correct_2AFC(perf)
 
-        return p_decision >= 0.99 and p_correct >= 0.85 
+        return p_decision >= 0.99 and p_correct >= 0.85
