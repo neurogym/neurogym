@@ -19,4 +19,4 @@ for stp in range(100):
 #    print(state)
 #    print(status)
 #    print(rew)
-    print(info)
+    # print(info)

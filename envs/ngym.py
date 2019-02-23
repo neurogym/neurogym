@@ -15,7 +15,7 @@ class ngym(gym.Env):
     previous choice is parametrized
     """
     def __init__(self, dt=0.1):
-        # TODO super.__init__()
+        super().__init__()
         self.dt = dt  # TODO: revisit, ms or s?
         self.t = 0
         self.trial = 1

@@ -103,7 +103,8 @@ class Priors(ngym.ngym):
         return new_st, reward, done, info
 
     def reset(self):
-        return self.new_trial()
+        state, _ = self._new_trial()
+        return state
 
     def _get_state(self):
         """
