@@ -11,10 +11,10 @@ register(
 env = gym.make('Mante-v0')
 
 env.reset()
-for stp in range(11):
-    state, rew, status, info = env.step(env.action_space.sample())
+for stp in range(10000):
+    state, rew, status, info = env.step(0)  # env.action_space.sample())
 
-    print(state)
-    print(status)
-    print(rew)
-    print(info)
+#    print(state)
+#    print(status)
+#    print(rew)
+#    print(info)

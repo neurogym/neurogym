@@ -10,35 +10,36 @@ from __future__ import division
 
 import numpy as np
 
-import gym
+import ngym
 from gym import spaces, logger
 from gym.utils import seeding
 
 import tasktools
 
 
-class Mante(gym.Env):
+class Mante(ngym.ngym):
     """
     Mante task
     """
 
     # Inputs
-    inputs = tasktools.to_map('MOTION', 'COLOR',
-                              'MOTION-LEFT', 'MOTION-RIGHT',
-                              'COLOR-LEFT', 'COLOR-RIGHT')
+    inputs = tasktools.to_map('motion', 'color',
+                              'm-left', 'm-right',
+                              'c-left', 'c-right')
 
     # Actions
-    actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT', 'CHOOSE-RIGHT')
+    actions = tasktools.to_map('fixate', 'left', 'right')
 
     # Trial conditions
     contexts = ['m', 'c']
     left_rights = [-1, 1]
     cohs = [5, 15, 50]
-    n_conditions = len(contexts) * (len(left_rights)*len(cohs))**2
 
+    # the variables below seem to concern only the training
+    # n_conditions = len(contexts) * (len(left_rights)*len(cohs))**2
     # Training
-    n_gradient = n_conditions
-    n_validation = 50*n_conditions
+    # n_gradient = n_conditions
+    # n_validation = 50*n_conditions
 
     # Input noise
     sigma = np.sqrt(2*100*0.02)
@@ -62,6 +63,8 @@ class Mante(gym.Env):
     }
 
     def __init__(self, dt=1):
+        # call ngm __init__ function
+        super().__init__(dt=dt)
         high = np.array([1])
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-high, high, dtype=np.float32)
@@ -71,19 +74,18 @@ class Mante(gym.Env):
 
         self.steps_beyond_done = None
 
-        self.dt = dt
-        self.rng = np.random.RandomState(seed=0)  # TODO: revisit
+        self.rng = np.random.RandomState(seed=0)  # TODO: move to superclass?
+        self.trial = self.get_condition(self.rng, self.dt)
 
-    def seed(self, seed=None):
+    def seed(self, seed=None):  # TODO: move to superclass?
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
     # def step(rng, dt, trial, t, a):
     def step(self, action):
-        # -------------------------------------------------------------------------------------
+        # -----------------------------------------------------------------
         # Reward
-        # -------------------------------------------------------------------------------------
-
+        # -----------------------------------------------------------------
         trial = self.trial
         dt = self.dt
         rng = self.rng
@@ -92,11 +94,12 @@ class Mante(gym.Env):
         status = {'continue': True}
         reward = 0
         if self.t - 1 not in epochs['decision']:
-            if action != self.actions['FIXATE']:
-                status['continue'] = False
+            if action != self.actions['fixate']:
+                status['continue'] = False  # TODO: abort when no fixating?
                 reward = self.R_ABORTED
         elif self.t - 1 in epochs['decision']:
-            if action == self.actions['CHOOSE-LEFT']:
+            print('decision time!')
+            if action == self.actions['left']:
                 status['continue'] = False
                 status['choice'] = 'L'
                 status['t_choice'] = self.t - 1
@@ -106,7 +109,7 @@ class Mante(gym.Env):
                     status['correct'] = (trial['left_right_c'] < 0)
                 if status['correct']:
                     reward = self.R_CORRECT
-            elif action == self.actions['CHOOSE-RIGHT']:
+            elif action == self.actions['right']:
                 status['continue'] = False
                 status['choice'] = 'R'
                 status['t_choice'] = self.t - 1
@@ -122,44 +125,44 @@ class Mante(gym.Env):
         # -------------------------------------------------------------------------------------
 
         if trial['context'] == 'm':
-            context = self.inputs['MOTION']
+            context = self.inputs['motion']
         else:
-            context = self.inputs['COLOR']
+            context = self.inputs['color']
 
         if trial['left_right_m'] < 0:
-            high_m = self.inputs['MOTION-LEFT']
-            low_m = self.inputs['MOTION-RIGHT']
+            high_m = self.inputs['m-left']
+            low_m = self.inputs['m-right']
         else:
-            high_m = self.inputs['MOTION-RIGHT']
-            low_m = self.inputs['MOTION-LEFT']
+            high_m = self.inputs['m-right']
+            low_m = self.inputs['m-left']
 
         if trial['left_right_c'] < 0:
-            high_c = self.inputs['COLOR-LEFT']
-            low_c = self.inputs['COLOR-RIGHT']
+            high_c = self.inputs['c-left']
+            low_c = self.inputs['c-right']
         else:
-            high_c = self.inputs['COLOR-RIGHT']
-            low_c = self.inputs['COLOR-LEFT']
+            high_c = self.inputs['c-right']
+            low_c = self.inputs['c-left']
 
-        u = np.zeros(len(self.inputs))
+        obs = np.zeros(len(self.inputs))
         if self.t in epochs['fixation'] or self.t in epochs['stimulus'] or\
            self.t in epochs['delay']:
-            u[context] = 1
+            obs[context] = 1
         if self.t in epochs['stimulus']:
-            u[high_m] = self.scale(+trial['coh_m']) +\
+            obs[high_m] = self.scale(+trial['coh_m']) +\
                 rng.normal(scale=self.sigma) / np.sqrt(dt)
-            u[low_m] = self.scale(-trial['coh_m']) +\
+            obs[low_m] = self.scale(-trial['coh_m']) +\
                 rng.normal(scale=self.sigma) / np.sqrt(dt)
-            u[high_c] = self.scale(+trial['coh_c']) +\
+            obs[high_c] = self.scale(+trial['coh_c']) +\
                 rng.normal(scale=self.sigma) / np.sqrt(dt)
-            u[low_c] = self.scale(-trial['coh_c']) +\
+            obs[low_c] = self.scale(-trial['coh_c']) +\
                 rng.normal(scale=self.sigma) / np.sqrt(dt)
 
-        # -------------------------------------------------------------------------------------
+        # ---------------------------------------------------------------------
         self.t += 1
+        done = False  # TODO
+        return obs, reward, done, status
 
-        return u, reward, status, {}
-
-    def step_obsolete(self, action):
+    def step_obsolete(self, action):  # TODO: what is this function?
         assert self.action_space.contains(action), "%r (%s) invalid" % (
             action, type(action))
         state = self.state
@@ -276,7 +279,7 @@ class Mante(gym.Env):
             'coh_c':        coh_c
             }
 
-    def scale(coh):
+    def scale(self, coh):
         """
         Input scaling
         """

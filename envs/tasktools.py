@@ -12,11 +12,11 @@ import numpy as np
 
 
 def to_map(*args):
+    "produces ordered dict from given inputs"
     if isinstance(args[0], list):
         var_list = args[0]
     else:
         var_list = args
-
     od = OrderedDict()
     for i, v in enumerate(var_list):
         od[v] = i
@@ -26,7 +26,7 @@ def to_map(*args):
 
 def get_idx(t, start_end):
     """
-    function for defining task epochs
+    auxiliary function for defining task epochs
     """
     start, end = start_end
     return list(np.where((start <= t) & (t < end))[0])
@@ -63,7 +63,7 @@ def divide(x, y):
 
 def correct_2AFC(perf):
     """
-    Function for terminating training
+    computes performance
     """
     p_decision = perf.n_decision/perf.n_trials
     p_correct = divide(perf.n_correct, perf.n_decision)
