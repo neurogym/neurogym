@@ -49,12 +49,13 @@ class Mante(ngym.ngym):
     R_CORRECT = +1
 
     # Epoch durations
-    fixation = 750
-    stimulus = 750
-    delay_min = 300
-    delay_mean = 300
-    delay_max = 1200
-    decision = 500
+    # TODO: in ms?
+    fixation = .75
+    stimulus = .75
+    delay_min = .3
+    delay_mean = .3
+    delay_max = 1.2
+    decision = .5
     tmax = fixation + stimulus + delay_min + delay_max + decision
 
     metadata = {
@@ -62,7 +63,7 @@ class Mante(ngym.ngym):
         'video.frames_per_second': 50
     }
 
-    def __init__(self, dt=1):
+    def __init__(self, dt=.05):
         # call ngm __init__ function
         super().__init__(dt=dt)
         high = np.array([1])
@@ -98,7 +99,6 @@ class Mante(ngym.ngym):
                 status['continue'] = False  # TODO: abort when no fixating?
                 reward = self.R_ABORTED
         elif self.t - 1 in epochs['decision']:
-            print('decision time!')
             if action == self.actions['left']:
                 status['continue'] = False
                 status['choice'] = 'L'
@@ -156,9 +156,21 @@ class Mante(ngym.ngym):
                 rng.normal(scale=self.sigma) / np.sqrt(dt)
             obs[low_c] = self.scale(-trial['coh_c']) +\
                 rng.normal(scale=self.sigma) / np.sqrt(dt)
-
         # ---------------------------------------------------------------------
-        self.t += 1
+        if self.t-1 in epochs['fixation']:
+            print('fixation')
+        if self.t-1 in epochs['stimulus']:
+            print('stimulus')
+        if self.t-1 in epochs['delay']:
+            print('delay')
+        if self.t-1 in epochs['decision']:
+            print('decision')
+
+        # new trial?
+        if self.t == self.tmax/self.dt:
+            self.reset()
+        else:
+            self.t += 1
         done = False  # TODO
         return obs, reward, done, status
 
