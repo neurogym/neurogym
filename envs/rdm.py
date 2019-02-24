@@ -65,9 +65,9 @@ class RDM(ngym.ngym):
 
         self.steps_beyond_done = None
 
-        self.trial = self.get_condition(self.rng, self.dt)
+        self.trial = self._new_trial(self.rng, self.dt)
 
-    def get_condition(self, rng, dt, context={}):
+    def _new_trial(self, rng, dt, context={}):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
@@ -171,7 +171,7 @@ class RDM(ngym.ngym):
         return obs, reward, done, status
 
     def reset(self):
-        self.trial = self.get_condition(self.rng, self.dt)
+        self.trial = self._new_trial(self.rng, self.dt)
         self.t = 0
 
     def terminate(perf):

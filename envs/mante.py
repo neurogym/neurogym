@@ -66,7 +66,7 @@ class Mante(ngym.ngym):
 
         self.steps_beyond_done = None
 
-        self.trial = self.get_condition(self.rng, self.dt)
+        self.trial = self._new_trial(self.rng, self.dt)
 
     # def step(rng, dt, trial, t, a):
     def step(self, action):
@@ -211,7 +211,7 @@ class Mante(ngym.ngym):
         return obs, reward, done, {}
 
     def reset(self):
-        trial = self.get_condition(self.rng, self.dt)
+        trial = self._new_trial(self.rng, self.dt)
         self.trial = trial
         self.t = 0
 
@@ -222,7 +222,7 @@ class Mante(ngym.ngym):
         if self.viewer:
             self.viewer.close()
 
-    def get_condition(self, rng, dt, context={}):
+    def _new_trial(self, rng, dt, context={}):
         # -----------------------------------------------------------------------
         # Epochs
         # -----------------------------------------------------------------------
