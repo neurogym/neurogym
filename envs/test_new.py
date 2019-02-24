@@ -1,14 +1,8 @@
 import gym
-from gym.envs.registration import register
+import sys
+import task_registration
 
-register(
-    id='Mante-v0',
-    entry_point='mante:Mante',
-    max_episode_steps=100000,
-    reward_threshold=90.0,
-)
-
-env = gym.make('Mante-v0')
+env = gym.make(sys.argv[1])
 
 env.reset()
 observations = []
