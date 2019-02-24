@@ -16,7 +16,6 @@ import numpy as np
 import tasktools
 import ngym
 from gym import spaces
-from gym.utils import seeding
 
 
 class Romo(ngym.ngym):
@@ -65,7 +64,6 @@ class Romo(ngym.ngym):
 
         self.steps_beyond_done = None
 
-        self.rng = np.random.RandomState(seed=0)  # TODO: move to superclass?
         self.trial = self.get_condition(self.rng, self.dt)
 
     def get_condition(self, rng, dt, context={}):
@@ -105,10 +103,6 @@ class Romo(ngym.ngym):
             'gt_lt':     gt_lt,
             'fpair':     fpair
             }
-
-    def seed(self, seed=None):  # TODO: move to superclass?
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
 
     def scale(self, f):
         return (f - self.fmin)/(self.fmax - self.fmin)

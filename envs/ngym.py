@@ -7,6 +7,8 @@ Created on Fri Feb 22 08:52:21 2019
 """
 
 import gym
+import numpy as np
+from gym.utils import seeding
 
 
 class ngym(gym.Env):
@@ -19,6 +21,7 @@ class ngym(gym.Env):
         self.dt = dt  # TODO: revisit, ms or s?
         self.t = 0
         self.num_tr = 1
+        self.rng = np.random.RandomState(seed=0)
 
     def step(self, action):
         """
@@ -41,6 +44,10 @@ class ngym(gym.Env):
         pass
 
     # Auxiliary functions
+    def seed(self, seed=None):  # TODO: move to superclass?
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
+
     def _new_trial(self):
         """
         starts a new trials within the current experiment

@@ -12,7 +12,6 @@ import numpy as np
 
 import ngym
 from gym import spaces, logger
-from gym.utils import seeding
 
 import tasktools
 
@@ -67,12 +66,7 @@ class Mante(ngym.ngym):
 
         self.steps_beyond_done = None
 
-        self.rng = np.random.RandomState(seed=0)  # TODO: move to superclass?
         self.trial = self.get_condition(self.rng, self.dt)
-
-    def seed(self, seed=None):  # TODO: move to superclass?
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
 
     # def step(rng, dt, trial, t, a):
     def step(self, action):
@@ -159,7 +153,7 @@ class Mante(ngym.ngym):
             print('decision')
 
         # new trial?
-        if self.t == self.tmax/self.dt:
+        if self.t > self.tmax/self.dt:
             self.reset()
         else:
             self.t += 1
