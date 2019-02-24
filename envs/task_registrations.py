@@ -48,3 +48,10 @@ register(
     max_episode_steps=100000,
     reward_threshold=90.0,
 )
+
+register(
+    id='pdWager-v0',
+    entry_point='pd_wager:PDWager',
+    max_episode_steps=100000,
+    reward_threshold=90.0,
+)
