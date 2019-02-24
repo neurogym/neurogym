@@ -23,7 +23,7 @@ from gym import spaces
 from gym.utils import seeding
 
 
-class romo(ngym.ngym):
+class Romo(ngym.ngym):
 
     # Inputs
     inputs = tasktools.to_map('FIXATION', 'F-POS', 'F-NEG')
@@ -34,20 +34,12 @@ class romo(ngym.ngym):
     # Trial conditions
     gt_lts = ['>', '<']
     fpairs = [(18, 10), (22, 14), (26, 18), (30, 22), (34, 26)]
-    n_conditions = len(gt_lts) * len(fpairs)
-
-    # Training
-    n_gradient = n_conditions
-    n_validation = 20*n_conditions
-
-    # Slow down the learning
-    lr = 0.002
-    baseline_lr = 0.002
 
     # Input noise
     sigma = np.sqrt(2*100*0.001)
 
     # Epoch durations
+    # TODO: in ms?
     fixation = 750
     f1 = 500
     delay_min = 3000 - 300
@@ -168,23 +160,23 @@ class romo(ngym.ngym):
         else:
             f2, f1 = trial['fpair']
 
-        u = np.zeros(len(self.inputs))
+        obs = np.zeros(len(self.inputs))
         if self.t not in epochs['decision']:
-            u[self.inputs['FIXATION']] = 1
+            obs[self.inputs['FIXATION']] = 1
         if self.t in epochs['f1']:
-            u[self.inputs['F-POS']] = self.scale_p(f1) +\
+            obs[self.inputs['F-POS']] = self.scale_p(f1) +\
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
-            u[self.inputs['F-NEG']] = self.scale_n(f1) +\
+            obs[self.inputs['F-NEG']] = self.scale_n(f1) +\
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
         if self.t in epochs['f2']:
-            u[self.inputs['F-POS']] = self.scale_p(f2) +\
+            obs[self.inputs['F-POS']] = self.scale_p(f2) +\
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
-            u[self.inputs['F-NEG']] = self.scale_n(f2) +\
+            obs[self.inputs['F-NEG']] = self.scale_n(f2) +\
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
 
         # -------------------------------------------------------------------------
-
-        return u, reward, status
+        done = False  # TODO
+        return obs, reward, done, status
 
     def reset(self):
         self.trial = self.get_condition(self.rng, self.dt)

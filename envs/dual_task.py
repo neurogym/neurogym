@@ -12,7 +12,7 @@ import ngym
 from gym import spaces
 
 
-class dual_task(ngym.ngym):
+class DualTask(ngym.ngym):
     def __init__(self, exp_dur=1e5, dt=0.2, td=16.4, gng_time=4.,
                  bt_tr_time=0.6, dpa_st=1., dpa_d=1., dpa_resp=0.4,
                  gng_st=0.6, gng_d=0.6, gng_resp=0.4,
