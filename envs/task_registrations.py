@@ -33,3 +33,11 @@ register(
     max_episode_steps=100000,
     reward_threshold=90.0,
 )
+
+
+register(
+    id='RDM-v0',
+    entry_point='rdm:RDM',
+    max_episode_steps=100000,
+    reward_threshold=90.0,
+)

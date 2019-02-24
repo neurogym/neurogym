@@ -1,6 +1,8 @@
 import gym
 import sys
+import numpy as np
 import task_registrations
+import matplotlib.pyplot as plt
 
 env = gym.make(sys.argv[1])
 
@@ -14,3 +16,7 @@ for stp in range(int(sys.argv[2])):
 #    print(status)
 #    print(rew)
     # print(info)
+obs = np.array(observations)
+plt.figure()
+plt.imshow(obs.T, aspect='auto')
+plt.show()
