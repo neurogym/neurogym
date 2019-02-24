@@ -17,7 +17,7 @@ class Priors(ngym.ngym):
     previous choice is parametrized
     """
     def __init__(self, dt=0.1, trial_dur=5, exp_dur=10**4, rep_prob=(.2, .8),
-                 rewards=(0.1, -0.1, 1.0, -1.0), block_dur=200, stim_ev=0.5):
+                 rewards=(0., -0.1, 1.0, -1.0), block_dur=200, stim_ev=0.5):
         # call ngm __init__ function
         super().__init__(dt=dt)
 

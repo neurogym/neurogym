@@ -7,39 +7,35 @@ Created on Mon Oct 15 11:47:40 2018
 """
 import numpy as np
 import itertools
-import tasks
-import data
 import sys
-import matplotlib.pyplot as plt
-import matplotlib
-# parameters for figures
-left = 0.125  # the left side of the subplots of the figure
-right = 0.9    # the right side of the subplots of the figure
-bottom = 0.1   # the bottom of the subplots of the figure
-top = 0.9      # the top of the subplots of the figure
-wspace = 0.4   # the amount of width reserved for blank space between subplots
-hspace = 0.4   # the amount of height reserved for white space between subplots
-line_width = 2
+import ngym
+from gym import spaces
 
 
-class dual_task(tasks.task):
-    def __init__(self, update_net_step=100,
-                 Dt=0.2, td=16.4, gng_time=4., bt_tr_time=0.6,
-                 dpa_st=1., dpa_d=1., dpa_resp=0.4,
+class dual_task(ngym.ngym):
+    def __init__(self, exp_dur=1e5, dt=0.2, td=16.4, gng_time=4.,
+                 bt_tr_time=0.6, dpa_st=1., dpa_d=1., dpa_resp=0.4,
                  gng_st=0.6, gng_d=0.6, gng_resp=0.4,
-                 rewards=(-0.1, 0.0, 1.0, -1.0),
-                 bg_noise=.01, perc_noise=0.1,
-                 folder='', block_dur=200, do_gng_task=True):
+                 rewards=(-0.1, 0.0, 1.0, -1.0), bg_noise=.01,
+                 perc_noise=0.1, block_dur=1e3, do_gng_task=True):
         # call the __init__ function from the super-class
-        super().__init__(trial_duration=int(td/Dt),
-                         update_net_step=update_net_step,
-                         rewards=rewards, folder=folder)
+        super().__init__(dt=dt)
+
+        # experiment duration
+        self.exp_dur = exp_dur
 
         # Actions are always 2: GO/NO-GO
         self.num_actions = 2
 
+        # action space
+        self.action_space = spaces.Discrete(self.num_actions)
+        # observation space
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(6, 1),
+                                            dtype=np.float32)
+
         # stimuli identity: matching pairs are [0, 4] and [1, 5],
         # 2 and 3 are go and no-go respectivelly
+        # TODO: revisit. Make eacch stimulus linear combination of all others?
         self.stims = np.array([0, 2, 1, 5, 3, 4]).reshape(3, 2)
 
         # independent background noise
@@ -58,28 +54,26 @@ class dual_task(tasks.task):
         # of response window. The first stim. for DPA task is presented at 0
         # and the second at trial_duration
         eps = sys.float_info.epsilon
-        self.gng_t = int((gng_time+eps)/Dt)
+        self.gng_t = int((gng_time+eps)/dt)
 
         # duration (in trials) of blocks for the task rule
         self.block_dur = block_dur
 
         # stims duration
-        self.gng_st = int((gng_st+eps)/Dt)
-        self.dpa_st = int((dpa_st+eps)/Dt)
+        self.gng_st = int((gng_st+eps)/dt)
+        self.dpa_st = int((dpa_st+eps)/dt)
 
         # delays after gng and dpa tasks
-        self.gng_d = int((gng_d+eps)/Dt)
-        self.dpa_d = int((dpa_d+eps)/Dt)
+        # TODO: make dpa2 time random?
+        self.gng_d = int((gng_d+eps)/dt)
+        self.dpa_d = int((dpa_d+eps)/dt)
 
         # response time
-        self.gng_resp = int((gng_resp+eps)/Dt)
-        self.dpa_resp = int((dpa_resp+eps)/Dt)
+        self.gng_resp = int((gng_resp+eps)/dt)
+        self.dpa_resp = int((dpa_resp+eps)/dt)
 
         # between trials time
-        self.bt_tr_time = int((bt_tr_time+eps)/Dt)
-
-        # time corresponding to a single step (s)
-        self.Dt = Dt
+        self.bt_tr_time = int((bt_tr_time+eps)/dt)
 
         # rule: first element corresponds to which element will be
         # associated with GO in the go/no-go task
@@ -92,41 +86,53 @@ class dual_task(tasks.task):
 
         self.current_rule = self.rules[self.rule_block_counter]
 
-        # SAVED PARAMETERS AT THE END OF THE TRIAL
-        # reward
-        self.reward_mat = []
+    def step(self, action, net_state=[]):
+        """
+        receives an action and returns a new observation, a reward, a flag
+        variable indicating whether to reset and some relevant info
+        """
+        # this is whether the RNN does well the dpa task.
+        correct_dpa = False
+        correct_gng = False
+        reward = 0
+        # checking periods
+        gng, dpa, end_gng_flg, end_dpa_flg =\
+            response_periods(self.t_stp, self.gng_t, self.gng_st,
+                             self.gng_d, self.gng_resp, self.dpa_st,
+                             self.dpa_d, self.dpa_resp,
+                             self.bt_tr_time, self.td)
+        # check go/no-go task
+        if gng and self.do_gng_task and self.gng_flag:
+            correct_gng, self.gng_flag =\
+                rew_deliv_control(self.true[0], action)
+            self.correct_gng = correct_gng
+        # check dpa task
+        elif dpa and self.dpa_flag:
+            correct_dpa, self.dpa_flag =\
+                rew_deliv_control(self.true[1], action)
+            self.correct_dpa = correct_dpa
+        elif end_gng_flg:
+            reward = self.rewards[2+1*(not self.correct_gng)]
+        elif end_dpa_flg:
+            reward = self.rewards[2+1*(not self.correct_dpa)]
+        else:
+            if action != 0:
+                reward = self.rewards[0]
+            else:
+                reward = self.rewards[1]
 
-        # performance
-        self.perf_mat = []
+        new_trial = self.td == self.t_stp
+        if new_trial:
+            new_state = self._new_trial()
+            # check if it is time to update the network
+            done = self.num_tr >= self.exp_dur
+        else:
+            new_state = self._get_state()
 
-        # duration of trial
-        self.dur_tr = []
+        info = {}  # TODO
+        return new_state, reward, done, info
 
-        # stimuli presented
-        self.stms_conf = []
-
-        # current task rule
-        self.rule_mat = []
-
-        # summed activity across the trial
-        self.net_smmd_act = []
-
-        # point by point parameter mats saved for some trials
-        self.all_pts_data = data.data(folder=folder)
-
-        # save all points step. Here I call the class data that
-        # implements all the necessary functions
-        self.sv_pts_stp = 50
-        self.num_tr_svd = 100
-        self.sv_tr_stp = 5000
-
-        # plot trial events
-        try:
-            self.plot_trial()
-        except IOError:
-            print('could not save the figure')
-
-    def get_state(self):
+    def _get_state(self):
         """
         get_state returns the corresponding state
         needs to check the go/no-go events to know whether to present a
@@ -150,10 +156,8 @@ class dual_task(tasks.task):
         if stim == -1:
             aux = np.random.uniform(low=0., high=self.bg_noise, size=(6,))
         else:
-            aux = np.random.normal(stim, self.perc_noise,
-                                   size=(int(100*self.Dt),))
-            aux = np.histogram(aux, bins=np.arange(7)-0.5)[0]
-            aux = aux/np.sum(aux)
+            aux = np.random.uniform(low=0., high=self.bg_noise, size=(6,))
+            aux[stim] += 1.
 
         self.state = aux
         # reshape
@@ -161,7 +165,7 @@ class dual_task(tasks.task):
 
         return self.state
 
-    def new_trial(self):
+    def _new_trial(self):
         """
         new trial: reset the timesteps and increment the number of trials
         """
@@ -208,137 +212,6 @@ class dual_task(tasks.task):
                                      stim_conf=int_st_aux)
 
         return s
-
-    def pullArm(self, action, net_state=[]):
-        """
-        receives an action and returns a reward, a state and flag
-        variables that indicate whether to start a new trial
-        and whether to update the network
-        """
-        trial_dur = 0
-        # this is whether the RNN does well the dpa task.
-        correct_dpa = False
-        correct_gng = False
-        update_net = False
-        reward = 0
-        # checking periods
-        gng, dpa, end_gng_flg, end_dpa_flg =\
-            response_periods(self.t_stp, self.gng_t, self.gng_st,
-                             self.gng_d, self.gng_resp, self.dpa_st,
-                             self.dpa_d, self.dpa_resp,
-                             self.bt_tr_time, self.td)
-        # check go/no-go task
-        if gng and self.do_gng_task and self.gng_flag:
-            correct_gng, self.gng_flag =\
-                rew_deliv_control(self.true[0], action)
-            self.correct_gng = correct_gng
-        # check dpa task
-        elif dpa and self.dpa_flag:
-            correct_dpa, self.dpa_flag =\
-                rew_deliv_control(self.true[1], action)
-            self.correct_dpa = correct_dpa
-        elif end_gng_flg:
-            reward = self.rewards[2+1*(not self.correct_gng)]
-        elif end_dpa_flg:
-            reward = self.rewards[2+1*(not self.correct_dpa)]
-        else:
-            if action != 0:
-                reward = self.rewards[0]
-            else:
-                reward = self.rewards[1]
-
-        new_trial = self.td == self.t_stp
-        if new_trial:
-            # current trial info
-            self.dur_tr.append(trial_dur)
-            self.perf_mat.append([self.correct_gng, self.correct_dpa])
-            self.reward_mat.append(reward)
-            new_state = None
-
-            # check if it is time to update the network
-            update_net = ((self.num_tr-1) % self.update_net_step == 0) and\
-                (self.num_tr != 1)
-
-            # point by point parameter mats saved for some periods
-            aux = np.floor(self.num_tr / self.num_tr_svd)
-            if aux % self.sv_pts_stp == 0:
-                self.all_pts_data.update(net_state=net_state, reward=reward,
-                                         update_net=update_net,
-                                         action=action,
-                                         correct=[correct_gng, correct_dpa])
-
-            # during some episodes I save all data points
-            aux = np.floor((self.num_tr-1)/self.num_tr_svd)
-            aux2 = np.floor(self.num_tr/self.num_tr_svd)
-            if aux % self.sv_pts_stp == 0 and\
-               aux2 % self.sv_pts_stp == 1:
-                self.all_pts_data.save(self.num_tr)
-                self.all_pts_data.reset()
-
-        else:
-            new_state = self.get_state()
-            # during some episodes I save all data points
-            aux = np.floor(self.num_tr/self.num_tr_svd)
-            if aux % self.sv_pts_stp == 0:
-                conf_aux = self.stms_conf[self.num_tr-1]
-                corr_aux = [correct_gng, correct_dpa]
-                self.all_pts_data.update(new_state=new_state,
-                                         net_state=net_state,
-                                         reward=reward,
-                                         update_net=update_net,
-                                         action=action,
-                                         correct=corr_aux,
-                                         new_trial=new_trial,
-                                         num_trials=self.num_tr,
-                                         stim_conf=conf_aux)
-
-        return new_state, reward, update_net, new_trial
-
-    def save_trials_data(self):
-        # Periodically save model trials statistics.
-        if self.num_tr % self.sv_tr_stp == 0:
-            data = {'trial_duration': self.dur_tr,
-                    'stims_conf': self.stms_conf, 'rule': self.rule_mat,
-                    'net_smmd_act': self.net_smmd_act,
-                    'reward': self.reward_mat, 'performance': self.perf_mat}
-            np.savez(self.folder + '/trials_stats_' + str(self.num_tr) +
-                     '.npz', **data)
-
-    def plot_trial(self):
-        task = np.zeros((3, self.td))
-        x_ticks = []
-        x_ticks_labels = []
-        prev_st = [0, 0, 0]
-        for ind_t in range(1, self.td+1):
-            dpa_st1, gng_st, dpa_st2 =\
-                stim_periods(ind_t, self.gng_t, self.gng_st, self.dpa_st,
-                             self.dpa_d, self.dpa_resp, self.bt_tr_time,
-                             self.td)
-            gng_resp, dpa_resp, gng_end, dpa_end =\
-                response_periods(ind_t, self.gng_t,
-                                 self.gng_st, self.gng_d, self.gng_resp,
-                                 self.dpa_st, self.dpa_d, self.dpa_resp,
-                                 self.bt_tr_time, self.td)
-            # current state
-            curr_st = [gng_st, 2*(dpa_st1 + dpa_st2), 3*(gng_resp + dpa_resp)]
-            task[0, ind_t-1] = curr_st[0]
-            task[1, ind_t-1] = curr_st[1]
-            task[2, ind_t-1] = curr_st[2]
-            # store relevant time stamps
-            if (curr_st != prev_st):
-                x_ticks.append(ind_t-1.5)
-                x_ticks_labels.append(str(ind_t-1))
-            prev_st = curr_st
-
-        f = plt.figure(figsize=(8, 10), dpi=250)
-        matplotlib.rcParams.update({'font.size': 8})
-        plt.subplots_adjust(left=left, bottom=bottom, right=right,
-                            top=top, wspace=wspace, hspace=hspace)
-        plt.imshow(task)
-        plt.yticks([0, 1, 2], ['GNG', 'DPA', 'resp. w.'])
-        plt.xticks(x_ticks, x_ticks_labels)
-        f.savefig(self.folder[:self.folder.find('trains')] + '/protocol.svg',
-                  dpi=600, bbox_inches='tight')
 
 # STIMULUS AND REWARD PERIODS
 
@@ -395,75 +268,3 @@ def gng_r(gng_t, gng_st, gng_d, gng_resp):
     start_gng_resp = gng_t+gng_st+gng_d
     end_gng_resp = gng_t+gng_st+gng_d+gng_resp
     return start_gng_resp, end_gng_resp
-
-
-if __name__ == '__main__':
-    plt.close('all')
-    inst = 0
-    exp_dur = int(2.5*10**4)
-    gamma = .9
-    update_net_step = 2
-    Dt = 0.2
-    td = 4.0
-    gng_time = 0.8
-    gng_st = 0.4
-    gng_d = 0.2
-    gng_resp = 0.4
-    dpa_st = 0.6
-    dpa_d = 0.4
-    dpa_resp = 0.4
-    rewards = [-0.1, 0.0, 1.0, -1.0]
-    block_dur = 0
-    num_units = 32
-    bg_noise = 0.001
-    perc_noise = 1.
-    network = 'relu'
-    learning_rate = 0.001
-    do_gng_task = True
-    bt_tr_t = 0.2
-    if block_dur == 0:
-        bd = exp_dur+1
-    else:
-        bd = block_dur
-    task = dual_task(update_net_step=update_net_step,
-                     Dt=Dt, td=td, gng_time=gng_time,
-                     bt_tr_time=bt_tr_t, dpa_st=dpa_st,
-                     dpa_d=dpa_d, dpa_resp=dpa_resp,
-                     gng_st=gng_st, gng_d=gng_d,
-                     gng_resp=gng_resp,
-                     rewards=rewards, bg_noise=bg_noise,
-                     perc_noise=perc_noise,
-                     folder='/home/molano/dual_task_project/',
-                     block_dur=bd, do_gng_task=do_gng_task)
-
-    new_trial = True
-    st_mat = []
-    rew_mat = []
-    conf_mat = []
-    tr_count = -1
-    for ind_stp in range(800):
-        if new_trial:
-            state = task.new_trial()
-            st_mat.append(state[:, :, 0])
-            new_trial = False
-            tr_count += 1
-        else:
-            state, reward, _, new_trial = task.pullArm(0, net_state=[])
-            rew_mat.append(reward)
-            conf_mat.append(task.stms_conf[tr_count])
-            if state is not None:
-                st_mat.append(state[:, :, 0])
-
-    num_steps = 400
-    st_mat = np.array(st_mat)  # np.vstack(
-    shape_aux = (st_mat.shape[0], st_mat.shape[2])
-    st_mat = np.reshape(st_mat, shape_aux)
-    plt.figure(figsize=(8, 4), dpi=250)
-    plt.subplot(3, 1, 1)
-    plt.imshow(st_mat[:num_steps].T, aspect='auto')
-
-    conf_mat = np.array(conf_mat)
-    shape_aux = (conf_mat.shape[0], conf_mat.shape[1])
-    conf_mat = np.reshape(conf_mat, shape_aux)
-    plt.subplot(3, 1, 2)
-    plt.imshow(conf_mat[:num_steps].T, aspect='auto')

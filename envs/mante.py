@@ -21,12 +21,10 @@ class Mante(ngym.ngym):
     """
     Mante task
     """
-
     # Inputs
     inputs = tasktools.to_map('motion', 'color',
                               'm-left', 'm-right',
                               'c-left', 'c-right')
-
     # Actions
     actions = tasktools.to_map('fixate', 'left', 'right')
 
@@ -34,12 +32,6 @@ class Mante(ngym.ngym):
     contexts = ['m', 'c']
     left_rights = [-1, 1]
     cohs = [5, 15, 50]
-
-    # the variables below seem to concern only the training
-    # n_conditions = len(contexts) * (len(left_rights)*len(cohs))**2
-    # Training
-    # n_gradient = n_conditions
-    # n_validation = 50*n_conditions
 
     # Input noise
     sigma = np.sqrt(2*100*0.02)
