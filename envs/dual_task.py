@@ -154,9 +154,9 @@ class DualTask(ngym.ngym):
 
         # if there is no stimulus, present bg noise
         if stim == -1:
-            aux = np.random.uniform(low=0., high=self.bg_noise, size=(6,))
+            aux = self.rng.uniform(low=0., high=self.bg_noise, size=(6,))
         else:
-            aux = np.random.uniform(low=0., high=self.bg_noise, size=(6,))
+            aux = self.rng.uniform(low=0., high=self.bg_noise, size=(6,))
             aux[stim] += 1.
 
         self.state = aux
@@ -182,7 +182,7 @@ class DualTask(ngym.ngym):
 
         # choose a stimulus for each event: 1st stim for DPA task,
         # stim for gng task, 2nd stim for DPA task
-        self.internal_state = np.random.choice([0, 1], (3, 1))
+        self.internal_state = self.rng.choice([0, 1], (3, 1))
 
         # decide the position of the stims
         # if the block is finished change the rule

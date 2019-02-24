@@ -44,7 +44,7 @@ class ngym(gym.Env):
         pass
 
     # Auxiliary functions
-    def seed(self, seed=None):  # TODO: move to superclass?
+    def seed(self, seed=None):  # TODO: what is this function for?
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 

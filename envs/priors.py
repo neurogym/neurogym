@@ -41,9 +41,9 @@ class Priors(ngym.ngym):
         # prob. of repeating the stimuli in the positions of previous trial
         self.rep_prob = rep_prob
         # position of the first stimulus
-        self.stms_pos_new_trial = np.random.choice([0, 1])
+        self.stms_pos_new_trial = self.rng.choice([0, 1])
         # keeps track of the repeating prob of the current block
-        self.curr_rep_prob = np.random.choice([0, 1])
+        self.curr_rep_prob = self.rng.choice([0, 1])
         # initialize ground truth state [stim1 mean, stim2 mean, fixation])
         # the network has to output the action corresponding to the stim1 mean
         # that will be always 1.0 (I just initialize here at 0 for convinience)
@@ -112,8 +112,8 @@ class Priors(ngym.ngym):
         self.t += 1
         # if still in the integration period present a new observation
         if self.t < self.trial_dur:
-            self.state = [np.random.normal(self.int_st[0]),
-                          np.random.normal(self.int_st[1]), -1]
+            self.state = [self.rng.normal(self.int_st[0]),
+                          self.rng.normal(self.int_st[1]), -1]
         else:
             self.state = [0, 0, 0]
 
@@ -133,7 +133,7 @@ class Priors(ngym.ngym):
         self.evidence = 0
         # this are the means of the two stimuli
         stim1 = 1.0
-        stim2 = np.random.uniform(1-self.stim_ev, 1)
+        stim2 = self.rng.uniform(1-self.stim_ev, 1)
         assert stim2 != 1.0
         self.choices = [stim1, stim2]
 
