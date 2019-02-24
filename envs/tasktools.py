@@ -41,6 +41,10 @@ def get_epochs_idx(dt, epochs):
     return t, {k: get_idx(t, v) for k, v in epochs.items() if k != 'tmax'}
 
 
+def uniform(rng, dt, xmin, xmax):
+    return (rng.uniform(xmin, xmax)//dt)*dt
+
+
 def truncated_exponential(rng, dt, mean, xmin=0, xmax=np.inf):
     """
     function for generating epoch durations that are multiples of the time step
@@ -50,6 +54,9 @@ def truncated_exponential(rng, dt, mean, xmin=0, xmax=np.inf):
         if xmin <= x < xmax:
             return (x//dt)*dt
 
+
+def choice(rng, a):
+    return a[rng.choice(len(a))]
 
 def divide(x, y):
     try:
