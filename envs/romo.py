@@ -12,12 +12,8 @@ A parametric working memory task, based on
   http://dx.doi.org/10.1523/JNEUROSCI.1875-10.2010
 
 """
-from __future__ import division
-
 import numpy as np
-
-from pyrl import tasktools
-
+import tasktools
 import ngym
 from gym import spaces
 from gym.utils import seeding
@@ -57,7 +53,7 @@ class Romo(ngym.ngym):
     fmin = np.min(fall)
     fmax = np.max(fall)
 
-    def __init__(self, dt=0.1):
+    def __init__(self, dt=100):
         # call ngm __init__ function
         super().__init__(dt=dt)
         high = np.array([1])
@@ -174,6 +170,21 @@ class Romo(ngym.ngym):
             obs[self.inputs['F-NEG']] = self.scale_n(f2) +\
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
 
+        if self.t-1 in epochs['fixation']:
+            print('fixation')
+        if self.t-1 in epochs['f1']:
+            print('f1')
+        if self.t-1 in epochs['f2']:
+            print('f2')
+        if self.t-1 in epochs['delay']:
+            print('delay')
+        if self.t-1 in epochs['decision']:
+            print('decision')
+        # new trial?
+        if self.t > self.tmax/self.dt:
+            self.reset()
+        else:
+            self.t += 1
         # -------------------------------------------------------------------------
         done = False  # TODO
         return obs, reward, done, status
