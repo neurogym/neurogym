@@ -18,7 +18,7 @@ class ngym(gym.Env):
         super().__init__()
         self.dt = dt  # TODO: revisit, ms or s?
         self.t = 0
-        self.trial = 1
+        self.num_tr = 1
 
     def step(self, action):
         """

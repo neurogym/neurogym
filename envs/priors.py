@@ -50,8 +50,6 @@ class Priors(ngym.ngym):
         self.int_st = np.array([0, 0, -1])
         # accumulated evidence
         self.evidence = 0
-        # number of trials
-        self.num_tr = 0
         # action space
         self.action_space = spaces.Discrete(3)
         # observation space
