@@ -41,3 +41,10 @@ register(
     max_episode_steps=100000,
     reward_threshold=90.0,
 )
+
+register(
+    id='padoaSch-v0',
+    entry_point='padoa_sch:PadoaSch',
+    max_episode_steps=100000,
+    reward_threshold=90.0,
+)
