@@ -57,9 +57,9 @@ class Mante(ngym.ngym):
     def __init__(self, dt=50):
         # call ngm __init__ function
         super().__init__(dt=dt)
-        high = np.array([1])
         self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(-high, high, dtype=np.float32)
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(6, ),
+                                            dtype=np.float32)
 
         self.seed()
         self.viewer = None

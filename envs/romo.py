@@ -55,9 +55,9 @@ class Romo(ngym.ngym):
     def __init__(self, dt=100):
         # call ngm __init__ function
         super().__init__(dt=dt)
-        high = np.array([1])
         self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(-high, high, dtype=np.float32)
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3, ),
+                                            dtype=np.float32)
 
         self.seed()
         self.viewer = None
@@ -169,7 +169,7 @@ class Romo(ngym.ngym):
                                                       self.dt,
                                                       status['continue'],
                                                       self.R_ABORTED,
-                                                      self.num_tr%1000,
+                                                      self.num_tr % 1000,
                                                       self.perf,
                                                       reward)
         return obs, reward, done, status
