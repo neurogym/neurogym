@@ -88,10 +88,12 @@ def new_trial(t, tmax, dt, status, R_ABORTED, num_tr, perf, reward):
     if t > tmax/dt and status:
         reward = R_ABORTED
         done = True
-        perf += (reward - perf)/num_tr
+        if num_tr != 0:
+            perf += (reward - perf)/num_tr
     elif not status:
         done = True
-        perf += (reward - perf)/num_tr
+        if num_tr != 0:
+            perf += (reward - perf)/num_tr
     else:
         t += 1
     return done, t, perf
