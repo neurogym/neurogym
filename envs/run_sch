@@ -1,5 +1,5 @@
-python -m baselines.run --alg=a2c --env=RDM-v0 --network=lstm
-python -m baselines.run --alg=a2c --env=Romo-v0 --network=lstm
-python -m baselines.run --alg=a2c --env=Mante-v0 --network=lstm
-python -m baselines.run --alg=a2c --env=padoaSch-v0 --network=lstm
-python -m baselines.run --alg=a2c --env=pdWager-v0 --network=lstm
+python -m baselines.run --alg=a2c --env=RDM-v0 --network=lstm --num_timesteps=1e4
+python -m baselines.run --alg=a2c --env=Romo-v0 --network=lstm --num_timesteps=1e4
+python -m baselines.run --alg=a2c --env=Mante-v0 --network=lstm --num_timesteps=1e4
+python -m baselines.run --alg=a2c --env=padoaSch-v0 --network=lstm --num_timesteps=1e4
+python -m baselines.run --alg=a2c --env=pdWager-v0 --network=lstm --num_timesteps=1e4
