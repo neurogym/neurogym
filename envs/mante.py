@@ -203,11 +203,6 @@ class Mante(ngym.ngym):
 
         return obs, reward, done, {}
 
-    def reset(self):
-        trial = self._new_trial(self.rng, self.dt)
-        self.trial = trial
-        self.t = 0
-
     def render(self, mode='human'):
         raise NotImplementedError
 
