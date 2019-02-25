@@ -20,8 +20,9 @@ class ngym(gym.Env):
         super().__init__()
         self.dt = dt  # TODO: revisit, ms or s?
         self.t = 0
-        self.num_tr = 1
+        self.num_tr = 0
         self.rng = np.random.RandomState(seed=0)
+        self.perf = 0
 
     def step(self, action):
         """
@@ -36,6 +37,8 @@ class ngym(gym.Env):
         restarts the experiment with the same parameters
         """
         print('reset --------------------------')
+        print('mean performnace: ' + str(self.perf))
+        self.num_tr += 1
         self.trial = self._new_trial(self.rng, self.dt)
         self.t = 0
         obs, _, _, _ = self.step(self.action_space.sample())

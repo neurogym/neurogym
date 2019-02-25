@@ -162,11 +162,17 @@ class RDM(ngym.ngym):
 
         # ---------------------------------------------------------------------
         # new trial?
-        if self.t > self.tmax/self.dt:
-            self.reset()
+        done = False
+        if self.t > self.tmax/self.dt and status['continue']:
+            reward = self.R_ABORTED
+            done = True
+            self.perf += (reward - self.perf)/self.num_tr
+        elif not status['continue']:
+            done = True
+            self.perf += (reward - self.perf)/self.num_tr
         else:
             self.t += 1
-        done = False  # TODO
+
         return obs, reward, done, status
 
     def terminate(perf):
