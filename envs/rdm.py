@@ -33,11 +33,6 @@ class RDM(ngym.ngym):
     # Trial conditions
     left_rights = [-1, 1]
     cohs = [0, 6.4, 12.8, 25.6, 51.2]
-    n_conditions = len(left_rights)*len(cohs)
-
-    # Training
-    n_gradient = n_conditions
-    n_validation = 100*n_conditions
 
     # Input noise
     sigma = np.sqrt(2*100*0.01)
@@ -166,7 +161,8 @@ class RDM(ngym.ngym):
                                                       self.dt,
                                                       status['continue'],
                                                       self.R_ABORTED,
-                                                      self.num_tr, self.perf,
+                                                      self.num_tr % 1000,
+                                                      self.perf,
                                                       reward)
 
         return obs, reward, done, status

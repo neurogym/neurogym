@@ -38,6 +38,7 @@ class ngym(gym.Env):
         """
         if self.num_tr % 1000 == 0:
             print('mean performnace: ' + str(self.perf))
+            self.perf = 0
         self.num_tr += 1
         self.trial = self._new_trial(self.rng, self.dt)
         self.t = 0

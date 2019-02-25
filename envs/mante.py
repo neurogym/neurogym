@@ -148,7 +148,8 @@ class Mante(ngym.ngym):
                                                       self.dt,
                                                       status['continue'],
                                                       self.R_ABORTED,
-                                                      self.num_tr, self.perf,
+                                                      self.num_tr % 1000,
+                                                      self.perf,
                                                       reward)
         return obs, reward, done, status
 
