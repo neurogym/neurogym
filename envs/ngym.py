@@ -23,6 +23,7 @@ class ngym(gym.Env):
         self.num_tr = 0
         self.rng = np.random.RandomState(seed=0)
         self.perf = 0
+        self.p_stp = 10000
 
     def step(self, action):
         """
@@ -36,7 +37,7 @@ class ngym(gym.Env):
         """
         restarts the experiment with the same parameters
         """
-        if self.num_tr % 1000 == 0:
+        if self.num_tr % self.perf_stp == 0:
             print('mean performnace: ' + str(self.perf))
             self.perf = 0
         self.num_tr += 1

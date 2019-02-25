@@ -169,7 +169,7 @@ class Romo(ngym.ngym):
                                                       self.dt,
                                                       status['continue'],
                                                       self.R_ABORTED,
-                                                      self.num_tr % 1000,
+                                                      self.num_tr % self.p_stp,
                                                       self.perf,
                                                       reward)
 
