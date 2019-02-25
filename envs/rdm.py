@@ -56,9 +56,9 @@ class RDM(ngym.ngym):
 
     def __init__(self, dt=100):
         super().__init__(dt=dt)
-        high = np.array([1])
         self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(-high, high, dtype=np.float32)
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3, ),
+                                            dtype=np.float32)
 
         self.seed()
         self.viewer = None
@@ -161,7 +161,6 @@ class RDM(ngym.ngym):
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
 
         # ---------------------------------------------------------------------
-
         # new trial?
         if self.t > self.tmax/self.dt:
             self.reset()
@@ -169,10 +168,6 @@ class RDM(ngym.ngym):
             self.t += 1
         done = False  # TODO
         return obs, reward, done, status
-
-    def reset(self):
-        self.trial = self._new_trial(self.rng, self.dt)
-        self.t = 0
 
     def terminate(perf):
         p_decision, p_correct = tasktools.correct_2AFC(perf)

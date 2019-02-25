@@ -35,7 +35,11 @@ class ngym(gym.Env):
         """
         restarts the experiment with the same parameters
         """
-        pass
+        print('reset --------------------------')
+        self.trial = self._new_trial(self.rng, self.dt)
+        self.t = 0
+        obs, _, _, _ = self.step(self.action_space.sample())
+        return obs
 
     def render(self, mode='human'):
         """
