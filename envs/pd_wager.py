@@ -217,11 +217,12 @@ class PDWager(ngym.ngym):
         # ---------------------------------------------------------------------
 
         # new trial?
-        if self.t > self.tmax/self.dt:
-            self.reset()
-        else:
-            self.t += 1
-        done = False  # TODO
+        done, self.t, self.perf = tasktools.new_trial(self.t, self.tmax,
+                                                      self.dt,
+                                                      status['continue'],
+                                                      self.R_ABORTED,
+                                                      self.num_tr, self.perf,
+                                                      reward)
         return obs, reward, done, status
 
     def terminate(perf):

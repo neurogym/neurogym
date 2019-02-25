@@ -58,6 +58,7 @@ def truncated_exponential(rng, dt, mean, xmin=0, xmax=np.inf):
 def choice(rng, a):
     return a[rng.choice(len(a))]
 
+
 def divide(x, y):
     try:
         z = x/y
@@ -76,3 +77,18 @@ def correct_2AFC(perf):
     p_correct = divide(perf.n_correct, perf.n_decision)
 
     return p_decision, p_correct
+
+
+def new_trial(t, tmax, dt, status, R_ABORTED, num_tr, perf, reward):
+    # new trial?
+    done = False
+    if t > tmax/dt and status:
+        reward = R_ABORTED
+        done = True
+        perf += (reward - perf)/num_tr
+    elif not status:
+        done = True
+        perf += (reward - perf)/num_tr
+    else:
+        t += 1
+    return done, t, perf

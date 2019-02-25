@@ -36,8 +36,8 @@ class ngym(gym.Env):
         """
         restarts the experiment with the same parameters
         """
-        print('reset --------------------------')
-        print('mean performnace: ' + str(self.perf))
+        if self.num_tr % 1000 == 0:
+            print('mean performnace: ' + str(self.perf))
         self.num_tr += 1
         self.trial = self._new_trial(self.rng, self.dt)
         self.t = 0

@@ -164,23 +164,13 @@ class Romo(ngym.ngym):
             obs[self.inputs['F-NEG']] = self.scale_n(f2) +\
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
 
-        if self.t-1 in epochs['fixation']:
-            print('fixation')
-        if self.t-1 in epochs['f1']:
-            print('f1')
-        if self.t-1 in epochs['f2']:
-            print('f2')
-        if self.t-1 in epochs['delay']:
-            print('delay')
-        if self.t-1 in epochs['decision']:
-            print('decision')
         # new trial?
-        if self.t > self.tmax/self.dt:
-            self.reset()
-        else:
-            self.t += 1
-        # -------------------------------------------------------------------------
-        done = False  # TODO
+        done, self.t, self.perf = tasktools.new_trial(self.t, self.tmax,
+                                                      self.dt,
+                                                      status['continue'],
+                                                      self.R_ABORTED,
+                                                      self.num_tr, self.perf,
+                                                      reward)
         return obs, reward, done, status
 
     def reset(self):
