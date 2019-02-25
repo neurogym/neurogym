@@ -193,11 +193,6 @@ class PadoaSch(ngym.ngym):
                                                       reward)
         return obs, reward, done, status
 
-    def reset(self):
-        trial = self._new_trial(self.rng, self.dt)
-        self.trial = trial
-        self.t = 0
-
     def terminate(perf):
         p_decision, p_correct = tasktools.correct_2AFC(perf)
 

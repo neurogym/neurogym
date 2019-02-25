@@ -172,11 +172,8 @@ class Romo(ngym.ngym):
                                                       self.num_tr % 1000,
                                                       self.perf,
                                                       reward)
-        return obs, reward, done, status
 
-    def reset(self):
-        self.trial = self._new_trial(self.rng, self.dt)
-        self.t = 0
+        return obs, reward, done, status
 
     def terminate(perf):
         p_decision, p_correct = tasktools.correct_2AFC(perf)
