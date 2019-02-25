@@ -80,6 +80,9 @@ def correct_2AFC(perf):
 
 
 def new_trial(t, tmax, dt, status, R_ABORTED, num_tr, perf, reward):
+    """
+    check whether a new trial should be started
+    """
     # new trial?
     done = False
     if t > tmax/dt and status:
