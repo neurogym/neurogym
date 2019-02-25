@@ -12,11 +12,11 @@ import ngym
 from gym import spaces
 
 
-class DualTask(ngym.ngym):
+class DualTask(ngym.ngym):  # TODO: task does not stop when breaking fixation
     def __init__(self, exp_dur=1e5, dt=0.2, td=16.4, gng_time=4.,
                  bt_tr_time=0.6, dpa_st=1., dpa_d=1., dpa_resp=0.4,
                  gng_st=0.6, gng_d=0.6, gng_resp=0.4,
-                 rewards=(-0.1, 0.0, 1.0, -1.0), bg_noise=.01,
+                 rewards=(0., -0.1, 1.0, -1.0), bg_noise=.01,
                  perc_noise=0.1, block_dur=1e3, do_gng_task=True):
         # call the __init__ function from the super-class
         super().__init__(dt=dt)
@@ -32,7 +32,8 @@ class DualTask(ngym.ngym):
         # observation space
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(6, 1),
                                             dtype=np.float32)
-
+        # rewards given for: fixating, stop fixating, correct, wrong
+        self.rewards = rewards
         # stimuli identity: matching pairs are [0, 4] and [1, 5],
         # 2 and 3 are go and no-go respectivelly
         # TODO: revisit. Make eacch stimulus linear combination of all others?
@@ -116,7 +117,7 @@ class DualTask(ngym.ngym):
         elif end_dpa_flg:
             reward = self.rewards[2+1*(not self.correct_dpa)]
         else:
-            if action != 0:
+            if action == 0:
                 reward = self.rewards[0]
             else:
                 reward = self.rewards[1]
