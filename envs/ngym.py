@@ -37,12 +37,9 @@ class ngym(gym.Env):
         """
         restarts the experiment with the same parameters
         """
-        if self.num_tr % self.p_stp == 0:
-            print('mean performnace: ' + str(self.perf))
-            self.perf = 0
-        self.num_tr += 1
-        self.trial = self._new_trial(self.rng, self.dt)
+        self.num_tr = 1
         self.t = 0
+        self.trial = self._new_trial(self.rng, self.dt)
         obs, _, _, _ = self.step(self.action_space.sample())
         return obs
 

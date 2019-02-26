@@ -79,21 +79,26 @@ def correct_2AFC(perf):
     return p_decision, p_correct
 
 
-def new_trial(t, tmax, dt, status, R_ABORTED, num_tr, perf, reward):
+def new_trial(t, tmax, dt, status, R_ABORTED, num_tr, perf, reward, p_stp):
     """
     check whether a new trial should be started
     """
     # new trial?
-    done = False
+    new_trial = False
     if t > tmax/dt and status:
         reward = R_ABORTED
-        done = True
-        if num_tr != 0:
-            perf += (reward - perf)/num_tr
+        new_trial = True
     elif not status:
-        done = True
-        if num_tr != 0:
-            perf += (reward - perf)/num_tr
+        new_trial = True
     else:
         t += 1
-    return done, t, perf
+
+    if new_trial:
+        if num_tr % p_stp == 0:
+            print('mean performnace: ' + str(perf))
+            perf = 0
+        else:
+            perf += (reward - perf)/(num_tr % p_stp)
+        num_tr += 1
+        t = 0
+    return new_trial, t, perf, num_tr
