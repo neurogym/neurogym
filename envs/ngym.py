@@ -37,6 +37,8 @@ class ngym(gym.Env):
         """
         restarts the experiment with the same parameters
         """
+        print('mean performnace: ' + str(self.perf))
+        self.perf = 0
         self.num_tr = 1
         self.t = 0
         self.trial = self._new_trial(self.rng, self.dt)
