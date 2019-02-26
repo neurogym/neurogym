@@ -165,6 +165,8 @@ class RDM(ngym.ngym):
         if new_trial:
             self.trial = self._new_trial(self.rng, self.dt)
         done = False  # TODO: revisit
+        print(self.t)
+        print(self.num_tr)
         return obs, reward, done, status
 
     def terminate(perf):
