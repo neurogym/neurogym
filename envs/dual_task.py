@@ -5,19 +5,56 @@ Created on Mon Oct 15 11:47:40 2018
 
 @author: molano
 """
-import numpy as np
-import itertools
 import sys
-import ngym
+import itertools
+
+import numpy as np
 from gym import spaces
+
+import ngym
 
 
 class DualTask(ngym.ngym):  # TODO: task does not stop when breaking fixation
-    def __init__(self, exp_dur=1e5, dt=0.2, td=16.4, gng_time=4.,
-                 bt_tr_time=0.6, dpa_st=1., dpa_d=1., dpa_resp=0.4,
-                 gng_st=0.6, gng_d=0.6, gng_resp=0.4,
-                 rewards=(0., -0.1, 1.0, -1.0), bg_noise=.01,
-                 perc_noise=0.1, block_dur=1e3, do_gng_task=True):
+    def __init__(
+            self,
+            dt=0.2,
+            exp_dur=1e5,
+            block_dur=1e3,
+            td=16.4,
+            bt_tr_time=0.6,
+            dpa_st=1.,
+            dpa_d=1.,
+            dpa_resp=0.4,
+            do_gng_task=True,
+            gng_time=4.,
+            gng_st=0.6,
+            gng_d=0.6,
+            gng_resp=0.4,
+            rewards=(0., -0.1, 1.0, -1.0),
+            bg_noise=.01,
+            perc_noise=0.1
+    ):
+        """The dual stimulus task.
+
+        From https://www.biorxiv.org/content/10.1101/385393v1 by Cheng-Yu Li.
+
+        Args:
+            dt: float, dt
+            exp_dur: float, experiment duration
+            block_dur: float, block duration (s)
+            td: float, ??
+            bt_tr_time: float, ??
+            dpa_st: float, ??
+            dpa_resp: float, ??
+            do_gng_task: bool, if True, do the Go/No-go task
+            gng_time: float, ??
+            gng_st: float, ??
+            gng_d: float, ??
+            gng_resp: float, ??
+            rewads: set, ??
+            bg_noise: float, background noise level
+            perc_noise: float, perceptual noise level
+        """
         # call the __init__ function from the super-class
         super().__init__(dt=dt)
 
@@ -134,9 +171,9 @@ class DualTask(ngym.ngym):  # TODO: task does not stop when breaking fixation
         return new_state, reward, done, info
 
     def _get_state(self):
-        """
-        get_state returns the corresponding state
-        needs to check the go/no-go events to know whether to present a
+        """Returns the corresponding state.
+
+        Needs to check the go/no-go events to know whether to present a
         stimulus or just noise
         """
         self.t_stp += 1
@@ -226,6 +263,7 @@ def rew_deliv_control(gt, action):
 def stim_periods(t_stp,
                  gng_t, gng_st, dpa_st, dpa_d, dpa_resp,
                  bt_tr_time, td):
+    """Get the stimulus periods."""
     # first dpa stim period
     dpa_1 = 1 <= t_stp <= dpa_st
     # gng stim period
@@ -240,6 +278,14 @@ def stim_periods(t_stp,
 
 def response_periods(t_stp, gng_t, gng_st, gng_d, gng_resp,
                      dpa_st, dpa_d, dpa_resp, bt_tr_time, td):
+    """Get the response periods.
+
+    Returns:
+        gng: bool, True if t_stp is in Go/No-go period
+        dpa: bool, True if in DPA period
+        end_gng_flg: ??
+        end_dpa_flg: ??
+    """
     start_gng_resp, end_gng_resp = gng_r(gng_t, gng_st, gng_d, gng_resp)
     gng = start_gng_resp < t_stp <= end_gng_resp
     #
@@ -252,6 +298,7 @@ def response_periods(t_stp, gng_t, gng_st, gng_d, gng_resp,
 
 
 def dpa2_stim(dpa_st, dpa_d, dpa_resp, bt_tr_time, td):
+    """DPA stimulus period."""
     last_periods = dpa_st+dpa_d+dpa_resp+bt_tr_time
     dpa_2_st = td-last_periods
     dpa_2_end = td-last_periods + dpa_st
@@ -259,6 +306,7 @@ def dpa2_stim(dpa_st, dpa_d, dpa_resp, bt_tr_time, td):
 
 
 def dpa2_r(dpa_resp, bt_tr_time, td):
+    """DPA response period."""
     last_periods = dpa_resp+bt_tr_time
     start_dpa_resp = td-last_periods
     end_dpa_resp = td-last_periods + dpa_resp
@@ -266,6 +314,7 @@ def dpa2_r(dpa_resp, bt_tr_time, td):
 
 
 def gng_r(gng_t, gng_st, gng_d, gng_resp):
+    """Go/No-go response period."""
     start_gng_resp = gng_t+gng_st+gng_d
     end_gng_resp = gng_t+gng_st+gng_d+gng_resp
     return start_gng_resp, end_gng_resp
