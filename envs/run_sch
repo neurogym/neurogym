@@ -1,5 +1,7 @@
-python -m baselines.run --alg=a2c --env=RDM-v0 --network=lstm --num_timesteps=1e6 > rdm.out
-python -m baselines.run --alg=a2c --env=Romo-v0 --network=lstm --num_timesteps=1e6 > romo.out
-python -m baselines.run --alg=a2c --env=Mante-v0 --network=lstm --num_timesteps=1e6 > mante.out
-python -m baselines.run --alg=a2c --env=padoaSch-v0 --network=lstm --num_timesteps=1e6 > padoaSch.out
-python -m baselines.run --alg=a2c --env=pdWager-v0 --network=lstm --num_timesteps=1e6 > pdWager.out
+python -m baselines.run --alg=a2c --env=RDM-v0 --network=lstm --nsteps=20 --num_timesteps=1e7 --log_interval=10000 --ent_coef=0.1 --lrschedule=constant --gamma=0.9 num_env=12
+
+#python -m baselines.run --alg=a2c --env=RDM-v0 --network=lstm --num_timesteps=1e6 > rdm.out
+#python -m baselines.run --alg=a2c --env=Romo-v0 --network=lstm --num_timesteps=1e6 > romo.out
+#python -m baselines.run --alg=a2c --env=Mante-v0 --network=lstm --num_timesteps=1e6 > mante.out
+#python -m baselines.run --alg=a2c --env=padoaSch-v0 --network=lstm --num_timesteps=1e6 > padoaSch.out
+#python -m baselines.run --alg=a2c --env=pdWager-v0 --network=lstm --num_timesteps=1e6 > pdWager.out
