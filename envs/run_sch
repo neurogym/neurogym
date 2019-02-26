@@ -1,18 +1,19 @@
 #!/bin/bash
-num_steps_batch = 20
-num_steps = 1e6
-entropy_c = 0.1 
-gamm = 0.9
+mkdir ./results/
+num_steps_batch=20
+num_steps=1e6
+entropy_c=0.1 
+gamm=0.9
 
-python -m baselines.run --alg=a2c --env=RDM-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=10000 --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm num_env=12 > res_rdm.out
+python -m baselines.run --alg=a2c --env=RDM-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=10000 --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm num_env=12 > ./results/res_rdm.out
 
-python -m baselines.run --alg=a2c --env=Romo-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=10000 --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm num_env=12 > res_romo.out
+python -m baselines.run --alg=a2c --env=Romo-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=10000 --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm num_env=12 > ./results/res_romo.out
 
-python -m baselines.run --alg=a2c --env=Mante-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=10000 --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm num_env=12 > res_mante.out
+python -m baselines.run --alg=a2c --env=Mante-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=10000 --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm num_env=12 > ./results/res_mante.out
 
-python -m baselines.run --alg=a2c --env=padoaSch-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=10000 --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm num_env=12 > res_padoaSch.out
+python -m baselines.run --alg=a2c --env=padoaSch-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=10000 --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm num_env=12 > ./results/res_padoaSch.out
 
-python -m baselines.run --alg=a2c --env=pdWager-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=10000 --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm num_env=12 > res_pdWagger.out
+python -m baselines.run --alg=a2c --env=pdWager-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=10000 --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm num_env=12 > ./results/res_pdWagger.out
 
 #python -m baselines.run --alg=a2c --env=RDM-v0 --network=lstm --num_timesteps=1e6 > rdm.out
 #python -m baselines.run --alg=a2c --env=Romo-v0 --network=lstm --num_timesteps=1e6 > romo.out
