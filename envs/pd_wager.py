@@ -65,8 +65,9 @@ class PDWager(ngym.ngym):
     tmax = fixation + stimulus_min + stimulus_max + delay_max + decision
 
     # Rewards
-    R_ABORTED = -1
-    R_CORRECT = +1
+    R_ABORTED = -1.
+    R_CORRECT = +1.
+    R_MISS = 0.
     R_SURE = 0.7*R_CORRECT
 
     def __init__(self, dt=50):
@@ -215,15 +216,16 @@ class PDWager(ngym.ngym):
             obs[self.inputs['SURE']] = 1
 
         # ---------------------------------------------------------------------
-
         # new trial?
-        done, self.t, self.perf = tasktools.new_trial(self.t, self.tmax,
-                                                      self.dt,
-                                                      status['continue'],
-                                                      self.R_ABORTED,
-                                                      self.num_tr % self.p_stp,
-                                                      self.perf,
-                                                      reward)
+        reward, new_trial, self.t, self.perf, self.num_tr =\
+            tasktools.new_trial(self.t, self.tmax, self.dt, status['continue'],
+                                self.R_MISS, self.num_tr, self.perf, reward,
+                                self.p_stp)
+
+        if new_trial:
+            self.trial = self._new_trial(self.rng, self.dt)
+
+        done = False  # TODO: revisit
         return obs, reward, done, status
 
     def terminate(perf):

@@ -36,8 +36,9 @@ class Mante(ngym.ngym):
     sigma = np.sqrt(2*100*0.02)
 
     # Rewards
-    R_ABORTED = -1
-    R_CORRECT = +1
+    R_ABORTED = -1.
+    R_CORRECT = +1.
+    R_MISS = 0.
 
     # Epoch durations
     # TODO: in ms?
@@ -144,13 +145,15 @@ class Mante(ngym.ngym):
                 rng.normal(scale=self.sigma) / np.sqrt(dt)
         # ---------------------------------------------------------------------
         # new trial?
-        done, self.t, self.perf = tasktools.new_trial(self.t, self.tmax,
-                                                      self.dt,
-                                                      status['continue'],
-                                                      self.R_ABORTED,
-                                                      self.num_tr % self.p_stp,
-                                                      self.perf,
-                                                      reward)
+        reward, new_trial, self.t, self.perf, self.num_tr =\
+            tasktools.new_trial(self.t, self.tmax, self.dt, status['continue'],
+                                self.R_MISS, self.num_tr, self.perf, reward,
+                                self.p_stp)
+
+        if new_trial:
+            self.trial = self._new_trial(self.rng, self.dt)
+
+        done = False  # TODO: revisit
         return obs, reward, done, status
 
     def step_obsolete(self, action):  # TODO: what is this function?

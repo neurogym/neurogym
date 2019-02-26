@@ -44,8 +44,9 @@ class Romo(ngym.ngym):
     tmax = fixation + f1 + delay_max + f2 + decision
 
     # Rewards
-    R_ABORTED = -1
-    R_CORRECT = +1
+    R_ABORTED = -1.
+    R_CORRECT = +1.
+    R_MISS = 0.
 
     # Input scaling
     fall = np.ravel(fpairs)
@@ -164,15 +165,17 @@ class Romo(ngym.ngym):
             obs[self.inputs['F-NEG']] = self.scale_n(f2) +\
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
 
+        # ---------------------------------------------------------------------
         # new trial?
-        done, self.t, self.perf = tasktools.new_trial(self.t, self.tmax,
-                                                      self.dt,
-                                                      status['continue'],
-                                                      self.R_ABORTED,
-                                                      self.num_tr % self.p_stp,
-                                                      self.perf,
-                                                      reward)
+        reward, new_trial, self.t, self.perf, self.num_tr =\
+            tasktools.new_trial(self.t, self.tmax, self.dt, status['continue'],
+                                self.R_MISS, self.num_tr, self.perf, reward,
+                                self.p_stp)
 
+        if new_trial:
+            self.trial = self._new_trial(self.rng, self.dt)
+
+        done = False  # TODO: revisit
         return obs, reward, done, status
 
     def terminate(perf):
