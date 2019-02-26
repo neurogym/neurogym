@@ -46,8 +46,10 @@ class RDM(ngym.ngym):
     tmax = fixation + stimulus_max + decision
 
     # Rewards
-    R_ABORTED = -1
+    R_ABORTED = -.5
     R_CORRECT = +1
+    R_FAIL = -1
+    R_MISS = -.5
 
     def __init__(self, dt=100):
         super().__init__(dt=dt)
@@ -127,6 +129,8 @@ class RDM(ngym.ngym):
                 status['correct'] = (trial['left_right'] < 0)
                 if status['correct']:
                     reward = self.R_CORRECT
+                else:
+                    reward = self.R_FAIL
             elif action == self.actions['CHOOSE-RIGHT']:
                 status['continue'] = False
                 status['choice'] = 'R'
@@ -134,7 +138,8 @@ class RDM(ngym.ngym):
                 status['correct'] = (trial['left_right'] > 0)
                 if status['correct']:
                     reward = self.R_CORRECT
-
+                else:
+                    reward = self.R_FAIL
         # ---------------------------------------------------------------------
         # Inputs
         # ---------------------------------------------------------------------
@@ -159,11 +164,12 @@ class RDM(ngym.ngym):
         # new trial?
         new_trial, self.t, self.perf, self.num_tr =\
             tasktools.new_trial(self.t, self.tmax, self.dt, status['continue'],
-                                self.R_ABORTED, self.num_tr, self.perf, reward,
+                                self.R_MISS, self.num_tr, self.perf, reward,
                                 self.p_stp)
 
         if new_trial:
             self.trial = self._new_trial(self.rng, self.dt)
+
         done = False  # TODO: revisit
         return obs, reward, done, status
 

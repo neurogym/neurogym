@@ -79,14 +79,15 @@ def correct_2AFC(perf):
     return p_decision, p_correct
 
 
-def new_trial(t, tmax, dt, status, R_ABORTED, num_tr, perf, reward, p_stp):
+def new_trial(t, tmax, dt, status, miss, num_tr, perf, reward, p_stp):
     """
     check whether a new trial should be started
     """
     # new trial?
+    # TODO: not negative reward for being wrong or not responding?
     new_trial = False
     if t > tmax/dt and status:
-        reward = R_ABORTED
+        reward = miss
         new_trial = True
     elif not status:
         new_trial = True
