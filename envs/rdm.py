@@ -32,7 +32,7 @@ class RDM(ngym.ngym):
 
     # Trial conditions
     left_rights = [-1, 1]
-    cohs = [25.6, 51.2, 102.4, 204.8]  # [0, 6.4, 12.8, 25.6, 51.2]
+    cohs = [0, 6.4, 12.8, 25.6, 51.2]  # Easier: [25.6, 51.2, 102.4, 204.8]
 
     # Input noise
     sigma = np.sqrt(2*100*0.01)
@@ -49,9 +49,9 @@ class RDM(ngym.ngym):
     R_ABORTED = -1.
     R_CORRECT = +1.
     R_FAIL = 0.
-    R_MISS = -0.5
+    R_MISS = 0.
 
-    def __init__(self, dt=200):
+    def __init__(self, dt=100):
         super().__init__(dt=dt)
         self.stimulus_min = np.min([self.stimulus_min, dt])
         self.action_space = spaces.Discrete(3)
@@ -64,6 +64,9 @@ class RDM(ngym.ngym):
         self.steps_beyond_done = None
 
         self.trial = self._new_trial(self.rng, self.dt)
+        print('------------------------')
+        print('RDM task')
+        print('------------------------')
 
     def _new_trial(self, rng, dt, context={}):
         # ---------------------------------------------------------------------
