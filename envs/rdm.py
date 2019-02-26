@@ -46,10 +46,10 @@ class RDM(ngym.ngym):
     tmax = fixation + stimulus_max + decision
 
     # Rewards
-    R_ABORTED = -.5
-    R_CORRECT = +1
-    R_FAIL = -1
-    R_MISS = -.5
+    R_ABORTED = -1.
+    R_CORRECT = +1.
+    R_FAIL = 0.
+    R_MISS = 0.
 
     def __init__(self, dt=100):
         super().__init__(dt=dt)
@@ -162,7 +162,7 @@ class RDM(ngym.ngym):
 
         # ---------------------------------------------------------------------
         # new trial?
-        new_trial, self.t, self.perf, self.num_tr =\
+        reward, new_trial, self.t, self.perf, self.num_tr =\
             tasktools.new_trial(self.t, self.tmax, self.dt, status['continue'],
                                 self.R_MISS, self.num_tr, self.perf, reward,
                                 self.p_stp)

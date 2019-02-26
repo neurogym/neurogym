@@ -102,4 +102,4 @@ def new_trial(t, tmax, dt, status, miss, num_tr, perf, reward, p_stp):
             perf += (reward - perf)/(num_tr % p_stp)
         num_tr += 1
         t = 0
-    return new_trial, t, perf, num_tr
+    return reward, new_trial, t, perf, num_tr
