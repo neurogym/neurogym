@@ -32,7 +32,7 @@ class RDM(ngym.ngym):
 
     # Trial conditions
     left_rights = [-1, 1]
-    cohs = [0, 6.4, 12.8, 25.6, 51.2]
+    cohs = [0, 6.4, 12.8, 25.6, 51.2] + 20
 
     # Input noise
     sigma = np.sqrt(2*100*0.01)
@@ -51,8 +51,9 @@ class RDM(ngym.ngym):
     R_FAIL = 0.
     R_MISS = -0.5
 
-    def __init__(self, dt=100):
+    def __init__(self, dt=200):
         super().__init__(dt=dt)
+        self.stimulus_min = np.min([self.stimulus_min, dt])
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3, ),
                                             dtype=np.float32)
