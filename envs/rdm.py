@@ -49,7 +49,7 @@ class RDM(ngym.ngym):
     R_ABORTED = -1.
     R_CORRECT = +1.
     R_FAIL = 0.
-    R_MISS = 0.
+    R_MISS = -0.5
 
     def __init__(self, dt=100):
         super().__init__(dt=dt)
