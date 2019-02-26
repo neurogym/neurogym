@@ -32,7 +32,7 @@ class RDM(ngym.ngym):
 
     # Trial conditions
     left_rights = [-1, 1]
-    cohs = [0, 6.4, 12.8, 25.6, 51.2] + 20
+    cohs = [25.6, 51.2, 102.4, 204.8]  # [0, 6.4, 12.8, 25.6, 51.2]
 
     # Input noise
     sigma = np.sqrt(2*100*0.01)
