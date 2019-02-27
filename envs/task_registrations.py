@@ -62,3 +62,10 @@ register(
     max_episode_steps=100000,
     reward_threshold=90.0,
 )
+
+register(
+    id='GNG-v0',
+    entry_point='gng:GNG',
+    max_episode_steps=100000,
+    reward_threshold=90.0,
+)
