@@ -55,3 +55,10 @@ register(
     max_episode_steps=100000,
     reward_threshold=90.0,
 )
+
+register(
+    id='DPA-v0',
+    entry_point='dpa:DPA',
+    max_episode_steps=100000,
+    reward_threshold=90.0,
+)
