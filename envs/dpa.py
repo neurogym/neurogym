@@ -151,10 +151,7 @@ class DPA(ngym.ngym):
         # Inputs
         # ---------------------------------------------------------------------
 
-        if trial['gt_lt'] == 'MATCH':
-            dpa1, dpa2 = trial['pair']
-        else:
-            dpa2, dpa1 = trial['pair']
+        dpa1, dpa2 = trial['pair']
         obs = np.zeros(len(self.inputs))
         if self.t not in epochs['decision']:
             obs[self.inputs['FIXATION']] = 1
