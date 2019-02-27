@@ -24,6 +24,7 @@ class ngym(gym.Env):
         self.rng = np.random.RandomState(seed=0)
         self.perf = 0
         self.p_stp = 10000
+        self.num_tr_perf = 0
 
     def step(self, action):
         """
@@ -37,8 +38,11 @@ class ngym(gym.Env):
         """
         restarts the experiment with the same parameters
         """
+        print('percentage of trials performed: ' +
+              str(100*self.num_tr_perf/self.p_stp))
         print('mean performnace: ' + str(self.perf))
         self.perf = 0
+        self.num_tr_perf = 0
         self.num_tr = 1
         self.t = 0
         self.trial = self._new_trial(self.rng, self.dt)

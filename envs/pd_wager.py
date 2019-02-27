@@ -164,12 +164,14 @@ class PDWager(ngym.ngym):
         epochs = trial['epochs']
         status = {'continue': True}
         reward = 0
+        tr_perf = False
         if self.t-1 not in epochs['decision']:
             if action != self.actions['FIXATE']:
                 status['continue'] = False
                 reward = self.R_ABORTED
         elif self.t-1 in epochs['decision']:
             if action == self.actions['CHOOSE-LEFT']:
+                tr_perf = True
                 status['continue'] = False
                 status['choice'] = 'L'
                 status['t_choice'] = self.t-1
@@ -177,6 +179,7 @@ class PDWager(ngym.ngym):
                 if status['correct']:
                     reward = self.R_CORRECT
             elif action == self.actions['CHOOSE-RIGHT']:
+                tr_perf = True
                 status['continue'] = False
                 status['choice'] = 'R'
                 status['t_choice'] = self.t-1
@@ -184,6 +187,7 @@ class PDWager(ngym.ngym):
                 if status['correct']:
                     reward = self.R_CORRECT
             elif action == self.actions['CHOOSE-SURE']:
+                tr_perf = True
                 status['continue'] = False
                 if trial['wager']:
                     status['choice'] = 'S'
@@ -217,10 +221,10 @@ class PDWager(ngym.ngym):
 
         # ---------------------------------------------------------------------
         # new trial?
-        reward, new_trial, self.t, self.perf, self.num_tr =\
+        reward, new_trial, self.t, self.perf, self.num_tr, self.num_tr_perf =\
             tasktools.new_trial(self.t, self.tmax, self.dt, status['continue'],
                                 self.R_MISS, self.num_tr, self.perf, reward,
-                                self.p_stp)
+                                self.p_stp, self.num_tr_perf, tr_perf)
 
         if new_trial:
             self.trial = self._new_trial(self.rng, self.dt)
