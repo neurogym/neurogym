@@ -64,7 +64,7 @@ class GNG(ngym.ngym):
 
         self.trial = self._new_trial(self.rng, self.dt)
         print('------------------------')
-        print('RDM task')
+        print('Go/No-Go task')
         print('------------------------')
 
     def _new_trial(self, rng, dt, context={}):
