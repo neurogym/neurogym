@@ -78,7 +78,6 @@ class GNG(ngym.ngym):
                                                        self.stimulus_mean,
                                                        xmin=self.stimulus_min,
                                                        xmax=self.stimulus_max)
-        print(stimulus)
         durations = {
             'fixation':  (0, self.fixation),
             'stimulus':  (self.fixation, self.fixation + stimulus),
