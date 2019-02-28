@@ -107,7 +107,7 @@ class Priors(ngym.ngym):  # TODO: task does not stop when breaking fixation
         It also outputs a fixation signal that is always -1 except at the
         end of the trial that is 0
         """
-        self.t += 1
+        self.t += self.dt
         # if still in the integration period present a new observation
         if self.t < self.trial_dur:
             self.state = [self.rng.normal(self.int_st[0]),

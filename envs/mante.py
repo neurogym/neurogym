@@ -162,7 +162,7 @@ class Mante(ngym.ngym):
                                        self.p_stp, self.num_tr_perf, tr_perf)
             self.trial = self._new_trial(self.rng, self.dt)
         else:
-            self.t += 1
+            self.t += self.dt
 
         done = False  # TODO: revisit
         return obs, reward, done, info

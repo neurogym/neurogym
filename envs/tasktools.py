@@ -86,7 +86,7 @@ def new_trial(t, tmax, dt, info, miss, reward):
     # new trial?
     # TODO: not negative reward for being wrong or not responding?
     new_trial = False
-    if t > tmax/dt and info:
+    if t > tmax and info:
         reward = miss
         new_trial = True
     elif not info:

@@ -110,7 +110,6 @@ class ReadySetGo(ngym.ngym):
         info = {'continue': True}
         reward = 0
         tr_perf = False
-        # TODO: why do we use t? Remove all
         # TODO: why use integer t instead of actual t?
         # TODO: do we have intertrial interval in the beginning? can the network fixate at time 0?
         if not self.in_epoch(self.t, 'production'):
@@ -121,7 +120,7 @@ class ReadySetGo(ngym.ngym):
             if action == self.actions['GO']:
                 info['continue'] = False  # terminate
                 # actual production time
-                t_prod = self.t*self.dt - trial['durations']['measure'][1]
+                t_prod = self.t - trial['durations']['measure'][1]
                 eps = abs(t_prod - trial['production'])
                 eps_threshold = 0.2*trial['production']+25
                 if eps > eps_threshold:
@@ -163,7 +162,7 @@ class ReadySetGo(ngym.ngym):
                                        self.p_stp, self.num_tr_perf, tr_perf)
             self.trial = self._new_trial(self.rng, self.dt)
         else:
-            self.t += 1
+            self.t += self.dt
 
         done = False  # TODO: revisit
         return obs, reward, done, info

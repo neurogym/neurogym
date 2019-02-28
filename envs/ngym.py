@@ -69,7 +69,7 @@ class ngym(gym.Env):
     def in_epoch(self, t, epoch):
         """Check if t is in epoch."""
         dur = self.trial['durations']
-        return dur[epoch][0] <= t * self.dt < dur[epoch][1]
+        return dur[epoch][0] <= t < dur[epoch][1]
 
     def analysis(self):
         """
