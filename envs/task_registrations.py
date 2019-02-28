@@ -77,5 +77,13 @@ register(
     reward_threshold=90.0,
 )
 
+register(
+    id='ReadySetGo-v0',
+    entry_point='readysetgo:ReadySetGo',
+    max_episode_steps=100000,
+    reward_threshold=90.0,
+)
+
 def all_envs():
-    return ['rdm', 'dpa', 'mante', 'romo', 'gng', 'padoa_sch', 'pd_wager']
+    # TODO: what does this do?
+    return ['rdm', 'dpa', 'mante', 'romo', 'gng', 'padoa_sch', 'pd_wager', 'readysetgo']
