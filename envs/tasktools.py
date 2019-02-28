@@ -79,8 +79,7 @@ def correct_2AFC(perf):
     return p_decision, p_correct
 
 
-def new_trial(t, tmax, dt, status, miss, num_tr, perf, reward, p_stp,
-              num_tr_perf, tr_perf):
+def new_trial(t, tmax, dt, status, miss):
     """
     check whether a new trial should be started
     """
@@ -94,17 +93,18 @@ def new_trial(t, tmax, dt, status, miss, num_tr, perf, reward, p_stp,
         new_trial = True
     else:
         t += 1
+    return reward, new_trial, t
 
-    if new_trial:
-        if num_tr % p_stp == 0:
-            print('percentage of trials performed: ' +
-                  str(100*num_tr_perf/p_stp))
-            print('mean performnace: ' + str(perf))
-            num_tr_perf = 0
-            perf = 0
-        elif tr_perf:
-            num_tr_perf += 1
-            perf += (reward - perf)/num_tr_perf
-        num_tr += 1
-        t = 0
-    return reward, new_trial, t, perf, num_tr, num_tr_perf
+
+def compute_perf(perf, reward, num_tr, p_stp, num_tr_perf, tr_perf):
+    if num_tr % p_stp == 0:
+        print('percentage of trials performed: ' +
+              str(100*num_tr_perf/p_stp))
+        print('mean performnace: ' + str(perf))
+        num_tr_perf = 0
+        perf = 0
+    elif tr_perf:
+        num_tr_perf += 1
+        perf += (reward - perf)/num_tr_perf
+
+    return perf, num_tr, num_tr_perf
