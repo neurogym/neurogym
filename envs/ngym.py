@@ -68,9 +68,8 @@ class ngym(gym.Env):
 
     def in_epoch(self, t, epoch):
         """Check if t is in epoch."""
-        # TODO: Include the effect of tmax here
-        return (self.trial['durations'][epoch][0] <= t * self.dt <
-                self.trial['durations'][epoch][1])
+        dur = self.trial['durations']
+        return dur[epoch][0] <= t * self.dt < dur[epoch][1]
 
     def analysis(self):
         """
