@@ -79,7 +79,7 @@ def correct_2AFC(perf):
     return p_decision, p_correct
 
 
-def new_trial(t, tmax, dt, status, miss):
+def new_trial(t, tmax, dt, status, miss, reward):
     """
     check whether a new trial should be started
     """

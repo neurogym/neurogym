@@ -172,10 +172,10 @@ class RDM(ngym.ngym):
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
 
         # ---------------------------------------------------------------------
-        # new trial? (t, tmax, dt, status, miss)
+        # new trial?
         reward, new_trial, self.t =\
             tasktools.new_trial(self.t, self.tmax, self.dt, status['continue'],
-                                self.R_MISS)
+                                self.R_MISS, reward)
 
         if new_trial:
             self.t = 0
