@@ -63,23 +63,21 @@ class RDM(ngym.ngym):
 
         self.steps_beyond_done = None
 
-        self.trial = self._new_trial(self.rng, self.dt)
+        self.trial = self._new_trial()
         print('------------------------')
         print('RDM task')
         print('time step: ' + str(self.dt))
         print('------------------------')
 
-    def _new_trial(self, rng, dt, context={}):
+    def _new_trial(self):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
 
-        stimulus = context.get('stimulus')
-        if stimulus is None:
-            stimulus = tasktools.truncated_exponential(rng, dt,
-                                                       self.stimulus_mean,
-                                                       xmin=self.stimulus_min,
-                                                       xmax=self.stimulus_max)
+        stimulus = tasktools.truncated_exponential(self.rng, self.dt,
+                                                   self.stimulus_mean,
+                                                   xmin=self.stimulus_min,
+                                                   xmax=self.stimulus_max)
 
         durations = {
             'fixation':  (0, self.fixation),
@@ -88,24 +86,17 @@ class RDM(ngym.ngym):
                           self.fixation + stimulus + self.decision),
             'tmax':      self.tmax
             }
-        time, epochs = tasktools.get_epochs_idx(dt, durations)
 
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
 
-        left_right = context.get('left_right')
-        if left_right is None:
-            left_right = rng.choice(self.left_rights)
+        left_right = self.rng.choice(self.left_rights)
 
-        coh = context.get('coh')
-        if coh is None:
-            coh = rng.choice(self.cohs)
+        coh = self.rng.choice(self.cohs)
 
         return {
             'durations':   durations,
-            'time':        time,
-            'epochs':      epochs,
             'left_right':  left_right,
             'coh':         coh
             }
@@ -184,7 +175,7 @@ class RDM(ngym.ngym):
             self.perf, self.num_tr, self.num_tr_perf =\
                 tasktools.compute_perf(self.perf, reward, self.num_tr,
                                        self.p_stp, self.num_tr_perf, tr_perf)
-            self.trial = self._new_trial(self.rng, self.dt)
+            self.trial = self._new_trial()
         else:
             self.t += self.dt
 

@@ -62,22 +62,20 @@ class GNG(ngym.ngym):
 
         self.steps_beyond_done = None
 
-        self.trial = self._new_trial(self.rng, self.dt)
+        self.trial = self._new_trial()
         print('------------------------')
         print('Go/No-Go task')
         print('------------------------')
 
-    def _new_trial(self, rng, dt, context={}):
+    def _new_trial(self):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
 
-        stimulus = context.get('stimulus')
-        if stimulus is None:
-            stimulus = tasktools.truncated_exponential(rng, dt,
-                                                       self.stimulus_mean,
-                                                       xmin=self.stimulus_min,
-                                                       xmax=self.stimulus_max)
+        stimulus = tasktools.truncated_exponential(self.rng, self.dt,
+                                                   self.stimulus_mean,
+                                                   xmin=self.stimulus_min,
+                                                   xmax=self.stimulus_max)
         durations = {
             'fixation':  (0, self.fixation),
             'stimulus':  (self.fixation, self.fixation + stimulus),
@@ -88,20 +86,15 @@ class GNG(ngym.ngym):
                           self.decision),
             'tmax':      self.tmax
             }
-        time, epochs = tasktools.get_epochs_idx(dt, durations)
 
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
 
-        go_nogo = context.get('go_nogo')
-        if go_nogo is None:
-            go_nogo = rng.choice(self.go_nogos)
+        go_nogo = self.rng.choice(self.go_nogos)
 
         return {
             'durations':   durations,
-            'time':        time,
-            'epochs':      epochs,
             'go_nogo':  go_nogo,
             }
 
@@ -172,7 +165,7 @@ class GNG(ngym.ngym):
             self.perf, self.num_tr, self.num_tr_perf =\
                 tasktools.compute_perf(self.perf, reward, self.num_tr,
                                        self.p_stp, self.num_tr_perf, tr_perf)
-            self.trial = self._new_trial(self.rng, self.dt)
+            self.trial = self._new_trial()
         else:
             self.t += self.dt
 

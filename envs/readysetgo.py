@@ -62,7 +62,7 @@ class ReadySetGo(ngym.ngym):
 
         self.steps_beyond_done = None
 
-        self.trial = self._new_trial(self.rng, self.dt)
+        self.trial = self._new_trial()
         print('------------------------')
         print('RDM task')
         print('time step: ' + str(self.dt))
@@ -161,7 +161,7 @@ class ReadySetGo(ngym.ngym):
             self.perf, self.num_tr, self.num_tr_perf =\
                 tasktools.compute_perf(self.perf, reward, self.num_tr,
                                        self.p_stp, self.num_tr_perf, tr_perf)
-            self.trial = self._new_trial(self.rng, self.dt)
+            self.trial = self._new_trial()
         else:
             self.t += self.dt
 
