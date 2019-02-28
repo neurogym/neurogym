@@ -149,7 +149,6 @@ class ReadySetGo(ngym.ngym):
 
         # ---------------------------------------------------------------------
         # new trial?
-        # TODO: it's confusing that the 4-th input is continue, but the function wants "info"
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
                                                 info['continue'],
                                                 self.R_MISS, reward)
