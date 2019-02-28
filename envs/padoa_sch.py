@@ -128,20 +128,20 @@ class PadoaSch(ngym.ngym):
         # ---------------------------------------------------------------------
 
         # epochs = trial['epochs']
-        status = {'continue': True}
+        info = {'continue': True}
         reward = 0
         tr_perf = False
         if (self.in_epoch(self.t-1, 'fixation') or
                 self.in_epoch(self.t-1, 'offer-on')):
             if action != self.actions['FIXATE']:
-                status['continue'] = False
+                info['continue'] = False
                 reward = self.R_ABORTED
         elif self.in_epoch(self.t-1, 'decision'):
             if action in [self.actions['CHOOSE-LEFT'],
                           self.actions['CHOOSE-RIGHT']]:
                 tr_perf = True
-                status['continue'] = False
-                status['t_choice'] = self.t-1
+                info['continue'] = False
+                info['t_choice'] = self.t-1
 
                 juiceL, juiceR = trial['juice']
 
@@ -156,17 +156,17 @@ class PadoaSch(ngym.ngym):
 
                 if action == self.actions['CHOOSE-LEFT']:
                     if juiceL == 'A':
-                        status['choice'] = 'A'
+                        info['choice'] = 'A'
                     else:
-                        status['choice'] = 'B'
-                    status['correct'] = (rL >= rR)
+                        info['choice'] = 'B'
+                    info['correct'] = (rL >= rR)
                     reward = rL
                 elif action == self.actions['CHOOSE-RIGHT']:
                     if juiceR == 'A':
-                        status['choice'] = 'A'
+                        info['choice'] = 'A'
                     else:
-                        status['choice'] = 'B'
-                    status['correct'] = (rR >= rL)
+                        info['choice'] = 'B'
+                    info['correct'] = (rR >= rL)
                     reward = rR
 
         # ---------------------------------------------------------------------
@@ -188,7 +188,7 @@ class PadoaSch(ngym.ngym):
         # ---------------------------------------------------------------------
         # new trial?
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                status['continue'],
+                                                info['continue'],
                                                 self.R_MISS, reward)
 
         if new_trial:
@@ -203,10 +203,10 @@ class PadoaSch(ngym.ngym):
             self.t += 1
 
         done = False  # TODO: revisit
-        return obs, reward, done, status
+        return obs, reward, done, info
 
         done = False  # TODO: revisit
-        return obs, reward, done, status
+        return obs, reward, done, info
 
     def terminate(perf):
         p_decision, p_correct = tasktools.correct_2AFC(perf)

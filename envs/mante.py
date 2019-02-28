@@ -79,35 +79,35 @@ class Mante(ngym.ngym):
         rng = self.rng
 
         # epochs = trial['epochs']
-        status = {'continue': True}
+        info = {'continue': True}
         reward = 0
         tr_perf = False
         if not self.in_epoch(self.t - 1, 'decision'):
             if action != self.actions['fixate']:
-                status['continue'] = False  # TODO: abort when no fixating?
+                info['continue'] = False  # TODO: abort when no fixating?
                 reward = self.R_ABORTED
         else:
             if action == self.actions['left']:
                 tr_perf = True
-                status['continue'] = False
-                status['choice'] = 'L'
-                status['t_choice'] = self.t - 1
+                info['continue'] = False
+                info['choice'] = 'L'
+                info['t_choice'] = self.t - 1
                 if trial['context'] == 'm':
-                    status['correct'] = (trial['left_right_m'] < 0)
+                    info['correct'] = (trial['left_right_m'] < 0)
                 else:
-                    status['correct'] = (trial['left_right_c'] < 0)
-                if status['correct']:
+                    info['correct'] = (trial['left_right_c'] < 0)
+                if info['correct']:
                     reward = self.R_CORRECT
             elif action == self.actions['right']:
                 tr_perf = True
-                status['continue'] = False
-                status['choice'] = 'R'
-                status['t_choice'] = self.t - 1
+                info['continue'] = False
+                info['choice'] = 'R'
+                info['t_choice'] = self.t - 1
                 if trial['context'] == 'm':
-                    status['correct'] = (trial['left_right_m'] > 0)
+                    info['correct'] = (trial['left_right_m'] > 0)
                 else:
-                    status['correct'] = (trial['left_right_c'] > 0)
-                if status['correct']:
+                    info['correct'] = (trial['left_right_c'] > 0)
+                if info['correct']:
                     reward = self.R_CORRECT
 
         # -------------------------------------------------------------------------------------
@@ -150,7 +150,7 @@ class Mante(ngym.ngym):
         # ---------------------------------------------------------------------
         # new trial?
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                status['continue'],
+                                                info['continue'],
                                                 self.R_MISS, reward)
 
         if new_trial:
@@ -165,7 +165,7 @@ class Mante(ngym.ngym):
             self.t += 1
 
         done = False  # TODO: revisit
-        return obs, reward, done, status
+        return obs, reward, done, info
 
     def render(self, mode='human'):
         raise NotImplementedError

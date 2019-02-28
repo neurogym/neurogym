@@ -115,31 +115,31 @@ class GNG(ngym.ngym):
         # ---------------------------------------------------------------------
         trial = self.trial
         # epochs = trial['epochs']
-        status = {'continue': True}
+        info = {'continue': True}
         reward = 0
         tr_perf = False
         if not self.in_epoch(self.t-1, 'decision'):
             if action != self.actions['FIXATE']:
-                status['continue'] = False
+                info['continue'] = False
                 reward = self.R_ABORTED
         else:
             if action == self.actions['GO']:
                 tr_perf = True
-                status['continue'] = False
-                status['choice'] = 'GO'
-                status['t_choice'] = self.t-1
-                status['correct'] = (trial['go_nogo'] > 0)
-                if status['correct']:
+                info['continue'] = False
+                info['choice'] = 'GO'
+                info['t_choice'] = self.t-1
+                info['correct'] = (trial['go_nogo'] > 0)
+                if info['correct']:
                     reward = self.R_CORRECT
                 else:
                     reward = self.R_FAIL
             elif action == self.actions['NO_GO']:
                 tr_perf = True
-                status['continue'] = False
-                status['choice'] = 'NG'
-                status['t_choice'] = self.t-1
-                status['correct'] = (trial['go_nogo'] < 0)
-                if status['correct']:
+                info['continue'] = False
+                info['choice'] = 'NG'
+                info['t_choice'] = self.t-1
+                info['correct'] = (trial['go_nogo'] < 0)
+                if info['correct']:
                     reward = self.R_CORRECT
                 else:
                     reward = self.R_FAIL
@@ -162,7 +162,7 @@ class GNG(ngym.ngym):
         # ---------------------------------------------------------------------
         # new trial?
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                status['continue'],
+                                                info['continue'],
                                                 self.R_MISS, reward)
 
         if new_trial:
@@ -177,7 +177,7 @@ class GNG(ngym.ngym):
             self.t += 1
 
         done = False  # TODO: revisit
-        return obs, reward, done, status
+        return obs, reward, done, info
 
     def terminate(perf):
         p_decision, p_correct = tasktools.correct_2AFC(perf)

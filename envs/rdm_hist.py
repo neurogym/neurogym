@@ -137,32 +137,32 @@ class RDM_hist(ngym.ngym):
         # ---------------------------------------------------------------------
         trial = self.trial
         # epochs = trial['epochs']
-        status = {'continue': True}
-        status['gt'] = trial['left_right']
+        info = {'continue': True}
+        info['gt'] = trial['left_right']
         reward = 0
         tr_perf = False
         if not self.in_epoch(self.t-1, 'decision'):
             if action != self.actions['FIXATE']:
-                status['continue'] = False
+                info['continue'] = False
                 reward = self.R_ABORTED
         else:
             if action == self.actions['CHOOSE-LEFT']:
                 tr_perf = True
-                status['continue'] = False
-                status['choice'] = 'L'
-                status['t_choice'] = self.t-1
-                status['correct'] = (trial['left_right'] < 0)
-                if status['correct']:
+                info['continue'] = False
+                info['choice'] = 'L'
+                info['t_choice'] = self.t-1
+                info['correct'] = (trial['left_right'] < 0)
+                if info['correct']:
                     reward = self.R_CORRECT
                 else:
                     reward = self.R_FAIL
             elif action == self.actions['CHOOSE-RIGHT']:
                 tr_perf = True
-                status['continue'] = False
-                status['choice'] = 'R'
-                status['t_choice'] = self.t-1
-                status['correct'] = (trial['left_right'] > 0)
-                if status['correct']:
+                info['continue'] = False
+                info['choice'] = 'R'
+                info['t_choice'] = self.t-1
+                info['correct'] = (trial['left_right'] > 0)
+                if info['correct']:
                     reward = self.R_CORRECT
                 else:
                     reward = self.R_FAIL
@@ -190,7 +190,7 @@ class RDM_hist(ngym.ngym):
         # ---------------------------------------------------------------------
         # new trial?
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                status['continue'],
+                                                info['continue'],
                                                 self.R_MISS, reward)
 
         if new_trial:
@@ -205,7 +205,7 @@ class RDM_hist(ngym.ngym):
             self.t += 1
 
         done = False  # TODO: revisit
-        return obs, reward, done, status
+        return obs, reward, done, info
     def terminate(perf):
         p_decision, p_correct = tasktools.correct_2AFC(perf)
 

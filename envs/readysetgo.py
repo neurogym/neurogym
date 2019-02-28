@@ -107,36 +107,36 @@ class ReadySetGo(ngym.ngym):
         # Reward
         # ---------------------------------------------------------------------
         trial = self.trial
-        status = {'continue': True}
+        info = {'continue': True}
         reward = 0
         tr_perf = False
         # TODO: why do we use t-1? Remove all
-        # TODO: What's status continue? is it necessary? keep
-        # TODO: why not call status info, like gym? change to info
+        # TODO: What's info continue? is it necessary? keep
+        # TODO: why not call info info, like gym? change to info
         # TODO: why use integer t instead of actual t?
         # TODO: do we have intertrial interval in the beginning? can the network fixate at time 0?
         if not self.in_epoch(self.t, 'production'):
             if action != self.actions['FIXATE']:
-                status['continue'] = False
+                info['continue'] = False
                 reward = self.R_ABORTED
         else:
             if action == self.actions['GO']:
-                status['continue'] = False  # terminate
+                info['continue'] = False  # terminate
                 # actual production time
                 t_prod = self.t*self.dt - trial['durations']['measure'][1]
                 eps = abs(t_prod - trial['production'])
                 eps_threshold = 0.2*trial['production']+25
                 if eps > eps_threshold:
-                    status['correct'] = False
+                    info['correct'] = False
                     reward = self.R_FAIL
                 else:
-                    status['correct'] = True
+                    info['correct'] = True
                     reward = (1. - eps/eps_threshold)**1.5
                     reward = min(reward, 0.1)
                     reward *= self.R_CORRECT
                 tr_perf = True
 
-                status['t_choice'] = self.t
+                info['t_choice'] = self.t
 
         # ---------------------------------------------------------------------
         # Inputs
@@ -151,9 +151,9 @@ class ReadySetGo(ngym.ngym):
 
         # ---------------------------------------------------------------------
         # new trial?
-        # TODO: it's confusing that the 4-th input is continue, but the function wants "status"
+        # TODO: it's confusing that the 4-th input is continue, but the function wants "info"
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                status['continue'],
+                                                info['continue'],
                                                 self.R_MISS, reward)
 
         if new_trial:
@@ -168,7 +168,7 @@ class ReadySetGo(ngym.ngym):
             self.t += 1
 
         done = False  # TODO: revisit
-        return obs, reward, done, status
+        return obs, reward, done, info
 
     def terminate(perf):
         p_decision, p_correct = tasktools.correct_2AFC(perf)

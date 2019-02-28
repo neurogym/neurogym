@@ -16,7 +16,7 @@ for stp in range(int(sys.argv[2])):
     if 'gt' in info.keys():
         sides.append(info['gt'])
 #    print(state)
-#    print(status)
+#    print(info)
 #    print(rew)
     # print(info)
 obs = np.array(observations)

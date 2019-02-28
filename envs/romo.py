@@ -121,28 +121,28 @@ class Romo(ngym.ngym):
         # Reward
         # ---------------------------------------------------------------------
         # epochs = trial['epochs']
-        status = {'continue': True}
+        info = {'continue': True}
         reward = 0
         tr_perf = False
         if not self.in_epoch(self.t - 1, 'decision'):
             if action != self.actions['FIXATE']:
-                status['continue'] = False
-                status['choice'] = None
+                info['continue'] = False
+                info['choice'] = None
                 reward = self.R_ABORTED
         else:
             if action == self.actions['>']:
                 tr_perf = True
-                status['continue'] = False
-                status['choice'] = '>'
-                status['correct'] = (trial['gt_lt'] == '>')
-                if status['correct']:
+                info['continue'] = False
+                info['choice'] = '>'
+                info['correct'] = (trial['gt_lt'] == '>')
+                if info['correct']:
                     reward = self.R_CORRECT
             elif action == self.actions['<']:
                 tr_perf = True
-                status['continue'] = False
-                status['choice'] = '<'
-                status['correct'] = (trial['gt_lt'] == '<')
-                if status['correct']:
+                info['continue'] = False
+                info['choice'] = '<'
+                info['correct'] = (trial['gt_lt'] == '<')
+                if info['correct']:
                     reward = self.R_CORRECT
 
         # ---------------------------------------------------------------------
@@ -171,7 +171,7 @@ class Romo(ngym.ngym):
         # ---------------------------------------------------------------------
         # new trial?
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                status['continue'],
+                                                info['continue'],
                                                 self.R_MISS, reward)
 
         if new_trial:
@@ -186,7 +186,7 @@ class Romo(ngym.ngym):
             self.t += 1
 
         done = False  # TODO: revisit
-        return obs, reward, done, status
+        return obs, reward, done, info
 
     def terminate(perf):
         p_decision, p_correct = tasktools.correct_2AFC(perf)

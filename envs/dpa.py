@@ -126,29 +126,29 @@ class DPA(ngym.ngym):
         # Reward
         # ---------------------------------------------------------------------
         # epochs = trial['epochs']
-        status = {'continue': True}
+        info = {'continue': True}
         reward = 0
         tr_perf = False
         # if self.t-1 not in epochs['decision']:
         if not self.in_epoch(self.t, 'decision'):
             if action != self.actions['FIXATE']:
-                status['continue'] = False
-                status['choice'] = None
+                info['continue'] = False
+                info['choice'] = None
                 reward = self.R_ABORTED
         else:  # elif self.t-1 in epochs['decision']:
             if action == self.actions['NO_MATCH']:
                 tr_perf = True
-                status['continue'] = False
-                status['choice'] = 'NO_MATCH'
-                status['correct'] = (trial['gt_lt'] == 'NO_MATCH')
-                if status['correct']:
+                info['continue'] = False
+                info['choice'] = 'NO_MATCH'
+                info['correct'] = (trial['gt_lt'] == 'NO_MATCH')
+                if info['correct']:
                     reward = self.R_CORRECT
             elif action == self.actions['MATCH']:
                 tr_perf = True
-                status['continue'] = False
-                status['choice'] = 'MATCH'
-                status['correct'] = (trial['gt_lt'] == 'MATCH')
-                if status['correct']:
+                info['continue'] = False
+                info['choice'] = 'MATCH'
+                info['correct'] = (trial['gt_lt'] == 'MATCH')
+                if info['correct']:
                     reward = self.R_CORRECT
 
         # ---------------------------------------------------------------------
@@ -178,7 +178,7 @@ class DPA(ngym.ngym):
         # ---------------------------------------------------------------------
         # new trial?
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                status['continue'],
+                                                info['continue'],
                                                 self.R_MISS, reward)
 
         if new_trial:
@@ -193,7 +193,7 @@ class DPA(ngym.ngym):
             self.t += 1
 
         done = False  # TODO: revisit
-        return obs, reward, done, status
+        return obs, reward, done, info
 
     def terminate(perf):
         p_decision, p_correct = tasktools.correct_2AFC(perf)
