@@ -164,56 +164,6 @@ class Mante(ngym.ngym):
         done = False  # TODO: revisit
         return obs, reward, done, status
 
-    def step_obsolete(self, action):  # TODO: what is this function?
-        assert self.action_space.contains(action), "%r (%s) invalid" % (
-            action, type(action))
-        state = self.state
-
-        if action == 0:
-            reward = self.effort
-            # poke
-            if state <= 0:
-                # reward and reset state
-                reward += self.reward_seq_complete * self.thirst
-                state = self.n_press
-                self.thirst_state = -8
-        elif action == 1:
-            # press
-            reward = self.effort
-            state -= 1
-            state = max(0, state)
-        elif action == 2:
-            # rest
-            reward = 0.0
-        else:
-            raise ValueError
-
-        self.thirst_state += self.np_random.rand() * 0.4 + 0.8
-        self.thirst = self._get_thirst(self.thirst_state)
-        self.state = state
-        done = False
-
-        if not done:
-            pass
-        elif self.steps_beyond_done is None:
-            # Pole just fell!
-            self.steps_beyond_done = 0
-        else:
-            if self.steps_beyond_done == 0:
-                logger.warn("You are calling 'step()' even though this " +
-                            " environment has already returned done = True." +
-                            "  You should always call 'reset()' once you " +
-                            " receive 'done = True' -- any further steps are" +
-                            "  undefined behavior.")
-            self.steps_beyond_done += 1
-
-        if self.observe_state:
-            obs = np.array([self.state])
-        else:
-            obs = np.array([self.thirst])
-
-        return obs, reward, done, {}
-
     def render(self, mode='human'):
         raise NotImplementedError
 
