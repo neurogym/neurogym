@@ -129,13 +129,13 @@ class DPA(ngym.ngym):
         info = {'continue': True}
         reward = 0
         tr_perf = False
-        # if self.t-1 not in epochs['decision']:
+        # if self.t not in epochs['decision']:
         if not self.in_epoch(self.t, 'decision'):
             if action != self.actions['FIXATE']:
                 info['continue'] = False
                 info['choice'] = None
                 reward = self.R_ABORTED
-        else:  # elif self.t-1 in epochs['decision']:
+        else:  # elif self.t in epochs['decision']:
             if action == self.actions['NO_MATCH']:
                 tr_perf = True
                 info['continue'] = False

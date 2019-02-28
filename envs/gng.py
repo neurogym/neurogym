@@ -118,7 +118,7 @@ class GNG(ngym.ngym):
         info = {'continue': True}
         reward = 0
         tr_perf = False
-        if not self.in_epoch(self.t-1, 'decision'):
+        if not self.in_epoch(self.t, 'decision'):
             if action != self.actions['FIXATE']:
                 info['continue'] = False
                 reward = self.R_ABORTED
@@ -127,7 +127,7 @@ class GNG(ngym.ngym):
                 tr_perf = True
                 info['continue'] = False
                 info['choice'] = 'GO'
-                info['t_choice'] = self.t-1
+                info['t_choice'] = self.t
                 info['correct'] = (trial['go_nogo'] > 0)
                 if info['correct']:
                     reward = self.R_CORRECT
@@ -137,7 +137,7 @@ class GNG(ngym.ngym):
                 tr_perf = True
                 info['continue'] = False
                 info['choice'] = 'NG'
-                info['t_choice'] = self.t-1
+                info['t_choice'] = self.t
                 info['correct'] = (trial['go_nogo'] < 0)
                 if info['correct']:
                     reward = self.R_CORRECT

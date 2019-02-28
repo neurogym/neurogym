@@ -165,7 +165,7 @@ class PDWager(ngym.ngym):
         info = {'continue': True}
         reward = 0
         tr_perf = False
-        if not self.in_epoch(self.t-1, 'decision'):
+        if not self.in_epoch(self.t, 'decision'):
             if action != self.actions['FIXATE']:
                 info['continue'] = False
                 reward = self.R_ABORTED
@@ -174,7 +174,7 @@ class PDWager(ngym.ngym):
                 tr_perf = True
                 info['continue'] = False
                 info['choice'] = 'L'
-                info['t_choice'] = self.t-1
+                info['t_choice'] = self.t
                 info['correct'] = (trial['left_right'] < 0)
                 if info['correct']:
                     reward = self.R_CORRECT
@@ -182,7 +182,7 @@ class PDWager(ngym.ngym):
                 tr_perf = True
                 info['continue'] = False
                 info['choice'] = 'R'
-                info['t_choice'] = self.t-1
+                info['t_choice'] = self.t
                 info['correct'] = (trial['left_right'] > 0)
                 if info['correct']:
                     reward = self.R_CORRECT
@@ -191,7 +191,7 @@ class PDWager(ngym.ngym):
                 info['continue'] = False
                 if trial['wager']:
                     info['choice'] = 'S'
-                    info['t_choice'] = self.t-1
+                    info['t_choice'] = self.t
                     reward = self.R_SURE
                 else:
                     reward = self.R_ABORTED

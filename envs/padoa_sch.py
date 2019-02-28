@@ -131,17 +131,17 @@ class PadoaSch(ngym.ngym):
         info = {'continue': True}
         reward = 0
         tr_perf = False
-        if (self.in_epoch(self.t-1, 'fixation') or
-                self.in_epoch(self.t-1, 'offer-on')):
+        if (self.in_epoch(self.t, 'fixation') or
+                self.in_epoch(self.t, 'offer-on')):
             if action != self.actions['FIXATE']:
                 info['continue'] = False
                 reward = self.R_ABORTED
-        elif self.in_epoch(self.t-1, 'decision'):
+        elif self.in_epoch(self.t, 'decision'):
             if action in [self.actions['CHOOSE-LEFT'],
                           self.actions['CHOOSE-RIGHT']]:
                 tr_perf = True
                 info['continue'] = False
-                info['t_choice'] = self.t-1
+                info['t_choice'] = self.t
 
                 juiceL, juiceR = trial['juice']
 

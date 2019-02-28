@@ -110,9 +110,7 @@ class ReadySetGo(ngym.ngym):
         info = {'continue': True}
         reward = 0
         tr_perf = False
-        # TODO: why do we use t-1? Remove all
-        # TODO: What's info continue? is it necessary? keep
-        # TODO: why not call info info, like gym? change to info
+        # TODO: why do we use t? Remove all
         # TODO: why use integer t instead of actual t?
         # TODO: do we have intertrial interval in the beginning? can the network fixate at time 0?
         if not self.in_epoch(self.t, 'production'):
