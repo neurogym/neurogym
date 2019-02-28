@@ -32,7 +32,7 @@ class ngym(gym.Env):
         indicating whether the experiment has ended and a dictionary with
         useful information
         """
-        pass
+        return None, None, None, None
 
     def reset(self):
         """
@@ -40,7 +40,7 @@ class ngym(gym.Env):
         """
         print('percentage of trials performed: ' +
               str(100*self.num_tr_perf/self.p_stp))
-        print('mean performnace: ' + str(self.perf))
+        print('mean performance: ' + str(self.perf))
         self.perf = 0
         self.num_tr_perf = 0
         self.num_tr = 1
@@ -60,13 +60,18 @@ class ngym(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def _new_trial(self):
+    def _new_trial(self, rng, dt):
         """
         starts a new trials within the current experiment
         """
         pass
 
-    def analysis():
+    def in_epoch(self, t, epoch):
+        """Check if t is in epoch."""
+        return (self.trial.durations[epoch][0] <= t * self.dt <
+                self.trial.durations[epoch][1])
+
+    def analysis(self):
         """
         performs behavioral analysis relevant for the task
         (i.e. psychometric cuves)
