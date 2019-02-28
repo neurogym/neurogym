@@ -161,15 +161,17 @@ class PDWager(ngym.ngym):
         # Reward
         # ---------------------------------------------------------------------
 
-        epochs = trial['epochs']
+        # epochs = trial['epochs']
         status = {'continue': True}
         reward = 0
         tr_perf = False
-        if self.t-1 not in epochs['decision']:
+        if not self.in_epoch(self.t-1, 'decision'):
+        # if self.t-1 not in epochs['decision']:
             if action != self.actions['FIXATE']:
                 status['continue'] = False
                 reward = self.R_ABORTED
-        elif self.t-1 in epochs['decision']:
+        else:
+        # elif self.t-1 in epochs['decision']:
             if action == self.actions['CHOOSE-LEFT']:
                 tr_perf = True
                 status['continue'] = False
@@ -208,15 +210,19 @@ class PDWager(ngym.ngym):
             low = self.inputs['LEFT']
 
         obs = np.zeros(len(self.inputs))
-        if self.t in epochs['fixation'] or self.t in epochs['stimulus'] or\
-           self.t in epochs['delay']:
+        if (self.in_epoch(self.t, 'fixation') or self.in_epoch(self.t, 'stimulus') or
+                self.in_epoch(self.t, 'delay')):
+        # if self.t in epochs['fixation'] or self.t in epochs['stimulus'] or\
+        #    self.t in epochs['delay']:
             obs[self.inputs['FIXATION']] = 1
-        if self.t in epochs['stimulus']:
+        if self.in_epoch(self.t, 'stimulus'):
+        # if self.t in epochs['stimulus']:
             obs[high] = self.scale(+trial['coh']) +\
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
             obs[low] = self.scale(-trial['coh']) +\
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
-        if trial['wager'] and self.t in epochs['sure']:
+        if trial['wager'] and self.in_epoch(self.t, 'sure'):
+        # if trial['wager'] and self.t in epochs['sure']:
             obs[self.inputs['SURE']] = 1
 
         # ---------------------------------------------------------------------

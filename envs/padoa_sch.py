@@ -127,15 +127,18 @@ class PadoaSch(ngym.ngym):
         # Reward
         # ---------------------------------------------------------------------
 
-        epochs = trial['epochs']
+        # epochs = trial['epochs']
         status = {'continue': True}
         reward = 0
         tr_perf = False
-        if self.t-1 in epochs['fixation'] or self.t-1 in epochs['offer-on']:
+        if (self.in_epoch(self.t-1, 'fixation') or
+                self.in_epoch(self.t-1, 'offer-on')):
+        # if self.t-1 in epochs['fixation'] or self.t-1 in epochs['offer-on']:
             if action != self.actions['FIXATE']:
                 status['continue'] = False
                 reward = self.R_ABORTED
-        elif self.t-1 in epochs['decision']:
+        elif self.in_epoch(self.t-1, 'decision'):
+        # elif self.t-1 in epochs['decision']:
             if action in [self.actions['CHOOSE-LEFT'],
                           self.actions['CHOOSE-RIGHT']]:
                 tr_perf = True
@@ -172,9 +175,11 @@ class PadoaSch(ngym.ngym):
         # Inputs
         # ---------------------------------------------------------------------
         obs = np.zeros(len(self.inputs))
-        if self.t not in epochs['decision']:
+        if not self.in_epoch(self.t, 'decision'):
+        # if self.t not in epochs['decision']:
             obs[self.inputs['FIXATION']] = 1
-        if self.t in epochs['offer-on']:
+        if self.in_epoch(self.t, 'offer-on'):
+        # if self.t in epochs['offer-on']:
             juiceL, juiceR = trial['juice']
             obs[self.inputs['L-'+juiceL]] = 1
             obs[self.inputs['R-'+juiceR]] = 1

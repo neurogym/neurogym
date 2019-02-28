@@ -125,16 +125,18 @@ class DPA(ngym.ngym):
         # ---------------------------------------------------------------------
         # Reward
         # ---------------------------------------------------------------------
-        epochs = trial['epochs']
+        # epochs = trial['epochs']
         status = {'continue': True}
         reward = 0
         tr_perf = False
-        if self.t-1 not in epochs['decision']:
+        if not self.in_epoch(self.t, 'decision'):
+        # if self.t-1 not in epochs['decision']:
             if action != self.actions['FIXATE']:
                 status['continue'] = False
                 status['choice'] = None
                 reward = self.R_ABORTED
-        elif self.t-1 in epochs['decision']:
+        else:
+        # elif self.t-1 in epochs['decision']:
             if action == self.actions['NO_MATCH']:
                 tr_perf = True
                 status['continue'] = False
@@ -156,16 +158,19 @@ class DPA(ngym.ngym):
 
         dpa1, dpa2 = trial['pair']
         obs = np.zeros(len(self.inputs))
-        if self.t not in epochs['decision']:
+        if not self.in_epoch(self.t, 'decision'):
+        # if self.t not in epochs['decision']:
             obs[self.inputs['FIXATION']] = 1
-        if self.t in epochs['dpa1']:
+        if self.in_epoch(self.t, 'dpa1'):
+        # if self.t in epochs['dpa1']:
             # TODO: there is a more efficient way to do this,
             # without using self.inputs. Do we need self.inputs at al?
             if dpa1 == 0:
                 obs[self.inputs['S1']] = 1
             elif dpa1 == 1:
                 obs[self.inputs['S2']] = 1
-        if self.t in epochs['dpa2']:
+        if self.in_epoch(self.t, 'dpa2'):
+        # if self.t in epochs['dpa2']:
             if dpa2 == 0:
                 obs[self.inputs['S3']] = 1
             elif dpa2 == 1:
