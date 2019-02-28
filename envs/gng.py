@@ -138,7 +138,7 @@ class GNG(ngym.ngym):
                 status['continue'] = False
                 status['choice'] = 'NG'
                 status['t_choice'] = self.t-1
-                status['correct'] = (trial['left_right'] < 0)
+                status['correct'] = (trial['go_nogo'] < 0)
                 if status['correct']:
                     reward = self.R_CORRECT
                 else:
