@@ -74,7 +74,6 @@ class ReadySetGo(ngym.ngym):
         # Epochs
         # ---------------------------------------------------------------------
 
-        fixation = 500
         measure = rng.choice([500, 580, 660, 760, 840, 920, 1000])
         gain = 1
         production = measure * gain

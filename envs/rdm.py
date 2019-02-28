@@ -80,6 +80,7 @@ class RDM(ngym.ngym):
                                                    xmax=self.stimulus_max)
 
         durations = {
+            'fixation_grace': (0, 100),
             'fixation':  (0, self.fixation),
             'stimulus':  (self.fixation, self.fixation + stimulus),
             'decision':  (self.fixation + stimulus,
@@ -115,7 +116,8 @@ class RDM(ngym.ngym):
         tr_perf = False
         # if self.t not in epochs['decision']:
         if not self.in_epoch(self.t, 'decision'):
-            if action != self.actions['FIXATE']:
+            if (action != self.actions['FIXATE'] and
+                    not self.in_epoch(self.t, 'fixation_grace')):
                 info['continue'] = False
                 reward = self.R_ABORTED
         else:  # elif self.t in epochs['decision']:

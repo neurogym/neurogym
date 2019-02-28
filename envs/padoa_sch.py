@@ -81,6 +81,7 @@ class PadoaSch(ngym.ngym):
                                      self.offer_on_max)
 
         durations = {
+            'fixation_grace': (0, 100),
             'fixation':    (0, self.fixation),
             'offer-on':    (self.fixation, self.fixation + offer_on),
             'decision':    (self.fixation + offer_on, self.tmax),
@@ -124,7 +125,8 @@ class PadoaSch(ngym.ngym):
         tr_perf = False
         if (self.in_epoch(self.t, 'fixation') or
                 self.in_epoch(self.t, 'offer-on')):
-            if action != self.actions['FIXATE']:
+            if (action != self.actions['FIXATE'] and
+                    not self.in_epoch(self.t, 'fixation_grace')):
                 info['continue'] = False
                 reward = self.R_ABORTED
         elif self.in_epoch(self.t, 'decision'):

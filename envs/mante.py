@@ -83,7 +83,8 @@ class Mante(ngym.ngym):
         reward = 0
         tr_perf = False
         if not self.in_epoch(self.t - 1, 'decision'):
-            if action != self.actions['fixate']:
+            if (action != self.actions['FIXATE'] and
+                    not self.in_epoch(self.t, 'fixation_grace')):
                 info['continue'] = False  # TODO: abort when no fixating?
                 reward = self.R_ABORTED
         else:
@@ -183,6 +184,7 @@ class Mante(ngym.ngym):
             tasktools.truncated_exponential(self.rng, self.dt, self.delay_mean,
                                             xmax=self.delay_max)
         durations = {
+            'fixation_grace': (0, 100),
             'fixation':  (0, self.fixation),
             'stimulus':  (self.fixation, self.fixation + self.stimulus),
             'delay':     (self.fixation + self.stimulus,

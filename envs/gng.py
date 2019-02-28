@@ -77,6 +77,7 @@ class GNG(ngym.ngym):
                                                    xmin=self.stimulus_min,
                                                    xmax=self.stimulus_max)
         durations = {
+            'fixation_grace': (0, 100),
             'fixation':  (0, self.fixation),
             'stimulus':  (self.fixation, self.fixation + stimulus),
             'resp_delay':  (self.fixation + stimulus,
@@ -112,7 +113,8 @@ class GNG(ngym.ngym):
         reward = 0
         tr_perf = False
         if not self.in_epoch(self.t, 'decision'):
-            if action != self.actions['FIXATE']:
+            if (action != self.actions['FIXATE'] and
+                    not self.in_epoch(self.t, 'fixation_grace')):
                 info['continue'] = False
                 reward = self.R_ABORTED
         else:

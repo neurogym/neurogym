@@ -114,6 +114,7 @@ class RDM_hist(ngym.ngym):
         coh = self.rng.choice(self.cohs)
 
         return {
+            'fixation_grace': (0, 100),
             'durations':   durations,
             'left_right':  left_right,
             'coh':         coh
@@ -134,7 +135,8 @@ class RDM_hist(ngym.ngym):
         reward = 0
         tr_perf = False
         if not self.in_epoch(self.t, 'decision'):
-            if action != self.actions['FIXATE']:
+            if (action != self.actions['FIXATE'] and
+                    not self.in_epoch(self.t, 'fixation_grace')):
                 info['continue'] = False
                 reward = self.R_ABORTED
         else:

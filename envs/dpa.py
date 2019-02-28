@@ -77,6 +77,7 @@ class DPA(ngym.ngym):
                                   self.delay_max)
 
         durations = {
+            'fixation_grace': (0, 100),
             'fixation':   (0, self.fixation),
             'dpa1':         (self.fixation, self.fixation + self.dpa1),
             'delay':      (self.fixation + self.dpa1,
@@ -125,7 +126,8 @@ class DPA(ngym.ngym):
         tr_perf = False
         # if self.t not in epochs['decision']:
         if not self.in_epoch(self.t, 'decision'):
-            if action != self.actions['FIXATE']:
+            if (action != self.actions['FIXATE'] and
+                    not self.in_epoch(self.t, 'fixation_grace')):
                 info['continue'] = False
                 info['choice'] = None
                 reward = self.R_ABORTED

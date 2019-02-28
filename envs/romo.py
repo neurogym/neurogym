@@ -76,6 +76,7 @@ class Romo(ngym.ngym):
                                   self.delay_max)
 
         durations = {
+            'fixation_grace': (0, 100),
             'fixation':   (0, self.fixation),
             'f1':         (self.fixation, self.fixation + self.f1),
             'delay':      (self.fixation + self.f1,
@@ -117,7 +118,8 @@ class Romo(ngym.ngym):
         reward = 0
         tr_perf = False
         if not self.in_epoch(self.t - 1, 'decision'):
-            if action != self.actions['FIXATE']:
+            if (action != self.actions['FIXATE'] and
+                    not self.in_epoch(self.t, 'fixation_grace')):
                 info['continue'] = False
                 info['choice'] = None
                 reward = self.R_ABORTED
