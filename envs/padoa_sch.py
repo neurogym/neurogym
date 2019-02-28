@@ -133,12 +133,10 @@ class PadoaSch(ngym.ngym):
         tr_perf = False
         if (self.in_epoch(self.t-1, 'fixation') or
                 self.in_epoch(self.t-1, 'offer-on')):
-        # if self.t-1 in epochs['fixation'] or self.t-1 in epochs['offer-on']:
             if action != self.actions['FIXATE']:
                 status['continue'] = False
                 reward = self.R_ABORTED
         elif self.in_epoch(self.t-1, 'decision'):
-        # elif self.t-1 in epochs['decision']:
             if action in [self.actions['CHOOSE-LEFT'],
                           self.actions['CHOOSE-RIGHT']]:
                 tr_perf = True
@@ -176,10 +174,8 @@ class PadoaSch(ngym.ngym):
         # ---------------------------------------------------------------------
         obs = np.zeros(len(self.inputs))
         if not self.in_epoch(self.t, 'decision'):
-        # if self.t not in epochs['decision']:
             obs[self.inputs['FIXATION']] = 1
         if self.in_epoch(self.t, 'offer-on'):
-        # if self.t in epochs['offer-on']:
             juiceL, juiceR = trial['juice']
             obs[self.inputs['L-'+juiceL]] = 1
             obs[self.inputs['R-'+juiceR]] = 1
@@ -191,13 +187,23 @@ class PadoaSch(ngym.ngym):
 
         # ---------------------------------------------------------------------
         # new trial?
-        reward, new_trial, self.t, self.perf, self.num_tr, self.num_tr_perf =\
-            tasktools.new_trial(self.t, self.tmax, self.dt, status['continue'],
-                                self.R_MISS, self.num_tr, self.perf, reward,
-                                self.p_stp, self.num_tr_perf, tr_perf)
+        reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
+                                                status['continue'],
+                                                self.R_MISS, reward)
 
         if new_trial:
+            self.t = 0
+            self.num_tr += 1
+            # compute perf
+            self.perf, self.num_tr, self.num_tr_perf =\
+                tasktools.compute_perf(self.perf, reward, self.num_tr,
+                                       self.p_stp, self.num_tr_perf, tr_perf)
             self.trial = self._new_trial(self.rng, self.dt)
+        else:
+            self.t += 1
+
+        done = False  # TODO: revisit
+        return obs, reward, done, status
 
         done = False  # TODO: revisit
         return obs, reward, done, status

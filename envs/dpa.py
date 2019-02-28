@@ -129,14 +129,13 @@ class DPA(ngym.ngym):
         status = {'continue': True}
         reward = 0
         tr_perf = False
-        if not self.in_epoch(self.t, 'decision'):
         # if self.t-1 not in epochs['decision']:
+        if not self.in_epoch(self.t, 'decision'):
             if action != self.actions['FIXATE']:
                 status['continue'] = False
                 status['choice'] = None
                 reward = self.R_ABORTED
-        else:
-        # elif self.t-1 in epochs['decision']:
+        else:  # elif self.t-1 in epochs['decision']:
             if action == self.actions['NO_MATCH']:
                 tr_perf = True
                 status['continue'] = False
@@ -158,19 +157,19 @@ class DPA(ngym.ngym):
 
         dpa1, dpa2 = trial['pair']
         obs = np.zeros(len(self.inputs))
-        if not self.in_epoch(self.t, 'decision'):
         # if self.t not in epochs['decision']:
+        if not self.in_epoch(self.t, 'decision'):
             obs[self.inputs['FIXATION']] = 1
-        if self.in_epoch(self.t, 'dpa1'):
         # if self.t in epochs['dpa1']:
+        if self.in_epoch(self.t, 'dpa1'):
             # TODO: there is a more efficient way to do this,
             # without using self.inputs. Do we need self.inputs at al?
             if dpa1 == 0:
                 obs[self.inputs['S1']] = 1
             elif dpa1 == 1:
                 obs[self.inputs['S2']] = 1
-        if self.in_epoch(self.t, 'dpa2'):
         # if self.t in epochs['dpa2']:
+        if self.in_epoch(self.t, 'dpa2'):
             if dpa2 == 0:
                 obs[self.inputs['S3']] = 1
             elif dpa2 == 1:
@@ -178,13 +177,20 @@ class DPA(ngym.ngym):
 
         # ---------------------------------------------------------------------
         # new trial?
-        reward, new_trial, self.t, self.perf, self.num_tr, self.num_tr_perf =\
-            tasktools.new_trial(self.t, self.tmax, self.dt, status['continue'],
-                                self.R_MISS, self.num_tr, self.perf, reward,
-                                self.p_stp, self.num_tr_perf, tr_perf)
+        reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
+                                                status['continue'],
+                                                self.R_MISS, reward)
 
         if new_trial:
+            self.t = 0
+            self.num_tr += 1
+            # compute perf
+            self.perf, self.num_tr, self.num_tr_perf =\
+                tasktools.compute_perf(self.perf, reward, self.num_tr,
+                                       self.p_stp, self.num_tr_perf, tr_perf)
             self.trial = self._new_trial(self.rng, self.dt)
+        else:
+            self.t += 1
 
         done = False  # TODO: revisit
         return obs, reward, done, status

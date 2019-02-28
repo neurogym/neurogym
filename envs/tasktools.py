@@ -91,9 +91,8 @@ def new_trial(t, tmax, dt, status, miss, reward):
         new_trial = True
     elif not status:
         new_trial = True
-    else:
-        t += 1
-    return reward, new_trial, t
+
+    return reward, new_trial
 
 
 def compute_perf(perf, reward, num_tr, p_stp, num_tr_perf, tr_perf):

@@ -11,7 +11,7 @@ from __future__ import division
 import numpy as np
 
 import ngym
-from gym import spaces, logger
+from gym import spaces
 
 import tasktools
 
@@ -83,12 +83,10 @@ class Mante(ngym.ngym):
         reward = 0
         tr_perf = False
         if not self.in_epoch(self.t - 1, 'decision'):
-        # if self.t - 1 not in epochs['decision']:
             if action != self.actions['fixate']:
                 status['continue'] = False  # TODO: abort when no fixating?
                 reward = self.R_ABORTED
         else:
-        # elif self.t - 1 in epochs['decision']:
             if action == self.actions['left']:
                 tr_perf = True
                 status['continue'] = False
@@ -136,13 +134,11 @@ class Mante(ngym.ngym):
             low_c = self.inputs['c-left']
 
         obs = np.zeros(len(self.inputs))
-        if (self.in_epoch(self.t, 'fixation') or self.in_epoch(self.t, 'stimulus') or
+        if (self.in_epoch(self.t, 'fixation') or
+            self.in_epoch(self.t, 'stimulus') or
                 self.in_epoch(self.t, 'delay')):
-        # if self.t in epochs['fixation'] or self.t in epochs['stimulus'] or\
-        #    self.t in epochs['delay']:
             obs[context] = 1
         if self.in_epoch(self.t, 'stimulus'):
-        # if self.t in epochs['stimulus']:
             obs[high_m] = self.scale(+trial['coh_m']) +\
                 rng.normal(scale=self.sigma) / np.sqrt(dt)
             obs[low_m] = self.scale(-trial['coh_m']) +\
@@ -153,13 +149,20 @@ class Mante(ngym.ngym):
                 rng.normal(scale=self.sigma) / np.sqrt(dt)
         # ---------------------------------------------------------------------
         # new trial?
-        reward, new_trial, self.t, self.perf, self.num_tr, self.num_tr_perf =\
-            tasktools.new_trial(self.t, self.tmax, self.dt, status['continue'],
-                                self.R_MISS, self.num_tr, self.perf, reward,
-                                self.p_stp, self.num_tr_perf, tr_perf)
+        reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
+                                                status['continue'],
+                                                self.R_MISS, reward)
 
         if new_trial:
+            self.t = 0
+            self.num_tr += 1
+            # compute perf
+            self.perf, self.num_tr, self.num_tr_perf =\
+                tasktools.compute_perf(self.perf, reward, self.num_tr,
+                                       self.p_stp, self.num_tr_perf, tr_perf)
             self.trial = self._new_trial(self.rng, self.dt)
+        else:
+            self.t += 1
 
         done = False  # TODO: revisit
         return obs, reward, done, status

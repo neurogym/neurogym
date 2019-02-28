@@ -142,12 +142,10 @@ class RDM_hist(ngym.ngym):
         reward = 0
         tr_perf = False
         if not self.in_epoch(self.t-1, 'decision'):
-        # if self.t-1 not in epochs['decision']:
             if action != self.actions['FIXATE']:
                 status['continue'] = False
                 reward = self.R_ABORTED
         else:
-        # elif self.t-1 in epochs['decision']:
             if action == self.actions['CHOOSE-LEFT']:
                 tr_perf = True
                 status['continue'] = False
@@ -180,11 +178,10 @@ class RDM_hist(ngym.ngym):
             low = self.inputs['LEFT']
 
         obs = np.zeros(len(self.inputs))
-        if self.in_epoch(self.t, 'fixation') or self.in_epoch(self.t, 'stimulus'):
-        # if self.t in epochs['fixation'] or self.t in epochs['stimulus']:
+        if (self.in_epoch(self.t, 'fixation') or
+           self.in_epoch(self.t, 'stimulus')):
             obs[self.inputs['FIXATION']] = 1
         if self.in_epoch(self.t, 'stimulus'):
-        # if self.t in epochs['stimulus']:
             obs[high] = self.scale(+trial['coh']) +\
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
             obs[low] = self.scale(-trial['coh']) +\
@@ -192,19 +189,23 @@ class RDM_hist(ngym.ngym):
 
         # ---------------------------------------------------------------------
         # new trial?
-        reward, new_trial, self.t, self.perf, self.num_tr, self.num_tr_perf =\
-            tasktools.new_trial(self.t, self.tmax, self.dt, status['continue'],
-                                self.R_MISS, self.num_tr, self.perf, reward,
-                                self.p_stp, self.num_tr_perf, tr_perf)
+        reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
+                                                status['continue'],
+                                                self.R_MISS, reward)
 
         if new_trial:
-            if self.num_tr % self.block_dur == 0:
-                self.curr_block = int(not self.curr_block)
+            self.t = 0
+            self.num_tr += 1
+            # compute perf
+            self.perf, self.num_tr, self.num_tr_perf =\
+                tasktools.compute_perf(self.perf, reward, self.num_tr,
+                                       self.p_stp, self.num_tr_perf, tr_perf)
             self.trial = self._new_trial(self.rng, self.dt)
+        else:
+            self.t += 1
 
         done = False  # TODO: revisit
         return obs, reward, done, status
-
     def terminate(perf):
         p_decision, p_correct = tasktools.correct_2AFC(perf)
 

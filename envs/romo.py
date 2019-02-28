@@ -125,13 +125,11 @@ class Romo(ngym.ngym):
         reward = 0
         tr_perf = False
         if not self.in_epoch(self.t - 1, 'decision'):
-        # if self.t-1 not in epochs['decision']:
             if action != self.actions['FIXATE']:
                 status['continue'] = False
                 status['choice'] = None
                 reward = self.R_ABORTED
         else:
-        # elif self.t-1 in epochs['decision']:
             if action == self.actions['>']:
                 tr_perf = True
                 status['continue'] = False
@@ -158,16 +156,13 @@ class Romo(ngym.ngym):
 
         obs = np.zeros(len(self.inputs))
         if not self.in_epoch(self.t, 'decision'):
-        # if self.t not in epochs['decision']:
             obs[self.inputs['FIXATION']] = 1
         if self.in_epoch(self.t, 'f1'):
-        # if self.t in epochs['f1']:
             obs[self.inputs['F-POS']] = self.scale_p(f1) +\
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
             obs[self.inputs['F-NEG']] = self.scale_n(f1) +\
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
         if self.in_epoch(self.t, 'f2'):
-        # if self.t in epochs['f2']:
             obs[self.inputs['F-POS']] = self.scale_p(f2) +\
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
             obs[self.inputs['F-NEG']] = self.scale_n(f2) +\
@@ -175,13 +170,20 @@ class Romo(ngym.ngym):
 
         # ---------------------------------------------------------------------
         # new trial?
-        reward, new_trial, self.t, self.perf, self.num_tr, self.num_tr_perf =\
-            tasktools.new_trial(self.t, self.tmax, self.dt, status['continue'],
-                                self.R_MISS, self.num_tr, self.perf, reward,
-                                self.p_stp, self.num_tr_perf, tr_perf)
+        reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
+                                                status['continue'],
+                                                self.R_MISS, reward)
 
         if new_trial:
+            self.t = 0
+            self.num_tr += 1
+            # compute perf
+            self.perf, self.num_tr, self.num_tr_perf =\
+                tasktools.compute_perf(self.perf, reward, self.num_tr,
+                                       self.p_stp, self.num_tr_perf, tr_perf)
             self.trial = self._new_trial(self.rng, self.dt)
+        else:
+            self.t += 1
 
         done = False  # TODO: revisit
         return obs, reward, done, status

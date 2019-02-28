@@ -173,9 +173,9 @@ class RDM(ngym.ngym):
 
         # ---------------------------------------------------------------------
         # new trial?
-        reward, new_trial, self.t =\
-            tasktools.new_trial(self.t, self.tmax, self.dt, status['continue'],
-                                self.R_MISS, reward)
+        reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
+                                                status['continue'],
+                                                self.R_MISS, reward)
 
         if new_trial:
             self.t = 0
@@ -185,6 +185,8 @@ class RDM(ngym.ngym):
                 tasktools.compute_perf(self.perf, reward, self.num_tr,
                                        self.p_stp, self.num_tr_perf, tr_perf)
             self.trial = self._new_trial(self.rng, self.dt)
+        else:
+            self.t += 1
 
         done = False  # TODO: revisit
         return obs, reward, done, status
