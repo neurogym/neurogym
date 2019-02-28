@@ -50,6 +50,8 @@ class ReadySetGo(ngym.ngym):
 
     def __init__(self, dt=100):
         super().__init__(dt=dt)
+        if dt > 80:
+            raise ValueError('dt {:0.2f} too large for this task.'.format(dt))
         self.stimulus_min = np.max([self.stimulus_min, dt])
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3, ),
@@ -74,10 +76,8 @@ class ReadySetGo(ngym.ngym):
 
         fixation = 500
         measure = rng.choice([500, 580, 660, 760, 840, 920, 1000])
-        self.measure = measure
         gain = 1
         production = measure * gain
-        self.production = production
         ready = set = 83  # duration of ready and set cue
         tmax = self.fixation + measure + set + 2*production
 
@@ -91,16 +91,15 @@ class ReadySetGo(ngym.ngym):
                            self.fixation + measure + set + 2*production),
             'tmax': tmax
             }
-        time, epochs = tasktools.get_epochs_idx(dt, durations)
 
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
 
         return {
-            'durations':   durations,
-            'time':        time,
-            'epochs':      epochs,
+            'durations': durations,
+            'measure': measure,
+            'production': production,
             }
 
     def step(self, action):
@@ -111,12 +110,12 @@ class ReadySetGo(ngym.ngym):
         status = {'continue': True}
         reward = 0
         tr_perf = False
-        # TODO: why do we use t-1?
-        # TODO: What's status continue? is it necessary?
-        # TODO: why not call status info, like gym?
+        # TODO: why do we use t-1? Remove all
+        # TODO: What's status continue? is it necessary? keep
+        # TODO: why not call status info, like gym? change to info
         # TODO: why use integer t instead of actual t?
         # TODO: do we have intertrial interval in the beginning? can the network fixate at time 0?
-        if not self.in_epoch(self.t-1, 'production'):
+        if not self.in_epoch(self.t, 'production'):
             if action != self.actions['FIXATE']:
                 status['continue'] = False
                 reward = self.R_ABORTED
@@ -125,8 +124,8 @@ class ReadySetGo(ngym.ngym):
                 status['continue'] = False  # terminate
                 # actual production time
                 t_prod = self.t*self.dt - trial['durations']['measure'][1]
-                eps = abs(t_prod - self.production)
-                eps_threshold = 0.2*self.production+25
+                eps = abs(t_prod - trial['production'])
+                eps_threshold = 0.2*trial['production']+25
                 if eps > eps_threshold:
                     status['correct'] = False
                     reward = self.R_FAIL
@@ -137,7 +136,7 @@ class ReadySetGo(ngym.ngym):
                     reward *= self.R_CORRECT
                 tr_perf = True
 
-                status['t_choice'] = self.t-1
+                status['t_choice'] = self.t
 
         # ---------------------------------------------------------------------
         # Inputs
