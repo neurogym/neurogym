@@ -82,6 +82,7 @@ class ReadySetGo(ngym.ngym):
         tmax = self.fixation + measure + set + 2*production
 
         durations = {
+            'fixation_grace': (0, 100),
             'fixation':  (0, self.fixation),
             'ready': (self.fixation, self.fixation + ready),
             'measure': (self.fixation, self.fixation + measure),
@@ -110,10 +111,10 @@ class ReadySetGo(ngym.ngym):
         info = {'continue': True}
         reward = 0
         tr_perf = False
-        # TODO: why use integer t instead of actual t?
-        # TODO: do we have intertrial interval in the beginning? can the network fixate at time 0?
+        # TODO: grace period?
         if not self.in_epoch(self.t, 'production'):
-            if action != self.actions['FIXATE']:
+            if (action != self.actions['FIXATE'] and
+                    not self.in_epoch(self.t, 'fixation_grace')):
                 info['continue'] = False
                 reward = self.R_ABORTED
         else:
