@@ -35,12 +35,11 @@ class ReadySetGo(ngym.ngym):
     sigma = np.sqrt(2*100*0.01)
 
     # Durations
-    fixation = 750
-    stimulus_min = 80
-    stimulus_mean = 330
-    stimulus_max = 1500
-    decision = 500
-    tmax = fixation + stimulus_max + decision
+    fixation = 500
+    gain = 1
+    ready = 83
+    set = 83
+    tmax = fixation + 2500
 
     # Rewards
     R_ABORTED = -1.
@@ -52,9 +51,8 @@ class ReadySetGo(ngym.ngym):
         super().__init__(dt=dt)
         if dt > 80:
             raise ValueError('dt {:0.2f} too large for this task.'.format(dt))
-        self.stimulus_min = np.max([self.stimulus_min, dt])
-        self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3, ),
+        self.action_space = spaces.Discrete(2)
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
 
         self.seed()
@@ -74,22 +72,20 @@ class ReadySetGo(ngym.ngym):
         # Epochs
         # ---------------------------------------------------------------------
 
-        fixation = 500
         measure = rng.choice([500, 580, 660, 760, 840, 920, 1000])
-        gain = 1
-        production = measure * gain
-        ready = set = 83  # duration of ready and set cue
-        tmax = self.fixation + measure + set + 2*production
+
+        production = measure * self.gain
+        tmax = self.fixation + measure + self.set + 2*production
 
         durations = {
             'fixation_grace': (0, 100),
             'fixation':  (0, self.fixation),
-            'ready': (self.fixation, self.fixation + ready),
+            'ready': (self.fixation, self.fixation + self.ready),
             'measure': (self.fixation, self.fixation + measure),
             'set': (self.fixation + measure,
-                    self.fixation + measure + set),
-            'production': (self.fixation + measure + set,
-                           self.fixation + measure + set + 2*production),
+                    self.fixation + measure + self.set),
+            'production': (self.fixation + measure + self.set,
+                           self.fixation + measure + self.set + 2*production),
             'tmax': tmax
             }
 
@@ -111,7 +107,6 @@ class ReadySetGo(ngym.ngym):
         info = {'continue': True}
         reward = 0
         tr_perf = False
-        # TODO: grace period?
         if not self.in_epoch(self.t, 'production'):
             if (action != self.actions['FIXATE'] and
                     not self.in_epoch(self.t, 'fixation_grace')):
