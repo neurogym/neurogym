@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sun Feb 24 13:48:19 2019
+Created on Thu Feb 28 09:03:35 2019
 
 @author: molano
 
+two-alternative forced choice task with trial-to-trial correlations, based on
 
-Perceptual decision-making task, based on
-
-  Bounded integration in parietal cortex underlies decisions even when viewing
-  duration is dictated by the environment.
-  R Kiani, TD Hanks, & MN Shadlen, JNS 2008.
-
-  http://dx.doi.org/10.1523/JNEUROSCI.4761-07.2008
+Response outcomes gate the impact of expectations on perceptual decisions
+Ainhoa Hermoso-Mendizabal, Alexandre Hyafil, Pavel Ernesto Rueda-Orozco,
+Santiago Jaramillo, David Robbe, Jaime de la Rocha
+doi: https://doi.org/10.1101/433409
 
 """
 from __future__ import division
@@ -23,7 +21,7 @@ import tasktools
 import ngym
 
 
-class RDM(ngym.ngym):
+class RDM_hist(ngym.ngym):
     # Inputs
     inputs = tasktools.to_map('FIXATION', 'LEFT', 'RIGHT')
 
@@ -32,16 +30,16 @@ class RDM(ngym.ngym):
 
     # Trial conditions
     left_rights = [-1, 1]
-    cohs = [0, 6.4, 12.8, 25.6, 51.2]  # Easier: [25.6, 51.2, 102.4, 204.8]
+    cohs = [0, 6.4, 12.8, 25.6, 51.2]
 
     # Input noise
     sigma = np.sqrt(2*100*0.01)
 
     # Durations
     fixation = 750
-    stimulus_min = 80
-    stimulus_mean = 330
-    stimulus_max = 1500
+    stimulus_min = 1000
+    stimulus_mean = 1001
+    stimulus_max = 1002
     decision = 500
     tmax = fixation + stimulus_max + decision
 
@@ -51,7 +49,7 @@ class RDM(ngym.ngym):
     R_FAIL = 0.
     R_MISS = 0.
 
-    def __init__(self, dt=100):
+    def __init__(self, dt=100, rep_prob=(.2, .8), block_dur=200):
         super().__init__(dt=dt)
         self.stimulus_min = np.max([self.stimulus_min, dt])
         self.action_space = spaces.Discrete(3)
@@ -63,9 +61,19 @@ class RDM(ngym.ngym):
 
         self.steps_beyond_done = None
 
+        # repeating prob variables
+        # prob. of repeating the stimuli in the positions of previous trial
+        self.rep_prob = rep_prob
+        # position of the first stimulus
+        self.left_right_prev_trial = self.rng.choice([0, 1])
+        # keeps track of the repeating prob of the current block
+        self.curr_block = self.rng.choice([0, 1])
+        # duration of block (in number oif trials)
+        self.block_dur = block_dur
+
         self.trial = self._new_trial(self.rng, self.dt)
         print('------------------------')
-        print('RDM task')
+        print('RDM with history dependencies task')
         print('time step: ' + str(self.dt))
         print('------------------------')
 
@@ -96,7 +104,16 @@ class RDM(ngym.ngym):
 
         left_right = context.get('left_right')
         if left_right is None:
-            left_right = rng.choice(self.left_rights)
+            if self.left_right_prev_trial == -1:
+                probs = (self.rep_prob[self.curr_block],
+                         1-self.rep_prob[self.curr_block])
+            else:
+                probs = (1-self.rep_prob[self.curr_block],
+                         self.rep_prob[self.curr_block])
+            left_right = rng.choice(self.left_rights,
+                                    p=probs)
+
+        self.left_right_prev_trial = left_right
 
         coh = context.get('coh')
         if coh is None:
@@ -121,6 +138,7 @@ class RDM(ngym.ngym):
         trial = self.trial
         epochs = trial['epochs']
         status = {'continue': True}
+        status['gt'] = trial['left_right']
         reward = 0
         tr_perf = False
         if self.t-1 not in epochs['decision']:
@@ -176,6 +194,8 @@ class RDM(ngym.ngym):
                                 self.p_stp, self.num_tr_perf, tr_perf)
 
         if new_trial:
+            if self.num_tr % self.block_dur == 0:
+                self.curr_block = int(not self.curr_block)
             self.trial = self._new_trial(self.rng, self.dt)
 
         done = False  # TODO: revisit

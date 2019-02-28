@@ -69,3 +69,13 @@ register(
     max_episode_steps=100000,
     reward_threshold=90.0,
 )
+
+register(
+    id='RDM_hist-v0',
+    entry_point='rdm_hist:RDM_hist',
+    max_episode_steps=100000,
+    reward_threshold=90.0,
+)
+
+def all_envs():
+    return ['rdm', 'dpa', 'mante', 'romo', 'gng', 'padoa_sch', 'pd_wager']
