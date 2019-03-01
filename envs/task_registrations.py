@@ -100,6 +100,8 @@ register(
 
 
 def all_envs():
-    # TODO: what does this do?
+    """
+    used in baselines/run.py to check if a task is from neurogym
+    """
     return ['rdm', 'dpa', 'mante', 'romo', 'gng', 'padoa_sch', 'pd_wager',
-            'rdm_hist', 'readysetgo']
+            'rdm_hist', 'readysetgo', 'DelayedMatchSample-v0', 'DawTwoStep-v0']
