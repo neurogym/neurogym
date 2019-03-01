@@ -121,6 +121,7 @@ class RDM(ngym.ngym):
                 info['continue'] = False
                 reward = self.R_ABORTED
         else:  # elif self.t in epochs['decision']:
+            # TODO: this part can be simplified
             if action == self.actions['CHOOSE-LEFT']:
                 tr_perf = True
                 info['continue'] = False
