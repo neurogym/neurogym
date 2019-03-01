@@ -71,23 +71,21 @@ class RDM_hist(ngym.ngym):
         # duration of block (in number oif trials)
         self.block_dur = block_dur
 
-        self.trial = self._new_trial(self.rng, self.dt)
+        self.trial = self._new_trial()
         print('------------------------')
         print('RDM with history dependencies task')
         print('time step: ' + str(self.dt))
         print('------------------------')
 
-    def _new_trial(self, rng, dt, context={}):
+    def _new_trial(self):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
 
-        stimulus = context.get('stimulus')
-        if stimulus is None:
-            stimulus = tasktools.truncated_exponential(rng, dt,
-                                                       self.stimulus_mean,
-                                                       xmin=self.stimulus_min,
-                                                       xmax=self.stimulus_max)
+        stimulus = tasktools.truncated_exponential(self.rng, self.dt,
+                                                   self.stimulus_mean,
+                                                   xmin=self.stimulus_min,
+                                                   xmax=self.stimulus_max)
 
         durations = {
             'fixation':  (0, self.fixation),
@@ -96,33 +94,28 @@ class RDM_hist(ngym.ngym):
                           self.fixation + stimulus + self.decision),
             'tmax':      self.tmax
             }
-        time, epochs = tasktools.get_epochs_idx(dt, durations)
 
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
 
-        left_right = context.get('left_right')
-        if left_right is None:
-            if self.left_right_prev_trial == -1:
-                probs = (self.rep_prob[self.curr_block],
-                         1-self.rep_prob[self.curr_block])
-            else:
-                probs = (1-self.rep_prob[self.curr_block],
-                         self.rep_prob[self.curr_block])
-            left_right = rng.choice(self.left_rights,
-                                    p=probs)
+        if self.left_right_prev_trial == -1:
+            probs = (self.rep_prob[self.curr_block],
+                     1-self.rep_prob[self.curr_block])
+        else:
+            probs = (1-self.rep_prob[self.curr_block],
+                     self.rep_prob[self.curr_block])
+
+        left_right = self.rng.choice(self.left_rights,
+                                     p=probs)
 
         self.left_right_prev_trial = left_right
 
-        coh = context.get('coh')
-        if coh is None:
-            coh = rng.choice(self.cohs)
+        coh = self.rng.choice(self.cohs)
 
         return {
+            'fixation_grace': (0, 100),
             'durations':   durations,
-            'time':        time,
-            'epochs':      epochs,
             'left_right':  left_right,
             'coh':         coh
             }
@@ -142,7 +135,8 @@ class RDM_hist(ngym.ngym):
         reward = 0
         tr_perf = False
         if not self.in_epoch(self.t, 'decision'):
-            if action != self.actions['FIXATE']:
+            if (action != self.actions['FIXATE'] and
+                    not self.in_epoch(self.t, 'fixation_grace')):
                 info['continue'] = False
                 reward = self.R_ABORTED
         else:
@@ -200,12 +194,13 @@ class RDM_hist(ngym.ngym):
             self.perf, self.num_tr, self.num_tr_perf =\
                 tasktools.compute_perf(self.perf, reward, self.num_tr,
                                        self.p_stp, self.num_tr_perf, tr_perf)
-            self.trial = self._new_trial(self.rng, self.dt)
+            self.trial = self._new_trial()
         else:
             self.t += self.dt
 
         done = False  # TODO: revisit
         return obs, reward, done, info
+
     def terminate(perf):
         p_decision, p_correct = tasktools.correct_2AFC(perf)
 

@@ -66,41 +66,35 @@ class PadoaSch(ngym.ngym):
 
         self.steps_beyond_done = None
 
-        self.trial = self._new_trial(self.rng, self.dt)
+        self.trial = self._new_trial()
 
     # Input scaling
     def scale(self, x):
         return x/5
 
-    def _new_trial(self, rng, dt, context={}):
+    def _new_trial(self):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
 
-        offer_on = context.get('offer-on')
-        if offer_on is None:
-            offer_on = tasktools.uniform(rng, dt, self.offer_on_min,
-                                         self.offer_on_max)
+        offer_on = tasktools.uniform(self.rng, self.dt, self.offer_on_min,
+                                     self.offer_on_max)
 
         durations = {
+            'fixation_grace': (0, 100),
             'fixation':    (0, self.fixation),
             'offer-on':    (self.fixation, self.fixation + offer_on),
             'decision':    (self.fixation + offer_on, self.tmax),
             'tmax':        self.tmax
             }
-        time, epochs = tasktools.get_epochs_idx(dt, durations)
 
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
 
-        juice = context.get('juice')
-        if juice is None:
-            juice = tasktools.choice(rng, self.juices)
+        juice = tasktools.choice(self.rng, self.juices)
 
-        offer = context.get('offer')
-        if offer is None:
-            offer = tasktools.choice(rng, self.offers)
+        offer = tasktools.choice(self.rng, self.offers)
 
         juiceL, juiceR = juice
         nB, nA = offer
@@ -112,8 +106,6 @@ class PadoaSch(ngym.ngym):
 
         return {
             'durations': durations,
-            'time':      time,
-            'epochs':    epochs,
             'juice':     juice,
             'offer':     offer,
             'nL':        nL,
@@ -133,7 +125,8 @@ class PadoaSch(ngym.ngym):
         tr_perf = False
         if (self.in_epoch(self.t, 'fixation') or
                 self.in_epoch(self.t, 'offer-on')):
-            if action != self.actions['FIXATE']:
+            if (action != self.actions['FIXATE'] and
+                    not self.in_epoch(self.t, 'fixation_grace')):
                 info['continue'] = False
                 reward = self.R_ABORTED
         elif self.in_epoch(self.t, 'decision'):
@@ -198,7 +191,7 @@ class PadoaSch(ngym.ngym):
             self.perf, self.num_tr, self.num_tr_perf =\
                 tasktools.compute_perf(self.perf, reward, self.num_tr,
                                        self.p_stp, self.num_tr_perf, tr_perf)
-            self.trial = self._new_trial(self.rng, self.dt)
+            self.trial = self._new_trial()
         else:
             self.t += self.dt
 

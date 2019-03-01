@@ -60,21 +60,22 @@ class ReadySetGo(ngym.ngym):
 
         self.steps_beyond_done = None
 
-        self.trial = self._new_trial(self.rng, self.dt)
+        self.trial = self._new_trial()
         print('------------------------')
         print('RDM task')
         print('time step: ' + str(self.dt))
         print('------------------------')
 
-    def _new_trial(self, rng, dt):
+    def _new_trial(self):
         # TODO: why are rng and dt inputs?
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        measure = rng.choice([500, 580, 660, 760, 840, 920, 1000])
-
-        production = measure * self.gain
-        tmax = self.fixation + measure + self.set + 2*production
+        measure = self.rng.choice([500, 580, 660, 760, 840, 920, 1000])
+        gain = 1
+        production = measure * gain
+        ready = set = 83  # duration of ready and set cue
+        tmax = self.fixation + measure + set + 2*production
 
         durations = {
             'fixation_grace': (0, 100),
@@ -153,7 +154,7 @@ class ReadySetGo(ngym.ngym):
             self.perf, self.num_tr, self.num_tr_perf =\
                 tasktools.compute_perf(self.perf, reward, self.num_tr,
                                        self.p_stp, self.num_tr_perf, tr_perf)
-            self.trial = self._new_trial(self.rng, self.dt)
+            self.trial = self._new_trial()
         else:
             self.t += self.dt
 

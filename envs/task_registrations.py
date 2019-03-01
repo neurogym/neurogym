@@ -84,6 +84,8 @@ register(
     reward_threshold=90.0,
 )
 
+
 def all_envs():
     # TODO: what does this do?
-    return ['rdm', 'dpa', 'mante', 'romo', 'gng', 'padoa_sch', 'pd_wager', 'readysetgo']
+    return ['rdm', 'dpa', 'mante', 'romo', 'gng', 'padoa_sch', 'pd_wager',
+            'rdm_hist', 'readysetgo']

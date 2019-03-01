@@ -65,18 +65,18 @@ class Romo(ngym.ngym):
 
         self.steps_beyond_done = None
 
-        self.trial = self._new_trial(self.rng, self.dt)
+        self.trial = self._new_trial()
 
-    def _new_trial(self, rng, dt, context={}):
+    def _new_trial(self):
         # -------------------------------------------------------------------------
         # Epochs
         # --------------------------------------------------------------------------
 
-        delay = context.get('delay')
-        if delay is None:
-            delay = tasktools.uniform(rng, dt, self.delay_min, self.delay_max)
+        delay = tasktools.uniform(self.rng, self.dt, self.delay_min,
+                                  self.delay_max)
 
         durations = {
+            'fixation_grace': (0, 100),
             'fixation':   (0, self.fixation),
             'f1':         (self.fixation, self.fixation + self.f1),
             'delay':      (self.fixation + self.f1,
@@ -87,20 +87,13 @@ class Romo(ngym.ngym):
                            self.tmax),
             'tmax':       self.tmax
             }
-        time, epochs = tasktools.get_epochs_idx(dt, durations)
 
-        gt_lt = context.get('gt_lt')
-        if gt_lt is None:
-            gt_lt = tasktools.choice(rng, self.gt_lts)
+        gt_lt = tasktools.choice(self.rng, self.gt_lts)
 
-        fpair = context.get('fpair')
-        if fpair is None:
-            fpair = tasktools.choice(rng, self.fpairs)
+        fpair = tasktools.choice(self.rng, self.fpairs)
 
         return {
             'durations': durations,
-            'time':      time,
-            'epochs':    epochs,
             'gt_lt':     gt_lt,
             'fpair':     fpair
             }
@@ -125,7 +118,8 @@ class Romo(ngym.ngym):
         reward = 0
         tr_perf = False
         if not self.in_epoch(self.t - 1, 'decision'):
-            if action != self.actions['FIXATE']:
+            if (action != self.actions['FIXATE'] and
+                    not self.in_epoch(self.t, 'fixation_grace')):
                 info['continue'] = False
                 info['choice'] = None
                 reward = self.R_ABORTED
@@ -181,7 +175,7 @@ class Romo(ngym.ngym):
             self.perf, self.num_tr, self.num_tr_perf =\
                 tasktools.compute_perf(self.perf, reward, self.num_tr,
                                        self.p_stp, self.num_tr_perf, tr_perf)
-            self.trial = self._new_trial(self.rng, self.dt)
+            self.trial = self._new_trial()
         else:
             self.t += self.dt
 

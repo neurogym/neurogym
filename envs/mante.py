@@ -67,7 +67,7 @@ class Mante(ngym.ngym):
 
         self.steps_beyond_done = None
 
-        self.trial = self._new_trial(self.rng, self.dt)
+        self.trial = self._new_trial()
 
     # def step(rng, dt, trial, t, a):
     def step(self, action):
@@ -83,7 +83,8 @@ class Mante(ngym.ngym):
         reward = 0
         tr_perf = False
         if not self.in_epoch(self.t - 1, 'decision'):
-            if action != self.actions['fixate']:
+            if (action != self.actions['FIXATE'] and
+                    not self.in_epoch(self.t, 'fixation_grace')):
                 info['continue'] = False  # TODO: abort when no fixating?
                 reward = self.R_ABORTED
         else:
@@ -160,7 +161,7 @@ class Mante(ngym.ngym):
             self.perf, self.num_tr, self.num_tr_perf =\
                 tasktools.compute_perf(self.perf, reward, self.num_tr,
                                        self.p_stp, self.num_tr_perf, tr_perf)
-            self.trial = self._new_trial(self.rng, self.dt)
+            self.trial = self._new_trial()
         else:
             self.t += self.dt
 
@@ -174,17 +175,16 @@ class Mante(ngym.ngym):
         if self.viewer:
             self.viewer.close()
 
-    def _new_trial(self, rng, dt, context={}):
+    def _new_trial(self):
         # -----------------------------------------------------------------------
         # Epochs
         # -----------------------------------------------------------------------
 
-        delay = context.get('delay')
-        if delay is None:
-            delay = self.delay_min +\
-                tasktools.truncated_exponential(rng, dt, self.delay_mean,
-                                                xmax=self.delay_max)
+        delay = self.delay_min +\
+            tasktools.truncated_exponential(self.rng, self.dt, self.delay_mean,
+                                            xmax=self.delay_max)
         durations = {
+            'fixation_grace': (0, 100),
             'fixation':  (0, self.fixation),
             'stimulus':  (self.fixation, self.fixation + self.stimulus),
             'delay':     (self.fixation + self.stimulus,
@@ -192,36 +192,23 @@ class Mante(ngym.ngym):
             'decision':  (self.fixation + self.stimulus + delay, self.tmax),
             'tmax':      self.tmax
             }
-        time, epochs = tasktools.get_epochs_idx(dt, durations)
 
         # -------------------------------------------------------------------------
         # Trial
         # -------------------------------------------------------------------------
 
-        context_ = context.get('context')
-        if context_ is None:
-            context_ = rng.choice(self.contexts)
+        context_ = self.rng.choice(self.contexts)
 
-        left_right_m = context.get('left_right_m')
-        if left_right_m is None:
-            left_right_m = rng.choice(self.left_rights)
+        left_right_m = self.rng.choice(self.left_rights)
 
-        left_right_c = context.get('left_right_c')
-        if left_right_c is None:
-            left_right_c = rng.choice(self.left_rights)
+        left_right_c = self.rng.choice(self.left_rights)
 
-        coh_m = context.get('coh_m')
-        if coh_m is None:
-            coh_m = rng.choice(self.cohs)
+        coh_m = self.rng.choice(self.cohs)
 
-        coh_c = context.get('coh_c')
-        if coh_c is None:
-            coh_c = rng.choice(self.cohs)
+        coh_c = self.rng.choice(self.cohs)
 
         return {
             'durations':    durations,
-            'time':         time,
-            'epochs':       epochs,
             'context':      context_,
             'left_right_m': left_right_m,
             'left_right_c': left_right_c,

@@ -82,46 +82,42 @@ class PDWager(ngym.ngym):
 
         self.steps_beyond_done = None
 
-        self.trial = self._new_trial(self.rng, self.dt)
+        self.trial = self._new_trial()
 
     # Input scaling
     def scale(self, coh):
         return (1 + coh/100)/2
 
-    def _new_trial(self, rng, dt, context={}):
+    def _new_trial(self):
         # ---------------------------------------------------------------------
         # Wager or no wager?
         # ---------------------------------------------------------------------
 
-        wager = context.get('wager')
-        if wager is None:
-            wager = rng.choice(self.wagers)
+        wager = self.rng.choice(self.wagers)
 
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
 
-        stimulus = context.get('stimulus')
-        if stimulus is None:
-            stimulus = self.stimulus_min +\
-                tasktools.truncated_exponential(rng, dt, self.stimulus_mean,
-                                                xmax=self.stimulus_max)
+        stimulus = self.stimulus_min +\
+            tasktools.truncated_exponential(self.rng, self.dt,
+                                            self.stimulus_mean,
+                                            xmax=self.stimulus_max)
 
-        delay = context.get('delay')
-        if delay is None:
-            delay = tasktools.truncated_exponential(rng, dt, self.delay_mean,
-                                                    xmin=self.delay_min,
-                                                    xmax=self.delay_max)
+        delay = tasktools.truncated_exponential(self.rng, self.dt,
+                                                self.delay_mean,
+                                                xmin=self.delay_min,
+                                                xmax=self.delay_max)
 
         if wager:
-            sure_onset = context.get('sure_onset')
-            if sure_onset is None:
-                sure_onset =\
-                    tasktools.truncated_exponential(rng, dt, self.sure_mean,
-                                                    xmin=self.sure_min,
-                                                    xmax=self.sure_max)
+            sure_onset =\
+                tasktools.truncated_exponential(self.rng, self.dt,
+                                                self.sure_mean,
+                                                xmin=self.sure_min,
+                                                xmax=self.sure_max)
 
         durations = {
+            'fixation_grace': (0, 100),
             'fixation':  (0, self.fixation),
             'stimulus':  (self.fixation, self.fixation + stimulus),
             'delay':     (self.fixation + stimulus,
@@ -132,24 +128,17 @@ class PDWager(ngym.ngym):
         if wager:
             durations['sure'] = (self.fixation + stimulus + sure_onset,
                                  self.tmax)
-        time, epochs = tasktools.get_epochs_idx(dt, durations)
 
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
 
-        left_right = context.get('left_right')
-        if left_right is None:
-            left_right = rng.choice(self.left_rights)
+        left_right = self.rng.choice(self.left_rights)
 
-        coh = context.get('coh')
-        if coh is None:
-            coh = rng.choice(self.cohs)
+        coh = self.rng.choice(self.cohs)
 
         return {
             'durations':  durations,
-            'time':       time,
-            'epochs':     epochs,
             'wager':      wager,
             'left_right': left_right,
             'coh':        coh
@@ -166,7 +155,8 @@ class PDWager(ngym.ngym):
         reward = 0
         tr_perf = False
         if not self.in_epoch(self.t, 'decision'):
-            if action != self.actions['FIXATE']:
+            if (action != self.actions['FIXATE'] and
+                    not self.in_epoch(self.t, 'fixation_grace')):
                 info['continue'] = False
                 reward = self.R_ABORTED
         else:
@@ -233,7 +223,7 @@ class PDWager(ngym.ngym):
             self.perf, self.num_tr, self.num_tr_perf =\
                 tasktools.compute_perf(self.perf, reward, self.num_tr,
                                        self.p_stp, self.num_tr_perf, tr_perf)
-            self.trial = self._new_trial(self.rng, self.dt)
+            self.trial = self._new_trial()
         else:
             self.t += self.dt
 

@@ -66,18 +66,18 @@ class DPA(ngym.ngym):
         self.steps_beyond_done = None
         ###################
 
-        self.trial = self._new_trial(self.rng, self.dt)
+        self.trial = self._new_trial()
 
-    def _new_trial(self, rng, dt, context={}):
+    def _new_trial(self):
         # -------------------------------------------------------------------------
         # Epochs
         # --------------------------------------------------------------------------
 
-        delay = context.get('delay')
-        if delay is None:
-            delay = tasktools.uniform(rng, dt, self.delay_min, self.delay_max)
+        delay = tasktools.uniform(self.rng, self.dt, self.delay_min,
+                                  self.delay_max)
 
         durations = {
+            'fixation_grace': (0, 100),
             'fixation':   (0, self.fixation),
             'dpa1':         (self.fixation, self.fixation + self.dpa1),
             'delay':      (self.fixation + self.dpa1,
@@ -91,11 +91,8 @@ class DPA(ngym.ngym):
                            self.resp_delay, self.tmax),
             'tmax':       self.tmax
             }
-        time, epochs = tasktools.get_epochs_idx(dt, durations)
 
-        pair = context.get('pair')
-        if pair is None:
-            pair = tasktools.choice(rng, self.fnew_trial)
+        pair = tasktools.choice(self.rng, self.fnew_trial)
 
         if np.diff(pair)[0] == 0:
             gt_lt = 'MATCH'
@@ -104,8 +101,6 @@ class DPA(ngym.ngym):
 
         return {
             'durations': durations,
-            'time':      time,
-            'epochs':    epochs,
             'gt_lt':     gt_lt,
             'pair':     pair
             }
@@ -131,7 +126,8 @@ class DPA(ngym.ngym):
         tr_perf = False
         # if self.t not in epochs['decision']:
         if not self.in_epoch(self.t, 'decision'):
-            if action != self.actions['FIXATE']:
+            if (action != self.actions['FIXATE'] and
+                    not self.in_epoch(self.t, 'fixation_grace')):
                 info['continue'] = False
                 info['choice'] = None
                 reward = self.R_ABORTED
@@ -188,7 +184,7 @@ class DPA(ngym.ngym):
             self.perf, self.num_tr, self.num_tr_perf =\
                 tasktools.compute_perf(self.perf, reward, self.num_tr,
                                        self.p_stp, self.num_tr_perf, tr_perf)
-            self.trial = self._new_trial(self.rng, self.dt)
+            self.trial = self._new_trial()
         else:
             self.t += self.dt
 
