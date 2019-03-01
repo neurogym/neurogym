@@ -79,6 +79,7 @@ class RDM(ngym.ngym):
                                                    xmin=self.stimulus_min,
                                                    xmax=self.stimulus_max)
 
+        # TODO: don't align, not PEP8
         durations = {
             'fixation_grace': (0, 100),
             'fixation':  (0, self.fixation),
