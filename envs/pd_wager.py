@@ -133,14 +133,14 @@ class PDWager(ngym.ngym):
         # Trial
         # ---------------------------------------------------------------------
 
-        left_right = self.rng.choice(self.left_rights)
+        ground_truth = self.rng.choice(self.left_rights)
 
         coh = self.rng.choice(self.cohs)
 
         return {
             'durations':  durations,
             'wager':      wager,
-            'left_right': left_right,
+            'ground_truth': ground_truth,
             'coh':        coh
             }
 
@@ -165,7 +165,7 @@ class PDWager(ngym.ngym):
                 info['continue'] = False
                 info['choice'] = 'L'
                 info['t_choice'] = self.t
-                info['correct'] = (trial['left_right'] < 0)
+                info['correct'] = (trial['ground_truth'] < 0)
                 if info['correct']:
                     reward = self.R_CORRECT
             elif action == self.actions['CHOOSE-RIGHT']:
@@ -173,7 +173,7 @@ class PDWager(ngym.ngym):
                 info['continue'] = False
                 info['choice'] = 'R'
                 info['t_choice'] = self.t
-                info['correct'] = (trial['left_right'] > 0)
+                info['correct'] = (trial['ground_truth'] > 0)
                 if info['correct']:
                     reward = self.R_CORRECT
             elif action == self.actions['CHOOSE-SURE']:
@@ -190,7 +190,7 @@ class PDWager(ngym.ngym):
         # Inputs
         # ---------------------------------------------------------------------
 
-        if trial['left_right'] < 0:
+        if trial['ground_truth'] < 0:
             high = self.inputs['LEFT']
             low = self.inputs['RIGHT']
         else:

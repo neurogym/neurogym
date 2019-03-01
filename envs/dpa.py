@@ -31,7 +31,6 @@ class DPA(ngym.ngym):
     actions = tasktools.to_map('FIXATE', 'NO_MATCH', 'MATCH')
 
     # Trial conditions
-    gt_lts = ['NO_MATCH', 'MATCH']
     fnew_trial = [(0, 0), (0, 1), (1, 0), (1, 1)]
 
     # Input noise
@@ -95,13 +94,13 @@ class DPA(ngym.ngym):
         pair = tasktools.choice(self.rng, self.fnew_trial)
 
         if np.diff(pair)[0] == 0:
-            gt_lt = 'MATCH'
+            ground_truth = 'MATCH'
         else:
-            gt_lt = 'NO_MATCH'
+            ground_truth = 'NO_MATCH'
 
         return {
             'durations': durations,
-            'gt_lt':     gt_lt,
+            'ground_truth':     ground_truth,
             'pair':     pair
             }
 
@@ -136,14 +135,14 @@ class DPA(ngym.ngym):
                 tr_perf = True
                 info['continue'] = False
                 info['choice'] = 'NO_MATCH'
-                info['correct'] = (trial['gt_lt'] == 'NO_MATCH')
+                info['correct'] = (trial['ground_truth'] == 'NO_MATCH')
                 if info['correct']:
                     reward = self.R_CORRECT
             elif action == self.actions['MATCH']:
                 tr_perf = True
                 info['continue'] = False
                 info['choice'] = 'MATCH'
-                info['correct'] = (trial['gt_lt'] == 'MATCH')
+                info['correct'] = (trial['ground_truth'] == 'MATCH')
                 if info['correct']:
                     reward = self.R_CORRECT
 
@@ -188,7 +187,7 @@ class DPA(ngym.ngym):
         else:
             self.t += self.dt
 
-        done = False  # TODO: revisit
+        done = False
         return obs, reward, done, info
 
     def terminate(perf):

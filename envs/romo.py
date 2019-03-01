@@ -27,7 +27,7 @@ class Romo(ngym.ngym):
     actions = tasktools.to_map('FIXATE', '>', '<')
 
     # Trial conditions
-    gt_lts = ['>', '<']
+    ground_truth = ['>', '<']
     fpairs = [(18, 10), (22, 14), (26, 18), (30, 22), (34, 26)]
 
     # Input noise
@@ -88,14 +88,15 @@ class Romo(ngym.ngym):
             'tmax':       self.tmax
             }
 
-        gt_lt = tasktools.choice(self.rng, self.gt_lts)
-
+        ground_truth = tasktools.choice(self.rng, self.ground_truth)
+        print(ground_truth)
+        print(self.rng.choice(self.ground_truth))
         fpair = tasktools.choice(self.rng, self.fpairs)
 
         return {
             'durations': durations,
-            'gt_lt':     gt_lt,
-            'fpair':     fpair
+            'ground_truth': ground_truth,
+            'fpair': fpair
             }
 
     def scale(self, f):
@@ -128,14 +129,14 @@ class Romo(ngym.ngym):
                 tr_perf = True
                 info['continue'] = False
                 info['choice'] = '>'
-                info['correct'] = (trial['gt_lt'] == '>')
+                info['correct'] = (trial['ground_truth'] == '>')
                 if info['correct']:
                     reward = self.R_CORRECT
             elif action == self.actions['<']:
                 tr_perf = True
                 info['continue'] = False
                 info['choice'] = '<'
-                info['correct'] = (trial['gt_lt'] == '<')
+                info['correct'] = (trial['ground_truth'] == '<')
                 if info['correct']:
                     reward = self.R_CORRECT
 
@@ -143,7 +144,7 @@ class Romo(ngym.ngym):
         # Inputs
         # ---------------------------------------------------------------------
 
-        if trial['gt_lt'] == '>':
+        if trial['ground_truth'] == '>':
             f1, f2 = trial['fpair']
         else:
             f2, f1 = trial['fpair']
