@@ -92,11 +92,11 @@ class GNG(ngym.ngym):
         # Trial
         # ---------------------------------------------------------------------
 
-        go_nogo = self.rng.choice(self.go_nogos)
+        ground_truth = self.rng.choice(self.go_nogos)
 
         return {
             'durations':   durations,
-            'go_nogo':  go_nogo,
+            'ground_truth':  ground_truth,
             }
 
     # Input scaling
@@ -123,7 +123,7 @@ class GNG(ngym.ngym):
                 info['continue'] = False
                 info['choice'] = 'GO'
                 info['t_choice'] = self.t
-                info['correct'] = (trial['go_nogo'] > 0)
+                info['correct'] = (trial['ground_truth'] > 0)
                 if info['correct']:
                     reward = self.R_CORRECT
                 else:
@@ -133,7 +133,7 @@ class GNG(ngym.ngym):
                 info['continue'] = False
                 info['choice'] = 'NG'
                 info['t_choice'] = self.t
-                info['correct'] = (trial['go_nogo'] < 0)
+                info['correct'] = (trial['ground_truth'] < 0)
                 if info['correct']:
                     reward = self.R_CORRECT
                 else:
@@ -142,7 +142,7 @@ class GNG(ngym.ngym):
         # Inputs
         # ---------------------------------------------------------------------
 
-        if trial['go_nogo'] < 0:
+        if trial['ground_truth'] < 0:
             stim = self.inputs['S1']
         else:
             stim = self.inputs['S2']
