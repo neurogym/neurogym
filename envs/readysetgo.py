@@ -68,13 +68,13 @@ class ReadySetGo(ngym.ngym):
         print('time step: ' + str(self.dt))
         print('------------------------')
 
-    def _new_trial(self, rng, dt):
+    def _new_trial(self):
         # TODO: why are rng and dt inputs?
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
 
-        measure = rng.choice([500, 580, 660, 760, 840, 920, 1000])
+        measure = self.rng.choice([500, 580, 660, 760, 840, 920, 1000])
         gain = 1
         production = measure * gain
         ready = set = 83  # duration of ready and set cue
