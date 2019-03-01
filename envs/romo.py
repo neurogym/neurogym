@@ -90,7 +90,7 @@ class Romo(ngym.ngym):
 
         ground_truth = self.rng.choice(self.ground_truth)
 
-        fpair = tasktools.choice(self.rng, self.fpairs)
+        fpair = self.rng.choice(self.fpairs)
 
         return {
             'durations': durations,

@@ -91,7 +91,7 @@ class DPA(ngym.ngym):
             'tmax':       self.tmax
             }
 
-        pair = tasktools.choice(self.rng, self.fnew_trial)
+        pair = self.rng.choice(self.fnew_trial)
 
         if np.diff(pair)[0] == 0:
             ground_truth = 'MATCH'
