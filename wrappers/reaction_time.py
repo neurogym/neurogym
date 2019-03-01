@@ -11,8 +11,8 @@ from gym.core import Wrapper
 
 class ReactionTime(Wrapper):
     """
-    modfies a given environment by changing the starting point and duration
-    of the decision period
+    modfies a given environment by allowing the network to act at any time
+    after the fixation period
     """
     def __init__(self, env):
         Wrapper.__init__(self, env=env)
@@ -22,8 +22,8 @@ class ReactionTime(Wrapper):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        trial = self.env._new_trial(self.rng, self.dt)
-        trial['duratpns']['decision'] = (trial['durations']['fixation'],
-                                         trial['durations']['decision'][1])
+        trial = self.env._new_trial()
+        trial['durations']['decision'] = (trial['durations']['fixation'],
+                                          trial['durations']['decision'][1])
 
         return trial
