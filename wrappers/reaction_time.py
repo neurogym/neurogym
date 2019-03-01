@@ -22,7 +22,7 @@ class ReactionTime(Wrapper):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        trial = self.env._new_trial()
+        trial = self.env._new_trial()  #TODO: error
         trial['durations']['decision'] = (trial['durations']['fixation'],
                                           trial['durations']['decision'][1])
 
