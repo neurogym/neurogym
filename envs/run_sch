@@ -1,6 +1,6 @@
 #!/bin/bash
 mkdir ./results/
-num_steps_batch=20
+num_steps_batch=100
 num_steps=5e6
 entropy_c=0.1 
 gamm=0.9
@@ -23,6 +23,10 @@ python -m baselines.run --alg=a2c --env=GNG-v0 --network=lstm --nsteps=$num_step
 python -m baselines.run --alg=a2c --env=RDM_hist-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm num_env=12 >> ./results/res.out
 
 python -m baselines.run --alg=a2c --env=ReadySetGo-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm num_env=12 >> ./results/res.out
+
+python -m baselines.run --alg=a2c --env=DelayedMatchSample-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm num_env=12 >> ./results/res.out
+
+python -m baselines.run --alg=a2c --env=DawTwoStep-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm num_env=12 >> ./results/res.out
 
 
 
