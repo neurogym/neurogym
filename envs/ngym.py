@@ -23,7 +23,7 @@ class ngym(gym.Env):
         self.num_tr = 0
         self.rng = np.random.RandomState(seed=0)
         self.perf = 0
-        self.p_stp = 10000
+        self.p_stp = 100000
         self.num_tr_perf = 0
 
     def step(self, action):
