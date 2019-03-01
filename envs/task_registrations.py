@@ -84,6 +84,13 @@ register(
     reward_threshold=90.0,
 )
 
+register(
+    id='DelayedMatchSample-v0',
+    entry_point='delaymatchsample:DelayedMatchToSample',
+    max_episode_steps=100000,
+    reward_threshold=90.0,
+)
+
 
 def all_envs():
     # TODO: what does this do?
