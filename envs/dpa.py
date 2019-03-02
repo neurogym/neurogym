@@ -188,6 +188,7 @@ class DPA(ngym.ngym):
         else:
             self.t += self.dt
 
+        self.store_data(obs, action, reward)
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info
 

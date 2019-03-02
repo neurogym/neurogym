@@ -124,6 +124,7 @@ class DawTwoStep(ngym.ngym):
         else:
             self.t += 1
 
+        self.store_data(obs, action, reward)
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info
 
