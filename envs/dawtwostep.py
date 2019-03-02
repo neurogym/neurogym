@@ -48,7 +48,7 @@ class DawTwoStep(ngym.ngym):
         self.seed()
         self.viewer = None
 
-        self.steps_beyond_done = None
+        self.num_tr_exp = 1000
 
         self.trial = self._new_trial()
         print('------------------------')
@@ -123,7 +123,7 @@ class DawTwoStep(ngym.ngym):
         else:
             self.t += 1
 
-        done = False  # TODO: revisit
+        done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info
 
     def terminate(perf):

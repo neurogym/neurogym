@@ -59,7 +59,7 @@ class RDM_hist(ngym.ngym):
         self.seed()
         self.viewer = None
 
-        self.steps_beyond_done = None
+        self.num_tr_exp = 1000
 
         # repeating prob variables
         # prob. of repeating the stimuli in the positions of previous trial
@@ -198,7 +198,7 @@ class RDM_hist(ngym.ngym):
         else:
             self.t += self.dt
 
-        done = False  # TODO: revisit
+        done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info
 
     def terminate(perf):
