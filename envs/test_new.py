@@ -11,7 +11,10 @@ env.reset()
 observations = []
 sides = []
 for stp in range(int(sys.argv[2])):
-    state, rew, done, info = env.step(0)  # env.action_space.sample())
+    state, rew, done, info = env.step(env.action_space.sample())
+    if done:
+        env.reset()
+
     observations.append(state)
     if 'gt' in info.keys():
         sides.append(info['gt'])

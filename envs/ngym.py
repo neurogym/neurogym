@@ -9,6 +9,7 @@ Created on Fri Feb 22 08:52:21 2019
 import gym
 import numpy as np
 from gym.utils import seeding
+import matplotlib.pyplot as plt
 
 
 class ngym(gym.Env):
@@ -25,6 +26,14 @@ class ngym(gym.Env):
         self.perf = 0
         self.p_stp = 100000
         self.num_tr_perf = 0
+        # for rendering
+        self.obs_mat = []
+        self.act_mat = []
+        self.rew_mat = []
+        self.new_tr_mat = []
+        self.max_num_samples = 100
+        self.num_subplots = 3
+        _, self.fig = plt.subplots(self.num_subplots, 1)
 
     def step(self, action):
         """
@@ -38,13 +47,19 @@ class ngym(gym.Env):
         """
         restarts the experiment with the same parameters
         """
-        print('percentage of trials performed: ' +
-              str(100*self.num_tr_perf/self.p_stp))
-        print('mean performance: ' + str(self.perf))
+        if len(self.rew_mat) > 0:
+            print('percentage of trials performed: ' +
+                  str(100*self.num_tr_perf/self.p_stp))
+            print('mean performance: ' + str(self.perf))
+            self.render()
+
         self.perf = 0
         self.num_tr_perf = 0
         self.num_tr = 1
         self.t = 0
+        self.obs_mat = []
+        self.act_mat = []
+        self.rew_mat = []
         self.trial = self._new_trial()
         obs, _, _, _ = self.step(self.action_space.sample())
         return obs
@@ -53,7 +68,23 @@ class ngym(gym.Env):
         """
         plots relevant variables/parameters
         """
-        pass
+        # observations
+        obs = np.array(self.obs_mat)
+        self.fig[0].imshow(obs.T, aspect='auto')
+        self.fig[0].set_ylabel('obs')
+        self.fig[0].set_xticks([])
+        self.fig[0].set_yticks([])
+        # actions
+        self.fig[1].plot(np.arange(1, len(self.act_mat)+1)+0.5, self.act_mat)
+        self.fig[1].set_ylabel('action')
+        self.fig[1].set_xlim([0, self.max_num_samples+0.5])
+        self.fig[1].set_xticks([])
+        self.fig[1].set_yticks([])
+        # reward
+        self.fig[2].plot(np.arange(1, len(self.act_mat)+1)+0.5, self.rew_mat)
+        self.fig[2].set_ylabel('reward')
+        self.fig[2].set_xlim([0, self.max_num_samples+0.5])
+        plt.show()
 
     # Auxiliary functions
     def seed(self, seed=None):  # TODO: what is this function for?
@@ -70,6 +101,12 @@ class ngym(gym.Env):
         """Check if t is in epoch."""
         dur = self.trial['durations']
         return dur[epoch][0] <= t < dur[epoch][1]
+
+    def store_data(self, obs, action, rew):
+        if len(self.rew_mat) < self.max_num_samples:
+            self.obs_mat.append(obs)
+            self.act_mat.append(action)
+            self.rew_mat.append(rew)
 
     def analysis(self):
         """
