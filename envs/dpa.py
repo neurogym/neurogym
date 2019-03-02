@@ -50,6 +50,7 @@ class DPA(ngym.ngym):
     R_ABORTED = -1.
     R_CORRECT = +1.
     R_MISS = 0.
+    abort = False
 
     def __init__(self, dt=500):
         # call ngm __init__ function
@@ -76,7 +77,7 @@ class DPA(ngym.ngym):
                                   self.delay_max)
 
         durations = {
-            'fixation_grace': (0, 100),
+            'fix_grace': (0, 100),
             'fixation':   (0, self.fixation),
             'dpa1':         (self.fixation, self.fixation + self.dpa1),
             'delay':      (self.fixation + self.dpa1,
@@ -126,7 +127,7 @@ class DPA(ngym.ngym):
         # if self.t not in epochs['decision']:
         if not self.in_epoch(self.t, 'decision'):
             if (action != self.actions['FIXATE'] and
-                    not self.in_epoch(self.t, 'fixation_grace')):
+                    not self.in_epoch(self.t, 'fix_grace') and self.abort):
                 info['continue'] = False
                 info['choice'] = None
                 reward = self.R_ABORTED

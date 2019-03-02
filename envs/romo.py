@@ -47,6 +47,7 @@ class Romo(ngym.ngym):
     R_ABORTED = -1.
     R_CORRECT = +1.
     R_MISS = 0.
+    abort = False
 
     # Input scaling
     fall = np.ravel(fpairs)
@@ -76,7 +77,7 @@ class Romo(ngym.ngym):
                                   self.delay_max)
 
         durations = {
-            'fixation_grace': (0, 100),
+            'fix_grace': (0, 100),
             'fixation':   (0, self.fixation),
             'f1':         (self.fixation, self.fixation + self.f1),
             'delay':      (self.fixation + self.f1,
@@ -119,7 +120,7 @@ class Romo(ngym.ngym):
         tr_perf = False
         if not self.in_epoch(self.t - 1, 'decision'):
             if (action != self.actions['FIXATE'] and
-                    not self.in_epoch(self.t, 'fixation_grace')):
+                    not self.in_epoch(self.t, 'fix_grace') and self.abort):
                 info['continue'] = False
                 info['choice'] = None
                 reward = self.R_ABORTED

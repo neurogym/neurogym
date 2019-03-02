@@ -39,6 +39,7 @@ class Mante(ngym.ngym):
     R_ABORTED = -1.
     R_CORRECT = +1.
     R_MISS = 0.
+    abort = False
 
     # Epoch durations
     # TODO: in ms?
@@ -84,7 +85,7 @@ class Mante(ngym.ngym):
         tr_perf = False
         if not self.in_epoch(self.t - 1, 'decision'):
             if (action != self.actions['FIXATE'] and
-                    not self.in_epoch(self.t, 'fixation_grace')):
+                    not self.in_epoch(self.t, 'fix_grace') and self.abort):
                 info['continue'] = False  # TODO: abort when no fixating?
                 reward = self.R_ABORTED
         else:
@@ -184,7 +185,7 @@ class Mante(ngym.ngym):
             tasktools.truncated_exponential(self.rng, self.dt, self.delay_mean,
                                             xmax=self.delay_max)
         durations = {
-            'fixation_grace': (0, 100),
+            'fix_grace': (0, 100),
             'fixation':  (0, self.fixation),
             'stimulus':  (self.fixation, self.fixation + self.stimulus),
             'delay':     (self.fixation + self.stimulus,

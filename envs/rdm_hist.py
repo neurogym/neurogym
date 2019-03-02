@@ -48,6 +48,7 @@ class RDM_hist(ngym.ngym):
     R_CORRECT = +1.
     R_FAIL = 0.
     R_MISS = 0.
+    abort = False
 
     def __init__(self, dt=100, rep_prob=(.2, .8), block_dur=200):
         super().__init__(dt=dt)
@@ -114,7 +115,7 @@ class RDM_hist(ngym.ngym):
         coh = self.rng.choice(self.cohs)
 
         return {
-            'fixation_grace': (0, 100),
+            'fix_grace': (0, 100),
             'durations':   durations,
             'left_right':  left_right,
             'coh':         coh
@@ -136,7 +137,7 @@ class RDM_hist(ngym.ngym):
         tr_perf = False
         if not self.in_epoch(self.t, 'decision'):
             if (action != self.actions['FIXATE'] and
-                    not self.in_epoch(self.t, 'fixation_grace')):
+                    not self.in_epoch(self.t, 'fix_grace') and self.abort):
                 info['continue'] = False
                 reward = self.R_ABORTED
         else:

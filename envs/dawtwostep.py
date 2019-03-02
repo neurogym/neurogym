@@ -38,6 +38,7 @@ class DawTwoStep(ngym.ngym):
     R_CORRECT = +1.
     R_FAIL = 0.
     R_MISS = 0.
+    abort = False
 
     def __init__(self, dt=100):
         super().__init__(dt=dt)

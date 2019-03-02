@@ -48,6 +48,7 @@ class PadoaSch(ngym.ngym):
     # Rewards
     R_ABORTED = -1.
     R_MISS = 0.
+    abort = False
     R_B = 0.1
     R_A = A_to_B * R_B
 
@@ -81,7 +82,7 @@ class PadoaSch(ngym.ngym):
                                      self.offer_on_max)
 
         durations = {
-            'fixation_grace': (0, 100),
+            'fix_grace': (0, 100),
             'fixation':    (0, self.fixation),
             'offer-on':    (self.fixation, self.fixation + offer_on),
             'decision':    (self.fixation + offer_on, self.tmax),
@@ -126,7 +127,7 @@ class PadoaSch(ngym.ngym):
         if (self.in_epoch(self.t, 'fixation') or
                 self.in_epoch(self.t, 'offer-on')):
             if (action != self.actions['FIXATE'] and
-                    not self.in_epoch(self.t, 'fixation_grace')):
+                    not self.in_epoch(self.t, 'fix_grace') and self.abort):
                 info['continue'] = False
                 reward = self.R_ABORTED
         elif self.in_epoch(self.t, 'decision'):

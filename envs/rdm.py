@@ -50,6 +50,7 @@ class RDM(ngym.ngym):
     R_CORRECT = +1.
     R_FAIL = 0.
     R_MISS = 0.
+    abort = False
 
     def __init__(self, dt=100):
         super().__init__(dt=dt)
@@ -81,7 +82,7 @@ class RDM(ngym.ngym):
 
         # TODO: don't align, not PEP8
         durations = {
-            'fixation_grace': (0, 100),
+            'fix_grace': (0, 100),
             'fixation':  (0, self.fixation),
             'stimulus':  (self.fixation, self.fixation + stimulus),
             'decision':  (self.fixation + stimulus,
@@ -118,7 +119,7 @@ class RDM(ngym.ngym):
         # if self.t not in epochs['decision']:
         if not self.in_epoch(self.t, 'decision'):
             if (action != self.actions['FIXATE'] and
-                    not self.in_epoch(self.t, 'fixation_grace')):
+                    not self.in_epoch(self.t, 'fix_grace') and self.abort):
                 info['continue'] = False
                 reward = self.R_ABORTED
         else:  # elif self.t in epochs['decision']:

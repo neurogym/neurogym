@@ -36,6 +36,7 @@ class DelayedMatchToSample(ngym.ngym):
     R_CORRECT = +1.
     R_FAIL = 0.
     R_MISS = 0.
+    abort = False
 
     def __init__(self, dt=100):
         super().__init__(dt=dt)
@@ -62,7 +63,7 @@ class DelayedMatchToSample(ngym.ngym):
         # TODO: this is a lot of repeated typing
         dur = {'tmax': self.tmax}
         dur['fixation'] = (0, self.fixation)
-        dur['fixation_grace'] = (0, 100)
+        dur['fix_grace'] = (0, 100)
         dur['sample'] = (dur['fixation'][1], dur['fixation'][1] + self.sample)
         dur['delay'] = (dur['sample'][1], dur['sample'][1] + self.delay)
         dur['test'] = (dur['delay'][1], dur['delay'][1] + self.test)
@@ -103,7 +104,7 @@ class DelayedMatchToSample(ngym.ngym):
         # TODO: why is reward determined after input?
         if not self.in_epoch(self.t, 'decision'):
             if (action != self.actions['FIXATE'] and
-                    not self.in_epoch(self.t, 'fixation_grace')):
+                    not self.in_epoch(self.t, 'fix_grace') and self.abort):
                 info['continue'] = False
                 reward = self.R_ABORTED
         else:
