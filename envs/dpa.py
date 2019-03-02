@@ -188,7 +188,7 @@ class DPA(ngym.ngym):
         else:
             self.t += self.dt
 
-        done = False
+        done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info
 
     def terminate(perf):
