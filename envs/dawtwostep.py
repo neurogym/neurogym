@@ -92,7 +92,7 @@ class DawTwoStep(ngym.ngym):
         # TODO: should we section by reward/input or epochs?
         obs = np.zeros(len(self.inputs))
         if self.t == 0:  # at stage 1
-            if action == self.actions['FIXATE']:
+            if action != self.actions['FIXATE'] and self.abort:
                 reward = self.R_ABORTED
                 info['continue'] = False
             else:
@@ -101,7 +101,7 @@ class DawTwoStep(ngym.ngym):
                 reward = trial['reward'][state]
         elif self.t == 1:
             obs[self.inputs['FIXATION']] = 1
-            if action != self.actions['FIXATE']:
+            if action != self.actions['FIXATE'] and self.abort:
                 reward = self.R_ABORTED
             info['continue'] = False
         else:
