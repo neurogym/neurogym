@@ -127,8 +127,8 @@ class PadoaSch(ngym.ngym):
         if (self.in_epoch(self.t, 'fixation') or
                 self.in_epoch(self.t, 'offer-on')):
             if (action != self.actions['FIXATE'] and
-                    not self.in_epoch(self.t, 'fix_grace') and self.abort):
-                info['continue'] = False
+                    not self.in_epoch(self.t, 'fix_grace')):
+                info['continue'] = not self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch(self.t, 'decision'):
             if action in [self.actions['CHOOSE-LEFT'],

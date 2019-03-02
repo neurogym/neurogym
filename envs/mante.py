@@ -85,8 +85,8 @@ class Mante(ngym.ngym):
         tr_perf = False
         if not self.in_epoch(self.t - 1, 'decision'):
             if (action != self.actions['FIXATE'] and
-                    not self.in_epoch(self.t, 'fix_grace') and self.abort):
-                info['continue'] = False  # TODO: abort when no fixating?
+                    not self.in_epoch(self.t, 'fix_grace')):
+                info['continue'] = not self.abort
                 reward = self.R_ABORTED
         else:
             if action == self.actions['left']:
