@@ -33,7 +33,7 @@ class ngym(gym.Env):
         self.new_tr_mat = []
         self.max_num_samples = 100
         self.num_subplots = 3
-        _, self.fig = plt.subplots(self.num_subplots, 1)
+        self.fig, self.ax = plt.subplots(self.num_subplots, 1)
 
     def step(self, action):
         """
@@ -70,21 +70,21 @@ class ngym(gym.Env):
         """
         # observations
         obs = np.array(self.obs_mat)
-        self.fig[0].imshow(obs.T, aspect='auto')
-        self.fig[0].set_ylabel('obs')
-        self.fig[0].set_xticks([])
-        self.fig[0].set_yticks([])
+        self.ax[0].imshow(obs.T, aspect='auto')
+        self.ax[0].set_ylabel('obs')
+        self.ax[0].set_xticks([])
+        self.ax[0].set_yticks([])
         # actions
-        self.fig[1].plot(np.arange(1, len(self.act_mat)+1)+0.5, self.act_mat)
-        self.fig[1].set_ylabel('action')
-        self.fig[1].set_xlim([0, self.max_num_samples+0.5])
-        self.fig[1].set_xticks([])
-        self.fig[1].set_yticks([])
+        self.ax[1].plot(np.arange(1, len(self.act_mat)+1)+0.5, self.act_mat)
+        self.ax[1].set_ylabel('action')
+        self.ax[1].set_xlim([0, self.max_num_samples+0.5])
+        self.ax[1].set_xticks([])
+        self.ax[1].set_yticks([])
         # reward
-        self.fig[2].plot(np.arange(1, len(self.act_mat)+1)+0.5, self.rew_mat)
-        self.fig[2].set_ylabel('reward')
-        self.fig[2].set_xlim([0, self.max_num_samples+0.5])
-        plt.show()
+        self.ax[2].plot(np.arange(1, len(self.act_mat)+1)+0.5, self.rew_mat)
+        self.ax[2].set_ylabel('reward')
+        self.ax[2].set_xlim([0, self.max_num_samples+0.5])
+        self.fig.savefig('trials.svg')
 
     # Auxiliary functions
     def seed(self, seed=None):  # TODO: what is this function for?
