@@ -24,9 +24,8 @@ class ngym(gym.Env):
         self.num_tr = 0
         self.rng = np.random.RandomState(seed=0)
         self.perf = 0
-        self.p_stp = 100000
         self.num_tr_perf = 0
-        self.num_tr_exp = 10000
+        self.num_tr_exp = 10000  # num trials after which done = True
         # for rendering
         self.obs_mat = []
         self.act_mat = []
@@ -50,7 +49,7 @@ class ngym(gym.Env):
         """
         if len(self.rew_mat) > 0:
             print('percentage of trials performed: ' +
-                  str(100*self.num_tr_perf/self.p_stp))
+                  str(100*self.num_tr_perf/self.num_tr_exp))
             print('mean performance: ' + str(self.perf))
             self.render()
 
@@ -86,6 +85,7 @@ class ngym(gym.Env):
         self.ax[2].set_ylabel('reward')
         self.ax[2].set_xlim([0, self.max_num_samples+0.5])
         self.fig.savefig('trials.svg')
+        plt.cla()
 
     # Auxiliary functions
     def seed(self, seed=None):  # TODO: what is this function for?

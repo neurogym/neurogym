@@ -95,10 +95,10 @@ def new_trial(t, tmax, dt, trial_continue, miss, reward):
     return reward, new_trial
 
 
-def compute_perf(perf, reward, num_tr, p_stp, num_tr_perf, tr_perf):
-    if num_tr % p_stp == 0:
+def compute_perf(perf, reward, num_tr, num_tr_exp, num_tr_perf, tr_perf):
+    if num_tr % num_tr_exp == 0:
         print('percentage of trials performed: ' +
-              str(100*num_tr_perf/p_stp))
+              str(100*num_tr_perf/num_tr_exp))
         print('mean performnace: ' + str(perf))
         num_tr_perf = 0
         perf = 0

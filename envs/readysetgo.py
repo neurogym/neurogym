@@ -59,8 +59,6 @@ class ReadySetGo(ngym.ngym):
         self.seed()
         self.viewer = None
 
-        
-
         self.trial = self._new_trial()
         print('------------------------')
         print('RDM task')
@@ -154,7 +152,7 @@ class ReadySetGo(ngym.ngym):
             # compute perf
             self.perf, self.num_tr, self.num_tr_perf =\
                 tasktools.compute_perf(self.perf, reward, self.num_tr,
-                                       self.p_stp, self.num_tr_perf, tr_perf)
+                                       self.num_tr_exp, self.num_tr_perf, tr_perf)
             self.trial = self._new_trial()
         else:
             self.t += self.dt
