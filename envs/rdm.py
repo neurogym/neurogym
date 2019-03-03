@@ -92,9 +92,9 @@ class RDM(ngym.ngym):
         # Trial
         # ---------------------------------------------------------------------
 
-        ground_truth = self.rng.choice(self.left_rights)
+        ground_truth = tasktools.choice(self.rng, self.left_rights)
 
-        coh = self.rng.choice(self.cohs)
+        coh = tasktools.choice(self.rng, self.cohs)
 
         return {
             'durations':   durations,

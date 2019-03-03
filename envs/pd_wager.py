@@ -92,7 +92,7 @@ class PDWager(ngym.ngym):
         # Wager or no wager?
         # ---------------------------------------------------------------------
 
-        wager = self.rng.choice(self.wagers)
+        wager = tasktools.choice(self.rng, self.wagers)
 
         # ---------------------------------------------------------------------
         # Epochs
@@ -132,9 +132,9 @@ class PDWager(ngym.ngym):
         # Trial
         # ---------------------------------------------------------------------
 
-        ground_truth = self.rng.choice(self.left_rights)
+        ground_truth = tasktools.choice(self.rng, self.left_rights)
 
-        coh = self.rng.choice(self.cohs)
+        coh = tasktools.choice(self.rng, self.cohs)
 
         return {
             'durations':  durations,

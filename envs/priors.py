@@ -39,9 +39,9 @@ class Priors(ngym.ngym):  # TODO: task does not stop when breaking fixation
         # prob. of repeating the stimuli in the positions of previous trial
         self.rep_prob = rep_prob
         # position of the first stimulus
-        self.stms_pos_new_trial = self.rng.choice([0, 1])
+        self.stms_pos_new_trial = tasktools.choice(self.rng, [0, 1])
         # keeps track of the repeating prob of the current block
-        self.curr_rep_prob = self.rng.choice([0, 1])
+        self.curr_rep_prob = tasktools.choice(self.rng, [0, 1])
         # initialize ground truth state [stim1 mean, stim2 mean, fixation])
         # the network has to output the action corresponding to the stim1 mean
         # that will be always 1.0 (I just initialize here at 0 for convinience)

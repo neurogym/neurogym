@@ -70,7 +70,7 @@ class ReadySetGo(ngym.ngym):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        measure = self.rng.choice([500, 580, 660, 760, 840, 920, 1000])
+        measure = tasktools.choice(self.rng, [500, 580, 660, 760, 840, 920, 1000])
         gain = 1
         production = measure * gain
         ready = set = 83  # duration of ready and set cue

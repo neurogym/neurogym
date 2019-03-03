@@ -90,7 +90,7 @@ class GNG(ngym.ngym):
         # Trial
         # ---------------------------------------------------------------------
 
-        ground_truth = self.rng.choice(self.go_nogos)
+        ground_truth = tasktools.choice(self.rng, self.go_nogos)
 
         return {
             'durations':   durations,

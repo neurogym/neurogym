@@ -87,9 +87,9 @@ class Romo(ngym.ngym):
             'tmax':       self.tmax
             }
 
-        ground_truth = self.rng.choice(self.ground_truth)
+        ground_truth = tasktools.choice(self.rng, self.ground_truth)
 
-        fpair = self.rng.choice(self.fpairs)
+        fpair = tasktools.choice(self.rng, self.fpairs)
 
         return {
             'durations': durations,
@@ -173,7 +173,8 @@ class Romo(ngym.ngym):
             # compute perf
             self.perf, self.num_tr, self.num_tr_perf =\
                 tasktools.compute_perf(self.perf, reward, self.num_tr,
-                                       self.num_tr_exp, self.num_tr_perf, tr_perf)
+                                       self.num_tr_exp, self.num_tr_perf,
+                                       tr_perf)
             self.trial = self._new_trial()
         else:
             self.t += self.dt

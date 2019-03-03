@@ -91,9 +91,9 @@ class PadoaSch(ngym.ngym):
         # Trial
         # ---------------------------------------------------------------------
 
-        juice = self.rng.choice(self.juices)
+        juice = tasktools.choice(self.rng, self.juices)
 
-        offer = self.rng.choice(self.offers)
+        offer = tasktools.choice(self.rng, self.offers)
 
         juiceL, juiceR = juice
         nB, nA = offer

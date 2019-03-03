@@ -72,8 +72,8 @@ class DelayedMatchToSample(ngym.ngym):
         # ---------------------------------------------------------------------
 
         # TODO: may need to fix this
-        match = self.rng.choice(['MATCH', 'NONMATCH'])
-        sample = self.rng.choice(['LEFT', 'RIGHT'])
+        match = tasktools.choice(self.rng, ['MATCH', 'NONMATCH'])
+        sample = tasktools.choice(self.rng, ['LEFT', 'RIGHT'])
         if match == 'MATCH':
             test = sample
         else:

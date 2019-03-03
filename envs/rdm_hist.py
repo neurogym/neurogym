@@ -64,9 +64,9 @@ class RDM_hist(ngym.ngym):
         # prob. of repeating the stimuli in the positions of previous trial
         self.rep_prob = rep_prob
         # position of the first stimulus
-        self.left_right_prev_trial = self.rng.choice([0, 1])
+        self.left_right_prev_trial = tasktools.choice(self.rng, [0, 1])
         # keeps track of the repeating prob of the current block
-        self.curr_block = self.rng.choice([0, 1])
+        self.curr_block = tasktools.choice(self.rng, [0, 1])
         # duration of block (in number oif trials)
         self.block_dur = block_dur
 
@@ -105,12 +105,12 @@ class RDM_hist(ngym.ngym):
             probs = (1-self.rep_prob[self.curr_block],
                      self.rep_prob[self.curr_block])
 
-        left_right = self.rng.choice(self.left_rights,
+        left_right = tasktools.choice(self.rng, self.left_rights,
                                      p=probs)
 
         self.left_right_prev_trial = left_right
 
-        coh = self.rng.choice(self.cohs)
+        coh = tasktools.choice(self.rng, self.cohs)
 
         return {
             'fix_grace': (0, 100),

@@ -197,15 +197,15 @@ class Mante(ngym.ngym):
         # Trial
         # -------------------------------------------------------------------------
 
-        context_ = self.rng.choice(self.contexts)
+        context_ = tasktools.choice(self.rng, self.contexts)
 
-        left_right_m = self.rng.choice(self.left_rights)
+        left_right_m = tasktools.choice(self.rng, self.left_rights)
 
-        left_right_c = self.rng.choice(self.left_rights)
+        left_right_c = tasktools.choice(self.rng, self.left_rights)
 
-        coh_m = self.rng.choice(self.cohs)
+        coh_m = tasktools.choice(self.rng, self.cohs)
 
-        coh_c = self.rng.choice(self.cohs)
+        coh_c = tasktools.choice(self.rng, self.cohs)
 
         return {
             'durations':    durations,
