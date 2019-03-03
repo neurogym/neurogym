@@ -50,10 +50,6 @@ class DawTwoStep(ngym.ngym):
         self.viewer = None
 
         self.trial = self._new_trial()
-        print('------------------------')
-        print('Daw two-step task')
-        print('time step (ignored): ' + str(self.dt))
-        print('------------------------')
 
     def _new_trial(self):
         # ---------------------------------------------------------------------
@@ -85,12 +81,12 @@ class DawTwoStep(ngym.ngym):
         trial = self.trial
         info = {'continue': True}
         reward = 0
-        tr_perf = False
+        tr_perf = False  # TODO: never set to True
 
         # TODO: should we section by reward/input or epochs?
         obs = np.zeros(len(self.inputs))
         if self.t == 0:  # at stage 1
-            if action != self.actions['FIXATE']:
+            if action == self.actions['FIXATE']:  # TODO: is this correct?
                 reward = self.R_ABORTED
                 info['continue'] = not self.abort
             else:
