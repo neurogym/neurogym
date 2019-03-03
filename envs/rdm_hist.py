@@ -87,6 +87,7 @@ class RDM_hist(ngym.ngym):
                                                    xmax=self.stimulus_max)
 
         durations = {
+            'fix_grace': (0, 100),
             'fixation':  (0, self.fixation),
             'stimulus':  (self.fixation, self.fixation + stimulus),
             'decision':  (self.fixation + stimulus,

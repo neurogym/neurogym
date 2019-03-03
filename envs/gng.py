@@ -61,9 +61,6 @@ class GNG(ngym.ngym):
         self.seed()
         self.viewer = None
         self.trial = self._new_trial()
-        print('------------------------')
-        print('Go/No-Go task')
-        print('------------------------')
 
     def _new_trial(self):
         # ---------------------------------------------------------------------

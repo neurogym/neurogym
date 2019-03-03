@@ -48,7 +48,7 @@ class ReadySetGo(ngym.ngym):
     R_MISS = 0.
     abort = False
 
-    def __init__(self, dt=100):
+    def __init__(self, dt=80):
         super().__init__(dt=dt)
         if dt > 80:
             raise ValueError('dt {:0.2f} too large for this task.'.format(dt))

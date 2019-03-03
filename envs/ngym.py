@@ -20,7 +20,8 @@ class ngym(gym.Env):
     """
     def __init__(self, dt=0.1):
         super().__init__()
-        self.dt = dt  # TODO: revisit, ms or s?
+        print(self.__class__.__name__)
+        self.dt = dt
         self.t = 0
         self.num_tr = 0
         self.rng = np.random.RandomState(seed=0)

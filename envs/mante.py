@@ -168,9 +168,6 @@ class Mante(ngym.ngym):
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info
 
-    def render(self, mode='human'):
-        raise NotImplementedError
-
     def close(self):
         if self.viewer:
             self.viewer.close()
