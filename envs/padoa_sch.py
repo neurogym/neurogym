@@ -55,7 +55,7 @@ class PadoaSch(ngym.ngym):
     # Increase initial policy -> baseline weights
     baseline_Win = 10
 
-    def __init__(self, dt=50):
+    def __init__(self, dt=100):
         # call ngm __init__ function
         super().__init__(dt=dt)
         self.action_space = spaces.Discrete(3)

@@ -18,9 +18,8 @@ class ngym(gym.Env):
     two-alternative forced choice task where the probability of repeating the
     previous choice is parametrized
     """
-    def __init__(self, dt=0.1):
+    def __init__(self, dt=100):
         super().__init__()
-        print(self.__class__.__name__)
         self.dt = dt
         self.t = 0
         self.num_tr = 0
@@ -39,6 +38,12 @@ class ngym(gym.Env):
         self.tmp_folder = "../tmp/"
         if not os.path.exists(self.tmp_folder):
             os.mkdir(self.tmp_folder)
+
+        print('------------------')
+        print(self.__class__.__name__)
+        print('time step: ' + str(self.dt))
+        print('tmax: ' + str(self.tmax) + ' (max num. steps: ' +
+              str(self.tmax/self.dt) + ')')
 
     def step(self, action):
         """

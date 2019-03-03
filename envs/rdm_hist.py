@@ -71,10 +71,6 @@ class RDM_hist(ngym.ngym):
         self.block_dur = block_dur
 
         self.trial = self._new_trial()
-        print('------------------------')
-        print('RDM with history dependencies task')
-        print('time step: ' + str(self.dt))
-        print('------------------------')
 
     def _new_trial(self):
         # ---------------------------------------------------------------------

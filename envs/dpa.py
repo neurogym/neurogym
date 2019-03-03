@@ -52,7 +52,7 @@ class DPA(ngym.ngym):
     R_MISS = 0.
     abort = False
 
-    def __init__(self, dt=500):
+    def __init__(self, dt=100):
         # call ngm __init__ function
         super().__init__(dt=dt)
         self.action_space = spaces.Discrete(3)

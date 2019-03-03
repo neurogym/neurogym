@@ -71,7 +71,7 @@ class PDWager(ngym.ngym):
     abort = False
     R_SURE = 0.7*R_CORRECT
 
-    def __init__(self, dt=50):
+    def __init__(self, dt=100):
         # call ngm __init__ function
         super().__init__(dt=dt)
         self.action_space = spaces.Discrete(4)

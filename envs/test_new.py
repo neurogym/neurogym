@@ -3,9 +3,6 @@ import sys
 import numpy as np
 import task_registrations
 import matplotlib.pyplot as plt
-print('----------------------------------------------------------------------')
-print('----------------------------------------------------------------------')
-print('----------------------------------------------------------------------')
 # params = {'trial_dur': 5000, 'dt': 500,
 #           'stim_ev': 0.1, 'rewards':(0.0, -.1, 1., -1.)}
 env = gym.make(sys.argv[1])  # , **params)

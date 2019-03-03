@@ -103,7 +103,6 @@ class GNG(ngym.ngym):
         # Reward
         # ---------------------------------------------------------------------
         trial = self.trial
-        # epochs = trial['epochs']
         info = {'continue': True}
         reward = 0
         tr_perf = False
