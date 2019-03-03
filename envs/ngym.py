@@ -10,6 +10,7 @@ import gym
 import numpy as np
 from gym.utils import seeding
 import matplotlib.pyplot as plt
+import os
 
 
 class ngym(gym.Env):
@@ -34,6 +35,9 @@ class ngym(gym.Env):
         self.max_num_samples = 100
         self.num_subplots = 3
         self.fig, self.ax = plt.subplots(self.num_subplots, 1)
+        self.tmp_folder = "../tmp/"
+        if not os.path.exists(self.tmp_folder):
+            os.mkdir(self.tmp_folder)
 
     def step(self, action):
         """
@@ -84,8 +88,11 @@ class ngym(gym.Env):
         self.ax[2].plot(np.arange(1, len(self.act_mat)+1)+0.5, self.rew_mat)
         self.ax[2].set_ylabel('reward')
         self.ax[2].set_xlim([0, self.max_num_samples+0.5])
-        self.fig.savefig('trials.svg')
-        plt.cla()
+        self.fig.savefig(self.tmp_folder + self.__class__.__name__ +
+                         'trials.png')
+        self.ax[0].cla()
+        self.ax[1].cla()
+        self.ax[2].cla()
 
     # Auxiliary functions
     def seed(self, seed=None):  # TODO: what is this function for?
