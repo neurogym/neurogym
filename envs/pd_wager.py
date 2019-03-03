@@ -81,7 +81,7 @@ class PDWager(ngym.ngym):
         self.seed()
         self.viewer = None
 
-        self.num_tr_exp = 1000
+        
 
         self.trial = self._new_trial()
 

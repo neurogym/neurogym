@@ -60,7 +60,7 @@ class RDM_hist(ngym.ngym):
         self.seed()
         self.viewer = None
 
-        self.num_tr_exp = 1000
+        
 
         # repeating prob variables
         # prob. of repeating the stimuli in the positions of previous trial

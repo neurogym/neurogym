@@ -26,6 +26,7 @@ class ngym(gym.Env):
         self.perf = 0
         self.p_stp = 100000
         self.num_tr_perf = 0
+        self.num_tr_exp = 10000
         # for rendering
         self.obs_mat = []
         self.act_mat = []
