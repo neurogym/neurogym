@@ -105,7 +105,7 @@ class RDM_hist(ngym.ngym):
             probs = (1-self.rep_prob[self.curr_block],
                      self.rep_prob[self.curr_block])
 
-        left_right = tasktools.choice(self.rng, self.left_rights,
+        left_right = self.rng.choice(self.left_rights,
                                      p=probs)
 
         self.left_right_prev_trial = left_right
@@ -190,9 +190,10 @@ class RDM_hist(ngym.ngym):
             self.t = 0
             self.num_tr += 1
             # compute perf
-            self.perf, self.num_tr, self.num_tr_perf =\
-                tasktools.compute_perf(self.perf, reward, self.num_tr,
-                                       self.num_tr_exp, self.num_tr_perf, tr_perf)
+            self.perf, self.num_tr_perf =\
+                tasktools.compute_perf(self.perf, reward,
+                                       self.num_tr_perf,
+                                       tr_perf)
             self.trial = self._new_trial()
         else:
             self.t += self.dt

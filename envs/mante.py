@@ -25,7 +25,7 @@ class Mante(ngym.ngym):
                               'm-left', 'm-right',
                               'c-left', 'c-right')
     # Actions
-    actions = tasktools.to_map('fixate', 'left', 'right')
+    actions = tasktools.to_map('FIXATE', 'left', 'right')
 
     # Trial conditions
     contexts = ['m', 'c']
@@ -157,9 +157,9 @@ class Mante(ngym.ngym):
             self.t = 0
             self.num_tr += 1
             # compute perf
-            self.perf, self.num_tr, self.num_tr_perf =\
-                tasktools.compute_perf(self.perf, reward, self.num_tr,
-                                       self.num_tr_exp, self.num_tr_perf, tr_perf)
+            self.perf, self.num_tr_perf =\
+                tasktools.compute_perf(self.perf, reward,
+                                       self.num_tr_perf, tr_perf)
             self.trial = self._new_trial()
         else:
             self.t += self.dt
