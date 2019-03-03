@@ -48,10 +48,6 @@ class DelayedMatchToSample(ngym.ngym):
         self.viewer = None
 
         self.trial = self._new_trial()
-        print('------------------------')
-        print('RDM task')
-        print('time step: ' + str(self.dt))
-        print('------------------------')
 
     def _new_trial(self):
         # ---------------------------------------------------------------------

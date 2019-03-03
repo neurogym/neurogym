@@ -58,8 +58,10 @@ class DawTwoStep(ngym.ngym):
 
         # determine the transitions
         transition = dict()
-        tmp1 = self.inputs['STATE1'] if self.rng.rand() < self.p1 else self.inputs['STATE2']
-        tmp2 = self.inputs['STATE2'] if self.rng.rand() < self.p1 else self.inputs['STATE1']
+        st1 = self.inputs['STATE1']
+        st2 = self.inputs['STATE2']
+        tmp1 = st1 if self.rng.rand() < self.p1 else st2
+        tmp2 = st2 if self.rng.rand() < self.p1 else st1
         transition[self.actions['ACTION1']] = tmp1
         transition[self.actions['ACTION2']] = tmp2
 
@@ -69,8 +71,10 @@ class DawTwoStep(ngym.ngym):
             hi_state, low_state = 'STATE2', 'STATE1'
 
         reward = dict()
-        reward[self.inputs[hi_state]] = (self.rng.rand() < self.high_reward_p) * self.R_CORRECT
-        reward[self.inputs[low_state]] = (self.rng.rand() < self.low_reward_p) * self.R_CORRECT
+        reward[self.inputs[hi_state]] =\
+            (self.rng.rand() < self.high_reward_p) * self.R_CORRECT
+        reward[self.inputs[low_state]] =\
+            (self.rng.rand() < self.low_reward_p) * self.R_CORRECT
 
         return {
             'transition':  transition,
