@@ -18,7 +18,7 @@ class ngym(gym.Env):
     two-alternative forced choice task where the probability of repeating the
     previous choice is parametrized
     """
-    def __init__(self, dt=100):
+    def __init__(self, dt=100, plt_tr=False):
         super().__init__()
         self.dt = dt
         self.t = 0
@@ -34,7 +34,9 @@ class ngym(gym.Env):
         self.new_tr_mat = []
         self.max_num_samples = 100
         self.num_subplots = 3
-        self.fig, self.ax = plt.subplots(self.num_subplots, 1)
+        self.plt_tr = plt_tr
+        if self.plt_tr:
+            self.fig, self.ax = plt.subplots(self.num_subplots, 1)
         self.tmp_folder = "../tmp/"
         if not os.path.exists(self.tmp_folder):
             os.mkdir(self.tmp_folder)
@@ -61,7 +63,8 @@ class ngym(gym.Env):
             print('percentage of trials performed: ' +
                   str(100*self.num_tr_perf/self.num_tr_exp))
             print('mean performance: ' + str(self.perf))
-            self.render()
+            if self.plt_tr:
+                self.render()
 
         self.perf = 0
         self.num_tr_perf = 0
