@@ -29,7 +29,7 @@ class RDM_hist(ngym.ngym):
     actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT', 'CHOOSE-RIGHT')
 
     # trial conditions
-    left_rights = [-1, 1]
+    choices = [-1, 1]
     cohs = [0, 6.4, 12.8, 25.6, 51.2]
 
     # Input noise
@@ -103,7 +103,7 @@ class RDM_hist(ngym.ngym):
             probs = (1-self.rep_prob[self.curr_block],
                      self.rep_prob[self.curr_block])
 
-        left_right = self.rng.choice(self.left_rights,
+        left_right = self.rng.choice(self.choices,
                                      p=probs)
 
         self.left_right_prev_trial = left_right

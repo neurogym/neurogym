@@ -32,7 +32,7 @@ class PDWager(ngym.ngym):
 
     # trial conditions
     wagers = [True, False]
-    left_rights = [-1, 1]
+    choices = [-1, 1]
     cohs = [0, 3.2, 6.4, 12.8, 25.6, 51.2]
 
     # Input noise
@@ -132,7 +132,7 @@ class PDWager(ngym.ngym):
         # Trial
         # ---------------------------------------------------------------------
 
-        ground_truth = tasktools.choice(self.rng, self.left_rights)
+        ground_truth = tasktools.choice(self.rng, self.choices)
 
         coh = tasktools.choice(self.rng, self.cohs)
 

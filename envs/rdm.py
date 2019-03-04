@@ -31,7 +31,7 @@ class RDM(ngym.ngym):
     actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT', 'CHOOSE-RIGHT')
 
     # trial conditions
-    left_rights = [-1, 1]
+    choices = [-1, 1]
     cohs = [0, 6.4, 12.8, 25.6, 51.2]  # Easier: [25.6, 51.2, 102.4, 204.8]
 
     # Input noise
@@ -88,7 +88,7 @@ class RDM(ngym.ngym):
         # Trial
         # ---------------------------------------------------------------------
 
-        ground_truth = tasktools.choice(self.rng, self.left_rights)
+        ground_truth = tasktools.choice(self.rng, self.choices)
 
         coh = tasktools.choice(self.rng, self.cohs)
 

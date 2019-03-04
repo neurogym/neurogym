@@ -29,7 +29,7 @@ class Mante(ngym.ngym):
 
     # trial conditions
     contexts = ['m', 'c']
-    left_rights = [-1, 1]
+    choices = [-1, 1]
     cohs = [5, 15, 50]
 
     # Input noise
@@ -202,9 +202,9 @@ class Mante(ngym.ngym):
 
         context_ = tasktools.choice(self.rng, self.contexts)
 
-        left_right_m = tasktools.choice(self.rng, self.left_rights)
+        left_right_m = tasktools.choice(self.rng, self.choices)
 
-        left_right_c = tasktools.choice(self.rng, self.left_rights)
+        left_right_c = tasktools.choice(self.rng, self.choices)
 
         coh_m = tasktools.choice(self.rng, self.cohs)
 
