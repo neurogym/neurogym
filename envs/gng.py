@@ -155,6 +155,7 @@ class GNG(ngym.ngym):
                                                 self.R_MISS, reward)
 
         if new_trial:
+            info['new_trial'] = True
             self.t = 0
             self.num_tr += 1
             # compute perf

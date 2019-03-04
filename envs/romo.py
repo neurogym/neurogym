@@ -27,7 +27,7 @@ class Romo(ngym.ngym):
     actions = tasktools.to_map('FIXATE', '>', '<')
 
     # trial conditions
-    ground_truth = ['>', '<']
+    choices = ['>', '<']
     fpairs = [(18, 10), (22, 14), (26, 18), (30, 22), (34, 26)]
 
     # Input noise
@@ -87,7 +87,7 @@ class Romo(ngym.ngym):
             'tmax':       self.tmax
             }
 
-        ground_truth = tasktools.choice(self.rng, self.ground_truth)
+        ground_truth = tasktools.choice(self.rng, self.choices)
 
         fpair = tasktools.choice(self.rng, self.fpairs)
 
@@ -168,6 +168,7 @@ class Romo(ngym.ngym):
                                                 self.R_MISS, reward)
 
         if new_trial:
+            info['new_trial'] = True
             self.t = 0
             self.num_tr += 1
             # compute perf

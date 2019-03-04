@@ -127,7 +127,8 @@ class Priors(ngym.ngym):  # TODO: task does not stop when breaking fixation
         done this it calls _get_state to get the first observation of the trial
         """
         self.num_tr += 1
-        self.t = 0
+        info['new_trial'] = True
+            self.t = 0
         self.evidence = 0
         # this are the means of the two stimuli
         stim1 = 1.0
