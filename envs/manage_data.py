@@ -23,7 +23,8 @@ class manage_data(Wrapper):
         # data to save
         self.choice_mat = []
         self.side_mat = []
-        self.coh_mat = []
+        self.stim_mat = []
+        self.cum_obs = 0
         # for rendering
         self.obs_mat = []
         self.act_mat = []
@@ -41,6 +42,10 @@ class manage_data(Wrapper):
     def reset(self):
         if len(self.rew_mat) > 0 and self. plt_tr:
             self.render()
+            data = {'choice': self.choice_mat, 'stimulus': self.stim_mat,
+                    'correct_side': self.side_mat}
+            np.savez(self.tmp_folder + self.__class__.__name__ +
+                     'data.npz', **data)
         self.obs_mat = []
         self.act_mat = []
         self.rew_mat = []
@@ -49,14 +54,14 @@ class manage_data(Wrapper):
     def step(self, action):
         obs, rew, done, info = self.env.step(action)
         self.cum_obs += obs
-        if info['new_trial']:
+        if 'new_trial' in info.keys():
             self.choice_mat.append(action)
             self.side_mat.append(self.env.trial['ground_truth'])
-            self.coh_mat.append(self.cum_obs)
+            self.stim_mat.append(self.cum_obs)
             self.cum_obs = 0
-            self.env.trial = self.env._new_trial()
 
         self.store_data(obs, action, rew)
+        return obs, rew, done, info
 
     def render(self, mode='human'):
         """

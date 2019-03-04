@@ -148,6 +148,7 @@ class ReadySetGo(ngym.ngym):
 
         if new_trial:
             info['new_trial'] = True
+            info['gt'] = trial['ground_truth']
             self.t = 0
             self.num_tr += 1
             # compute perf

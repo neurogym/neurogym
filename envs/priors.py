@@ -128,6 +128,7 @@ class Priors(ngym.ngym):  # TODO: task does not stop when breaking fixation
         """
         self.num_tr += 1
         info['new_trial'] = True
+            info['gt'] = trial['ground_truth']
             self.t = 0
         self.evidence = 0
         # this are the means of the two stimuli

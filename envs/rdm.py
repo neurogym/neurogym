@@ -169,8 +169,8 @@ class RDM(ngym.ngym):
                                                 self.R_MISS, reward)
 
         if new_trial:
-            info['gt'] = trial['ground_truth']
             info['new_trial'] = True
+            info['gt'] = trial['ground_truth']
             self.t = 0
             self.num_tr += 1
             # compute perf
@@ -189,7 +189,7 @@ class RDM(ngym.ngym):
         if new_trial:
             self.trial = self._new_trial()
         return obs, reward, done, info
-    
+
     def terminate(perf):
         p_decision, p_correct = tasktools.correct_2AFC(perf)
 

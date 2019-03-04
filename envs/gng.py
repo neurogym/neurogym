@@ -30,7 +30,7 @@ class GNG(ngym.ngym):
     actions = tasktools.to_map('FIXATE', 'NO_GO', 'GO')
 
     # trial conditions
-    go_nogos = [-1, 1]
+    choices = [-1, 1]
 
     # Input noise
     sigma = np.sqrt(2*100*0.01)
@@ -87,7 +87,7 @@ class GNG(ngym.ngym):
         # Trial
         # ---------------------------------------------------------------------
 
-        ground_truth = tasktools.choice(self.rng, self.go_nogos)
+        ground_truth = tasktools.choice(self.rng, self.choices)
 
         return {
             'durations':   durations,
@@ -156,6 +156,7 @@ class GNG(ngym.ngym):
 
         if new_trial:
             info['new_trial'] = True
+            info['gt'] = trial['ground_truth']
             self.t = 0
             self.num_tr += 1
             # compute perf
@@ -166,7 +167,6 @@ class GNG(ngym.ngym):
         else:
             self.t += self.dt
 
-        
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info, new_trial
 

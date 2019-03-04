@@ -169,6 +169,7 @@ class Romo(ngym.ngym):
 
         if new_trial:
             info['new_trial'] = True
+            info['gt'] = trial['ground_truth']
             self.t = 0
             self.num_tr += 1
             # compute perf
@@ -180,7 +181,6 @@ class Romo(ngym.ngym):
         else:
             self.t += self.dt
 
-        
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info, new_trial
 
