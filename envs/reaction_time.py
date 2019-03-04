@@ -22,8 +22,19 @@ class ReactionTime(Wrapper):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        trial = self.env._new_trial()  #TODO: error
+        trial = self.env._new_trial()
         trial['durations']['decision'] = (trial['durations']['fixation'],
                                           trial['durations']['decision'][1])
 
         return trial
+
+    def reset(self):
+        return self.env.reset()
+
+    def step(self, action):
+        obs, reward, done, info, new_trial = self.env._step(action)
+
+        if new_trial:
+            self.env.trial = self._new_trial()
+
+        return obs, reward, done, info
