@@ -143,7 +143,7 @@ class PDWager(ngym.ngym):
             'coh':        coh
             }
 
-    def step(self, action):
+    def _step(self, action):
         trial = self.trial
         # ---------------------------------------------------------------------
         # Reward

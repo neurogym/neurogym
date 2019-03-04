@@ -81,7 +81,7 @@ class DawTwoStep(ngym.ngym):
             'reward': reward
             }
 
-    def step(self, action):
+    def _step(self, action):
         trial = self.trial
         info = {'continue': True}
         reward = 0
@@ -124,7 +124,6 @@ class DawTwoStep(ngym.ngym):
         else:
             self.t += 1
 
-        
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info
 

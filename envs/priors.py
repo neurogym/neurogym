@@ -63,7 +63,7 @@ class Priors(ngym.ngym):  # TODO: task does not stop when breaking fixation
         print('Stim evidence: ' + str(self.stim_ev))
         print('--------------- ----------------- ---------------')
 
-    def step(self, action):
+    def _step(self, action):
         """""
         receives an action (fixate/right/left) and returns a new state,
         a reward, a flag variable indicating whether the experiment has ended

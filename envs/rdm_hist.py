@@ -121,7 +121,7 @@ class RDM_hist(ngym.ngym):
     def scale(self, coh):
         return (1 + coh/100)/2
 
-    def step(self, action):
+    def _step(self, action):
         # ---------------------------------------------------------------------
         # Reward
         # ---------------------------------------------------------------------

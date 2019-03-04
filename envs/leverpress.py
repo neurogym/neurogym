@@ -39,7 +39,7 @@ class LeverPress(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def step(self, action):
+    def _step(self, action):
         assert self.action_space.contains(action), "%r (%s) invalid" % (
             action, type(action))
         state = self.state
@@ -139,7 +139,7 @@ class LeverPressWithPoke(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def step(self, action):
+    def _step(self, action):
         assert self.action_space.contains(action), "%r (%s) invalid" % (
             action, type(action))
         state = self.state
@@ -256,7 +256,7 @@ class LeverPressWithPokeRest(gym.Env):
         return (thirst_state > 0.) * (thirst_state < 1.0) * thirst_state + \
                (thirst_state > 1.0) * 1.0
 
-    def step(self, action):
+    def _step(self, action):
         assert self.action_space.contains(action), "%r (%s) invalid" % (
             action, type(action))
         state = self.state
@@ -361,7 +361,7 @@ class ContextSwitch(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def step(self, action):
+    def _step(self, action):
         assert self.action_space.contains(action), "%r (%s) invalid" % (
             action, type(action))
         if np.random.rand() < self.p_switch:
@@ -422,7 +422,7 @@ class FullInput(gym.Wrapper):
         high = np.array(list(orig_ob_space.high) + [1] + [1] * self.action_space.n)
         self.observation_space = spaces.Box(low, high, dtype=np.float32)
 
-    def step(self, action):
+    def _step(self, action):
         obs, reward, done, info = self.env.step(action)
         # include reward and action information
         one_hot_action = [0.] * self.action_space.n

@@ -97,7 +97,7 @@ class ReadySetGo(ngym.ngym):
             'production': production,
             }
 
-    def step(self, action):
+    def _step(self, action):
         # ---------------------------------------------------------------------
         # Reward
         # ---------------------------------------------------------------------

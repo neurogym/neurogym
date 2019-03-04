@@ -124,7 +124,7 @@ class DualTask(ngym.ngym):  # TODO: task does not stop when breaking fixation
 
         self.current_rule = self.rules[self.rule_block_counter]
 
-    def step(self, action, net_state=[]):
+    def _step(self, action, net_state=[]):
         """
         receives an action and returns a new observation, a reward, a flag
         variable indicating whether to reset and some relevant info

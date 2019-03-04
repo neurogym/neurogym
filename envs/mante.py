@@ -68,8 +68,8 @@ class Mante(ngym.ngym):
 
         self.trial = self._new_trial()
 
-    # def step(rng, dt, trial, t, a):
-    def step(self, action):
+    # def _step(rng, dt, trial, t, a):
+    def _step(self, action):
         # -----------------------------------------------------------------
         # Reward
         # -----------------------------------------------------------------

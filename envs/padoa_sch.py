@@ -111,7 +111,7 @@ class PadoaSch(ngym.ngym):
             'nR':        nR
             }
 
-    def step(self, action):
+    def _step(self, action):
         trial = self.trial
 
         # ---------------------------------------------------------------------

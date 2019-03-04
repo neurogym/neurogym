@@ -106,7 +106,7 @@ class Romo(ngym.ngym):
     def scale_n(self, f):
         return (1 - self.scale(f))/2
 
-    def step(self, action):
+    def _step(self, action):
         trial = self.trial
 
         # ---------------------------------------------------------------------

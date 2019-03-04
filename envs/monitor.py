@@ -57,7 +57,7 @@ class TrialHistory(Wrapper):
     def reset(self):
         return self.env.reset()
 
-    def step(self, action):
+    def _step(self, action):
         obs, rew, done, info, new_trial = self.env._step(action)
         self.store_data(obs, action, rew)
 
