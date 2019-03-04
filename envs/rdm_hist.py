@@ -94,7 +94,8 @@ class RDM_hist(ngym.ngym):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-
+        if self.num_tr % self.block_dur == 0:
+            self.curr_block = int(not self.curr_block)
         if self.left_right_prev_trial == -1:
             probs = (self.rep_prob[self.curr_block],
                      1-self.rep_prob[self.curr_block])
