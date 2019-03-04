@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 #           'stim_ev': 0.1, 'rewards':(0.0, -.1, 1., -1.)}
 env = gym.make(sys.argv[1])  # , **params)
 if sys.argv[3] == 'trial_hist':
-    print('hey!')
     env = trial_hist.TrialHistory(env)
 env.reset()
 observations = []

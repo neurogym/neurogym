@@ -108,6 +108,7 @@ class RDM(ngym.ngym):
         # ---------------------------------------------------------------------
         trial = self.trial
         info = {'continue': True}
+
         reward = 0
         tr_perf = False
         # if self.t not in epochs['decision']:
@@ -168,6 +169,7 @@ class RDM(ngym.ngym):
                                                 self.R_MISS, reward)
 
         if new_trial:
+            info['gt'] = trial['ground_truth']
             self.t = 0
             self.num_tr += 1
             # compute perf
