@@ -18,7 +18,7 @@ class ngym(gym.Env):
     two-alternative forced choice task where the probability of repeating the
     previous choice is parametrized
     """
-    def __init__(self, dt=100, plt_tr=False):
+    def __init__(self, dt=100, trial_hist= False, plt_tr=False):
         super().__init__()
         self.dt = dt
         self.t = 0
@@ -46,6 +46,8 @@ class ngym(gym.Env):
         print('time step: ' + str(self.dt))
         print('tmax: ' + str(self.tmax) + ' (max num. steps: ' +
               str(self.tmax/self.dt) + ')')
+        if trial_hist:
+            print('trial history')
 
     def step(self, action):
         """
