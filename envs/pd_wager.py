@@ -30,7 +30,7 @@ class PDWager(ngym.ngym):
     actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT', 'CHOOSE-RIGHT',
                                'CHOOSE-SURE')
 
-    # Trial conditions
+    # trial conditions
     wagers = [True, False]
     left_rights = [-1, 1]
     cohs = [0, 3.2, 6.4, 12.8, 25.6, 51.2]
@@ -228,6 +228,12 @@ class PDWager(ngym.ngym):
 
         
         done = self.num_tr > self.num_tr_exp
+        return obs, reward, done, info, new_trial
+
+    def step(self, action):
+        obs, reward, done, info, new_trial = self._step(action)
+        if new_trial:
+            self.trial = self._new_trial()
         return obs, reward, done, info
 
     def terminate(perf):

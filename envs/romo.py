@@ -26,7 +26,7 @@ class Romo(ngym.ngym):
     # Actions
     actions = tasktools.to_map('FIXATE', '>', '<')
 
-    # Trial conditions
+    # trial conditions
     ground_truth = ['>', '<']
     fpairs = [(18, 10), (22, 14), (26, 18), (30, 22), (34, 26)]
 
@@ -181,6 +181,12 @@ class Romo(ngym.ngym):
 
         
         done = self.num_tr > self.num_tr_exp
+        return obs, reward, done, info, new_trial
+
+    def step(self, action):
+        obs, reward, done, info, new_trial = self._step(action)
+        if new_trial:
+            self.trial = self._new_trial()
         return obs, reward, done, info
 
     def terminate(perf):

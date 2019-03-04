@@ -20,7 +20,7 @@ class DawTwoStep(ngym.ngym):
     # Actions
     actions = tasktools.to_map('FIXATE', 'ACTION1', 'ACTION2')
 
-    # Trial conditions
+    # trial conditions
     p1 = 0.8  # first stage transition probability
     p2 = 0.8  # second stage transition probability
     # TODO: this should be implemented through the wrapper
@@ -125,6 +125,12 @@ class DawTwoStep(ngym.ngym):
             self.t += 1
 
         done = self.num_tr > self.num_tr_exp
+        return obs, reward, done, info, new_trial
+
+    def step(self, action):
+        obs, reward, done, info, new_trial = self._step(action)
+        if new_trial:
+            self.trial = self._new_trial()
         return obs, reward, done, info
 
     def terminate(perf):

@@ -23,6 +23,7 @@ class TrialHistory(Wrapper):
         self.curr_block = tasktools.choice(self.env.rng, [0, 1])
         # duration of block (in number oif trials)
         self.block_dur = block_dur
+        self.prev_trial = self.env.trial['ground_truth']
 
     def _new_trial(self):
         # ---------------------------------------------------------------------
@@ -56,5 +57,3 @@ class TrialHistory(Wrapper):
             self.env.trial = self._new_trial()
 
         return obs, reward, done, info
-
-        

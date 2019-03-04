@@ -29,7 +29,7 @@ class PadoaSch(ngym.ngym):
     # Actions
     actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT', 'CHOOSE-RIGHT')
 
-    # Trial conditions
+    # trial conditions
     A_to_B = 2.2
     juices = [('A', 'B'), ('B', 'A')]
     offers = [(0, 1), (1, 3), (1, 2), (1, 1), (2, 1),
@@ -196,6 +196,12 @@ class PadoaSch(ngym.ngym):
 
         
         done = self.num_tr > self.num_tr_exp
+        return obs, reward, done, info, new_trial
+
+    def step(self, action):
+        obs, reward, done, info, new_trial = self._step(action)
+        if new_trial:
+            self.trial = self._new_trial()
         return obs, reward, done, info
 
     def terminate(perf):

@@ -30,7 +30,7 @@ class RDM(ngym.ngym):
     # Actions
     actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT', 'CHOOSE-RIGHT')
 
-    # Trial conditions
+    # trial conditions
     left_rights = [-1, 1]
     cohs = [0, 6.4, 12.8, 25.6, 51.2]  # Easier: [25.6, 51.2, 102.4, 204.8]
 
@@ -179,8 +179,14 @@ class RDM(ngym.ngym):
             self.t += self.dt
 
         done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info
+        return obs, reward, done, info, new_trial
 
+    def step(self, action):
+        obs, reward, done, info, new_trial = self._step(action)
+        if new_trial:
+            self.trial = self._new_trial()
+        return obs, reward, done, info
+    
     def terminate(perf):
         p_decision, p_correct = tasktools.correct_2AFC(perf)
 

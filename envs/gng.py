@@ -29,7 +29,7 @@ class GNG(ngym.ngym):
     # Actions
     actions = tasktools.to_map('FIXATE', 'NO_GO', 'GO')
 
-    # Trial conditions
+    # trial conditions
     go_nogos = [-1, 1]
 
     # Input noise
@@ -167,6 +167,12 @@ class GNG(ngym.ngym):
 
         
         done = self.num_tr > self.num_tr_exp
+        return obs, reward, done, info, new_trial
+
+    def step(self, action):
+        obs, reward, done, info, new_trial = self._step(action)
+        if new_trial:
+            self.trial = self._new_trial()
         return obs, reward, done, info
 
     def terminate(perf):

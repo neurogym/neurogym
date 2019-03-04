@@ -28,7 +28,7 @@ class RDM_hist(ngym.ngym):
     # Actions
     actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT', 'CHOOSE-RIGHT')
 
-    # Trial conditions
+    # trial conditions
     left_rights = [-1, 1]
     cohs = [0, 6.4, 12.8, 25.6, 51.2]
 
@@ -198,6 +198,12 @@ class RDM_hist(ngym.ngym):
 
         
         done = self.num_tr > self.num_tr_exp
+        return obs, reward, done, info, new_trial
+
+    def step(self, action):
+        obs, reward, done, info, new_trial = self._step(action)
+        if new_trial:
+            self.trial = self._new_trial()
         return obs, reward, done, info
 
     def terminate(perf):

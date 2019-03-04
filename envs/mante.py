@@ -27,7 +27,7 @@ class Mante(ngym.ngym):
     # Actions
     actions = tasktools.to_map('FIXATE', 'left', 'right')
 
-    # Trial conditions
+    # trial conditions
     contexts = ['m', 'c']
     left_rights = [-1, 1]
     cohs = [5, 15, 50]
@@ -166,6 +166,12 @@ class Mante(ngym.ngym):
 
         
         done = self.num_tr > self.num_tr_exp
+        return obs, reward, done, info, new_trial
+
+    def step(self, action):
+        obs, reward, done, info, new_trial = self._step(action)
+        if new_trial:
+            self.trial = self._new_trial()
         return obs, reward, done, info
 
     def close(self):
