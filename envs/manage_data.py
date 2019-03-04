@@ -40,7 +40,7 @@ class manage_data(Wrapper):
             os.mkdir(self.tmp_folder)
 
     def reset(self):
-        if len(self.rew_mat) > 0 and self. plt_tr:
+        if len(self.rew_mat) > 0 and self.plt_tr:
             self.render()
             data = {'choice': self.choice_mat, 'stimulus': self.stim_mat,
                     'correct_side': self.side_mat}
@@ -56,7 +56,7 @@ class manage_data(Wrapper):
         self.cum_obs += obs
         if 'new_trial' in info.keys():
             self.choice_mat.append(action)
-            self.side_mat.append(self.env.trial['ground_truth'])
+            self.side_mat.append(info['gt'])
             self.stim_mat.append(self.cum_obs)
             self.cum_obs = 0
 
