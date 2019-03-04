@@ -33,6 +33,7 @@ class ngym(gym.Env):
               str(self.tmax/self.dt) + ')')
         if trial_hist:
             print('trial history')
+        print('------------------')
 
     def step(self, action):
         """

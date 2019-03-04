@@ -44,6 +44,8 @@ class manage_data(Wrapper):
             self.render()
             data = {'choice': self.choice_mat, 'stimulus': self.stim_mat,
                     'correct_side': self.side_mat}
+            print('saving data  here: ' + self.tmp_folder +
+                  self.__class__.__name__ + 'data.npz')
             np.savez(self.tmp_folder + self.__class__.__name__ +
                      'data.npz', **data)
         self.obs_mat = []
