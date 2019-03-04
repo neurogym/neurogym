@@ -24,6 +24,7 @@ class TrialHistory(Wrapper):
         # duration of block (in number oif trials)
         self.block_dur = block_dur
         self.prev_trial = self.env.trial['ground_truth']
+        print('trial history wrapper')
 
     def _new_trial(self):
         # ---------------------------------------------------------------------
