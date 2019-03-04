@@ -43,7 +43,8 @@ class manage_data(Wrapper):
         if len(self.rew_mat) > 0 and self.plt_tr:
             self.render()
             data = {'choice': self.choice_mat, 'stimulus': self.stim_mat,
-                    'correct_side': self.side_mat}
+                    'correct_side': self.side_mat, 'obs_mat': self.obs_mat,
+                    'act_mat': self.act_mat, 'rew_mat': self.rew_mat}
             print('saving data  here: ' + self.tmp_folder +
                   self.__class__.__name__ + 'data.npz')
             np.savez(self.tmp_folder + self.__class__.__name__ +
