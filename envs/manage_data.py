@@ -68,7 +68,6 @@ class manage_data(Wrapper):
             self.cum_obs = 0
 
         self.store_data(obs, action, rew)
-        print('data stored!')
         return obs, rew, done, info
 
     def render(self, mode='human'):
