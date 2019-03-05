@@ -41,6 +41,7 @@ class manage_data(Wrapper):
         print('data will be saved here: ' + self.tmp_folder)
 
     def reset(self):
+        print('reseting!')
         if len(self.rew_mat) > 0 and self.plt_tr:
             self.render()
             data = {'choice': self.choice_mat, 'stimulus': self.stim_mat,
@@ -65,6 +66,7 @@ class manage_data(Wrapper):
             self.cum_obs = 0
 
         self.store_data(obs, action, rew)
+        print('data stored!')
         return obs, rew, done, info
 
     def render(self, mode='human'):

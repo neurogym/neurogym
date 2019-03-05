@@ -3,6 +3,7 @@ import sys
 import numpy as np
 import task_registrations
 import trial_hist
+import reaction_time
 import manage_data as md
 import matplotlib.pyplot as plt
 # params = {'trial_dur': 5000, 'dt': 500,
@@ -10,6 +11,8 @@ import matplotlib.pyplot as plt
 env = gym.make(sys.argv[1])  # , **params)
 if sys.argv[3] == 'trial_hist':
     env = trial_hist.TrialHistory(env)
+elif sys.argv[3] == 'reaction_time':
+    env = reaction_time.ReactionTime(env)
 env = md.manage_data(env, plt_tr=True)
 env.reset()
 observations = []
