@@ -38,7 +38,7 @@ class manage_data(Wrapper):
         self.tmp_folder = "../tmp/"
         if not os.path.exists(self.tmp_folder):
             os.mkdir(self.tmp_folder)
-            print('data will be saved here: ' + self.tmp_folder)
+        print('data will be saved here: ' + self.tmp_folder)
 
     def reset(self):
         if len(self.rew_mat) > 0 and self.plt_tr:
