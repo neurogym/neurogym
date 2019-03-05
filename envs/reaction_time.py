@@ -23,9 +23,8 @@ class ReactionTime(Wrapper):
         # Epochs
         # ---------------------------------------------------------------------
         trial = self.env._new_trial()
-        trial['durations']['decision'] = (trial['durations']['fixation'],
+        trial['durations']['decision'] = (trial['durations']['fixation'][1],
                                           trial['durations']['decision'][1])
-
         return trial
 
     def reset(self):
