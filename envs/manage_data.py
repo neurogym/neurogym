@@ -17,7 +17,7 @@ class manage_data(Wrapper):
     modfies a given environment by changing the probability of repeating the
     previous correct response
     """
-    def __init__(self, env, plt_tr=False):
+    def __init__(self, env, plt_tr=True):
         Wrapper.__init__(self, env=env)
         self.env = env
         # data to save
@@ -38,7 +38,6 @@ class manage_data(Wrapper):
         self.tmp_folder = "../tmp/"
         if not os.path.exists(self.tmp_folder):
             os.mkdir(self.tmp_folder)
-        print('data will be saved here: ' + self.tmp_folder)
 
     def reset(self):
         print('reseting!')
@@ -46,8 +45,6 @@ class manage_data(Wrapper):
             data = {'choice': self.choice_mat, 'stimulus': self.stim_mat,
                     'correct_side': self.side_mat, 'obs_mat': self.obs_mat,
                     'act_mat': self.act_mat, 'rew_mat': self.rew_mat}
-            print('saving data  here: ' + self.tmp_folder +
-                  self.__class__.__name__ + 'data.npz')
             np.savez(self.tmp_folder + self.__class__.__name__ +
                      'data.npz', **data)
             if self.plt_tr:
