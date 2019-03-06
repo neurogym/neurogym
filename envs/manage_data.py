@@ -40,7 +40,6 @@ class manage_data(Wrapper):
             os.mkdir(self.tmp_folder)
 
     def reset(self):
-        print('reseting!')
         if len(self.rew_mat) > 0:
             data = {'choice': self.choice_mat, 'stimulus': self.stim_mat,
                     'correct_side': self.side_mat, 'obs_mat': self.obs_mat,
@@ -87,7 +86,7 @@ class manage_data(Wrapper):
         self.ax[2].plot(np.arange(1, len(self.act_mat)+1)+0.5, self.rew_mat)
         self.ax[2].set_ylabel('reward')
         self.ax[2].set_xlim([0, self.max_num_samples+0.5])
-        self.fig.savefig(self.tmp_folder + self.__class__.__name__ +
+        self.fig.savefig(self.tmp_folder + self.env.__class__.__name__ +
                          'trials.png')
         self.ax[0].cla()
         self.ax[1].cla()

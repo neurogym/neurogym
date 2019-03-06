@@ -52,8 +52,8 @@ class RDM(ngym.ngym):
     R_MISS = 0.
     abort = False
 
-    def __init__(self, dt=100, trial_hist=False):
-        super().__init__(dt=dt, trial_hist=trial_hist)
+    def __init__(self, dt=100):
+        super().__init__(dt=dt)
         self.stimulus_min = np.max([self.stimulus_min, dt])
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3, ),
