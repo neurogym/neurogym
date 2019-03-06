@@ -27,7 +27,7 @@ class GNG(ngym.ngym):
     inputs = tasktools.to_map('FIXATION', 'S1', 'S2')
 
     # Actions
-    actions = tasktools.to_map('FIXATE', 'NO_GO', 'GO')
+    actions = tasktools.to_map('NO_GO', 'GO')
 
     # trial conditions
     choices = [-1, 1]
@@ -45,7 +45,7 @@ class GNG(ngym.ngym):
     tmax = fixation + stimulus_max + resp_delay + decision
 
     # Rewards
-    R_ABORTED = -1.
+    R_ABORTED = -0.1
     R_CORRECT = +1.
     R_FAIL = 0.
     R_MISS = 0.
@@ -122,16 +122,7 @@ class GNG(ngym.ngym):
                     reward = self.R_CORRECT
                 else:
                     reward = self.R_FAIL
-            elif action == self.actions['NO_GO']:
-                tr_perf = True
-                info['continue'] = False
-                info['choice'] = 'NG'
-                info['t_choice'] = self.t
-                info['correct'] = (trial['ground_truth'] < 0)
-                if info['correct']:
-                    reward = self.R_CORRECT
-                else:
-                    reward = self.R_FAIL
+
         # ---------------------------------------------------------------------
         # Inputs
         # ---------------------------------------------------------------------
