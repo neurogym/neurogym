@@ -17,7 +17,7 @@ class manage_data(Wrapper):
     modfies a given environment by changing the probability of repeating the
     previous correct response
     """
-    def __init__(self, env, plt_tr=False):
+    def __init__(self, env, plt_tr=True):
         Wrapper.__init__(self, env=env)
         self.env = env
         # data to save
@@ -30,7 +30,7 @@ class manage_data(Wrapper):
         self.act_mat = []
         self.rew_mat = []
         self.new_tr_mat = []
-        self.max_num_samples = 100
+        self.max_num_samples = 200
         self.num_subplots = 3
         self.plt_tr = plt_tr
         if self.plt_tr:
