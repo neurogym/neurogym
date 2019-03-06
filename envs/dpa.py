@@ -30,7 +30,7 @@ class DPA(ngym.ngym):
     actions = tasktools.to_map('NO_GO', 'GO')
 
     # trial conditions
-    dpa_pairs = [(0, 2), (0, 3), (1, 2), (1, 3)]
+    dpa_pairs = [(1, 3), (1, 4), (2, 3), (2, 4)]
 
     # Input noise
     sigma = np.sqrt(2*100*0.001)
@@ -46,15 +46,16 @@ class DPA(ngym.ngym):
     tmax = fixation + dpa1 + delay_max + dpa2 + resp_delay + decision
 
     # Rewards
-    R_ABORTED = -1.
+    R_ABORTED = 0.
     R_CORRECT = +1.
+    R_INCORRECT = -1.
     R_MISS = 0.
     abort = False
 
     def __init__(self, dt=100):
         # call ngm __init__ function
         super().__init__(dt=dt)
-        self.action_space = spaces.Discrete(3)
+        self.action_space = spaces.Discrete(2)
         # hight = np.array([1.])
         self.observation_space = spaces.Box(-1., 1, shape=(5, ),
                                             dtype=np.float32)
@@ -128,8 +129,8 @@ class DPA(ngym.ngym):
                 info['choice'] = None
                 reward = self.R_ABORTED
         else:  # elif self.t in epochs['decision']:
-            #            print('xxxxxxxxxxxxxxxxx')
-            #            print(action)
+            print('xxxxxxxxxxxxxxxxx')
+            print(action)
             if action == self.actions['GO']:
                 tr_perf = True
                 info['continue'] = False
@@ -137,17 +138,19 @@ class DPA(ngym.ngym):
                 info['correct'] = (trial['ground_truth'] == 'GO')
                 if info['correct']:
                     reward = self.R_CORRECT
+                else:
+                    reward = self.R_INCORRECT
 
         # ---------------------------------------------------------------------
         # Inputs
         # ---------------------------------------------------------------------
 
         dpa1, dpa2 = trial['pair']
-        #        print(reward)
-        #        print(dpa1)
-        #        print(dpa2)
-        #        print(trial['ground_truth'])
-        #        print('--------------------')
+        print(reward)
+        print(dpa1)
+        print(dpa2)
+        print(trial['ground_truth'])
+        print('--------------------')
         obs = np.zeros(len(self.inputs))
         # if self.t not in epochs['decision']:
         if not self.in_epoch(self.t, 'decision'):
@@ -166,7 +169,7 @@ class DPA(ngym.ngym):
                                                 self.R_MISS, reward)
 
         if new_trial:
-            # print('oooooooooooooooooooooooooooooo')
+            print('oooooooooooooooooooooooooooooo')
             info['new_trial'] = True
             info['gt'] = trial['ground_truth']
             self.t = 0
