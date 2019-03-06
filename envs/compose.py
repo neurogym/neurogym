@@ -6,7 +6,6 @@ Created on Mon Mar  4 17:49:35 2019
 @author: molano
 """
 
-import tasktools
 from gym import spaces
 import numpy as np
 import itertools
@@ -66,7 +65,7 @@ class compose():
 
         obs = np.concatenate((obs1, obs2), axis=0)
         reward = reward1 + reward2
-        done = done1  # TODO
+        done = done1  # TODO: done whenever the primary task is done?
         info = {}  # TODO
         return obs, reward, done, info
 
@@ -78,4 +77,3 @@ class compose():
         rew = 0
         done = False
         return obs, rew, done
-
