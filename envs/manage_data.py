@@ -17,7 +17,7 @@ class manage_data(Wrapper):
     modfies a given environment by changing the probability of repeating the
     previous correct response
     """
-    def __init__(self, env, plt_tr=True):
+    def __init__(self, env, plt_tr=False):
         Wrapper.__init__(self, env=env)
         self.env = env
         # data to save
