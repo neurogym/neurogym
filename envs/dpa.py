@@ -129,8 +129,8 @@ class DPA(ngym.ngym):
                 info['choice'] = None
                 reward = self.R_ABORTED
         else:  # elif self.t in epochs['decision']:
-            print('xxxxxxxxxxxxxxxxx')
-            print(action)
+            #            print('xxxxxxxxxxxxxxxxx')
+            #            print(action)
             if action == self.actions['GO']:
                 tr_perf = True
                 info['continue'] = False
@@ -146,11 +146,11 @@ class DPA(ngym.ngym):
         # ---------------------------------------------------------------------
 
         dpa1, dpa2 = trial['pair']
-        print(reward)
-        print(dpa1)
-        print(dpa2)
-        print(trial['ground_truth'])
-        print('--------------------')
+        #        print(reward)
+        #        print(dpa1)
+        #        print(dpa2)
+        #        print(trial['ground_truth'])
+        #        print('--------------------')
         obs = np.zeros(len(self.inputs))
         # if self.t not in epochs['decision']:
         if not self.in_epoch(self.t, 'decision'):
@@ -169,7 +169,7 @@ class DPA(ngym.ngym):
                                                 self.R_MISS, reward)
 
         if new_trial:
-            print('oooooooooooooooooooooooooooooo')
+            # print('oooooooooooooooooooooooooooooo')
             info['new_trial'] = True
             info['gt'] = trial['ground_truth']
             self.t = 0

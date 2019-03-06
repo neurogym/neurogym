@@ -13,27 +13,38 @@ if sys.argv[3] == 'trial_hist':
     env = trial_hist.TrialHistory(env)
 elif sys.argv[3] == 'reaction_time':
     env = reaction_time.ReactionTime(env)
-env = md.manage_data(env, plt_tr=True)
+env = md.manage_data(env, plt_tr=False)
 env.reset()
 observations = []
-sides = []
+rewards = []
+actions = []
+actions_end_of_trial = []
 for stp in range(int(sys.argv[2])):
-    state, rew, done, info = env.step(env.action_space.sample())
+    action = env.action_space.sample()
+    state, rew, done, info = env.step(action)
     if done:
         env.reset()
 
     observations.append(state)
-    if 'gt' in info.keys():
-        sides.append(info['gt'])
+    if 'new_trial' in info.keys():
+        actions_end_of_trial.append(action)
+    else:
+        actions_end_of_trial.append(0)
+    rewards.append(rew)
+    actions.append(action)
 
 obs = np.array(observations)
 plt.figure()
+plt.subplot(3, 1, 1)
 plt.imshow(obs.T, aspect='auto')
 plt.title('observations')
+plt.subplot(3, 1, 2)
+plt.plot(actions)
+plt.plot(actions_end_of_trial, '--')
+plt.title('actions')
+plt.xlim([0, len(rewards)])
+plt.subplot(3, 1, 3)
+plt.plot(rewards, 'r')
+plt.title('reward')
+plt.xlim([0, len(rewards)])
 plt.show()
-if len(sides) > 0:
-    sides = np.array(sides).reshape((1, -1))
-    plt.figure()
-    plt.imshow(sides, aspect='auto')
-    plt.title('sides')
-    plt.show()
