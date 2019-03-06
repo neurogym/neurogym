@@ -44,7 +44,7 @@ class manage_data(Wrapper):
             data = {'choice': self.choice_mat, 'stimulus': self.stim_mat,
                     'correct_side': self.side_mat, 'obs_mat': self.obs_mat,
                     'act_mat': self.act_mat, 'rew_mat': self.rew_mat}
-            np.savez(self.tmp_folder + self.__class__.__name__ +
+            np.savez(self.tmp_folder + self.env.__class__.__name__ +
                      'data.npz', **data)
             if self.plt_tr:
                 self.render()
