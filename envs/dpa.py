@@ -46,7 +46,7 @@ class DPA(ngym.ngym):
     tmax = fixation + dpa1 + delay_max + dpa2 + resp_delay + decision
 
     # Rewards
-    R_ABORTED = 0.
+    R_ABORTED = -0.1
     R_CORRECT = +1.
     R_INCORRECT = -1.
     R_MISS = 0.
