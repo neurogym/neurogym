@@ -40,7 +40,7 @@ class ReadySetGo(ngym.ngym):
     ready = 83
     set = 83
     tmax = fixation + 2500
-
+    mean_trial_duration = tmax
     # Rewards
     R_ABORTED = -1.
     R_CORRECT = +1.
@@ -66,11 +66,11 @@ class ReadySetGo(ngym.ngym):
         print('------------------------')
 
     def _new_trial(self):
-        # TODO: why are rng and dt inputs?
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        measure = tasktools.choice(self.rng, [500, 580, 660, 760, 840, 920, 1000])
+        measure = tasktools.choice(self.rng, [500, 580, 660, 760,
+                                              840, 920, 1000])
         gain = 1
         production = measure * gain
         ready = set = 83  # duration of ready and set cue
@@ -159,7 +159,6 @@ class ReadySetGo(ngym.ngym):
         else:
             self.t += self.dt
 
-        
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info, new_trial
 

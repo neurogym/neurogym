@@ -42,7 +42,7 @@ class GNG(ngym.ngym):
     stimulus_max = 502
     resp_delay = 500
     decision = 500
-    tmax = fixation + stimulus_max + resp_delay + decision
+    mean_trial_duration = fixation + stimulus_mean + resp_delay + decision
 
     # Rewards
     R_ABORTED = -0.1
@@ -71,6 +71,8 @@ class GNG(ngym.ngym):
                                                    self.stimulus_mean,
                                                    xmin=self.stimulus_min,
                                                    xmax=self.stimulus_max)
+        # maximum duration of current trial
+        self.tmax = self.fixation + stimulus + self.resp_delay + self.decision
         durations = {
             'fix_grace': (0, 100),
             'fixation':  (0, self.fixation),
@@ -78,9 +80,7 @@ class GNG(ngym.ngym):
             'resp_delay':  (self.fixation + stimulus,
                             self.fixation + stimulus + self.resp_delay),
             'decision':  (self.fixation + stimulus + self.resp_delay,
-                          self.fixation + stimulus + self.resp_delay +
-                          self.decision),
-            'tmax':      self.tmax
+                          self.tmax),
             }
 
         # ---------------------------------------------------------------------

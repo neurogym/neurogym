@@ -42,8 +42,9 @@ class PadoaSch(ngym.ngym):
     fixation = 750
     offer_on_min = 1000
     offer_on_max = 2000
+    offer_on_mean = (offer_on_min + offer_on_max) / 2
     decision = 750
-    tmax = fixation + offer_on_max + decision
+    mean_trial_duration = fixation + offer_on_mean + decision
 
     # Rewards
     R_ABORTED = -1.
@@ -78,13 +79,13 @@ class PadoaSch(ngym.ngym):
 
         offer_on = tasktools.uniform(self.rng, self.dt, self.offer_on_min,
                                      self.offer_on_max)
-
+        # maximum duration of current trial
+        self.tmax = self.fixation + offer_on + self.decision
         durations = {
             'fix_grace': (0, 100),
             'fixation':    (0, self.fixation),
             'offer-on':    (self.fixation, self.fixation + offer_on),
             'decision':    (self.fixation + offer_on, self.tmax),
-            'tmax':        self.tmax
             }
 
         # ---------------------------------------------------------------------
@@ -196,7 +197,6 @@ class PadoaSch(ngym.ngym):
         else:
             self.t += self.dt
 
-        
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info, new_trial
 

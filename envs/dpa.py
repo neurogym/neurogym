@@ -40,10 +40,12 @@ class DPA(ngym.ngym):
     dpa1 = 500
     delay_min = 500  # Original paper: 13000
     delay_max = 501
+    delay_mean = (delay_min + delay_max) / 2
     dpa2 = 500
     resp_delay = 500
     decision = 500
-    tmax = fixation + dpa1 + delay_max + dpa2 + resp_delay + decision
+    mean_trial_duration = fixation + dpa1 + delay_mean + dpa2 +\
+        resp_delay + decision
 
     # Rewards
     R_ABORTED = -0.1
@@ -71,6 +73,9 @@ class DPA(ngym.ngym):
 
         delay = tasktools.uniform(self.rng, self.dt, self.delay_min,
                                   self.delay_max)
+        # maximum duration of current trial
+        self.tmax = self.fixation + self.dpa1 + delay + self.dpa2 +\
+            self.resp_delay + self.decision
 
         durations = {
             'fix_grace': (0, 100),
@@ -84,10 +89,7 @@ class DPA(ngym.ngym):
                            self.fixation + self.dpa1 + delay + self.dpa2 +
                            self.resp_delay),
             'decision':   (self.fixation + self.dpa1 + delay + self.dpa2 +
-                           self.resp_delay, self.fixation + self.dpa1 +
-                           delay + self.dpa2 + self.resp_delay +
-                           self.decision),
-            'tmax':       self.tmax
+                           self.resp_delay, self.tmax),
             }
 
         pair = tasktools.choice(self.rng, self.dpa_pairs)
@@ -158,8 +160,7 @@ class DPA(ngym.ngym):
             obs[dpa2] = 1
         # ---------------------------------------------------------------------
         # new trial?
-        dec_per_end = trial['durations']['decision'][1]
-        reward, new_trial = tasktools.new_trial(self.t, dec_per_end, self.dt,
+        reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
                                                 info['continue'],
                                                 self.R_MISS, reward)
 
