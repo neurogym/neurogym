@@ -37,12 +37,12 @@ class DPA(ngym.ngym):
 
     # Epoch durations
     fixation = 0
-    dpa1 = 1000
-    delay_min = 500  # Original paper: 13000
-    delay_max = 501
-    dpa2 = 1000
-    resp_delay = 500
-    decision = 500
+    dpa1 = 100
+    delay_min = 100  # Original paper: 13000
+    delay_max = 101
+    dpa2 = 100
+    resp_delay = 100
+    decision = 100
     tmax = fixation + dpa1 + delay_max + dpa2 + resp_delay + decision
 
     # Rewards
@@ -129,8 +129,7 @@ class DPA(ngym.ngym):
                 info['choice'] = None
                 reward = self.R_ABORTED
         else:  # elif self.t in epochs['decision']:
-            #            print('xxxxxxxxxxxxxxxxx')
-            #            print(action)
+            # print('decision period')
             if action == self.actions['GO']:
                 tr_perf = True
                 info['continue'] = False
@@ -146,11 +145,9 @@ class DPA(ngym.ngym):
         # ---------------------------------------------------------------------
 
         dpa1, dpa2 = trial['pair']
-        #        print(reward)
-        #        print(dpa1)
-        #        print(dpa2)
-        #        print(trial['ground_truth'])
-        #        print('--------------------')
+        #        print('action: ' + str(action))
+        #        print('match: ' + str(np.diff(trial['pair'])[0]))
+        #        print('gt: ' + trial['ground_truth'])
         obs = np.zeros(len(self.inputs))
         # if self.t not in epochs['decision']:
         if not self.in_epoch(self.t, 'decision'):
@@ -169,7 +166,7 @@ class DPA(ngym.ngym):
                                                 self.R_MISS, reward)
 
         if new_trial:
-            # print('oooooooooooooooooooooooooooooo')
+            #            print('new trial')
             info['new_trial'] = True
             info['gt'] = trial['ground_truth']
             self.t = 0
@@ -181,7 +178,9 @@ class DPA(ngym.ngym):
             self.trial = self._new_trial()
         else:
             self.t += self.dt
-
+        #        print('reward: ' + str(reward))
+        #        print('observation: ' + str(obs))
+        #        print('---------------------')
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info, new_trial
 
