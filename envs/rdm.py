@@ -32,7 +32,7 @@ class RDM(ngym.ngym):
 
     # trial conditions
     choices = [-1, 1]
-    cohs = [0, 6.4, 12.8, 25.6, 51.2]  # Easier: [25.6, 51.2, 102.4, 204.8]
+    cohs = [0, 6.4, 12.8, 25.6, 51.2]
 
     # Input noise
     sigma = np.sqrt(2*100*0.01)
@@ -43,7 +43,7 @@ class RDM(ngym.ngym):
     stimulus_mean = 330
     stimulus_max = 1500
     decision = 500
-    tmax = fixation + stimulus_max + decision
+    mean_trial_duration = fixation + stimulus_mean + decision
 
     # Rewards
     R_ABORTED = -1.
@@ -73,7 +73,8 @@ class RDM(ngym.ngym):
                                                    self.stimulus_mean,
                                                    xmin=self.stimulus_min,
                                                    xmax=self.stimulus_max)
-
+        # maximum length of current trial
+        self.tmax = self.fixation + stimulus + self.decision
         # TODO: don't align, not PEP8
         durations = {
             'fix_grace': (0, 100),
@@ -81,7 +82,6 @@ class RDM(ngym.ngym):
             'stimulus':  (self.fixation, self.fixation + stimulus),
             'decision':  (self.fixation + stimulus,
                           self.fixation + stimulus + self.decision),
-            'tmax':      self.tmax
             }
 
         # ---------------------------------------------------------------------

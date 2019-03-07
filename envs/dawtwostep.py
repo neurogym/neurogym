@@ -29,7 +29,7 @@ class DawTwoStep(ngym.ngym):
     low_reward_p = 0.1
     state1_high_reward = True
     tmax = 2
-
+    mean_trial_duration = tmax
     # Input noise
     sigma = np.sqrt(2*100*0.01)
 

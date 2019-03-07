@@ -29,8 +29,8 @@ class ngym(gym.Env):
         print('------------------')
         print(self.__class__.__name__)
         print('time step: ' + str(self.dt))
-        print('tmax: ' + str(self.tmax) + ' (max num. steps: ' +
-              str(self.tmax/self.dt) + ')')
+        print('mean trial duration: ' + str(self.mean_trial_durations) +
+              ' (max num. steps: ' + str(self.tmax/self.dt) + ')')
         if trial_hist:
             print('trial history')
         print('------------------')

@@ -30,7 +30,7 @@ class DelayedMatchToSample(ngym.ngym):
     delay = 1500
     test = 500
     decision = 500
-
+    mean_trial_duration = tmax
     # Rewards
     R_ABORTED = -1.
     R_CORRECT = +1.
@@ -143,7 +143,6 @@ class DelayedMatchToSample(ngym.ngym):
         else:
             self.t += self.dt
 
-        
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info, new_trial
 

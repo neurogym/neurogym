@@ -62,7 +62,7 @@ class PDWager(ngym.ngym):
     sure_mean = 575
     sure_max = 750
     decision = 500
-    tmax = fixation + stimulus_min + stimulus_max + delay_max + decision
+    mean_trial_duration = fixation + stimulus_mean + delay_mean + decision
 
     # Rewards
     R_ABORTED = -1.
@@ -114,15 +114,17 @@ class PDWager(ngym.ngym):
                                                 self.sure_mean,
                                                 xmin=self.sure_min,
                                                 xmax=self.sure_max)
-
+        # maximum duration of current trial
+        self.tmax = self.fixation + stimulus + delay + self.decision
+        # TODO: are these periods correct?
         durations = {
             'fix_grace': (0, 100),
             'fixation':  (0, self.fixation),
             'stimulus':  (self.fixation, self.fixation + stimulus),
             'delay':     (self.fixation + stimulus,
                           self.fixation + stimulus + delay),
-            'decision':  (self.fixation + stimulus + delay, self.tmax),
-            'tmax':      self.tmax
+            'decision':  (self.fixation + stimulus + delay,
+                          self.tmax),
             }
         if wager:
             durations['sure'] = (self.fixation + stimulus + sure_onset,
@@ -228,7 +230,6 @@ class PDWager(ngym.ngym):
         else:
             self.t += self.dt
 
-        
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info, new_trial
 
