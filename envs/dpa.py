@@ -56,7 +56,6 @@ class DPA(ngym.ngym):
         # call ngm __init__ function
         super().__init__(dt=dt)
         self.action_space = spaces.Discrete(2)
-        # hight = np.array([1.])
         self.observation_space = spaces.Box(-1., 1, shape=(5, ),
                                             dtype=np.float32)
         # TODO: are these necessary?
@@ -145,18 +144,14 @@ class DPA(ngym.ngym):
         # ---------------------------------------------------------------------
         # Inputs
         # ---------------------------------------------------------------------
-
         dpa1, dpa2 = trial['pair']
-        #        print('action: ' + str(action))
-        #        print('match: ' + str(np.diff(trial['pair'])[0]))
-        #        print('gt: ' + trial['ground_truth'])
         obs = np.zeros(len(self.inputs))
         # if self.t not in epochs['decision']:
         if not self.in_epoch(self.t, 'decision'):
             obs[self.inputs['FIXATION']] = 1
         # if self.t in epochs['dpa1']:
         if self.in_epoch(self.t, 'dpa1'):
-            # without using self.inputs. Do we need self.inputs at al?
+            # TODO: Do we need self.inputs?
             obs[dpa1] = 1
         # if self.t in epochs['dpa2']:
         if self.in_epoch(self.t, 'dpa2'):
@@ -169,7 +164,6 @@ class DPA(ngym.ngym):
                                                 self.R_MISS, reward)
 
         if new_trial:
-            #            print('new trial')
             info['new_trial'] = True
             info['gt'] = trial['ground_truth']
             self.t = 0
@@ -181,9 +175,6 @@ class DPA(ngym.ngym):
             self.trial = self._new_trial()
         else:
             self.t += self.dt
-        #        print('reward: ' + str(reward))
-        #        print('observation: ' + str(obs))
-        #        print('---------------------')
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info, new_trial
 
