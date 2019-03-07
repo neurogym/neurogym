@@ -38,10 +38,10 @@ class DPA(ngym.ngym):
     # Epoch durations
     fixation = 0
     dpa1 = 1000
-    delay_min = 2000  # Original paper: 13000
-    delay_max = 2001
+    delay_min = 500  # Original paper: 13000
+    delay_max = 501
     dpa2 = 1000
-    resp_delay = 1000
+    resp_delay = 500
     decision = 500
     tmax = fixation + dpa1 + delay_max + dpa2 + resp_delay + decision
 
