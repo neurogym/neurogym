@@ -47,14 +47,14 @@ class GNG(ngym.ngym):
     # Rewards
     R_ABORTED = -0.1
     R_CORRECT = +1.
-    R_FAIL = 0.
+    R_INCORRECT = -1.
     R_MISS = 0.
     abort = False
 
     def __init__(self, dt=100):
         super().__init__(dt=dt)
         self.stimulus_min = np.max([self.stimulus_min, dt])
-        self.action_space = spaces.Discrete(3)
+        self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3, ),
                                             dtype=np.float32)
 
@@ -107,7 +107,7 @@ class GNG(ngym.ngym):
         reward = 0
         tr_perf = False
         if not self.in_epoch(self.t, 'decision'):
-            if (action != self.actions['FIXATE'] and
+            if (action != self.actions['NO_GO'] and
                     not self.in_epoch(self.t, 'fix_grace')):
                 info['continue'] = not self.abort
                 reward = self.R_ABORTED
@@ -121,7 +121,7 @@ class GNG(ngym.ngym):
                 if info['correct']:
                     reward = self.R_CORRECT
                 else:
-                    reward = self.R_FAIL
+                    reward = self.R_INCORRECT
 
         # ---------------------------------------------------------------------
         # Inputs
