@@ -37,12 +37,12 @@ class DPA(ngym.ngym):
 
     # Epoch durations
     fixation = 0
-    dpa1 = 100
-    delay_min = 100  # Original paper: 13000
-    delay_max = 101
-    dpa2 = 100
-    resp_delay = 100
-    decision = 100
+    dpa1 = 500
+    delay_min = 500  # Original paper: 13000
+    delay_max = 501
+    dpa2 = 500
+    resp_delay = 500
+    decision = 500
     tmax = fixation + dpa1 + delay_max + dpa2 + resp_delay + decision
 
     # Rewards
@@ -85,7 +85,9 @@ class DPA(ngym.ngym):
                            self.fixation + self.dpa1 + delay + self.dpa2 +
                            self.resp_delay),
             'decision':   (self.fixation + self.dpa1 + delay + self.dpa2 +
-                           self.resp_delay, self.tmax),
+                           self.resp_delay, self.fixation + self.dpa1 +
+                           delay + self.dpa2 + self.resp_delay +
+                           self.decision),
             'tmax':       self.tmax
             }
 
@@ -161,7 +163,8 @@ class DPA(ngym.ngym):
             obs[dpa2] = 1
         # ---------------------------------------------------------------------
         # new trial?
-        reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
+        dec_per_end = trial['durations']['decision'][1]
+        reward, new_trial = tasktools.new_trial(self.t, dec_per_end, self.dt,
                                                 info['continue'],
                                                 self.R_MISS, reward)
 
