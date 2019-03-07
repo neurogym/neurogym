@@ -84,7 +84,7 @@ def new_trial(t, tmax, dt, trial_continue, miss, reward):
     check whether a new trial should be started
     """
     # new trial?
-    # TODO: not negative reward for being wrong or not responding?
+    # tmax should the current tmax and not the general one
     new_trial = False
     if t > tmax and trial_continue:
         reward = miss
