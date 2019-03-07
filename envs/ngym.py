@@ -29,8 +29,9 @@ class ngym(gym.Env):
         print('------------------')
         print(self.__class__.__name__)
         print('time step: ' + str(self.dt))
-        print('mean trial duration: ' + str(self.mean_trial_durations) +
-              ' (max num. steps: ' + str(self.tmax/self.dt) + ')')
+        print('mean trial duration: ' + str(self.mean_trial_duration) +
+              ' (max num. steps: ' +
+              str(self.mean_trial_duration/self.dt) + ')')
         if trial_hist:
             print('trial history')
         print('------------------')
@@ -48,6 +49,7 @@ class ngym(gym.Env):
         restarts the experiment with the same parameters
         """
         if self.num_tr > 1:
+            print(self.__class__.__name__)
             print('percentage of trials performed: ' +
                   str(100*self.num_tr_perf/self.num_tr_exp))
             print('mean performance: ' + str(self.perf))
