@@ -59,8 +59,8 @@ class DPA(ngym.ngym):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-1., 1, shape=(5, ),
                                             dtype=np.float32)
-        # TODO: are these necessary?
         self.seed()
+        # TODO: is this necessary?
         self.viewer = None
 
         self.trial = self._new_trial()

@@ -24,6 +24,7 @@ import ngym
 
 
 class RDM(ngym.ngym):
+    # TODO: move these variables to __init__()
     # Inputs
     inputs = tasktools.to_map('FIXATION', 'LEFT', 'RIGHT')
 
@@ -75,7 +76,6 @@ class RDM(ngym.ngym):
                                                    xmax=self.stimulus_max)
         # maximum length of current trial
         self.tmax = self.fixation + stimulus + self.decision
-        # TODO: don't align, not PEP8
         durations = {
             'fix_grace': (0, 100),
             'fixation':  (0, self.fixation),

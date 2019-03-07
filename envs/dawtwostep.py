@@ -85,7 +85,7 @@ class DawTwoStep(ngym.ngym):
         trial = self.trial
         info = {'continue': True}
         reward = 0
-        tr_perf = False  # TODO: never set to True
+        tr_perf = False
 
         # TODO: should we section by reward/input or epochs?
         obs = np.zeros(len(self.inputs))

@@ -1,9 +1,3 @@
-"""Temporary file for dependency of pyrl
-
-TODO: remove soon
-"""
-
-
 from __future__ import division
 
 from collections import OrderedDict
