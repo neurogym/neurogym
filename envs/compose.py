@@ -36,7 +36,12 @@ class compose():
         self.env1_on = True
         self.env2_on = True
         self._new_trial()
-        print(self.action_split)
+        self.reward_range = (np.min([self.env1.reward_range[0],
+                                     self.env2.reward_range[0]]),
+                             np.max([self.env1.reward_range[1],
+                                     self.env2.reward_range[1]]))
+        self.metadata = self.env1.metadata
+        self.metadata.update(self.env2.metadata)
 
     def _new_trial(self):
         self.env1.trial = self.env1._new_trial()
