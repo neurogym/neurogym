@@ -13,37 +13,40 @@ import ngym
 
 
 class DelayedMatchToSample(ngym.ngym):
-    # Inputs
-    # TODO: Code a continuous space version
-    inputs = tasktools.to_map('FIXATION', 'LEFT', 'RIGHT')
-
-    # Actions
-    actions = tasktools.to_map('FIXATE', 'MATCH', 'NONMATCH')
-
-    # Input noise
-    sigma = np.sqrt(2*100*0.01)
-
-    # TODO: Find these info from a paper
-    tmax = 3500
-    fixation = 500
-    sample = 500
-    delay = 1500
-    test = 500
-    decision = 500
-    mean_trial_duration = tmax
-    # Rewards
-    R_ABORTED = -1.
-    R_CORRECT = +1.
-    R_FAIL = 0.
-    R_MISS = 0.
-    abort = False
-
     def __init__(self, dt=100):
         super().__init__(dt=dt)
+        # Inputs
+        # TODO: Code a continuous space version
+        self.inputs = tasktools.to_map('FIXATION', 'LEFT', 'RIGHT')
+
+        # Actions
+        self.actions = tasktools.to_map('FIXATE', 'MATCH', 'NONMATCH')
+
+        # Input noise
+        self.sigma = np.sqrt(2*100*0.01)
+
+        # TODO: Find these info from a paper
+        self.tmax = 3500
+        self.fixation = 500
+        self.sample = 500
+        self.delay = 1500
+        self.test = 500
+        self.decision = 500
+        self.mean_trial_duration = self.tmax
+        print('mean trial duration: ' + str(self.mean_trial_duration) +
+              ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
+              ')')
+        # Rewards
+        self.R_ABORTED = -1.
+        self.R_CORRECT = +1.
+        self.R_FAIL = 0.
+        self.R_MISS = 0.
+        self.abort = False
+
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
-
+        # seeding
         self.seed()
         self.viewer = None
 
@@ -126,7 +129,6 @@ class DelayedMatchToSample(ngym.ngym):
 
         if new_trial:
             info['new_trial'] = True
-            info['gt'] = trial['ground_truth']
             self.t = 0
             self.num_tr += 1
             # compute perf

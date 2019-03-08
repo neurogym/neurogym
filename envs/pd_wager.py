@@ -23,57 +23,49 @@ import tasktools
 
 
 class PDWager(ngym.ngym):
-    # Inputs
-    inputs = tasktools.to_map('FIXATION', 'LEFT', 'RIGHT', 'SURE')
-
-    # Actions
-    actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT', 'CHOOSE-RIGHT',
-                               'CHOOSE-SURE')
-
-    # trial conditions
-    wagers = [True, False]
-    choices = [-1, 1]
-    cohs = [0, 3.2, 6.4, 12.8, 25.6, 51.2]
-
-    # Input noise
-    sigma = np.sqrt(2*100*0.01)
-
-    # Separate inputs
-    N = 100
-    Wins = []
-    for i in range(3):
-        Win = np.zeros((len(inputs), N))
-        Win[inputs['FIXATION']] = 1
-        Win[inputs['LEFT'], :N//2] = 1
-        Win[inputs['RIGHT'], :N//2] = 1
-        Win[inputs['SURE'], N//2:] = 1
-        Wins.append(Win)
-    Win = np.concatenate(Wins, axis=1)
-
-    # Durations
-    fixation = 750
-    stimulus_min = 100
-    stimulus_mean = 180
-    stimulus_max = 800
-    delay_min = 1200
-    delay_mean = 1350
-    delay_max = 1800
-    sure_min = 500
-    sure_mean = 575
-    sure_max = 750
-    decision = 500
-    mean_trial_duration = fixation + stimulus_mean + delay_mean + decision
-
-    # Rewards
-    R_ABORTED = -1.
-    R_CORRECT = +1.
-    R_MISS = 0.
-    abort = False
-    R_SURE = 0.7*R_CORRECT
-
     def __init__(self, dt=100):
         # call ngm __init__ function
         super().__init__(dt=dt)
+        # Inputs
+        self.inputs = tasktools.to_map('FIXATION', 'LEFT', 'RIGHT', 'SURE')
+
+        # Actions
+        self.actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT',
+                                        'CHOOSE-RIGHT', 'CHOOSE-SURE')
+
+        # trial conditions
+        self.wagers = [True, False]
+        self.choices = [-1, 1]
+        self.cohs = [0, 3.2, 6.4, 12.8, 25.6, 51.2]
+
+        # Input noise
+        self.sigma = np.sqrt(2*100*0.01)
+
+        # Durations
+        self.fixation = 750
+        self.stimulus_min = 100
+        self.stimulus_mean = 180
+        self.stimulus_max = 800
+        self.delay_min = 1200
+        self.delay_mean = 1350
+        self.delay_max = 1800
+        self.sure_min = 500
+        self.sure_mean = 575
+        self.sure_max = 750
+        self.decision = 500
+        self.mean_trial_duration = self.fixation + self.stimulus_mean +\
+            self.delay_mean + self.decision
+        print('mean trial duration: ' + str(self.mean_trial_duration) +
+              ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
+              ')')
+        # Rewards
+        self.R_ABORTED = -1.
+        self.R_CORRECT = +1.
+        self.R_MISS = 0.
+        self.abort = False
+        self.R_SURE = 0.7*self.R_CORRECT
+
+        # set action and observation space
         self.action_space = spaces.Discrete(4)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(4, ),
                                             dtype=np.float32)

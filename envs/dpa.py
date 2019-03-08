@@ -22,46 +22,44 @@ from gym import spaces
 
 
 class DPA(ngym.ngym):
-
-    # Inputs
-    inputs = tasktools.to_map('FIXATION', 'S1', 'S2', 'S3', 'S4')
-
-    # Actions
-    actions = tasktools.to_map('NO_GO', 'GO')
-
-    # trial conditions
-    dpa_pairs = [(1, 3), (1, 4), (2, 3), (2, 4)]
-
-    # Input noise
-    sigma = np.sqrt(2*100*0.001)
-
-    # Epoch durations
-    fixation = 0
-    dpa1 = 1000
-    delay_min = 2000  # Original paper: 13000
-    delay_max = 2001
-    delay_mean = (delay_min + delay_max) / 2
-    dpa2 = 1000
-    resp_delay = 1000
-    decision = 500
-    mean_trial_duration = fixation + dpa1 + delay_mean + dpa2 +\
-        resp_delay + decision
-
-    # Rewards
-    R_ABORTED = -0.1
-    R_CORRECT = +1.
-    R_INCORRECT = -1.
-    R_MISS = 0.
-    abort = False
-
     def __init__(self, dt=100):
         # call ngm __init__ function
         super().__init__(dt=dt)
+        # Inputs
+        self.inputs = tasktools.to_map('FIXATION', 'S1', 'S2', 'S3', 'S4')
+        # Actions
+        self.actions = tasktools.to_map('NO_GO', 'GO')
+        # trial conditions
+        self.dpa_pairs = [(1, 3), (1, 4), (2, 3), (2, 4)]
+        # Input noise
+        self.sigma = np.sqrt(2*100*0.001)
+        # Epoch durations
+        self.fixation = 0
+        self.dpa1 = 1000
+        self.delay_min = 2000  # Original paper: 13000
+        self.delay_max = 2001
+        self.delay_mean = (self.delay_min + self.delay_max) / 2
+        self.dpa2 = 1000
+        self.resp_delay = 1000
+        self.decision = 500
+        self.mean_trial_duration = self.fixation + self.dpa1 +\
+            self.delay_mean + self.dpa2 + self.resp_delay + self.decision
+        print('mean trial duration: ' + str(self.mean_trial_duration) +
+              ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
+              ')')
+
+        # Rewards
+        self.R_ABORTED = -0.1
+        self.R_CORRECT = +1.
+        self.R_INCORRECT = -1.
+        self.R_MISS = 0.
+        self.abort = False
+
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-1., 1, shape=(5, ),
                                             dtype=np.float32)
+        # seeding
         self.seed()
-        # TODO: is this necessary?
         self.viewer = None
 
         self.trial = self._new_trial()

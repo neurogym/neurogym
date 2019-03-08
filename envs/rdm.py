@@ -26,14 +26,6 @@ import ngym
 class RDM(ngym.ngym):
     def __init__(self, dt=100, **kwargs):
         super().__init__(dt=dt)
-        self.stimulus_min = np.max([self.stimulus_min, dt])
-        self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
-                                            dtype=np.float32)
-        self.seed()
-        self.viewer = None
-
-        self.trial = self._new_trial()
         # Inputs
         self.inputs = tasktools.to_map('FIXATION', 'LEFT', 'RIGHT')
 
@@ -56,7 +48,9 @@ class RDM(ngym.ngym):
         self.decision = 500
         self.mean_trial_duration = self.fixation + self.stimulus_mean +\
             self.decision
-
+        print('mean trial duration: ' + str(self.mean_trial_duration) +
+              ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
+              ')')
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
@@ -64,8 +58,20 @@ class RDM(ngym.ngym):
         self.R_MISS = 0.
         self.abort = False
 
-        # set parameters
-        [setattr(self, k, v) for k, v in kwargs]
+        # action and observation spaces
+        self.stimulus_min = np.max([self.stimulus_min, dt])
+        self.action_space = spaces.Discrete(3)
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
+                                            dtype=np.float32)
+        # seeding
+        self.seed()
+        self.viewer = None
+
+        # set parameters TODO
+        # [setattr(self, k, v) for k, v in kwargs]
+
+        # start new trial
+        self.trial = self._new_trial()
 
     def _new_trial(self):
         # ---------------------------------------------------------------------
@@ -151,7 +157,7 @@ class RDM(ngym.ngym):
             low = self.inputs['LEFT']
 
         obs = np.zeros(len(self.inputs))
-        # TODO: maybe allow self.in_epoch(self.t, ['fixation', 'stimulus', 'decision'])
+        # TODO: maybe allow self.in_epoch(self.t, ['fixation', 'stimulus',...])
         if self.in_epoch(self.t, 'fixation') or\
            self.in_epoch(self.t, 'stimulus'):
             obs[self.inputs['FIXATION']] = 1

@@ -25,33 +25,35 @@ import ngym
 
 
 class ReadySetGo(ngym.ngym):
-    # Inputs
-    inputs = tasktools.to_map('FIXATION', 'READY', 'SET')
-
-    # Actions
-    actions = tasktools.to_map('FIXATE', 'GO')
-
-    # Input noise
-    sigma = np.sqrt(2*100*0.01)
-
-    # Durations
-    fixation = 500
-    gain = 1
-    ready = 83
-    set = 83
-    tmax = fixation + 2500
-    mean_trial_duration = tmax
-    # Rewards
-    R_ABORTED = -1.
-    R_CORRECT = +1.
-    R_FAIL = 0.
-    R_MISS = 0.
-    abort = False
-
     def __init__(self, dt=80):
         super().__init__(dt=dt)
         if dt > 80:
             raise ValueError('dt {:0.2f} too large for this task.'.format(dt))
+        # Inputs
+        self.inputs = tasktools.to_map('FIXATION', 'READY', 'SET')
+
+        # Actions
+        self.actions = tasktools.to_map('FIXATE', 'GO')
+
+        # Input noise
+        self.sigma = np.sqrt(2*100*0.01)
+
+        # Durations
+        self.fixation = 500
+        self.gain = 1
+        self.ready = 83
+        self.set = 83
+        max_trial_duration = self.fixation + 2500
+        print('max trial duration: ' + str(max_trial_duration) +
+              ' (max num. steps: ' + str(max_trial_duration/self.dt) +
+              ')')
+        # Rewards
+        self.R_ABORTED = -1.
+        self.R_CORRECT = +1.
+        self.R_FAIL = 0.
+        self.R_MISS = 0.
+        self.abort = False
+        # set action and observation space
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
@@ -60,10 +62,6 @@ class ReadySetGo(ngym.ngym):
         self.viewer = None
 
         self.trial = self._new_trial()
-        print('------------------------')
-        print('RDM task')
-        print('time step: ' + str(self.dt))
-        print('------------------------')
 
     def _new_trial(self):
         # ---------------------------------------------------------------------
@@ -73,8 +71,7 @@ class ReadySetGo(ngym.ngym):
                                               840, 920, 1000])
         gain = 1
         production = measure * gain
-        ready = set = 83  # duration of ready and set cue
-        tmax = self.fixation + measure + set + 2*production
+        self.tmax = self.fixation + measure + self.set + 2*production
 
         durations = {
             'fix_grace': (0, 100),
@@ -84,8 +81,7 @@ class ReadySetGo(ngym.ngym):
             'set': (self.fixation + measure,
                     self.fixation + measure + self.set),
             'production': (self.fixation + measure + self.set,
-                           self.fixation + measure + self.set + 2*production),
-            'tmax': tmax
+                           self.tmax),
             }
 
         # ---------------------------------------------------------------------

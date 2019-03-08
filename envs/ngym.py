@@ -29,12 +29,6 @@ class ngym(gym.Env):
         print('------------------')
         print(self.__class__.__name__)
         print('time step: ' + str(self.dt))
-        try:
-            print('mean trial duration: ' + str(self.mean_trial_duration) +
-                  ' (max num. steps: ' +
-                  str(self.mean_trial_duration/self.dt) + ')')
-        except KeyError:
-            pass
         if trial_hist:
             print('trial history')
         print('------------------')

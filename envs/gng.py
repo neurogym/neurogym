@@ -23,41 +23,45 @@ import ngym
 
 
 class GNG(ngym.ngym):
-    # Inputs
-    inputs = tasktools.to_map('FIXATION', 'S1', 'S2')
-
-    # Actions
-    actions = tasktools.to_map('NO_GO', 'GO')
-
-    # trial conditions
-    choices = [-1, 1]
-
-    # Input noise
-    sigma = np.sqrt(2*100*0.01)
-
-    # Durations
-    fixation = 500
-    stimulus_min = 500
-    stimulus_mean = 501
-    stimulus_max = 502
-    resp_delay = 500
-    decision = 500
-    mean_trial_duration = fixation + stimulus_mean + resp_delay + decision
-
-    # Rewards
-    R_ABORTED = -0.1
-    R_CORRECT = +1.
-    R_INCORRECT = -1.
-    R_MISS = 0.
-    abort = False
-
     def __init__(self, dt=100):
         super().__init__(dt=dt)
+        # Inputs
+        self.inputs = tasktools.to_map('FIXATION', 'S1', 'S2')
+
+        # Actions
+        self.actions = tasktools.to_map('NO_GO', 'GO')
+
+        # trial conditions
+        self.choices = [-1, 1]
+
+        # Input noise
+        self.sigma = np.sqrt(2*100*0.01)
+
+        # Durations
+        self.fixation = 500
+        self.stimulus_min = 500
+        self.stimulus_mean = 501
+        self.stimulus_max = 502
+        self.resp_delay = 500
+        self.decision = 500
+        self.mean_trial_duration = self.fixation + self.stimulus_mean +\
+            self.resp_delay + self.decision
+        print('mean trial duration: ' + str(self.mean_trial_duration) +
+              ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
+              ')')
+        # Rewards
+        self.R_ABORTED = -0.1
+        self.R_CORRECT = +1.
+        self.R_INCORRECT = -1.
+        self.R_MISS = 0.
+        self.abort = False
+
+        # set action and observation spaces
         self.stimulus_min = np.max([self.stimulus_min, dt])
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3, ),
                                             dtype=np.float32)
-
+        # seeding
         self.seed()
         self.viewer = None
         self.trial = self._new_trial()

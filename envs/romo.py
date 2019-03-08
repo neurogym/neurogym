@@ -19,47 +19,50 @@ from gym import spaces
 
 
 class Romo(ngym.ngym):
-
-    # Inputs
-    inputs = tasktools.to_map('FIXATION', 'F-POS', 'F-NEG')
-
-    # Actions
-    actions = tasktools.to_map('FIXATE', '>', '<')
-
-    # trial conditions
-    choices = ['>', '<']
-    fpairs = [(18, 10), (22, 14), (26, 18), (30, 22), (34, 26)]
-
-    # Input noise
-    sigma = np.sqrt(2*100*0.001)
-
-    # Epoch durations
-    fixation = 750
-    f1 = 500
-    delay_min = 3000 - 300
-    delay_max = 3000 + 300
-    f2 = 500
-    decision = 500
-    tmax = fixation + f1 + delay_max + f2 + decision
-
-    # Rewards
-    R_ABORTED = -1.
-    R_CORRECT = +1.
-    R_MISS = 0.
-    abort = False
-
-    # Input scaling
-    fall = np.ravel(fpairs)
-    fmin = np.min(fall)
-    fmax = np.max(fall)
-
     def __init__(self, dt=100):
         # call ngm __init__ function
         super().__init__(dt=dt)
+        # Inputs
+        self.inputs = tasktools.to_map('FIXATION', 'F-POS', 'F-NEG')
+
+        # Actions
+        self.actions = tasktools.to_map('FIXATE', '>', '<')
+
+        # trial conditions
+        self.choices = ['>', '<']
+        self.fpairs = [(18, 10), (22, 14), (26, 18), (30, 22), (34, 26)]
+
+        # Input noise
+        self.sigma = np.sqrt(2*100*0.001)
+
+        # Epoch durations
+        self.fixation = 750
+        self.f1 = 500
+        self.delay_min = 3000 - 300
+        self.delay_max = 3000 + 300
+        self.delay_mean = (self.delay_max + self.delay_min) / 2
+        self.f2 = 500
+        self.decision = 500
+        self.mean_trial_duration = self.fixation + self.f1 + self.delay_mean +\
+            self.f2 + self.decision
+        print('mean trial duration: ' + str(self.mean_trial_duration) +
+              ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
+              ')')
+        # Rewards
+        self.R_ABORTED = -1.
+        self.R_CORRECT = +1.
+        self.R_MISS = 0.
+        self.abort = False
+
+        # Input scaling
+        self.fall = np.ravel(self.fpairs)
+        self.fmin = np.min(self.fall)
+        self.fmax = np.max(self.fall)
+        # action and observation space
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3, ),
                                             dtype=np.float32)
-
+        # seeding
         self.seed()
         self.viewer = None
 
@@ -72,7 +75,7 @@ class Romo(ngym.ngym):
 
         delay = tasktools.uniform(self.rng, self.dt, self.delay_min,
                                   self.delay_max)
-
+        self.tmax = self.fixation + self.f1 + delay + self.f2 + self.decision
         durations = {
             'fix_grace': (0, 100),
             'fixation':   (0, self.fixation),
@@ -83,7 +86,6 @@ class Romo(ngym.ngym):
                            self.fixation + self.f1 + delay + self.f2),
             'decision':   (self.fixation + self.f1 + delay + self.f2,
                            self.tmax),
-            'tmax':       self.tmax
             }
 
         ground_truth = tasktools.choice(self.rng, self.choices)

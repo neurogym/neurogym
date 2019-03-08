@@ -13,35 +13,37 @@ import ngym
 
 
 class DawTwoStep(ngym.ngym):
-    # TODO: remain to be carefully tested
-    # Inputs
-    inputs = tasktools.to_map('FIXATION', 'STATE1', 'STATE2')
-
-    # Actions
-    actions = tasktools.to_map('FIXATE', 'ACTION1', 'ACTION2')
-
-    # trial conditions
-    p1 = 0.8  # first stage transition probability
-    p2 = 0.8  # second stage transition probability
-    # TODO: this should be implemented through the wrapper
-    p_switch = 0.025  # switch reward contingency
-    high_reward_p = 0.9
-    low_reward_p = 0.1
-    state1_high_reward = True
-    tmax = 2
-    mean_trial_duration = tmax
-    # Input noise
-    sigma = np.sqrt(2*100*0.01)
-
-    # Rewards
-    R_ABORTED = -1.
-    R_CORRECT = +1.
-    R_FAIL = 0.
-    R_MISS = 0.
-    abort = False
-
     def __init__(self, dt=100):
         super().__init__(dt=dt)
+        # TODO: remain to be carefully tested
+        # Inputs
+        self.inputs = tasktools.to_map('FIXATION', 'STATE1', 'STATE2')
+
+        # Actions
+        self.actions = tasktools.to_map('FIXATE', 'ACTION1', 'ACTION2')
+
+        # trial conditions
+        self.p1 = 0.8  # first stage transition probability
+        self.p2 = 0.8  # second stage transition probability
+        # TODO: this should be implemented through the wrapper
+        self.p_switch = 0.025  # switch reward contingency
+        self.high_reward_p = 0.9
+        self.low_reward_p = 0.1
+        self.state1_high_reward = True
+        self.tmax = 2
+        self.mean_trial_duration = self.tmax
+        print('mean trial duration: ' + str(self.mean_trial_duration) +
+              ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
+              ')')
+        # Input noise
+        self.sigma = np.sqrt(2*100*0.01)
+
+        # Rewards
+        self.R_ABORTED = -1.
+        self.R_CORRECT = +1.
+        self.R_FAIL = 0.
+        self.R_MISS = 0.
+        self.abort = False
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
@@ -115,7 +117,6 @@ class DawTwoStep(ngym.ngym):
 
         if new_trial:
             info['new_trial'] = True
-            info['gt'] = trial['ground_truth']
             self.t = 0
             self.num_tr += 1
             # compute perf

@@ -8,7 +8,7 @@ import reaction_time
 import compose
 import manage_data as md
 import matplotlib.pyplot as plt
-dt = 100
+dt = 80
 # calling from the terminal
 # example            task   num. steps  wrapper
 # python test_new.py RDM-v0    1000    trial_hist

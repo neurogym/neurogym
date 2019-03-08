@@ -22,43 +22,47 @@ import tasktools
 
 
 class PadoaSch(ngym.ngym):
-    # Inputs
-    inputs = tasktools.to_map('FIXATION', 'L-A', 'L-B', 'R-A',
-                              'R-B', 'N-L', 'N-R')
-
-    # Actions
-    actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT', 'CHOOSE-RIGHT')
-
-    # trial conditions
-    A_to_B = 2.2
-    juices = [('A', 'B'), ('B', 'A')]
-    offers = [(0, 1), (1, 3), (1, 2), (1, 1), (2, 1),
-              (3, 1), (4, 1), (6, 1), (2, 0)]
-
-    # Input noise
-    sigma = np.sqrt(2*100*0.001)
-
-    # Durations
-    fixation = 750
-    offer_on_min = 1000
-    offer_on_max = 2000
-    offer_on_mean = (offer_on_min + offer_on_max) / 2
-    decision = 750
-    mean_trial_duration = fixation + offer_on_mean + decision
-
-    # Rewards
-    R_ABORTED = -1.
-    R_MISS = 0.
-    abort = False
-    R_B = 0.1
-    R_A = A_to_B * R_B
-
-    # Increase initial policy -> baseline weights
-    baseline_Win = 10
-
     def __init__(self, dt=100):
         # call ngm __init__ function
         super().__init__(dt=dt)
+        # Inputs
+        self.inputs = tasktools.to_map('FIXATION', 'L-A', 'L-B', 'R-A',
+                                       'R-B', 'N-L', 'N-R')
+
+        # Actions
+        self.actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT',
+                                        'CHOOSE-RIGHT')
+
+        # trial conditions
+        self.A_to_B = 2.2
+        self.juices = [('A', 'B'), ('B', 'A')]
+        self.offers = [(0, 1), (1, 3), (1, 2), (1, 1), (2, 1),
+                       (3, 1), (4, 1), (6, 1), (2, 0)]
+
+        # Input noise
+        self.sigma = np.sqrt(2*100*0.001)
+
+        # Durations
+        self.fixation = 750
+        self.offer_on_min = 1000
+        self.offer_on_max = 2000
+        self.offer_on_mean = (self.offer_on_min + self.offer_on_max) / 2
+        self.decision = 750
+        self.mean_trial_duration = self.fixation + self.offer_on_mean +\
+            self.decision
+        print('mean trial duration: ' + str(self.mean_trial_duration) +
+              ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
+              ')')
+        # Rewards
+        self.R_ABORTED = -1.
+        self.R_MISS = 0.
+        self.abort = False
+        self.R_B = 0.1
+        self.R_A = self.A_to_B * self.R_B
+
+        # Increase initial policy -> baseline weights
+        self.baseline_Win = 10
+
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(7, ),
                                             dtype=np.float32)
@@ -186,7 +190,6 @@ class PadoaSch(ngym.ngym):
 
         if new_trial:
             info['new_trial'] = True
-            info['gt'] = trial['ground_truth']
             self.t = 0
             self.num_tr += 1
             # compute perf

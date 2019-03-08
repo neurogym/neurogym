@@ -17,51 +17,48 @@ import tasktools
 
 
 class Mante(ngym.ngym):
-    """
-    Mante task
-    """
-    # Inputs
-    inputs = tasktools.to_map('motion', 'color',
-                              'm-left', 'm-right',
-                              'c-left', 'c-right')
-    # Actions
-    actions = tasktools.to_map('FIXATE', 'left', 'right')
-
-    # trial conditions
-    contexts = ['m', 'c']
-    choices = [-1, 1]
-    cohs = [5, 15, 50]
-
-    # Input noise
-    sigma = np.sqrt(2*100*0.02)
-
-    # Rewards
-    R_ABORTED = -1.
-    R_CORRECT = +1.
-    R_MISS = 0.
-    abort = False
-
-    # Epoch durations
-    fixation = 750
-    stimulus = 750
-    delay_min = 300
-    delay_mean = 300
-    delay_max = 1200
-    decision = 500
-    mean_trial_duration = fixation + stimulus + delay_mean + decision
-
-    metadata = {
-        'render.modes': ['human', 'rgb_array'],
-        'video.frames_per_second': 50
-    }
-
     def __init__(self, dt=100):
         # call ngm __init__ function
         super().__init__(dt=dt)
+
+        # Inputs
+        self.inputs = tasktools.to_map('motion', 'color',
+                                       'm-left', 'm-right',
+                                       'c-left', 'c-right')
+        # Actions
+        self.actions = tasktools.to_map('FIXATE', 'left', 'right')
+
+        # trial conditions
+        self.contexts = ['m', 'c']
+        self.choices = [-1, 1]
+        self.cohs = [5, 15, 50]
+
+        # Input noise
+        self.sigma = np.sqrt(2*100*0.02)
+
+        # Rewards
+        self.R_ABORTED = -1.
+        self.R_CORRECT = +1.
+        self.R_MISS = 0.
+        self.abort = False
+
+        # Epoch durations
+        self.fixation = 750
+        self.stimulus = 750
+        self.delay_min = 300
+        self.delay_mean = 300
+        self.delay_max = 1200
+        self.decision = 500
+        self.mean_trial_duration = self.fixation + self.stimulus +\
+            self.delay_mean + self.decision
+        print('mean trial duration: ' + str(self.mean_trial_duration) +
+              ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
+              ')')
+        # set action and observation space
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(6, ),
                                             dtype=np.float32)
-
+        # seeding
         self.seed()
         self.viewer = None
 
@@ -153,7 +150,6 @@ class Mante(ngym.ngym):
 
         if new_trial:
             info['new_trial'] = True
-            info['gt'] = trial['ground_truth']
             self.t = 0
             self.num_tr += 1
             # compute perf
