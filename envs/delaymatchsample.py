@@ -82,10 +82,6 @@ class DelayedMatchToSample(ngym.ngym):
             'test': test,
             }
 
-    # Input scaling
-    def scale(self, coh):
-        return (1 + coh/100)/2
-
     def _step(self, action):
         # ---------------------------------------------------------------------
         # Reward
