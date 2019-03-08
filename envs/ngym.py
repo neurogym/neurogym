@@ -77,11 +77,13 @@ class ngym(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def _new_trial(self, rng, dt):
+    def _new_trial(self):
+        """Starts a new trials within the current experiment.
+
+        Returns:
+            trial_info: a dictionary of trial information
         """
-        starts a new trials within the current experiment
-        """
-        pass
+        return {}
 
     def in_epoch(self, t, epoch):
         """Check if t is in epoch."""

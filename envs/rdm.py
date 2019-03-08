@@ -28,7 +28,7 @@ class RDM(ngym.ngym):
         super().__init__(dt=dt)
         self.stimulus_min = np.max([self.stimulus_min, dt])
         self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3, ),
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
         self.seed()
         self.viewer = None
@@ -94,9 +94,9 @@ class RDM(ngym.ngym):
         coh = tasktools.choice(self.rng, self.cohs)
 
         return {
-            'durations':   durations,
-            'ground_truth':  ground_truth,
-            'coh':         coh
+            'durations': durations,
+            'ground_truth': ground_truth,
+            'coh': coh
             }
 
     # Input scaling
@@ -112,13 +112,12 @@ class RDM(ngym.ngym):
 
         reward = 0
         tr_perf = False
-        # if self.t not in epochs['decision']:
         if not self.in_epoch(self.t, 'decision'):
             if (action != self.actions['FIXATE'] and
                     not self.in_epoch(self.t, 'fix_grace')):
                 info['continue'] = not self.abort
                 reward = self.R_ABORTED
-        else:  # elif self.t in epochs['decision']:
+        else:
             # TODO: this part can be simplified
             if action == self.actions['CHOOSE-LEFT']:
                 tr_perf = True
@@ -152,11 +151,10 @@ class RDM(ngym.ngym):
             low = self.inputs['LEFT']
 
         obs = np.zeros(len(self.inputs))
-        # if self.t in epochs['fixation'] or self.t in epochs['stimulus']:
+        # TODO: maybe allow self.in_epoch(self.t, ['fixation', 'stimulus', 'decision'])
         if self.in_epoch(self.t, 'fixation') or\
            self.in_epoch(self.t, 'stimulus'):
             obs[self.inputs['FIXATION']] = 1
-        # if self.t in epochs['stimulus']:
         if self.in_epoch(self.t, 'stimulus'):
             obs[high] = self.scale(+trial['coh']) +\
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
@@ -191,6 +189,7 @@ class RDM(ngym.ngym):
             self.trial = self._new_trial()
         return obs, reward, done, info
 
+    # TODO: not used anymore
     def terminate(perf):
         p_decision, p_correct = tasktools.correct_2AFC(perf)
 
