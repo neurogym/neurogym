@@ -34,7 +34,6 @@ class Romo(ngym.ngym):
     sigma = np.sqrt(2*100*0.001)
 
     # Epoch durations
-    # TODO: in ms?
     fixation = 750
     f1 = 500
     delay_min = 3000 - 300

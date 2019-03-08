@@ -20,6 +20,8 @@ class manage_data(Wrapper):
     def __init__(self, env, plt_tr=True):
         Wrapper.__init__(self, env=env)
         self.env = env
+        self.action_space = self.env.action_space
+        self.observation_space = self.env.observation_space
         # data to save
         self.choice_mat = []
         self.side_mat = []

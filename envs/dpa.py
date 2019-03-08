@@ -37,13 +37,15 @@ class DPA(ngym.ngym):
 
     # Epoch durations
     fixation = 0
-    dpa1 = 500
-    delay_min = 500  # Original paper: 13000
-    delay_max = 501
-    dpa2 = 500
-    resp_delay = 500
+    dpa1 = 1000
+    delay_min = 2000  # Original paper: 13000
+    delay_max = 2001
+    delay_mean = (delay_min + delay_max) / 2
+    dpa2 = 1000
+    resp_delay = 1000
     decision = 500
-    tmax = fixation + dpa1 + delay_max + dpa2 + resp_delay + decision
+    mean_trial_duration = fixation + dpa1 + delay_mean + dpa2 +\
+        resp_delay + decision
 
     # Rewards
     R_ABORTED = -0.1
@@ -56,11 +58,10 @@ class DPA(ngym.ngym):
         # call ngm __init__ function
         super().__init__(dt=dt)
         self.action_space = spaces.Discrete(2)
-        # hight = np.array([1.])
         self.observation_space = spaces.Box(-1., 1, shape=(5, ),
                                             dtype=np.float32)
-        # TODO: are these necessary?
         self.seed()
+        # TODO: is this necessary?
         self.viewer = None
 
         self.trial = self._new_trial()
@@ -72,6 +73,9 @@ class DPA(ngym.ngym):
 
         delay = tasktools.uniform(self.rng, self.dt, self.delay_min,
                                   self.delay_max)
+        # maximum duration of current trial
+        self.tmax = self.fixation + self.dpa1 + delay + self.dpa2 +\
+            self.resp_delay + self.decision
 
         durations = {
             'fix_grace': (0, 100),
@@ -85,10 +89,7 @@ class DPA(ngym.ngym):
                            self.fixation + self.dpa1 + delay + self.dpa2 +
                            self.resp_delay),
             'decision':   (self.fixation + self.dpa1 + delay + self.dpa2 +
-                           self.resp_delay, self.fixation + self.dpa1 +
-                           delay + self.dpa2 + self.resp_delay +
-                           self.decision),
-            'tmax':       self.tmax
+                           self.resp_delay, self.tmax),
             }
 
         pair = tasktools.choice(self.rng, self.dpa_pairs)
@@ -145,31 +146,25 @@ class DPA(ngym.ngym):
         # ---------------------------------------------------------------------
         # Inputs
         # ---------------------------------------------------------------------
-
         dpa1, dpa2 = trial['pair']
-        #        print('action: ' + str(action))
-        #        print('match: ' + str(np.diff(trial['pair'])[0]))
-        #        print('gt: ' + trial['ground_truth'])
         obs = np.zeros(len(self.inputs))
         # if self.t not in epochs['decision']:
         if not self.in_epoch(self.t, 'decision'):
             obs[self.inputs['FIXATION']] = 1
         # if self.t in epochs['dpa1']:
         if self.in_epoch(self.t, 'dpa1'):
-            # without using self.inputs. Do we need self.inputs at al?
+            # TODO: Do we need self.inputs?
             obs[dpa1] = 1
         # if self.t in epochs['dpa2']:
         if self.in_epoch(self.t, 'dpa2'):
             obs[dpa2] = 1
         # ---------------------------------------------------------------------
         # new trial?
-        dec_per_end = trial['durations']['decision'][1]
-        reward, new_trial = tasktools.new_trial(self.t, dec_per_end, self.dt,
+        reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
                                                 info['continue'],
                                                 self.R_MISS, reward)
 
         if new_trial:
-            #            print('new trial')
             info['new_trial'] = True
             info['gt'] = trial['ground_truth']
             self.t = 0
@@ -181,9 +176,6 @@ class DPA(ngym.ngym):
             self.trial = self._new_trial()
         else:
             self.t += self.dt
-        #        print('reward: ' + str(reward))
-        #        print('observation: ' + str(obs))
-        #        print('---------------------')
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info, new_trial
 

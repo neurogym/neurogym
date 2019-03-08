@@ -42,14 +42,13 @@ class Mante(ngym.ngym):
     abort = False
 
     # Epoch durations
-    # TODO: in ms?
     fixation = 750
     stimulus = 750
     delay_min = 300
     delay_mean = 300
     delay_max = 1200
     decision = 500
-    tmax = fixation + stimulus + delay_min + delay_max + decision
+    mean_trial_duration = fixation + stimulus + delay_mean + decision
 
     metadata = {
         'render.modes': ['human', 'rgb_array'],
@@ -68,7 +67,6 @@ class Mante(ngym.ngym):
 
         self.trial = self._new_trial()
 
-    # def _step(rng, dt, trial, t, a):
     def _step(self, action):
         # -----------------------------------------------------------------
         # Reward
@@ -187,6 +185,8 @@ class Mante(ngym.ngym):
         delay = self.delay_min +\
             tasktools.truncated_exponential(self.rng, self.dt, self.delay_mean,
                                             xmax=self.delay_max)
+        # maximum duration of current trial
+        self.tmax = self.fixation + self.stimulus + delay + self.decision
         durations = {
             'fix_grace': (0, 100),
             'fixation':  (0, self.fixation),
@@ -194,7 +194,6 @@ class Mante(ngym.ngym):
             'delay':     (self.fixation + self.stimulus,
                           self.fixation + self.stimulus + delay),
             'decision':  (self.fixation + self.stimulus + delay, self.tmax),
-            'tmax':      self.tmax
             }
 
         # -------------------------------------------------------------------------
