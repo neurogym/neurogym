@@ -24,52 +24,53 @@ import ngym
 
 
 class RDM(ngym.ngym):
-    # TODO: move these variables to __init__()
-    # Inputs
-    inputs = tasktools.to_map('FIXATION', 'LEFT', 'RIGHT')
-
-    # Actions
-    actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT', 'CHOOSE-RIGHT')
-
-    # trial conditions
-    choices = [-1, 1]
-    cohs = [0, 6.4, 12.8, 25.6, 51.2]
-
-    # Input noise
-    sigma = np.sqrt(2*100*0.01)
-
-    # Durations
-    fixation = 750
-    stimulus_min = 80
-    stimulus_mean = 330
-    stimulus_max = 1500
-    decision = 500
-    mean_trial_duration = fixation + stimulus_mean + decision
-
-    # Rewards
-    R_ABORTED = -1.
-    R_CORRECT = +1.
-    R_FAIL = 0.
-    R_MISS = 0.
-    abort = False
-
-    def __init__(self, dt=100):
+    def __init__(self, dt=100, **kwargs):
         super().__init__(dt=dt)
         self.stimulus_min = np.max([self.stimulus_min, dt])
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3, ),
                                             dtype=np.float32)
-
         self.seed()
         self.viewer = None
 
         self.trial = self._new_trial()
+        # Inputs
+        self.inputs = tasktools.to_map('FIXATION', 'LEFT', 'RIGHT')
+
+        # Actions
+        self.actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT',
+                                        'CHOOSE-RIGHT')
+
+        # trial conditions
+        self.choices = [-1, 1]
+        self.cohs = [0, 6.4, 12.8, 25.6, 51.2]
+
+        # Input noise
+        self.sigma = np.sqrt(2*100*0.01)
+
+        # Durations
+        self.fixation = 750
+        self.stimulus_min = 80
+        self.stimulus_mean = 330
+        self.stimulus_max = 1500
+        self.decision = 500
+        self.mean_trial_duration = self.fixation + self.stimulus_mean +\
+            self.decision
+
+        # Rewards
+        self.R_ABORTED = -0.1
+        self.R_CORRECT = +1.
+        self.R_FAIL = 0.
+        self.R_MISS = 0.
+        self.abort = False
+
+        # set parameters
+        [setattr(self, k, v) for k, v in kwargs]
 
     def _new_trial(self):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-
         stimulus = tasktools.truncated_exponential(self.rng, self.dt,
                                                    self.stimulus_mean,
                                                    xmin=self.stimulus_min,
@@ -78,10 +79,10 @@ class RDM(ngym.ngym):
         self.tmax = self.fixation + stimulus + self.decision
         durations = {
             'fix_grace': (0, 100),
-            'fixation':  (0, self.fixation),
-            'stimulus':  (self.fixation, self.fixation + stimulus),
-            'decision':  (self.fixation + stimulus,
-                          self.fixation + stimulus + self.decision),
+            'fixation': (0, self.fixation),
+            'stimulus': (self.fixation, self.fixation + stimulus),
+            'decision': (self.fixation + stimulus,
+                         self.fixation + stimulus + self.decision),
             }
 
         # ---------------------------------------------------------------------
