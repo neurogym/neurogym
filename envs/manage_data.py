@@ -6,20 +6,22 @@ Created on Mon Mar  4 12:41:52 2019
 @author: molano
 """
 
-from gym.core import Wrapper
+# from gym.core import Wrapper
 import os
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-class manage_data(Wrapper):
+class manage_data():
     """
     modfies a given environment by changing the probability of repeating the
     previous correct response
     """
     def __init__(self, env, plt_tr=True):
-        Wrapper.__init__(self, env=env)
+        # Wrapper.__init__(self, env=env) TODO: do we need this?
         self.env = env
+        self.action_space = self.env.action_space
+        self.observation_space = self.env.observation_space
         # data to save
         self.choice_mat = []
         self.side_mat = []
