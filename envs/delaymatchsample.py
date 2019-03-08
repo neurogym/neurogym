@@ -94,8 +94,6 @@ class DelayedMatchToSample(ngym.ngym):
         info = {'continue': True}
         reward = 0
         tr_perf = False
-        # TODO: what happens if the network doesn't choose anything?
-        # TODO: why is reward determined after input?
         if not self.in_epoch(self.t, 'decision'):
             if (action != self.actions['FIXATE'] and
                     not self.in_epoch(self.t, 'fix_grace')):
