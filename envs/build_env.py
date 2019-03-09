@@ -6,9 +6,14 @@ Created on Fri Mar  8 10:22:19 2019
 @author: linux
 """
 import gym
+import trial_hist
+import manage_data
 
 
 def build_env(env_id, args):
+    """
+    builds environment with specifications indicated in args
+    """
     all_args = vars(args)
     env_keys = {'dt'}
     env_args = {x: all_args[x] for x in env_keys}
