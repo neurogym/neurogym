@@ -5,19 +5,31 @@ Created on Fri Mar  8 10:22:19 2019
 
 @author: linux
 """
+# TODO: allow tasks parameters to be modfied
 import gym
 import trial_hist
 import manage_data
+import combine
+import reaction_time
 
 
-def build_env(env_id, args):
+def build_env(env_id, **args):
     """
     builds environment with specifications indicated in args
     """
     all_args = vars(args)
     env_keys = {'dt'}
     env_args = {x: all_args[x] for x in env_keys}
-    env = gym.make(env_id, **env_args)
-    if all_args['trial_hist']:
-        env = trial_hist.TrialHistory(env)
-    env = manage_data.manage_data(env)
+    # TODO: allow for envs to be wrapped before combined
+    if all_args['combine']:
+        env1 = gym.make(env_id, **env_args)
+        env2 = gym.make(all_args['env2'], **env_args)
+        env = combine.combine(env1, env2)
+        env = manage_data.manage_data(env)
+    else:
+        if all_args['trial_hist']:
+            env = trial_hist.TrialHistory(env)
+        if all_args['reaction_time']:
+            env = reaction_time.ReactionTime(env)
+        env = manage_data.manage_data(env)
+    return env
