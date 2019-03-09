@@ -13,11 +13,10 @@ import combine
 import reaction_time
 
 
-def build_env(env_id, **args):
+def build_env(env_id, **all_args):
     """
     builds environment with specifications indicated in args
     """
-    all_args = vars(args)
     env_keys = {'dt'}
     env_args = {x: all_args[x] for x in env_keys}
     # TODO: allow for envs to be wrapped before combined

@@ -38,11 +38,11 @@ class GNG(ngym.ngym):
         self.sigma = np.sqrt(2*100*0.01)
 
         # Durations
-        self.fixation = 500
-        self.stimulus_min = 500
-        self.stimulus_mean = 501
-        self.stimulus_max = 502
-        self.resp_delay = 500
+        self.fixation = 0
+        self.stimulus_min = 200
+        self.stimulus_mean = 201
+        self.stimulus_max = 202
+        self.resp_delay = 200
         self.decision = 500
         self.mean_trial_duration = self.fixation + self.stimulus_mean +\
             self.resp_delay + self.decision

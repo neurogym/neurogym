@@ -42,6 +42,7 @@ class combine():
                                      self.env2.reward_range[1]]))
         self.metadata = self.env1.metadata
         self.metadata.update(self.env2.metadata)
+        self.spec = None
 
     def _new_trial(self):
         self.env1.trial = self.env1._new_trial()
@@ -101,3 +102,6 @@ class combine():
         rew = 0
         done = False
         return obs, rew, done
+
+    def seed(self, seed=None):  # TODO: seeding only with env1?
+        return self.env1.seed()

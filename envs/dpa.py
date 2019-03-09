@@ -35,12 +35,12 @@ class DPA(ngym.ngym):
         self.sigma = np.sqrt(2*100*0.001)
         # Epoch durations
         self.fixation = 0
-        self.dpa1 = 1000
-        self.delay_min = 2000  # Original paper: 13000
-        self.delay_max = 2001
+        self.dpa1 = 500
+        self.delay_min = 500  # Original paper: 13000
+        self.delay_max = 500
         self.delay_mean = (self.delay_min + self.delay_max) / 2
-        self.dpa2 = 1000
-        self.resp_delay = 1000
+        self.dpa2 = 500
+        self.resp_delay = 500
         self.decision = 500
         self.mean_trial_duration = self.fixation + self.dpa1 +\
             self.delay_mean + self.dpa2 + self.resp_delay + self.decision
