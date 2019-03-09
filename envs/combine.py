@@ -11,7 +11,7 @@ import numpy as np
 import itertools
 
 
-class compose():
+class combine():
     """
     combines two different tasks
     """
