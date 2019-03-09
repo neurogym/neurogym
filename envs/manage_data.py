@@ -61,9 +61,10 @@ class manage_data(Wrapper):
         self.cum_obs += obs
         if 'new_trial' in info.keys():
             self.choice_mat.append(action)
-            self.side_mat.append(info['gt'])
             self.stim_mat.append(self.cum_obs)
             self.cum_obs = 0
+            if 'gt' in info.keys():
+                self.side_mat.append(info['gt'])
 
         self.store_data(obs, action, rew)
         return obs, rew, done, info

@@ -88,17 +88,8 @@ class compose():
 
         # new trial information
         info = {}
-        if new_trial1:
-            gt1 = info1['gt']
+        if new_trial1 or new_trial2:
             info = {'new_trial': True}
-        else:
-            gt1 = ''
-        if new_trial2:
-            gt2 = info2['gt']
-            info = {'new_trial': True}
-        else:
-            gt2 = ''
-        info['gt'] = [gt1, gt2]
 
         return obs, reward, done, info
 
