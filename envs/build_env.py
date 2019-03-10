@@ -26,6 +26,7 @@ def build_env(env_id, **all_args):
         env = combine.combine(env1, env2)
         env = manage_data.manage_data(env)
     else:
+        env = gym.make(env_id, **env_args)
         if all_args['trial_hist']:
             env = trial_hist.TrialHistory(env)
         if all_args['reaction_time']:
