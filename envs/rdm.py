@@ -94,7 +94,7 @@ class RDM(ngym.ngym):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-
+        # TODO: We should allow ground_truth be provided as inputs to _new_trial
         ground_truth = tasktools.choice(self.rng, self.choices)
 
         coh = tasktools.choice(self.rng, self.cohs)
