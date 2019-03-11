@@ -115,6 +115,7 @@ class DawTwoStep(ngym.ngym):
                                                 info['continue'],
                                                 self.R_MISS, reward)
 
+        # TODO: This is redundant, because it's moved to step
         if new_trial:
             info['new_trial'] = True
             self.t = 0
