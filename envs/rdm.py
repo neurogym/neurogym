@@ -42,9 +42,9 @@ class RDM(ngym.ngym):
 
         # Durations
         self.fixation = 750
-        self.stimulus_min = 80
-        self.stimulus_mean = 330
-        self.stimulus_max = 1500
+        self.stimulus_min = 499  # 80
+        self.stimulus_mean = 500  # 330
+        self.stimulus_max = 501  # 1500
         self.decision = 500
         self.mean_trial_duration = self.fixation + self.stimulus_mean +\
             self.decision
