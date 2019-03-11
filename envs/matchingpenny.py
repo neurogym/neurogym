@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Daw two-step task
-
+Matching Penny task
+See Daeyeol Lee's papers
+TODO: add the actual papers
 """
 from __future__ import division
 
