@@ -174,7 +174,7 @@ class RDM(ngym.ngym):
                                                 self.R_MISS, reward)
 
         if new_trial:
-            info['new_trial'] = True
+            info['new_trial'] = True  # TODO: Why do we need both continue and new_trial?
             info['gt'] = trial['ground_truth']
             self.t = 0
             self.num_tr += 1
