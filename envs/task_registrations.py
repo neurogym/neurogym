@@ -5,6 +5,8 @@ Created on Sun Feb 24 11:37:41 2019
 
 @author: molano
 """
+
+# TODO: Consider moving this file to __init__ of neurogym to prevent the re-register error
 from gym.envs.registration import register
 register(
     id='Mante-v0',
@@ -82,6 +84,12 @@ register(
 register(
     id='DawTwoStep-v0',
     entry_point='dawtwostep:DawTwoStep',
+    reward_threshold=90.0,
+)
+
+register(
+    id='MatchingPenny-v0',
+    entry_point='matchingpenny:MatchingPenny',
     reward_threshold=90.0,
 )
 
