@@ -41,7 +41,7 @@ class RDM(ngym.ngym):
         self.sigma = np.sqrt(2*100*0.01)
 
         # Durations
-        self.fixation = 750
+        self.fixation = 100
         self.stimulus_min = 499  # 80
         self.stimulus_mean = 500  # 330
         self.stimulus_max = 501  # 1500
