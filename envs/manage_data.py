@@ -17,7 +17,7 @@ class manage_data(Wrapper):
     modfies a given environment by changing the probability of repeating the
     previous correct response
     """
-    def __init__(self, env, plt_tr=True):
+    def __init__(self, env, inst=0, plt_tr=True):
         Wrapper.__init__(self, env=env)
         self.env = env
         self.action_space = self.env.action_space
@@ -40,8 +40,10 @@ class manage_data(Wrapper):
         self.tmp_folder = "../tmp/"
         if not os.path.exists(self.tmp_folder):
             os.mkdir(self.tmp_folder)
-        self.saving_name = self.tmp_folder + self.env.__class__.__name__ +\
-            str(np.random.randint(0, 1000000))
+        # seeding
+        self.env.seed()
+        self.saving_name = self.tmp_folder +\
+            self.env.__class__.__name__ + str(inst)
 
     def reset(self):
         if len(self.rew_mat) > 0:

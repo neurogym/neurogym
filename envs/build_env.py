@@ -13,7 +13,7 @@ import combine
 import reaction_time
 
 
-def build_env(env_id, **all_args):
+def build_env(env_id, inst=0, **all_args):
     """
     builds environment with specifications indicated in args
     """
@@ -24,12 +24,12 @@ def build_env(env_id, **all_args):
         env1 = gym.make(env_id, **env_args)
         env2 = gym.make(all_args['env2'], **env_args)
         env = combine.combine(env1, env2)
-        env = manage_data.manage_data(env)
+        env = manage_data.manage_data(env, inst=inst)
     else:
         env = gym.make(env_id, **env_args)
         if all_args['trial_hist']:
             env = trial_hist.TrialHistory(env)
         if all_args['reaction_time']:
             env = reaction_time.ReactionTime(env)
-        env = manage_data.manage_data(env)
+        env = manage_data.manage_data(env, inst=inst)
     return env
