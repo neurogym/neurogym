@@ -40,8 +40,8 @@ class MatchingPenny(ngym.ngym):
         if self.opponent_type is None:
             opponent_action = int(self.rng.rand() > 0.5)
         else:
-            raise NotImplementedError(
-                'Opponent type {:s} not implemented'.format(self.opponent_type))
+            raise NotImplementedError('Opponent type {:s} not implemented'.
+                                      format(self.opponent_type))
 
         return {
             'opponent_action': opponent_action,
