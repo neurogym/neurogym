@@ -40,14 +40,15 @@ class manage_data(Wrapper):
         self.tmp_folder = "../tmp/"
         if not os.path.exists(self.tmp_folder):
             os.mkdir(self.tmp_folder)
+        self.saving_name = self.tmp_folder + self.env.__class__.__name__ +\
+            str(np.random.randint(0, 1000000))
 
     def reset(self):
         if len(self.rew_mat) > 0:
             data = {'choice': self.choice_mat, 'stimulus': self.stim_mat,
                     'correct_side': self.side_mat, 'obs_mat': self.obs_mat,
                     'act_mat': self.act_mat, 'rew_mat': self.rew_mat}
-            np.savez(self.tmp_folder + self.env.__class__.__name__ +
-                     'data.npz', **data)
+            np.savez(self.saving_name + '_data.npz', **data)
             if self.plt_tr:
                 self.render()
 
@@ -89,8 +90,7 @@ class manage_data(Wrapper):
         self.ax[2].plot(np.arange(1, len(self.act_mat)+1)+0.5, self.rew_mat)
         self.ax[2].set_ylabel('reward')
         self.ax[2].set_xlim([0, self.max_num_samples+0.5])
-        self.fig.savefig(self.tmp_folder + self.env.__class__.__name__ +
-                         'trials.png')
+        self.fig.savefig(self.saving_name + '_trials.png')
         self.ax[0].cla()
         self.ax[1].cla()
         self.ax[2].cla()
