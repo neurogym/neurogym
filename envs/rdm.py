@@ -35,7 +35,7 @@ class RDM(ngym.ngym):
 
         # trial conditions
         self.choices = [-1, 1]
-        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])/2
+        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])
 
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
