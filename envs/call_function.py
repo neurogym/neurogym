@@ -42,6 +42,7 @@ if __name__ == '__main__':
     save_path = save_path.replace('-v0', '')
     save_path = save_path.replace('constant', 'const')
     save_path = save_path.replace('linear', 'lin')
+    # load_path = save_path + '/checkpoints/00020'
     if not os.path.exists(save_path):
         os.mkdir(save_path)
     command = 'python -m baselines.run --alg=' + alg + ' --env=' + env +\
@@ -51,5 +52,6 @@ if __name__ == '__main__':
         ' --lrschedule=' + lr_sch + ' --gamma=' + str(gamma) +\
         ' --num_env=' + str(num_env) + ' --trial_hist=' + str(trial_hist) +\
         ' --lr=' + str(lr) + ' --save_path=' + save_path
+    # + ' --load_path=' + load_path
     print(command)
     os.system(command)
