@@ -21,9 +21,9 @@ if __name__ == '__main__':
     alg = 'a2c'
     env = 'RDM-v0'
     net = 'cont_rnn'
-    nsteps = 50
-    tot_num_stps = 1e8
-    li = 1e2
+    nsteps = 100
+    tot_num_stps = 1e9
+    li = 1e3
     ent_coef = 0.1
     lr = 1e-3
     lr_sch = 'constant'
