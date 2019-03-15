@@ -94,7 +94,7 @@ class RDM(ngym.ngym):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-
+        # TODO: We should allow ground_truth be provided as inputs to _new_trial
         ground_truth = tasktools.choice(self.rng, self.choices)
 
         coh = tasktools.choice(self.rng, self.cohs)
@@ -174,7 +174,7 @@ class RDM(ngym.ngym):
                                                 self.R_MISS, reward)
 
         if new_trial:
-            info['new_trial'] = True
+            info['new_trial'] = True  # TODO: Why do we need both continue and new_trial?
             info['gt'] = trial['ground_truth']
             self.t = 0
             self.num_tr += 1

@@ -93,6 +93,12 @@ register(
     reward_threshold=90.0,
 )
 
+register(
+    id='Bandit-v0',
+    entry_point='bandit:Bandit',
+    reward_threshold=90.0,
+)
+
 
 def all_envs():
     """

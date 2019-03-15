@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Matching Penny task
-See Daeyeol Lee's papers
+Multi-arm Bandit task
 TODO: add the actual papers
 """
 from __future__ import division
@@ -13,18 +12,20 @@ import tasktools
 import ngym
 
 
-class MatchingPenny(ngym.ngym):
-    def __init__(self, dt=100, opponent_type=None):
+class Bandit(ngym.ngym):
+    def __init__(self, dt=100, n_arm=2):
         super().__init__(dt=dt)
-        # TODO: remain to be carefully tested
-        # Opponent Type
-        self.opponent_type = opponent_type
-
         # Rewards
         self.R_CORRECT = +1.
         self.R_FAIL = 0.
-        self.action_space = spaces.Discrete(2)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,),
+        self.n_arm = n_arm
+
+        # Reward probabilities
+        self.p_high = 0.9
+        self.p_low = 0.1
+
+        self.action_space = spaces.Discrete(n_arm)
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(1,),
                                             dtype=np.float32)
 
         self.seed()
@@ -32,20 +33,16 @@ class MatchingPenny(ngym.ngym):
 
         self.trial = self._new_trial()
 
-    def _new_trial(self):
+    def _new_trial(self, high_reward_arm=0):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-        # TODO: Add more types of opponents
-        # determine the transitions
-        if self.opponent_type is None:
-            opponent_action = int(self.rng.rand() > 0.5)
-        else:
-            raise NotImplementedError('Opponent type {:s} not implemented'.
-                                      format(self.opponent_type))
-
+        rew_high_reward_arm = (self.rng.rand() < self.p_high) * self.R_CORRECT
+        rew_low_reward_arm = (self.rng.rand() < self.p_low) * self.R_CORRECT
         return {
-            'opponent_action': opponent_action,
+            'rew_high_reward_arm': rew_high_reward_arm,
+            'rew_low_reward_arm': rew_low_reward_arm,
+            'high_reward_arm': high_reward_arm,
             }
 
     def _step(self, action):
@@ -54,11 +51,10 @@ class MatchingPenny(ngym.ngym):
         tr_perf = True
 
         obs = np.zeros(self.observation_space.shape)
-        obs[trial['opponent_action']] = 1.
-        if action == trial['opponent_action']:
-            reward = self.R_CORRECT
+        if action == trial['high_reward_arm']:
+            reward = trial['rew_high_reward_arm']
         else:
-            reward = self.R_FAIL
+            reward = trial['rew_low_reward_arm']
 
         # ---------------------------------------------------------------------
         # new trial?
