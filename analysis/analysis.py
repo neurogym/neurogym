@@ -416,14 +416,41 @@ def plot_trials(folder, num_steps, num_trials):
         plt.yticks([])
 
 
+def neural_analysis():
+    data = np.load('/home/linux/network_data_84999.npz')
+    upd = 10
+    env = 0
+    plt.figure()
+    plt.subplot(4, 1, 1)
+    states = data['states'][upd, :, env, :].T
+    maxs = np.max(states, axis=1).reshape((128, 1))
+    states_norm = states / maxs
+    states_norm[np.where(maxs == 0), :] = 0
+    plt.imshow(states_norm, aspect='auto')
+    plt.subplot(4, 1, 3)
+    aux = np.reshape(data['rewards'], (1000, 12, 100))
+    plt.plot(aux[upd, env, :])
+    plt.xlim([-0.5, 99.5])
+    plt.subplot(4, 1, 4)
+    aux = np.reshape(data['actions'], (1000, 12, 100))
+    plt.plot(aux[upd, env, :])
+    plt.xlim([-0.5, 99.5])
+    plt.subplot(4, 1, 2)
+    print(data['obs'].shape)
+    aux = np.reshape(data['obs'], (1000, 12, 100, 3))
+    plt.imshow(aux[upd, env, :, :].T, aspect='auto')
+
+
 if __name__ == '__main__':
-    plt.close('all')
+    # plt.close('all')
+    #    neural_analysis()
+    #    asdasd
     # ['choice', 'stimulus', 'correct_side', 'obs_mat', 'act_mat', 'rew_mat']
     # obs_mat = data['obs_mat']
     # act_mat = data['act_mat']
     # rew_mat = data['rew_mat']
-    # data = np.load('/home/linux/TrialHistorydata.npz')
-    data = np.load('/home/linux/RDM0_data.npz')
+    data = np.load('/home/linux/TrialHistory0_data.npz')
+    # data = np.load('/home/linux/RDM0_data.npz')
     choice = data['choice']
     stimulus = data['stimulus']
     correct_side = data['correct_side']
