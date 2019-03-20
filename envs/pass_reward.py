@@ -27,7 +27,8 @@ class PassReward(Wrapper):
                                             dtype=np.float32)
 
     def reset(self):
-        return self.env.reset()
+        obs, rew, _, _ = self.env.reset()
+        return np.concatenate((obs, np.array([rew])))
 
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
