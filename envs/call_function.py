@@ -41,7 +41,7 @@ if __name__ == '__main__':
     else:
         pss_rw_flag = ''
 
-    save_path = '../' + alg + '_' + env + '_' + tr_h_flag + pss_rw_flag +\
+    save_path = '../' + alg + '_' + env + '_' + tr_h_flag + '_' + pss_rw_flag +\
         '_' + net + '_ent_coef_' + str(ent_coef) + '_lr_' + str(lr) +\
         '_lrsch_' + lr_sch + '_g_' + str(gamma) +\
         '_batch_' + num2str(nsteps) + '_dur_' + num2str(tot_num_stps) +\
