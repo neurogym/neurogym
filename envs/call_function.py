@@ -33,15 +33,19 @@ if __name__ == '__main__':
     pass_reward = True
     if trial_hist:
         tr_h_flag = 'trHist'
+        tr_h_cmmd = ' --trial_hist=True'
     else:
         tr_h_flag = ''
+        tr_h_cmmd = ''
 
     if pass_reward:
-        pss_rw_flag = 'pssRew'
+        ps_rw_flag = 'pssRew'
+        ps_rw_cmmd = ' --pass_reward=True'
     else:
-        pss_rw_flag = ''
+        ps_rw_flag = ''
+        ps_rw_cmmd = ''
 
-    save_path = '../' + alg + '_' + env + '_' + tr_h_flag + pss_rw_flag +\
+    save_path = '../' + alg + '_' + env + '_' + tr_h_flag + '_' + ps_rw_flag +\
         '_' + net + '_ent_coef_' + str(ent_coef) + '_lr_' + str(lr) +\
         '_lrsch_' + lr_sch + '_g_' + str(gamma) +\
         '_batch_' + num2str(nsteps) + '_dur_' + num2str(tot_num_stps) +\
@@ -57,9 +61,8 @@ if __name__ == '__main__':
         ' --num_timesteps=' + str(tot_num_stps) +\
         ' --log_interval=' + str(li) + ' --ent_coef=' + str(ent_coef) +\
         ' --lrschedule=' + lr_sch + ' --gamma=' + str(gamma) +\
-        ' --num_env=' + str(num_env) + ' --trial_hist=' + str(trial_hist) +\
-        ' --pass_reward=' + str(pass_reward) + ' --lr=' + str(lr) +\
-        ' --save_path=' + save_path
+        ' --num_env=' + str(num_env) + tr_h_cmmd +\
+        ps_rw_cmmd + ' --lr=' + str(lr) + ' --save_path=' + save_path
     # + ' --load_path=' + load_path
     print(command)
     os.system(command)
