@@ -11,6 +11,7 @@ import trial_hist
 import manage_data
 import combine
 import reaction_time
+import pass_reward
 
 
 def build_env(env_id, inst=0, **all_args):
@@ -31,5 +32,7 @@ def build_env(env_id, inst=0, **all_args):
             env = trial_hist.TrialHistory(env)
         if all_args['reaction_time']:
             env = reaction_time.ReactionTime(env)
+        if all_args['pass_reward']:
+            env = pass_reward.PassReward(env)
         env = manage_data.manage_data(env, inst=inst)
     return env

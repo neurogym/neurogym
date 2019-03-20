@@ -6,6 +6,7 @@ import task_registrations
 import trial_hist
 import reaction_time
 import combine
+import pass_reward
 import manage_data as md
 import matplotlib.pyplot as plt
 dt = 80
@@ -14,7 +15,8 @@ dt = 80
 # python test_new.py RDM-v0    1000    trial_hist
 if len(sys.argv) > 0:
     params = {'task': sys.argv[1], 'num_steps': sys.argv[2],
-              'wrapper': sys.argv[3], 'plot': len(sys.argv) > 4}
+              'wrapper': sys.argv[3], 'pass_reward': sys.argv[4],
+              'plot': len(sys.argv) > 5}
 else:
     params = {'task': 'GNG-v0', 'num_steps': 1000, 'wrapper': '', 'plot': True}
 
@@ -29,6 +31,9 @@ elif params['wrapper'] == 'combine':
     env_extra = gym.make('GNG-v0', **{'dt': dt})
     # delay is in ms
     env = combine.combine(dt=dt, env1=env, env2=env_extra, delay=200)
+
+if params['pass_reward']:
+    env = pass_reward.PassReward(env)
 
 # save/render data wrapper
 env = md.manage_data(env, plt_tr=False)
