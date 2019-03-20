@@ -78,9 +78,10 @@ def plot_psychometric_curves(evidence, performance, action,
 
     data = {}
     for ind_sp in range(4):
-        plt.subplot(rows, cols, ind_sp+1)
-        # remove all previous plots
-        ut.rm_lines()
+        if figs:
+            plt.subplot(rows, cols, ind_sp+1)
+            # remove all previous plots
+            ut.rm_lines()
     for ind_blk in range(len(probs_vals)):
         # filter data
         inds = (blocks == probs_vals[ind_blk])
@@ -184,7 +185,7 @@ def get_psyCho_curves_data(performance, evidence, action, prob,
     data['popt_repProb_hits_'+str(prob)] = popt
     data['pcov_repProb_hits_'+str(prob)] = pcov
     data['av_repProb_hits_'+str(prob)] = av_data
-    print('bias: ' + str(round(popt[1], 3)))
+    # print('bias: ' + str(round(popt[1], 3)))
     # 4. REPEATING EVIDENCE VS PROB. REPEATING
     # (conditionated on previous wrong)
     # fitting
@@ -417,7 +418,7 @@ def plot_trials(folder, num_steps, num_trials):
 
 
 def neural_analysis():
-    data = np.load('/home/linux/network_data_84999.npz')
+    data = np.load('/home/linux/network_data_132999.npz')
     upd = 10
     env = 0
     plt.figure()
@@ -442,7 +443,7 @@ def neural_analysis():
 
 
 if __name__ == '__main__':
-    # plt.close('all')
+    plt.close('all')
     #    neural_analysis()
     #    asdasd
     # ['choice', 'stimulus', 'correct_side', 'obs_mat', 'act_mat', 'rew_mat']
@@ -456,7 +457,7 @@ if __name__ == '__main__':
     correct_side = data['correct_side']
     correct_side = np.reshape(correct_side, (1, len(correct_side)))
     choice = np.reshape(choice, (1, len(choice)))
-    print(choice.shape[1]/12)
+    print(choice.shape[1])
     correct_side[np.where(correct_side == -1)] = 2
     correct_side = np.abs(correct_side-3)
     performance = (choice == correct_side)
@@ -484,6 +485,41 @@ if __name__ == '__main__':
     plt.figure()
     plt.imshow(correct_side_plt, aspect='auto')
 
+    # compute bias across training
+    per = 1000000
+    num_stps = int(choice.shape[1] / per)
+    bias_0_hit = []
+    bias_1_hit = []
+    bias_0_fail = []
+    bias_1_fail = []
+    for ind_per in range(num_stps):
+        ev = evidence[:, ind_per*per:(ind_per+1)*per]
+        perf = performance[:, ind_per*per:(ind_per+1)*per]
+        ch = choice[:, ind_per*per:(ind_per+1)*per]
+        data = plot_psychometric_curves(ev, perf, ch, blk_dur=200,
+                                        plt_av=False, figs=False)
+        bias_0_hit.append(data['popt_repProb_hits_0.0'][1])
+        bias_1_hit.append(data['popt_repProb_hits_1.0'][1])
+        bias_0_fail.append(data['popt_repProb_fails_0.0'][1])
+        bias_1_fail.append(data['popt_repProb_fails_1.0'][1])
+
+    plt.figure()
+    plt.subplot(2, 2, 1)
+    plt.plot(bias_0_hit)
+    plt.title('block 0 after correct')
+
+    plt.subplot(2, 2, 2)
+    plt.plot(bias_1_hit)
+    plt.title('block 1 after correct')
+
+    plt.subplot(2, 2, 3)
+    plt.plot(bias_0_fail)
+    plt.title('block 0 after error')
+
+    plt.subplot(2, 2, 4)
+    plt.plot(bias_1_fail)
+    plt.title('block 1 after error')
     # plot psychometric curves
+    plt.figure()
     plot_psychometric_curves(evidence, performance, choice,
                              blk_dur=200, plt_av=True, figs=True)
