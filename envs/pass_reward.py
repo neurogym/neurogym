@@ -10,6 +10,7 @@ Created on Wed Mar 20 14:25:12 2019
 
 from gym.core import Wrapper
 import numpy as np
+from gym import spaces
 
 
 class PassReward(Wrapper):
@@ -20,6 +21,10 @@ class PassReward(Wrapper):
     def __init__(self, env):
         Wrapper.__init__(self, env=env)
         self.env = env
+        env_oss = env.observation_space.shape[0]
+        self.observation_space = spaces.Box(-np.inf, np.inf,
+                                            shape=(env_oss+1,),
+                                            dtype=np.float32)
 
     def reset(self):
         return self.env.reset()
