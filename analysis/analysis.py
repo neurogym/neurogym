@@ -418,39 +418,112 @@ def plot_trials(folder, num_steps, num_trials):
 
 
 def neural_analysis():
-    data = np.load('/home/linux/network_data_132999.npz')
+    data = np.load('/home/linux/network_data_84999.npz')
     upd = 10
     env = 0
+    rows = 5
+    cols = 1
     plt.figure()
-    plt.subplot(4, 1, 1)
+    # states
+    plt.subplot(rows, cols, 2)
     states = data['states'][upd, :, env, :].T
     maxs = np.max(states, axis=1).reshape((128, 1))
     states_norm = states / maxs
     states_norm[np.where(maxs == 0), :] = 0
     plt.imshow(states_norm, aspect='auto')
-    plt.subplot(4, 1, 3)
+    # rewards
+    plt.subplot(rows, cols, 5)
     aux = np.reshape(data['rewards'], (1000, 12, 100))
-    plt.plot(aux[upd, env, :])
+    plt.plot(np.arange(1, 101), aux[upd, env, :], '-+')
     plt.xlim([-0.5, 99.5])
-    plt.subplot(4, 1, 4)
+    # actions
+    plt.subplot(rows, cols, 3)
     aux = np.reshape(data['actions'], (1000, 12, 100))
-    plt.plot(aux[upd, env, :])
+    plt.plot(aux[upd, env, :], '-+')
     plt.xlim([-0.5, 99.5])
-    plt.subplot(4, 1, 2)
+    # observations
+    plt.subplot(rows, cols, 1)
     print(data['obs'].shape)
-    aux = np.reshape(data['obs'], (1000, 12, 100, 3))
+    aux = np.reshape(data['obs'], (1000, 12, 100, 4))
     plt.imshow(aux[upd, env, :, :].T, aspect='auto')
+    # new trial
+    plt.subplot(rows, cols, 4)
+    aux = np.reshape(data['trials'], (1000, 12, 100))
+    plt.plot(np.arange(1, 101), -aux[upd, env, :], '-+')
+    plt.xlim([-0.5, 99.5])
+
+
+def neuron_selectivity(activity, feature, all_times, feat_bin=2,
+                       window=(-5, 10)):
+    times = all_times[np.logical_and(all_times > np.abs(window[0]),
+                                     all_times < all_times.shape[0]-window[1])]
+    act_mat = []
+    feat_mat = []
+    for ind_t in range(times.shape[0]):
+        start = np.max([0, times[ind_t]+window[0]])
+        end = times[ind_t]+window[1]
+        act_mat.append(activity[start:end])
+        feat_mat.append(feature[times[ind_t]])
+
+    feat_mat_bin = np.ceil(feat_bin*(feat_mat-np.min(feat_mat)+1e-5) /
+                           (np.max(feat_mat)-np.min(feat_mat)+2e-5))
+    act_mat = np.array(act_mat)
+    resp_mean = []
+    resp_std = []
+    for ind_f in range(feat_bin):
+        feat_resps = act_mat[feat_mat_bin == ind_f+1, :]
+        resp_mean.append(np.mean(feat_resps, axis=0))
+        resp_std.append(np.std(feat_resps, axis=0))
+
+    return resp_mean, resp_std
 
 
 if __name__ == '__main__':
     plt.close('all')
-    #    neural_analysis()
-    #    asdasd
+    data = np.load('/home/linux/network_data_84999.npz')
+    feat_bin = 2
+    env = 0
+    dt = 100
+    window = (-5, 10)
+    win_l = int(np.diff(window))
+    index = np.linspace(dt*window[0], dt*window[1],
+                        int(win_l)).reshape((win_l, 1))
+    states = data['states'][:, :, env, :].T
+    states = np.reshape(states, (states.shape[0], -1))
+    rewards = np.reshape(data['rewards'], (1000, 12, 100))
+    rewards = rewards[:, env, :]
+    rewards = rewards.flatten()
+    actions = np.reshape(data['actions'], (1000, 12, 100))
+    actions = actions[:, env, :]
+    actions = actions.flatten()
+    obs = np.reshape(data['obs'], (1000, 12, 100, 4))
+    obs = obs[:, env, :, :]
+    obs = obs.flatten()
+    trials = np.reshape(data['trials'], (1000, 12, 100))
+    trials = trials[:, env, :]
+    trials = trials.flatten()
+    times = np.where(trials == 0)[0] - int(1)
+
+    plt.figure()
+    for ind_n in range(states.shape[0]):
+        means, stds = neuron_selectivity(states[0, :], actions, times,
+                                         feat_bin=feat_bin, window=window)
+        means = np.array(means)
+        stds = np.array(stds)
+        # index = np.tile(index, (1, feat_bin))
+        plt.subplot(13, 10, ind_n+1)
+        for ind_plt in range(feat_bin):
+            plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :])
+    sdfsd
+
+    neural_analysis()
+    asdasd
     # ['choice', 'stimulus', 'correct_side', 'obs_mat', 'act_mat', 'rew_mat']
     # obs_mat = data['obs_mat']
     # act_mat = data['act_mat']
     # rew_mat = data['rew_mat']
     data = np.load('/home/linux/TrialHistory0_data.npz')
+    # data = np.load('/home/linux/PassReward0_data.npz')
     # data = np.load('/home/linux/RDM0_data.npz')
     choice = data['choice']
     stimulus = data['stimulus']
@@ -486,7 +559,7 @@ if __name__ == '__main__':
     plt.imshow(correct_side_plt, aspect='auto')
 
     # compute bias across training
-    per = 1000000
+    per = 100000
     num_stps = int(choice.shape[1] / per)
     bias_0_hit = []
     bias_1_hit = []
