@@ -511,9 +511,8 @@ def neuron_selectivity(activity, feature, all_times, feat_bin=None,
     return resp_mean, resp_std, values, significance
 
 
-def plt_psth(states, feature, times, window, index, feat_bin=None, pv_th=0.01,
-             suptit=''):
-    f = plt.figure()
+def get_psths(states, feature, times, window, index, feat_bin=None,
+              pv_th=0.01, sorting=None):
     means_neurons = []
     stds_neurons = []
     significances = []
@@ -531,14 +530,21 @@ def plt_psth(states, feature, times, window, index, feat_bin=None, pv_th=0.01,
         if ind_n == 0:
             print('values:')
             print(values)
-    sorting = np.argsort(-np.array(significances))
+    if sorting is None:
+        sorting = np.argsort(-np.array(significances))
     means_neurons = np.array(means_neurons)
     means_neurons = means_neurons[sorting, :, :]
     stds_neurons = np.array(stds_neurons)
     stds_neurons = stds_neurons[sorting, :, :]
-    for ind_n in range(30):
-        means = means_neurons[ind_n, :, :]
-        stds = stds_neurons[ind_n, :, :]
+
+    return means_neurons, stds_neurons, values, sorting
+
+
+def plot_psths(means_mat, stds_mat, values, suptit=''):
+    f = plt.figure()
+    for ind_n in range(np.min([30, means_mat.shape[0]])):
+        means = means_mat[ind_n, :, :]
+        stds = stds_mat[ind_n, :, :]
         plt.subplot(6, 5, ind_n+1)
         for ind_plt in range(values.shape[0]):
             if ind_n == 0:
@@ -548,6 +554,36 @@ def plt_psth(states, feature, times, window, index, feat_bin=None, pv_th=0.01,
                 plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :])
         if ind_n == 0:
             f.legend()
+    f.suptitle(suptit)
+
+
+def plot_cond_psths(means_mat1, stds_mat1, means_mat2, stds_mat2,
+                    values, suptit=''):
+    f = plt.figure()
+    for ind_n in range(np.min([15, means_mat1.shape[0]])):
+        means = means_mat1[ind_n, :, :]
+        stds = stds_mat1[ind_n, :, :]
+        plt.subplot(6, 5, 2*5*np.floor(ind_n/5) + ind_n % 5 + 1)
+        for ind_plt in range(values.shape[0]):
+            if ind_n == 0:
+                plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :],
+                             label=str(values[ind_plt]))
+            else:
+                plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :])
+            ax = plt.gca()
+            ut.color_axis(ax, color='g')
+        if ind_n == 0:
+            f.legend()
+
+    for ind_n in range(np.min([15, means_mat1.shape[0]])):
+        means = means_mat2[ind_n, :, :]
+        stds = stds_mat2[ind_n, :, :]
+        plt.subplot(6, 5, 5*(2*np.floor(ind_n/5)+1) + ind_n % 5 + 1)
+        for ind_plt in range(values.shape[0]):
+            plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :])
+            ax = plt.gca()
+            ut.color_axis(ax, color='r')
+
     f.suptitle(suptit)
 
 
@@ -566,12 +602,18 @@ if __name__ == '__main__':
         times = np.where(trials == 1)[0]
         # actions
         print('selectivity to actions')
-        plt_psth(states, actions, times, window, index,
-                 suptit='selectivity to actions')
+        means_neurons, stds_neurons, values, _ = get_psths(states, actions,
+                                                           times, window,
+                                                           index)
+
         # rewards
         print('selectivity to reward')
-        plt_psth(states, rewards, times, window, index,
-                 suptit='selectivity to reward')
+        means_neurons, stds_neurons, values, _ = get_psths(states, rewards,
+                                                           times, window,
+                                                           index)
+        plot_psths(means_neurons, stds_neurons, values,
+                   suptit='selectivity to reward')
+
         # obs
         print('selectivity to cumulative observation')
         obs_cum = np.zeros_like(obs)
@@ -581,8 +623,45 @@ if __name__ == '__main__':
             else:
                 obs_cum[times[ind_t]] = np.sum(obs[times[ind_t-1]:
                                                    times[ind_t]])
-        plt_psth(states, obs_cum, times, window, index, feat_bin=4,
-                 suptit='selectivity to cumulative observation')
+        means_neurons, stds_neurons, values, _ = get_psths(states, obs_cum,
+                                                           times, window,
+                                                           index,
+                                                           feat_bin=4)
+        plot_psths(means_neurons, stds_neurons, values,
+                   suptit='selectivity to cumulative observation')
+
+        print('selectivity to action conditioned on reward')
+        window = (-5, 15)
+        win_l = int(np.diff(window))
+        index = np.linspace(dt*window[0], dt*window[1],
+                            int(win_l), endpoint=False).reshape((win_l, 1))
+        times_r = times[np.where(rewards[times] == 1)]
+        means_r, stds_r, values_r, sorting = get_psths(states, actions,
+                                                       times_r, window, index)
+
+        times_nr = times[np.where(rewards[times] == 0)]
+        means_nr, stds_nr, values_nr, _ = get_psths(states, actions, times_nr,
+                                                    window, index,
+                                                    sorting=sorting)
+        assert (values_r == values_nr).all()
+        plot_cond_psths(means_r, stds_r, means_nr, stds_nr,
+                        values_r,
+                        suptit='selectivity to action conditioned on reward')
+
+        print('control conditioning on reward')
+        rewards_ = np.reshape(rewards, (1, rewards.shape[0]))
+        times_r = times[np.where(rewards[times] == 1)]
+        means_r, stds_r, values_r, sorting = get_psths(rewards_, actions,
+                                                       times_r, window, index)
+
+        times_nr = times[np.where(rewards[times] == 0)]
+        means_nr, stds_nr, values_nr, _ = get_psths(rewards_, actions,
+                                                    times_nr, window, index,
+                                                    sorting=sorting)
+        assert (values_r == values_nr).all()
+        plot_cond_psths(means_r, stds_r, means_nr, stds_nr,
+                        values_r,
+                        suptit='control conditioning on reward')
 
     if behavior_analysis_flag:
         # ['choice', 'stimulus', 'correct_side',

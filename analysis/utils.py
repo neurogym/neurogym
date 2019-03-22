@@ -88,3 +88,10 @@ def folder_name(gamma=0.8, up_net=5, trial_dur=10,
         str(learning_rate) + '_nu_' + str(num_units) + '_un_' + str(up_net) +\
         '_net_' + str(network) + '_ed_' + str(num2str(exp_dur)) +\
         '_' + str(instance) + '/'
+
+
+def color_axis(ax, color='r'):
+    ax.spines['bottom'].set_color(color)
+    ax.spines['top'].set_color(color) 
+    ax.spines['right'].set_color(color)
+    ax.spines['left'].set_color(color)
