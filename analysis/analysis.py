@@ -3,6 +3,7 @@ from scipy.special import erf
 import utils as ut
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.stats as sstats
 
 
 def plot_learning(performance, evidence, stim_position, action):
@@ -418,7 +419,7 @@ def plot_trials(folder, num_steps, num_trials):
 
 
 def neural_analysis():
-    data = np.load('/home/linux/network_data_84999.npz')
+    data = np.load('/home/linux/network_data_240999.npz')
     upd = 10
     env = 0
     rows = 5
@@ -475,18 +476,50 @@ def neuron_selectivity(activity, feature, all_times, feat_bin=None,
     act_mat = np.array(act_mat)
     resp_mean = []
     resp_std = []
+    significance = []
     for ind_f in range(values.shape[0]):
         feat_resps = act_mat[feat_mat_bin == values[ind_f], :]
         resp_mean.append(np.mean(feat_resps, axis=0))
-        resp_std.append(np.std(feat_resps, axis=0))
+        resp_std.append(np.std(feat_resps, axis=0) /
+                        np.sqrt(feat_resps.shape[0]))
+        for ind_f2 in range(ind_f+1, values.shape[0]):
+            feat_resps2 = act_mat[feat_mat_bin == values[ind_f2], :]
+            for ind_t in range(feat_resps.shape[1]):
+                _, pvalue = sstats.ranksums(feat_resps[:, ind_t],
+                                            feat_resps2[:, ind_t])
+                significance.append([ind_f, ind_f2, ind_t, pvalue])
 
-    return resp_mean, resp_std
+    return resp_mean, resp_std, values, significance
+
+
+def plt_psth(states, feature, times, window, feat_bin=None, pv_th=0.01,
+             perc_sign_th=50):
+    plt.figure()
+    sbpl_count = 0
+    for ind_n in range(states.shape[2]):
+        sts_n = states[:, :, ind_n]
+        sts_n = sts_n.flatten()
+        means, stds, values, sign =\
+            neuron_selectivity(sts_n, feature, times, feat_bin=feat_bin,
+                               window=window)
+        sign = np.array(sign)
+        perc_sign = 100*np.sum(sign[:, 3] <
+                               pv_th / sign.shape[0]) / sign.shape[0]
+        if ind_n == 0:
+            print('values:')
+            print(values)
+        if perc_sign > perc_sign_th:
+            sbpl_count += 1
+            means = np.array(means)
+            stds = np.array(stds)
+            plt.subplot(6, 5, sbpl_count)
+            for ind_plt in range(values.shape[0]):
+                plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :])
 
 
 if __name__ == '__main__':
     plt.close('all')
-    data = np.load('/home/linux/network_data_160999.npz')
-    feat_bin = 2
+    data = np.load('/home/linux/network_data_240999.npz')
     env = 0
     dt = 100
     window = (-5, 10)
@@ -494,35 +527,32 @@ if __name__ == '__main__':
     index = np.linspace(dt*window[0], dt*window[1],
                         int(win_l)).reshape((win_l, 1))
     states = data['states'][:, :, env, :]
-    #    rewards = np.reshape(data['rewards'], (1000, 12, 100))
-    #    rewards = rewards[:, env, :]
-    #    rewards = rewards.flatten()
     actions = np.reshape(data['actions'], (1000, 12, 100))
     actions = actions[:, env, :]
+    print(actions.shape)
     actions = actions.flatten()
     obs = np.reshape(data['obs'], (1000, 12, 100, 4))
     obs = obs[:, env, :, :]
-    rewards = obs[:, :, 3]
+    rewards = obs[:, :, 3]  # rewards are passed with the observation
+    print(rewards.shape)
     rewards = rewards.flatten()
     obs = obs[:, :, 1] - obs[:, :, 2]
+    print(obs.shape)
     obs = obs.flatten()
     trials = np.reshape(data['trials'], (1000, 12, 100))
     trials = trials[:, env, :]
     trials = trials.flatten()
-    times = np.where(trials == 0)[0] - int(1)
 
-    plt.figure()
-    for ind_n in range(states.shape[2]):
-        sts_n = states[:, :, ind_n]
-        sts_n = sts_n.flatten()
-        means, stds = neuron_selectivity(sts_n, actions, times, window=window)
-        means = np.array(means)
-        stds = np.array(stds)
-        # index = np.tile(index, (1, feat_bin))
-        plt.subplot(13, 10, ind_n+1)
-        for ind_plt in range(feat_bin):
-            plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :])
-    sdfsd
+    # actions
+    print(states.shape)
+    print(states.T.shape)
+    ASD
+    times = np.where(trials == 0)[0] - int(1)
+    plt_psth(states, actions, times, window)
+
+    # rewards
+    #    times = np.where(trials == 0)[0]
+    #    plt_psth(states, rewards, times, window)
 
     neural_analysis()
     asdasd
