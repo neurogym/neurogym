@@ -512,9 +512,11 @@ def neuron_selectivity(activity, feature, all_times, feat_bin=None,
 
 
 def plt_psth(states, feature, times, window, index, feat_bin=None, pv_th=0.01,
-             perc_sign_th=80, suptit=''):
+             suptit=''):
     f = plt.figure()
-    sbpl_count = 0
+    means_neurons = []
+    stds_neurons = []
+    significances = []
     for ind_n in range(states.shape[0]):
         sts_n = states[ind_n, :]
         means, stds, values, sign =\
@@ -523,29 +525,37 @@ def plt_psth(states, feature, times, window, index, feat_bin=None, pv_th=0.01,
         sign = np.array(sign)
         perc_sign = 100*np.sum(sign[:, 3] <
                                pv_th / sign.shape[0]) / sign.shape[0]
+        significances.append(perc_sign)
+        means_neurons.append(means)
+        stds_neurons.append(stds)
         if ind_n == 0:
             print('values:')
             print(values)
-        if perc_sign > perc_sign_th:
-            sbpl_count += 1
-            means = np.array(means)
-            stds = np.array(stds)
-            plt.subplot(6, 5, sbpl_count)
-            for ind_plt in range(values.shape[0]):
-                if sbpl_count == 1:
-                    plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :],
-                                 label=str(values[ind_plt]))
-                else:
-                    plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :])
-            if sbpl_count == 1:
-                f.legend()
+    sorting = np.argsort(-np.array(significances))
+    means_neurons = np.array(means_neurons)
+    means_neurons = means_neurons[sorting, :, :]
+    stds_neurons = np.array(stds_neurons)
+    stds_neurons = stds_neurons[sorting, :, :]
+    for ind_n in range(30):
+        means = means_neurons[ind_n, :, :]
+        stds = stds_neurons[ind_n, :, :]
+        plt.subplot(6, 5, ind_n+1)
+        for ind_plt in range(values.shape[0]):
+            if ind_n == 0:
+                plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :],
+                             label=str(values[ind_plt]))
+            else:
+                plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :])
+        if ind_n == 0:
+            f.legend()
     f.suptitle(suptit)
 
 
 if __name__ == '__main__':
     plt.close('all')
-    neural_analisis_flag = False
-    if neural_analisis_flag:
+    neural_analysis_flag = True
+    behavior_analysis_flag = False
+    if neural_analysis_flag:
         states, rewards, actions, obs, trials = neural_analysis()
         dt = 100
         window = (-5, 10)
@@ -556,11 +566,11 @@ if __name__ == '__main__':
         times = np.where(trials == 1)[0]
         # actions
         print('selectivity to actions')
-        plt_psth(states, actions, times, window, index, perc_sign_th=80,
+        plt_psth(states, actions, times, window, index,
                  suptit='selectivity to actions')
         # rewards
         print('selectivity to reward')
-        plt_psth(states, rewards, times, window, index, perc_sign_th=45,
+        plt_psth(states, rewards, times, window, index,
                  suptit='selectivity to reward')
         # obs
         print('selectivity to cumulative observation')
@@ -572,88 +582,90 @@ if __name__ == '__main__':
                 obs_cum[times[ind_t]] = np.sum(obs[times[ind_t-1]:
                                                    times[ind_t]])
         plt_psth(states, obs_cum, times, window, index, feat_bin=4,
-                 perc_sign_th=58,
                  suptit='selectivity to cumulative observation')
 
-    # ['choice', 'stimulus', 'correct_side', 'obs_mat', 'act_mat', 'rew_mat']
-    # obs_mat = data['obs_mat']
-    # act_mat = data['act_mat']
-    # rew_mat = data['rew_mat']
-    data = np.load('/home/linux/PassReward0_data.npz')
-    # data = np.load('/home/linux/PassReward0_data.npz')
-    # data = np.load('/home/linux/RDM0_data.npz')
-    choice = data['choice']
-    stimulus = data['stimulus']
-    correct_side = data['correct_side']
-    correct_side = np.reshape(correct_side, (1, len(correct_side)))
-    choice = np.reshape(choice, (1, len(choice)))
-    print(choice.shape[1])
-    correct_side[np.where(correct_side == -1)] = 2
-    correct_side = np.abs(correct_side-3)
-    performance = (choice == correct_side)
-    evidence = stimulus[:, 1] - stimulus[:, 2]
-    evidence = np.reshape(evidence, (1, len(evidence)))
-    # plot performance
-    num_tr = 300000
-    start_point = 50000
-    plt.figure()
-    plot_learning(performance[:, start_point:start_point+num_tr],
-                  evidence[:, start_point:start_point+num_tr],
-                  correct_side[:, start_point:start_point+num_tr],
-                  choice[:, start_point:start_point+num_tr])
+    if behavior_analysis_flag:
+        # ['choice', 'stimulus', 'correct_side',
+        #  'obs_mat', 'act_mat', 'rew_mat']
+        # obs_mat = data['obs_mat']
+        # act_mat = data['act_mat']
+        # rew_mat = data['rew_mat']
+        data = np.load('/home/linux/PassReward0_data.npz')
+        # data = np.load('/home/linux/PassReward0_data.npz')
+        # data = np.load('/home/linux/RDM0_data.npz')
+        choice = data['choice']
+        stimulus = data['stimulus']
+        correct_side = data['correct_side']
+        correct_side = np.reshape(correct_side, (1, len(correct_side)))
+        choice = np.reshape(choice, (1, len(choice)))
+        print(choice.shape[1])
+        correct_side[np.where(correct_side == -1)] = 2
+        correct_side = np.abs(correct_side-3)
+        performance = (choice == correct_side)
+        evidence = stimulus[:, 1] - stimulus[:, 2]
+        evidence = np.reshape(evidence, (1, len(evidence)))
+        # plot performance
+        num_tr = 300000
+        start_point = 50000
+        plt.figure()
+        plot_learning(performance[:, start_point:start_point+num_tr],
+                      evidence[:, start_point:start_point+num_tr],
+                      correct_side[:, start_point:start_point+num_tr],
+                      choice[:, start_point:start_point+num_tr])
 
-    # plot performance last training stage
-    plt.figure()
-    num_tr = 20000
-    start_point = performance.shape[1]-num_tr
-    plot_learning(performance[:, start_point:start_point+num_tr],
-                  evidence[:, start_point:start_point+num_tr],
-                  correct_side[:, start_point:start_point+num_tr],
-                  choice[:, start_point:start_point+num_tr])
-    # plot trials
-    correct_side_plt = correct_side[:, :400]
-    plt.figure()
-    plt.imshow(correct_side_plt, aspect='auto')
+        # plot performance last training stage
+        plt.figure()
+        num_tr = 20000
+        start_point = performance.shape[1]-num_tr
+        plot_learning(performance[:, start_point:start_point+num_tr],
+                      evidence[:, start_point:start_point+num_tr],
+                      correct_side[:, start_point:start_point+num_tr],
+                      choice[:, start_point:start_point+num_tr])
+        # plot trials
+        correct_side_plt = correct_side[:, :400]
+        plt.figure()
+        plt.imshow(correct_side_plt, aspect='auto')
 
-    # compute bias across training
-    per = 100000
-    num_stps = int(choice.shape[1] / per)
-    bias_0_hit = []
-    bias_1_hit = []
-    bias_0_fail = []
-    bias_1_fail = []
-    for ind_per in range(num_stps):
-        ev = evidence[:, ind_per*per:(ind_per+1)*per]
-        perf = performance[:, ind_per*per:(ind_per+1)*per]
-        ch = choice[:, ind_per*per:(ind_per+1)*per]
-        data = plot_psychometric_curves(ev, perf, ch, blk_dur=200,
-                                        plt_av=False, figs=False)
-        bias_0_hit.append(data['popt_repProb_hits_0.0'][1])
-        bias_1_hit.append(data['popt_repProb_hits_1.0'][1])
-        bias_0_fail.append(data['popt_repProb_fails_0.0'][1])
-        bias_1_fail.append(data['popt_repProb_fails_1.0'][1])
+        # compute bias across training
+        per = 100000
+        num_stps = int(choice.shape[1] / per)
+        bias_0_hit = []
+        bias_1_hit = []
+        bias_0_fail = []
+        bias_1_fail = []
+        for ind_per in range(num_stps):
+            ev = evidence[:, ind_per*per:(ind_per+1)*per]
+            perf = performance[:, ind_per*per:(ind_per+1)*per]
+            ch = choice[:, ind_per*per:(ind_per+1)*per]
+            data = plot_psychometric_curves(ev, perf, ch, blk_dur=200,
+                                            plt_av=False, figs=False)
+            bias_0_hit.append(data['popt_repProb_hits_0.0'][1])
+            bias_1_hit.append(data['popt_repProb_hits_1.0'][1])
+            bias_0_fail.append(data['popt_repProb_fails_0.0'][1])
+            bias_1_fail.append(data['popt_repProb_fails_1.0'][1])
 
-    plt.figure()
-    plt.subplot(2, 2, 1)
-    plt.plot(bias_0_hit)
-    plt.title('block 0 after correct')
+        plt.figure()
+        plt.subplot(2, 2, 1)
+        plt.plot(bias_0_hit)
+        plt.title('block 0 after correct')
 
-    plt.subplot(2, 2, 2)
-    plt.plot(bias_1_hit)
-    plt.title('block 1 after correct')
+        plt.subplot(2, 2, 2)
+        plt.plot(bias_1_hit)
+        plt.title('block 1 after correct')
 
-    plt.subplot(2, 2, 3)
-    plt.plot(bias_0_fail)
-    plt.title('block 0 after error')
+        plt.subplot(2, 2, 3)
+        plt.plot(bias_0_fail)
+        plt.title('block 0 after error')
 
-    plt.subplot(2, 2, 4)
-    plt.plot(bias_1_fail)
-    plt.title('block 1 after error')
-    # plot psychometric curves
-    plt.figure()
-    num_tr = 1000000
-    start_point = performance.shape[1]-num_tr
-    plot_psychometric_curves(evidence[:, start_point:start_point+num_tr],
-                             performance[:, start_point:start_point+num_tr],
-                             choice[:, start_point:start_point+num_tr],
-                             blk_dur=200, plt_av=True, figs=True)
+        plt.subplot(2, 2, 4)
+        plt.plot(bias_1_fail)
+        plt.title('block 1 after error')
+        # plot psychometric curves
+        plt.figure()
+        num_tr = 1000000
+        start_point = performance.shape[1]-num_tr
+        plot_psychometric_curves(evidence[:, start_point:start_point+num_tr],
+                                 performance[:, start_point:
+                                             start_point+num_tr],
+                                 choice[:, start_point:start_point+num_tr],
+                                 blk_dur=200, plt_av=True, figs=True)
