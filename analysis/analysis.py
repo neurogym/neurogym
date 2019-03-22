@@ -420,37 +420,55 @@ def plot_trials(folder, num_steps, num_trials):
 
 def neural_analysis():
     data = np.load('/home/linux/network_data_240999.npz')
-    upd = 10
     env = 0
-    rows = 5
+    rows = 4
     cols = 1
-    plt.figure()
+    num_steps = 50
     # states
+    states = data['states'][:, :, env, :]
+    print(states.shape)
+    states = np.reshape(np.transpose(states, (2, 0, 1)),
+                        (states.shape[2], np.prod(states.shape[0:2])))
     plt.subplot(rows, cols, 2)
-    states = data['states'][upd, :, env, :].T
     maxs = np.max(states, axis=1).reshape((128, 1))
     states_norm = states / maxs
     states_norm[np.where(maxs == 0), :] = 0
-    plt.imshow(states_norm, aspect='auto')
-    # rewards
-    plt.subplot(rows, cols, 5)
-    aux = np.reshape(data['rewards'], (1000, 12, 100))
-    plt.plot(np.arange(1, 101), aux[upd, env, :], '-+')
-    plt.xlim([-0.5, 99.5])
+    plt.imshow(states_norm[:, 0:num_steps], aspect='auto')
     # actions
+    # separate into diff. envs
+    actions = np.reshape(data['actions'], (1000, 12, 100))
+    # select env.
+    actions = actions[:, env, :]
+    # flatten
+    actions = actions.flatten()
+    actions = np.concatenate((np.array([0]), actions[:-1]))
     plt.subplot(rows, cols, 3)
-    aux = np.reshape(data['actions'], (1000, 12, 100))
-    plt.plot(aux[upd, env, :], '-+')
-    plt.xlim([-0.5, 99.5])
-    # observations
+    plt.plot(actions[0:num_steps], '-+')
+    plt.xlim([-0.5, num_steps-0.5])
+
+    # obs and rewards (rewards are passed as part of the observation)
+    obs = np.reshape(data['obs'], (1000, 12, 100, 4))
+    obs = obs[:, env, :, :]
+    obs = np.reshape(np.transpose(obs, (2, 0, 1)),
+                     (obs.shape[2], np.prod(obs.shape[0:2])))
     plt.subplot(rows, cols, 1)
-    aux = np.reshape(data['obs'], (1000, 12, 100, 4))
-    plt.imshow(aux[upd, env, :, :].T, aspect='auto')
-    # new trial
+    plt.imshow(obs[:, 0:num_steps], aspect='auto')
+
+    rewards = obs[3, :]
+    rewards = rewards.flatten()
+    obs = obs[1, :] - obs[0, :]
+    obs = obs.flatten()
+
+    # trials
+    trials = np.reshape(data['trials'], (1000, 12, 100))
+    trials = trials[:, env, :]
+    trials = np.abs(trials.flatten() - int(1))
+    trials = np.concatenate((np.array([0]), trials[:-1]))
     plt.subplot(rows, cols, 4)
-    aux = np.reshape(data['trials'], (1000, 12, 100))
-    plt.plot(np.arange(1, 101), -aux[upd, env, :], '-+')
-    plt.xlim([-0.5, 99.5])
+    plt.plot(trials[0:num_steps], '-+')
+    plt.xlim([-0.5, num_steps-0.5])
+
+    return states, rewards, actions, obs, trials
 
 
 def neuron_selectivity(activity, feature, all_times, feat_bin=None,
@@ -492,7 +510,7 @@ def neuron_selectivity(activity, feature, all_times, feat_bin=None,
     return resp_mean, resp_std, values, significance
 
 
-def plt_psth(states, feature, times, window, feat_bin=None, pv_th=0.01,
+def plt_psth(states, feature, times, window, index, feat_bin=None, pv_th=0.01,
              perc_sign_th=50):
     plt.figure()
     sbpl_count = 0
@@ -519,42 +537,18 @@ def plt_psth(states, feature, times, window, feat_bin=None, pv_th=0.01,
 
 if __name__ == '__main__':
     plt.close('all')
-    data = np.load('/home/linux/network_data_240999.npz')
-    env = 0
+    states, rewards, actions, obs, trials = neural_analysis()
     dt = 100
     window = (-5, 10)
     win_l = int(np.diff(window))
     index = np.linspace(dt*window[0], dt*window[1],
                         int(win_l)).reshape((win_l, 1))
-    states = data['states'][:, :, env, :]
-    actions = np.reshape(data['actions'], (1000, 12, 100))
-    actions = actions[:, env, :]
-    print(actions.shape)
-    actions = actions.flatten()
-    obs = np.reshape(data['obs'], (1000, 12, 100, 4))
-    obs = obs[:, env, :, :]
-    rewards = obs[:, :, 3]  # rewards are passed with the observation
-    print(rewards.shape)
-    rewards = rewards.flatten()
-    obs = obs[:, :, 1] - obs[:, :, 2]
-    print(obs.shape)
-    obs = obs.flatten()
-    trials = np.reshape(data['trials'], (1000, 12, 100))
-    trials = trials[:, env, :]
-    trials = trials.flatten()
-
     # actions
     print(states.shape)
-    print(states.T.shape)
-    ASD
+    asdasd
     times = np.where(trials == 0)[0] - int(1)
-    plt_psth(states, actions, times, window)
+    plt_psth(states, actions, times, window, index)
 
-    # rewards
-    #    times = np.where(trials == 0)[0]
-    #    plt_psth(states, rewards, times, window)
-
-    neural_analysis()
     asdasd
     # ['choice', 'stimulus', 'correct_side', 'obs_mat', 'act_mat', 'rew_mat']
     # obs_mat = data['obs_mat']
