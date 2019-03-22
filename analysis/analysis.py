@@ -423,7 +423,7 @@ def neural_analysis():
     env = 0
     rows = 4
     cols = 1
-    num_steps = 50
+    num_steps = 100
     # states
     states = data['states'][:, :, env, :]
     print(states.shape)
@@ -456,7 +456,7 @@ def neural_analysis():
 
     rewards = obs[3, :]
     rewards = rewards.flatten()
-    obs = obs[1, :] - obs[0, :]
+    obs = obs[1, :] - obs[2, :]
     obs = obs.flatten()
 
     # trials
@@ -487,6 +487,7 @@ def neuron_selectivity(activity, feature, all_times, feat_bin=None,
     if feat_bin is not None:
         feat_mat_bin = np.ceil(feat_bin*(feat_mat-np.min(feat_mat)+1e-5) /
                                (np.max(feat_mat)-np.min(feat_mat)+2e-5))
+        feat_mat_bin = feat_mat_bin / feat_bin
     else:
         feat_mat_bin = feat_mat
 
@@ -511,12 +512,11 @@ def neuron_selectivity(activity, feature, all_times, feat_bin=None,
 
 
 def plt_psth(states, feature, times, window, index, feat_bin=None, pv_th=0.01,
-             perc_sign_th=50):
-    plt.figure()
+             perc_sign_th=80, suptit=''):
+    f = plt.figure()
     sbpl_count = 0
-    for ind_n in range(states.shape[2]):
-        sts_n = states[:, :, ind_n]
-        sts_n = sts_n.flatten()
+    for ind_n in range(states.shape[0]):
+        sts_n = states[ind_n, :]
         means, stds, values, sign =\
             neuron_selectivity(sts_n, feature, times, feat_bin=feat_bin,
                                window=window)
@@ -532,29 +532,54 @@ def plt_psth(states, feature, times, window, index, feat_bin=None, pv_th=0.01,
             stds = np.array(stds)
             plt.subplot(6, 5, sbpl_count)
             for ind_plt in range(values.shape[0]):
-                plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :])
+                if sbpl_count == 1:
+                    plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :],
+                                 label=str(values[ind_plt]))
+                else:
+                    plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :])
+            if sbpl_count == 1:
+                f.legend()
+    f.suptitle(suptit)
 
 
 if __name__ == '__main__':
     plt.close('all')
-    states, rewards, actions, obs, trials = neural_analysis()
-    dt = 100
-    window = (-5, 10)
-    win_l = int(np.diff(window))
-    index = np.linspace(dt*window[0], dt*window[1],
-                        int(win_l)).reshape((win_l, 1))
-    # actions
-    print(states.shape)
-    asdasd
-    times = np.where(trials == 0)[0] - int(1)
-    plt_psth(states, actions, times, window, index)
+    neural_analisis_flag = False
+    if neural_analisis_flag:
+        states, rewards, actions, obs, trials = neural_analysis()
+        dt = 100
+        window = (-5, 10)
+        win_l = int(np.diff(window))
+        index = np.linspace(dt*window[0], dt*window[1],
+                            int(win_l), endpoint=False).reshape((win_l, 1))
 
-    asdasd
+        times = np.where(trials == 1)[0]
+        # actions
+        print('selectivity to actions')
+        plt_psth(states, actions, times, window, index, perc_sign_th=80,
+                 suptit='selectivity to actions')
+        # rewards
+        print('selectivity to reward')
+        plt_psth(states, rewards, times, window, index, perc_sign_th=45,
+                 suptit='selectivity to reward')
+        # obs
+        print('selectivity to cumulative observation')
+        obs_cum = np.zeros_like(obs)
+        for ind_t in range(times.shape[0]):
+            if ind_t == 0:
+                obs_cum[times[ind_t]] = np.sum(obs[0: times[ind_t]])
+            else:
+                obs_cum[times[ind_t]] = np.sum(obs[times[ind_t-1]:
+                                                   times[ind_t]])
+        plt_psth(states, obs_cum, times, window, index, feat_bin=4,
+                 perc_sign_th=58,
+                 suptit='selectivity to cumulative observation')
+
     # ['choice', 'stimulus', 'correct_side', 'obs_mat', 'act_mat', 'rew_mat']
     # obs_mat = data['obs_mat']
     # act_mat = data['act_mat']
     # rew_mat = data['rew_mat']
-    data = np.load('/home/linux/TrialHistory0_data.npz')
+    data = np.load('/home/linux/PassReward0_data.npz')
     # data = np.load('/home/linux/PassReward0_data.npz')
     # data = np.load('/home/linux/RDM0_data.npz')
     choice = data['choice']
@@ -626,5 +651,9 @@ if __name__ == '__main__':
     plt.title('block 1 after error')
     # plot psychometric curves
     plt.figure()
-    plot_psychometric_curves(evidence, performance, choice,
+    num_tr = 1000000
+    start_point = performance.shape[1]-num_tr
+    plot_psychometric_curves(evidence[:, start_point:start_point+num_tr],
+                             performance[:, start_point:start_point+num_tr],
+                             choice[:, start_point:start_point+num_tr],
                              blk_dur=200, plt_av=True, figs=True)
