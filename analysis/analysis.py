@@ -443,7 +443,6 @@ def neural_analysis():
     plt.xlim([-0.5, 99.5])
     # observations
     plt.subplot(rows, cols, 1)
-    print(data['obs'].shape)
     aux = np.reshape(data['obs'], (1000, 12, 100, 4))
     plt.imshow(aux[upd, env, :, :].T, aspect='auto')
     # new trial
@@ -453,25 +452,31 @@ def neural_analysis():
     plt.xlim([-0.5, 99.5])
 
 
-def neuron_selectivity(activity, feature, all_times, feat_bin=2,
+def neuron_selectivity(activity, feature, all_times, feat_bin=None,
                        window=(-5, 10)):
     times = all_times[np.logical_and(all_times > np.abs(window[0]),
                                      all_times < all_times.shape[0]-window[1])]
+
     act_mat = []
     feat_mat = []
     for ind_t in range(times.shape[0]):
-        start = np.max([0, times[ind_t]+window[0]])
+        start = times[ind_t]+window[0]
         end = times[ind_t]+window[1]
         act_mat.append(activity[start:end])
         feat_mat.append(feature[times[ind_t]])
 
-    feat_mat_bin = np.ceil(feat_bin*(feat_mat-np.min(feat_mat)+1e-5) /
-                           (np.max(feat_mat)-np.min(feat_mat)+2e-5))
+    if feat_bin is not None:
+        feat_mat_bin = np.ceil(feat_bin*(feat_mat-np.min(feat_mat)+1e-5) /
+                               (np.max(feat_mat)-np.min(feat_mat)+2e-5))
+    else:
+        feat_mat_bin = feat_mat
+
+    values = np.unique(feat_mat_bin)
     act_mat = np.array(act_mat)
     resp_mean = []
     resp_std = []
-    for ind_f in range(feat_bin):
-        feat_resps = act_mat[feat_mat_bin == ind_f+1, :]
+    for ind_f in range(values.shape[0]):
+        feat_resps = act_mat[feat_mat_bin == values[ind_f], :]
         resp_mean.append(np.mean(feat_resps, axis=0))
         resp_std.append(np.std(feat_resps, axis=0))
 
@@ -480,7 +485,7 @@ def neuron_selectivity(activity, feature, all_times, feat_bin=2,
 
 if __name__ == '__main__':
     plt.close('all')
-    data = np.load('/home/linux/network_data_84999.npz')
+    data = np.load('/home/linux/network_data_160999.npz')
     feat_bin = 2
     env = 0
     dt = 100
@@ -488,16 +493,18 @@ if __name__ == '__main__':
     win_l = int(np.diff(window))
     index = np.linspace(dt*window[0], dt*window[1],
                         int(win_l)).reshape((win_l, 1))
-    states = data['states'][:, :, env, :].T
-    states = np.reshape(states, (states.shape[0], -1))
-    rewards = np.reshape(data['rewards'], (1000, 12, 100))
-    rewards = rewards[:, env, :]
-    rewards = rewards.flatten()
+    states = data['states'][:, :, env, :]
+    #    rewards = np.reshape(data['rewards'], (1000, 12, 100))
+    #    rewards = rewards[:, env, :]
+    #    rewards = rewards.flatten()
     actions = np.reshape(data['actions'], (1000, 12, 100))
     actions = actions[:, env, :]
     actions = actions.flatten()
     obs = np.reshape(data['obs'], (1000, 12, 100, 4))
     obs = obs[:, env, :, :]
+    rewards = obs[:, :, 3]
+    rewards = rewards.flatten()
+    obs = obs[:, :, 1] - obs[:, :, 2]
     obs = obs.flatten()
     trials = np.reshape(data['trials'], (1000, 12, 100))
     trials = trials[:, env, :]
@@ -505,9 +512,10 @@ if __name__ == '__main__':
     times = np.where(trials == 0)[0] - int(1)
 
     plt.figure()
-    for ind_n in range(states.shape[0]):
-        means, stds = neuron_selectivity(states[0, :], actions, times,
-                                         feat_bin=feat_bin, window=window)
+    for ind_n in range(states.shape[2]):
+        sts_n = states[:, :, ind_n]
+        sts_n = sts_n.flatten()
+        means, stds = neuron_selectivity(sts_n, actions, times, window=window)
         means = np.array(means)
         stds = np.array(stds)
         # index = np.tile(index, (1, feat_bin))
