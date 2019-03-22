@@ -10,15 +10,16 @@ import pass_reward
 import manage_data as md
 import matplotlib.pyplot as plt
 dt = 80
-# calling from the terminal
-# example            task   num. steps  wrapper
-# python test_new.py RDM-v0    1000    trial_hist
+# calling from the terminal (ploting mode ON)
+# example              task   num. steps                wrapper              pass_reward        plot
+# python  test_new.py RDM-v0    400        trial_hist/reaction_time/combine   True/False    True/False
 if len(sys.argv) > 0:
     params = {'task': sys.argv[1], 'num_steps': sys.argv[2],
               'wrapper': sys.argv[3], 'pass_reward': sys.argv[4],
-              'plot': len(sys.argv) > 5}
+              'plot': sys.argv[5]}
 else:
-    params = {'task': 'GNG-v0', 'num_steps': 1000, 'wrapper': '', 'plot': True}
+    params = {'task': 'GNG-v0', 'num_steps': 1000, 'wrapper': '',
+              'pass_reward': False, 'plot': True}
 
 # task
 env = gym.make(params['task'], **{'dt': dt})
@@ -32,7 +33,7 @@ elif params['wrapper'] == 'combine':
     # delay is in ms
     env = combine.combine(dt=dt, env1=env, env2=env_extra, delay=200)
 
-if params['pass_reward']:
+if params['pass_reward'] == 'True':
     env = pass_reward.PassReward(env)
 
 # save/render data wrapper
@@ -56,7 +57,7 @@ for stp in range(int(params['num_steps'])):
     rewards.append(rew)
     actions.append(action)
 
-if params['plot']:
+if params['plot'] == 'True':
     obs = np.array(observations)
     plt.figure()
     plt.subplot(3, 1, 1)
