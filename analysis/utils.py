@@ -1,3 +1,4 @@
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -92,6 +93,21 @@ def folder_name(gamma=0.8, up_net=5, trial_dur=10,
 
 def color_axis(ax, color='r'):
     ax.spines['bottom'].set_color(color)
-    ax.spines['top'].set_color(color) 
+    ax.spines['top'].set_color(color)
     ax.spines['right'].set_color(color)
     ax.spines['left'].set_color(color)
+
+
+def get_fig():
+    left = 0.125  # the left side of the subplots of the figure
+    right = 0.9  # the right side of the subplots of the figure
+    bottom = 0.1  # the bottom of the subplots of the figure
+    top = 0.9  # the top of the subplots of the figure
+    wspace = 0.4  # width reserved for blank space between subplots
+    hspace = 0.4  # height reserved for white space between subplots
+    f = plt.figure(figsize=(8, 8), dpi=250)
+    matplotlib.rcParams.update({'font.size': 4, 'lines.linewidth': 0.5,
+                                'axes.titlepad': 1, 'lines.markersize': 3})
+    plt.subplots_adjust(left=left, bottom=bottom, right=right,
+                        top=top, wspace=wspace, hspace=hspace)
+    return f

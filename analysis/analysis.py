@@ -426,7 +426,7 @@ def neural_analysis():
     num_steps = 100
     # states
     states = data['states'][:, :, env, :]
-    print(states.shape)
+    ut.get_fig()
     states = np.reshape(np.transpose(states, (2, 0, 1)),
                         (states.shape[2], np.prod(states.shape[0:2])))
     plt.subplot(rows, cols, 2)
@@ -540,8 +540,8 @@ def get_psths(states, feature, times, window, index, feat_bin=None,
     return means_neurons, stds_neurons, values, sorting
 
 
-def plot_psths(means_mat, stds_mat, values, suptit=''):
-    f = plt.figure()
+def plot_psths(means_mat, stds_mat, values, neurons, suptit=''):
+    f = ut.get_fig()
     for ind_n in range(np.min([30, means_mat.shape[0]])):
         means = means_mat[ind_n, :, :]
         stds = stds_mat[ind_n, :, :]
@@ -552,14 +552,15 @@ def plot_psths(means_mat, stds_mat, values, suptit=''):
                              label=str(values[ind_plt]))
             else:
                 plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :])
+            plt.title(str(neurons[ind_n]))
         if ind_n == 0:
             f.legend()
     f.suptitle(suptit)
 
 
-def plot_cond_psths(means_mat1, stds_mat1, means_mat2, stds_mat2,
-                    values, suptit=''):
-    f = plt.figure()
+def plot_cond_psths(means_mat1, stds_mat1, means_mat2, stds_mat2, values,
+                    neurons, suptit=''):
+    f = ut.get_fig()
     for ind_n in range(np.min([15, means_mat1.shape[0]])):
         means = means_mat1[ind_n, :, :]
         stds = stds_mat1[ind_n, :, :]
@@ -570,6 +571,7 @@ def plot_cond_psths(means_mat1, stds_mat1, means_mat2, stds_mat2,
                              label=str(values[ind_plt]))
             else:
                 plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :])
+            plt.title(str(neurons[ind_n]))
             ax = plt.gca()
             ut.color_axis(ax, color='g')
         if ind_n == 0:
@@ -593,6 +595,7 @@ if __name__ == '__main__':
     behavior_analysis_flag = False
     if neural_analysis_flag:
         states, rewards, actions, obs, trials = neural_analysis()
+
         dt = 100
         window = (-5, 10)
         win_l = int(np.diff(window))
@@ -602,16 +605,20 @@ if __name__ == '__main__':
         times = np.where(trials == 1)[0]
         # actions
         print('selectivity to actions')
-        means_neurons, stds_neurons, values, _ = get_psths(states, actions,
-                                                           times, window,
-                                                           index)
+        means_neurons, stds_neurons, values, sorting = get_psths(states,
+                                                                 actions,
+                                                                 times, window,
+                                                                 index)
+        plot_psths(means_neurons, stds_neurons, values, sorting,
+                   suptit='selectivity to actions')
 
         # rewards
         print('selectivity to reward')
-        means_neurons, stds_neurons, values, _ = get_psths(states, rewards,
-                                                           times, window,
-                                                           index)
-        plot_psths(means_neurons, stds_neurons, values,
+        means_neurons, stds_neurons, values, sorting = get_psths(states,
+                                                                 rewards,
+                                                                 times, window,
+                                                                 index)
+        plot_psths(means_neurons, stds_neurons, values, sorting,
                    suptit='selectivity to reward')
 
         # obs
@@ -623,11 +630,13 @@ if __name__ == '__main__':
             else:
                 obs_cum[times[ind_t]] = np.sum(obs[times[ind_t-1]:
                                                    times[ind_t]])
-        means_neurons, stds_neurons, values, _ = get_psths(states, obs_cum,
-                                                           times, window,
-                                                           index,
-                                                           feat_bin=4)
-        plot_psths(means_neurons, stds_neurons, values,
+        means_neurons, stds_neurons, values, sorting = get_psths(states,
+                                                                 obs_cum,
+                                                                 times,
+                                                                 window,
+                                                                 index,
+                                                                 feat_bin=4)
+        plot_psths(means_neurons, stds_neurons, values, sorting,
                    suptit='selectivity to cumulative observation')
 
         print('selectivity to action conditioned on reward')
@@ -645,23 +654,8 @@ if __name__ == '__main__':
                                                     sorting=sorting)
         assert (values_r == values_nr).all()
         plot_cond_psths(means_r, stds_r, means_nr, stds_nr,
-                        values_r,
+                        values_r, sorting,
                         suptit='selectivity to action conditioned on reward')
-
-        print('control conditioning on reward')
-        rewards_ = np.reshape(rewards, (1, rewards.shape[0]))
-        times_r = times[np.where(rewards[times] == 1)]
-        means_r, stds_r, values_r, sorting = get_psths(rewards_, actions,
-                                                       times_r, window, index)
-
-        times_nr = times[np.where(rewards[times] == 0)]
-        means_nr, stds_nr, values_nr, _ = get_psths(rewards_, actions,
-                                                    times_nr, window, index,
-                                                    sorting=sorting)
-        assert (values_r == values_nr).all()
-        plot_cond_psths(means_r, stds_r, means_nr, stds_nr,
-                        values_r,
-                        suptit='control conditioning on reward')
 
     if behavior_analysis_flag:
         # ['choice', 'stimulus', 'correct_side',
@@ -686,14 +680,14 @@ if __name__ == '__main__':
         # plot performance
         num_tr = 300000
         start_point = 50000
-        plt.figure()
+        f = ut.get_fig()
         plot_learning(performance[:, start_point:start_point+num_tr],
                       evidence[:, start_point:start_point+num_tr],
                       correct_side[:, start_point:start_point+num_tr],
                       choice[:, start_point:start_point+num_tr])
 
         # plot performance last training stage
-        plt.figure()
+        f = ut.get_fig()
         num_tr = 20000
         start_point = performance.shape[1]-num_tr
         plot_learning(performance[:, start_point:start_point+num_tr],
@@ -702,7 +696,7 @@ if __name__ == '__main__':
                       choice[:, start_point:start_point+num_tr])
         # plot trials
         correct_side_plt = correct_side[:, :400]
-        plt.figure()
+        f = ut.get_fig()
         plt.imshow(correct_side_plt, aspect='auto')
 
         # compute bias across training
@@ -723,7 +717,7 @@ if __name__ == '__main__':
             bias_0_fail.append(data['popt_repProb_fails_0.0'][1])
             bias_1_fail.append(data['popt_repProb_fails_1.0'][1])
 
-        plt.figure()
+        f = ut.get_fig()
         plt.subplot(2, 2, 1)
         plt.plot(bias_0_hit)
         plt.title('block 0 after correct')
@@ -740,7 +734,7 @@ if __name__ == '__main__':
         plt.plot(bias_1_fail)
         plt.title('block 1 after error')
         # plot psychometric curves
-        plt.figure()
+        f = ut.get_fig()
         num_tr = 1000000
         start_point = performance.shape[1]-num_tr
         plot_psychometric_curves(evidence[:, start_point:start_point+num_tr],
