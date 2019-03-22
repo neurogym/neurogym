@@ -19,7 +19,7 @@ if len(sys.argv) > 0:
               'plot': sys.argv[5]}
 else:
     params = {'task': 'GNG-v0', 'num_steps': 1000, 'wrapper': '',
-              'pass_reward': False, 'plot': True}
+              'pass_reward': 'False', 'plot': 'True'}
 
 # task
 env = gym.make(params['task'], **{'dt': dt})
