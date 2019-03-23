@@ -305,9 +305,31 @@ def plot_dashed_lines(minimo, maximo):
     plt.plot([0, 0], [0, 1], '--k', lw=0.2)
     plt.plot([minimo, maximo], [0.5, 0.5], '--k', lw=0.2)
 
+# NEW YORK PROJECT ##############################################
 
-def neural_analysis(fig=False):
-    data = np.load('/home/linux/network_data_384999.npz')
+
+def bias_calculation(choice, ev):
+    # associate invalid trials (network fixates) with incorrect choice
+    choice[choice == 0] = ev[choice == 0] > 0
+    repeat = np.concatenate(
+        (np.array(np.random.choice([0, 1])).reshape(1,),
+         choice))
+    repeat = np.diff(repeat) == 0
+    # right_choice_repeating is just the original right_choice mat
+    # but shifted one element to the left.
+    choice_repeating = np.concatenate(
+        (np.array(np.random.choice([0, 1])).reshape(1, ),
+         choice[:-1]))
+    # the rep. evidence is the original evidence with a negative sign
+    # if the repeating side is the left one
+    rep_ev = ev *\
+        (-1)**(choice_repeating == 1)
+    popt, pcov = curve_fit(probit_lapse_rates, rep_ev, repeat, maxfev=10000)
+    return popt, pcov
+
+
+def neural_analysis(file='/home/linux/network_data_384999.npz', fig=False):
+    data = np.load(file)
     env = 0
     rows = 4
     cols = 1
@@ -497,9 +519,10 @@ def get_transition_mat(choice, conv_window=5):
 
 if __name__ == '__main__':
     plt.close('all')
-    neural_analysis_flag = True
-    transition_analysis_flag = True
+    neural_analysis_flag = False
+    transition_analysis_flag = False
     behavior_analysis_flag = False
+    test_bias_flag = True
     if neural_analysis_flag:
         states, rewards, actions, obs, trials = neural_analysis()
 
@@ -670,12 +693,23 @@ if __name__ == '__main__':
         plt.subplot(2, 2, 4)
         plt.plot(bias_1_fail)
         plt.title('block 1 after error')
+
+    if test_bias_flag:
         # plot psychometric curves
         f = ut.get_fig()
         num_tr = 1000000
         start_point = performance.shape[1]-num_tr
-        plot_psychometric_curves(evidence[:, start_point:start_point+num_tr],
-                                 performance[:, start_point:
-                                             start_point+num_tr],
-                                 choice[:, start_point:start_point+num_tr],
-                                 blk_dur=200, plt_av=True, figs=True)
+        ev = evidence[:, start_point:start_point+num_tr]
+        perf = performance[:, start_point:start_point+num_tr]
+        ch = choice[:, start_point:start_point+num_tr]
+        plot_psychometric_curves(ev, perf, ch, blk_dur=200,
+                                 plt_av=True, figs=True)
+        # build the mat that indicates the current block
+        blocks = build_block_mat(ev.shape, block_dur=200)
+        inds = (blocks == 1)
+        assert np.sum(inds) > 0
+        ev_block = ev[inds]
+        ch_block = ch[inds]
+        popt, pcov = bias_calculation(ch_block, ev_block)
+        print(popt)
+        print(pcov)
