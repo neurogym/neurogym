@@ -426,7 +426,7 @@ def neural_analysis(fig=False):
     num_steps = 100
     # states
     states = data['states'][:, :, env, :]
-    ut.get_fig()
+
     states = np.reshape(np.transpose(states, (2, 0, 1)),
                         (states.shape[2], np.prod(states.shape[0:2])))
     # actions
@@ -453,6 +453,7 @@ def neural_analysis(fig=False):
     trials = np.concatenate((np.array([0]), trials[:-1]))
 
     if fig:
+        ut.get_fig()
         # FIGURE
         # states
         plt.subplot(rows, cols, 2)
@@ -591,9 +592,24 @@ def plot_cond_psths(means_mat1, stds_mat1, means_mat2, stds_mat2, values,
     f.suptitle(suptit)
 
 
+def get_transition_mat(choice, conv_window=5):
+    # selectivity to transition probability
+    rand_choice = np.array(np.random.choice([1, 2])).reshape(1,)
+    choice = np.concatenate((rand_choice, choice))
+    repeat = (np.diff(choice) == 0)*1.0
+    transition = np.convolve(repeat, np.ones((conv_window,)),
+                             mode='full')[0:-conv_window+1]
+
+    trans_mat = np.zeros_like(actions)
+    for ind_t in range(times.shape[0]):
+        trans_mat[times[ind_t]] = transition[ind_t]
+
+    return trans_mat
+
+
 if __name__ == '__main__':
     plt.close('all')
-    neural_analysis_flag = False
+    neural_analysis_flag = True
     transition_analysis_flag = True
     behavior_analysis_flag = False
     if neural_analysis_flag:
@@ -661,40 +677,35 @@ if __name__ == '__main__':
                         suptit='selectivity to action conditioned on reward')
 
     if transition_analysis_flag:
+        window = (-5, 10)
+        win_l = int(np.diff(window))
+        index = np.linspace(dt*window[0], dt*window[1],
+                            int(win_l), endpoint=False).reshape((win_l, 1))
         states, rewards, actions, obs, trials = neural_analysis()
         times = np.where(trials == 1)[0]
-        conv_window = 5
-        # selectivity to transition probability
         choice = actions[times]
-        rand_choice = np.array(np.random.choice([1, 2])).reshape(1,)
-        choice = np.concatenate((rand_choice, choice))
-        repeat = (np.diff(choice) == 0)*1.0
-        transition = np.convolve(repeat, np.ones((conv_window,)),
-                                 mode='same')
-        transition_f = np.convolve(repeat, np.ones((conv_window,)),
-                                   mode='full')[0:-conv_window+1]
-        trans_mat = np.zeros_like(actions)
-        choice_mat = np.zeros_like(actions)
-        repeat_mat = np.zeros_like(actions)
-        trans_mat_full = np.zeros_like(actions)
-        for ind_t in range(times.shape[0]):
-            trans_mat_full[times[ind_t]] = transition_f[ind_t]
-            trans_mat[times[ind_t]] = transition[ind_t]
-            choice_mat[times[ind_t]] = choice[ind_t+1]
-            repeat_mat[times[ind_t]] = repeat[ind_t]
-        ut.get_fig()
-        plt.plot(choice_mat[1:100])
-        plt.plot(0.5*repeat_mat[1:100])
-        plt.plot(trans_mat[1:100], '--')
-        plt.plot(trans_mat_full[1:100], '--')
-        asdasd
-        print('selectivity to reward')
+        trans_mat = get_transition_mat(choice, conv_window=5)
+        print('selectivity to number of repetitions')
         means_neurons, stds_neurons, values, sorting = get_psths(states,
                                                                  trans_mat,
                                                                  times, window,
                                                                  index)
         plot_psths(means_neurons, stds_neurons, values, sorting,
                    suptit='selectivity to number of repetitions')
+
+        print('selectivity to number of repetitions conditioned on reward')
+        times_r = times[np.where(rewards[times] == 1)]
+        means_r, stds_r, values_r, sorting = get_psths(states, trans_mat,
+                                                       times_r, window, index)
+
+        times_nr = times[np.where(rewards[times] == 0)]
+        means_nr, stds_nr, values_nr, _ = get_psths(states, trans_mat,
+                                                    times_nr, window, index,
+                                                    sorting=sorting)
+        assert (values_r == values_nr).all()
+        plot_cond_psths(means_r, stds_r, means_nr, stds_nr,
+                        values_r, sorting,
+                        suptit='selectivity to num reps cond. on reward')
     if behavior_analysis_flag:
         # ['choice', 'stimulus', 'correct_side',
         #  'obs_mat', 'act_mat', 'rew_mat']
