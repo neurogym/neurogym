@@ -22,13 +22,13 @@ if __name__ == '__main__':
     env = 'RDM-v0'
     net = 'cont_rnn'
     nsteps = 100
-    tot_num_stps = 1e10
-    li = 1e2
+    tot_num_stps = 0  # 1e10
+    li = 1e4
     ent_coef = 0.1
     lr = 1e-3
     lr_sch = 'constant'
     gamma = 0.9
-    num_env = 12
+    num_env = 1
     trial_hist = True
     pass_reward = True
     if trial_hist:
@@ -44,6 +44,12 @@ if __name__ == '__main__':
     else:
         ps_rw_flag = ''
         ps_rw_cmmd = ''
+
+    load_path = '/home/linux/422000'
+    if load_path == '':
+        load_path_cmmd = ''
+    else:
+        load_path_cmmd = ' --load_path=' + load_path
 
     save_path = '../' + alg + '_' + env + '_' + tr_h_flag + '_' + ps_rw_flag +\
         '_' + net + '_ent_coef_' + str(ent_coef) + '_lr_' + str(lr) +\
@@ -62,7 +68,7 @@ if __name__ == '__main__':
         ' --log_interval=' + str(li) + ' --ent_coef=' + str(ent_coef) +\
         ' --lrschedule=' + lr_sch + ' --gamma=' + str(gamma) +\
         ' --num_env=' + str(num_env) + tr_h_cmmd +\
-        ps_rw_cmmd + ' --lr=' + str(lr) + ' --save_path=' + save_path
-    # + ' --load_path=' + load_path
+        ps_rw_cmmd + ' --lr=' + str(lr) + ' --save_path=' + save_path +\
+        load_path_cmmd
     print(command)
     os.system(command)

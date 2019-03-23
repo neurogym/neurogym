@@ -8,7 +8,7 @@ Created on Fri Feb 22 08:52:21 2019
 
 import gym
 import numpy as np
-from gym.utils import seeding
+# from gym.utils import seeding
 
 
 class ngym(gym.Env):
