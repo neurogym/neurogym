@@ -645,19 +645,8 @@ if __name__ == '__main__':
         previous_choice = np.concatenate((rand_choice, choice[:-1]))
         previous_choice[np.where(previous_choice == 2)] = -1
         bias_mat = trans_mat.copy()
-        prev_choice_mat = np.zeros_like(trans_mat)
-        choice_mat = np.zeros_like(trans_mat)
         for ind_t in range(times.shape[0]):
             bias_mat[times[ind_t]] *= previous_choice[ind_t]
-            prev_choice_mat[times[ind_t]] = previous_choice[ind_t]
-            choice_mat[times[ind_t]] = choice[ind_t]
-        choice_mat[np.where(choice_mat == 2)] = -1
-        ut.get_fig()
-        plt.plot(trans_mat[1:100], label='trans-mat')
-        plt.plot(bias_mat[1:100], label='bias-mat')
-        plt.plot(prev_choice_mat[1:100], '--', label='prev-choice-mat')
-        plt.plot(choice_mat[1:100]*0.5, '--', label='choice-mat')
-        plt.legend()
         print('selectivity to bias')
         means_neurons, stds_neurons, values, sorting = get_psths(states,
                                                                  bias_mat,
