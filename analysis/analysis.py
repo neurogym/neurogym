@@ -532,12 +532,12 @@ def get_transition_mat(choice, times=None, num_steps=None, conv_window=5):
 
 if __name__ == '__main__':
     plt.close('all')
-    neural_analysis_flag = False
-    transition_analysis_flag = False
+    neural_analysis_flag = True
+    transition_analysis_flag = True
     bias_analysis_flag = True
-    behavior_analysis_flag = False
+    behavior_analysis_flag = True
     test_bias_flag = False
-    bias_cond_on_history_flag = False
+    bias_cond_on_history_flag = True
     if neural_analysis_flag:
         states, rewards, actions, obs, trials = get_simulation_vars()
 
@@ -628,7 +628,7 @@ if __name__ == '__main__':
         means_r, stds_r, values_r, sorting = get_psths(states, trans_mat,
                                                        times_prev_r, window,
                                                        index)
-        non_rews = np.where(rewards[times] == 1)[0]+1
+        non_rews = np.where(rewards[times] == 0)[0]+1
         times_prev_nr = times[non_rews[:-1]]
         means_nr, stds_nr, values_nr, _ = get_psths(states, trans_mat,
                                                     times_prev_nr, window,
@@ -854,6 +854,7 @@ if __name__ == '__main__':
         conv_window = 8
         margin = 2
         transitions = get_transition_mat(ch, conv_window=conv_window)
+        values = np.unique(transitions)
         rand_perf = np.array(np.random.choice([0, 1])).reshape(1,)
         prev_perf = np.concatenate((rand_perf, perf[0, :-1]))
         mat_biases = np.empty((2, conv_window))
@@ -862,13 +863,14 @@ if __name__ == '__main__':
         for ind_perf in reversed(range(2)):
             plt.subplot(1, 2, int(not(ind_perf))+1)
             plt.title('after ' + labels[ind_perf])
-            for ind_tr in range(margin, conv_window-margin+1):
-                color = np.array((conv_window-ind_tr, 0, ind_tr))/conv_window
-                mask = np.logical_and(transitions == ind_tr,
+            for ind_tr in range(margin, values.shape[0]-margin):
+                aux_color = (ind_tr-margin)/(values.shape[0]-2*margin-1)
+                color = np.array((1-aux_color, 0, aux_color))
+                mask = np.logical_and(transitions == values[ind_tr],
                                       prev_perf == ind_perf)
                 assert np.sum(mask) > 20000
                 popt, pcov = bias_calculation(ch, ev, mask)
-                print('bias ' + str(ind_tr) + ' repeatitions after ' +
+                print('bias ' + str(values[ind_tr]) + ' repeatitions after ' +
                       labels[ind_perf] + ':')
                 print(popt[1])
                 mat_biases[ind_perf, ind_tr] = popt[1]
@@ -876,7 +878,7 @@ if __name__ == '__main__':
                                 np.max(evidence), 50)
                 # get the y values for the fitting
                 y = probit_lapse_rates(x, popt[0], popt[1], popt[2], popt[3])
-                plt.plot(x, y, color=color,  label=str(ind_tr) +
+                plt.plot(x, y, color=color,  label=str(values[ind_tr]) +
                          ' b: ' + str(round(popt[1], 3)), lw=0.5)
             plt.xlim([-1.5, 1.5])
             plt.legend(loc="lower right")
