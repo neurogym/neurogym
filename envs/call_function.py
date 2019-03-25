@@ -22,13 +22,13 @@ if __name__ == '__main__':
     env = 'RDM-v0'
     net = 'cont_rnn'
     nsteps = 100
-    tot_num_stps = 1e10
+    tot_num_stps = 9e9
     li = 1e4
     ent_coef = 0.1
     lr = 1e-3
     lr_sch = 'constant'
     gamma = 0.9
-    num_env = 1
+    num_env = 12
     trial_hist = True
     pass_reward = True
     if trial_hist:
