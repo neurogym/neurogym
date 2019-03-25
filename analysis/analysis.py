@@ -532,12 +532,12 @@ def get_transition_mat(choice, times=None, num_steps=None, conv_window=5):
 
 if __name__ == '__main__':
     plt.close('all')
-    neural_analysis_flag = True
+    neural_analysis_flag = False
     transition_analysis_flag = True
-    bias_analysis_flag = True
-    behavior_analysis_flag = True
+    bias_analysis_flag = False
+    behavior_analysis_flag = False
     test_bias_flag = False
-    bias_cond_on_history_flag = True
+    bias_cond_on_history_flag = False
     if neural_analysis_flag:
         states, rewards, actions, obs, trials = get_simulation_vars()
 
@@ -611,6 +611,10 @@ if __name__ == '__main__':
         states, rewards, actions, obs, trials = get_simulation_vars()
         times = np.where(trials == 1)[0]
         choice = actions[times]
+        outcome = rewards[times]
+        ground_truth = choice.copy()
+        ground_truth[np.where(ground_truth == 2)] = -1
+        ground_truth *= (-1)**(outcome == 0)
         num_steps = trials.shape[0]
         trans_mat = get_transition_mat(choice, times, num_steps=num_steps,
                                        conv_window=4)
