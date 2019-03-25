@@ -35,17 +35,17 @@ class RDM(ngym.ngym):
 
         # trial conditions
         self.choices = [-1, 1]
-        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])
+        self.cohs = np.array([0])  # np.array([0, 6.4, 12.8, 25.6, 51.2])
 
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
 
         # Durations
-        self.fixation = 100
-        self.stimulus_min = 499  # 80
-        self.stimulus_mean = 500  # 330
-        self.stimulus_max = 501  # 1500
-        self.decision = 500
+        self.fixation = 0
+        self.stimulus_min = 100  # 80
+        self.stimulus_mean = 100  # 330
+        self.stimulus_max = 100  # 1500
+        self.decision = 100  # 500
         self.mean_trial_duration = self.fixation + self.stimulus_mean +\
             self.decision
         print('mean trial duration: ' + str(self.mean_trial_duration) +

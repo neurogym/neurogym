@@ -22,7 +22,7 @@ if __name__ == '__main__':
     env = 'RDM-v0'
     net = 'cont_rnn'
     nsteps = 100
-    tot_num_stps = 0  # 1e10
+    tot_num_stps = 1e10
     li = 1e4
     ent_coef = 0.1
     lr = 1e-3
@@ -45,7 +45,7 @@ if __name__ == '__main__':
         ps_rw_flag = ''
         ps_rw_cmmd = ''
 
-    load_path = '/home/linux/422000'
+    load_path = ''
     if load_path == '':
         load_path_cmmd = ''
     else:
