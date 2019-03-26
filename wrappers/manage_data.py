@@ -38,7 +38,7 @@ class manage_data(Wrapper):
         if self.plt_tr:
             self.fig, self.ax = plt.subplots(self.num_subplots, 1)
         if folder is not None:
-            self.folder = folder
+            self.folder = folder + '/'
         else:
             self.folder = "../tmp/"
         if not os.path.exists(self.folder):
