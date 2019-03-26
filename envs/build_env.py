@@ -28,7 +28,8 @@ def build_env(env_id, inst=0, **all_args):
         env1 = gym.make(env_id, **env_args)
         env2 = gym.make(all_args['env2'], **env_args)
         env = combine.combine(env1, env2)
-        env = manage_data.manage_data(env, inst=inst)
+        env = manage_data.manage_data(env, inst=inst,
+                                      folder=all_args['save_path'])
     else:
         env = gym.make(env_id, **env_args)
         if all_args['trial_hist']:

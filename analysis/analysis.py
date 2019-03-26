@@ -330,12 +330,12 @@ def bias_calculation(choice, ev, mask):
     return popt, pcov
 
 
-def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False):
+def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
+                        n_envs=12, env=0, num_steps=100, obs_size=4,
+                        num_units=128):
     data = np.load(file)
-    env = 0
     rows = 4
     cols = 1
-    num_steps = 100
     # states
     states = data['states'][:, :, env, :]
 
@@ -343,14 +343,14 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False):
                         (states.shape[2], np.prod(states.shape[0:2])))
     # actions
     # separate into diff. envs
-    actions = np.reshape(data['actions'], (1000, 12, 100))
+    actions = np.reshape(data['actions'], (-1, n_envs, num_steps))
     # select env.
     actions = actions[:, env, :]
     # flatten
     actions = actions.flatten()
     actions = np.concatenate((np.array([0]), actions[:-1]))
     # obs and rewards (rewards are passed as part of the observation)
-    obs = np.reshape(data['obs'], (1000, 12, 100, 4))
+    obs = np.reshape(data['obs'], (-1, n_envs, num_steps, obs_size))
     obs = obs[:, env, :, :]
     obs = np.reshape(np.transpose(obs, (2, 0, 1)),
                      (obs.shape[2], np.prod(obs.shape[0:2])))
@@ -359,7 +359,7 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False):
     ev = obs[1, :] - obs[2, :]
     ev = ev.flatten()
     # trials
-    trials = np.reshape(data['trials'], (1000, 12, 100))
+    trials = np.reshape(data['trials'], (-1, n_envs, num_steps))
     trials = trials[:, env, :]
     trials = np.abs(trials.flatten() - int(1))
     trials = np.concatenate((np.array([0]), trials[:-1]))
@@ -369,7 +369,7 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False):
         # FIGURE
         # states
         plt.subplot(rows, cols, 2)
-        maxs = np.max(states, axis=1).reshape((128, 1))
+        maxs = np.max(states, axis=1).reshape((num_units, 1))
         states_norm = states / maxs
         states_norm[np.where(maxs == 0), :] = 0
         plt.imshow(states_norm[:, 0:num_steps], aspect='auto')
@@ -532,8 +532,8 @@ def get_transition_mat(choice, times=None, num_steps=None, conv_window=5):
 
 if __name__ == '__main__':
     plt.close('all')
-    neural_analysis_flag = False
-    transition_analysis_flag = True
+    neural_analysis_flag = True
+    transition_analysis_flag = False
     bias_analysis_flag = False
     behavior_analysis_flag = False
     test_bias_flag = False
