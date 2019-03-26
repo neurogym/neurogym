@@ -8,20 +8,22 @@ Created on Thu Mar 14 08:20:00 2019
 import os
 import utils as ut
 import numpy as np
+import itertools
 
-if __name__ == '__main__':
+
+def launch_exp(ps_r=True, ps_act=True, bl_dur=200):
     alg = 'a2c'
     env = 'RDM-v0'
     net = 'cont_rnn'
-    nsteps = 100
-    tot_num_stps = 1e9
+    nsteps = 20
+    tot_num_stps = 100  # 3e6
     li = 5e3
     ent_coef = 0.1
     lr = 1e-3
     lr_sch = 'constant'
     gamma = 0.9
     num_env = 12
-    nlstm = 64
+    nlstm = 32
 
     if env == 'RDM-v0':
         timing = [100, 0, 0, 0, 100]
@@ -36,7 +38,7 @@ if __name__ == '__main__':
     trial_hist = True
     if trial_hist:
         rep_prob = (.2, .8)
-        bl_dur = 200
+        bl_dur = bl_dur
         tr_h_flag = '_TH_' + ut.list_str(rep_prob) + '_' + str(bl_dur)
         tr_h_cmmd = ' --trial_hist=True --bl_dur=' + str(bl_dur) +\
             ' --rep_prob '
@@ -46,7 +48,7 @@ if __name__ == '__main__':
         tr_h_flag = ''
         tr_h_cmmd = ''
     # pass reward
-    pass_reward = True
+    pass_reward = ps_r
     if pass_reward:
         ps_rw_flag = '_PR'
         ps_rw_cmmd = ' --pass_reward=True'
@@ -54,7 +56,7 @@ if __name__ == '__main__':
         ps_rw_flag = ''
         ps_rw_cmmd = ''
     # pass action
-    pass_action = True
+    pass_action = ps_act
     if pass_action:
         ps_a_flag = '_PA'
         ps_a_cmmd = ' --pass_action=True'
@@ -96,4 +98,16 @@ if __name__ == '__main__':
               type(vars_[x]) == bool or type(vars_[x]) == list or
               type(vars_[x]) == tuple}
     np.savez(save_path + '/params.npz', ** params)
-    os.system(command)
+    return command
+
+
+if __name__ == '__main__':
+    pass_reward = [True, False]
+    pass_action = [True, False]
+    bl_dur = [50, 200, 1000]
+    params_config = itertools.product(pass_reward, pass_action, bl_dur)
+    batch_command = ''
+    for conf in params_config:
+        cmmd = launch_exp(ps_r=conf[0], ps_act=conf[1], bl_dur=conf[2])
+        batch_command += cmmd + '\n'
+    os.system(batch_command)
