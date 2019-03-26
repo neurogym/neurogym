@@ -16,11 +16,7 @@ def launch_exp(ps_r=True, ps_act=True, bl_dur=200):
     env = 'RDM-v0'
     net = 'cont_rnn'
     nsteps = 20
-<<<<<<< HEAD
-    tot_num_stps = 1e9
-=======
-    tot_num_stps = 100  # 3e6
->>>>>>> 6f678fd1cf8cac77c148793bb0f409d62ba0fcea
+    tot_num_stps = 3e6
     li = 5e3
     ent_coef = 0.1
     lr = 1e-3
