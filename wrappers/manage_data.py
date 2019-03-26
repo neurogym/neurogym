@@ -17,7 +17,7 @@ class manage_data(Wrapper):
     modfies a given environment by changing the probability of repeating the
     previous correct response
     """
-    def __init__(self, env, inst=0, plt_tr=True):
+    def __init__(self, env, inst=0, plt_tr=True, folder=None):
         Wrapper.__init__(self, env=env)
         self.env = env
         self.action_space = self.env.action_space
@@ -37,12 +37,15 @@ class manage_data(Wrapper):
         self.plt_tr = plt_tr
         if self.plt_tr:
             self.fig, self.ax = plt.subplots(self.num_subplots, 1)
-        self.tmp_folder = "../tmp/"
-        if not os.path.exists(self.tmp_folder):
-            os.mkdir(self.tmp_folder)
+        if folder is not None:
+            self.folder = folder
+        else:
+            self.folder = "../tmp/"
+        if not os.path.exists(self.folder):
+            os.mkdir(self.folder)
         # seeding
         self.env.seed()
-        self.saving_name = self.tmp_folder +\
+        self.saving_name = self.folder +\
             self.env.__class__.__name__ + str(inst)
 
     def reset(self):

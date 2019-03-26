@@ -40,5 +40,6 @@ def build_env(env_id, inst=0, **all_args):
             env = pass_reward.PassReward(env)
         if all_args['pass_action']:
             env = pass_action.PassAction(env)
-        env = manage_data.manage_data(env, inst=inst)
+        env = manage_data.manage_data(env, inst=inst,
+                                      folder=all_args['save_path'])
     return env
