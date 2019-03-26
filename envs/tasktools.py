@@ -46,7 +46,7 @@ def truncated_exponential(rng, dt, mean, xmin=0, xmax=np.inf):
     """
     function for generating epoch durations that are multiples of the time step
     """
-    if xmin == xmax:
+    if xmin >= xmax:  # the > is to avoid issues when making xmin as big as dt
         return (xmin//dt)*dt
     else:
         while True:
