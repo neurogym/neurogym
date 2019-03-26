@@ -41,10 +41,10 @@ class RDM(ngym.ngym):
         self.sigma = np.sqrt(2*100*0.01)
 
         # Durations
-        self.fixation = 0
-        self.stimulus_min = 100  # 80
-        self.stimulus_mean = 100  # 330
-        self.stimulus_max = 100  # 1500
+        self.fixation = 100
+        self.stimulus_min = 0  # 80
+        self.stimulus_mean = 0  # 330
+        self.stimulus_max = 0  # 1500
         self.decision = 100  # 500
         self.mean_trial_duration = self.fixation + self.stimulus_mean +\
             self.decision
