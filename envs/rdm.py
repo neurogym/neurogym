@@ -24,7 +24,7 @@ import ngym
 
 
 class RDM(ngym.ngym):
-    def __init__(self, dt=100, **kwargs):
+    def __init__(self, dt=100, timing=[500, 80, 330, 1500, 500], **kwargs):
         super().__init__(dt=dt)
         # Inputs
         self.inputs = tasktools.to_map('FIXATION', 'LEFT', 'RIGHT')
@@ -35,17 +35,17 @@ class RDM(ngym.ngym):
 
         # trial conditions
         self.choices = [-1, 1]
-        self.cohs = np.array([0])  # np.array([0, 6.4, 12.8, 25.6, 51.2])
+        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])
 
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
 
         # Durations
-        self.fixation = 100
-        self.stimulus_min = 0  # 80
-        self.stimulus_mean = 0  # 330
-        self.stimulus_max = 0  # 1500
-        self.decision = 100  # 500
+        self.fixation = timing[0]
+        self.stimulus_min = timing[1]
+        self.stimulus_mean = timing[2]
+        self.stimulus_max = timing[3]
+        self.decision = timing[4]
         self.mean_trial_duration = self.fixation + self.stimulus_mean +\
             self.decision
         print('mean trial duration: ' + str(self.mean_trial_duration) +

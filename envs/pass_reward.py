@@ -15,8 +15,8 @@ from gym import spaces
 
 class PassReward(Wrapper):
     """
-    modfies a given environment by changing the probability of repeating the
-    previous correct response
+    modfies a given observation by adding the reward corresponding to 
+    the previous action
     """
     def __init__(self, env):
         Wrapper.__init__(self, env=env)
