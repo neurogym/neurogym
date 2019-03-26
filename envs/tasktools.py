@@ -86,7 +86,7 @@ def new_trial(t, tmax, dt, trial_continue, miss, reward):
     # new trial?
     # tmax should the current tmax and not the general one
     new_trial = False
-    if t > tmax and trial_continue:
+    if t >= tmax and trial_continue:
         reward = miss
         new_trial = True
     elif not trial_continue:
