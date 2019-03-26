@@ -32,8 +32,8 @@ def build_env(env_id, inst=0, **all_args):
     else:
         env = gym.make(env_id, **env_args)
         if all_args['trial_hist']:
-            env = trial_hist.TrialHistory(env, rep_prob=all_args.rep_prob,
-                                          block_dur=all_args.bl_dur)
+            env = trial_hist.TrialHistory(env, rep_prob=all_args['rep_prob'],
+                                          block_dur=all_args['bl_dur'])
         if all_args['reaction_time']:
             env = reaction_time.ReactionTime(env)
         if all_args['pass_reward']:
