@@ -26,7 +26,7 @@ if __name__ == '__main__':
     if env == 'RDM-v0':
         timing = [100, 0, 0, 0, 100]
         timing_flag = '_t_' + ut.list_str(timing)
-        timing_cmmd = ' --timing='
+        timing_cmmd = ' --timing '
         for ind_t in range(len(timing)):
             timing_cmmd += str(timing[ind_t]) + ' '
     else:
@@ -39,7 +39,7 @@ if __name__ == '__main__':
         bl_dur = 200
         tr_h_flag = '_TH_' + ut.list_str(rep_prob) + '_' + str(bl_dur)
         tr_h_cmmd = ' --trial_hist=True --bl_dur=' + str(bl_dur) +\
-            ' --rep_prob='
+            ' --rep_prob '
         for ind_rp in range(len(rep_prob)):
             tr_h_cmmd += str(rep_prob[ind_rp]) + ' '
     else:
