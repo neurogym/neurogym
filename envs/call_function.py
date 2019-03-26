@@ -13,7 +13,7 @@ if __name__ == '__main__':
     alg = 'a2c'
     env = 'RDM-v0'
     net = 'cont_rnn'
-    nsteps = 100
+    nsteps = 20
     tot_num_stps = 1e9
     li = 5e3
     ent_coef = 0.1
@@ -21,7 +21,7 @@ if __name__ == '__main__':
     lr_sch = 'constant'
     gamma = 0.9
     num_env = 12
-    nlstm = 64
+    nlstm = 32
 
     if env == 'RDM-v0':
         timing = [100, 0, 0, 0, 100]
