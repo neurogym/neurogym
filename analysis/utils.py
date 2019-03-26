@@ -48,7 +48,12 @@ def num2str(num):
     """
     pass big number to thousands
     """
-    return str(int(num/1000))+'K'
+    string = ''
+    while num/1000 >= 1:
+        string += 'K'
+        num = num/1000
+    string = str(int(num)) + string
+    return string
 
 
 def rm_lines():
