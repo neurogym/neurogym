@@ -1,9 +1,9 @@
-from scipy.optimize import curve_fit
 from scipy.special import erf
 import utils as ut
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as sstats
+from scipy.optimize import curve_fit
 
 
 def plot_learning(performance, evidence, stim_position, action):
@@ -532,12 +532,13 @@ def get_transition_mat(choice, times=None, num_steps=None, conv_window=5):
 
 if __name__ == '__main__':
     plt.close('all')
-    neural_analysis_flag = True
+    neural_analysis_flag = False
     transition_analysis_flag = False
     bias_analysis_flag = False
     behavior_analysis_flag = False
     test_bias_flag = False
     bias_cond_on_history_flag = False
+    no_stim_analysis_flag = True
     if neural_analysis_flag:
         states, rewards, actions, obs, trials = get_simulation_vars()
 
@@ -847,6 +848,7 @@ if __name__ == '__main__':
         performance = (choice == correct_side)
         evidence = stimulus[:, 1] - stimulus[:, 2]
         evidence = np.reshape(evidence, (1, len(evidence)))
+        # BIAS CONDITIONED ON TRANSITION HISTORY (NUMBER OF REPETITIONS)
         num_tr = 2000000
         start_point = performance.shape[1]-num_tr
         ev = evidence[:, start_point:start_point+num_tr]
@@ -854,7 +856,6 @@ if __name__ == '__main__':
         ch = choice[:, start_point:start_point+num_tr]
         ch = np.reshape(ch, (ch.shape[1],))
         ev = np.reshape(ev, (ev.shape[1],))
-        # BIAS CONDITIONED ON TRANSITION HISTORY (NUMBER OF REPETITIONS)
         conv_window = 8
         margin = 2
         transitions = get_transition_mat(ch, conv_window=conv_window)
@@ -887,3 +888,100 @@ if __name__ == '__main__':
             plt.xlim([-1.5, 1.5])
             plt.legend(loc="lower right")
             plot_dashed_lines(-np.max(evidence), np.max(evidence))
+    if no_stim_analysis_flag:
+        data = np.load('/home/linux/PassAction.npz')
+        choice = data['choice']
+        stimulus = data['stimulus']
+        correct_side = data['correct_side']
+        correct_side = np.reshape(correct_side, (1, len(correct_side)))
+        correct_side[np.where(correct_side == -1)] = 2
+        correct_side = np.abs(correct_side-3)
+        choice = np.reshape(choice, (1, len(choice)))
+        performance = (choice == correct_side)
+        evidence = stimulus[:, 1] - stimulus[:, 2]
+        evidence = np.reshape(evidence, (1, len(evidence)))
+        # plot performance
+        num_tr = 300000
+        start_point = 50000
+        f = ut.get_fig()
+        plot_learning(performance[:, start_point:start_point+num_tr],
+                      evidence[:, start_point:start_point+num_tr],
+                      correct_side[:, start_point:start_point+num_tr],
+                      choice[:, start_point:start_point+num_tr])
+
+        # plot performance last training stage
+        f = ut.get_fig()
+        num_tr = 20000
+        start_point = performance.shape[1]-num_tr
+        plot_learning(performance[:, start_point:start_point+num_tr],
+                      evidence[:, start_point:start_point+num_tr],
+                      correct_side[:, start_point:start_point+num_tr],
+                      choice[:, start_point:start_point+num_tr])
+        # plot trials
+        correct_side_plt = correct_side[:, :400]
+        f = ut.get_fig()
+        plt.imshow(correct_side_plt, aspect='auto')
+
+        # compute bias across training
+        labels = ['error', 'correct']
+        per = 10000
+        conv_window = 8
+        margin = 2
+        num_stps = int(choice.shape[1] / per)
+        mat_biases = np.empty((num_stps, conv_window-2*margin+1, 2, 2))
+        for ind_stp in range(num_stps):
+            start = per*ind_stp
+            end = per*(ind_stp+1)
+            perf = performance[:, start:end]
+            # correct side transition history
+            cs = correct_side[:, start:end]
+            cs = np.reshape(cs, (cs.shape[1],))
+            rand_ch = np.array(np.random.choice([0, 1])).reshape(1,)
+            repeat = np.concatenate((rand_ch, cs))
+            repeat = (np.diff(repeat) == 0)*1
+            transitions = get_transition_mat(cs, conv_window=conv_window)
+            values = np.unique(transitions)
+            # choice repeating
+            ch = choice[:, start:end]
+            ch = np.reshape(ch, (ch.shape[1],))
+            rand_ch = np.array(np.random.choice([0, 1])).reshape(1,)
+            repeat_choice = np.concatenate((rand_ch, ch))
+            repeat_choice = (np.diff(repeat_choice) == 0)*1
+            # previous performance
+            rand_perf = np.array(np.random.choice([0, 1])).reshape(1,)
+            prev_perf = np.concatenate((rand_perf, perf[0, :-1]))
+            for ind_perf in reversed(range(2)):
+                for ind_tr in range(margin, values.shape[0]-margin):
+                    mask = np.logical_and(transitions == values[ind_tr],
+                                          prev_perf == ind_perf)
+                    rp_mask = repeat_choice[mask]
+                    mat_biases[ind_stp, ind_tr-margin, ind_perf, 0] =\
+                        np.mean(rp_mask)
+                    mat_biases[ind_stp, ind_tr-margin, ind_perf, 1] =\
+                        np.std(rp_mask)/np.sqrt(rp_mask.shape[0])
+                    print('bias ' + str(values[ind_tr]) +
+                          ' repeatitions after ' +
+                          labels[ind_perf] + ':')
+                    print(np.mean(rp_mask))
+        ut.get_fig()
+        for ind_perf in range(2):
+            plt.subplot(1, 2, int(not(ind_perf))+1)
+            plt.title('after ' + labels[ind_perf])
+            for ind_tr in range(margin, values.shape[0]-margin):
+                aux_color = (ind_tr-margin)/(values.shape[0]-2*margin-1)
+                color = np.array((1-aux_color, 0, aux_color))
+                mean_ = mat_biases[:, ind_tr-margin, ind_perf, 0]
+                std_ = mat_biases[:, ind_tr-margin, ind_perf, 1]
+                plt.errorbar(np.arange(mean_.shape[0]),
+                             mean_, std_, color=color)
+                if ind_perf == 0:
+                    plt.subplot(1, 2, 1)
+                    aux_color = (ind_tr-margin)/(values.shape[0]-2*margin-1)
+                    color = np.array((1-aux_color, 0, aux_color)) +\
+                        (1-ind_perf)*0.8
+                    color[np.where(color > 1)] = 1
+                    mean_ = mat_biases[:, ind_tr-margin, ind_perf, 0]
+                    std_ = mat_biases[:, ind_tr-margin, ind_perf, 1]
+                    plt.errorbar(np.arange(mean_.shape[0]),
+                                 mean_, std_, color=color)
+                    plt.subplot(1, 2, 2)
