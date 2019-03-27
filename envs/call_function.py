@@ -109,7 +109,8 @@ if __name__ == '__main__':
     pass_action = [True]
     bl_dur = [200]
     num_units = [64, 32, 16, 8, 4]
-    params_config = itertools.product(pass_reward, pass_action, bl_dur)
+    params_config = itertools.product(pass_reward, pass_action, bl_dur,
+                                      num_units)
     batch_command = ''
     for conf in params_config:
         cmmd = build_command(ps_r=conf[0], ps_act=conf[1], bl_dur=conf[2],
