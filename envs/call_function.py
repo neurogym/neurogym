@@ -11,7 +11,7 @@ import numpy as np
 import itertools
 
 
-def launch_exp(ps_r=True, ps_act=True, bl_dur=200):
+def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32):
     alg = 'a2c'
     env = 'RDM-v0'
     net = 'cont_rnn'
@@ -26,7 +26,7 @@ def launch_exp(ps_r=True, ps_act=True, bl_dur=200):
     lr = 1e-3
     lr_sch = 'constant'
     gamma = 0.9
-    nlstm = 32
+    nlstm = num_u
 
     if env == 'RDM-v0':
         timing = [100, 0, 0, 0, 100]
@@ -105,12 +105,14 @@ def launch_exp(ps_r=True, ps_act=True, bl_dur=200):
 
 
 if __name__ == '__main__':
-    pass_reward = [True, False]
-    pass_action = [True, False]
-    bl_dur = [50, 200, 1000]
+    pass_reward = [True]
+    pass_action = [True]
+    bl_dur = [200]
+    num_units = [64, 32, 16, 8, 4]
     params_config = itertools.product(pass_reward, pass_action, bl_dur)
     batch_command = ''
     for conf in params_config:
-        cmmd = launch_exp(ps_r=conf[0], ps_act=conf[1], bl_dur=conf[2])
+        cmmd = build_command(ps_r=conf[0], ps_act=conf[1], bl_dur=conf[2],
+                             num_u=conf[3])
         batch_command += cmmd + '\n'
     os.system(batch_command)
