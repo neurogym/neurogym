@@ -16,13 +16,16 @@ def launch_exp(ps_r=True, ps_act=True, bl_dur=200):
     env = 'RDM-v0'
     net = 'cont_rnn'
     nsteps = 20
-    tot_num_stps = 100  # 3e6
-    li = 5e3
+    num_env = 12
+    num_steps_per_env = 4e6
+    tot_num_stps = num_steps_per_env*num_env
+    num_loggings = 5
+    # data will only be saved for certain periods. The 4 acounts for that
+    li = tot_num_stps/(4*num_loggings*nsteps)
     ent_coef = 0.1
     lr = 1e-3
     lr_sch = 'constant'
     gamma = 0.9
-    num_env = 12
     nlstm = 32
 
     if env == 'RDM-v0':
