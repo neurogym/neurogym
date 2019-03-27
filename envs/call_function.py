@@ -14,7 +14,7 @@ import itertools
 def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32):
     alg = 'a2c'
     env = 'RDM-v0'
-    net = 'cont_rnn'
+    net = 'twin_net'
     nsteps = 20
     num_env = 12
     num_steps_per_env = 4e6
@@ -108,7 +108,7 @@ if __name__ == '__main__':
     pass_reward = [True]
     pass_action = [True]
     bl_dur = [200]
-    num_units = [64, 32, 16, 8, 4]
+    num_units = [32, 16, 8, 4]
     params_config = itertools.product(pass_reward, pass_action, bl_dur,
                                       num_units)
     batch_command = ''
