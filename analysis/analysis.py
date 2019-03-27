@@ -925,7 +925,7 @@ if __name__ == '__main__':
         # compute bias across training
         labels = ['error', 'correct']
         per = 10000
-        conv_window = 8
+        conv_window = 10
         margin = 2
         num_stps = int(choice.shape[1] / per)
         mat_biases = np.empty((num_stps, conv_window-2*margin+1, 2, 2))
@@ -965,7 +965,7 @@ if __name__ == '__main__':
                     print(np.mean(rp_mask))
         ut.get_fig()
         for ind_perf in range(2):
-            plt.subplot(1, 2, int(not(ind_perf))+1)
+            plt.subplot(2, 1, int(not(ind_perf))+1)
             plt.title('after ' + labels[ind_perf])
             for ind_tr in range(margin, values.shape[0]-margin):
                 aux_color = (ind_tr-margin)/(values.shape[0]-2*margin-1)
@@ -975,7 +975,7 @@ if __name__ == '__main__':
                 plt.errorbar(np.arange(mean_.shape[0]),
                              mean_, std_, color=color)
                 if ind_perf == 0:
-                    plt.subplot(1, 2, 1)
+                    plt.subplot(2, 1, 1)
                     aux_color = (ind_tr-margin)/(values.shape[0]-2*margin-1)
                     color = np.array((1-aux_color, 0, aux_color)) +\
                         (1-ind_perf)*0.8
@@ -984,4 +984,11 @@ if __name__ == '__main__':
                     std_ = mat_biases[:, ind_tr-margin, ind_perf, 1]
                     plt.errorbar(np.arange(mean_.shape[0]),
                                  mean_, std_, color=color)
-                    plt.subplot(1, 2, 2)
+                    plt.subplot(2, 1, 2)
+            plt.plot([0, mean_.shape[0]], [0, 0], '--', color=(.7, .7, .7))
+            plt.plot([0, mean_.shape[0]], [0.25, 0.25], '--',
+                     color=(.7, .7, .7))
+            plt.plot([0, mean_.shape[0]], [0.5, 0.5], '--', color=(.7, .7, .7))
+            plt.plot([0, mean_.shape[0]], [0.75, 0.75], '--',
+                     color=(.7, .7, .7))
+            plt.plot([0, mean_.shape[0]], [1, 1], '--', color=(.7, .7, .7))
