@@ -21,7 +21,7 @@ def launch_exp(ps_r=True, ps_act=True, bl_dur=200):
     tot_num_stps = num_steps_per_env*num_env
     num_loggings = 5
     # data will only be saved for certain periods. The 4 acounts for that
-    li = tot_num_stps/(4*num_loggings*nsteps)
+    li = tot_num_stps/(4*num_loggings*nsteps*num_env)
     ent_coef = 0.1
     lr = 1e-3
     lr_sch = 'constant'
