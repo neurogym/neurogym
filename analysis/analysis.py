@@ -1,9 +1,11 @@
 from scipy.special import erf
 import utils as ut
 import numpy as np
-import matplotlib.pyplot as plt
 import scipy.stats as sstats
 from scipy.optimize import curve_fit
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 display_mode = True
 
 
