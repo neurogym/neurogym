@@ -9,6 +9,8 @@ import os
 import utils as ut
 import numpy as np
 import itertools
+import matplotlib
+matplotlib.use('Agg')
 
 
 def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32):
