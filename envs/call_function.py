@@ -29,7 +29,7 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32):
     nlstm = num_u
 
     if env == 'RDM-v0':
-        timing = [100, 0, 0, 0, 100]
+        timing = [100, 300, 300, 300, 100]
         timing_flag = '_t_' + ut.list_str(timing)
         timing_cmmd = ' --timing '
         for ind_t in range(len(timing)):
@@ -108,7 +108,7 @@ if __name__ == '__main__':
     pass_reward = [True]
     pass_action = [True]
     bl_dur = [200]
-    num_units = [32, 16, 8, 4]
+    num_units = [16, 8, 4]
     params_config = itertools.product(pass_reward, pass_action, bl_dur,
                                       num_units)
     batch_command = ''
