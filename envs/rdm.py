@@ -182,7 +182,6 @@ class RDM(ngym.ngym):
             self.perf, self.num_tr_perf =\
                 tasktools.compute_perf(self.perf, reward,
                                        self.num_tr_perf, tr_perf)
-            self.trial = self._new_trial()  # TODO: this line is redundant
         else:
             self.t += self.dt
 

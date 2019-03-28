@@ -178,7 +178,6 @@ class Romo(ngym.ngym):
                 tasktools.compute_perf(self.perf, reward,
                                        self.num_tr_perf,
                                        tr_perf)
-            self.trial = self._new_trial()
         else:
             self.t += self.dt
 
