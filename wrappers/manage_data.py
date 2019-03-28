@@ -9,6 +9,7 @@ Created on Mon Mar  4 12:41:52 2019
 from gym.core import Wrapper
 import os
 import numpy as np
+import analysis
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -22,6 +23,7 @@ class manage_data(Wrapper):
     def __init__(self, env, inst=0, plt_tr=True, folder=None):
         Wrapper.__init__(self, env=env)
         self.env = env
+        self.inst = inst
         self.action_space = self.env.action_space
         self.observation_space = self.env.observation_space
         # data to save
@@ -48,7 +50,7 @@ class manage_data(Wrapper):
         # seeding
         self.env.seed()
         self.saving_name = self.folder +\
-            self.env.__class__.__name__ + str(inst)
+            self.env.__class__.__name__ + str(self.inst)
 
     def reset(self):
         if len(self.rew_mat) > 0:
@@ -56,6 +58,9 @@ class manage_data(Wrapper):
                     'correct_side': self.side_mat, 'obs_mat': self.obs_mat,
                     'act_mat': self.act_mat, 'rew_mat': self.rew_mat}
             np.savez(self.saving_name + '_data.npz', **data)
+            if len(self.side_mat) != 0 and self.inst == 0:
+                analysis.no_stim_analysis(file=self.saving_name + '_data.npz',
+                                          save_path=self.saving_name)
             if self.plt_tr:
                 self.render()
 
