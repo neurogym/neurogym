@@ -59,8 +59,12 @@ class manage_data(Wrapper):
                     'act_mat': self.act_mat, 'rew_mat': self.rew_mat}
             np.savez(self.saving_name + '_data.npz', **data)
             if len(self.side_mat) != 0 and self.inst == 0:
-                analysis.no_stim_analysis(file=self.saving_name + '_data.npz',
-                                          save_path=self.saving_name)
+                try:
+                    analysis.no_stim_analysis(file=self.saving_name +
+                                              '_data.npz',
+                                              save_path=self.saving_name)
+                except Exception:
+                    print('could not perform the analysis')
             if self.plt_tr:
                 self.render()
 
