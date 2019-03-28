@@ -13,13 +13,14 @@ import matplotlib
 matplotlib.use('Agg')
 
 
-def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32):
+def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32,
+                  net_type='twin_net'):
     alg = 'a2c'
     env = 'RDM-v0'
-    net = 'twin_net'
+    net = net_type
     nsteps = 20
     num_env = 12
-    num_steps_per_env = 1e7
+    num_steps_per_env = 1e8
     tot_num_stps = num_steps_per_env*num_env
     num_loggings = 5
     # data will only be saved for certain periods. The 4 acounts for that
@@ -110,12 +111,13 @@ if __name__ == '__main__':
     pass_reward = [True]
     pass_action = [True]
     bl_dur = [200]
-    num_units = [16, 8, 4]
+    num_units = [8]
+    net_type = ['twin_net', 'cont_rnn']
     params_config = itertools.product(pass_reward, pass_action, bl_dur,
-                                      num_units)
+                                      num_units, net_type)
     batch_command = ''
     for conf in params_config:
         cmmd = build_command(ps_r=conf[0], ps_act=conf[1], bl_dur=conf[2],
-                             num_u=conf[3])
+                             num_u=conf[3], net_type=conf[4])
         batch_command += cmmd + '\n'
     os.system(batch_command)
