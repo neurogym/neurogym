@@ -8,8 +8,10 @@ Created on Mon Mar  4 12:41:52 2019
 
 from gym.core import Wrapper
 import os
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 
 class manage_data(Wrapper):
