@@ -29,6 +29,7 @@ class manage_data(Wrapper):
         # data to save
         self.choice_mat = []
         self.side_mat = []
+        self.rep_prob_mat = []
         self.stim_mat = []
         self.cum_obs = 0
         # for rendering
@@ -56,7 +57,8 @@ class manage_data(Wrapper):
         if len(self.rew_mat) > 0:
             data = {'choice': self.choice_mat, 'stimulus': self.stim_mat,
                     'correct_side': self.side_mat, 'obs_mat': self.obs_mat,
-                    'act_mat': self.act_mat, 'rew_mat': self.rew_mat}
+                    'act_mat': self.act_mat, 'rew_mat': self.rew_mat,
+                    'rep_prob': self.rep_prob_mat}
             np.savez(self.saving_name + '_data.npz', **data)
             if len(self.side_mat) != 0 and self.inst == 0:
                 try:
@@ -82,6 +84,8 @@ class manage_data(Wrapper):
             self.cum_obs = 0
             if 'gt' in info.keys():
                 self.side_mat.append(info['gt'])
+            if 'rep_prob' in info.keys():
+                self.rep_prob_mat.append(info['rep_prob'])
 
         self.store_data(obs, action, rew)
         return obs, rew, done, info
