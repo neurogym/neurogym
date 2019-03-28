@@ -19,7 +19,7 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32):
     net = 'twin_net'
     nsteps = 20
     num_env = 12
-    num_steps_per_env = 4e6
+    num_steps_per_env = 1e7
     tot_num_stps = num_steps_per_env*num_env
     num_loggings = 5
     # data will only be saved for certain periods. The 4 acounts for that

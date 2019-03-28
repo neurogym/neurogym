@@ -975,6 +975,7 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path=''):
                   choice[:, start_point:start_point+num_tr])
     if save_path != '':
         f.savefig(save_path + 'init_perf.png', dpi=200, bbox_inches='tight')
+    plt.close(f)
     # plot performance last training stage
     f = ut.get_fig(display_mode)
     num_tr = 20000
@@ -985,6 +986,7 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path=''):
                   choice[:, start_point:start_point+num_tr])
     if save_path != '':
         f.savefig(save_path + 'final_perf.png', dpi=200, bbox_inches='tight')
+    plt.close(f)
     # plot trials
     correct_side_plt = correct_side[:, :400]
     f = ut.get_fig(display_mode)
@@ -992,9 +994,10 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path=''):
     if save_path != '':
         f.savefig(save_path + 'first_400_trials.png',
                   dpi=200, bbox_inches='tight')
+    plt.close(f)
     # compute bias across training
     labels = ['error', 'correct']
-    per = 100000
+    per = 10000
     conv_window = 8
     margin = 2
     num_stps = int(choice.shape[1] / per)
@@ -1067,20 +1070,21 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path=''):
     if save_path != '':
         f.savefig(save_path + 'bias_evolution.png',
                   dpi=200, bbox_inches='tight')
+    plt.close(f)
 
 
 if __name__ == '__main__':
     plt.close('all')
-    #    file = '/home/linux/network_data_492999.npz'
-    #    fig = False
-    #    n_envs = 12
-    #    env = 0
-    #    num_steps = 100
-    #    obs_size = 4
-    #    num_units = 128
-    #    neural_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-    #                    num_steps=num_steps, obs_size=obs_size,
-    #                    num_units=num_units)
+    file = '/home/linux/network_data_169999.npz'
+    fig = True
+    n_envs = 12
+    env = 0
+    num_steps = 20
+    obs_size = 5
+    num_units = 32
+    neural_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+                    num_steps=num_steps, obs_size=obs_size,
+                    num_units=num_units)
     #    transition_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
     #                        num_steps=num_steps, obs_size=obs_size,
     #                        num_units=num_units)
@@ -1090,5 +1094,5 @@ if __name__ == '__main__':
     #    behavior_analysis(file='/home/linux/PassReward0_data.npz')
     #    bias_cond_on_history(file='/home/linux/PassReward0_data.npz')
     # no_stim_analysis(file='/home/linux/PassAction.npz')
-    no_stim_analysis(file='/home/linux/PassReward0_data.npz',
+    no_stim_analysis(file='/home/linux/PassAction0_data.npz',
                      save_path='/home/linux/')
