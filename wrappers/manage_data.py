@@ -102,7 +102,8 @@ class manage_data(Wrapper):
         self.ax[2].plot(np.arange(1, len(self.act_mat)+1)+0.5, self.rew_mat)
         self.ax[2].set_ylabel('reward')
         self.ax[2].set_xlim([0, self.max_num_samples+0.5])
-        self.fig.savefig(self.saving_name + '_trials.png')
+        if self.inst == 0:
+            self.fig.savefig(self.saving_name + '_trials.png')
         self.ax[0].cla()
         self.ax[1].cla()
         self.ax[2].cla()
