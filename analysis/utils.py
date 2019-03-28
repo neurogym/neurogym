@@ -1,5 +1,3 @@
-import matplotlib
-import matplotlib.pyplot as plt
 import numpy as np
 import os
 import difflib
@@ -60,6 +58,7 @@ def rm_lines():
     """
     remove all lines from the current axis
     """
+    import matplotlib.pyplot as plt
     ax = plt.gca()
     ax.clear()
 
@@ -69,6 +68,7 @@ def plot_trials_start(trials, minimo, maximo, num_steps, color='k'):
     plot dashed lines that indicate the end of the current trial
     and the start of the next one
     """
+    import matplotlib.pyplot as plt
     trials = np.nonzero(trials)[0] - 0.5
     cond = np.logical_and(trials >= 0, trials <= num_steps)
     trials = trials[np.where(cond)]
@@ -103,7 +103,13 @@ def color_axis(ax, color='r'):
     ax.spines['left'].set_color(color)
 
 
-def get_fig():
+def get_fig(display_mode=True):
+    import matplotlib
+    if display_mode:
+        matplotlib.use('Qt5Agg')
+    else:
+        matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
     left = 0.125  # the left side of the subplots of the figure
     right = 0.9  # the right side of the subplots of the figure
     bottom = 0.1  # the bottom of the subplots of the figure
