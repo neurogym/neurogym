@@ -50,9 +50,7 @@ class MatchingPenny(ngym.ngym):
 
     def _step(self, action):
         trial = self.trial
-        info = {'continue': True}
         tr_perf = True
-
         obs = np.zeros(self.observation_space.shape)
         obs[trial['opponent_action']] = 1.
         if action == trial['opponent_action']:
@@ -63,7 +61,7 @@ class MatchingPenny(ngym.ngym):
         # ---------------------------------------------------------------------
         # new trial?
         new_trial = True
-        info['new_trial'] = True
+        info = {'new_trial': True}
         self.t = 0
         self.num_tr += 1
         # compute perf

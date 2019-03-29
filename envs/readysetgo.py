@@ -97,31 +97,27 @@ class ReadySetGo(ngym.ngym):
         # Reward
         # ---------------------------------------------------------------------
         trial = self.trial
-        info = {'continue': True}
+        info = {'new_trial': False}
         reward = 0
         tr_perf = False
         if self.in_epoch(self.t, 'fixation'):
             if (action != self.actions['FIXATE']):
-                info['continue'] = not self.abort
+                info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         if self.in_epoch(self.t, 'production'):
             if action == self.actions['GO']:
-                info['continue'] = False  # terminate
+                info['new_trial'] = True  # terminate
                 # actual production time
                 t_prod = self.t - trial['durations']['measure'][1]
                 eps = abs(t_prod - trial['production'])
                 eps_threshold = 0.2*trial['production']+25
                 if eps > eps_threshold:
-                    info['correct'] = False
                     reward = self.R_FAIL
                 else:
-                    info['correct'] = True
                     reward = (1. - eps/eps_threshold)**1.5
                     reward = min(reward, 0.1)
                     reward *= self.R_CORRECT
                 tr_perf = True
-
-                info['t_choice'] = self.t
 
         # ---------------------------------------------------------------------
         # Inputs
@@ -137,7 +133,7 @@ class ReadySetGo(ngym.ngym):
         # ---------------------------------------------------------------------
         # new trial?
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                info['continue'],
+                                                info['new_trial'],
                                                 self.R_MISS, reward)
 
         if new_trial:

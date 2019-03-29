@@ -89,21 +89,18 @@ class DelayedMatchToSample(ngym.ngym):
         # Reward
         # ---------------------------------------------------------------------
         trial = self.trial
-        info = {'continue': True}
+        info = {'new_trial': False}
         reward = 0
         tr_perf = False
         if self.in_epoch(self.t, 'fixation'):
             if (action != self.actions['FIXATE']):
-                info['continue'] = not self.abort
+                info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         if self.in_epoch(self.t, 'decision'):
             if action != self.actions['FIXATE']:
                 tr_perf = True
-                info['continue'] = False
-                info['choice'] = action
-                info['t_choice'] = self.t
-                info['correct'] = (action == self.actions[trial['match']])
-                if info['correct']:
+                info['new_trial'] = True
+                if (action == self.actions[trial['match']]):
                     reward = self.R_CORRECT
                 else:
                     reward = self.R_FAIL
@@ -122,7 +119,7 @@ class DelayedMatchToSample(ngym.ngym):
         # ---------------------------------------------------------------------
         # new trial?
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                info['continue'],
+                                                info['new_trial'],
                                                 self.R_MISS, reward)
 
         if new_trial:

@@ -118,23 +118,20 @@ class DPA(ngym.ngym):
         # Reward
         # ---------------------------------------------------------------------
         # epochs = trial['epochs']
-        info = {'continue': True}
+        info = {'new_trial': False}
         reward = 0
         tr_perf = False
         # if self.t not in epochs['decision']:
         if self.in_epoch(self.t, 'fixation'):
             if (action != self.actions['NO_GO']):
-                info['continue'] = not self.abort
-                info['choice'] = None
+                info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         if self.in_epoch(self.t, 'decision'):
             # print('decision period')
             if action == self.actions['GO']:
                 tr_perf = True
-                info['continue'] = False
-                info['choice'] = 'GO'
-                info['correct'] = (trial['ground_truth'] == 'GO')
-                if info['correct']:
+                info['new_trial'] = True
+                if (trial['ground_truth'] == 'GO'):
                     reward = self.R_CORRECT
                 else:
                     reward = self.R_INCORRECT
@@ -157,7 +154,7 @@ class DPA(ngym.ngym):
         # ---------------------------------------------------------------------
         # new trial?
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                info['continue'],
+                                                info['new_trial'],
                                                 self.R_MISS, reward)
 
         if new_trial:

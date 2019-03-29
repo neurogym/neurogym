@@ -123,20 +123,19 @@ class PadoaSch(ngym.ngym):
         # ---------------------------------------------------------------------
 
         # epochs = trial['epochs']
-        info = {'continue': True}
+        info = {'new_trial': False}
         reward = 0
         tr_perf = False
         if (self.in_epoch(self.t, 'fixation') or
                 self.in_epoch(self.t, 'offer-on')):
             if (action != self.actions['FIXATE']):
-                info['continue'] = not self.abort
+                info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         if self.in_epoch(self.t, 'decision'):
             if action in [self.actions['CHOOSE-LEFT'],
                           self.actions['CHOOSE-RIGHT']]:
                 tr_perf = True
-                info['continue'] = False
-                info['t_choice'] = self.t
+                info['new_trial'] = True
 
                 juiceL, juiceR = trial['juice']
 
@@ -150,18 +149,8 @@ class PadoaSch(ngym.ngym):
                     rL, rR = rB, rA
 
                 if action == self.actions['CHOOSE-LEFT']:
-                    if juiceL == 'A':
-                        info['choice'] = 'A'
-                    else:
-                        info['choice'] = 'B'
-                    info['correct'] = (rL >= rR)
                     reward = rL
                 elif action == self.actions['CHOOSE-RIGHT']:
-                    if juiceR == 'A':
-                        info['choice'] = 'A'
-                    else:
-                        info['choice'] = 'B'
-                    info['correct'] = (rR >= rL)
                     reward = rR
 
         # ---------------------------------------------------------------------
@@ -183,7 +172,7 @@ class PadoaSch(ngym.ngym):
         # ---------------------------------------------------------------------
         # new trial?
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                info['continue'],
+                                                info['new_trial'],
                                                 self.R_MISS, reward)
 
         if new_trial:

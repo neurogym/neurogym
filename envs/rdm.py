@@ -93,7 +93,7 @@ class RDM(ngym.ngym):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-        # TODO: We should allow ground_truth be provided as inputs to _new_trial
+        # TODO: allow ground_truth be provided as inputs to _new_trial
         ground_truth = tasktools.choice(self.rng, self.choices)
 
         coh = tasktools.choice(self.rng, self.cohs)
@@ -113,34 +113,28 @@ class RDM(ngym.ngym):
         # Reward
         # ---------------------------------------------------------------------
         trial = self.trial
-        info = {'continue': True}
+        info = {'new_trial': False}
 
         reward = 0
         tr_perf = False
         if self.in_epoch(self.t, 'fixation'):
             if (action != self.actions['FIXATE']):
-                info['continue'] = not self.abort
+                info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         # this is an if to allow multiple actions
         if self.in_epoch(self.t, 'decision'):
             # TODO: this part can be simplified
             if action == self.actions['CHOOSE-LEFT']:
                 tr_perf = True
-                info['continue'] = False
-                info['choice'] = 'L'
-                info['t_choice'] = self.t
-                info['correct'] = (trial['ground_truth'] < 0)
-                if info['correct']:
+                info['new_trial'] = True
+                if (trial['ground_truth'] < 0):
                     reward = self.R_CORRECT
                 else:
                     reward = self.R_FAIL
             elif action == self.actions['CHOOSE-RIGHT']:
                 tr_perf = True
-                info['continue'] = False
-                info['choice'] = 'R'
-                info['t_choice'] = self.t
-                info['correct'] = (trial['ground_truth'] > 0)
-                if info['correct']:
+                info['new_trial'] = True
+                if (trial['ground_truth'] > 0):
                     reward = self.R_CORRECT
                 else:
                     reward = self.R_FAIL
@@ -169,11 +163,11 @@ class RDM(ngym.ngym):
         # ---------------------------------------------------------------------
         # new trial?
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                info['continue'],
+                                                info['new_trial'],
                                                 self.R_MISS, reward)
 
         if new_trial:
-            info['new_trial'] = True  # TODO: Why do we need both continue and new_trial?
+            info['new_trial'] = True
             info['gt'] = trial['ground_truth']
             self.t = 0
             self.num_tr += 1

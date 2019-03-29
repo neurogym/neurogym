@@ -73,35 +73,31 @@ class Mante(ngym.ngym):
         rng = self.rng
 
         # epochs = trial['epochs']
-        info = {'continue': True}
+        info = {'new_trial': False}
         reward = 0
         tr_perf = False
         if self.in_epoch(self.t, 'fixation'):
             if (action != self.actions['FIXATE']):
-                info['continue'] = not self.abort
+                info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         if self.in_epoch(self.t, 'decision'):
             if action == self.actions['left']:
                 tr_perf = True
-                info['continue'] = False
-                info['choice'] = 'L'
-                info['t_choice'] = self.t
+                info['new_trial'] = True
                 if trial['context'] == 'm':
-                    info['correct'] = (trial['left_right_m'] < 0)
+                    correct = (trial['left_right_m'] < 0)
                 else:
-                    info['correct'] = (trial['left_right_c'] < 0)
-                if info['correct']:
+                    correct = (trial['left_right_c'] < 0)
+                if correct:
                     reward = self.R_CORRECT
             elif action == self.actions['right']:
                 tr_perf = True
-                info['continue'] = False
-                info['choice'] = 'R'
-                info['t_choice'] = self.t
+                info['new_trial'] = True
                 if trial['context'] == 'm':
-                    info['correct'] = (trial['left_right_m'] > 0)
+                    correct = (trial['left_right_m'] > 0)
                 else:
-                    info['correct'] = (trial['left_right_c'] > 0)
-                if info['correct']:
+                    correct = (trial['left_right_c'] > 0)
+                if correct:
                     reward = self.R_CORRECT
 
         # -------------------------------------------------------------------------------------
@@ -144,7 +140,7 @@ class Mante(ngym.ngym):
         # ---------------------------------------------------------------------
         # new trial?
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                info['continue'],
+                                                info['new_trial'],
                                                 self.R_MISS, reward)
 
         if new_trial:

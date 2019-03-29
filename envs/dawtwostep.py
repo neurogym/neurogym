@@ -85,7 +85,7 @@ class DawTwoStep(ngym.ngym):
 
     def _step(self, action):
         trial = self.trial
-        info = {'continue': True}
+        info = {'new_trial': False}
         reward = 0
         tr_perf = False
 
@@ -94,7 +94,7 @@ class DawTwoStep(ngym.ngym):
         if self.t == 0:  # at stage 1
             if action == self.actions['FIXATE']:
                 reward = self.R_ABORTED
-                info['continue'] = not self.abort
+                info['new_trial'] = self.abort
             else:
                 state = trial['transition'][action]
                 obs[state] = 1
@@ -105,14 +105,14 @@ class DawTwoStep(ngym.ngym):
                 reward = self.R_ABORTED
             else:
                 tr_perf = True
-            info['continue'] = False
+            info['new_trial'] = True
         else:
             raise ValueError('t is not 0 or 1')
 
         # ---------------------------------------------------------------------
         # new trial?
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                info['continue'],
+                                                info['new_trial'],
                                                 self.R_MISS, reward)
 
         # TODO: This is redundant, because it's moved to step
