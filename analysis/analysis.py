@@ -4,7 +4,7 @@ import numpy as np
 import scipy.stats as sstats
 from scipy.optimize import curve_fit
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use('Agg')  # Qt5Agg
 import matplotlib.pyplot as plt
 display_mode = True
 
@@ -799,14 +799,14 @@ def behavior_analysis(file='/home/linux/PassReward0_data.npz'):
     # plot performance
     num_tr = 300000
     start_point = 50000
-    f = ut.get_fig(display_mode)
+    ut.get_fig(display_mode)
     plot_learning(performance[:, start_point:start_point+num_tr],
                   evidence[:, start_point:start_point+num_tr],
                   correct_side[:, start_point:start_point+num_tr],
                   choice[:, start_point:start_point+num_tr])
 
     # plot performance last training stage
-    f = ut.get_fig(display_mode)
+    ut.get_fig(display_mode)
     num_tr = 20000
     start_point = performance.shape[1]-num_tr
     plot_learning(performance[:, start_point:start_point+num_tr],
@@ -815,7 +815,7 @@ def behavior_analysis(file='/home/linux/PassReward0_data.npz'):
                   choice[:, start_point:start_point+num_tr])
     # plot trials
     correct_side_plt = correct_side[:, :400]
-    f = ut.get_fig(display_mode)
+    ut.get_fig(display_mode)
     plt.imshow(correct_side_plt, aspect='auto')
 
     # compute bias across training
@@ -836,7 +836,7 @@ def behavior_analysis(file='/home/linux/PassReward0_data.npz'):
         bias_0_fail.append(data['popt_repProb_fails_0.0'][1])
         bias_1_fail.append(data['popt_repProb_fails_1.0'][1])
 
-    f = ut.get_fig(display_mode)
+    ut.get_fig(display_mode)
     plt.subplot(2, 2, 1)
     plt.plot(bias_0_hit)
     plt.title('block 0 after correct')
@@ -977,7 +977,7 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path=''):
                   choice[:, start_point:start_point+num_tr])
     if save_path != '':
         f.savefig(save_path + 'init_perf.png', dpi=200, bbox_inches='tight')
-    plt.close(f)
+        plt.close(f)
     # plot performance last training stage
     f = ut.get_fig(display_mode)
     num_tr = 20000
@@ -988,7 +988,14 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path=''):
                   choice[:, start_point:start_point+num_tr])
     if save_path != '':
         f.savefig(save_path + 'final_perf.png', dpi=200, bbox_inches='tight')
-    plt.close(f)
+        RNN_perf = np.mean(performance[:, 2000:].flatten())
+        print('-----------------------------------------------',
+              file=open(save_path + 'results', 'a'))
+        print('number of trials: ' + str(choice.shape[1]),
+              file=open(save_path + 'results', 'a'))
+        print('net perf: ' + str(round(RNN_perf, 3)),
+              file=open(save_path + 'results', 'a'))
+        plt.close(f)
     # plot trials
     correct_side_plt = correct_side[:, :400]
     f = ut.get_fig(display_mode)
@@ -996,7 +1003,7 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path=''):
     if save_path != '':
         f.savefig(save_path + 'first_400_trials.png',
                   dpi=200, bbox_inches='tight')
-    plt.close(f)
+        plt.close(f)
     # compute bias across training
     labels = ['error', 'correct']
     per = 10000
@@ -1017,6 +1024,7 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path=''):
         repeat = (np.diff(repeat) == 0)*1
         transitions = get_transition_mat(cs, conv_window=conv_window)
         values = np.unique(transitions)
+        max_tr = values.shape[0]-margin
         # choice repeating
         ch = choice[:, start:end]
         ch = np.reshape(ch, (ch.shape[1],))
@@ -1027,7 +1035,7 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path=''):
         rand_perf = np.array(np.random.choice([0, 1])).reshape(1,)
         prev_perf = np.concatenate((rand_perf, perf[0, :-1]))
         for ind_perf in reversed(range(2)):
-            for ind_tr in range(margin, values.shape[0]-margin):
+            for ind_tr in range(margin, max_tr):
                 mask = np.logical_and(transitions == values[ind_tr],
                                       prev_perf == ind_perf)
                 mask = np.logical_and(m_ev, mask)
@@ -1036,10 +1044,19 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path=''):
                     np.mean(rp_mask)
                 mat_biases[ind_stp, ind_tr-margin, ind_perf, 1] =\
                     np.std(rp_mask)/np.sqrt(rp_mask.shape[0])
-                print('bias ' + str(values[ind_tr]) +
-                      ' repeatitions after ' +
-                      labels[ind_perf] + ':')
-                print(np.mean(rp_mask))
+                if ind_stp == num_stps-1 and (ind_tr == margin or
+                                              ind_tr == max_tr-1):
+                    if save_path != '':
+                        print('bias ' + str(values[ind_tr]) +
+                              ' repeatitions after ' +
+                              labels[ind_perf] + ':',
+                              file=open(save_path + 'results', 'a'))
+                        print(np.mean(rp_mask),
+                              file=open(save_path + 'results', 'a'))
+                    else:
+                        print('bias ' + str(values[ind_tr]) +
+                              ' repeatitions after ' + labels[ind_perf] + ':')
+                        print(np.mean(rp_mask))
     f = ut.get_fig(display_mode)
     for ind_perf in range(2):
         plt.subplot(2, 1, int(not(ind_perf))+1)
@@ -1072,21 +1089,21 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path=''):
     if save_path != '':
         f.savefig(save_path + 'bias_evolution.png',
                   dpi=200, bbox_inches='tight')
-    plt.close(f)
+        plt.close(f)
 
 
 if __name__ == '__main__':
     plt.close('all')
-    file = '/home/linux/network_data_169999.npz'
-    fig = True
-    n_envs = 12
-    env = 0
-    num_steps = 20
-    obs_size = 5
-    num_units = 32
-    neural_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-                    num_steps=num_steps, obs_size=obs_size,
-                    num_units=num_units)
+    #    file = '/home/linux/network_data_169999.npz'
+    #    fig = True
+    #    n_envs = 12
+    #    env = 0
+    #    num_steps = 20
+    #    obs_size = 5
+    #    num_units = 32
+    #    neural_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+    #                    num_steps=num_steps, obs_size=obs_size,
+    #                    num_units=num_units)
     #    transition_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
     #                        num_steps=num_steps, obs_size=obs_size,
     #                        num_units=num_units)
