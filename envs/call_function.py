@@ -29,7 +29,10 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32,
     lr = 1e-3
     lr_sch = 'constant'
     gamma = 0.9
-    nlstm = num_u
+    if net == 'twin_net':
+        nlstm = num_u // 2
+    else:
+        nlstm = num_u
 
     if env == 'RDM-v0':
         timing = [100, 300, 300, 300, 100]
@@ -111,7 +114,7 @@ if __name__ == '__main__':
     pass_reward = [True]
     pass_action = [True]
     bl_dur = [200]
-    num_units = [8]
+    num_units = [16]
     net_type = ['twin_net', 'cont_rnn']
     params_config = itertools.product(pass_reward, pass_action, bl_dur,
                                       num_units, net_type)
