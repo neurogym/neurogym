@@ -40,8 +40,8 @@ class GNG(ngym.ngym):
         # Durations
         self.fixation = 0
         self.stimulus_min = 200
-        self.stimulus_mean = 201
-        self.stimulus_max = 202
+        self.stimulus_mean = 200
+        self.stimulus_max = 200
         self.resp_delay = 200
         self.decision = 500
         self.mean_trial_duration = self.fixation + self.stimulus_mean +\

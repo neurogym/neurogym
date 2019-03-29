@@ -69,7 +69,6 @@ class ngym(gym.Env):
     # Auxiliary functions
     def seed(self, seed=None):
         self.rng = np.random.RandomState(seed)
-        # self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
     def _new_trial(self):

@@ -6,104 +6,33 @@ Created on Sun Feb 24 11:37:41 2019
 @author: molano
 """
 
-# TODO: Consider moving this file to __init__ of neurogym to prevent the re-register error
+# TODO: Consider moving this file to __init__ of neurogym to prevent
+# the re-register error
 from gym.envs.registration import register
-register(
-    id='Mante-v0',
-    entry_point='mante:Mante',
-    reward_threshold=90.0,
-)
-
-register(
-    id='Priors-v0',
-    entry_point='priors:Priors',
-    reward_threshold=90.0,
-)
-
-register(
-    id='DualTask-v0',
-    entry_point='dual_task:DualTask',
-    reward_threshold=90.0,
-)
-
-register(
-    id='Romo-v0',
-    entry_point='romo:Romo',
-    reward_threshold=90.0,
-)
+import gym
+# all_tasks = ['rdm', 'dpa', 'mante', 'romo', 'gng', 'padoa_sch', 'pd_wager',
+#              'readysetgo', 'DelayedMatchSample-v0', 'DawTwoStep-v0',
+#              'MatchingPenny-v0', 'Bandit-v0']
+all_tasks = {'Mante-v0': 'mante:Mante', 'Romo-v0': 'romo:Romo',
+             'RDM-v0': 'rdm:RDM', 'padoaSch-v0': 'padoa_sch:PadoaSch',
+             'pdWager-v0': 'pd_wager:PDWager', 'DPA-v0': 'dpa:DPA',
+             'GNG-v0': 'gng:GNG', 'ReadySetGo-v0': 'readysetgo:ReadySetGo',
+             'DelayedMatchSample-v0': 'delaymatchsample:DelayedMatchToSample',
+             'DawTwoStep-v0': 'dawtwostep:DawTwoStep',
+             'MatchingPenny-v0': 'matchingpenny:MatchingPenny',
+             'Bandit-v0': 'bandit:Bandit'}
 
 
-register(
-    id='RDM-v0',
-    entry_point='rdm:RDM',
-    reward_threshold=90.0,
-)
-
-register(
-    id='padoaSch-v0',
-    entry_point='padoa_sch:PadoaSch',
-    reward_threshold=90.0,
-)
-
-register(
-    id='pdWager-v0',
-    entry_point='pd_wager:PDWager',
-    reward_threshold=90.0,
-)
-
-register(
-    id='DPA-v0',
-    entry_point='dpa:DPA',
-    reward_threshold=90.0,
-)
-
-register(
-    id='GNG-v0',
-    entry_point='gng:GNG',
-    reward_threshold=90.0,
-)
-
-register(
-    id='RDM_hist-v0',
-    entry_point='rdm_hist:RDM_hist',
-    reward_threshold=90.0,
-)
-
-register(
-    id='ReadySetGo-v0',
-    entry_point='readysetgo:ReadySetGo',
-    reward_threshold=90.0,
-)
-
-register(
-    id='DelayedMatchSample-v0',
-    entry_point='delaymatchsample:DelayedMatchToSample',
-    reward_threshold=90.0,
-)
-
-register(
-    id='DawTwoStep-v0',
-    entry_point='dawtwostep:DawTwoStep',
-    reward_threshold=90.0,
-)
-
-register(
-    id='MatchingPenny-v0',
-    entry_point='matchingpenny:MatchingPenny',
-    reward_threshold=90.0,
-)
-
-register(
-    id='Bandit-v0',
-    entry_point='bandit:Bandit',
-    reward_threshold=90.0,
-)
+def register_neuroTask(id_task):
+    for env in gym.envs.registry.all():
+        if env.id == id_task:
+            return
+    register(id=id_task, entry_point=all_tasks[id_task])
 
 
 def all_envs():
     """
-    used in baselines/run.py to check if a task is from neurogym
+    used in baselines/run.py and baselines/common/cmd_util.py
+    to check if a task is from neurogym
     """
-    return ['rdm', 'dpa', 'mante', 'romo', 'gng', 'padoa_sch', 'pd_wager',
-            'rdm_hist', 'readysetgo', 'DelayedMatchSample-v0', 'DawTwoStep-v0',
-            'MatchingPenny-v0']
+    return all_tasks.keys()
