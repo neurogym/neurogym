@@ -37,7 +37,7 @@ class DelayedMatchToSample(ngym.ngym):
               ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
               ')')
         # Rewards
-        self.R_ABORTED = -1.
+        self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
         self.R_FAIL = 0.
         self.R_MISS = 0.

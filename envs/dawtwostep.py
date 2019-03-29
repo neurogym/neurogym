@@ -39,7 +39,7 @@ class DawTwoStep(ngym.ngym):
         self.sigma = np.sqrt(2*100*0.01)
 
         # Rewards
-        self.R_ABORTED = -1.
+        self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
         self.R_FAIL = 0.
         self.R_MISS = 0.
