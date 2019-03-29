@@ -10,6 +10,8 @@ import utils as ut
 import numpy as np
 import itertools
 import matplotlib
+from pathlib import Path
+home = str(Path.home())
 matplotlib.use('Agg')
 
 
@@ -20,7 +22,7 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32,
     net = net_type
     nsteps = 20
     num_env = 12
-    num_steps_per_env = 1e8
+    num_steps_per_env = 1e9
     tot_num_stps = num_steps_per_env*num_env
     num_loggings = 5
     # data will only be saved for certain periods. The 4 acounts for that
@@ -79,7 +81,7 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32,
     else:
         load_path_cmmd = ' --load_path=' + load_path
 
-    save_path = '../' + alg + '_' + env + timing_flag + \
+    save_path = home + '/neurogym/' + alg + '_' + env + timing_flag + \
         tr_h_flag + ps_rw_flag + ps_a_flag + '_' + net +\
         '_ec_' + str(ent_coef) + '_lr_' + str(lr) +\
         '_lrs_' + lr_sch + '_g_' + str(gamma) +\
