@@ -6,14 +6,20 @@ import reaction_time
 import combine
 import pass_reward
 import manage_data as md
-import matplotlib.pyplot as plt
+
 import sys
 import task_registrations
+import matplotlib
+display_mode = True
+if display_mode:
+    matplotlib.use('Qt5Agg')
+else:
+    matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 dt = 80
 # calling from the terminal (ploting mode ON)
 # example              task   num. steps                wrapper              pass_reward        plot
 # python  test_new.py RDM-v0    400        trial_hist/reaction_time/combine   True/False    True/False
-print(sys.argv)
 if len(sys.argv) > 1:
     params = {'task': sys.argv[1], 'num_steps': sys.argv[2],
               'wrapper': sys.argv[3], 'pass_reward': sys.argv[4],
@@ -40,6 +46,7 @@ if params['pass_reward'] == 'True':
 
 # save/render data wrapper
 env = md.manage_data(env, plt_tr=False)
+env.seed(0)
 env.reset()
 observations = []
 rewards = []
