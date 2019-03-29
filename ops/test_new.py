@@ -25,8 +25,8 @@ if len(sys.argv) > 1:
               'wrapper': sys.argv[3], 'pass_reward': sys.argv[4],
               'plot': sys.argv[5]}
 else:
-    params = {'task': 'GNG-v0', 'num_steps': 1000, 'wrapper': '',
-              'pass_reward': 'False', 'plot': 'True'}
+    params = {'task': 'RDM-v0', 'num_steps': 100, 'wrapper': '',
+              'pass_reward': 'True', 'plot': 'False'}
 
 task_registrations.register_neuroTask(params['task'])
 # task
@@ -47,6 +47,7 @@ if params['pass_reward'] == 'True':
 # save/render data wrapper
 env = md.manage_data(env, plt_tr=False)
 env.seed(0)
+env.action_space.seed(0)
 env.reset()
 observations = []
 rewards = []
@@ -54,11 +55,11 @@ actions = []
 actions_end_of_trial = []
 for stp in range(int(params['num_steps'])):
     action = env.action_space.sample()
-    state, rew, done, info = env.step(action)
+    obs, rew, done, info = env.step(action)
     if done:
         env.reset()
-
-    observations.append(state)
+    print(obs)
+    observations.append(obs)
     if 'new_trial' in info.keys():
         actions_end_of_trial.append(action)
     else:
