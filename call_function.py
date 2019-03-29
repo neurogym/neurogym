@@ -16,17 +16,17 @@ matplotlib.use('Agg')
 
 
 def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32,
-                  net_type='twin_net'):
+                  net_type='twin_net', num_stps_env=1e9, load_path=''):
     alg = 'a2c'
     env = 'RDM-v0'
     net = net_type
     nsteps = 20
     num_env = 12
-    num_steps_per_env = 1e9
+    num_steps_per_env = num_stps_env
     tot_num_stps = num_steps_per_env*num_env
     num_loggings = 5
     # data will only be saved for certain periods. The 4 acounts for that
-    li = tot_num_stps/(4*num_loggings*nsteps*num_env)
+    li = np.max([tot_num_stps/(4*num_loggings*nsteps*num_env), 10000])
     ent_coef = 0.1
     lr = 1e-3
     lr_sch = 'constant'
@@ -75,7 +75,7 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32,
         ps_a_flag = ''
         ps_a_cmmd = ''
 
-    load_path = ''
+    load_path = load_path
     if load_path == '':
         load_path_cmmd = ''
     else:
@@ -117,12 +117,15 @@ if __name__ == '__main__':
     pass_action = [True]
     bl_dur = [200]
     num_units = [16]
-    net_type = ['twin_net', 'cont_rnn']
+    net_type = ['twin_net']  # ['twin_net', 'cont_rnn']
+    num_steps = [0]  # [1e9]
+    load_path = '/home/linux/00010'
     params_config = itertools.product(pass_reward, pass_action, bl_dur,
-                                      num_units, net_type)
+                                      num_units, net_type, num_steps)
     batch_command = ''
     for conf in params_config:
         cmmd = build_command(ps_r=conf[0], ps_act=conf[1], bl_dur=conf[2],
-                             num_u=conf[3], net_type=conf[4])
+                             num_u=conf[3], net_type=conf[4],
+                             num_stps_env=conf[5], load_path=load_path)
         batch_command += cmmd + '\n'
     os.system(batch_command)
