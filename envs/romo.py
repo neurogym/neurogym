@@ -182,8 +182,3 @@ class Romo(ngym.ngym):
         if new_trial:
             self.trial = self._new_trial()
         return obs, reward, done, info
-
-    def terminate(perf):
-        p_decision, p_correct = tasktools.correct_2AFC(perf)
-
-        return p_decision >= 0.99 and p_correct >= 0.97

@@ -213,8 +213,3 @@ class Mante(ngym.ngym):
         Input scaling
         """
         return (1 + coh/100)/2
-
-    def terminate(perf):
-        p_decision, p_correct = tasktools.correct_2AFC(perf)
-
-        return p_decision >= 0.99 and p_correct >= 0.85
