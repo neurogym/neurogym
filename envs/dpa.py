@@ -76,7 +76,6 @@ class DPA(ngym.ngym):
             self.resp_delay + self.decision
 
         durations = {
-            'fix_grace': (0, 100),
             'fixation':   (0, self.fixation),
             'dpa1':         (self.fixation, self.fixation + self.dpa1),
             'delay':      (self.fixation + self.dpa1,
@@ -123,13 +122,12 @@ class DPA(ngym.ngym):
         reward = 0
         tr_perf = False
         # if self.t not in epochs['decision']:
-        if not self.in_epoch(self.t, 'decision'):
-            if (action != self.actions['NO_GO'] and
-                    not self.in_epoch(self.t, 'fix_grace')):
+        if self.in_epoch(self.t, 'fixation'):
+            if (action != self.actions['NO_GO']):
                 info['continue'] = not self.abort
                 info['choice'] = None
                 reward = self.R_ABORTED
-        else:  # elif self.t in epochs['decision']:
+        if self.in_epoch(self.t, 'decision'):
             # print('decision period')
             if action == self.actions['GO']:
                 tr_perf = True

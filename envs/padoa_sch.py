@@ -86,7 +86,6 @@ class PadoaSch(ngym.ngym):
         # maximum duration of current trial
         self.tmax = self.fixation + offer_on + self.decision
         durations = {
-            'fix_grace': (0, 100),
             'fixation':    (0, self.fixation),
             'offer-on':    (self.fixation, self.fixation + offer_on),
             'decision':    (self.fixation + offer_on, self.tmax),
@@ -129,11 +128,10 @@ class PadoaSch(ngym.ngym):
         tr_perf = False
         if (self.in_epoch(self.t, 'fixation') or
                 self.in_epoch(self.t, 'offer-on')):
-            if (action != self.actions['FIXATE'] and
-                    not self.in_epoch(self.t, 'fix_grace')):
+            if (action != self.actions['FIXATE']):
                 info['continue'] = not self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch(self.t, 'decision'):
+        if self.in_epoch(self.t, 'decision'):
             if action in [self.actions['CHOOSE-LEFT'],
                           self.actions['CHOOSE-RIGHT']]:
                 tr_perf = True

@@ -74,7 +74,6 @@ class ReadySetGo(ngym.ngym):
         self.tmax = self.fixation + measure + self.set + 2*production
 
         durations = {
-            'fix_grace': (0, 100),
             'fixation':  (0, self.fixation),
             'ready': (self.fixation, self.fixation + self.ready),
             'measure': (self.fixation, self.fixation + measure),
@@ -101,12 +100,11 @@ class ReadySetGo(ngym.ngym):
         info = {'continue': True}
         reward = 0
         tr_perf = False
-        if not self.in_epoch(self.t, 'production'):
-            if (action != self.actions['FIXATE'] and
-                    not self.in_epoch(self.t, 'fix_grace')):
+        if self.in_epoch(self.t, 'fixation'):
+            if (action != self.actions['FIXATE']):
                 info['continue'] = not self.abort
                 reward = self.R_ABORTED
-        else:
+        if self.in_epoch(self.t, 'production'):
             if action == self.actions['GO']:
                 info['continue'] = False  # terminate
                 # actual production time

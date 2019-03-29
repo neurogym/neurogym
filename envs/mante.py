@@ -76,17 +76,16 @@ class Mante(ngym.ngym):
         info = {'continue': True}
         reward = 0
         tr_perf = False
-        if not self.in_epoch(self.t - 1, 'decision'):
-            if (action != self.actions['FIXATE'] and
-                    not self.in_epoch(self.t, 'fix_grace')):
+        if self.in_epoch(self.t, 'fixation'):
+            if (action != self.actions['FIXATE']):
                 info['continue'] = not self.abort
                 reward = self.R_ABORTED
-        else:
+        if self.in_epoch(self.t, 'decision'):
             if action == self.actions['left']:
                 tr_perf = True
                 info['continue'] = False
                 info['choice'] = 'L'
-                info['t_choice'] = self.t - 1
+                info['t_choice'] = self.t
                 if trial['context'] == 'm':
                     info['correct'] = (trial['left_right_m'] < 0)
                 else:
@@ -97,7 +96,7 @@ class Mante(ngym.ngym):
                 tr_perf = True
                 info['continue'] = False
                 info['choice'] = 'R'
-                info['t_choice'] = self.t - 1
+                info['t_choice'] = self.t
                 if trial['context'] == 'm':
                     info['correct'] = (trial['left_right_m'] > 0)
                 else:
@@ -183,7 +182,6 @@ class Mante(ngym.ngym):
         # maximum duration of current trial
         self.tmax = self.fixation + self.stimulus + delay + self.decision
         durations = {
-            'fix_grace': (0, 100),
             'fixation':  (0, self.fixation),
             'stimulus':  (self.fixation, self.fixation + self.stimulus),
             'delay':     (self.fixation + self.stimulus,

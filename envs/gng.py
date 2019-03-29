@@ -78,7 +78,6 @@ class GNG(ngym.ngym):
         # maximum duration of current trial
         self.tmax = self.fixation + stimulus + self.resp_delay + self.decision
         durations = {
-            'fix_grace': (0, 100),
             'fixation':  (0, self.fixation),
             'stimulus':  (self.fixation, self.fixation + stimulus),
             'resp_delay':  (self.fixation + stimulus,
@@ -110,12 +109,11 @@ class GNG(ngym.ngym):
         info = {'continue': True}
         reward = 0
         tr_perf = False
-        if not self.in_epoch(self.t, 'decision'):
-            if (action != self.actions['NO_GO'] and
-                    not self.in_epoch(self.t, 'fix_grace')):
+        if self.in_epoch(self.t, 'fixation'):
+            if (action != self.actions['NO_GO']):
                 info['continue'] = not self.abort
                 reward = self.R_ABORTED
-        else:
+        if self.in_epoch(self.t, 'decision'):
             if action == self.actions['GO']:
                 tr_perf = True
                 info['continue'] = False

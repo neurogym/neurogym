@@ -60,7 +60,6 @@ class DelayedMatchToSample(ngym.ngym):
         # TODO: this is a lot of repeated typing
         dur = {'tmax': self.tmax}
         dur['fixation'] = (0, self.fixation)
-        dur['fix_grace'] = (0, 100)
         dur['sample'] = (dur['fixation'][1], dur['fixation'][1] + self.sample)
         dur['delay'] = (dur['sample'][1], dur['sample'][1] + self.delay)
         dur['test'] = (dur['delay'][1], dur['delay'][1] + self.test)
@@ -93,12 +92,11 @@ class DelayedMatchToSample(ngym.ngym):
         info = {'continue': True}
         reward = 0
         tr_perf = False
-        if not self.in_epoch(self.t, 'decision'):
-            if (action != self.actions['FIXATE'] and
-                    not self.in_epoch(self.t, 'fix_grace')):
+        if self.in_epoch(self.t, 'fixation'):
+            if (action != self.actions['FIXATE']):
                 info['continue'] = not self.abort
                 reward = self.R_ABORTED
-        else:
+        if self.in_epoch(self.t, 'decision'):
             if action != self.actions['FIXATE']:
                 tr_perf = True
                 info['continue'] = False

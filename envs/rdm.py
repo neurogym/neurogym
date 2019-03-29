@@ -84,7 +84,6 @@ class RDM(ngym.ngym):
         # maximum length of current trial
         self.tmax = self.fixation + stimulus + self.decision
         durations = {
-            'fix_grace': (0, 100),
             'fixation': (0, self.fixation),
             'stimulus': (self.fixation, self.fixation + stimulus),
             'decision': (self.fixation + stimulus,
@@ -118,12 +117,12 @@ class RDM(ngym.ngym):
 
         reward = 0
         tr_perf = False
-        if not self.in_epoch(self.t, 'decision'):
-            if (action != self.actions['FIXATE'] and
-                    not self.in_epoch(self.t, 'fix_grace')):
+        if self.in_epoch(self.t, 'fixation'):
+            if (action != self.actions['FIXATE']):
                 info['continue'] = not self.abort
                 reward = self.R_ABORTED
-        else:
+        # this is an if to allow multiple actions
+        if self.in_epoch(self.t, 'decision'):
             # TODO: this part can be simplified
             if action == self.actions['CHOOSE-LEFT']:
                 tr_perf = True

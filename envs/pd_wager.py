@@ -110,7 +110,6 @@ class PDWager(ngym.ngym):
         self.tmax = self.fixation + stimulus + delay + self.decision
         # TODO: are these periods correct?
         durations = {
-            'fix_grace': (0, 100),
             'fixation':  (0, self.fixation),
             'stimulus':  (self.fixation, self.fixation + stimulus),
             'delay':     (self.fixation + stimulus,
@@ -147,12 +146,11 @@ class PDWager(ngym.ngym):
         info = {'continue': True}
         reward = 0
         tr_perf = False
-        if not self.in_epoch(self.t, 'decision'):
-            if (action != self.actions['FIXATE'] and
-                    not self.in_epoch(self.t, 'fix_grace')):
+        if self.in_epoch(self.t, 'fixation'):
+            if (action != self.actions['FIXATE']):
                 info['continue'] = not self.abort
                 reward = self.R_ABORTED
-        else:
+        if self.in_epoch(self.t, 'decision'):
             if action == self.actions['CHOOSE-LEFT']:
                 tr_perf = True
                 info['continue'] = False
