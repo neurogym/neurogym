@@ -953,7 +953,8 @@ def bias_cond_on_history(file='/home/linux/PassReward0_data.npz'):
         plot_dashed_lines(-np.max(evidence), np.max(evidence))
 
 
-def no_stim_analysis(file='/home/linux/PassAction.npz', save_path=''):
+def no_stim_analysis(file='/home/linux/PassAction.npz', save_path='',
+                     fig=True):
     data = np.load(file)
     choice = data['choice']
     stimulus = data['stimulus']
@@ -967,27 +968,32 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path=''):
     evidence = np.reshape(evidence, (1, len(evidence)))
     mask_ev = np.logical_and(evidence >= np.percentile(evidence, 40),
                              evidence <= np.percentile(evidence, 60))
-    # plot performance
-    num_tr = 300000
-    start_point = 50000
-    f = ut.get_fig(display_mode)
-    plot_learning(performance[:, start_point:start_point+num_tr],
-                  evidence[:, start_point:start_point+num_tr],
-                  correct_side[:, start_point:start_point+num_tr],
-                  choice[:, start_point:start_point+num_tr])
+    if fig:
+        # plot performance
+        num_tr = 300000
+        start_point = 50000
+        f = ut.get_fig(display_mode)
+        plot_learning(performance[:, start_point:start_point+num_tr],
+                      evidence[:, start_point:start_point+num_tr],
+                      correct_side[:, start_point:start_point+num_tr],
+                      choice[:, start_point:start_point+num_tr])
+        if save_path != '':
+            f.savefig(save_path + 'init_perf.png', dpi=200,
+                      bbox_inches='tight')
+            plt.close(f)
+        # plot performance last training stage
+        f = ut.get_fig(display_mode)
+        num_tr = 20000
+        start_point = performance.shape[1]-num_tr
+        plot_learning(performance[:, start_point:start_point+num_tr],
+                      evidence[:, start_point:start_point+num_tr],
+                      correct_side[:, start_point:start_point+num_tr],
+                      choice[:, start_point:start_point+num_tr])
+        if save_path != '':
+            f.savefig(save_path + 'final_perf.png', dpi=200,
+                      bbox_inches='tight')
+            plt.close(f)
     if save_path != '':
-        f.savefig(save_path + 'init_perf.png', dpi=200, bbox_inches='tight')
-        plt.close(f)
-    # plot performance last training stage
-    f = ut.get_fig(display_mode)
-    num_tr = 20000
-    start_point = performance.shape[1]-num_tr
-    plot_learning(performance[:, start_point:start_point+num_tr],
-                  evidence[:, start_point:start_point+num_tr],
-                  correct_side[:, start_point:start_point+num_tr],
-                  choice[:, start_point:start_point+num_tr])
-    if save_path != '':
-        f.savefig(save_path + 'final_perf.png', dpi=200, bbox_inches='tight')
         RNN_perf = np.mean(performance[:, 2000:].flatten())
         print('-----------------------------------------------',
               file=open(save_path + 'results', 'a'))
@@ -995,15 +1001,16 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path=''):
               file=open(save_path + 'results', 'a'))
         print('net perf: ' + str(round(RNN_perf, 3)),
               file=open(save_path + 'results', 'a'))
-        plt.close(f)
+
     # plot trials
-    correct_side_plt = correct_side[:, :400]
-    f = ut.get_fig(display_mode)
-    plt.imshow(correct_side_plt, aspect='auto')
-    if save_path != '':
-        f.savefig(save_path + 'first_400_trials.png',
-                  dpi=200, bbox_inches='tight')
-        plt.close(f)
+    if fig:
+        correct_side_plt = correct_side[:, :400]
+        f = ut.get_fig(display_mode)
+        plt.imshow(correct_side_plt, aspect='auto')
+        if save_path != '':
+            f.savefig(save_path + 'first_400_trials.png',
+                      dpi=200, bbox_inches='tight')
+            plt.close(f)
     # compute bias across training
     labels = ['error', 'correct']
     per = 10000
@@ -1057,39 +1064,41 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path=''):
                         print('bias ' + str(values[ind_tr]) +
                               ' repeatitions after ' + labels[ind_perf] + ':')
                         print(np.mean(rp_mask))
-    f = ut.get_fig(display_mode)
-    for ind_perf in range(2):
-        plt.subplot(2, 1, int(not(ind_perf))+1)
-        plt.title('after ' + labels[ind_perf])
-        for ind_tr in range(margin, values.shape[0]-margin):
-            aux_color = (ind_tr-margin)/(values.shape[0]-2*margin-1)
-            color = np.array((1-aux_color, 0, aux_color))
-            mean_ = mat_biases[:, ind_tr-margin, ind_perf, 0]
-            std_ = mat_biases[:, ind_tr-margin, ind_perf, 1]
-            plt.errorbar(np.arange(mean_.shape[0]),
-                         mean_, std_, color=color)
-            if ind_perf == 0:
-                plt.subplot(2, 1, 1)
+
+    if fig:
+        f = ut.get_fig(display_mode)
+        for ind_perf in range(2):
+            plt.subplot(2, 1, int(not(ind_perf))+1)
+            plt.title('after ' + labels[ind_perf])
+            for ind_tr in range(margin, values.shape[0]-margin):
                 aux_color = (ind_tr-margin)/(values.shape[0]-2*margin-1)
-                color = np.array((1-aux_color, 0, aux_color)) +\
-                    (1-ind_perf)*0.8
-                color[np.where(color > 1)] = 1
+                color = np.array((1-aux_color, 0, aux_color))
                 mean_ = mat_biases[:, ind_tr-margin, ind_perf, 0]
                 std_ = mat_biases[:, ind_tr-margin, ind_perf, 1]
                 plt.errorbar(np.arange(mean_.shape[0]),
                              mean_, std_, color=color)
-                plt.subplot(2, 1, 2)
-        plt.plot([0, mean_.shape[0]], [0, 0], '--', color=(.7, .7, .7))
-        plt.plot([0, mean_.shape[0]], [0.25, 0.25], '--',
-                 color=(.7, .7, .7))
-        plt.plot([0, mean_.shape[0]], [0.5, 0.5], '--', color=(.7, .7, .7))
-        plt.plot([0, mean_.shape[0]], [0.75, 0.75], '--',
-                 color=(.7, .7, .7))
-        plt.plot([0, mean_.shape[0]], [1, 1], '--', color=(.7, .7, .7))
-    if save_path != '':
-        f.savefig(save_path + 'bias_evolution.png',
-                  dpi=200, bbox_inches='tight')
-        plt.close(f)
+                if ind_perf == 0:
+                    plt.subplot(2, 1, 1)
+                    aux_color = (ind_tr-margin)/(values.shape[0]-2*margin-1)
+                    color = np.array((1-aux_color, 0, aux_color)) +\
+                        (1-ind_perf)*0.8
+                    color[np.where(color > 1)] = 1
+                    mean_ = mat_biases[:, ind_tr-margin, ind_perf, 0]
+                    std_ = mat_biases[:, ind_tr-margin, ind_perf, 1]
+                    plt.errorbar(np.arange(mean_.shape[0]),
+                                 mean_, std_, color=color)
+                    plt.subplot(2, 1, 2)
+            plt.plot([0, mean_.shape[0]], [0, 0], '--', color=(.7, .7, .7))
+            plt.plot([0, mean_.shape[0]], [0.25, 0.25], '--',
+                     color=(.7, .7, .7))
+            plt.plot([0, mean_.shape[0]], [0.5, 0.5], '--', color=(.7, .7, .7))
+            plt.plot([0, mean_.shape[0]], [0.75, 0.75], '--',
+                     color=(.7, .7, .7))
+            plt.plot([0, mean_.shape[0]], [1, 1], '--', color=(.7, .7, .7))
+        if save_path != '':
+            f.savefig(save_path + 'bias_evolution.png',
+                      dpi=200, bbox_inches='tight')
+            plt.close(f)
 
 
 if __name__ == '__main__':
@@ -1113,5 +1122,5 @@ if __name__ == '__main__':
     #    behavior_analysis(file='/home/linux/PassReward0_data.npz')
     #    bias_cond_on_history(file='/home/linux/PassReward0_data.npz')
     # no_stim_analysis(file='/home/linux/PassAction.npz')
-    no_stim_analysis(file='/home/linux/PassAction0_data.npz',
-                     save_path='/home/linux/')
+    no_stim_analysis(file='/home/linux/PassReward0_data.npz',
+                     save_path='/home/linux/', fig=False)

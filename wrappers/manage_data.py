@@ -10,9 +10,6 @@ from gym.core import Wrapper
 import os
 import numpy as np
 import analysis
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 
 
 class manage_data(Wrapper):
@@ -41,6 +38,9 @@ class manage_data(Wrapper):
         self.num_subplots = 3
         self.plt_tr = plt_tr
         if self.plt_tr:
+            import matplotlib
+            matplotlib.use('Agg')
+            import matplotlib.pyplot as plt
             self.fig, self.ax = plt.subplots(self.num_subplots, 1)
         if folder is not None:
             self.folder = folder + '/'
@@ -64,7 +64,8 @@ class manage_data(Wrapper):
                 try:
                     analysis.no_stim_analysis(file=self.saving_name +
                                               '_data.npz',
-                                              save_path=self.saving_name)
+                                              save_path=self.saving_name,
+                                              figs=self.plt_tr)
                 except Exception:
                     print('could not perform the analysis')
             if self.plt_tr:

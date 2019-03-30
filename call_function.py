@@ -101,7 +101,7 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32,
         ' --num_env=' + str(num_env) + tr_h_cmmd +\
         ps_rw_cmmd + ps_a_cmmd + timing_cmmd + ' --lr=' + str(lr) +\
         ' --save_path=' + save_path + ' --nlstm=' + str(nlstm) + \
-        load_path_cmmd
+        load_path_cmmd + ' --figs=False'
     print(command)
     vars_ = vars()
     params = {x: vars_[x] for x in vars_.keys() if type(vars_[x]) == str or
@@ -118,8 +118,8 @@ if __name__ == '__main__':
     bl_dur = [200]
     num_units = [16]
     net_type = ['twin_net']  # ['twin_net', 'cont_rnn']
-    num_steps = [0]  # [1e9]
-    load_path = '/home/linux/00010'
+    num_steps = [10000]  # [1e9]
+    load_path = ''  # '/home/linux/00010'
     params_config = itertools.product(pass_reward, pass_action, bl_dur,
                                       num_units, net_type, num_steps)
     batch_command = ''
