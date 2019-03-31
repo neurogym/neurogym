@@ -303,9 +303,9 @@ def probit(x, beta, alpha):
     return probit
 
 
-def plot_dashed_lines(minimo, maximo):
+def plot_dashed_lines(minimo, maximo, value=0.5):
     plt.plot([0, 0], [0, 1], '--k', lw=0.2)
-    plt.plot([minimo, maximo], [0.5, 0.5], '--k', lw=0.2)
+    plt.plot([minimo, maximo], [value, value], '--k', lw=0.2)
 
 # NEW YORK PROJECT ##############################################
 
@@ -552,20 +552,29 @@ def get_transition_mat(choice, times=None, num_steps=None, conv_window=5):
     """
     # selectivity to transition probability
     rand_choice = np.array(np.random.choice([1, 2])).reshape(1,)
-    choice = np.concatenate((rand_choice, choice))
-    repeat = (np.diff(choice) == 0)*1.0
+    choice_aux = np.concatenate((rand_choice, choice))
+    repeat = (np.diff(choice_aux) == 0)*1.0
     transition = np.convolve(repeat, np.ones((conv_window,)),
                              mode='full')[0:-conv_window+1]
-    transition -= conv_window/2
+    transition_ev = np.concatenate((np.array([0]), transition))
+    plt.figure()
+    plt.plot(choice[:20], '-+', label='choice', lw=1)
+    plt.plot(repeat[:20], '--+', label='repeat', lw=1)
+    plt.plot(transition[:20], '--+', label='transition', lw=1)
+    plt.plot(transition_ev[:20], '--+', label='transition_ev', lw=1)
+    plt.legend()
+    plt.title(str(conv_window))
+    asdasd
+    transition_ev -= conv_window/2
     if times is not None:
         trans_mat = np.zeros((num_steps,))
         print(trans_mat.shape)
         print(times.shape)
         for ind_t in range(times.shape[0]):
-            trans_mat[times[ind_t]] = transition[ind_t]
+            trans_mat[times[ind_t]] = transition_ev[ind_t]
         return trans_mat
     else:
-        return transition
+        return transition_ev
 
 
 def neural_analysis(file='/home/linux/network_data_492999.npz',
@@ -970,8 +979,8 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path='',
                              evidence <= np.percentile(evidence, 60))
     if fig:
         # plot performance
-        num_tr = 300000
-        start_point = 50000
+        num_tr = 500000
+        start_point = 0
         f = ut.get_fig(display_mode)
         plot_learning(performance[:, start_point:start_point+num_tr],
                       evidence[:, start_point:start_point+num_tr],
@@ -1013,7 +1022,7 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path='',
             plt.close(f)
     # compute bias across training
     labels = ['error', 'correct']
-    per = 10000
+    per = 100000
     conv_window = 8
     margin = 2
     num_stps = int(choice.shape[1] / per)
@@ -1075,7 +1084,7 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path='',
                 color = np.array((1-aux_color, 0, aux_color))
                 mean_ = mat_biases[:, ind_tr-margin, ind_perf, 0]
                 std_ = mat_biases[:, ind_tr-margin, ind_perf, 1]
-                plt.errorbar(np.arange(mean_.shape[0]),
+                plt.errorbar(np.arange(mean_.shape[0])*per,
                              mean_, std_, color=color)
                 if ind_perf == 0:
                     plt.subplot(2, 1, 1)
@@ -1085,16 +1094,135 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path='',
                     color[np.where(color > 1)] = 1
                     mean_ = mat_biases[:, ind_tr-margin, ind_perf, 0]
                     std_ = mat_biases[:, ind_tr-margin, ind_perf, 1]
-                    plt.errorbar(np.arange(mean_.shape[0]),
+                    plt.errorbar(np.arange(mean_.shape[0])*per,
                                  mean_, std_, color=color)
                     plt.subplot(2, 1, 2)
-            plt.plot([0, mean_.shape[0]], [0, 0], '--', color=(.7, .7, .7))
-            plt.plot([0, mean_.shape[0]], [0.25, 0.25], '--',
-                     color=(.7, .7, .7))
-            plt.plot([0, mean_.shape[0]], [0.5, 0.5], '--', color=(.7, .7, .7))
-            plt.plot([0, mean_.shape[0]], [0.75, 0.75], '--',
-                     color=(.7, .7, .7))
-            plt.plot([0, mean_.shape[0]], [1, 1], '--', color=(.7, .7, .7))
+            values_lines = [0, .25, .5, .75, 1]
+            for ind_l in range(len(values_lines)):
+                plot_lines(mean_.shape[0]*per, values_lines[ind_l])
+        if save_path != '':
+            f.savefig(save_path + 'bias_evolution.png',
+                      dpi=200, bbox_inches='tight')
+            plt.close(f)
+
+
+def plot_lines(x_max, y_value):
+    plt.plot([0, x_max], [y_value, y_value], '--', color=(.7, .7, .7))
+
+
+def trans_evidence_cond_on_outcome(file='/home/linux/PassAction.npz',
+                                   measure='repeat_choice',
+                                   save_path='', fig=True):
+    data = np.load(file)
+    choice = data['choice']
+    stimulus = data['stimulus']
+    correct_side = data['correct_side']
+    correct_side = np.reshape(correct_side, (1, len(correct_side)))
+    correct_side[np.where(correct_side == -1)] = 2
+    correct_side = np.abs(correct_side-3)
+    choice = np.reshape(choice, (1, len(choice)))
+    performance = (choice == correct_side)
+    evidence = stimulus[:, 1] - stimulus[:, 2]
+    evidence = np.reshape(evidence, (1, len(evidence)))
+    mask_ev = np.logical_and(evidence >= np.percentile(evidence, 40),
+                             evidence <= np.percentile(evidence, 60))
+    # compute bias across training
+    if measure == 'trans_change':
+        values_lines = [-10, 0, 10]
+    elif measure == 'repeat_choice':
+        values_lines = [0, .25, .5, .75, 1]
+    elif measure == 'side_repeat':
+        values_lines = [0, .25, .5, .75, 1]
+
+    labels = ['error', 'correct']
+    per = 100000
+    conv_window = 4
+    margin = 1
+    num_stps = int(choice.shape[1] / per)
+    mat_biases = np.empty((num_stps, conv_window-2*margin+1, 2, 2))
+    for ind_stp in range(num_stps):
+        start = per*ind_stp
+        end = per*(ind_stp+1)
+        perf = performance[:, start:end]
+        m_ev = mask_ev[:, start:end].reshape((end-start,))
+        # correct side transition history
+        cs = correct_side[:, start:end]
+        cs = np.reshape(cs, (cs.shape[1],))
+        rand_ch = np.array(np.random.choice([0, 1])).reshape(1,)
+        repeat = np.concatenate((rand_ch, cs))
+        repeat = (np.diff(repeat) == 0)*1
+        transitions = get_transition_mat(cs, conv_window=conv_window)
+        plt.plot(cs)
+        plt.plot(repeat[:10])
+        plt.plot(transitions[:10])
+        values = np.unique(transitions)
+        max_tr = values.shape[0]-margin
+        if measure == 'trans_change':
+            transition_change = np.concatenate((np.array([0]),
+                                                np.abs(transitions)))
+            transition_change =\
+                100 * np.diff(transition_change) / np.max(transition_change)
+            measure_mat = transition_change
+        # choice repeating
+        elif measure == 'repeat_choice':
+            ch = choice[:, start:end]
+            ch = np.reshape(ch, (ch.shape[1],))
+            rand_ch = np.array(np.random.choice([0, 1])).reshape(1,)
+            repeat_choice = np.concatenate((rand_ch, ch))
+            repeat_choice = (np.diff(repeat_choice) == 0)*1
+            measure_mat = repeat_choice
+        elif measure == 'side_repeat':
+            measure_mat = repeat
+        for ind_perf in reversed(range(2)):
+            for ind_tr in range(margin, max_tr):
+                mask = np.logical_and(transitions == values[ind_tr],
+                                      perf == ind_perf)
+                mask = np.logical_and(m_ev, mask)
+                mask = np.reshape(mask, (mask.shape[1], ))
+                rp_mask = measure_mat[mask]
+                mat_biases[ind_stp, ind_tr-margin, ind_perf, 0] =\
+                    np.mean(rp_mask)
+                mat_biases[ind_stp, ind_tr-margin, ind_perf, 1] =\
+                    np.std(rp_mask)/np.sqrt(rp_mask.shape[0])
+                if ind_stp == num_stps-1 and (ind_tr == margin or
+                                              ind_tr == max_tr-1):
+                    if save_path != '':
+                        print('bias ' + str(values[ind_tr]) +
+                              ' repeatitions after ' +
+                              labels[ind_perf] + ':',
+                              file=open(save_path + 'results', 'a'))
+                        print(np.mean(rp_mask),
+                              file=open(save_path + 'results', 'a'))
+                    else:
+                        print('bias ' + str(values[ind_tr]) +
+                              ' repeatitions after ' + labels[ind_perf] + ':')
+                        print(np.mean(rp_mask))
+
+    if fig:
+        f = ut.get_fig(display_mode)
+        for ind_perf in range(2):
+            plt.subplot(2, 1, int(not(ind_perf))+1)
+            plt.title(measure + ' at ' + labels[ind_perf])
+            for ind_tr in range(margin, values.shape[0]-margin):
+                aux_color = (ind_tr-margin)/(values.shape[0]-2*margin-1)
+                color = np.array((1-aux_color, 0, aux_color))
+                mean_ = mat_biases[:, ind_tr-margin, ind_perf, 0]
+                std_ = mat_biases[:, ind_tr-margin, ind_perf, 1]
+                plt.errorbar(np.arange(mean_.shape[0])*per,
+                             mean_, std_, color=color)
+                if ind_perf == 0:
+                    plt.subplot(2, 1, 1)
+                    aux_color = (ind_tr-margin)/(values.shape[0]-2*margin-1)
+                    color = np.array((1-aux_color, 0, aux_color)) +\
+                        (1-ind_perf)*0.8
+                    color[np.where(color > 1)] = 1
+                    mean_ = mat_biases[:, ind_tr-margin, ind_perf, 0]
+                    std_ = mat_biases[:, ind_tr-margin, ind_perf, 1]
+                    plt.errorbar(np.arange(mean_.shape[0])*per,
+                                 mean_, std_, color=color)
+                    plt.subplot(2, 1, 2)
+            for ind_l in range(len(values_lines)):
+                plot_lines(mean_.shape[0]*per, values_lines[ind_l])
         if save_path != '':
             f.savefig(save_path + 'bias_evolution.png',
                       dpi=200, bbox_inches='tight')
@@ -1123,4 +1251,13 @@ if __name__ == '__main__':
     #    bias_cond_on_history(file='/home/linux/PassReward0_data.npz')
     # no_stim_analysis(file='/home/linux/PassAction.npz')
     no_stim_analysis(file='/home/linux/PassReward0_data.npz',
-                     save_path='/home/linux/', fig=False)
+                     save_path='', fig=True)
+    trans_evidence_cond_on_outcome(file='/home/linux/PassReward0_data.npz',
+                                   measure='trans_change',
+                                   save_path='', fig=True)
+    trans_evidence_cond_on_outcome(file='/home/linux/PassReward0_data.npz',
+                                   measure='side_repeat',
+                                   save_path='', fig=True)
+    trans_evidence_cond_on_outcome(file='/home/linux/PassReward0_data.npz',
+                                   measure='repeat_choice',
+                                   save_path='', fig=True)
