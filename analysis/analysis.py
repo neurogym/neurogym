@@ -546,9 +546,9 @@ def plot_cond_psths(means_mat1, stds_mat1, means_mat2, stds_mat2, values,
 def get_transition_mat(choice, times=None, num_steps=None, conv_window=5):
     """
     convolve the repetition vector obtained from choice to get a count of the
-    number of repetitions in the last N trials (N = conv_window). It can return
-    the whole vector (times!=None) or just the outcomes
-    (i.e. transition.shape==choice.shape)
+    number of repetitions in the last N trials (N = conv_window),
+    not including the current trial. It can return the whole vector
+    (times!=None) or just the outcomes (i.e. transition.shape==choice.shape)
     """
     # selectivity to transition probability
     rand_choice = np.array(np.random.choice([1, 2])).reshape(1,)
@@ -557,14 +557,6 @@ def get_transition_mat(choice, times=None, num_steps=None, conv_window=5):
     transition = np.convolve(repeat, np.ones((conv_window,)),
                              mode='full')[0:-conv_window+1]
     transition_ev = np.concatenate((np.array([0]), transition))
-    plt.figure()
-    plt.plot(choice[:20], '-+', label='choice', lw=1)
-    plt.plot(repeat[:20], '--+', label='repeat', lw=1)
-    plt.plot(transition[:20], '--+', label='transition', lw=1)
-    plt.plot(transition_ev[:20], '--+', label='transition_ev', lw=1)
-    plt.legend()
-    plt.title(str(conv_window))
-    asdasd
     transition_ev -= conv_window/2
     if times is not None:
         trans_mat = np.zeros((num_steps,))
@@ -1152,9 +1144,6 @@ def trans_evidence_cond_on_outcome(file='/home/linux/PassAction.npz',
         repeat = np.concatenate((rand_ch, cs))
         repeat = (np.diff(repeat) == 0)*1
         transitions = get_transition_mat(cs, conv_window=conv_window)
-        plt.plot(cs)
-        plt.plot(repeat[:10])
-        plt.plot(transitions[:10])
         values = np.unique(transitions)
         max_tr = values.shape[0]-margin
         if measure == 'trans_change':
