@@ -1237,6 +1237,9 @@ def trans_evidence_cond_on_outcome(file='/home/linux/PassAction.npz',
 
 def perf_cond_on_stim_ev(file='/home/linux/PassAction.npz', save_path='',
                          fig=True):
+    """
+    computes performance as a function of the stimulus evidence
+    """
     data = np.load(file)
     choice = data['choice']
     stimulus = data['stimulus']
@@ -1272,13 +1275,12 @@ def simple_agent(file='/home/linux/PassReward0_data.npz'):
     infer the 'block' from the transition values at t-2, measure the
     performance at t-1 and compute the bias at t.
     """
-    conv_window = 6
+    
     data = np.load(file)
     correct_side = data['correct_side']
     correct_side = np.reshape(correct_side, (1, len(correct_side)))
     correct_side[np.where(correct_side == -1)] = 0
     rep_side = (get_repetitions(correct_side)-0.5)*2
-    transitions = get_transition_mat(correct_side, conv_window=conv_window)
     kernel = np.array([1, 1/2, 1/4])
     kernel /= np.sum(kernel)
     bias = np.convolve(rep_side,
@@ -1289,6 +1291,8 @@ def simple_agent(file='/home/linux/PassReward0_data.npz'):
     decision = ((bias > 0)-0.5)*2
     perf = (rep_side == decision)
     print(np.mean(perf))
+    conv_window = 6
+    transitions = get_transition_mat(correct_side, conv_window=conv_window)
     values = np.unique(transitions)
     margin = 0
     max_tr = values.shape[0]-margin
@@ -1335,10 +1339,38 @@ def simple_agent(file='/home/linux/PassReward0_data.npz'):
     plt.legend()
 
 
+def bias_after_repAlt_sequence(file='/home/linux/PassReward0_data.npz'):
+    data = np.load(file)
+    choice = data['choice']
+    stimulus = data['stimulus']
+    correct_side = data['correct_side']
+    correct_side = np.reshape(correct_side, (1, len(correct_side)))
+    correct_side[np.where(correct_side == -1)] = 2
+    correct_side = np.abs(correct_side-3)
+    choice = np.reshape(choice, (1, len(choice)))
+    perf = (choice == correct_side)
+    print(np.mean(perf))
+    evidence = stimulus[:, 1] - stimulus[:, 2]
+    evidence = np.reshape(evidence, (1, len(evidence)))
+    mask_ev = np.logical_and(evidence >= np.percentile(evidence, 40),
+                             evidence <= np.percentile(evidence, 60))
+    max_seq = 8
+    mat_biases = np.empty((max_seq-2, 2, 2))
+    for ind_perf in range(2):
+        for ind_conv in range(2, max_seq):
+            transitions = get_transition_mat(correct_side,
+                                             conv_window=ind_conv)
+            mask = np.logical_and(transitions == ind_conv, perf == ind_perf)
+            mask = np.logical_and(mask_ev, mask)
+            rp_mask = repeat_choice[mask]
+            mat_biases[ind_stp, ind_tr-margin, ind_perf, 0] =\
+                np.mean(rp_mask)
+            mat_biases[ind_stp, ind_tr-margin, ind_perf, 1] =\
+                np.std(rp_mask)/np.sqrt(rp_mask.shape[0])
+
+
 if __name__ == '__main__':
-    # plt.close('all')
-    simple_agent()
-    asdasd
+    plt.close('all')
     #    file = '/home/linux/network_data_169999.npz'
     #    fig = True
     #    n_envs = 12
@@ -1371,3 +1403,4 @@ if __name__ == '__main__':
                                    save_path='', fig=True)
     perf_cond_on_stim_ev(file='/home/linux/PassReward0_data.npz', save_path='',
                          fig=True)
+    simple_agent()
