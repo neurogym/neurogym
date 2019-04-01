@@ -929,8 +929,8 @@ def bias_cond_on_history(file='/home/linux/PassReward0_data.npz'):
     margin = 2
     transitions = get_transition_mat(ch, conv_window=conv_window)
     values = np.unique(transitions)
-    rand_perf = np.array(np.random.choice([0, 1])).reshape(1,)
-    prev_perf = np.concatenate((rand_perf, perf[0, :-1]))
+    #    rand_perf = np.array(np.random.choice([0, 1])).reshape(1,)
+    #    prev_perf = np.concatenate((rand_perf, perf[0, :-1]))
     mat_biases = np.empty((2, conv_window))
     labels = ['error', 'correct']
     ut.get_fig(display_mode)
@@ -941,7 +941,8 @@ def bias_cond_on_history(file='/home/linux/PassReward0_data.npz'):
             aux_color = (ind_tr-margin)/(values.shape[0]-2*margin-1)
             color = np.array((1-aux_color, 0, aux_color))
             mask = np.logical_and(transitions == values[ind_tr],
-                                  prev_perf == ind_perf)
+                                  perf == ind_perf)
+            mask = np.concatenate((np.array([False]), mask[:-1]))
             assert np.sum(mask) > 20000
             popt, pcov = bias_calculation(ch, ev, mask)
             print('bias ' + str(values[ind_tr]) + ' repeatitions after ' +
@@ -1045,12 +1046,13 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path='',
         repeat_choice = np.concatenate((rand_ch, ch))
         repeat_choice = (np.diff(repeat_choice) == 0)*1
         # previous performance
-        rand_perf = np.array(np.random.choice([0, 1])).reshape(1,)
-        prev_perf = np.concatenate((rand_perf, perf[0, :-1]))
+        #        rand_perf = np.array(np.random.choice([0, 1])).reshape(1,)
+        #        prev_perf = np.concatenate((rand_perf, perf[0, :-1]))
         for ind_perf in reversed(range(2)):
             for ind_tr in range(margin, max_tr):
                 mask = np.logical_and(transitions == values[ind_tr],
-                                      prev_perf == ind_perf)
+                                      perf == ind_perf)
+                mask = np.concatenate((np.array([False]), mask[:-1]))
                 mask = np.logical_and(m_ev, mask)
                 rp_mask = repeat_choice[mask]
                 mat_biases[ind_stp, ind_tr-margin, ind_perf, 0] =\
@@ -1275,7 +1277,6 @@ def simple_agent(file='/home/linux/PassReward0_data.npz'):
     infer the 'block' from the transition values at t-2, measure the
     performance at t-1 and compute the bias at t.
     """
-    
     data = np.load(file)
     correct_side = data['correct_side']
     correct_side = np.reshape(correct_side, (1, len(correct_side)))
@@ -1361,6 +1362,7 @@ def bias_after_repAlt_sequence(file='/home/linux/PassReward0_data.npz'):
             transitions = get_transition_mat(correct_side,
                                              conv_window=ind_conv)
             mask = np.logical_and(transitions == ind_conv, perf == ind_perf)
+            mask = np.concatenate((np.array([False]), mask[:-1]))
             mask = np.logical_and(mask_ev, mask)
             rp_mask = repeat_choice[mask]
             mat_biases[ind_stp, ind_tr-margin, ind_perf, 0] =\
