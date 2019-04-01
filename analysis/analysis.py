@@ -543,6 +543,14 @@ def plot_cond_psths(means_mat1, stds_mat1, means_mat2, stds_mat2, values,
     f.suptitle(suptit)
 
 
+def get_repetitions(mat):
+    mat = mat.flatten()
+    values = np.unique(mat)
+    rand_ch = np.array(np.random.choice(values)).reshape(1,)
+    repeat_choice = np.concatenate((rand_ch, mat))
+    return (np.diff(repeat_choice) == 0)*1
+
+
 def get_transition_mat(choice, times=None, num_steps=None, conv_window=5):
     """
     convolve the repetition vector obtained from choice to get a count of the
@@ -551,17 +559,14 @@ def get_transition_mat(choice, times=None, num_steps=None, conv_window=5):
     (times!=None) or just the outcomes (i.e. transition.shape==choice.shape)
     """
     # selectivity to transition probability
-    rand_choice = np.array(np.random.choice([1, 2])).reshape(1,)
-    choice_aux = np.concatenate((rand_choice, choice))
-    repeat = (np.diff(choice_aux) == 0)*1.0
+    repeat = get_repetitions(choice)
     transition = np.convolve(repeat, np.ones((conv_window,)),
                              mode='full')[0:-conv_window+1]
-    transition_ev = np.concatenate((np.array([0]), transition))
+    transition_ev = np.concatenate((np.array([0]), transition[:-1]))
     transition_ev -= conv_window/2
+
     if times is not None:
         trans_mat = np.zeros((num_steps,))
-        print(trans_mat.shape)
-        print(times.shape)
         for ind_t in range(times.shape[0]):
             trans_mat[times[ind_t]] = transition_ev[ind_t]
         return trans_mat
@@ -1015,8 +1020,8 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path='',
     # compute bias across training
     labels = ['error', 'correct']
     per = 100000
-    conv_window = 8
-    margin = 2
+    conv_window = 4
+    margin = 0
     num_stps = int(choice.shape[1] / per)
     mat_biases = np.empty((num_stps, conv_window-2*margin+1, 2, 2))
     for ind_stp in range(num_stps):
@@ -1071,14 +1076,17 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path='',
         for ind_perf in range(2):
             plt.subplot(2, 1, int(not(ind_perf))+1)
             plt.title('after ' + labels[ind_perf])
+            plt.ylabel('prob. rep. previous choice')
             for ind_tr in range(margin, values.shape[0]-margin):
                 aux_color = (ind_tr-margin)/(values.shape[0]-2*margin-1)
                 color = np.array((1-aux_color, 0, aux_color))
                 mean_ = mat_biases[:, ind_tr-margin, ind_perf, 0]
                 std_ = mat_biases[:, ind_tr-margin, ind_perf, 1]
                 plt.errorbar(np.arange(mean_.shape[0])*per,
-                             mean_, std_, color=color)
+                             mean_, std_, color=color, label='trans. ev. ' +
+                             str(values[ind_tr]))
                 if ind_perf == 0:
+                    plt.xlabel('trials')
                     plt.subplot(2, 1, 1)
                     aux_color = (ind_tr-margin)/(values.shape[0]-2*margin-1)
                     color = np.array((1-aux_color, 0, aux_color)) +\
@@ -1092,6 +1100,7 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path='',
             values_lines = [0, .25, .5, .75, 1]
             for ind_l in range(len(values_lines)):
                 plot_lines(mean_.shape[0]*per, values_lines[ind_l])
+        plt.legend(loc='lower left')
         if save_path != '':
             f.savefig(save_path + 'bias_evolution.png',
                       dpi=200, bbox_inches='tight')
@@ -1120,16 +1129,19 @@ def trans_evidence_cond_on_outcome(file='/home/linux/PassAction.npz',
                              evidence <= np.percentile(evidence, 60))
     # compute bias across training
     if measure == 'trans_change':
-        values_lines = [-10, 0, 10]
+        values_lines = [-30, -20, -10, 0, 10, 20, 30]
+        ylabel = 'change in trans. evidence'
     elif measure == 'repeat_choice':
         values_lines = [0, .25, .5, .75, 1]
+        ylabel = 'prob. rep. previous choice'
     elif measure == 'side_repeat':
         values_lines = [0, .25, .5, .75, 1]
+        ylabel = 'prob. rep. previous (ground truth) side'
 
     labels = ['error', 'correct']
     per = 100000
     conv_window = 4
-    margin = 1
+    margin = 0
     num_stps = int(choice.shape[1] / per)
     mat_biases = np.empty((num_stps, conv_window-2*margin+1, 2, 2))
     for ind_stp in range(num_stps):
@@ -1147,8 +1159,8 @@ def trans_evidence_cond_on_outcome(file='/home/linux/PassAction.npz',
         values = np.unique(transitions)
         max_tr = values.shape[0]-margin
         if measure == 'trans_change':
-            transition_change = np.concatenate((np.array([0]),
-                                                np.abs(transitions)))
+            transition_change = np.concatenate((np.abs(transitions),
+                                                np.array([0])))
             transition_change =\
                 100 * np.diff(transition_change) / np.max(transition_change)
             measure_mat = transition_change
@@ -1191,15 +1203,19 @@ def trans_evidence_cond_on_outcome(file='/home/linux/PassAction.npz',
         f = ut.get_fig(display_mode)
         for ind_perf in range(2):
             plt.subplot(2, 1, int(not(ind_perf))+1)
-            plt.title(measure + ' at ' + labels[ind_perf])
+            plt.ylabel(ylabel)
+            plt.title(measure + ' at ' + labels[ind_perf] +
+                      ' (' + str(conv_window+1) + ' trials back)')
             for ind_tr in range(margin, values.shape[0]-margin):
                 aux_color = (ind_tr-margin)/(values.shape[0]-2*margin-1)
                 color = np.array((1-aux_color, 0, aux_color))
                 mean_ = mat_biases[:, ind_tr-margin, ind_perf, 0]
                 std_ = mat_biases[:, ind_tr-margin, ind_perf, 1]
                 plt.errorbar(np.arange(mean_.shape[0])*per,
-                             mean_, std_, color=color)
+                             mean_, std_, color=color, label='trans. ev. ' +
+                             str(values[ind_tr]))
                 if ind_perf == 0:
+                    plt.xlabel('trials')
                     plt.subplot(2, 1, 1)
                     aux_color = (ind_tr-margin)/(values.shape[0]-2*margin-1)
                     color = np.array((1-aux_color, 0, aux_color)) +\
@@ -1212,14 +1228,117 @@ def trans_evidence_cond_on_outcome(file='/home/linux/PassAction.npz',
                     plt.subplot(2, 1, 2)
             for ind_l in range(len(values_lines)):
                 plot_lines(mean_.shape[0]*per, values_lines[ind_l])
+        plt.legend(loc='lower left')
         if save_path != '':
             f.savefig(save_path + 'bias_evolution.png',
                       dpi=200, bbox_inches='tight')
             plt.close(f)
 
 
+def perf_cond_on_stim_ev(file='/home/linux/PassAction.npz', save_path='',
+                         fig=True):
+    data = np.load(file)
+    choice = data['choice']
+    stimulus = data['stimulus']
+    correct_side = data['correct_side']
+    correct_side = np.reshape(correct_side, (1, len(correct_side)))
+    correct_side[np.where(correct_side == -1)] = 2
+    correct_side = np.abs(correct_side-3)
+    choice = np.reshape(choice, (1, len(choice)))
+    performance = (choice == correct_side)
+    performance = performance[-2000000:]
+    evidence = stimulus[:, 1] - stimulus[:, 2]
+    evidence = np.reshape(evidence, (1, len(evidence)))
+    evidence = evidence[-2000000:]
+    perf_mat = []
+    for ind_ev in range(10):
+        mask_ev = np.logical_and(evidence >= np.percentile(evidence,
+                                                           ind_ev*10),
+                                 evidence <= np.percentile(evidence,
+                                                           (ind_ev+1)*10))
+        mask_ev = np.reshape(mask_ev, (mask_ev.shape[1],))
+        perf_mat.append(np.mean(performance[:, mask_ev].flatten()))
+    ut.get_fig()
+    plt.plot(np.arange(10)*10+5, perf_mat, '-+')
+    plt.xlabel('stim evidence percentile')
+    plt.ylabel('performance')
+
+
+def simple_agent(file='/home/linux/PassReward0_data.npz'):
+    """
+    tests performance and bias of an agent that just applies a simple kernel
+    to the transition history. See figure in the if ... and False for an
+    example of the variables involved. In particular note that the idea is to
+    infer the 'block' from the transition values at t-2, measure the
+    performance at t-1 and compute the bias at t.
+    """
+    conv_window = 6
+    data = np.load(file)
+    correct_side = data['correct_side']
+    correct_side = np.reshape(correct_side, (1, len(correct_side)))
+    correct_side[np.where(correct_side == -1)] = 0
+    rep_side = (get_repetitions(correct_side)-0.5)*2
+    transitions = get_transition_mat(correct_side, conv_window=conv_window)
+    kernel = np.array([1, 1/2, 1/4])
+    kernel /= np.sum(kernel)
+    bias = np.convolve(rep_side,
+                       kernel, mode='full')[0:-kernel.shape[0]+1]
+    bias = np.concatenate((np.array([0]), bias[:-1]))
+    ut.get_fig()
+    plt.hist(bias)
+    decision = ((bias > 0)-0.5)*2
+    perf = (rep_side == decision)
+    print(np.mean(perf))
+    values = np.unique(transitions)
+    margin = 0
+    max_tr = values.shape[0]-margin
+    num = 50
+    start = 0
+    ut.get_fig()
+    mat_biases = np.empty((conv_window-2*margin+1, 2, 2))
+    for ind_perf in range(2):
+        for ind_tr in range(margin, max_tr):
+            mask = np.logical_and(transitions == values[ind_tr],
+                                  perf == ind_perf)
+            mask = np.concatenate((np.array([False]), mask[:-1]))
+            if ind_tr == 0 and ind_perf == 1 and False:
+                plt.plot(rep_side[start:start+num], '-+',
+                         label='correct transition')
+                plt.plot(transitions[start:start+num], '-+',
+                         label='transitions')
+                plt.plot(bias[start:start+num], '-+', label='bias')
+                plt.plot(perf[start:start+num], '-+', label='performance')
+                plt.plot(mask[start:start+num], '-+', label='mask')
+                plt.legend()
+                plt.figure()
+                plt.hist(bias[mask])
+                print(mask)
+                print(np.where(mask > 0))
+                print(np.where(bias[mask] > -0.1))
+                print(bias[mask].shape)
+
+            mat_biases[ind_tr, ind_perf, 0] = np.mean(bias[mask])
+            mat_biases[ind_tr, ind_perf, 1] =\
+                np.std(np.abs(bias[mask]))  # /np.sqrt(bias[mask].shape[0])
+
+    plt.errorbar(values, mat_biases[:, 0, 0],
+                 mat_biases[:, 0, 1], label='after error')
+    plt.errorbar(values, mat_biases[:, 1, 0],
+                 mat_biases[:, 1, 1], label='after correct')
+    plt.plot([np.min(values), np.max(values)], [0, 0], '--')
+    plt.legend()
+    ut.get_fig()
+    plt.plot(rep_side[:num], '-+', label='correct transition')
+    # plt.plot(bias[:num], '-+', label='bias')
+    # plt.plot(decision[:num], '-+', label='decision')
+    plt.plot(transitions[:num], '-+', label='transitions')
+    plt.legend()
+
+
 if __name__ == '__main__':
-    plt.close('all')
+    # plt.close('all')
+    simple_agent()
+    asdasd
     #    file = '/home/linux/network_data_169999.npz'
     #    fig = True
     #    n_envs = 12
@@ -1237,7 +1356,7 @@ if __name__ == '__main__':
     #                  num_steps=num_steps, obs_size=obs_size,
     #                  num_units=num_units)
     #    behavior_analysis(file='/home/linux/PassReward0_data.npz')
-    #    bias_cond_on_history(file='/home/linux/PassReward0_data.npz')
+    bias_cond_on_history(file='/home/linux/PassReward0_data.npz')
     # no_stim_analysis(file='/home/linux/PassAction.npz')
     no_stim_analysis(file='/home/linux/PassReward0_data.npz',
                      save_path='', fig=True)
@@ -1250,3 +1369,5 @@ if __name__ == '__main__':
     trans_evidence_cond_on_outcome(file='/home/linux/PassReward0_data.npz',
                                    measure='repeat_choice',
                                    save_path='', fig=True)
+    perf_cond_on_stim_ev(file='/home/linux/PassReward0_data.npz', save_path='',
+                         fig=True)
