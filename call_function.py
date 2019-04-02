@@ -21,7 +21,7 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32,
     env = 'RDM-v0'
     net = net_type
     nsteps = 20
-    num_env = 12
+    num_env = 10
     num_steps_per_env = num_stps_env
     tot_num_stps = num_steps_per_env*num_env
     num_steps_per_logging = 1000000
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     pass_reward = [True]
     pass_action = [True]
     bl_dur = [200]
-    num_units = [16]
+    num_units = [32]
     net_type = ['twin_net']  # ['twin_net', 'cont_rnn']
     num_steps = [1e8]  # [1e9]
     print(num_steps)
