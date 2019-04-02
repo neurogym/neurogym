@@ -33,7 +33,6 @@ class manage_data(Wrapper):
         self.obs_mat = []
         self.act_mat = []
         self.rew_mat = []
-        self.new_tr_mat = []
         self.max_num_samples = 200
         self.num_subplots = 3
         self.plt_tr = plt_tr
@@ -54,13 +53,21 @@ class manage_data(Wrapper):
             self.env.__class__.__name__ + str(self.inst)
 
     def reset(self):
-        if len(self.rew_mat) > 0:
+        if len(self.rew_mat) > 0 and self.inst == 0:
             data = {'choice': self.choice_mat, 'stimulus': self.stim_mat,
                     'correct_side': self.side_mat, 'obs_mat': self.obs_mat,
                     'act_mat': self.act_mat, 'rew_mat': self.rew_mat,
                     'rep_prob': self.rep_prob_mat}
-            np.savez(self.saving_name + '_data.npz', **data)
-            if len(self.side_mat) != 0 and self.inst == 0:
+            np.savez(self.saving_name + '_bhvr_data_' +
+                     str(self.env.num_tr) + '.npz', **data)
+            self.choice_mat = []
+            self.side_mat = []
+            self.rep_prob_mat = []
+            self.stim_mat = []
+            self.obs_mat = []
+            self.act_mat = []
+            self.rew_mat = []
+            if len(self.side_mat) != 0:
                 try:
                     analysis.no_stim_analysis(file=self.saving_name +
                                               '_data.npz',
