@@ -25,7 +25,7 @@ if len(sys.argv) > 1:
               'wrapper': sys.argv[3], 'pass_reward': sys.argv[4],
               'plot': sys.argv[5]}
 else:
-    params = {'task': 'RDM-v0', 'num_steps': 100, 'wrapper': '',
+    params = {'task': 'RDM-v0', 'num_steps': 1000, 'wrapper': '',
               'pass_reward': 'True', 'plot': 'False'}
 
 task_registrations.register_neuroTask(params['task'])
@@ -58,7 +58,6 @@ for stp in range(int(params['num_steps'])):
     obs, rew, done, info = env.step(action)
     if done:
         env.reset()
-    print(obs)
     observations.append(obs)
     if 'new_trial' in info.keys():
         actions_end_of_trial.append(action)

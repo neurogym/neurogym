@@ -19,6 +19,7 @@ class manage_data(Wrapper):
     """
     def __init__(self, env, inst=0, plt_tr=True, folder=None):
         Wrapper.__init__(self, env=env)
+        self.num_tr = 0
         self.env = env
         self.inst = inst
         self.action_space = self.env.action_space
@@ -59,7 +60,7 @@ class manage_data(Wrapper):
                     'act_mat': self.act_mat, 'rew_mat': self.rew_mat,
                     'rep_prob': self.rep_prob_mat}
             np.savez(self.saving_name + '_bhvr_data_' +
-                     str(self.env.num_tr) + '.npz', **data)
+                     str(self.num_tr) + '.npz', **data)
             self.choice_mat = []
             self.side_mat = []
             self.rep_prob_mat = []
@@ -87,6 +88,7 @@ class manage_data(Wrapper):
         obs, rew, done, info = self.env.step(action)
         self.cum_obs += obs
         if 'new_trial' in info.keys():
+            self.num_tr += 1
             self.choice_mat.append(action)
             self.stim_mat.append(self.cum_obs)
             self.cum_obs = 0
