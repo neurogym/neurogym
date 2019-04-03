@@ -832,23 +832,29 @@ def bias_analysis(file='/home/linux/network_data_492999.npz',
     plt.title('correlation between baseline firing rate and bias')
 
 
-def behavior_analysis(file='/home/linux/PassReward0_data.npz'):
+def load_behavioral_data(file):
     """
-    compute performance and bias across training
+    loads behavioral data and get relevant info from it
     """
-    # ['choice', 'stimulus', 'correct_side',
-    #  'obs_mat', 'act_mat', 'rew_mat']
     data = np.load(file)
     choice = data['choice']
     stimulus = data['stimulus']
     correct_side = data['correct_side']
     correct_side = np.reshape(correct_side, (1, len(correct_side)))
-    choice = np.reshape(choice, (1, len(choice)))
     correct_side[np.where(correct_side == -1)] = 2
     correct_side = np.abs(correct_side-3)
+    assert (np.unique(correct_side) == [1, 2]).all()
     performance = (choice == correct_side)
     evidence = stimulus[:, 1] - stimulus[:, 2]
     evidence = np.reshape(evidence, (1, len(evidence)))
+    return choice, correct_side, performance, evidence
+
+
+def behavior_analysis(file='/home/linux/PassReward0_data.npz'):
+    """
+    compute performance and bias across training
+    """
+    choice, correct_side, performance, evidence = load_behavioral_data(file)
     # plot performance
     num_tr = 300000
     start_point = 50000
@@ -909,20 +915,11 @@ def behavior_analysis(file='/home/linux/PassReward0_data.npz'):
 
 def test_bias():
     """
-    this function just computed the bias in the old and new way and
-    compared the results
+    this function just computes the bias in the old and new ways and
+    compares the results
     """
-    data = np.load('/home/linux/PassReward0_data.npz')
-    choice = data['choice']
-    stimulus = data['stimulus']
-    correct_side = data['correct_side']
-    correct_side = np.reshape(correct_side, (1, len(correct_side)))
-    choice = np.reshape(choice, (1, len(choice)))
-    correct_side[np.where(correct_side == -1)] = 2
-    correct_side = np.abs(correct_side-3)
-    performance = (choice == correct_side)
-    evidence = stimulus[:, 1] - stimulus[:, 2]
-    evidence = np.reshape(evidence, (1, len(evidence)))
+    file = '/home/linux/PassReward0_data.npz'
+    choice, correct_side, performance, evidence = load_behavioral_data(file)
     # plot psychometric curves
     ut.get_fig(display_mode)
     num_tr = 2000000
@@ -952,18 +949,7 @@ def test_bias():
 
 
 def bias_cond_on_history(file='/home/linux/PassReward0_data.npz'):
-    data = np.load(file)
-    choice = data['choice']
-    print('number of trials: ' + str(choice.shape[0]))
-    stimulus = data['stimulus']
-    correct_side = data['correct_side']
-    correct_side = np.reshape(correct_side, (1, len(correct_side)))
-    choice = np.reshape(choice, (1, len(choice)))
-    correct_side[np.where(correct_side == -1)] = 2
-    correct_side = np.abs(correct_side-3)
-    performance = (choice == correct_side)
-    evidence = stimulus[:, 1] - stimulus[:, 2]
-    evidence = np.reshape(evidence, (1, len(evidence)))
+    choice, correct_side, performance, evidence = load_behavioral_data(file)
     # BIAS CONDITIONED ON TRANSITION HISTORY (NUMBER OF REPETITIONS)
     num_tr = 2000000
     start_point = performance.shape[1]-num_tr
@@ -989,7 +975,7 @@ def bias_cond_on_history(file='/home/linux/PassReward0_data.npz'):
             color = np.array((1-aux_color, 0, aux_color))
             mask = np.logical_and(transitions == values[ind_tr],
                                   perf == ind_perf)
-            thereissomethingwrongwiththis
+            print(mask.shape)
             mask = np.concatenate((np.array([False]), mask[:-1]))
             assert np.sum(mask) > 20000
             popt, pcov = bias_calculation(ch, ev, mask)
@@ -1010,17 +996,7 @@ def bias_cond_on_history(file='/home/linux/PassReward0_data.npz'):
 
 def no_stim_analysis(file='/home/linux/PassAction.npz', save_path='',
                      fig=True):
-    data = np.load(file)
-    choice = data['choice']
-    stimulus = data['stimulus']
-    correct_side = data['correct_side']
-    correct_side = np.reshape(correct_side, (1, len(correct_side)))
-    correct_side[np.where(correct_side == -1)] = 2
-    correct_side = np.abs(correct_side-3)
-    choice = np.reshape(choice, (1, len(choice)))
-    performance = (choice == correct_side)
-    evidence = stimulus[:, 1] - stimulus[:, 2]
-    evidence = np.reshape(evidence, (1, len(evidence)))
+    choice, correct_side, performance, evidence = load_behavioral_data(file)
     mask_ev = np.logical_and(evidence >= np.percentile(evidence, 40),
                              evidence <= np.percentile(evidence, 60))
     if fig:
@@ -1159,17 +1135,7 @@ def plot_lines(x_max, y_value):
 def trans_evidence_cond_on_outcome(file='/home/linux/PassAction.npz',
                                    measure='repeat_choice',
                                    save_path='', fig=True):
-    data = np.load(file)
-    choice = data['choice']
-    stimulus = data['stimulus']
-    correct_side = data['correct_side']
-    correct_side = np.reshape(correct_side, (1, len(correct_side)))
-    correct_side[np.where(correct_side == -1)] = 2
-    correct_side = np.abs(correct_side-3)
-    choice = np.reshape(choice, (1, len(choice)))
-    performance = (choice == correct_side)
-    evidence = stimulus[:, 1] - stimulus[:, 2]
-    evidence = np.reshape(evidence, (1, len(evidence)))
+    choice, correct_side, performance, evidence = load_behavioral_data(file)
     mask_ev = np.logical_and(evidence >= np.percentile(evidence, 40),
                              evidence <= np.percentile(evidence, 60))
     # compute bias across training
@@ -1281,18 +1247,7 @@ def perf_cond_on_stim_ev(file='/home/linux/PassAction.npz', save_path='',
     """
     computes performance as a function of the stimulus evidence
     """
-    data = np.load(file)
-    choice = data['choice']
-    stimulus = data['stimulus']
-    correct_side = data['correct_side']
-    correct_side = np.reshape(correct_side, (1, len(correct_side)))
-    correct_side[np.where(correct_side == -1)] = 2
-    correct_side = np.abs(correct_side-3)
-    choice = np.reshape(choice, (1, len(choice)))
-    performance = (choice == correct_side)
-    performance = performance[-2000000:]
-    evidence = stimulus[:, 1] - stimulus[:, 2]
-    evidence = np.reshape(evidence, (1, len(evidence)))
+    _, _, performance, evidence = load_behavioral_data(file)
     evidence = evidence[-2000000:]
     perf_mat = []
     for ind_ev in range(10):
@@ -1380,19 +1335,8 @@ def simple_agent(file='/home/linux/PassReward0_data.npz'):
 
 
 def bias_after_repAlt_sequence(file='/home/linux/PassReward0_data.npz'):
-    data = np.load(file)
-    choice = data['choice']
-    stimulus = data['stimulus']
-    correct_side = data['correct_side']
-    correct_side = np.reshape(correct_side, (1, len(correct_side)))
-    correct_side[np.where(correct_side == -1)] = 2
-    correct_side = np.abs(correct_side-3)
-    choice = np.reshape(choice, (1, len(choice)))
+    choice, correct_side, perf, evidence = load_behavioral_data(file)
     repeat_choice = get_repetitions(choice)
-    perf = (choice == correct_side)
-    print(np.mean(perf))
-    evidence = stimulus[:, 1] - stimulus[:, 2]
-    evidence = np.reshape(evidence, (1, len(evidence)))
     mask_ev = np.logical_and(evidence >= np.percentile(evidence, 40),
                              evidence <= np.percentile(evidence, 60))
     max_seq = 8
@@ -1413,26 +1357,34 @@ def bias_after_repAlt_sequence(file='/home/linux/PassReward0_data.npz'):
 
 if __name__ == '__main__':
     plt.close('all')
-    file = '/home/linux/network_data_492999.npz'
-    fig = True
-    n_envs = 12
-    env = 0
-    num_steps = 100
-    obs_size = 4
-    num_units = 128
-    window = (-5, 30)
-    neural_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-                    num_steps=num_steps, obs_size=obs_size,
-                    num_units=num_units, window=window)
-    transition_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-                        num_steps=num_steps, obs_size=obs_size,
-                        num_units=num_units, window=window)
-    bias_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-                  num_steps=num_steps, obs_size=obs_size,
-                  num_units=num_units, window=window)
-    asdasd
-    #    behavior_analysis(file='/home/linux/PassReward0_data.npz')
-    #    bias_cond_on_history(file='/home/linux/PassReward0_data.npz')
+    #    states, rewards, actions, obs, trials =\
+    #        get_simulation_vars(file='/home/linux/network_data_492999.npz',
+    #                            fig=True, n_envs=12, env=0, num_steps=100,
+    #                            obs_size=4, num_units=128)
+    #    plt.figure()
+    #    plt.plot(states[80,:])
+    #    print(states.shape)
+    #    asdsad
+    #    file = '/home/linux/network_data_492999.npz'
+    #    fig = True
+    #    n_envs = 12
+    #    env = 0
+    #    num_steps = 100
+    #    obs_size = 4
+    #    num_units = 128
+    #    window = (-5, 30)
+    #    neural_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+    #                    num_steps=num_steps, obs_size=obs_size,
+    #                    num_units=num_units, window=window)
+    #    transition_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+    #                        num_steps=num_steps, obs_size=obs_size,
+    #                        num_units=num_units, window=window)
+    #    bias_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+    #                  num_steps=num_steps, obs_size=obs_size,
+    #                  num_units=num_units, window=window)
+    #    asdasd
+    #       behavior_analysis(file='/home/linux/PassReward0_data.npz')
+    bias_cond_on_history(file='/home/linux/PassReward0_data.npz')
     #    # no_stim_analysis(file='/home/linux/PassAction.npz')
     #    no_stim_analysis(file='/home/linux/PassReward0_data.npz',
     #                     save_path='', fig=True)
