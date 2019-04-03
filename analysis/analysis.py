@@ -318,10 +318,7 @@ def bias_calculation(choice, ev, mask):
     """
     # associate invalid trials (network fixates) with incorrect choice
     choice[choice == 0] = ev[choice == 0] > 0
-    repeat = np.concatenate(
-        (np.array(np.random.choice([0, 1])).reshape(1,),
-         choice))
-    repeat = np.diff(repeat) == 0
+    repeat = get_repetitions(choice)
     # right_choice_repeating is just the original right_choice mat
     # but shifted one element to the left.
     choice_repeating = np.concatenate(
@@ -402,7 +399,8 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
 
 
 def neuron_selectivity(activity, feature, all_times, feat_bin=None,
-                       window=(-5, 10), av_across_time=False):
+                       window=(-5, 10), av_across_time=False,
+                       prev_trial=False):
     """
     computes the average activity conditioned on feature at windows around the
     times given by all_times. f feat_bin is not none, it bins the feature
@@ -413,6 +411,13 @@ def neuron_selectivity(activity, feature, all_times, feat_bin=None,
     times = all_times[np.logical_and(all_times > np.abs(window[0]),
                                      all_times < all_times.shape[0]-window[1])]
     feat_mat = feature[times]
+    # if prev_trial is True, the psth will be computed conditioned on the
+    # previous trial values
+    if prev_trial:
+        values = np.unique(feat_mat)
+        rand_feature = np.array(np.random.choice(values, size=(1,)))
+        feat_mat = np.concatenate((rand_feature, feat_mat[:-1]))
+
     act_mat = []
     # get activities
     for ind_t in range(times.shape[0]):
@@ -439,7 +444,8 @@ def neuron_selectivity(activity, feature, all_times, feat_bin=None,
     resp_std = []
     significance = []
     for ind_f in range(values.shape[0]):
-        feat_resps = act_mat[feat_mat_bin == values[ind_f], :]
+        index = np.where(feat_mat_bin == values[ind_f])[0]
+        feat_resps = act_mat[index, :]
         resp_mean.append(np.mean(feat_resps, axis=0))
         resp_std.append(np.std(feat_resps, axis=0) /
                         np.sqrt(feat_resps.shape[0]))
@@ -454,7 +460,8 @@ def neuron_selectivity(activity, feature, all_times, feat_bin=None,
 
 
 def get_psths(states, feature, times, window, index, feat_bin=None,
-              pv_th=0.01, sorting=None, av_across_time=False):
+              pv_th=0.01, sorting=None, av_across_time=False,
+              prev_trial=False):
     """
     calls neuron_selectivity for all neurons and sort the averages (stds) by
     percentage of significant values
@@ -466,7 +473,8 @@ def get_psths(states, feature, times, window, index, feat_bin=None,
         sts_n = states[ind_n, :]
         means, stds, values, sign =\
             neuron_selectivity(sts_n, feature, times, feat_bin=feat_bin,
-                               window=window, av_across_time=av_across_time)
+                               window=window, av_across_time=av_across_time,
+                               prev_trial=prev_trial)
         sign = np.array(sign)
         perc_sign = 100*np.sum(sign[:, 3] <
                                pv_th / sign.shape[0]) / sign.shape[0]
@@ -486,10 +494,15 @@ def get_psths(states, feature, times, window, index, feat_bin=None,
     return means_neurons, stds_neurons, values, sorting
 
 
-def plot_psths(means_mat, stds_mat, values, neurons, index, suptit=''):
+def plot_psths(means_mat, stds_mat, values, neurons, index, suptit='',
+               trial_int=6.5, dt=100):
     """
     plot the psths (averages) returned get_psths
     """
+    # this is to plot dashed lines at trials end
+    num_tr = dt*means_mat.shape[2]/trial_int
+    events = [x*trial_int for x in np.arange(num_tr)
+              if x*trial_int < index[-1]]
     f = ut.get_fig(display_mode)
     for ind_n in range(np.min([30, means_mat.shape[0]])):
         means = means_mat[ind_n, :, :]
@@ -502,18 +515,30 @@ def plot_psths(means_mat, stds_mat, values, neurons, index, suptit=''):
             else:
                 plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :])
             plt.title(str(neurons[ind_n]))
+            indicate_time_event(events)
         if ind_n == 0:
             f.legend()
     f.suptitle(suptit)
 
 
+def indicate_time_event(times=[0]):
+    ax = plt.gca()
+    ylim = ax.get_ylim()
+    for ind_t in times:
+        plt.plot([ind_t, ind_t], ylim, '--', color=(.7, .7, .7))
+
+
 def plot_cond_psths(means_mat1, stds_mat1, means_mat2, stds_mat2, values,
-                    neurons, index, suptit=''):
+                    neurons, index, suptit='', trial_int=6.5, dt=100):
     """
     plot the psths (averages) returned by get_psths in two different sets:
     rows 2n+1 and 2n. This is basically used for comparison between after
     correct and after error cases.
     """
+    # this is to plot dashed lines at trials end
+    num_tr = dt*means_mat1.shape[2]/trial_int
+    events = [x*trial_int for x in np.arange(num_tr)
+              if x*trial_int < index[-1]]
     f = ut.get_fig(display_mode)
     for ind_n in range(np.min([15, means_mat1.shape[0]])):
         means = means_mat1[ind_n, :, :]
@@ -528,6 +553,7 @@ def plot_cond_psths(means_mat1, stds_mat1, means_mat2, stds_mat2, values,
             plt.title(str(neurons[ind_n]))
             ax = plt.gca()
             ut.color_axis(ax, color='g')
+            indicate_time_event(events)
         if ind_n == 0:
             f.legend()
 
@@ -539,24 +565,30 @@ def plot_cond_psths(means_mat1, stds_mat1, means_mat2, stds_mat2, values,
             plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :])
             ax = plt.gca()
             ut.color_axis(ax, color='r')
+            indicate_time_event(events)
 
     f.suptitle(suptit)
 
 
 def get_repetitions(mat):
+    """
+    makes diff of the input vector, mat, to obtain the repetition vector X,
+    i.e. X will be 1 at t if the value of mat at t is equal to that at t-1
+    """
     mat = mat.flatten()
     values = np.unique(mat)
-    rand_ch = np.array(np.random.choice(values)).reshape(1,)
+    rand_ch = np.array(np.random.choice(values, size=(1,)))
     repeat_choice = np.concatenate((rand_ch, mat))
     return (np.diff(repeat_choice) == 0)*1
 
 
 def get_transition_mat(choice, times=None, num_steps=None, conv_window=5):
     """
-    convolve the repetition vector obtained from choice to get a count of the
+    convolves the repetition vector obtained from choice to get a count of the
     number of repetitions in the last N trials (N = conv_window),
-    not including the current trial. It can return the whole vector
-    (times!=None) or just the outcomes (i.e. transition.shape==choice.shape)
+    **without taking into accountthe current trial**.
+    It can return the whole vector (times!=None) or just the outcomes
+    (i.e. transition.shape==choice.shape)
     """
     # selectivity to transition probability
     repeat = get_repetitions(choice)
@@ -576,7 +608,7 @@ def get_transition_mat(choice, times=None, num_steps=None, conv_window=5):
 
 def neural_analysis(file='/home/linux/network_data_492999.npz',
                     fig=False, n_envs=12, env=0, num_steps=100,
-                    obs_size=4, num_units=128):
+                    obs_size=4, num_units=128, window=(-5, 20)):
     """
     get variables from experiment in file and plot selectivities to:
     action, reward, stimulus and action conditioned on prev. reward
@@ -587,12 +619,12 @@ def neural_analysis(file='/home/linux/network_data_492999.npz',
                             num_units=num_units)
 
     dt = 100
-    window = (-5, 10)
     win_l = int(np.diff(window))
     index = np.linspace(dt*window[0], dt*window[1],
                         int(win_l), endpoint=False).reshape((win_l, 1))
 
     times = np.where(trials == 1)[0]
+    trial_int = np.mean(np.diff(times))*dt
     # actions
     print('selectivity to actions')
     means_neurons, stds_neurons, values, sorting = get_psths(states,
@@ -600,7 +632,18 @@ def neural_analysis(file='/home/linux/network_data_492999.npz',
                                                              times, window,
                                                              index)
     plot_psths(means_neurons, stds_neurons, values, sorting, index,
-               suptit='selectivity to actions')
+               suptit='selectivity to actions', trial_int=trial_int, dt=dt)
+
+    # previous choice
+    print('selectivity to previous actions')
+    means_neurons, stds_neurons, values, sorting = get_psths(states,
+                                                             actions,
+                                                             times, window,
+                                                             index,
+                                                             prev_trial=True)
+    plot_psths(means_neurons, stds_neurons, values, sorting, index,
+               suptit='selectivity to prev. actions', trial_int=trial_int,
+               dt=dt)
 
     # rewards
     print('selectivity to reward')
@@ -609,7 +652,7 @@ def neural_analysis(file='/home/linux/network_data_492999.npz',
                                                              times, window,
                                                              index)
     plot_psths(means_neurons, stds_neurons, values, sorting, index,
-               suptit='selectivity to reward')
+               suptit='selectivity to reward', trial_int=trial_int, dt=dt)
 
     # obs
     print('selectivity to cumulative observation')
@@ -627,10 +670,11 @@ def neural_analysis(file='/home/linux/network_data_492999.npz',
                                                              index,
                                                              feat_bin=4)
     plot_psths(means_neurons, stds_neurons, values, sorting, index,
-               suptit='selectivity to cumulative observation')
+               suptit='selectivity to cumulative observation',
+               trial_int=trial_int, dt=dt)
 
     print('selectivity to action conditioned on reward')
-    window = (-5, 15)
+    window = (-5, 20)
     win_l = int(np.diff(window))
     index = np.linspace(dt*window[0], dt*window[1],
                         int(win_l), endpoint=False).reshape((win_l, 1))
@@ -645,18 +689,18 @@ def neural_analysis(file='/home/linux/network_data_492999.npz',
     assert (values_r == values_nr).all()
     plot_cond_psths(means_r, stds_r, means_nr, stds_nr,
                     values_r, sorting, index,
-                    suptit='selectivity to action conditioned on reward')
+                    suptit='selectivity to action conditioned on reward',
+                    trial_int=trial_int, dt=dt)
 
 
 def transition_analysis(file='/home/linux/network_data_492999.npz',
                         fig=False, n_envs=12, env=0, num_steps=100,
-                        obs_size=4, num_units=128):
+                        obs_size=4, num_units=128, window=(-5, 20)):
     """
     get variables from experiment in file and plot selectivities to
     transition evidence
     """
     dt = 100
-    window = (-5, 10)
     win_l = int(np.diff(window))
     index = np.linspace(dt*window[0], dt*window[1],
                         int(win_l), endpoint=False).reshape((win_l, 1))
@@ -665,6 +709,7 @@ def transition_analysis(file='/home/linux/network_data_492999.npz',
                             num_steps=num_steps, obs_size=obs_size,
                             num_units=num_units)
     times = np.where(trials == 1)[0]
+    trial_int = np.mean(np.diff(times))*dt
     choice = actions[times]
     outcome = rewards[times]
     ground_truth = choice.copy()
@@ -679,7 +724,8 @@ def transition_analysis(file='/home/linux/network_data_492999.npz',
                                                              times, window,
                                                              index)
     plot_psths(means_neurons, stds_neurons, values, sorting, index,
-               suptit='selectivity to number of repetitions')
+               suptit='selectivity to number of repetitions',
+               trial_int=trial_int, dt=dt)
 
     print('selectivity to num of repetitions conditioned on prev. reward')
     rews = np.where(rewards[times] == 1)[0]+1
@@ -695,18 +741,18 @@ def transition_analysis(file='/home/linux/network_data_492999.npz',
     assert (values_r == values_nr).all()
     plot_cond_psths(means_r, stds_r, means_nr, stds_nr,
                     values_r, sorting, index,
-                    suptit='selectivity to num reps cond. on prev. reward')
+                    suptit='selectivity to num reps cond. on prev. reward',
+                    trial_int=trial_int, dt=dt)
 
 
 def bias_analysis(file='/home/linux/network_data_492999.npz',
                   fig=False, n_envs=12, env=0, num_steps=100,
-                  obs_size=4, num_units=128):
+                  obs_size=4, num_units=128, window=(-5, 20)):
     """
     get variables from experiment in file and plot selectivities to
     bias (transition evidence x previous choice)
     """
     dt = 100
-    window = (-5, 10)
     win_l = int(np.diff(window))
     index = np.linspace(dt*window[0], dt*window[1],
                         int(win_l), endpoint=False).reshape((win_l, 1))
@@ -715,6 +761,7 @@ def bias_analysis(file='/home/linux/network_data_492999.npz',
                             num_steps=num_steps, obs_size=obs_size,
                             num_units=num_units)
     times = np.where(trials == 1)[0]
+    trial_int = np.mean(np.diff(times))*dt
     choice = actions[times]
     num_steps = trials.shape[0]
     trans_mat = get_transition_mat(choice, times, num_steps=num_steps,
@@ -731,7 +778,7 @@ def bias_analysis(file='/home/linux/network_data_492999.npz',
                                                              times, window,
                                                              index)
     plot_psths(means_neurons, stds_neurons, values, sorting, index,
-               suptit='selectivity to bias')
+               suptit='selectivity to bias', trial_int=trial_int, dt=dt)
     print('selectivity to bias conditioned on reward')
     window = (-2, 0)
     win_l = int(np.diff(window))
@@ -942,6 +989,7 @@ def bias_cond_on_history(file='/home/linux/PassReward0_data.npz'):
             color = np.array((1-aux_color, 0, aux_color))
             mask = np.logical_and(transitions == values[ind_tr],
                                   perf == ind_perf)
+            thereissomethingwrongwiththis
             mask = np.concatenate((np.array([False]), mask[:-1]))
             assert np.sum(mask) > 20000
             popt, pcov = bias_calculation(ch, ev, mask)
@@ -1033,18 +1081,13 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path='',
         # correct side transition history
         cs = correct_side[:, start:end]
         cs = np.reshape(cs, (cs.shape[1],))
-        rand_ch = np.array(np.random.choice([0, 1])).reshape(1,)
-        repeat = np.concatenate((rand_ch, cs))
-        repeat = (np.diff(repeat) == 0)*1
         transitions = get_transition_mat(cs, conv_window=conv_window)
         values = np.unique(transitions)
         max_tr = values.shape[0]-margin
         # choice repeating
         ch = choice[:, start:end]
         ch = np.reshape(ch, (ch.shape[1],))
-        rand_ch = np.array(np.random.choice([0, 1])).reshape(1,)
-        repeat_choice = np.concatenate((rand_ch, ch))
-        repeat_choice = (np.diff(repeat_choice) == 0)*1
+        repeat_choice = get_repetitions(ch)
         # previous performance
         #        rand_perf = np.array(np.random.choice([0, 1])).reshape(1,)
         #        prev_perf = np.concatenate((rand_perf, perf[0, :-1]))
@@ -1154,9 +1197,7 @@ def trans_evidence_cond_on_outcome(file='/home/linux/PassAction.npz',
         # correct side transition history
         cs = correct_side[:, start:end]
         cs = np.reshape(cs, (cs.shape[1],))
-        rand_ch = np.array(np.random.choice([0, 1])).reshape(1,)
-        repeat = np.concatenate((rand_ch, cs))
-        repeat = (np.diff(repeat) == 0)*1
+        repeat = get_repetitions(cs)
         transitions = get_transition_mat(cs, conv_window=conv_window)
         values = np.unique(transitions)
         max_tr = values.shape[0]-margin
@@ -1170,9 +1211,7 @@ def trans_evidence_cond_on_outcome(file='/home/linux/PassAction.npz',
         elif measure == 'repeat_choice':
             ch = choice[:, start:end]
             ch = np.reshape(ch, (ch.shape[1],))
-            rand_ch = np.array(np.random.choice([0, 1])).reshape(1,)
-            repeat_choice = np.concatenate((rand_ch, ch))
-            repeat_choice = (np.diff(repeat_choice) == 0)*1
+            repeat_choice = get_repetitions(ch)
             measure_mat = repeat_choice
         elif measure == 'side_repeat':
             measure_mat = repeat
@@ -1282,7 +1321,7 @@ def simple_agent(file='/home/linux/PassReward0_data.npz'):
     correct_side = np.reshape(correct_side, (1, len(correct_side)))
     correct_side[np.where(correct_side == -1)] = 0
     rep_side = (get_repetitions(correct_side)-0.5)*2
-    kernel = np.array([1, 1/2, 1/4])
+    kernel = np.array([1, 1/2, 1/4, 1/8])
     kernel /= np.sum(kernel)
     bias = np.convolve(rep_side,
                        kernel, mode='full')[0:-kernel.shape[0]+1]
@@ -1292,7 +1331,7 @@ def simple_agent(file='/home/linux/PassReward0_data.npz'):
     decision = ((bias > 0)-0.5)*2
     perf = (rep_side == decision)
     print(np.mean(perf))
-    conv_window = 6
+    conv_window = 4
     transitions = get_transition_mat(correct_side, conv_window=conv_window)
     values = np.unique(transitions)
     margin = 0
@@ -1349,6 +1388,7 @@ def bias_after_repAlt_sequence(file='/home/linux/PassReward0_data.npz'):
     correct_side[np.where(correct_side == -1)] = 2
     correct_side = np.abs(correct_side-3)
     choice = np.reshape(choice, (1, len(choice)))
+    repeat_choice = get_repetitions(choice)
     perf = (choice == correct_side)
     print(np.mean(perf))
     evidence = stimulus[:, 1] - stimulus[:, 2]
@@ -1365,44 +1405,46 @@ def bias_after_repAlt_sequence(file='/home/linux/PassReward0_data.npz'):
             mask = np.concatenate((np.array([False]), mask[:-1]))
             mask = np.logical_and(mask_ev, mask)
             rp_mask = repeat_choice[mask]
-            mat_biases[ind_stp, ind_tr-margin, ind_perf, 0] =\
+            mat_biases[ind_conv, ind_perf, 0] =\
                 np.mean(rp_mask)
-            mat_biases[ind_stp, ind_tr-margin, ind_perf, 1] =\
+            mat_biases[ind_conv, ind_perf, 1] =\
                 np.std(rp_mask)/np.sqrt(rp_mask.shape[0])
 
 
 if __name__ == '__main__':
     plt.close('all')
-    #    file = '/home/linux/network_data_169999.npz'
-    #    fig = True
-    #    n_envs = 12
-    #    env = 0
-    #    num_steps = 20
-    #    obs_size = 5
-    #    num_units = 32
-    #    neural_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-    #                    num_steps=num_steps, obs_size=obs_size,
-    #                    num_units=num_units)
-    #    transition_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-    #                        num_steps=num_steps, obs_size=obs_size,
-    #                        num_units=num_units)
-    #    bias_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-    #                  num_steps=num_steps, obs_size=obs_size,
-    #                  num_units=num_units)
+    file = '/home/linux/network_data_492999.npz'
+    fig = True
+    n_envs = 12
+    env = 0
+    num_steps = 100
+    obs_size = 4
+    num_units = 128
+    window = (-5, 30)
+    neural_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+                    num_steps=num_steps, obs_size=obs_size,
+                    num_units=num_units, window=window)
+    transition_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+                        num_steps=num_steps, obs_size=obs_size,
+                        num_units=num_units, window=window)
+    bias_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+                  num_steps=num_steps, obs_size=obs_size,
+                  num_units=num_units, window=window)
+    asdasd
     #    behavior_analysis(file='/home/linux/PassReward0_data.npz')
-    bias_cond_on_history(file='/home/linux/PassReward0_data.npz')
-    # no_stim_analysis(file='/home/linux/PassAction.npz')
-    no_stim_analysis(file='/home/linux/PassReward0_data.npz',
-                     save_path='', fig=True)
-    trans_evidence_cond_on_outcome(file='/home/linux/PassReward0_data.npz',
-                                   measure='trans_change',
-                                   save_path='', fig=True)
-    trans_evidence_cond_on_outcome(file='/home/linux/PassReward0_data.npz',
-                                   measure='side_repeat',
-                                   save_path='', fig=True)
-    trans_evidence_cond_on_outcome(file='/home/linux/PassReward0_data.npz',
-                                   measure='repeat_choice',
-                                   save_path='', fig=True)
-    perf_cond_on_stim_ev(file='/home/linux/PassReward0_data.npz', save_path='',
-                         fig=True)
+    #    bias_cond_on_history(file='/home/linux/PassReward0_data.npz')
+    #    # no_stim_analysis(file='/home/linux/PassAction.npz')
+    #    no_stim_analysis(file='/home/linux/PassReward0_data.npz',
+    #                     save_path='', fig=True)
+    #    trans_evidence_cond_on_outcome(file='/home/linux/PassReward0_data.npz',
+    #                                   measure='trans_change',
+    #                                   save_path='', fig=True)
+    #    trans_evidence_cond_on_outcome(file='/home/linux/PassReward0_data.npz',
+    #                                   measure='side_repeat',
+    #                                   save_path='', fig=True)
+    #    trans_evidence_cond_on_outcome(file='/home/linux/PassReward0_data.npz',
+    #                                   measure='repeat_choice',
+    #                                   save_path='', fig=True)
+    #    perf_cond_on_stim_ev(file='/home/linux/PassReward0_data.npz', save_path='',
+    #                         fig=True)
     simple_agent()
