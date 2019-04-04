@@ -19,7 +19,7 @@ print('searching here:' + os.getcwd())
 files = glob.glob('Pass*npz')
 files.sort(key=os.path.getmtime)
 print('found files (sorted by date):')
-print(files)
+print("\n".join(files))
 choice_mat = []
 stim_mat = []
 r_prob_mat = []
@@ -48,6 +48,12 @@ for ind_f in range(len(files)):
     assert (SIZE[0] == stim.shape[0]), str(SIZE) + ' ' + str(stim.shape)
     assert (SIZE[0] == r_prob.shape[0]), str(SIZE) + ' ' + str(r_prob.shape)
     assert (SIZE == side.shape), str(SIZE) + ' ' + str(side.shape)
+
+choice_mat = np.reshape(np.array(choice_mat), (SIZE*len(files), ))
+stim_mat = np.reshape(np.array(stim_mat), (SIZE*len(files), stim.shape[1]))
+side_mat = np.reshape(np.array(side_mat), (SIZE*len(files), ))
+r_prob_mat = np.reshape(np.array(r_prob_mat), (SIZE*len(files),
+                                               r_prob.shape[1]))
 
 data = {'choice': choice_mat, 'stimulus': stim_mat,
         'correct_side': side_mat, 'rep_prob': r_prob_mat}
