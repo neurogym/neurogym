@@ -1346,35 +1346,36 @@ def bias_after_repAlt_sequence(file='/home/linux/PassReward0_data.npz'):
 
 if __name__ == '__main__':
     plt.close('all')
-    #    states, rewards, actions, obs, trials =\
-    #        get_simulation_vars(file='/home/linux/network_data_492999.npz',
-    #                            fig=True, n_envs=12, env=0, num_steps=100,
-    #                            obs_size=4, num_units=128)
-    #    plt.figure()
-    #    plt.plot(states[80, :])
-    #    plt.plot(states[61, :])
-    #    file = '/home/linux/network_data_492999.npz'
-    #    fig = True
-    #    n_envs = 12
-    #    env = 0
-    #    num_steps = 100
-    #    obs_size = 4
-    #    num_units = 128
-    #    window = (-5, 30)
-    #    neural_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-    #                    num_steps=num_steps, obs_size=obs_size,
-    #                    num_units=num_units, window=window)
-    #    transition_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-    #                        num_steps=num_steps, obs_size=obs_size,
-    #                        num_units=num_units, window=window)
-    #    bias_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-    #                  num_steps=num_steps, obs_size=obs_size,
-    #                  num_units=num_units, window=window)
+#    states, rewards, actions, obs, trials =\
+#        get_simulation_vars(file='/home/linux/network_data_492999.npz',
+#                            fig=True, n_envs=12, env=0, num_steps=100,
+#                            obs_size=4, num_units=128)
+#    plt.figure()
+#    plt.plot(states[80, :])
+#    plt.plot(states[61, :])
+#    file = '/home/linux/network_data_492999.npz'
+#    fig = True
+#    n_envs = 12
+#    env = 0
+#    num_steps = 100
+#    obs_size = 4
+#    num_units = 128
+#    window = (-5, 30)
+#    neural_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+#                    num_steps=num_steps, obs_size=obs_size,
+#                    num_units=num_units, window=window)
+#    transition_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+#                        num_steps=num_steps, obs_size=obs_size,
+#                        num_units=num_units, window=window)
+#    bias_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+#                  num_steps=num_steps, obs_size=obs_size,
+#                  num_units=num_units, window=window)
     #    asdasd
-    # behavior_analysis(file='/home/linux/PassReward0_data.npz')
-    # PassReward0_data.npz
-    bias_cond_on_history(file='/home/linux/PassAction0_bhvr_data_64028246.npz')
-    no_stim_analysis(file='/home/linux/PassAction0_bhvr_data_64028246.npz',
+    # PassReward0_data
+    # PassAction0_bhvr_data_64028246
+    behavior_analysis(file='/home/linux/bhvr_data_all.npz')
+    bias_cond_on_history(file='/home/linux/bhvr_data_all.npz')
+    no_stim_analysis(file='/home/linux/bhvr_data_all.npz',
                      save_path='', fig=True)
     #    trans_evidence_cond_on_outcome(file='/home/linux/PassReward0_data.npz',
     #                                   measure='trans_change',
