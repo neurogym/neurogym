@@ -49,10 +49,10 @@ for ind_f in range(len(files)):
     assert (SIZE[0] == r_prob.shape[0]), str(SIZE) + ' ' + str(r_prob.shape)
     assert (SIZE == side.shape), str(SIZE) + ' ' + str(side.shape)
 
-choice_mat = np.reshape(np.array(choice_mat), (SIZE*len(files), ))
-stim_mat = np.reshape(np.array(stim_mat), (SIZE*len(files), stim.shape[1]))
-side_mat = np.reshape(np.array(side_mat), (SIZE*len(files), ))
-r_prob_mat = np.reshape(np.array(r_prob_mat), (SIZE*len(files),
+choice_mat = np.reshape(np.array(choice_mat), (SIZE[0]*len(files), ))
+stim_mat = np.reshape(np.array(stim_mat), (SIZE[0]*len(files), stim.shape[1]))
+side_mat = np.reshape(np.array(side_mat), (SIZE[0]*len(files), ))
+r_prob_mat = np.reshape(np.array(r_prob_mat), (SIZE[0]*len(files),
                                                r_prob.shape[1]))
 
 data = {'choice': choice_mat, 'stimulus': stim_mat,
