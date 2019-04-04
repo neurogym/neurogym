@@ -15,8 +15,8 @@ Created on Thu Apr  4 11:20:01 2019
 import glob
 import numpy as np
 import os
-print(os.getcwd)
-files = glob.glob('/Pass*')
+print(os.getcwd())
+files = glob.glob('Pass*')
 choice_mat = []
 stim_mat = []
 r_prob_mat = []
