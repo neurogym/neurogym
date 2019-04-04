@@ -16,7 +16,7 @@ import glob
 import numpy as np
 import os
 print(os.getcwd())
-files = glob.glob('Pass*')
+files = glob.glob('Pass*npz')
 choice_mat = []
 stim_mat = []
 r_prob_mat = []
