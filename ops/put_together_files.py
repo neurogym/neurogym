@@ -15,8 +15,11 @@ Created on Thu Apr  4 11:20:01 2019
 import glob
 import numpy as np
 import os
-print(os.getcwd())
+print('searching here:' + os.getcwd())
 files = glob.glob('Pass*npz')
+files.sort(key=os.path.getmtime)
+print('found files (sorted by date):')
+print(files)
 choice_mat = []
 stim_mat = []
 r_prob_mat = []
@@ -41,7 +44,6 @@ for ind_f in range(len(files)):
     side_mat.append(side)
     if ind_f == 0:
         SIZE = choice.shape
-    print(SIZE)
     assert (SIZE == choice.shape), str(SIZE) + ' ' + str(choice.shape)
     assert (SIZE[0] == stim.shape[0]), str(SIZE) + ' ' + str(stim.shape)
     assert (SIZE[0] == r_prob.shape[0]), str(SIZE) + ' ' + str(r_prob.shape)
