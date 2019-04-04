@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 display_mode = True
 
 
-def plot_learning(performance, evidence, stim_position, action):
+def plot_learning(performance, evidence, stim_position):
     """
     plots RNN and ideal observer performances.
     The function assumes that a figure has been created
@@ -21,25 +21,25 @@ def plot_learning(performance, evidence, stim_position, action):
     io_choice = (evidence < 0) + 1
     io_performance = io_choice == stim_position
     # save the mean performances
-    RNN_perf = np.mean(performance[:, 2000:].flatten())
-    io_perf = np.mean(io_performance[:, 2000:].flatten())
+    RNN_perf = np.mean(performance[2000:].flatten())
+    io_perf = np.mean(io_performance[2000:].flatten())
 
     w_conv = 200  # this is for the smoothing
     # plot smoothed performance
-    performance_smoothed = np.convolve(np.mean(performance, axis=0),
+    performance_smoothed = np.convolve(performance,
                                        np.ones((w_conv,))/w_conv,
                                        mode='valid')
     plt.plot(performance_smoothed, color=(0.39, 0.39, 0.39), lw=0.5,
              label='RNN perf. (' + str(round(RNN_perf, 3)) + ')')
     print('RNN perf: ' + str(round(RNN_perf, 3)))
     # plot ideal observer performance
-    io_perf_smoothed = np.convolve(np.mean(io_performance, axis=0),
+    io_perf_smoothed = np.convolve(io_performance,
                                    np.ones((w_conv,))/w_conv,
                                    mode='valid')
     plt.plot(io_perf_smoothed, color=(1, 0.8, 0.5), lw=0.5,
              label='Ideal Obs. perf. (' + str(round(io_perf, 3)) + ')')
     # plot 0.25, 0.5 and 0.75 performance lines
-    plot_fractions([0, performance.shape[1]])
+    plot_fractions([0, performance.shape[0]])
     plt.title('performance')
     plt.xlabel('trials')
     plt.legend()
@@ -285,9 +285,9 @@ def plot_psychoCurves_averages(x_values, y_values,
 def build_block_mat(shape, block_dur):
     # build rep. prob vector
     rp_mat = np.zeros(shape)
-    a = np.arange(shape[1])
+    a = np.arange(shape[0])
     b = np.floor(a/block_dur)
-    rp_mat[:, b % 2 == 0] = 1
+    rp_mat[b % 2 == 0] = 1
     return rp_mat
 
 
@@ -840,13 +840,11 @@ def load_behavioral_data(file):
     choice = data['choice']
     stimulus = data['stimulus']
     correct_side = data['correct_side']
-    correct_side = np.reshape(correct_side, (1, len(correct_side)))
     correct_side[np.where(correct_side == -1)] = 2
     correct_side = np.abs(correct_side-3)
     assert (np.unique(correct_side) == [1, 2]).all()
     performance = (choice == correct_side)
     evidence = stimulus[:, 1] - stimulus[:, 2]
-    evidence = np.reshape(evidence, (1, len(evidence)))
     return choice, correct_side, performance, evidence
 
 
@@ -859,35 +857,33 @@ def behavior_analysis(file='/home/linux/PassReward0_data.npz'):
     num_tr = 300000
     start_point = 50000
     ut.get_fig(display_mode)
-    plot_learning(performance[:, start_point:start_point+num_tr],
-                  evidence[:, start_point:start_point+num_tr],
-                  correct_side[:, start_point:start_point+num_tr],
-                  choice[:, start_point:start_point+num_tr])
+    plot_learning(performance[start_point:start_point+num_tr],
+                  evidence[start_point:start_point+num_tr],
+                  correct_side[start_point:start_point+num_tr])
 
     # plot performance last training stage
     ut.get_fig(display_mode)
     num_tr = 20000
-    start_point = performance.shape[1]-num_tr
-    plot_learning(performance[:, start_point:start_point+num_tr],
-                  evidence[:, start_point:start_point+num_tr],
-                  correct_side[:, start_point:start_point+num_tr],
-                  choice[:, start_point:start_point+num_tr])
+    start_point = performance.shape[0]-num_tr
+    plot_learning(performance[start_point:start_point+num_tr],
+                  evidence[start_point:start_point+num_tr],
+                  correct_side[start_point:start_point+num_tr])
     # plot trials
-    correct_side_plt = correct_side[:, :400]
+    correct_side_plt = correct_side[:400]
     ut.get_fig(display_mode)
-    plt.imshow(correct_side_plt, aspect='auto')
+    plt.imshow(correct_side_plt.reshape((1, 400)), aspect='auto')
 
     # compute bias across training
     per = 100000
-    num_stps = int(choice.shape[1] / per)
+    num_stps = int(choice.shape[0] / per)
     bias_0_hit = []
     bias_1_hit = []
     bias_0_fail = []
     bias_1_fail = []
     for ind_per in range(num_stps):
-        ev = evidence[:, ind_per*per:(ind_per+1)*per]
-        perf = performance[:, ind_per*per:(ind_per+1)*per]
-        ch = choice[:, ind_per*per:(ind_per+1)*per]
+        ev = evidence[ind_per*per:(ind_per+1)*per]
+        perf = performance[ind_per*per:(ind_per+1)*per]
+        ch = choice[ind_per*per:(ind_per+1)*per]
         data = plot_psychometric_curves(ev, perf, ch, blk_dur=200,
                                         plt_av=False, figs=False)
         bias_0_hit.append(data['popt_repProb_hits_0.0'][1])
@@ -932,15 +928,12 @@ def test_bias():
     # REPLICATE RESULTS
     # build the mat that indicates the current block
     blocks = build_block_mat(ev.shape, block_dur=200)
-    rand_perf = np.array(np.random.choice([0, 1])).reshape(1,)
+    rand_perf = np.random.choice([0, 1], size=(1,))
     prev_perf = np.concatenate((rand_perf, perf[0, :-1]))
-    ch = np.reshape(ch, (ch.shape[1],))
-    ev = np.reshape(ev, (ev.shape[1],))
     labels = ['error', 'correct']
     for ind_perf in reversed(range(2)):
         for ind_bl in range(2):
             mask = np.logical_and(blocks == ind_bl, prev_perf == ind_perf)
-            mask = mask.reshape((mask.shape[1],))
             assert np.sum(mask) > 0
             popt, pcov = bias_calculation(ch, ev, mask)
             print('bias block ' + str(ind_bl) + ' after ' +
@@ -949,21 +942,23 @@ def test_bias():
 
 
 def bias_cond_on_history(file='/home/linux/PassReward0_data.npz'):
+    """
+    computes bias conditioned on the number of repetitions during the
+    last trials
+    """
     choice, correct_side, performance, evidence = load_behavioral_data(file)
     # BIAS CONDITIONED ON TRANSITION HISTORY (NUMBER OF REPETITIONS)
     num_tr = 2000000
-    start_point = performance.shape[1]-num_tr
-    ev = evidence[:, start_point:start_point+num_tr]
-    perf = performance[:, start_point:start_point+num_tr]
-    ch = choice[:, start_point:start_point+num_tr]
-    ch = np.reshape(ch, (ch.shape[1],))
-    ev = np.reshape(ev, (ev.shape[1],))
+    start_point = performance.shape[0]-num_tr
+    ev = evidence[start_point:start_point+num_tr]
+    perf = performance[start_point:start_point+num_tr]
+    ch = choice[start_point:start_point+num_tr]
     conv_window = 8
     margin = 2
+    # get number of repetitions during the last conv_window trials
+    # (not including the current trial)
     transitions = get_transition_mat(ch, conv_window=conv_window)
     values = np.unique(transitions)
-    #    rand_perf = np.array(np.random.choice([0, 1])).reshape(1,)
-    #    prev_perf = np.concatenate((rand_perf, perf[0, :-1]))
     mat_biases = np.empty((2, conv_window))
     labels = ['error', 'correct']
     ut.get_fig(display_mode)
@@ -973,9 +968,12 @@ def bias_cond_on_history(file='/home/linux/PassReward0_data.npz'):
         for ind_tr in range(margin, values.shape[0]-margin):
             aux_color = (ind_tr-margin)/(values.shape[0]-2*margin-1)
             color = np.array((1-aux_color, 0, aux_color))
+            # mask finds all times in which the current trial is correct/error
+            # and the trial history (num. of repetitions) is values[ind_tr]
+            # we then need to shift these times to get the bias in the trial
+            # following them
             mask = np.logical_and(transitions == values[ind_tr],
                                   perf == ind_perf)
-            print(mask.shape)
             mask = np.concatenate((np.array([False]), mask[:-1]))
             assert np.sum(mask) > 20000
             popt, pcov = bias_calculation(ch, ev, mask)
@@ -996,79 +994,50 @@ def bias_cond_on_history(file='/home/linux/PassReward0_data.npz'):
 
 def no_stim_analysis(file='/home/linux/PassAction.npz', save_path='',
                      fig=True):
+    """
+    This is the function that is called during training. It computes
+    performance and the probability of repeating when the stimulus
+    evidence is small (or 0) conditioned on the number of repetitions during
+    the last trials. This is for different periods across training.
+    """
     choice, correct_side, performance, evidence = load_behavioral_data(file)
     mask_ev = np.logical_and(evidence >= np.percentile(evidence, 40),
                              evidence <= np.percentile(evidence, 60))
-    if fig:
-        # plot performance
-        num_tr = 500000
-        start_point = 0
-        f = ut.get_fig(display_mode)
-        plot_learning(performance[:, start_point:start_point+num_tr],
-                      evidence[:, start_point:start_point+num_tr],
-                      correct_side[:, start_point:start_point+num_tr],
-                      choice[:, start_point:start_point+num_tr])
-        if save_path != '':
-            f.savefig(save_path + 'init_perf.png', dpi=200,
-                      bbox_inches='tight')
-            plt.close(f)
-        # plot performance last training stage
-        f = ut.get_fig(display_mode)
-        num_tr = 20000
-        start_point = performance.shape[1]-num_tr
-        plot_learning(performance[:, start_point:start_point+num_tr],
-                      evidence[:, start_point:start_point+num_tr],
-                      correct_side[:, start_point:start_point+num_tr],
-                      choice[:, start_point:start_point+num_tr])
-        if save_path != '':
-            f.savefig(save_path + 'final_perf.png', dpi=200,
-                      bbox_inches='tight')
-            plt.close(f)
     if save_path != '':
-        RNN_perf = np.mean(performance[:, 2000:].flatten())
+        RNN_perf = np.mean(performance[2000:].flatten())
         print('-----------------------------------------------',
               file=open(save_path + 'results', 'a'))
-        print('number of trials: ' + str(choice.shape[1]),
+        print('number of trials: ' + str(choice.shape[0]),
               file=open(save_path + 'results', 'a'))
         print('net perf: ' + str(round(RNN_perf, 3)),
               file=open(save_path + 'results', 'a'))
 
-    # plot trials
-    if fig:
-        correct_side_plt = correct_side[:, :400]
-        f = ut.get_fig(display_mode)
-        plt.imshow(correct_side_plt, aspect='auto')
-        if save_path != '':
-            f.savefig(save_path + 'first_400_trials.png',
-                      dpi=200, bbox_inches='tight')
-            plt.close(f)
     # compute bias across training
     labels = ['error', 'correct']
     per = 100000
     conv_window = 4
     margin = 0
-    num_stps = int(choice.shape[1] / per)
+    num_stps = int(choice.shape[0] / per)
     mat_biases = np.empty((num_stps, conv_window-2*margin+1, 2, 2))
     for ind_stp in range(num_stps):
         start = per*ind_stp
         end = per*(ind_stp+1)
-        perf = performance[:, start:end]
-        m_ev = mask_ev[:, start:end].reshape((end-start,))
+        perf = performance[start:end]
+        m_ev = mask_ev[start:end]
         # correct side transition history
-        cs = correct_side[:, start:end]
-        cs = np.reshape(cs, (cs.shape[1],))
+        cs = correct_side[start:end]
         transitions = get_transition_mat(cs, conv_window=conv_window)
         values = np.unique(transitions)
         max_tr = values.shape[0]-margin
         # choice repeating
-        ch = choice[:, start:end]
-        ch = np.reshape(ch, (ch.shape[1],))
+        ch = choice[start:end]
         repeat_choice = get_repetitions(ch)
-        # previous performance
-        #        rand_perf = np.array(np.random.choice([0, 1])).reshape(1,)
-        #        prev_perf = np.concatenate((rand_perf, perf[0, :-1]))
         for ind_perf in reversed(range(2)):
             for ind_tr in range(margin, max_tr):
+                # mask finds all times in which the current trial is
+                # correct/error and the trial history (num. of repetitions)
+                # is values[ind_tr] we then need to shift these times to get
+                # the bias in the trial following them
                 mask = np.logical_and(transitions == values[ind_tr],
                                       perf == ind_perf)
                 mask = np.concatenate((np.array([False]), mask[:-1]))
@@ -1135,6 +1104,12 @@ def plot_lines(x_max, y_value):
 def trans_evidence_cond_on_outcome(file='/home/linux/PassAction.npz',
                                    measure='repeat_choice',
                                    save_path='', fig=True):
+    """
+    computes the probability of repeating choice or correct side, or the
+    average change in transition evidence, when the stimulus evidence is small
+    (or 0), conditioned on the number of repetitions during
+    the last trials. This is for different periods across training.
+    """
     choice, correct_side, performance, evidence = load_behavioral_data(file)
     mask_ev = np.logical_and(evidence >= np.percentile(evidence, 40),
                              evidence <= np.percentile(evidence, 60))
@@ -1153,17 +1128,15 @@ def trans_evidence_cond_on_outcome(file='/home/linux/PassAction.npz',
     per = 100000
     conv_window = 4
     margin = 0
-    num_stps = int(choice.shape[1] / per)
+    num_stps = int(choice.shape[0] / per)
     mat_biases = np.empty((num_stps, conv_window-2*margin+1, 2, 2))
     for ind_stp in range(num_stps):
         start = per*ind_stp
         end = per*(ind_stp+1)
-        perf = performance[:, start:end]
-        m_ev = mask_ev[:, start:end].reshape((end-start,))
+        perf = performance[start:end]
+        m_ev = mask_ev[start:end]
         # correct side transition history
-        cs = correct_side[:, start:end]
-        cs = np.reshape(cs, (cs.shape[1],))
-        repeat = get_repetitions(cs)
+        cs = correct_side[start:end]
         transitions = get_transition_mat(cs, conv_window=conv_window)
         values = np.unique(transitions)
         max_tr = values.shape[0]-margin
@@ -1175,18 +1148,19 @@ def trans_evidence_cond_on_outcome(file='/home/linux/PassAction.npz',
             measure_mat = transition_change
         # choice repeating
         elif measure == 'repeat_choice':
-            ch = choice[:, start:end]
-            ch = np.reshape(ch, (ch.shape[1],))
+            ch = choice[start:end]
             repeat_choice = get_repetitions(ch)
             measure_mat = repeat_choice
         elif measure == 'side_repeat':
-            measure_mat = repeat
+            measure_mat = get_repetitions(cs)
         for ind_perf in reversed(range(2)):
             for ind_tr in range(margin, max_tr):
+                # in contrast with previous analyses here we want to measure
+                # the value of measure_mat at the trial when perf==ind_perf.
+                # That's we do not shift the mask
                 mask = np.logical_and(transitions == values[ind_tr],
                                       perf == ind_perf)
                 mask = np.logical_and(m_ev, mask)
-                mask = np.reshape(mask, (mask.shape[1], ))
                 rp_mask = measure_mat[mask]
                 mat_biases[ind_stp, ind_tr-margin, ind_perf, 0] =\
                     np.mean(rp_mask)
@@ -1249,14 +1223,14 @@ def perf_cond_on_stim_ev(file='/home/linux/PassAction.npz', save_path='',
     """
     _, _, performance, evidence = load_behavioral_data(file)
     evidence = evidence[-2000000:]
+    performance = performance[-2000000:]
     perf_mat = []
     for ind_ev in range(10):
         mask_ev = np.logical_and(evidence >= np.percentile(evidence,
                                                            ind_ev*10),
                                  evidence <= np.percentile(evidence,
                                                            (ind_ev+1)*10))
-        mask_ev = np.reshape(mask_ev, (mask_ev.shape[1],))
-        perf_mat.append(np.mean(performance[:, mask_ev].flatten()))
+        perf_mat.append(np.mean(performance[mask_ev].flatten()))
     ut.get_fig()
     plt.plot(np.arange(10)*10+5, perf_mat, '-+')
     plt.xlabel('stim evidence percentile')
@@ -1273,7 +1247,6 @@ def simple_agent(file='/home/linux/PassReward0_data.npz'):
     """
     data = np.load(file)
     correct_side = data['correct_side']
-    correct_side = np.reshape(correct_side, (1, len(correct_side)))
     correct_side[np.where(correct_side == -1)] = 0
     rep_side = (get_repetitions(correct_side)-0.5)*2
     kernel = np.array([1, 1/2, 1/4, 1/8])
@@ -1282,7 +1255,12 @@ def simple_agent(file='/home/linux/PassReward0_data.npz'):
                        kernel, mode='full')[0:-kernel.shape[0]+1]
     bias = np.concatenate((np.array([0]), bias[:-1]))
     ut.get_fig()
+    plt.plot(np.flip(kernel))
+    plt.ylabel('weights')
+    plt.xlabel('previous transitions')
+    ut.get_fig()
     plt.hist(bias)
+    plt.xlabel('transition bias')
     decision = ((bias > 0)-0.5)*2
     perf = (rep_side == decision)
     print(np.mean(perf))
@@ -1326,11 +1304,14 @@ def simple_agent(file='/home/linux/PassReward0_data.npz'):
                  mat_biases[:, 1, 1], label='after correct')
     plt.plot([np.min(values), np.max(values)], [0, 0], '--')
     plt.legend()
+    plt.xlabel('transition evidence')
+    plt.ylabel('transition bias')
     ut.get_fig()
     plt.plot(rep_side[:num], '-+', label='correct transition')
     # plt.plot(bias[:num], '-+', label='bias')
     # plt.plot(decision[:num], '-+', label='decision')
-    plt.plot(transitions[:num], '-+', label='transitions')
+    plt.plot(transitions[:num], '-+', label='transitions bias')
+    plt.xlabel('trials')
     plt.legend()
 
 
@@ -1357,35 +1338,33 @@ def bias_after_repAlt_sequence(file='/home/linux/PassReward0_data.npz'):
 
 if __name__ == '__main__':
     plt.close('all')
-    #    states, rewards, actions, obs, trials =\
-    #        get_simulation_vars(file='/home/linux/network_data_492999.npz',
-    #                            fig=True, n_envs=12, env=0, num_steps=100,
-    #                            obs_size=4, num_units=128)
-    #    plt.figure()
-    #    plt.plot(states[80,:])
-    #    print(states.shape)
-    #    asdsad
-    #    file = '/home/linux/network_data_492999.npz'
-    #    fig = True
-    #    n_envs = 12
-    #    env = 0
-    #    num_steps = 100
-    #    obs_size = 4
-    #    num_units = 128
-    #    window = (-5, 30)
-    #    neural_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-    #                    num_steps=num_steps, obs_size=obs_size,
-    #                    num_units=num_units, window=window)
-    #    transition_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-    #                        num_steps=num_steps, obs_size=obs_size,
-    #                        num_units=num_units, window=window)
-    #    bias_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-    #                  num_steps=num_steps, obs_size=obs_size,
-    #                  num_units=num_units, window=window)
+    states, rewards, actions, obs, trials =\
+        get_simulation_vars(file='/home/linux/network_data_492999.npz',
+                            fig=True, n_envs=12, env=0, num_steps=100,
+                            obs_size=4, num_units=128)
+    plt.figure()
+    plt.plot(states[80, :])
+    plt.plot(states[61, :])
+    file = '/home/linux/network_data_492999.npz'
+    fig = True
+    n_envs = 12
+    env = 0
+    num_steps = 100
+    obs_size = 4
+    num_units = 128
+    window = (-5, 30)
+    neural_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+                    num_steps=num_steps, obs_size=obs_size,
+                    num_units=num_units, window=window)
+    transition_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+                        num_steps=num_steps, obs_size=obs_size,
+                        num_units=num_units, window=window)
+    bias_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+                  num_steps=num_steps, obs_size=obs_size,
+                  num_units=num_units, window=window)
     #    asdasd
-    #       behavior_analysis(file='/home/linux/PassReward0_data.npz')
-    bias_cond_on_history(file='/home/linux/PassReward0_data.npz')
-    #    # no_stim_analysis(file='/home/linux/PassAction.npz')
+    # behavior_analysis(file='/home/linux/PassReward0_data.npz')
+    # bias_cond_on_history(file='/home/linux/PassReward0_data.npz')
     #    no_stim_analysis(file='/home/linux/PassReward0_data.npz',
     #                     save_path='', fig=True)
     #    trans_evidence_cond_on_outcome(file='/home/linux/PassReward0_data.npz',
@@ -1397,6 +1376,6 @@ if __name__ == '__main__':
     #    trans_evidence_cond_on_outcome(file='/home/linux/PassReward0_data.npz',
     #                                   measure='repeat_choice',
     #                                   save_path='', fig=True)
-    #    perf_cond_on_stim_ev(file='/home/linux/PassReward0_data.npz', save_path='',
-    #                         fig=True)
+    #    perf_cond_on_stim_ev(file='/home/linux/PassReward0_data.npz',
+    #                         save_path='', fig=True)
     simple_agent()
