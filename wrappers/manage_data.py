@@ -89,7 +89,7 @@ class manage_data(Wrapper):
         if self.do:
             self.cum_obs += obs
             self.store_data(obs, action, rew)
-            if 'new_trial' in info.keys():
+            if info['new_trial']:
                 self.num_tr += 1
                 self.choice_mat.append(action)
                 self.stim_mat.append(self.cum_obs)
