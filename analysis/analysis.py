@@ -840,6 +840,14 @@ def load_behavioral_data(file):
     choice = data['choice']
     stimulus = data['stimulus']
     correct_side = data['correct_side']
+    if choice.shape[0] != correct_side[0]:
+        dec_time = np.where(stimulus[:, 0] == 0)[0]
+        dec_time_aux = np.concatenate((dec_time, np.array([dec_time[-1]+2])))
+        dec_time_aux = np.diff(dec_time_aux)
+        assert (dec_time_aux >= 1).all()
+        dec_time = dec_time[dec_time_aux != 1]
+        choice = choice[dec_time]
+        stimulus = stimulus[dec_time-1, :]
     correct_side[np.where(correct_side == -1)] = 2
     correct_side = np.abs(correct_side-3)
     assert (np.unique(correct_side) == [1, 2]).all()
@@ -975,7 +983,7 @@ def bias_cond_on_history(file='/home/linux/PassReward0_data.npz'):
             mask = np.logical_and(transitions == values[ind_tr],
                                   perf == ind_perf)
             mask = np.concatenate((np.array([False]), mask[:-1]))
-            assert np.sum(mask) > 20000
+            assert np.sum(mask) > 2000
             popt, pcov = bias_calculation(ch, ev, mask)
             print('bias ' + str(values[ind_tr]) + ' repeatitions after ' +
                   labels[ind_perf] + ':')
@@ -1338,35 +1346,36 @@ def bias_after_repAlt_sequence(file='/home/linux/PassReward0_data.npz'):
 
 if __name__ == '__main__':
     plt.close('all')
-    states, rewards, actions, obs, trials =\
-        get_simulation_vars(file='/home/linux/network_data_492999.npz',
-                            fig=True, n_envs=12, env=0, num_steps=100,
-                            obs_size=4, num_units=128)
-    plt.figure()
-    plt.plot(states[80, :])
-    plt.plot(states[61, :])
-    file = '/home/linux/network_data_492999.npz'
-    fig = True
-    n_envs = 12
-    env = 0
-    num_steps = 100
-    obs_size = 4
-    num_units = 128
-    window = (-5, 30)
-    neural_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-                    num_steps=num_steps, obs_size=obs_size,
-                    num_units=num_units, window=window)
-    transition_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-                        num_steps=num_steps, obs_size=obs_size,
-                        num_units=num_units, window=window)
-    bias_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-                  num_steps=num_steps, obs_size=obs_size,
-                  num_units=num_units, window=window)
+    #    states, rewards, actions, obs, trials =\
+    #        get_simulation_vars(file='/home/linux/network_data_492999.npz',
+    #                            fig=True, n_envs=12, env=0, num_steps=100,
+    #                            obs_size=4, num_units=128)
+    #    plt.figure()
+    #    plt.plot(states[80, :])
+    #    plt.plot(states[61, :])
+    #    file = '/home/linux/network_data_492999.npz'
+    #    fig = True
+    #    n_envs = 12
+    #    env = 0
+    #    num_steps = 100
+    #    obs_size = 4
+    #    num_units = 128
+    #    window = (-5, 30)
+    #    neural_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+    #                    num_steps=num_steps, obs_size=obs_size,
+    #                    num_units=num_units, window=window)
+    #    transition_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+    #                        num_steps=num_steps, obs_size=obs_size,
+    #                        num_units=num_units, window=window)
+    #    bias_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+    #                  num_steps=num_steps, obs_size=obs_size,
+    #                  num_units=num_units, window=window)
     #    asdasd
     # behavior_analysis(file='/home/linux/PassReward0_data.npz')
-    # bias_cond_on_history(file='/home/linux/PassReward0_data.npz')
-    #    no_stim_analysis(file='/home/linux/PassReward0_data.npz',
-    #                     save_path='', fig=True)
+    # PassReward0_data.npz
+    bias_cond_on_history(file='/home/linux/PassAction0_bhvr_data_64028246.npz')
+    no_stim_analysis(file='/home/linux/PassAction0_bhvr_data_64028246.npz',
+                     save_path='', fig=True)
     #    trans_evidence_cond_on_outcome(file='/home/linux/PassReward0_data.npz',
     #                                   measure='trans_change',
     #                                   save_path='', fig=True)
@@ -1378,4 +1387,4 @@ if __name__ == '__main__':
     #                                   save_path='', fig=True)
     #    perf_cond_on_stim_ev(file='/home/linux/PassReward0_data.npz',
     #                         save_path='', fig=True)
-    simple_agent()
+    # simple_agent()
