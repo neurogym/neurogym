@@ -22,6 +22,7 @@ def build_env(env_id, inst=0, **all_args):
     env_keys = ['dt']
     if env_id == 'RDM-v0':
         env_keys.append('timing')
+        env_keys.append('stimEv')
     env_args = {x: all_args[x] for x in env_keys}
     # TODO: allow for envs to be wrapped before combined
     if all_args['combine']:

@@ -24,7 +24,8 @@ import ngym
 
 
 class RDM(ngym.ngym):
-    def __init__(self, dt=100, timing=[500, 80, 330, 1500, 500], **kwargs):
+    def __init__(self, dt=100, timing=[500, 80, 330, 1500, 500], stimEv=1.,
+                 **kwargs):
         super().__init__(dt=dt)
         # Inputs
         self.inputs = tasktools.to_map('FIXATION', 'LEFT', 'RIGHT')
@@ -35,7 +36,7 @@ class RDM(ngym.ngym):
 
         # trial conditions
         self.choices = [-1, 1]
-        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])
+        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
 
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
