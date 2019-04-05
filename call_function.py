@@ -129,14 +129,16 @@ if __name__ == '__main__':
     num_units = [64]
     net_type = ['twin_net', 'cont_rnn']  # ['twin_net', 'cont_rnn']
     num_steps = [1e8]  # [1e9]
+    stim_ev = [0.1]
     print(num_steps)
     load_path = ''  # '/home/linux/00010'
     params_config = itertools.product(pass_reward, pass_action, bl_dur,
-                                      num_units, net_type, num_steps)
+                                      num_units, net_type, num_steps, stim_ev)
     batch_command = ''
     for conf in params_config:
         cmmd = build_command(ps_r=conf[0], ps_act=conf[1], bl_dur=conf[2],
                              num_u=conf[3], net_type=conf[4],
-                             num_stps_env=conf[5], load_path=load_path)
+                             num_stps_env=conf[5], load_path=load_path,
+                             stimEv=conf[6])
         batch_command += cmmd + '\n'
     os.system(batch_command)
