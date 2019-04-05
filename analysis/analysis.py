@@ -371,10 +371,11 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
     # trials
     trials = np.reshape(data['trials'], (-1, n_envs, num_steps))
     trials = trials[:, env, :]
-    trials = np.abs(trials.flatten() - int(1))
+    trials = trials.flatten()
     trials = np.concatenate((np.array([0]), trials[:-1]))
 
     if fig:
+        num_steps = 200
         ut.get_fig(display_mode)
         # FIGURE
         # states
@@ -400,7 +401,7 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
 
 def neuron_selectivity(activity, feature, all_times, feat_bin=None,
                        window=(-5, 10), av_across_time=False,
-                       prev_trial=False):
+                       prev_tr=False):
     """
     computes the average activity conditioned on feature at windows around the
     times given by all_times. f feat_bin is not none, it bins the feature
@@ -411,9 +412,9 @@ def neuron_selectivity(activity, feature, all_times, feat_bin=None,
     times = all_times[np.logical_and(all_times > np.abs(window[0]),
                                      all_times < all_times.shape[0]-window[1])]
     feat_mat = feature[times]
-    # if prev_trial is True, the psth will be computed conditioned on the
+    # if prev_tr is True, the psth will be computed conditioned on the
     # previous trial values
-    if prev_trial:
+    if prev_tr:
         values = np.unique(feat_mat)
         rand_feature = np.array(np.random.choice(values, size=(1,)))
         feat_mat = np.concatenate((rand_feature, feat_mat[:-1]))
@@ -461,7 +462,7 @@ def neuron_selectivity(activity, feature, all_times, feat_bin=None,
 
 def get_psths(states, feature, times, window, index, feat_bin=None,
               pv_th=0.01, sorting=None, av_across_time=False,
-              prev_trial=False):
+              prev_tr=False):
     """
     calls neuron_selectivity for all neurons and sort the averages (stds) by
     percentage of significant values
@@ -474,7 +475,7 @@ def get_psths(states, feature, times, window, index, feat_bin=None,
         means, stds, values, sign =\
             neuron_selectivity(sts_n, feature, times, feat_bin=feat_bin,
                                window=window, av_across_time=av_across_time,
-                               prev_trial=prev_trial)
+                               prev_tr=prev_tr)
         sign = np.array(sign)
         perc_sign = 100*np.sum(sign[:, 3] <
                                pv_th / sign.shape[0]) / sign.shape[0]
@@ -504,10 +505,10 @@ def plot_psths(means_mat, stds_mat, values, neurons, index, suptit='',
     events = [x*trial_int for x in np.arange(num_tr)
               if x*trial_int < index[-1]]
     f = ut.get_fig(display_mode)
-    for ind_n in range(np.min([30, means_mat.shape[0]])):
+    for ind_n in range(np.min([35, means_mat.shape[0]])):
         means = means_mat[ind_n, :, :]
         stds = stds_mat[ind_n, :, :]
-        plt.subplot(6, 5, ind_n+1)
+        plt.subplot(7, 5, ind_n+1)
         for ind_plt in range(values.shape[0]):
             if ind_n == 0:
                 plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :],
@@ -516,6 +517,8 @@ def plot_psths(means_mat, stds_mat, values, neurons, index, suptit='',
                 plt.errorbar(index, means[ind_plt, :], stds[ind_plt, :])
             plt.title(str(neurons[ind_n]))
             indicate_time_event(events)
+        if ind_n != 25:
+            plt.xticks([])
         if ind_n == 0:
             f.legend()
     f.suptitle(suptit)
@@ -554,6 +557,7 @@ def plot_cond_psths(means_mat1, stds_mat1, means_mat2, stds_mat2, values,
             ax = plt.gca()
             ut.color_axis(ax, color='g')
             indicate_time_event(events)
+        plt.xticks([])
         if ind_n == 0:
             f.legend()
 
@@ -566,7 +570,9 @@ def plot_cond_psths(means_mat1, stds_mat1, means_mat2, stds_mat2, values,
             ax = plt.gca()
             ut.color_axis(ax, color='r')
             indicate_time_event(events)
-
+        if ind_n != 11:
+            plt.xticks([])
+            plt.yticks([])
     f.suptitle(suptit)
 
 
@@ -608,7 +614,8 @@ def get_transition_mat(choice, times=None, num_steps=None, conv_window=5):
 
 def neural_analysis(file='/home/linux/network_data_492999.npz',
                     fig=False, n_envs=12, env=0, num_steps=100,
-                    obs_size=4, num_units=128, window=(-5, 20)):
+                    obs_size=4, num_units=128, window=(-5, 20),
+                    part=[[0, 128]], p_lbl=['all']):
     """
     get variables from experiment in file and plot selectivities to:
     action, reward, stimulus and action conditioned on prev. reward
@@ -617,85 +624,79 @@ def neural_analysis(file='/home/linux/network_data_492999.npz',
         get_simulation_vars(file=file, fig=fig, n_envs=n_envs, env=env,
                             num_steps=num_steps, obs_size=obs_size,
                             num_units=num_units)
-
     dt = 100
-    win_l = int(np.diff(window))
-    index = np.linspace(dt*window[0], dt*window[1],
-                        int(win_l), endpoint=False).reshape((win_l, 1))
+    for ind_p in range(len(part)):
+        sts_part = states[part[ind_p][0]:part[ind_p][1], :]
+        win_l = int(np.diff(window))
+        index = np.linspace(dt*window[0], dt*window[1],
+                            int(win_l), endpoint=False).reshape((win_l, 1))
 
-    times = np.where(trials == 1)[0]
-    trial_int = np.mean(np.diff(times))*dt
-    # actions
-    print('selectivity to actions')
-    means_neurons, stds_neurons, values, sorting = get_psths(states,
-                                                             actions,
-                                                             times, window,
-                                                             index)
-    plot_psths(means_neurons, stds_neurons, values, sorting, index,
-               suptit='selectivity to actions', trial_int=trial_int, dt=dt)
+        times = np.where(trials == 1)[0]
+        trial_int = np.mean(np.diff(times))*dt
+        # actions
+        print('selectivity to actions')
+        means_neurons, stds_neurons, values, sorting = get_psths(sts_part,
+                                                                 actions,
+                                                                 times, window,
+                                                                 index)
+        plot_psths(means_neurons, stds_neurons, values, sorting, index,
+                   suptit='selectivity to actions (' + p_lbl[ind_p] + ')',
+                   trial_int=trial_int, dt=dt)
 
-    # previous choice
-    print('selectivity to previous actions')
-    means_neurons, stds_neurons, values, sorting = get_psths(states,
-                                                             actions,
-                                                             times, window,
-                                                             index,
-                                                             prev_trial=True)
-    plot_psths(means_neurons, stds_neurons, values, sorting, index,
-               suptit='selectivity to prev. actions', trial_int=trial_int,
-               dt=dt)
+        # rewards
+        print('selectivity to reward')
+        means_neurons, stds_neurons, values, sorting = get_psths(sts_part,
+                                                                 rewards,
+                                                                 times, window,
+                                                                 index)
+        plot_psths(means_neurons, stds_neurons, values, sorting, index,
+                   suptit='selectivity to reward (' + p_lbl[ind_p] + ')',
+                   trial_int=trial_int, dt=dt)
 
-    # rewards
-    print('selectivity to reward')
-    means_neurons, stds_neurons, values, sorting = get_psths(states,
-                                                             rewards,
-                                                             times, window,
-                                                             index)
-    plot_psths(means_neurons, stds_neurons, values, sorting, index,
-               suptit='selectivity to reward', trial_int=trial_int, dt=dt)
+        # obs
+        print('selectivity to cumulative observation')
+        obs_cum = np.zeros_like(obs)
+        for ind_t in range(times.shape[0]):
+            if ind_t == 0:
+                obs_cum[times[ind_t]] = np.sum(obs[0: times[ind_t]])
+            else:
+                obs_cum[times[ind_t]] = np.sum(obs[times[ind_t-1]:
+                                                   times[ind_t]])
+        means_neurons, stds_neurons, values, sorting = get_psths(sts_part,
+                                                                 obs_cum,
+                                                                 times,
+                                                                 window,
+                                                                 index,
+                                                                 feat_bin=4)
+        plot_psths(means_neurons, stds_neurons, values, sorting, index,
+                   suptit='select to cum observation (' + p_lbl[ind_p] + ')',
+                   trial_int=trial_int, dt=dt)
 
-    # obs
-    print('selectivity to cumulative observation')
-    obs_cum = np.zeros_like(obs)
-    for ind_t in range(times.shape[0]):
-        if ind_t == 0:
-            obs_cum[times[ind_t]] = np.sum(obs[0: times[ind_t]])
-        else:
-            obs_cum[times[ind_t]] = np.sum(obs[times[ind_t-1]:
-                                               times[ind_t]])
-    means_neurons, stds_neurons, values, sorting = get_psths(states,
-                                                             obs_cum,
-                                                             times,
-                                                             window,
-                                                             index,
-                                                             feat_bin=4)
-    plot_psths(means_neurons, stds_neurons, values, sorting, index,
-               suptit='selectivity to cumulative observation',
-               trial_int=trial_int, dt=dt)
+        print('selectivity to action conditioned on reward')
+        window = (-5, 20)
+        win_l = int(np.diff(window))
+        index = np.linspace(dt*window[0], dt*window[1],
+                            int(win_l), endpoint=False).reshape((win_l, 1))
+        times_r = times[np.where(rewards[times] == 1)]
+        means_r, stds_r, values_r, sorting = get_psths(sts_part, actions,
+                                                       times_r, window, index)
 
-    print('selectivity to action conditioned on reward')
-    window = (-5, 20)
-    win_l = int(np.diff(window))
-    index = np.linspace(dt*window[0], dt*window[1],
-                        int(win_l), endpoint=False).reshape((win_l, 1))
-    times_r = times[np.where(rewards[times] == 1)]
-    means_r, stds_r, values_r, sorting = get_psths(states, actions,
-                                                   times_r, window, index)
-
-    times_nr = times[np.where(rewards[times] == 0)]
-    means_nr, stds_nr, values_nr, _ = get_psths(states, actions, times_nr,
-                                                window, index,
-                                                sorting=sorting)
-    assert (values_r == values_nr).all()
-    plot_cond_psths(means_r, stds_r, means_nr, stds_nr,
-                    values_r, sorting, index,
-                    suptit='selectivity to action conditioned on reward',
-                    trial_int=trial_int, dt=dt)
+        times_nr = times[np.where(rewards[times] == 0)]
+        means_nr, stds_nr, values_nr, _ = get_psths(sts_part, actions,
+                                                    times_nr,
+                                                    window, index,
+                                                    sorting=sorting)
+        assert (values_r == values_nr).all()
+        plot_cond_psths(means_r, stds_r, means_nr, stds_nr,
+                        values_r, sorting, index,
+                        suptit='select to act | rew (' + p_lbl[ind_p] + ')',
+                        trial_int=trial_int, dt=dt)
 
 
 def transition_analysis(file='/home/linux/network_data_492999.npz',
                         fig=False, n_envs=12, env=0, num_steps=100,
-                        obs_size=4, num_units=128, window=(-5, 20)):
+                        obs_size=4, num_units=128, window=(-5, 20),
+                        part=[[0, 128]], p_lbl=['all']):
     """
     get variables from experiment in file and plot selectivities to
     transition evidence
@@ -718,31 +719,34 @@ def transition_analysis(file='/home/linux/network_data_492999.npz',
     num_steps = trials.shape[0]
     trans_mat = get_transition_mat(choice, times, num_steps=num_steps,
                                    conv_window=4)
-    print('selectivity to number of repetitions')
-    means_neurons, stds_neurons, values, sorting = get_psths(states,
-                                                             trans_mat,
-                                                             times, window,
-                                                             index)
-    plot_psths(means_neurons, stds_neurons, values, sorting, index,
-               suptit='selectivity to number of repetitions',
-               trial_int=trial_int, dt=dt)
+    for ind_p in range(len(part)):
+        sts_part = states[part[ind_p][0]:part[ind_p][1], :]
+        print('selectivity to number of repetitions')
+        means_neurons, stds_neurons, values, sorting = get_psths(sts_part,
+                                                                 trans_mat,
+                                                                 times, window,
+                                                                 index)
+        plot_psths(means_neurons, stds_neurons, values, sorting, index,
+                   suptit='selectivity to num of rep (' + p_lbl[ind_p] + ')',
+                   trial_int=trial_int, dt=dt)
 
-    print('selectivity to num of repetitions conditioned on prev. reward')
-    rews = np.where(rewards[times] == 1)[0]+1
-    times_prev_r = times[rews[:-1]]
-    means_r, stds_r, values_r, sorting = get_psths(states, trans_mat,
-                                                   times_prev_r, window,
-                                                   index)
-    non_rews = np.where(rewards[times] == 0)[0]+1
-    times_prev_nr = times[non_rews[:-1]]
-    means_nr, stds_nr, values_nr, _ = get_psths(states, trans_mat,
-                                                times_prev_nr, window,
-                                                index, sorting=sorting)
-    assert (values_r == values_nr).all()
-    plot_cond_psths(means_r, stds_r, means_nr, stds_nr,
-                    values_r, sorting, index,
-                    suptit='selectivity to num reps cond. on prev. reward',
-                    trial_int=trial_int, dt=dt)
+        print('selectivity to num of repetitions conditioned on prev. reward')
+        rews = np.where(rewards[times] == 1)[0]+1
+        times_prev_r = times[rews[:-1]]
+        means_r, stds_r, values_r, sorting = get_psths(sts_part, trans_mat,
+                                                       times_prev_r, window,
+                                                       index)
+        non_rews = np.where(rewards[times] == 0)[0]+1
+        times_prev_nr = times[non_rews[:-1]]
+        means_nr, stds_nr, values_nr, _ = get_psths(sts_part, trans_mat,
+                                                    times_prev_nr, window,
+                                                    index, sorting=sorting)
+        assert (values_r == values_nr).all()
+        plot_cond_psths(means_r, stds_r, means_nr, stds_nr,
+                        values_r, sorting, index,
+                        suptit='select to num reps | prev. rew (' +
+                        p_lbl[ind_p] + ')',
+                        trial_int=trial_int, dt=dt)
 
 
 def bias_analysis(file='/home/linux/network_data_492999.npz',
@@ -840,7 +844,7 @@ def load_behavioral_data(file):
     choice = data['choice']
     stimulus = data['stimulus']
     correct_side = data['correct_side']
-    if choice.shape[0] != correct_side[0]:
+    if choice.shape[0] != correct_side.shape[0]:
         dec_time = np.where(stimulus[:, 0] == 0)[0]
         dec_time_aux = np.concatenate((dec_time, np.array([dec_time[-1]+2])))
         dec_time_aux = np.diff(dec_time_aux)
@@ -1353,30 +1357,34 @@ if __name__ == '__main__':
 #    plt.figure()
 #    plt.plot(states[80, :])
 #    plt.plot(states[61, :])
-#    file = '/home/linux/network_data_492999.npz'
-#    fig = True
-#    n_envs = 12
-#    env = 0
-#    num_steps = 100
-#    obs_size = 4
-#    num_units = 128
-#    window = (-5, 30)
-#    neural_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-#                    num_steps=num_steps, obs_size=obs_size,
-#                    num_units=num_units, window=window)
-#    transition_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-#                        num_steps=num_steps, obs_size=obs_size,
-#                        num_units=num_units, window=window)
-#    bias_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-#                  num_steps=num_steps, obs_size=obs_size,
-#                  num_units=num_units, window=window)
+    file = 'C:/Users/MOLANO/Desktop/priors_data/network_data_4049999.npz'
+    fig = True
+    n_envs = 10  # 12
+    env = 0
+    num_steps = 20  # 100
+    obs_size = 5  # 4
+    num_units = 64  # 128
+    window = (-5, 30)
+    neural_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+                    num_steps=num_steps, obs_size=obs_size,
+                    num_units=num_units, window=window,
+                    part=[[0, 32], [32, 64]], p_lbl=['pi_1', 'default'])
+    transition_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+                        num_steps=num_steps, obs_size=obs_size,
+                        num_units=num_units, window=window,
+                        part=[[0, 32], [32, 64]], p_lbl=['pi_1', 'default'])
+    #    bias_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
+    #                  num_steps=num_steps, obs_size=obs_size,
+    #                  num_units=num_units, window=window)
     #    asdasd
     # PassReward0_data
     # PassAction0_bhvr_data_64028246
-    behavior_analysis(file='/home/linux/bhvr_data_all.npz')
-    bias_cond_on_history(file='/home/linux/bhvr_data_all.npz')
-    no_stim_analysis(file='/home/linux/bhvr_data_all.npz',
-                     save_path='', fig=True)
+    #    file = 'C:/Users/MOLANO/Desktop/priors_data/
+    #    bhvr_data_all_twinNet_32x2.npz'
+    #    behavior_analysis(file=file)
+    #    bias_cond_on_history(file=file)
+#    no_stim_analysis(file=file,
+#                     save_path='', fig=True)
     #    trans_evidence_cond_on_outcome(file='/home/linux/PassReward0_data.npz',
     #                                   measure='trans_change',
     #                                   save_path='', fig=True)
