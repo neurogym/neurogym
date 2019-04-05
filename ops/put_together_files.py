@@ -30,7 +30,7 @@ for ind_f in range(len(files)):
     stim = data['stimulus']
     r_prob = data['rep_prob']
     side = data['correct_side']
-    if choice.shape[0] != side[0]:
+    if choice.shape[0] != side.shape[0]:
         dec_time = np.where(stim[:, 0] == 0)[0]
         dec_time_aux = np.concatenate((dec_time, np.array([dec_time[-1]+2])))
         dec_time_aux = np.diff(dec_time_aux)
