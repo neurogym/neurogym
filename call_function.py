@@ -126,8 +126,8 @@ if __name__ == '__main__':
     pass_reward = [True]
     pass_action = [True]
     bl_dur = [200]
-    num_units = [32]
-    net_type = ['twin_net']  # ['twin_net', 'cont_rnn']
+    num_units = [64]
+    net_type = ['twin_net', 'cont_rnn']  # ['twin_net', 'cont_rnn']
     num_steps = [1e8]  # [1e9]
     print(num_steps)
     load_path = ''  # '/home/linux/00010'
