@@ -64,14 +64,6 @@ class manage_data(Wrapper):
                     'rep_prob': self.rep_prob_mat}
             np.savez(self.saving_name + '_bhvr_data_' +
                      str(self.num_tr) + '.npz', **data)
-            if len(self.side_mat) != 0:
-                try:
-                    analysis.no_stim_analysis(file=self.saving_name +
-                                              '_data.npz',
-                                              save_path=self.saving_name,
-                                              figs=self.plt_tr)
-                except Exception:
-                    print('could not perform the analysis')
             if self.plt_tr:
                 self.render()
 
