@@ -10,7 +10,7 @@ display_mode = True
 DPI = 400
 
 
-def plot_learning(performance, evidence, stim_position):
+def plot_learning(performance, evidence, stim_position, w_conv=200):
     """
     plots RNN and ideal observer performances.
     The function assumes that a figure has been created
@@ -25,7 +25,6 @@ def plot_learning(performance, evidence, stim_position):
     RNN_perf = np.mean(performance[2000:].flatten())
     io_perf = np.mean(io_performance[2000:].flatten())
 
-    w_conv = 200  # this is for the smoothing
     # plot smoothed performance
     performance_smoothed = np.convolve(performance,
                                        np.ones((w_conv,))/w_conv,
@@ -739,6 +738,32 @@ def neural_analysis(file='/home/linux/network_data_492999.npz',
                         suptit='act_cond_rew_select_' + p_lbl[ind_p],
                         trial_int=trial_int, dt=dt, folder=folder)
 
+        print('selectivity to actions cond on low stimulus ev')
+        times_lowEv =\
+            times[np.where(np.abs(obs_cum[times]) <
+                           np.percentile(np.abs(obs_cum[times]), 10))]
+        means_neurons, stds_neurons, values, sorting = get_psths(sts_part,
+                                                                 actions,
+                                                                 times_lowEv,
+                                                                 window,
+                                                                 index)
+        plot_psths(means_neurons, stds_neurons, values, sorting, index,
+                   suptit='act_cond_lowStim_select_' + p_lbl[ind_p],
+                   trial_int=trial_int, dt=dt, folder=folder)
+
+        print('selectivity to actions cond on high stimulus ev')
+        times_lowEv =\
+            times[np.where(np.abs(obs_cum[times]) >
+                           np.percentile(np.abs(obs_cum[times]), 90))]
+        means_neurons, stds_neurons, values, sorting = get_psths(sts_part,
+                                                                 actions,
+                                                                 times_lowEv,
+                                                                 window,
+                                                                 index)
+        plot_psths(means_neurons, stds_neurons, values, sorting, index,
+                   suptit='act_cond_highStim_select_' + p_lbl[ind_p],
+                   trial_int=trial_int, dt=dt, folder=folder)
+
 
 def transition_analysis(file='/home/linux/network_data_492999.npz',
                         fig=False, n_envs=12, env=0, num_steps=100,
@@ -764,7 +789,7 @@ def transition_analysis(file='/home/linux/network_data_492999.npz',
     ground_truth[np.where(ground_truth == 2)] = -1
     ground_truth *= (-1)**(outcome == 0)
     num_steps = trials.shape[0]
-    trans_mat = get_transition_mat(choice, times, num_steps=num_steps,
+    trans_mat = get_transition_mat(ground_truth, times, num_steps=num_steps,
                                    conv_window=4)
     for ind_p in range(len(part)):
         sts_part = states[part[ind_p][0]:part[ind_p][1], :]
@@ -812,8 +837,12 @@ def bias_analysis(file='/home/linux/network_data_492999.npz',
     times = np.where(trials == 1)[0]
     trial_int = np.mean(np.diff(times))*dt
     choice = actions[times]
+    outcome = rewards[times]
+    ground_truth = choice.copy()
+    ground_truth[np.where(ground_truth == 2)] = -1
+    ground_truth *= (-1)**(outcome == 0)
     num_steps = trials.shape[0]
-    trans_mat = get_transition_mat(choice, times, num_steps=num_steps,
+    trans_mat = get_transition_mat(ground_truth, times, num_steps=num_steps,
                                    conv_window=4)
     rand_choice = np.array(np.random.choice([1, 2])).reshape(1,)
     previous_choice = np.concatenate((rand_choice, choice[:-1]))
@@ -919,12 +948,12 @@ def behavior_analysis(file='/home/linux/PassReward0_data.npz', folder=''):
     """
     choice, correct_side, performance, evidence = load_behavioral_data(file)
     # plot performance
-    num_tr = 300000
-    start_point = 50000
+    num_tr = 5000000
+    start_point = 0
     f = ut.get_fig(display_mode)
     plot_learning(performance[start_point:start_point+num_tr],
                   evidence[start_point:start_point+num_tr],
-                  correct_side[start_point:start_point+num_tr])
+                  correct_side[start_point:start_point+num_tr], w_conv=1000)
     if folder != '':
         f.savefig(folder + 'performance.png',
                   dpi=DPI, bbox_inches='tight')
@@ -1031,11 +1060,12 @@ def bias_cond_on_history(file='/home/linux/PassReward0_data.npz', folder=''):
     ev = evidence[start_point:start_point+num_tr]
     perf = performance[start_point:start_point+num_tr]
     ch = choice[start_point:start_point+num_tr]
+    side = correct_side[start_point:start_point+num_tr]
     conv_window = 8
     margin = 2
     # get number of repetitions during the last conv_window trials
     # (not including the current trial)
-    transitions = get_transition_mat(ch, conv_window=conv_window)
+    transitions = get_transition_mat(side, conv_window=conv_window)
     values = np.unique(transitions)
     mat_biases = np.empty((2, conv_window))
     labels = ['error', 'correct']
@@ -1069,7 +1099,7 @@ def bias_cond_on_history(file='/home/linux/PassReward0_data.npz', folder=''):
         plt.legend(loc="lower right")
         plot_dashed_lines(-np.max(evidence), np.max(evidence))
     if folder != '':
-        f.savefig(folder + 'performance.png',
+        f.savefig(folder + 'bias_cond_on_trHist.png',
                   dpi=DPI, bbox_inches='tight')
         plt.close(f)
 
@@ -1397,25 +1427,98 @@ def simple_agent(file='/home/linux/PassReward0_data.npz'):
     plt.legend()
 
 
-def bias_after_repAlt_sequence(file='/home/linux/PassReward0_data.npz'):
-    choice, correct_side, perf, evidence = load_behavioral_data(file)
-    repeat_choice = get_repetitions(choice)
-    mask_ev = np.logical_and(evidence >= np.percentile(evidence, 40),
-                             evidence <= np.percentile(evidence, 60))
-    max_seq = 8
-    mat_biases = np.empty((max_seq-2, 2, 2))
-    for ind_perf in range(2):
-        for ind_conv in range(2, max_seq):
-            transitions = get_transition_mat(correct_side,
-                                             conv_window=ind_conv)
-            mask = np.logical_and(transitions == ind_conv, perf == ind_perf)
-            mask = np.concatenate((np.array([False]), mask[:-1]))
-            mask = np.logical_and(mask_ev, mask)
-            rp_mask = repeat_choice[mask]
-            mat_biases[ind_conv, ind_perf, 0] =\
-                np.mean(rp_mask)
-            mat_biases[ind_conv, ind_perf, 1] =\
-                np.std(rp_mask)/np.sqrt(rp_mask.shape[0])
+def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
+                                folder=''):
+    """
+    computes bias conditioned on the number of consecutive ground truth
+    alternations/repetitions during the last trials
+    """
+    choice, correct_side, performance, evidence = load_behavioral_data(file)
+    # BIAS CONDITIONED ON TRANSITION HISTORY (NUMBER OF REPETITIONS)
+    num_tr = 2000000
+    start_point = performance.shape[0]-num_tr
+    ev = evidence[start_point:start_point+num_tr]
+    perf = performance[start_point:start_point+num_tr]
+    ch = choice[start_point:start_point+num_tr]
+    side = correct_side[start_point:start_point+num_tr]
+    mat_biases = []
+    mat_conv = np.arange(2, 10)
+    lbl_perf = ['error', 'correct']
+    for conv_window in mat_conv:
+        # get number of repetitions during the last conv_window trials
+        # (not including the current trial)
+        transitions = get_transition_mat(side, conv_window=conv_window)
+        values = np.unique(transitions)
+        print(values)
+        for ind_perf in reversed(range(2)):
+            for ind_tr in [0, values.shape[0]-1]:
+                # mask finds all times in which the current trial is
+                # correct/error and the trial history (num. of repetitions)
+                # is values[ind_tr] we then need to shift these times
+                # to get the bias in the trial following them
+                mask = np.logical_and(transitions == values[ind_tr],
+                                      perf == ind_perf)
+                mask = np.concatenate((np.array([False]), mask[:-1]))
+                assert np.sum(mask) > 2000
+                popt, pcov = bias_calculation(ch, ev, mask)
+                mat_biases.append([popt[1], ind_perf,
+                                   ind_tr/(values.shape[0]-1), conv_window])
+    mat_biases = np.array(mat_biases)
+    lbl_tr = ['alt', 'rep']
+    f = ut.get_fig(display_mode)
+    for ind_perf in reversed(range(2)):
+        for ind_tr in [0, 1]:
+            if ind_perf == 0:
+                color = (1-0.5*ind_tr, 0, 0.5*(ind_tr + 1))
+            else:
+                color = ((1-ind_tr), 0, ind_tr)
+            index = np.logical_and(mat_biases[:, 1] == ind_perf,
+                                   mat_biases[:, 2] == ind_tr)
+            print('bias ' + lbl_tr[ind_tr] + ' repeatitions after ' +
+                  lbl_perf[ind_perf] + ':')
+            plt.plot(mat_conv, mat_biases[index, 0], color=color, lw=1,
+                     label=lbl_tr[ind_tr] + ' + ' + lbl_perf[ind_perf])
+    plt.legend()
+    plt.ylabel('bias')
+    plt.xlabel('number of ground truth transitions')
+    if folder != '':
+        f.savefig(folder + 'bias_after_saltRep_seqs.png',
+                  dpi=DPI, bbox_inches='tight')
+        plt.close(f)
+
+
+def exp_analysis(folder, file, file_bhvr, trials_fig=True,
+                 neural_analysis_flag=True, behavior_analysis_flag=True,
+                 n_envs=10, env=0, num_steps=20, obs_size=5,
+                 num_units=64, p_lbl=['1', '2']):
+    """
+    performs neural and behabioral analyses on the exp. contained in
+    folder/file (/file_bhvr)
+    """
+    if neural_analysis_flag:
+        mean_neural_activity(file=file, fig=trials_fig, n_envs=n_envs, env=env,
+                             num_steps=num_steps, obs_size=obs_size,
+                             num_units=num_units, part=[[0, 32], [32, 64]],
+                             p_lbl=p_lbl, folder=folder)
+        trials_fig = False
+        neural_analysis(file=file, fig=trials_fig, n_envs=n_envs, env=env,
+                        num_steps=num_steps, obs_size=obs_size,
+                        num_units=num_units, window=window,
+                        part=[[0, 32], [32, 64]], p_lbl=p_lbl,
+                        folder=folder)
+        transition_analysis(file=file, fig=trials_fig, n_envs=n_envs, env=env,
+                            num_steps=num_steps, obs_size=obs_size,
+                            num_units=num_units, window=window,
+                            part=[[0, 32], [32, 64]],
+                            p_lbl=p_lbl,
+                            folder=folder)
+        bias_analysis(file=file, fig=trials_fig, n_envs=n_envs, env=env,
+                      num_steps=num_steps, obs_size=obs_size,
+                      num_units=num_units, window=window, folder=folder)
+    if behavior_analysis_flag:
+        behavior_analysis(file=file_bhvr, folder=folder)
+        bias_cond_on_history(file=file_bhvr, folder=folder)
+        bias_after_altRep_seqs(file=file_bhvr, folder=folder)
 
 
 if __name__ == '__main__':
@@ -1427,64 +1530,49 @@ if __name__ == '__main__':
     obs_size = 5  # 4
     num_units = 64  # 128
     window = (-5, 30)
-    # CONT RNN
-    folder = 'C:/Users/MOLANO/Desktop/priors_data/contRNN/'
-    neural_analysis_flag = True
-    behavior_analysis_flag = True
-    if neural_analysis_flag:
-        file = folder + '/network_data_2649999_contRNN_64.npz'
-        mean_neural_activity(file=file, fig=fig, n_envs=n_envs, env=env,
-                             num_steps=num_steps, obs_size=obs_size,
-                             num_units=num_units, part=[[0, 32], [32, 64]],
-                             p_lbl=['1', '2'], folder=folder)
-        fig = False
-        neural_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-                        num_steps=num_steps, obs_size=obs_size,
-                        num_units=num_units, window=window,
-                        part=[[0, 32], [32, 64]], p_lbl=['1', '2'],
-                        folder=folder)
-        transition_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-                            num_steps=num_steps, obs_size=obs_size,
-                            num_units=num_units, window=window,
-                            part=[[0, 32], [32, 64]],
-                            p_lbl=['1', '2'],
-                            folder=folder)
-        bias_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-                      num_steps=num_steps, obs_size=obs_size,
-                      num_units=num_units, window=window, folder=folder)
-    if behavior_analysis_flag:
-        file = folder + 'bhvr_data_all_contRNN_64.npz'
-        behavior_analysis(file=file, folder=folder)
-        bias_cond_on_history(file=file, folder=folder)
+    # TWIN NET STIM EV 0.1
+#    folder = 'C:/Users/MOLANO/Desktop/priors_data/a2c_RDM_t_100_200_200_' +\
+#        '200_100_TH_0.2_0.8_200_PR_PA_twin_net_ec_0.1_lr_0.001_lrs_c_g_0.9' +\
+#        '_b_20_d_1KKK_ne_10_nu_32_ev_0.1/'
+#    file = folder + '/network_data_2249999.npz'
+#    file_bhvr = folder + 'bhvr_data_all.npz'
+#    p_lbl = ['pi_1', 'default']
+#    exp_analysis(folder, file, file_bhvr, trials_fig=True,
+#                 neural_analysis_flag=True, behavior_analysis_flag=True,
+#                 n_envs=n_envs, env=env, num_steps=num_steps,
+#                 obs_size=obs_size, num_units=num_units, p_lbl=p_lbl)
 
-    # TWIN NET
-    fig = True
-    folder = 'C:/Users/MOLANO/Desktop/priors_data/twinNet/'
-    if neural_analysis_flag:
-        file = folder + '/network_data_4049999_twinNet_32x2.npz'
-        mean_neural_activity(file=file, fig=fig, n_envs=n_envs, env=env,
-                             num_steps=num_steps, obs_size=obs_size,
-                             num_units=num_units, part=[[0, 32], [32, 64]],
-                             p_lbl=['pi_1', 'default'], folder=folder)
-        fig = False
-        neural_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-                        num_steps=num_steps, obs_size=obs_size,
-                        num_units=num_units, window=window,
-                        part=[[0, 32], [32, 64]], p_lbl=['pi_1', 'default'],
-                        folder=folder)
-        transition_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-                            num_steps=num_steps, obs_size=obs_size,
-                            num_units=num_units, window=window,
-                            part=[[0, 32], [32, 64]],
-                            p_lbl=['pi_1', 'default'],
-                            folder=folder)
-        bias_analysis(file=file, fig=fig, n_envs=n_envs, env=env,
-                      num_steps=num_steps, obs_size=obs_size,
-                      num_units=num_units, window=window, folder=folder)
-    if behavior_analysis_flag:
-        file = folder + 'bhvr_data_all_twinNet_32x2.npz'
-        behavior_analysis(file=file, folder=folder)
-        bias_cond_on_history(file=file, folder=folder)
+    # TWIN NET STIM EV 0.5
+    folder = 'C:/Users/MOLANO/Desktop/priors_data/a2c_RDM_t_100_200_200_' +\
+        '200_100_TH_0.2_0.8_200_PR_PA_twin_net_ec_0.1_lr_0.001_lrs_c_g_0.9' +\
+        '_b_20_d_1KKK_ne_10_nu_32_ev_0.5/'
+    file = folder + '/network_data_649999.npz'
+    file_bhvr = folder + 'bhvr_data_all.npz'
+    p_lbl = ['pi_1', 'default']
+    exp_analysis(folder, file, file_bhvr, trials_fig=True,
+                 neural_analysis_flag=True, behavior_analysis_flag=True,
+                 n_envs=n_envs, env=env, num_steps=num_steps,
+                 obs_size=obs_size, num_units=num_units, p_lbl=p_lbl)
+
+    # TWIN NET STIM EV 1
+#    folder = 'C:/Users/MOLANO/Desktop/priors_data/twinNet/'
+#    file = folder + '/network_data_4049999_twinNet_32x2.npz'
+#    file_bhvr = folder + 'bhvr_data_all_twinNet_32x2.npz'
+#    p_lbl = ['pi_1', 'default']
+#    exp_analysis(folder, file, file_bhvr, trials_fig=True,
+#                 neural_analysis_flag=True, behavior_analysis_flag=True,
+#                 n_envs=n_envs, env=env, num_steps=num_steps,
+#                 obs_size=obs_size, num_units=num_units, p_lbl=p_lbl)
+
+    # cont. RNN STIM EV 1
+#    folder = 'C:/Users/MOLANO/Desktop/priors_data/contRNN/'
+#    file = folder + '/network_data_2649999_contRNN_64.npz'
+#    file_bhvr = folder + 'bhvr_data_all_contRNN_64.npz'
+#    p_lbl = ['1', '2']
+#    exp_analysis(folder, file, file_bhvr, trials_fig=True,
+#                 neural_analysis_flag=True, behavior_analysis_flag=True,
+#                 n_envs=n_envs, env=env, num_steps=num_steps,
+#                 obs_size=obs_size, num_units=num_units, p_lbl=p_lbl)
 
 #    no_stim_analysis(file=file,
 #                     save_path='', fig=True)
