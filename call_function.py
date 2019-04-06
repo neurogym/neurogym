@@ -129,7 +129,7 @@ if __name__ == '__main__':
     num_units = [64]
     net_type = ['twin_net', 'cont_rnn']  # ['twin_net', 'cont_rnn']
     num_steps = [1e8]  # [1e9]
-    stim_ev = [0.1]
+    stim_ev = [0.5]
     print(num_steps)
     load_path = ''  # '/home/linux/00010'
     params_config = itertools.product(pass_reward, pass_action, bl_dur,
