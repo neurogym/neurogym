@@ -1220,7 +1220,7 @@ def trans_evidence_cond_on_outcome(file='/home/linux/PassAction.npz',
     computes the probability of repeating choice or correct side, or the
     average change in transition evidence, when the stimulus evidence is small
     (or 0), conditioned on the number of repetitions during
-    the last trials. This is for different periods across training.
+    the last trials. This is done for different periods across training.
     """
     choice, correct_side, performance, evidence = load_behavioral_data(file)
     mask_ev = np.logical_and(evidence >= np.percentile(evidence, 40),
@@ -1347,6 +1347,35 @@ def perf_cond_on_stim_ev(file='/home/linux/PassAction.npz', save_path='',
     plt.plot(np.arange(10)*10+5, perf_mat, '-+')
     plt.xlabel('stim evidence percentile')
     plt.ylabel('performance')
+    print('Mean performance: ' + str(np.mean(performance)))
+    ut.get_fig()
+    sh_mat = []
+    # num_bins = 20
+    index = np.arange(50)
+    for ind_sh in range(10):
+        shuffled = performance.copy()
+        np.random.shuffle(shuffled)
+        inter_error_distance = np.diff(np.where(shuffled == 0)[0])
+        assert (inter_error_distance != 0).all()
+        sh_hist = np.histogram(inter_error_distance, index)[0]
+        sh_hist = sh_hist / np.sum(sh_hist)
+        sh_mat.append(sh_hist)
+
+    sh_mat = np.array(sh_mat)
+    or_hist = np.histogram(np.diff(np.where(performance == 0)[0]), index)[0]
+    or_hist = or_hist / np.sum(or_hist)
+    plt.errorbar(index[:-1], np.mean(sh_mat, axis=0), np.std(sh_mat, axis=0),
+                 label='shuffled')
+    for ind_p in np.arange(10)*0.1:
+        sh_mat2 = np.random.binomial(1, ind_p, size=performance.shape)
+        sh_hist = np.histogram(np.diff(np.where(sh_mat2 == 0)[0]), index)[0]
+        sh_hist = sh_hist / np.sum(sh_hist)
+        plt.plot(index[:-1], sh_hist, '--', color=(.9, .9, .9),
+                 label='binomial p=' + str(ind_p))
+    plt.plot(index[:-1], or_hist, label='orignal')
+    plt.legend()
+    plt.xlabel('distance between errors')
+    plt.ylabel('count')
 
 
 def simple_agent(file='/home/linux/PassReward0_data.npz'):
@@ -1430,8 +1459,8 @@ def simple_agent(file='/home/linux/PassReward0_data.npz'):
 def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                                 folder=''):
     """
-    computes bias conditioned on the number of consecutive ground truth
-    alternations/repetitions during the last trials
+    computes bias conditioned on the num. of previous consecutive ground truth
+    alternations/repetitions for after correct/error trials
     """
     choice, correct_side, performance, evidence = load_behavioral_data(file)
     # BIAS CONDITIONED ON TRANSITION HISTORY (NUMBER OF REPETITIONS)
@@ -1450,7 +1479,7 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
         transitions = get_transition_mat(side, conv_window=conv_window)
         values = np.unique(transitions)
         print(values)
-        for ind_perf in reversed(range(2)):
+        for ind_perf in range(2):
             for ind_tr in [0, values.shape[0]-1]:
                 # mask finds all times in which the current trial is
                 # correct/error and the trial history (num. of repetitions)
@@ -1466,21 +1495,130 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
     mat_biases = np.array(mat_biases)
     lbl_tr = ['alt', 'rep']
     f = ut.get_fig(display_mode)
-    for ind_perf in reversed(range(2)):
+    for ind_perf in range(2):
         for ind_tr in [0, 1]:
             if ind_perf == 0:
-                color = (1-0.5*ind_tr, 0, 0.5*(ind_tr + 1))
+                color = np.array([1-0.25*ind_tr, 0.75, 0.75*(ind_tr + 1)])
+                color[color > 1] = 1
             else:
                 color = ((1-ind_tr), 0, ind_tr)
             index = np.logical_and(mat_biases[:, 1] == ind_perf,
                                    mat_biases[:, 2] == ind_tr)
-            print('bias ' + lbl_tr[ind_tr] + ' repeatitions after ' +
-                  lbl_perf[ind_perf] + ':')
             plt.plot(mat_conv, mat_biases[index, 0], color=color, lw=1,
                      label=lbl_tr[ind_tr] + ' + ' + lbl_perf[ind_perf])
     plt.legend()
     plt.ylabel('bias')
     plt.xlabel('number of ground truth transitions')
+    if folder != '':
+        f.savefig(folder + 'bias_after_saltRep_seqs.png',
+                  dpi=DPI, bbox_inches='tight')
+        plt.close(f)
+
+
+def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
+                              folder=''):
+    """
+    computes bias conditioned on the number of consecutive ground truth
+    alternations/repetitions during the last trials
+    """
+    choice, correct_side, performance, evidence = load_behavioral_data(file)
+    # BIAS CONDITIONED ON TRANSITION HISTORY (NUMBER OF REPETITIONS)
+    print(performance.shape[0])
+    num_tr = 5000000
+    start_point = performance.shape[0]-num_tr
+    ev = evidence[start_point:start_point+num_tr]
+    ch = choice[start_point:start_point+num_tr]
+    side = correct_side[start_point:start_point+num_tr]
+    repeat_choice = get_repetitions(side)
+    perf = performance[start_point:start_point+num_tr]
+    mat_biases = []
+    mat_conv = np.arange(2, 10)
+    for conv_window in mat_conv:
+        # get number of repetitions during the last conv_window trials
+        # (not including the current trial)
+        trans = get_transition_mat(side, conv_window=conv_window)
+        values_tr = np.unique(trans)
+        # use only extreme cases (all alt., all  rep.)
+        values_tr = [values_tr[0], values_tr[-1]]
+        abs_trans = np.abs(trans)
+        # the order of the concatenation is imposed by the fact that
+        # transitions measures the trans. ev. in the previous trials, *not
+        # counting the current trial*
+        tr_change = np.concatenate((abs_trans, abs_trans[0].reshape((1,))))
+        tr_change = np.diff(tr_change)
+        values = np.unique(tr_change)
+        for ind_tr in range(2):
+            # since we are just looking a th the extrem cases (see above),
+            # there cannot be an increase in transition evidence
+            for ind_ch in range(2):
+                for ind_perf in range(2):
+                    # mask finds all times in which the current trial is
+                    # correct/error and the trial history (num. of repetitions)
+                    # is values[ind_tr] we then need to shift these times
+                    # to get the bias in the trial following them
+                    mask = np.logical_and.reduce((tr_change == values[ind_ch],
+                                                 perf == ind_perf,
+                                                 trans == values_tr[ind_tr]))
+                    mask = np.concatenate((np.array([False]), mask[:-1]))
+                    if False:
+                        print(np.where(mask == 1))
+                        print('tr change : ' + str(values[ind_ch]))
+                        print('perf. : ' + str(ind_perf))
+                        print('transition : ' + str(values_tr[ind_tr]))
+                        print('conv. : ' + str(conv_window))
+                        ut.get_fig()
+                        num = 20
+                        start = 200
+                        plt.plot(trans[start:start+num], '-+',
+                                 label='transitions', lw=1)
+                        plt.plot(tr_change[start:start+num], '-+',
+                                 label='tr_change', lw=1)
+                        plt.plot(perf[start:start+num]-3, '--+', label='perf',
+                                 lw=1)
+                        plt.plot(mask[start:start+num]-3, '-+', label='mask',
+                                 lw=1)
+                        plt.plot(repeat_choice[start:start+num]+2, '-+',
+                                 label='repeat', lw=1)
+                        for ind in range(num):
+                            plt.plot([ind, ind], [-3, 3], '--',
+                                     color=(.7, .7, .7))
+                        plt.legend()
+                        # asdas
+                    if np.sum(mask) > 100:
+                        popt, pcov = bias_calculation(ch, ev, mask)
+                    else:
+                        popt = [0, 0]
+                    mat_biases.append([popt[1], ind_ch, ind_perf, ind_tr,
+                                       conv_window, np.sum(mask)])
+    mat_biases = np.array(mat_biases)
+    f = ut.get_fig(display_mode)
+    lbl_ch = ['less', 'equal']  # , 'more evidence']
+    lbl_perf = ['error', 'correct']
+    lbl_tr = ['alt. bl.', 'rep. bl.']
+    for ind_ch in range(2):
+        plt.subplot(1, 2, ind_ch+1)
+        plt.title('after change to ' + lbl_ch[ind_ch] + ' transition evidence')
+        for ind_tr in range(2):
+            for ind_perf in range(2):
+                    if ind_perf == 0:
+                        color = np.array([1-0.25*ind_tr, 0.75,
+                                          0.75*(ind_tr + 1)])
+                        color[color > 1] = 1
+                    else:
+                        color = ((1-ind_tr), 0, ind_tr)
+                    index = np.logical_and.reduce((mat_biases[:, 1] == ind_ch,
+                                                  mat_biases[:, 2] == ind_perf,
+                                                  mat_biases[:, 3] == ind_tr))
+                    label = lbl_tr[ind_tr] + ', after ' + lbl_perf[ind_perf] +\
+                        ' (N=' + str(np.sum(mat_biases[index, 5])) + ')'
+                    plt.plot(mat_biases[index, 4], mat_biases[index, 0],
+                             color=color, lw=1, label=label)
+        plt.legend()
+        plt.ylabel('bias')
+        plt.xlabel('number of ground truth transitions')
+        mask = mat_biases[:, 1] == 0
+        mat_biases[mask, 0]*mat_biases[mask, 5]/np.sum(mat_biases[mask, 5])
+
     if folder != '':
         f.savefig(folder + 'bias_after_saltRep_seqs.png',
                   dpi=DPI, bbox_inches='tight')
@@ -1523,13 +1661,23 @@ def exp_analysis(folder, file, file_bhvr, trials_fig=True,
 
 if __name__ == '__main__':
     plt.close('all')
+    folder = 'C:/Users/MOLANO/Desktop/priors_data/a2c_RDM_t_100_200_200_' +\
+        '200_100_TH_0.2_0.8_200_PR_PA_twin_net_ec_0.1_lr_0.001_lrs_c_g_0.9' +\
+        '_b_20_d_1KKK_ne_10_nu_32_ev_0.5/'
+    file = folder + '/bhvr_data_all.npz'
+    #    perf_cond_on_stim_ev(file=file, save_path='', fig=True)
+    #    asdasd
+    bias_after_transEv_change(file=file, folder='')
+    bias_after_altRep_seqs(file=file, folder='')
+    asdasd
+
     fig = True
     n_envs = 10  # 12
     env = 0
     num_steps = 20  # 100
     obs_size = 5  # 4
     num_units = 64  # 128
-    window = (-5, 30)
+    window = (-5, 20)
     # TWIN NET STIM EV 0.1
 #    folder = 'C:/Users/MOLANO/Desktop/priors_data/a2c_RDM_t_100_200_200_' +\
 #        '200_100_TH_0.2_0.8_200_PR_PA_twin_net_ec_0.1_lr_0.001_lrs_c_g_0.9' +\
@@ -1546,7 +1694,7 @@ if __name__ == '__main__':
     folder = 'C:/Users/MOLANO/Desktop/priors_data/a2c_RDM_t_100_200_200_' +\
         '200_100_TH_0.2_0.8_200_PR_PA_twin_net_ec_0.1_lr_0.001_lrs_c_g_0.9' +\
         '_b_20_d_1KKK_ne_10_nu_32_ev_0.5/'
-    file = folder + '/network_data_649999.npz'
+    file = folder + '/network_data_3049999.npz'
     file_bhvr = folder + 'bhvr_data_all.npz'
     p_lbl = ['pi_1', 'default']
     exp_analysis(folder, file, file_bhvr, trials_fig=True,
@@ -1554,8 +1702,10 @@ if __name__ == '__main__':
                  n_envs=n_envs, env=env, num_steps=num_steps,
                  obs_size=obs_size, num_units=num_units, p_lbl=p_lbl)
 
-    # TWIN NET STIM EV 1
-#    folder = 'C:/Users/MOLANO/Desktop/priors_data/twinNet/'
+#    # TWIN NET STIM EV 1
+#    folder = 'C:/Users/MOLANO/Desktop/priors_data/a2c_RDM_t_100_200_200_' +\
+#        '200_100_TH_0.2_0.8_200_PR_PA_twin_net_ec_0.1_lr_0.001_lrs_c_g_0.9' +\
+#        '_b_20_d_1KKK_ne_10_nu_64_ev_1.0/'
 #    file = folder + '/network_data_4049999_twinNet_32x2.npz'
 #    file_bhvr = folder + 'bhvr_data_all_twinNet_32x2.npz'
 #    p_lbl = ['pi_1', 'default']
@@ -1563,9 +1713,11 @@ if __name__ == '__main__':
 #                 neural_analysis_flag=True, behavior_analysis_flag=True,
 #                 n_envs=n_envs, env=env, num_steps=num_steps,
 #                 obs_size=obs_size, num_units=num_units, p_lbl=p_lbl)
-
-    # cont. RNN STIM EV 1
-#    folder = 'C:/Users/MOLANO/Desktop/priors_data/contRNN/'
+#
+#    # cont. RNN STIM EV 1
+#    folder = 'C:/Users/MOLANO/Desktop/priors_data/a2c_RDM_t_100_200_200_' +\
+#        '200_100_TH_0.2_0.8_200_PR_PA_cont_rnn_ec_0.1_lr_0.001_lrs_c_g_0.9' +\
+#        '_b_20_d_1KKK_ne_10_nu_64_ev_1.0/'
 #    file = folder + '/network_data_2649999_contRNN_64.npz'
 #    file_bhvr = folder + 'bhvr_data_all_contRNN_64.npz'
 #    p_lbl = ['1', '2']
