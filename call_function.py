@@ -17,10 +17,9 @@ matplotlib.use('Agg')
 
 def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
                   net_type='twin_net', num_stps_env=1e9, load_path='',
-                  save=True):
+                  save=True, nsteps=20, inst=0):
     alg = 'a2c'
     env = 'RDM-v0'
-    nsteps = 20
     num_env = 10
     tot_num_stps = num_stps_env*num_env
     num_steps_per_logging = 1000000
@@ -87,6 +86,7 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
     save_path += '_ne_' + str(num_env)
     save_path += '_nu_' + str(nlstm)
     save_path += '_ev_' + str(stimEv)
+    save_path += '_' + str(inst)
     save_path = save_path.replace('-v0', '')
     save_path = save_path.replace('constant', 'c')
     save_path = save_path.replace('linear', 'l')
@@ -113,7 +113,10 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
     command += timing_cmmd
     command += load_path_cmmd
     command += ' --figs=True'
+    print('Path: ')
+    print(save_path)
     if save:
+        print('Command:')
         print(command)
         vars_ = vars()
         params = {x: vars_[x] for x in vars_.keys() if type(vars_[x]) == str or
@@ -121,9 +124,7 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
                   type(vars_[x]) == bool or type(vars_[x]) == list or
                   type(vars_[x]) == tuple}
         np.savez(save_path + '/params.npz', ** params)
-    else:
-        print('Path: ')
-        print(save_path)
+
     return command, save_path
 
 
@@ -132,17 +133,22 @@ if __name__ == '__main__':
     pass_action = [True]
     bl_dur = [200]
     num_units = [64]
-    net_type = ['twin_net', 'cont_rnn']  # ['twin_net', 'cont_rnn']
-    num_steps = [1e8]  # [1e9]
-    stim_ev = [0.5]
+    net_type = ['twin_net']  # ['twin_net', 'cont_rnn']
+    num_steps_env = [1e8]  # [1e9]
+    stim_ev = [1.]
+    batch_size = [20]
+    insts = np.arange(5)
     load_path = ''  # '/home/linux/00010'
-    params_config = itertools.product(pass_reward, pass_action, bl_dur,
-                                      num_units, net_type, num_steps, stim_ev)
+    params_config = itertools.product(insts, pass_reward, pass_action, bl_dur,
+                                      num_units, net_type, num_steps_env,
+                                      stim_ev, batch_size)
     batch_command = ''
     for conf in params_config:
-        cmmd, _ = build_command(ps_r=conf[0], ps_act=conf[1], bl_dur=conf[2],
-                                num_u=conf[3], net_type=conf[4],
-                                num_stps_env=conf[5], load_path=load_path,
-                                stimEv=conf[6])
+        print('---------------------------------------------')
+        cmmd, _ = build_command(inst=conf[0], ps_r=conf[1], ps_act=conf[2],
+                                bl_dur=conf[3], num_u=conf[4],
+                                net_type=conf[5], num_stps_env=conf[6],
+                                load_path=load_path, stimEv=conf[7],
+                                nsteps=conf[8])
         batch_command += cmmd + '\n'
     os.system(batch_command)
