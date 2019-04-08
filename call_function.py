@@ -16,7 +16,8 @@ matplotlib.use('Agg')
 
 
 def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
-                  net_type='twin_net', num_stps_env=1e9, load_path=''):
+                  net_type='twin_net', num_stps_env=1e9, load_path='',
+                  save=True):
     alg = 'a2c'
     env = 'RDM-v0'
     nsteps = 20
@@ -90,7 +91,7 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
     save_path = save_path.replace('constant', 'c')
     save_path = save_path.replace('linear', 'l')
     # load_path = save_path + '/checkpoints/00020'
-    if not os.path.exists(save_path):
+    if not os.path.exists(save_path) and save:
         os.mkdir(save_path)
     command = 'python -m baselines.run --alg=' + alg
     command += ' --env=' + env
@@ -112,14 +113,18 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
     command += timing_cmmd
     command += load_path_cmmd
     command += ' --figs=True'
-    print(command)
-    vars_ = vars()
-    params = {x: vars_[x] for x in vars_.keys() if type(vars_[x]) == str or
-              type(vars_[x]) == int or type(vars_[x]) == float or
-              type(vars_[x]) == bool or type(vars_[x]) == list or
-              type(vars_[x]) == tuple}
-    np.savez(save_path + '/params.npz', ** params)
-    return command
+    if save:
+        print(command)
+        vars_ = vars()
+        params = {x: vars_[x] for x in vars_.keys() if type(vars_[x]) == str or
+                  type(vars_[x]) == int or type(vars_[x]) == float or
+                  type(vars_[x]) == bool or type(vars_[x]) == list or
+                  type(vars_[x]) == tuple}
+        np.savez(save_path + '/params.npz', ** params)
+    else:
+        print('Path: ')
+        print(save_path)
+    return command, save_path
 
 
 if __name__ == '__main__':
@@ -130,15 +135,14 @@ if __name__ == '__main__':
     net_type = ['twin_net', 'cont_rnn']  # ['twin_net', 'cont_rnn']
     num_steps = [1e8]  # [1e9]
     stim_ev = [0.5]
-    print(num_steps)
     load_path = ''  # '/home/linux/00010'
     params_config = itertools.product(pass_reward, pass_action, bl_dur,
                                       num_units, net_type, num_steps, stim_ev)
     batch_command = ''
     for conf in params_config:
-        cmmd = build_command(ps_r=conf[0], ps_act=conf[1], bl_dur=conf[2],
-                             num_u=conf[3], net_type=conf[4],
-                             num_stps_env=conf[5], load_path=load_path,
-                             stimEv=conf[6])
+        cmmd, _ = build_command(ps_r=conf[0], ps_act=conf[1], bl_dur=conf[2],
+                                num_u=conf[3], net_type=conf[4],
+                                num_stps_env=conf[5], load_path=load_path,
+                                stimEv=conf[6])
         batch_command += cmmd + '\n'
     os.system(batch_command)

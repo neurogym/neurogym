@@ -1,5 +1,8 @@
 from scipy.special import erf
 import utils as ut
+import os
+import glob
+import call_function as cf
 import numpy as np
 import scipy.stats as sstats
 from scipy.optimize import curve_fit
@@ -1620,7 +1623,7 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
         mat_biases[mask, 0]*mat_biases[mask, 5]/np.sum(mat_biases[mask, 5])
 
     if folder != '':
-        f.savefig(folder + 'bias_after_saltRep_seqs.png',
+        f.savefig(folder + 'bias_after_trans_ev_change.png',
                   dpi=DPI, bbox_inches='tight')
         plt.close(f)
 
@@ -1657,74 +1660,62 @@ def exp_analysis(folder, file, file_bhvr, trials_fig=True,
         behavior_analysis(file=file_bhvr, folder=folder)
         bias_cond_on_history(file=file_bhvr, folder=folder)
         bias_after_altRep_seqs(file=file_bhvr, folder=folder)
+        bias_after_transEv_change(file=file_bhvr, folder=folder)
 
 
 if __name__ == '__main__':
     plt.close('all')
-    folder = 'C:/Users/MOLANO/Desktop/priors_data/a2c_RDM_t_100_200_200_' +\
-        '200_100_TH_0.2_0.8_200_PR_PA_twin_net_ec_0.1_lr_0.001_lrs_c_g_0.9' +\
-        '_b_20_d_1KKK_ne_10_nu_32_ev_0.5/'
-    file = folder + '/bhvr_data_all.npz'
-    #    perf_cond_on_stim_ev(file=file, save_path='', fig=True)
-    #    asdasd
-    bias_after_transEv_change(file=file, folder='')
-    bias_after_altRep_seqs(file=file, folder='')
-    asdasd
-
+    # params for analysis
     fig = True
+    window = (-5, 20)
+    # params related to experiment
     n_envs = 10  # 12
     env = 0
     num_steps = 20  # 100
     obs_size = 5  # 4
     num_units = 64  # 128
-    window = (-5, 20)
-    # TWIN NET STIM EV 0.1
-#    folder = 'C:/Users/MOLANO/Desktop/priors_data/a2c_RDM_t_100_200_200_' +\
-#        '200_100_TH_0.2_0.8_200_PR_PA_twin_net_ec_0.1_lr_0.001_lrs_c_g_0.9' +\
-#        '_b_20_d_1KKK_ne_10_nu_32_ev_0.1/'
-#    file = folder + '/network_data_2249999.npz'
-#    file_bhvr = folder + 'bhvr_data_all.npz'
-#    p_lbl = ['pi_1', 'default']
-#    exp_analysis(folder, file, file_bhvr, trials_fig=True,
-#                 neural_analysis_flag=True, behavior_analysis_flag=True,
-#                 n_envs=n_envs, env=env, num_steps=num_steps,
-#                 obs_size=obs_size, num_units=num_units, p_lbl=p_lbl)
-
-    # TWIN NET STIM EV 0.5
-    folder = 'C:/Users/MOLANO/Desktop/priors_data/a2c_RDM_t_100_200_200_' +\
-        '200_100_TH_0.2_0.8_200_PR_PA_twin_net_ec_0.1_lr_0.001_lrs_c_g_0.9' +\
-        '_b_20_d_1KKK_ne_10_nu_32_ev_0.5/'
-    file = folder + '/network_data_3049999.npz'
-    file_bhvr = folder + 'bhvr_data_all.npz'
-    p_lbl = ['pi_1', 'default']
-    exp_analysis(folder, file, file_bhvr, trials_fig=True,
-                 neural_analysis_flag=True, behavior_analysis_flag=True,
-                 n_envs=n_envs, env=env, num_steps=num_steps,
-                 obs_size=obs_size, num_units=num_units, p_lbl=p_lbl)
-
-#    # TWIN NET STIM EV 1
-#    folder = 'C:/Users/MOLANO/Desktop/priors_data/a2c_RDM_t_100_200_200_' +\
-#        '200_100_TH_0.2_0.8_200_PR_PA_twin_net_ec_0.1_lr_0.001_lrs_c_g_0.9' +\
-#        '_b_20_d_1KKK_ne_10_nu_64_ev_1.0/'
-#    file = folder + '/network_data_4049999_twinNet_32x2.npz'
-#    file_bhvr = folder + 'bhvr_data_all_twinNet_32x2.npz'
-#    p_lbl = ['pi_1', 'default']
-#    exp_analysis(folder, file, file_bhvr, trials_fig=True,
-#                 neural_analysis_flag=True, behavior_analysis_flag=True,
-#                 n_envs=n_envs, env=env, num_steps=num_steps,
-#                 obs_size=obs_size, num_units=num_units, p_lbl=p_lbl)
-#
-#    # cont. RNN STIM EV 1
-#    folder = 'C:/Users/MOLANO/Desktop/priors_data/a2c_RDM_t_100_200_200_' +\
-#        '200_100_TH_0.2_0.8_200_PR_PA_cont_rnn_ec_0.1_lr_0.001_lrs_c_g_0.9' +\
-#        '_b_20_d_1KKK_ne_10_nu_64_ev_1.0/'
-#    file = folder + '/network_data_2649999_contRNN_64.npz'
-#    file_bhvr = folder + 'bhvr_data_all_contRNN_64.npz'
-#    p_lbl = ['1', '2']
-#    exp_analysis(folder, file, file_bhvr, trials_fig=True,
-#                 neural_analysis_flag=True, behavior_analysis_flag=True,
-#                 n_envs=n_envs, env=env, num_steps=num_steps,
-#                 obs_size=obs_size, num_units=num_units, p_lbl=p_lbl)
+    # params to get folder
+    pass_reward = True
+    pass_action = True
+    bl_d = 200
+    num_units = 64
+    tot_num_steps = int(1e8)  # [1e9]
+    for net in ['twin_net', 'cont_rnn']:
+        for stEv in [.1, .25, .5, 1.]:
+            _, folder = cf.build_command(ps_r=pass_reward, ps_act=pass_action,
+                                         bl_dur=bl_d, num_u=num_units,
+                                         stimEv=stEv, net_type=net,
+                                         num_stps_env=tot_num_steps,
+                                         save=False)
+            folder = os.path.basename(os.path.normpath(folder + '/'))
+            folder = 'C:/Users/MOLANO/Desktop/priors_data/' + folder + '/'
+            if os.path.exists(folder):
+                files = glob.glob(folder + 'bhvr_data_all*.npz')
+                files.sort(key=os.path.getmtime)
+                file_bhvr = files[-1]
+                print('all behavioral files:')
+                print("\n".join(files))
+                print('using:')
+                print(file_bhvr)
+                print('---------------')
+                files = glob.glob(folder + 'network_data_*.npz')
+                files.sort(key=os.path.getmtime)
+                file = files[-1]
+                print('all network files:')
+                print("\n".join(files))
+                print('using:')
+                print(file)
+                if net == 'twin_net':
+                    p_lbl = ['pi_1', 'default']
+                else:
+                    p_lbl = ['1', '2']
+                exp_analysis(folder, file, file_bhvr, trials_fig=True,
+                             neural_analysis_flag=True,
+                             behavior_analysis_flag=True, n_envs=n_envs,
+                             env=env, num_steps=num_steps, obs_size=obs_size,
+                             num_units=num_units, p_lbl=p_lbl)
+            else:
+                print(folder + ' DOES NOT EXIST')
 
 #    no_stim_analysis(file=file,
 #                     save_path='', fig=True)
