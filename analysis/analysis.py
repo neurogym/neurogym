@@ -1481,7 +1481,6 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
         # (not including the current trial)
         transitions = get_transition_mat(side, conv_window=conv_window)
         values = np.unique(transitions)
-        print(values)
         for ind_perf in range(2):
             for ind_tr in [0, values.shape[0]-1]:
                 # mask finds all times in which the current trial is
@@ -1526,7 +1525,6 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
     """
     choice, correct_side, performance, evidence = load_behavioral_data(file)
     # BIAS CONDITIONED ON TRANSITION HISTORY (NUMBER OF REPETITIONS)
-    print(performance.shape[0])
     num_tr = 5000000
     start_point = performance.shape[0]-num_tr
     ev = evidence[start_point:start_point+num_tr]
@@ -1551,7 +1549,7 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
         tr_change = np.diff(tr_change)
         values = np.unique(tr_change)
         for ind_tr in range(2):
-            # since we are just looking a th the extrem cases (see above),
+            # since we are just looking at the extrem cases (see above),
             # there cannot be an increase in transition evidence
             for ind_ch in range(2):
                 for ind_perf in range(2):
@@ -1612,15 +1610,15 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
                     index = np.logical_and.reduce((mat_biases[:, 1] == ind_ch,
                                                   mat_biases[:, 2] == ind_perf,
                                                   mat_biases[:, 3] == ind_tr))
+                    perc_tr = np.sum(100*mat_biases[index, 5]) /\
+                        (np.sum(index)*perf.shape[0])
                     label = lbl_tr[ind_tr] + ', after ' + lbl_perf[ind_perf] +\
-                        ' (N=' + str(np.sum(mat_biases[index, 5])) + ')'
+                        ' (N=' + str(perc_tr) + ')'
                     plt.plot(mat_biases[index, 4], mat_biases[index, 0],
                              color=color, lw=1, label=label)
         plt.legend()
         plt.ylabel('bias')
         plt.xlabel('number of ground truth transitions')
-        mask = mat_biases[:, 1] == 0
-        mat_biases[mask, 0]*mat_biases[mask, 5]/np.sum(mat_biases[mask, 5])
 
     if folder != '':
         f.savefig(folder + 'bias_after_trans_ev_change.png',
@@ -1710,7 +1708,7 @@ if __name__ == '__main__':
                 else:
                     p_lbl = ['1', '2']
                 exp_analysis(folder, file, file_bhvr, trials_fig=True,
-                             neural_analysis_flag=True,
+                             neural_analysis_flag=False,
                              behavior_analysis_flag=True, n_envs=n_envs,
                              env=env, num_steps=num_steps, obs_size=obs_size,
                              num_units=num_units, p_lbl=p_lbl)
