@@ -19,8 +19,8 @@ from __future__ import division
 
 import numpy as np
 from gym import spaces
-import tasktools
-import ngym
+from neurogym.ops import tasktools
+from neurogym.envs import ngym
 
 
 class RDM(ngym.ngym):

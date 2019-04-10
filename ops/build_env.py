@@ -7,12 +7,12 @@ Created on Fri Mar  8 10:22:19 2019
 """
 # TODO: allow tasks parameters to be modfied
 import gym
-import trial_hist
-import manage_data
-import combine
-import reaction_time
-import pass_reward
-import pass_action
+from neurogym.wrappers import trial_hist
+from neurogym.wrappers import manage_data
+from neurogym.wrappers import combine
+from neurogym.wrappers import reaction_time
+from neurogym.wrappers import pass_reward
+from neurogym.wrappers import pass_action
 
 
 def build_env(env_id, inst=0, **all_args):

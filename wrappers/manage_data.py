@@ -9,7 +9,6 @@ Created on Mon Mar  4 12:41:52 2019
 from gym.core import Wrapper
 import os
 import numpy as np
-import analysis
 
 
 class manage_data(Wrapper):

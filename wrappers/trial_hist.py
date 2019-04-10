@@ -7,7 +7,8 @@ Created on Fri Mar  1 11:48:59 2019
 """
 
 from gym.core import Wrapper
-import tasktools
+from neurogym.ops import tasktools
+
 
 
 class TrialHistory(Wrapper):
