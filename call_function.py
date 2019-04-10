@@ -6,28 +6,35 @@ Created on Thu Mar 14 08:20:00 2019
 @author: linux
 """
 import os
-import utils as ut
+import sys
 import numpy as np
 import itertools
 import matplotlib
 from pathlib import Path
+from datetime import datetime
 home = str(Path.home())
 matplotlib.use('Agg')
+sys.path.append('/rigel/home/mm5514/neurogym')
+from neurogym.ops import utils as ut
+sys.path.append('/rigel/home/mm5514/gym')
+sys.path.append('/rigel/home/mm5514/n_baselines')
+sys.path.append('/rigel/home/mm5514/joblib-master')
 
 
 def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
                   net_type='twin_net', num_stps_env=1e9, load_path='',
                   save=True, nsteps=20, inst=0):
+    seed = datetime.now().microsecond
     alg = 'a2c'
     env = 'RDM-v0'
     num_env = 10
     tot_num_stps = num_stps_env*num_env
     num_steps_per_logging = 1000000
     li = num_steps_per_logging / nsteps
-    ent_coef = 0.1
+    ent_coef = 0.05  # 0.1
     lr = 1e-3
     lr_sch = 'constant'
-    gamma = 0.9
+    gamma = .8  # 0.9
     if net_type == 'twin_net':
         nlstm = num_u // 2
     else:
@@ -75,8 +82,8 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
     else:
         load_path_cmmd = ' --load_path=' + load_path
 
-    save_path = home + '/neurogym/' + alg + '_' + env + timing_flag + \
-        tr_h_flag + ps_rw_flag + ps_a_flag + '_' + net_type
+    save_path = '/rigel/theory/users/mm5514/' + alg + '_' + env +\
+        timing_flag + tr_h_flag + ps_rw_flag + ps_a_flag + '_' + net_type
     save_path += '_ec_' + str(ent_coef)
     save_path += '_lr_' + str(lr)
     save_path += '_lrs_' + lr_sch
@@ -86,14 +93,14 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
     save_path += '_ne_' + str(num_env)
     save_path += '_nu_' + str(nlstm)
     save_path += '_ev_' + str(stimEv)
-    save_path += '_' + str(inst)
+    save_path += '_' + str(seed)
     save_path = save_path.replace('-v0', '')
     save_path = save_path.replace('constant', 'c')
     save_path = save_path.replace('linear', 'l')
     # load_path = save_path + '/checkpoints/00020'
     if not os.path.exists(save_path) and save:
         os.mkdir(save_path)
-    command = 'python -m baselines.run --alg=' + alg
+    command = home + '/run.py --alg=' + alg
     command += ' --env=' + env
     command += ' --network=' + net_type
     command += ' --nsteps=' + str(nsteps)
@@ -107,6 +114,7 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
     command += ' --save_path=' + save_path
     command += ' --nlstm=' + str(nlstm)
     command += ' --stimEv=' + str(stimEv)
+    command += ' --seed=' + str(seed)
     command += tr_h_cmmd
     command += ps_rw_cmmd
     command += ps_a_cmmd
@@ -128,16 +136,58 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
     return command, save_path
 
 
-if __name__ == '__main__':
-    pass_reward = [True]
-    pass_action = [True]
-    bl_dur = [200]
-    num_units = [64]
-    net_type = ['twin_net']  # ['twin_net', 'cont_rnn']
+def arg_parser():
+    """
+    Create an empty argparse.ArgumentParser.
+    """
+    import argparse
+    aadhf = argparse.ArgumentDefaultsHelpFormatter
+    return argparse.ArgumentParser(formatter_class=aadhf)
+
+
+def neuro_arg_parser():
+    """
+    Create an argparse.ArgumentParser for neuro environments
+    """
+    parser = arg_parser()
+    parser.add_argument('--num_insts',
+                        help='number of instances to run',
+                        type=bool, default=True)
+    parser.add_argument('--pass_reward',
+                        help='whether to pass the prev. reward with obs',
+                        type=bool, default=True)
+    parser.add_argument('--pass_action',
+                        help='whether to pass the prev. action with obs',
+                        type=bool, default=True)
+    parser.add_argument('--net_type',
+                        help='type of architecture',
+                        type=str, default='twin_net')
+    parser.add_argument('--num_u',
+                        help='number of total units',
+                        type=int, nargs='+', default=(32))
+    parser.add_argument('--n_steps',
+                        help='rollout',
+                        type=float, nargs='+', default=(20))
+    parser.add_argument('--bl_dur',
+                        help='dur. of block in the trial-hist wrappr (trials)',
+                        type=int, nargs='+', default=(200))
+    parser.add_argument('--stimEv', help='allows scaling stimulus evidence',
+                        type=float, nargs='+', default=(1.))
+    return parser
+
+
+def main(args):
+    arg_parser = neuro_arg_parser()
+    args, unknown_args = arg_parser.parse_known_args(args)
+    pass_reward = args.pass_reward
+    pass_action = args.pass_action
+    bl_dur = args.bl_dur
+    num_units = args.num_u
+    net_type = args.net_type
     num_steps_env = [1e8]  # [1e9]
-    stim_ev = [1.]
-    batch_size = [20]
-    insts = np.arange(5)
+    stim_ev = args.stimEv
+    batch_size = args.n_steps
+    insts = np.arange(args.num_insts)
     load_path = ''  # '/home/linux/00010'
     params_config = itertools.product(insts, pass_reward, pass_action, bl_dur,
                                       num_units, net_type, num_steps_env,
@@ -152,3 +202,7 @@ if __name__ == '__main__':
                                 nsteps=conf[8])
         batch_command += cmmd + '\n'
     os.system(batch_command)
+
+
+if __name__ == '__main__':
+    main(sys.argv)
