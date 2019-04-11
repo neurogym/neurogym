@@ -1733,13 +1733,13 @@ def batch_analysis(main_folder, trials_fig=True,
                    n_envs=10, env=0, num_steps=20, obs_size=5,
                    num_units=64, p_lbl=['1', '2']):
     # params for analysis
-    fig = True
-    window = (-5, 20)
-    # params related to experiment
-    n_envs = 10  # 12
-    env = 0
+    #    fig = True
+    #    window = (-5, 20)
+    #    # params related to experiment
+    #    n_envs = 10  # 12
+    #    env = 0
+    #    obs_size = 5  # 4
     n_steps = [20]  # 100
-    obs_size = 5  # 4
     num_units = 64  # 128
     # params to get folder
     pass_reward = True
@@ -1760,11 +1760,10 @@ def batch_analysis(main_folder, trials_fig=True,
                                      num_stps_env=tot_num_steps,
                                      save=False)
         folder = os.path.basename(os.path.normpath(folder + '/'))
-        saving_folder = main_folder+folder[:-7]
-        files = glob.glob(saving_folder + '*')
+        files = glob.glob(main_folder+folder[:-7] + '*')
         print(folder[:-7])
         print(files)
-        saving_folder = 'MAIN_' + saving_folder
+        saving_folder = main_folder + 'MAIN_' + folder[:-7]
         if not os.path.exists(saving_folder):
             os.mkdir(saving_folder)
         f = ut.get_fig(display_mode)
@@ -1784,29 +1783,18 @@ def batch_analysis(main_folder, trials_fig=True,
                           w_conv=1000)
         f.savefig(saving_folder + '/bhvr_fig.png', dpi=DPI,
                   bbox_inches='tight')
-        asdsad
-
-        folder = main_folder + folder + '/'
-        if os.path.exists(folder):
-            files = glob.glob(folder + 'bhvr_data_all*.npz')
-            files.sort(key=os.path.getmtime)
-            file_bhvr = files[-1]
-            print('all behavioral files:')
-            print("\n".join(files))
-            print('using:')
-            print(file_bhvr)
-            print('---------------')
-            files = glob.glob(folder + 'network_data_*.npz')
-            files.sort(key=os.path.getmtime)
-            file = files[-1]
-            print('all network files:')
-            print("\n".join(files))
-            print('using:')
-            print(file)
-            if conf[1] == 'twin_net':
-                p_lbl = ['pi_1', 'default']
-            else:
-                p_lbl = ['1', '2']
+#
+#        files = glob.glob(folder + 'network_data_*.npz')
+#        files.sort(key=os.path.getmtime)
+#        file = files[-1]
+#        print('all network files:')
+#        print("\n".join(files))
+#        print('using:')
+#        print(file)
+#        if conf[1] == 'twin_net':
+#            p_lbl = ['pi_1', 'default']
+#        else:
+#            p_lbl = ['1', '2']
 
 
 if __name__ == '__main__':
