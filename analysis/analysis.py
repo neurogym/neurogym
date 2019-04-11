@@ -1760,9 +1760,12 @@ def batch_analysis(main_folder, trials_fig=True,
                                      num_stps_env=tot_num_steps,
                                      save=False)
         folder = os.path.basename(os.path.normpath(folder + '/'))
-        files = glob.glob(main_folder+folder[:-6] + '*')
-        print(folder[:-6])
+        saving_folder = main_folder+folder[:-7] + '/'
+        files = glob.glob(saving_folder + '*')
+        print(folder[:-7])
         print(files)
+        if not os.path.exists(saving_folder):
+            os.mkdir(saving_folder)
         f = ut.get_fig(display_mode)
         for ind_f in range(len(files)):
             ptf.put_files_together(files[ind_f])
@@ -1778,8 +1781,9 @@ def batch_analysis(main_folder, trials_fig=True,
                           evidence[start_point:start_point+num_tr],
                           correct_side[start_point:start_point+num_tr],
                           w_conv=1000)
+        f.savefig(saving_folder + 'bhvr_fig.png', dpi=DPI, bbox_inches='tight')
         asdsad
-            
+
         folder = main_folder + folder + '/'
         if os.path.exists(folder):
             files = glob.glob(folder + 'bhvr_data_all*.npz')
