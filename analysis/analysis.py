@@ -1764,6 +1764,7 @@ def batch_analysis(main_folder, trials_fig=True,
         files = glob.glob(saving_folder + '*')
         print(folder[:-7])
         print(files)
+        saving_folder = 'MAIN_' + saving_folder
         if not os.path.exists(saving_folder):
             os.mkdir(saving_folder)
         f = ut.get_fig(display_mode)
