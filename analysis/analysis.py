@@ -17,7 +17,7 @@ import call_function as cf
 matplotlib.use('Agg')  # Qt5Agg
 import matplotlib.pyplot as plt
 
-display_mode = True
+display_mode = False
 DPI = 400
 
 
@@ -1764,7 +1764,7 @@ def batch_analysis(main_folder, trials_fig=True,
         print(folder[:-6])
         print(files)
         f = ut.get_fig(display_mode)
-        for ind_f in files():
+        for ind_f in range(len(files)):
             ptf.put_files_together(files[ind_f])
             file = files[ind_f] + '/bhvr_data_all.npz'
             choice, correct_side, performance, evidence =\
@@ -1772,6 +1772,7 @@ def batch_analysis(main_folder, trials_fig=True,
             # plot performance
             num_tr = 5000000
             start_point = 0
+            print('hey!')
             plt.subplot(2, 2, 1)
             plot_learning(performance[start_point:start_point+num_tr],
                           evidence[start_point:start_point+num_tr],
