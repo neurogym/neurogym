@@ -16,7 +16,9 @@ home = str(Path.home())
 matplotlib.use('Agg')
 
 
-def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
+def build_command(save_folder='/rigel/theory/users/mm5514/',
+                  run_folder='/rigel/home/mm5514/',
+                  ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
                   net_type='twin_net', num_stps_env=1e9, load_path='',
                   save=True, nsteps=20, inst=0):
     seed = datetime.now().microsecond
@@ -77,7 +79,7 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
     else:
         load_path_cmmd = ' --load_path=' + load_path
 
-    save_path = '/rigel/theory/users/mm5514/' + alg + '_' + env +\
+    save_path = save_folder + alg + '_' + env +\
         timing_flag + tr_h_flag + ps_rw_flag + ps_a_flag + '_' + net_type
     save_path += '_ec_' + str(ent_coef)
     save_path += '_lr_' + str(lr)
@@ -95,7 +97,7 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
     # load_path = save_path + '/checkpoints/00020'
     if not os.path.exists(save_path) and save:
         os.mkdir(save_path)
-    command = '/rigel/home/mm5514/' + 'run.py --alg=' + alg
+    command = run_folder + 'run.py --alg=' + alg
     command += ' --env=' + env
     command += ' --network=' + net_type
     command += ' --nsteps=' + str(nsteps)

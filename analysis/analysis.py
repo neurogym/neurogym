@@ -1,15 +1,22 @@
+import sys
 from scipy.special import erf
-import utils as ut
 import os
 import glob
-import call_function as cf
 import numpy as np
 import scipy.stats as sstats
 from scipy.optimize import curve_fit
 import itertools
 import matplotlib
+from pathlib import Path
+home = str(Path.home())
+sys.path.append(home + '/neurogym')
+sys.path.append(home + '/mm5514/')
+from neurogym.ops import utils as ut
+from neurogym.ops import put_together_files as ptf
+import call_function as cf
 matplotlib.use('Agg')  # Qt5Agg
 import matplotlib.pyplot as plt
+
 display_mode = True
 DPI = 400
 
@@ -1745,17 +1752,33 @@ def batch_analysis(main_folder, trials_fig=True,
     params_config = itertools.product(net_type, stim_ev, num_units,
                                       n_steps, bl_d)
     for conf in params_config:
-        _, folder = cf.build_command(ps_r=pass_reward, ps_act=pass_action,
+        _, folder = cf.build_command(save_folder=main_folder,
+                                     ps_r=pass_reward, ps_act=pass_action,
                                      bl_dur=conf[4], num_u=conf[2],
                                      nsteps=conf[3], stimEv=conf[1],
                                      net_type=conf[0],
                                      num_stps_env=tot_num_steps,
                                      save=False)
         folder = os.path.basename(os.path.normpath(folder + '/'))
-        files = glob.glob(folder[:-6] + '*')
+        files = glob.glob(main_folder+folder[:-6] + '*')
         print(folder[:-6])
         print(files)
-        asdasd
+        f = ut.get_fig(display_mode)
+        for ind_f in files():
+            ptf.put_files_together(files[ind_f])
+            file = files[ind_f] + '/bhvr_data_all.npz'
+            choice, correct_side, performance, evidence =\
+                load_behavioral_data(file)
+            # plot performance
+            num_tr = 5000000
+            start_point = 0
+            plt.subplot(2, 2, 1)
+            plot_learning(performance[start_point:start_point+num_tr],
+                          evidence[start_point:start_point+num_tr],
+                          correct_side[start_point:start_point+num_tr],
+                          w_conv=1000)
+        asdsad
+            
         folder = main_folder + folder + '/'
         if os.path.exists(folder):
             files = glob.glob(folder + 'bhvr_data_all*.npz')
@@ -1781,65 +1804,69 @@ def batch_analysis(main_folder, trials_fig=True,
 
 if __name__ == '__main__':
     plt.close('all')
-    batch_analysis(main_folder='C:/Users/MOLANO/Desktop/priors_data/',
+    if len(sys.argv) > 1:
+        main_folder = sys.argv[1]
+    else:
+        main_folder = '/home/linux/'
+    batch_analysis(main_folder=main_folder,
                    trials_fig=True, neural_analysis_flag=True,
                    behavior_analysis_flag=True,
                    n_envs=10, env=0, num_steps=20, obs_size=5,
                    num_units=64, p_lbl=['1', '2'])
-    # params for analysis
-    fig = True
-    window = (-5, 20)
-    # params related to experiment
-    n_envs = 10  # 12
-    env = 0
-    num_steps = 20  # 100
-    obs_size = 5  # 4
-    num_units = 64  # 128
-    # params to get folder
-    pass_reward = True
-    pass_action = True
-    bl_d = 200
-    num_units = 64
-    tot_num_steps = int(1e8)  # [1e9]
-    insts = np.arange(2, 3)
-    stim_ev = [1.]  # [.1, .25, .5, 1.]
-    net_type = ['twin_net']  # ['twin_net', 'cont_rnn']
-    params_config = itertools.product(insts, net_type, stim_ev)
-    for conf in params_config:
-        _, folder = cf.build_command(ps_r=pass_reward, ps_act=pass_action,
-                                     bl_dur=bl_d, num_u=num_units,
-                                     stimEv=conf[2], net_type=conf[1],
-                                     num_stps_env=tot_num_steps, inst=conf[0],
-                                     save=False)
-        folder = os.path.basename(os.path.normpath(folder + '/'))
-        folder = 'C:/Users/MOLANO/Desktop/priors_data/' + folder + '/'
-        if os.path.exists(folder):
-            files = glob.glob(folder + 'bhvr_data_all*.npz')
-            files.sort(key=os.path.getmtime)
-            file_bhvr = files[-1]
-            print('all behavioral files:')
-            print("\n".join(files))
-            print('using:')
-            print(file_bhvr)
-            print('---------------')
-            files = glob.glob(folder + 'network_data_*.npz')
-            files.sort(key=os.path.getmtime)
-            file = files[-1]
-            print('all network files:')
-            print("\n".join(files))
-            print('using:')
-            print(file)
-            if conf[1] == 'twin_net':
-                p_lbl = ['pi_1', 'default']
-            else:
-                p_lbl = ['1', '2']
-            exp_analysis(folder, file, file_bhvr, trials_fig=True,
-                         neural_analysis_flag=True,
-                         behavior_analysis_flag=True, n_envs=n_envs,
-                         env=env, num_steps=num_steps, obs_size=obs_size,
-                         num_units=num_units, p_lbl=p_lbl)
-        else:
-            print(folder + ' DOES NOT EXIST')
+#    # params for analysis
+#    fig = True
+#    window = (-5, 20)
+#    # params related to experiment
+#    n_envs = 10  # 12
+#    env = 0
+#    num_steps = 20  # 100
+#    obs_size = 5  # 4
+#    num_units = 64  # 128
+#    # params to get folder
+#    pass_reward = True
+#    pass_action = True
+#    bl_d = 200
+#    num_units = 64
+#    tot_num_steps = int(1e8)  # [1e9]
+#    insts = np.arange(2, 3)
+#    stim_ev = [1.]  # [.1, .25, .5, 1.]
+#    net_type = ['twin_net']  # ['twin_net', 'cont_rnn']
+#    params_config = itertools.product(insts, net_type, stim_ev)
+#    for conf in params_config:
+#        _, folder = cf.build_command(ps_r=pass_reward, ps_act=pass_action,
+#                                     bl_dur=bl_d, num_u=num_units,
+#                                     stimEv=conf[2], net_type=conf[1],
+#                                     num_stps_env=tot_num_steps, inst=conf[0],
+#                                     save=False)
+#        folder = os.path.basename(os.path.normpath(folder + '/'))
+#        folder = 'C:/Users/MOLANO/Desktop/priors_data/' + folder + '/'
+#        if os.path.exists(folder):
+#            files = glob.glob(folder + 'bhvr_data_all*.npz')
+#            files.sort(key=os.path.getmtime)
+#            file_bhvr = files[-1]
+#            print('all behavioral files:')
+#            print("\n".join(files))
+#            print('using:')
+#            print(file_bhvr)
+#            print('---------------')
+#            files = glob.glob(folder + 'network_data_*.npz')
+#            files.sort(key=os.path.getmtime)
+#            file = files[-1]
+#            print('all network files:')
+#            print("\n".join(files))
+#            print('using:')
+#            print(file)
+#            if conf[1] == 'twin_net':
+#                p_lbl = ['pi_1', 'default']
+#            else:
+#                p_lbl = ['1', '2']
+#            exp_analysis(folder, file, file_bhvr, trials_fig=True,
+#                         neural_analysis_flag=True,
+#                         behavior_analysis_flag=True, n_envs=n_envs,
+#                         env=env, num_steps=num_steps, obs_size=obs_size,
+#                         num_units=num_units, p_lbl=p_lbl)
+#        else:
+#            print(folder + ' DOES NOT EXIST')
 
 #    no_stim_analysis(file=file,
 #                     save_path='', fig=True)
