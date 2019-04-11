@@ -1760,7 +1760,7 @@ def batch_analysis(main_folder, trials_fig=True,
                                      num_stps_env=tot_num_steps,
                                      save=False)
         folder = os.path.basename(os.path.normpath(folder + '/'))
-        saving_folder = main_folder+folder[:-7] + '/'
+        saving_folder = main_folder+folder[:-7]
         files = glob.glob(saving_folder + '*')
         print(folder[:-7])
         print(files)
@@ -1781,7 +1781,8 @@ def batch_analysis(main_folder, trials_fig=True,
                           evidence[start_point:start_point+num_tr],
                           correct_side[start_point:start_point+num_tr],
                           w_conv=1000)
-        f.savefig(saving_folder + 'bhvr_fig.png', dpi=DPI, bbox_inches='tight')
+        f.savefig(saving_folder + '/bhvr_fig.png', dpi=DPI,
+                  bbox_inches='tight')
         asdsad
 
         folder = main_folder + folder + '/'
