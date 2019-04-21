@@ -138,12 +138,12 @@ def produce_sh_files():
     pass_reward = True
     pass_action = True
     bl_dur = [200]
-    num_units = [32, 64, 128]
+    num_units = [32, 64]
     net_type = ['twin_net', 'cont_rnn']
     num_steps_env = 1e8  # [1e9]
     stim_ev = [.3, .6, 1.]
-    batch_size = [5, 20, 50]
-    insts = np.arange(5)
+    batch_size = [5, 20]
+    insts = np.arange(3)
     load_path = ''  # '/home/linux/00010'
     params_config = itertools.product(insts, bl_dur, num_units, stim_ev,
                                       batch_size, net_type)
