@@ -1672,12 +1672,17 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
     mat_biases = np.array(mat_biases)
     if fig:
         f = ut.get_fig(display_mode)
+        lstyle = ['-', '-']
+    else:
+        lstyle = ['-', '--']
     lbl_ch = ['less', 'equal']  # , 'more evidence']
     lbl_perf = ['error', 'correct']
     lbl_tr = ['alt. bl.', 'rep. bl.']
     for ind_ch in range(2):
-        plt.subplot(1, 2, ind_ch+1)
-        plt.title('after change to ' + lbl_ch[ind_ch] + ' transition evidence')
+        if fig:
+            plt.subplot(1, 2, ind_ch+1)
+            plt.title('after change to ' +
+                      lbl_ch[ind_ch] + ' transition evidence')
         for ind_tr in range(2):
             for ind_perf in range(2):
                     if ind_perf == 0:
@@ -1694,7 +1699,7 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
                     label = lbl_tr[ind_tr] + ', after ' + lbl_perf[ind_perf] +\
                         ' (N=' + str(perc_tr) + ')'
                     plt.plot(mat_biases[index, 4], mat_biases[index, 0],
-                             color=color, lw=1, label=label)
+                             lstyle[ind_ch], color=color, lw=1, label=label)
         plt.legend()
         plt.ylabel('bias')
         plt.xlabel('number of ground truth transitions')
