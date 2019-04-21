@@ -1749,6 +1749,9 @@ def batch_analysis(main_folder, trials_fig=True,
                    neural_analysis_flag=True, behavior_analysis_flag=True,
                    n_envs=10, env=0, num_steps=20, obs_size=5,
                    num_units=64, p_lbl=['1', '2']):
+    saving_folder_all = main_folder + 'all_results'
+    if not os.path.exists(saving_folder_all):
+        os.mkdir(saving_folder_all)
     # params for analysis
     #    fig = True
     #    window = (-5, 20)
@@ -1807,6 +1810,8 @@ def batch_analysis(main_folder, trials_fig=True,
                 plt.subplot(2, 2, 4)
                 bias_after_transEv_change(file=file, fig=False)
             f.savefig(saving_folder + '/bhvr_fig.png', dpi=DPI,
+                      bbox_inches='tight')
+            f.savefig(saving_folder_all + folder[:-7] + '.png', dpi=DPI,
                       bbox_inches='tight')
 #
 #        files = glob.glob(folder + 'network_data_*.npz')
