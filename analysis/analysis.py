@@ -11,6 +11,7 @@ from pathlib import Path
 home = str(Path.home())
 sys.path.append(home + '/neurogym')
 sys.path.append(home + '/mm5514/')
+print(os.getcwd())
 from neurogym.ops import utils as ut
 from neurogym.ops import put_together_files as ptf
 import call_function as cf

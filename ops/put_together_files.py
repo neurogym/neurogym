@@ -14,15 +14,19 @@ Created on Thu Apr  4 11:20:01 2019
 # 'rep_prob']
 import glob
 import numpy as np
-import os
+from neurogym.ops import utils as ut
+# import os
 
 
 def put_files_together(folder):
+    print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
     print('searching here:' + folder)
     files = glob.glob(folder + '/Pass*npz')
-    files.sort(key=os.path.getmtime)
+    # files.sort(key=os.path.getmtime)
+    files = ut.order_by_sufix(files)
     print('found files (sorted by date):')
     print("\n".join(files))
+    print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
     choice_mat = []
     stim_mat = []
     r_prob_mat = []
