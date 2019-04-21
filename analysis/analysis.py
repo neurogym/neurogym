@@ -1521,7 +1521,7 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                                               perf == ind_perf,
                                               perf_hist == conv_window))
                 mask = np.concatenate((np.array([False]), mask[:-1]))
-                assert np.sum(mask) > 2000
+                # assert np.sum(mask) > 2000
                 popt, _ = bias_calculation(ch, ev, mask)
                 # here I want to compute the bias at t+2 later when the trial
                 # 1 step later was correct
