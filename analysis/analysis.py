@@ -1770,8 +1770,9 @@ def batch_analysis(main_folder, trials_fig=True,
                                      save=False)
         folder = os.path.basename(os.path.normpath(folder + '/'))
         files = glob.glob(main_folder+folder[:-7] + '*')
-        print(folder[:-7])
+        print('files:')
         print(files)
+        print('------------------------')
         if len(files) > 0:
             saving_folder = main_folder + 'MAIN_' + folder[:-7]
             if not os.path.exists(saving_folder):

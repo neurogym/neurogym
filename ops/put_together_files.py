@@ -57,13 +57,13 @@ def put_files_together(folder):
         rps = r_prob.shape
         assert (SIZE[0] == rps[0]), str(SIZE) + ' ' + str(rps)
         assert (SIZE == side.shape), str(SIZE) + ' ' + str(side.shape)
-
-    choice_mat = np.reshape(np.array(choice_mat), (SIZE[0]*len(files), ))
-    stim_mat = np.reshape(np.array(stim_mat), (SIZE[0]*len(files),
-                                               stim.shape[1]))
-    side_mat = np.reshape(np.array(side_mat), (SIZE[0]*len(files), ))
-    r_prob_mat = np.reshape(np.array(r_prob_mat), (SIZE[0]*len(files),
-                                                   r_prob.shape[1]))
+    if len(files) > 0:
+        choice_mat = np.reshape(np.array(choice_mat), (SIZE[0]*len(files), ))
+        stim_mat = np.reshape(np.array(stim_mat), (SIZE[0]*len(files),
+                                                   stim.shape[1]))
+        side_mat = np.reshape(np.array(side_mat), (SIZE[0]*len(files), ))
+        r_prob_mat = np.reshape(np.array(r_prob_mat), (SIZE[0]*len(files),
+                                                       r_prob.shape[1]))
 
     data = {'choice': choice_mat, 'stimulus': stim_mat,
             'correct_side': side_mat, 'rep_prob': r_prob_mat}
