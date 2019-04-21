@@ -999,6 +999,7 @@ def behavior_analysis(file='/home/linux/PassReward0_data.npz', folder=''):
 
 
 def bias_across_training(choice, evidence, performance, folder='', fig=True):
+    # TODO: do the analysis with bias_calculation
     # compute bias across training
     per = 100000
     num_stps = int(choice.shape[0] / per)
@@ -1478,7 +1479,7 @@ def simple_agent(file='/home/linux/PassReward0_data.npz'):
 
 
 def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
-                                folder=''):
+                                folder='', fig=True):
     """
     computes bias conditioned on the num. of previous consecutive ground truth
     alternations/repetitions for after correct/error trials
@@ -1554,7 +1555,8 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                                    popt_next[1]])
     mat_biases = np.array(mat_biases)
     lbl_tr = ['alt', 'rep']
-    f = ut.get_fig(display_mode)
+    if fig:
+        f = ut.get_fig(display_mode)
     for ind_perf in range(2):
         for ind_tr in [0, 1]:
             if ind_perf == 0:
@@ -1572,14 +1574,14 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
     plt.legend()
     plt.ylabel('bias')
     plt.xlabel('number of ground truth transitions')
-    if folder != '':
+    if fig and folder != '':
         f.savefig(folder + 'bias_after_saltRep_seqs.png',
                   dpi=DPI, bbox_inches='tight')
         plt.close(f)
 
 
 def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
-                              folder=''):
+                              folder='', fig=True):
     """
     computes bias conditioned on the number of consecutive ground truth
     alternations/repetitions during the last trials
@@ -1668,7 +1670,8 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
                     mat_biases.append([popt[1], ind_ch, ind_perf, ind_tr,
                                        conv_window, np.sum(mask)])
     mat_biases = np.array(mat_biases)
-    f = ut.get_fig(display_mode)
+    if fig:
+        f = ut.get_fig(display_mode)
     lbl_ch = ['less', 'equal']  # , 'more evidence']
     lbl_perf = ['error', 'correct']
     lbl_tr = ['alt. bl.', 'rep. bl.']
@@ -1696,7 +1699,7 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
         plt.ylabel('bias')
         plt.xlabel('number of ground truth transitions')
 
-    if folder != '':
+    if fig and folder != '':
         f.savefig(folder + 'bias_after_trans_ev_change.png',
                   dpi=DPI, bbox_inches='tight')
         plt.close(f)
@@ -1794,6 +1797,10 @@ def batch_analysis(main_folder, trials_fig=True,
                               w_conv=1000)
                 plt.subplot(2, 2, 2)
                 bias_across_training(choice, evidence, performance, fig=False)
+                plt.subplot(2, 2, 3)
+                bias_after_altRep_seqs(file=file, fig=False)
+                plt.subplot(2, 2, 4)
+                bias_after_transEv_change(file=file, fig=False)
             f.savefig(saving_folder + '/bhvr_fig.png', dpi=DPI,
                       bbox_inches='tight')
 #
