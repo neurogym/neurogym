@@ -1698,7 +1698,7 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
 
 def exp_analysis(folder, file, file_bhvr, trials_fig=True,
                  neural_analysis_flag=True, behavior_analysis_flag=True,
-                 n_envs=10, env=0, num_steps=20, obs_size=5,
+                 n_envs=10, env=0, num_steps=20, obs_size=5, window=(-5, 20),
                  num_units=64, p_lbl=['1', '2']):
     """
     performs neural and behabioral analyses on the exp. contained in
@@ -1742,15 +1742,15 @@ def batch_analysis(main_folder, trials_fig=True,
     #    n_envs = 10  # 12
     #    env = 0
     #    obs_size = 5  # 4
-    n_steps = [20]  # 100
+    n_steps = [5, 20]  # 100
     num_units = 64  # 128
     # params to get folder
     pass_reward = True
     pass_action = True
     bl_d = [200]
-    num_units = [64]
+    num_units = [32, 64]
     tot_num_steps = int(1e8)  # [1e9]
-    stim_ev = [1.]  # [.1, .25, .5, 1.]
+    stim_ev = [.3, .6, 1.]  # [.1, .25, .5, 1.]
     net_type = ['twin_net', 'cont_rnn']
     params_config = itertools.product(net_type, stim_ev, num_units,
                                       n_steps, bl_d)
@@ -1805,7 +1805,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         main_folder = sys.argv[1]
     else:
-        main_folder = '/home/linux/'
+        main_folder = '/rigel/theory/users/mm5514/'
     batch_analysis(main_folder=main_folder,
                    trials_fig=True, neural_analysis_flag=True,
                    behavior_analysis_flag=True,
