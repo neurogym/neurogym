@@ -1749,7 +1749,7 @@ def batch_analysis(main_folder, trials_fig=True,
                    neural_analysis_flag=True, behavior_analysis_flag=True,
                    n_envs=10, env=0, num_steps=20, obs_size=5,
                    num_units=64, p_lbl=['1', '2']):
-    saving_folder_all = main_folder + 'all_results'
+    saving_folder_all = main_folder + 'all_results/'
     if not os.path.exists(saving_folder_all):
         os.mkdir(saving_folder_all)
     # params for analysis
