@@ -30,8 +30,9 @@ def plot_learning(performance, evidence, stim_position, w_conv=200):
     The function assumes that a figure has been created
     before it is called.
     """
+    num_trials = performance.shape[0]
     # remove all previous plots
-    ut.rm_lines()
+    # ut.rm_lines()
     # ideal observer choice
     io_choice = (evidence < 0) + 1
     io_performance = io_choice == stim_position
@@ -43,14 +44,18 @@ def plot_learning(performance, evidence, stim_position, w_conv=200):
     performance_smoothed = np.convolve(performance,
                                        np.ones((w_conv,))/w_conv,
                                        mode='valid')
-    plt.plot(performance_smoothed, color=(0.39, 0.39, 0.39), lw=0.5,
+    performance_smoothed = performance_smoothed[0::w_conv]
+    plt.plot(np.linspace(0, num_trials, performance_smoothed.shape[0]),
+             performance_smoothed, color=(0.39, 0.39, 0.39), lw=0.5,
              label='RNN perf. (' + str(round(RNN_perf, 3)) + ')')
     print('RNN perf: ' + str(round(RNN_perf, 3)))
     # plot ideal observer performance
     io_perf_smoothed = np.convolve(io_performance,
                                    np.ones((w_conv,))/w_conv,
                                    mode='valid')
-    plt.plot(io_perf_smoothed, color=(1, 0.8, 0.5), lw=0.5,
+    io_perf_smoothed = io_perf_smoothed[0::w_conv]
+    plt.plot(np.linspace(0, num_trials, io_perf_smoothed.shape[0]),
+             io_perf_smoothed, color=(1, 0.8, 0.5), lw=0.5,
              label='Ideal Obs. perf. (' + str(round(io_perf, 3)) + ')')
     # plot 0.25, 0.5 and 0.75 performance lines
     plot_fractions([0, performance.shape[0]])
@@ -990,6 +995,10 @@ def behavior_analysis(file='/home/linux/PassReward0_data.npz', folder=''):
     if folder != '':
         f.savefig(folder + 'trial_sequence.png',
                   dpi=DPI, bbox_inches='tight')
+    bias_across_training(choice, evidence, performance, folder)
+
+
+def bias_across_training(choice, evidence, performance, folder='', fig=True):
     # compute bias across training
     per = 100000
     num_stps = int(choice.shape[0] / per)
@@ -1007,24 +1016,21 @@ def behavior_analysis(file='/home/linux/PassReward0_data.npz', folder=''):
         bias_1_hit.append(data['popt_repProb_hits_1.0'][1])
         bias_0_fail.append(data['popt_repProb_fails_0.0'][1])
         bias_1_fail.append(data['popt_repProb_fails_1.0'][1])
+    if fig:
+        f = ut.get_fig(display_mode)
 
-    f = ut.get_fig(display_mode)
-    plt.subplot(2, 2, 1)
-    plt.plot(bias_0_hit)
+    plt.plot(bias_0_hit, 'b')
     plt.title('block 0 after correct')
 
-    plt.subplot(2, 2, 2)
-    plt.plot(bias_1_hit)
+    plt.plot(bias_1_hit, 'r')
     plt.title('block 1 after correct')
 
-    plt.subplot(2, 2, 3)
-    plt.plot(bias_0_fail)
+    plt.plot(bias_0_fail, color=(0.7, 0.7, 1))
     plt.title('block 0 after error')
 
-    plt.subplot(2, 2, 4)
-    plt.plot(bias_1_fail)
+    plt.plot(bias_1_fail, color=(1, 0.7, 0.7))
     plt.title('block 1 after error')
-    if folder != '':
+    if folder != '' and fig:
         f.savefig(folder + 'bias_evolution.png',
                   dpi=DPI, bbox_inches='tight')
         plt.close(f)
@@ -1698,8 +1704,8 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
 
 def exp_analysis(folder, file, file_bhvr, trials_fig=True,
                  neural_analysis_flag=True, behavior_analysis_flag=True,
-                 n_envs=10, env=0, num_steps=20, obs_size=5, window=(-5, 20),
-                 num_units=64, p_lbl=['1', '2']):
+                 n_envs=10, env=0, num_steps=20, obs_size=5,
+                 num_units=64, p_lbl=['1', '2'], window=(-5, 20)):
     """
     performs neural and behabioral analyses on the exp. contained in
     folder/file (/file_bhvr)
@@ -1766,26 +1772,29 @@ def batch_analysis(main_folder, trials_fig=True,
         files = glob.glob(main_folder+folder[:-7] + '*')
         print(folder[:-7])
         print(files)
-        saving_folder = main_folder + 'MAIN_' + folder[:-7]
-        if not os.path.exists(saving_folder):
-            os.mkdir(saving_folder)
-        f = ut.get_fig(display_mode)
-        for ind_f in range(len(files)):
-            ptf.put_files_together(files[ind_f])
-            file = files[ind_f] + '/bhvr_data_all.npz'
-            choice, correct_side, performance, evidence =\
-                load_behavioral_data(file)
-            # plot performance
-            num_tr = 5000000
-            start_point = 0
-            print('hey!')
-            plt.subplot(2, 2, 1)
-            plot_learning(performance[start_point:start_point+num_tr],
-                          evidence[start_point:start_point+num_tr],
-                          correct_side[start_point:start_point+num_tr],
-                          w_conv=1000)
-        f.savefig(saving_folder + '/bhvr_fig.png', dpi=DPI,
-                  bbox_inches='tight')
+        if len(files) > 0:
+            saving_folder = main_folder + 'MAIN_' + folder[:-7]
+            if not os.path.exists(saving_folder):
+                os.mkdir(saving_folder)
+            f = ut.get_fig(display_mode)
+            for ind_f in range(len(files)):
+                file = files[ind_f] + '/bhvr_data_all.npz'
+                if not os.path.isfile(file):
+                    ptf.put_files_together(files[ind_f])
+                choice, correct_side, performance, evidence =\
+                    load_behavioral_data(file)
+                # plot performance
+                num_tr = 1000000
+                start_point = 0
+                plt.subplot(2, 2, 1)
+                plot_learning(performance[start_point:start_point+num_tr],
+                              evidence[start_point:start_point+num_tr],
+                              correct_side[start_point:start_point+num_tr],
+                              w_conv=1000)
+                plt.subplot(2, 2, 2)
+                bias_across_training(choice, evidence, performance, fig=False)
+            f.savefig(saving_folder + '/bhvr_fig.png', dpi=DPI,
+                      bbox_inches='tight')
 #
 #        files = glob.glob(folder + 'network_data_*.npz')
 #        files.sort(key=os.path.getmtime)
@@ -1805,7 +1814,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         main_folder = sys.argv[1]
     else:
-        main_folder = '/rigel/theory/users/mm5514/'
+        main_folder = home + '/mm5514/'
     batch_analysis(main_folder=main_folder,
                    trials_fig=True, neural_analysis_flag=True,
                    behavior_analysis_flag=True,
