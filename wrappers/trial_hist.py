@@ -55,7 +55,7 @@ class TrialHistory(Wrapper):
         obs, reward, done, info, new_trial = self.env._step(action)
 
         if new_trial:
-            info['rep_prob'] = self.rep_prob
+            info['rep_prob'] = self.rep_prob[self.curr_block]
             self.env.trial = self._new_trial()
 
         return obs, reward, done, info
