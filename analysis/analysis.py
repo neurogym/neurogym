@@ -942,6 +942,7 @@ def load_behavioral_data(file):
     loads behavioral data and get relevant info from it
     """
     data = np.load(file)
+    rep_prob = data['rep_prob']
     choice = data['choice']
     stimulus = data['stimulus']
     correct_side = data['correct_side']
@@ -960,7 +961,7 @@ def load_behavioral_data(file):
         print(np.unique(correct_side))
     performance = (choice == correct_side)
     evidence = stimulus[:, 1] - stimulus[:, 2]
-    return choice, correct_side, performance, evidence
+    return choice, correct_side, performance, evidence, rep_prob
 
 
 def behavior_analysis(file='/home/linux/PassReward0_data.npz', folder=''):
@@ -1000,39 +1001,50 @@ def behavior_analysis(file='/home/linux/PassReward0_data.npz', folder=''):
     bias_across_training(choice, evidence, performance, folder)
 
 
-def bias_across_training(choice, evidence, performance, folder='', fig=True):
-    # TODO: do the analysis with bias_calculation
+def bias_across_training(choice, evidence, performance, rep_prob=None,
+                         folder='', fig=True):
     # compute bias across training
     per = 100000
     num_stps = int(choice.shape[0] / per)
-    bias_0_hit = []
-    bias_1_hit = []
-    bias_0_fail = []
-    bias_1_fail = []
+    bias_mat = []
     for ind_per in range(num_stps):
         ev = evidence[ind_per*per:(ind_per+1)*per]
         perf = performance[ind_per*per:(ind_per+1)*per]
+        if rep_prob is None:
+            blocks = build_block_mat(ev.shape, block_dur=200)
+        else:
+            blocks = rep_prob[ind_per*per:(ind_per+1)*per]
+        bl_values = np.unique(blocks)
+        rand_perf = np.random.choice([0, 1], size=(1,))
+        prev_perf = np.concatenate((rand_perf, perf[0, :-1]))
         ch = choice[ind_per*per:(ind_per+1)*per]
-        data = plot_psychometric_curves(ev, perf, ch, blk_dur=200,
-                                        plt_av=False, figs=False)
-        bias_0_hit.append(data['popt_repProb_hits_0.0'][1])
-        bias_1_hit.append(data['popt_repProb_hits_1.0'][1])
-        bias_0_fail.append(data['popt_repProb_fails_0.0'][1])
-        bias_1_fail.append(data['popt_repProb_fails_1.0'][1])
+        for ind_perf in range(2):
+            for ind_bl in range(2):
+                mask = np.logical_and(blocks == bl_values[ind_bl],
+                                      prev_perf == ind_perf)
+                assert np.sum(mask) > 0
+                popt, pcov = bias_calculation(ch, ev, mask)
+                bias_mat.append([popt[1], ind_perf, bl_values[ind_bl]])
+    time_stps = np.linspace(per, choice.shape[0], num_stps)
+    bias_mat = np.array(bias_mat)
+    lbl_perf = ['error', 'correct']
     if fig:
         f = ut.get_fig(display_mode)
-
-    plt.plot(bias_0_hit, 'b')
+    for ind_perf in range(2):
+        for ind_bl in range(2):
+            if ind_perf == 0:
+                color = np.array([1-0.25*ind_bl, 0.75, 0.75*(ind_bl + 1)])
+                color[color > 1] = 1
+            else:
+                color = ((1-ind_bl), 0, ind_bl)
+            index = np.logical_and(bias_mat[:, 1] == ind_perf,
+                                   bias_mat[:, 2] == bl_values[ind_bl])
+            plt.plot(time_stps, bias_mat[index, 0], color=color, lw=1,
+                     label='rep. prob.: ' + str(bl_values[ind_bl]) +
+                     ' after ' + lbl_perf[ind_perf])
+    plt.plot(bias_mat, 'b')
     plt.title('block 0 after correct')
 
-    plt.plot(bias_1_hit, 'r')
-    plt.title('block 1 after correct')
-
-    plt.plot(bias_0_fail, color=(0.7, 0.7, 1))
-    plt.title('block 0 after error')
-
-    plt.plot(bias_1_fail, color=(1, 0.7, 0.7))
-    plt.title('block 1 after error')
     if folder != '' and fig:
         f.savefig(folder + 'bias_evolution.png',
                   dpi=DPI, bbox_inches='tight')
@@ -1045,7 +1057,7 @@ def test_bias():
     compares the results
     """
     file = '/home/linux/PassReward0_data.npz'
-    choice, correct_side, performance, evidence = load_behavioral_data(file)
+    choice, correct_side, performance, evidence, _ = load_behavioral_data(file)
     # plot psychometric curves
     ut.get_fig(display_mode)
     num_tr = 2000000
@@ -1078,7 +1090,7 @@ def bias_cond_on_history(file='/home/linux/PassReward0_data.npz', folder=''):
     bias_after_altRep_seqs does something similar but closer to the analysis
     they did in the paper
     """
-    choice, correct_side, performance, evidence = load_behavioral_data(file)
+    choice, correct_side, performance, evidence, _ = load_behavioral_data(file)
     # BIAS CONDITIONED ON TRANSITION HISTORY (NUMBER OF REPETITIONS)
     num_tr = 2000000
     start_point = performance.shape[0]-num_tr
@@ -1137,7 +1149,7 @@ def no_stim_analysis(file='/home/linux/PassAction.npz', save_path='',
     evidence is small (or 0) conditioned on the number of repetitions during
     the last trials. This is for different periods across training.
     """
-    choice, correct_side, performance, evidence = load_behavioral_data(file)
+    choice, correct_side, performance, evidence, _ = load_behavioral_data(file)
     mask_ev = np.logical_and(evidence >= np.percentile(evidence, 40),
                              evidence <= np.percentile(evidence, 60))
     if save_path != '':
@@ -1247,7 +1259,7 @@ def trans_evidence_cond_on_outcome(file='/home/linux/PassAction.npz',
     (or 0), conditioned on the number of repetitions during
     the last trials. This is done for different periods across training.
     """
-    choice, correct_side, performance, evidence = load_behavioral_data(file)
+    choice, correct_side, performance, evidence, _ = load_behavioral_data(file)
     mask_ev = np.logical_and(evidence >= np.percentile(evidence, 40),
                              evidence <= np.percentile(evidence, 60))
     # compute bias across training
@@ -1358,7 +1370,7 @@ def perf_cond_on_stim_ev(file='/home/linux/PassAction.npz', save_path='',
     """
     computes performance as a function of the stimulus evidence
     """
-    _, _, performance, evidence = load_behavioral_data(file)
+    _, _, performance, evidence, _ = load_behavioral_data(file)
     evidence = evidence[-2000000:]
     performance = performance[-2000000:]
     perf_mat = []
@@ -1486,7 +1498,7 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
     computes bias conditioned on the num. of previous consecutive ground truth
     alternations/repetitions for after correct/error trials
     """
-    choice, correct_side, performance, evidence = load_behavioral_data(file)
+    choice, correct_side, performance, evidence, _ = load_behavioral_data(file)
     # BIAS CONDITIONED ON TRANSITION HISTORY (NUMBER OF REPETITIONS)
     num_tr = 2000000
     start_point = performance.shape[0]-num_tr
@@ -1588,7 +1600,7 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
     computes bias conditioned on the number of consecutive ground truth
     alternations/repetitions during the last trials
     """
-    choice, correct_side, performance, evidence = load_behavioral_data(file)
+    choice, correct_side, performance, evidence, _ = load_behavioral_data(file)
     # BIAS CONDITIONED ON TRANSITION HISTORY (NUMBER OF REPETITIONS)
     num_tr = 5000000
     start_point = performance.shape[0]-num_tr
@@ -1798,7 +1810,7 @@ def batch_analysis(main_folder, trials_fig=True,
                 file = files[ind_f] + '/bhvr_data_all.npz'
                 if not os.path.isfile(file):
                     ptf.put_files_together(files[ind_f])
-                choice, correct_side, performance, evidence =\
+                choice, correct_side, performance, evidence, rep_prob =\
                     load_behavioral_data(file)
                 # plot performance
                 num_tr = 1000000
@@ -1809,7 +1821,8 @@ def batch_analysis(main_folder, trials_fig=True,
                               correct_side[start_point:start_point+num_tr],
                               w_conv=1000)
                 plt.subplot(2, 2, 2)
-                bias_across_training(choice, evidence, performance, fig=False)
+                bias_across_training(choice, evidence, performance,
+                                     rep_prob=rep_prob, fig=False)
                 # TODO: separate into differnet panels (use 3x2 subplot)
                 plt.subplot(2, 2, 3)
                 bias_after_altRep_seqs(file=file, fig=False)
