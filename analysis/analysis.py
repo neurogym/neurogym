@@ -960,9 +960,8 @@ def load_behavioral_data(file):
         stimulus = stimulus[dec_time-1, :]
     correct_side[np.where(correct_side == -1)] = 2
     correct_side = np.abs(correct_side-3)
-    if not (np.unique(correct_side) == [1, 2]).all():
-        print('correct side values:')
-        print(np.unique(correct_side))
+    print('correct side values:')
+    print(np.unique(correct_side))
     performance = (choice == correct_side)
     evidence = stimulus[:, 1] - stimulus[:, 2]
     return choice, correct_side, performance, evidence, rep_prob
@@ -1579,22 +1578,18 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
             plt.subplot(1, 2, int(not(ind_perf))+1)
         else:
             plt.subplot(panels[0], panels[1], panels[2]+int(not(ind_perf)))
+        plt.title('bias after ' + lbl_perf[ind_perf])
         for ind_tr in [0, 1]:
-            if ind_perf == 0:
-                color = np.array([1-0.25*ind_tr, 0.75, 0.75*(ind_tr + 1)])
-                color[color > 1] = 1
-            else:
-                color = ((1-ind_tr), 0, ind_tr)
+            color = ((1-ind_tr), 0, ind_tr)
             index = np.logical_and(mat_biases[:, 1] == ind_perf,
                                    mat_biases[:, 2] == ind_tr)
             plt.plot(mat_conv, mat_biases[index, 0], color=color, lw=1,
                      label=lbl_tr[ind_tr] + ' + ' + lbl_perf[ind_perf])
             plt.plot(mat_conv, mat_biases[index, 4], '--', color=color, lw=1,
-                     label=lbl_tr[ind_tr] + ' + ' + lbl_perf[ind_perf] +
-                     ' at t+2')
-    plt.legend()
-    plt.ylabel('bias')
-    plt.xlabel('number of ground truth transitions')
+                     label=lbl_tr[ind_tr] + ' at t+2')
+        plt.legend()
+        plt.ylabel('bias')
+        plt.xlabel('number of ground truth transitions')
     if (panels is None) and folder != '':
         f.savefig(folder + 'bias_after_saltRep_seqs.png',
                   dpi=DPI, bbox_inches='tight')
@@ -1704,6 +1699,8 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
                       lbl_ch[ind_ch] + ' transition evidence')
         else:
             plt.subplot(panels[0], panels[1], panels[2]+ind_ch)
+            plt.title('after change to ' +
+                      lbl_ch[ind_ch] + ' transition evidence')
         for ind_tr in range(2):
             for ind_perf in range(2):
                     if ind_perf == 0:
