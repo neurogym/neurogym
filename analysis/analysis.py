@@ -301,12 +301,16 @@ def plot_psychoCurves_averages(x_values, y_values,
     return av_data
 
 
-def build_block_mat(shape, block_dur):
+def build_block_mat(shape, block_dur, corr_side=None):
     # build rep. prob vector
     rp_mat = np.zeros(shape)
     a = np.arange(shape[0])
     b = np.floor(a/block_dur)
     rp_mat[b % 2 == 0] = 1
+    if corr_side is not None:
+        rep_mat = get_repetitions(corr_side)
+        rp_mat[rp_mat == 0] = np.round(np.mean(rep_mat[rp_mat == 0]), 1)
+        rp_mat[rp_mat == 1] = np.round(np.mean(rep_mat[rp_mat == 1]), 1)
     return rp_mat
 
 
@@ -1809,8 +1813,10 @@ def batch_analysis(main_folder, trials_fig=True,
             for ind_f in range(len(files)):
                 file = files[ind_f] + '/bhvr_data_all.npz'
                 ptf.put_files_together(files[ind_f])
-                choice, correct_side, performance, evidence, rep_prob =\
+                choice, correct_side, performance, evidence, _ =\
                     load_behavioral_data(file)
+                rep_prob = build_block_mat(choice.shape, block_dur=200,
+                                           corr_side=correct_side)
                 # plot performance
                 num_tr = 1000000
                 start_point = 0
