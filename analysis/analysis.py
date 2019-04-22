@@ -1831,9 +1831,8 @@ def batch_analysis(main_folder, trials_fig=True,
                 plt.subplot(3, 2, 2)
                 bias_across_training(choice, evidence, performance,
                                      rep_prob=rep_prob, fig=False)
-                bias_after_altRep_seqs(file=file, fig=False, panels=[3, 2, 3])
-                bias_after_transEv_change(file=file, fig=False,
-                                          panels=[3, 2, 5])
+                bias_after_altRep_seqs(file=file, panels=[3, 2, 3])
+                bias_after_transEv_change(file=file, panels=[3, 2, 5])
             f.savefig(saving_folder + '/bhvr_fig.png', dpi=DPI,
                       bbox_inches='tight')
             f.savefig(saving_folder_all + folder_name + '.png', dpi=DPI,
