@@ -1046,7 +1046,6 @@ def bias_across_training(choice, evidence, performance, rep_prob=None,
             plt.plot(time_stps, bias_mat[index, 0], color=color, lw=1,
                      label='rep. prob.: ' + str(bl_values[ind_bl]) +
                      ' after ' + lbl_perf[ind_perf])
-    plt.plot(bias_mat, 'b')
     plt.title('block 0 after correct')
 
     if folder != '' and fig:
