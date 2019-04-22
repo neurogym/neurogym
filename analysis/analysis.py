@@ -955,7 +955,9 @@ def load_behavioral_data(file):
         stimulus = stimulus[dec_time-1, :]
     correct_side[np.where(correct_side == -1)] = 2
     correct_side = np.abs(correct_side-3)
-    assert (np.unique(correct_side) == [1, 2]).all()
+    if not (np.unique(correct_side) == [1, 2]).all():
+        print('correct side values:')
+        print(np.unique(correct_side))
     performance = (choice == correct_side)
     evidence = stimulus[:, 1] - stimulus[:, 2]
     return choice, correct_side, performance, evidence
@@ -1772,6 +1774,8 @@ def batch_analysis(main_folder, trials_fig=True,
     params_config = itertools.product(net_type, stim_ev, num_units,
                                       n_steps, bl_d)
     for conf in params_config:
+        print('------------------------')
+        print(conf)
         _, folder = cf.build_command(save_folder=main_folder,
                                      ps_r=pass_reward, ps_act=pass_action,
                                      bl_dur=conf[4], num_u=conf[2],
@@ -1785,7 +1789,6 @@ def batch_analysis(main_folder, trials_fig=True,
         files = glob.glob(main_folder+folder_name + '*')
         print('files:')
         print(files)
-        print('------------------------')
         if len(files) > 0:
             saving_folder = main_folder + 'MAIN_' + folder_name
             if not os.path.exists(saving_folder):
