@@ -1812,24 +1812,27 @@ def batch_analysis(main_folder, trials_fig=True,
             f = ut.get_fig(display_mode)
             for ind_f in range(len(files)):
                 file = files[ind_f] + '/bhvr_data_all.npz'
-                ptf.put_files_together(files[ind_f])
-                choice, correct_side, performance, evidence, _ =\
-                    load_behavioral_data(file)
-                rep_prob = build_block_mat(choice.shape, block_dur=200,
-                                           corr_side=correct_side)
-                # plot performance
-                num_tr = 1000000
-                start_point = 0
-                plt.subplot(3, 2, 1)
-                plot_learning(performance[start_point:start_point+num_tr],
-                              evidence[start_point:start_point+num_tr],
-                              correct_side[start_point:start_point+num_tr],
-                              w_conv=1000)
-                plt.subplot(3, 2, 2)
-                bias_across_training(choice, evidence, performance,
-                                     rep_prob=rep_prob, fig=False)
-                bias_after_altRep_seqs(file=file, panels=[3, 2, 3])
-                bias_after_transEv_change(file=file, panels=[3, 2, 5])
+                data_flag = ptf.put_files_together(files[ind_f])
+                if data_flag:
+                    choice, correct_side, performance, evidence, _ =\
+                        load_behavioral_data(file)
+                    rep_prob = build_block_mat(choice.shape, block_dur=200,
+                                               corr_side=correct_side)
+                    # plot performance
+                    num_tr = 1000000
+                    start_point = 0
+                    plt.subplot(3, 2, 1)
+                    plot_learning(performance[start_point:start_point+num_tr],
+                                  evidence[start_point:start_point+num_tr],
+                                  correct_side[start_point:start_point+num_tr],
+                                  w_conv=1000)
+                    plt.subplot(3, 2, 2)
+                    bias_across_training(choice, evidence, performance,
+                                         rep_prob=rep_prob, fig=False)
+                    # 
+                    bias_after_altRep_seqs(file=file, panels=[3, 2, 3])
+                    #
+                    bias_after_transEv_change(file=file, panels=[3, 2, 5])
             f.savefig(saving_folder + '/bhvr_fig.png', dpi=DPI,
                       bbox_inches='tight')
             f.savefig(saving_folder_all + folder_name + '.png', dpi=DPI,

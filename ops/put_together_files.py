@@ -65,6 +65,9 @@ def put_files_together(folder):
         r_prob_mat = np.reshape(np.array(r_prob_mat), (SIZE[0]*len(files),
                                                        r_prob.shape[1]))
 
-    data = {'choice': choice_mat, 'stimulus': stim_mat,
-            'correct_side': side_mat, 'rep_prob': r_prob_mat}
-    np.savez(folder + '/bhvr_data_all.npz', **data)
+        data = {'choice': choice_mat, 'stimulus': stim_mat,
+                'correct_side': side_mat, 'rep_prob': r_prob_mat}
+        np.savez(folder + '/bhvr_data_all.npz', **data)
+        return True
+    else:
+        return False
