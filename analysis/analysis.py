@@ -1046,8 +1046,8 @@ def bias_across_training(choice, evidence, performance, rep_prob=None,
             plt.plot(time_stps, bias_mat[index, 0], color=color, lw=1,
                      label='rep. prob.: ' + str(bl_values[ind_bl]) +
                      ' after ' + lbl_perf[ind_perf])
-    plt.title('block 0 after correct')
-
+    plt.title('bias across training')
+    plt.legend()
     if folder != '' and fig:
         f.savefig(folder + 'bias_evolution.png',
                   dpi=DPI, bbox_inches='tight')
@@ -1496,7 +1496,7 @@ def simple_agent(file='/home/linux/PassReward0_data.npz'):
 
 
 def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
-                                folder='', fig=True):
+                                folder='', panels=None):
     """
     computes bias conditioned on the num. of previous consecutive ground truth
     alternations/repetitions for after correct/error trials
@@ -1572,9 +1572,13 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                                    popt_next[1]])
     mat_biases = np.array(mat_biases)
     lbl_tr = ['alt', 'rep']
-    if fig:
+    if panels is None:
         f = ut.get_fig(display_mode)
     for ind_perf in range(2):
+        if panels is None:
+            plt.subplot(1, 2, int(not(ind_perf))+1)
+        else:
+            plt.subplot(panels[0], panels[1], panels[2]+int(not(ind_perf)))
         for ind_tr in [0, 1]:
             if ind_perf == 0:
                 color = np.array([1-0.25*ind_tr, 0.75, 0.75*(ind_tr + 1)])
@@ -1591,14 +1595,14 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
     plt.legend()
     plt.ylabel('bias')
     plt.xlabel('number of ground truth transitions')
-    if fig and folder != '':
+    if (panels is None) and folder != '':
         f.savefig(folder + 'bias_after_saltRep_seqs.png',
                   dpi=DPI, bbox_inches='tight')
         plt.close(f)
 
 
 def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
-                              folder='', fig=True):
+                              folder='', panels=None):
     """
     computes bias conditioned on the number of consecutive ground truth
     alternations/repetitions during the last trials
@@ -1687,19 +1691,19 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
                     mat_biases.append([popt[1], ind_ch, ind_perf, ind_tr,
                                        conv_window, np.sum(mask)])
     mat_biases = np.array(mat_biases)
-    if fig:
+    if panels is None:
         f = ut.get_fig(display_mode)
-        lstyle = ['-', '-']
-    else:
-        lstyle = ['-', '--']
     lbl_ch = ['less', 'equal']  # , 'more evidence']
     lbl_perf = ['error', 'correct']
     lbl_tr = ['alt. bl.', 'rep. bl.']
+
     for ind_ch in range(2):
-        if fig:
+        if panels is None:
             plt.subplot(1, 2, ind_ch+1)
             plt.title('after change to ' +
                       lbl_ch[ind_ch] + ' transition evidence')
+        else:
+            plt.subplot(panels[0], panels[1], panels[2]+ind_ch)
         for ind_tr in range(2):
             for ind_perf in range(2):
                     if ind_perf == 0:
@@ -1716,12 +1720,12 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
                     label = lbl_tr[ind_tr] + ', after ' + lbl_perf[ind_perf] +\
                         ' (N=' + str(perc_tr) + ')'
                     plt.plot(mat_biases[index, 4], mat_biases[index, 0],
-                             lstyle[ind_ch], color=color, lw=1, label=label)
+                             color=color, lw=1, label=label)
         plt.legend()
         plt.ylabel('bias')
         plt.xlabel('number of ground truth transitions')
 
-    if fig and folder != '':
+    if (panels is None) and folder != '':
         f.savefig(folder + 'bias_after_trans_ev_change.png',
                   dpi=DPI, bbox_inches='tight')
         plt.close(f)
@@ -1819,19 +1823,17 @@ def batch_analysis(main_folder, trials_fig=True,
                 # plot performance
                 num_tr = 1000000
                 start_point = 0
-                plt.subplot(2, 2, 1)
+                plt.subplot(3, 2, 1)
                 plot_learning(performance[start_point:start_point+num_tr],
                               evidence[start_point:start_point+num_tr],
                               correct_side[start_point:start_point+num_tr],
                               w_conv=1000)
-                plt.subplot(2, 2, 2)
+                plt.subplot(3, 2, 2)
                 bias_across_training(choice, evidence, performance,
                                      rep_prob=rep_prob, fig=False)
-                # TODO: separate into differnet panels (use 3x2 subplot)
-                plt.subplot(2, 2, 3)
-                bias_after_altRep_seqs(file=file, fig=False)
-                plt.subplot(2, 2, 4)
-                bias_after_transEv_change(file=file, fig=False)
+                bias_after_altRep_seqs(file=file, fig=False, panels=[3, 2, 3])
+                bias_after_transEv_change(file=file, fig=False,
+                                          panels=[3, 2, 5])
             f.savefig(saving_folder + '/bhvr_fig.png', dpi=DPI,
                       bbox_inches='tight')
             f.savefig(saving_folder_all + folder_name + '.png', dpi=DPI,
