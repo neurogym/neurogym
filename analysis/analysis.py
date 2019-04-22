@@ -1808,8 +1808,7 @@ def batch_analysis(main_folder, trials_fig=True,
             f = ut.get_fig(display_mode)
             for ind_f in range(len(files)):
                 file = files[ind_f] + '/bhvr_data_all.npz'
-                if not os.path.isfile(file):
-                    ptf.put_files_together(files[ind_f])
+                ptf.put_files_together(files[ind_f])
                 choice, correct_side, performance, evidence, rep_prob =\
                     load_behavioral_data(file)
                 # plot performance
