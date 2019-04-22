@@ -1016,7 +1016,7 @@ def bias_across_training(choice, evidence, performance, rep_prob=None,
             blocks = rep_prob[ind_per*per:(ind_per+1)*per]
         bl_values = np.unique(blocks)
         rand_perf = np.random.choice([0, 1], size=(1,))
-        prev_perf = np.concatenate((rand_perf, perf[0, :-1]))
+        prev_perf = np.concatenate((rand_perf, perf[:-1]))
         ch = choice[ind_per*per:(ind_per+1)*per]
         for ind_perf in range(2):
             for ind_bl in range(2):
