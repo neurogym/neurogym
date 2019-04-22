@@ -1780,12 +1780,14 @@ def batch_analysis(main_folder, trials_fig=True,
                                      num_stps_env=tot_num_steps,
                                      save=False)
         folder = os.path.basename(os.path.normpath(folder + '/'))
-        files = glob.glob(main_folder+folder[:-7] + '*')
+        undscr_ind = folder.rfind('_')
+        folder_name = folder[:undscr_ind]
+        files = glob.glob(main_folder+folder_name + '*')
         print('files:')
         print(files)
         print('------------------------')
         if len(files) > 0:
-            saving_folder = main_folder + 'MAIN_' + folder[:-7]
+            saving_folder = main_folder + 'MAIN_' + folder_name
             if not os.path.exists(saving_folder):
                 os.mkdir(saving_folder)
             f = ut.get_fig(display_mode)
@@ -1805,13 +1807,14 @@ def batch_analysis(main_folder, trials_fig=True,
                               w_conv=1000)
                 plt.subplot(2, 2, 2)
                 bias_across_training(choice, evidence, performance, fig=False)
+                # TODO: separate into differnet panels (use 3x2 subplot)
                 plt.subplot(2, 2, 3)
                 bias_after_altRep_seqs(file=file, fig=False)
                 plt.subplot(2, 2, 4)
                 bias_after_transEv_change(file=file, fig=False)
             f.savefig(saving_folder + '/bhvr_fig.png', dpi=DPI,
                       bbox_inches='tight')
-            f.savefig(saving_folder_all + folder[:-7] + '.png', dpi=DPI,
+            f.savefig(saving_folder_all + folder_name + '.png', dpi=DPI,
                       bbox_inches='tight')
 #
 #        files = glob.glob(folder + 'network_data_*.npz')
