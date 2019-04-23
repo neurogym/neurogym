@@ -1777,16 +1777,16 @@ def batch_analysis(main_folder, trials_fig=True,
     #    n_envs = 10  # 12
     #    env = 0
     #    obs_size = 5  # 4
-    n_steps = [5, 20]  # 100
+    n_steps = [20]  # [5, 20]
     num_units = 64  # 128
     # params to get folder
     pass_reward = True
     pass_action = True
     bl_d = [200]
-    num_units = [32, 64]
-    tot_num_steps = int(1e8)  # [1e9]
-    stim_ev = [.3, .6, 1.]  # [.1, .25, .5, 1.]
-    net_type = ['twin_net', 'cont_rnn']
+    num_units = [32]  # [32, 64]
+    tot_num_steps = int(1e7)  # [1e9]
+    stim_ev = [.5]  # [.3, .6, 1.]
+    net_type = ['cont_rnn']  # ['twin_net', 'cont_rnn']
     params_config = itertools.product(net_type, stim_ev, num_units,
                                       n_steps, bl_d)
     for conf in params_config:
@@ -1829,7 +1829,7 @@ def batch_analysis(main_folder, trials_fig=True,
                     plt.subplot(3, 2, 2)
                     bias_across_training(choice, evidence, performance,
                                          rep_prob=rep_prob, fig=False)
-                    # 
+                    #
                     bias_after_altRep_seqs(file=file, panels=[3, 2, 3])
                     #
                     bias_after_transEv_change(file=file, panels=[3, 2, 5])
