@@ -24,7 +24,7 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     seed = datetime.now().microsecond
     alg = 'a2c'
     env = 'RDM-v0'
-    num_env = 10
+    num_env = 24
     tot_num_stps = num_stps_env*num_env
     num_steps_per_logging = 1000000
     li = num_steps_per_logging / nsteps
@@ -138,35 +138,19 @@ def produce_sh_files():
     pass_reward = True
     pass_action = True
     bl_dur = [200]
-    num_units = [32, 64]
-    net_type = ['twin_net', 'cont_rnn']
+    num_units = [32]  # [32, 64]
+    net_type = ['cont_rnn']  # ['twin_net', 'cont_rnn']
     num_steps_env = 1e8  # [1e9]
-    stim_ev = [.3, .6, 1.]
-    batch_size = [5, 20]
-    insts = np.arange(3)
+    stim_ev = [.5]  # [.3, .6, 1.]
+    batch_size = [20]  # [5, 20]
+    insts = np.arange(10)
     load_path = ''  # '/home/linux/00010'
     params_config = itertools.product(insts, bl_dur, num_units, stim_ev,
                                       batch_size, net_type)
     main_file = file = open(home + '/scripts/main.sh', 'w')
-    command = ''
-    command += '#!/bin/sh\n'
-    command += '#SBATCH --account=theory\n'
-    command += '#SBATCH --job-name=RUN\n'
-    command += '#SBATCH -c 1\n'
-    command += '#SBATCH --time=0:10:00\n'
-    command += '#SBATCH --mem-per-cpu=128gb\n'
-    command += '#SBATCH --exclusive\n'
+    command = specs()
     main_file.write(command)
-    command = ''
-    command += '#!/bin/sh\n'
-    command += '#SBATCH --account=theory\n'
-    command += '#SBATCH --job-name=RUN\n'
-    command += '#SBATCH -c 1\n'
-    command += '#SBATCH --time=120:00:00\n'
-    command += '#SBATCH --mem-per-cpu=128gb\n'
-    command += '#SBATCH --exclusive\n'
-    command += 'module load anaconda/3-5.1\n'
-    command += 'module load tensorflow/anaconda3-5.1.0/1.7.0\n'
+
     for conf in params_config:
         name = 'scripts/' + str(conf[1]) + '_' + str(conf[2]) +\
             '_' + str(conf[3]) + '_' + str(conf[4]) + '_' +\
@@ -174,7 +158,7 @@ def produce_sh_files():
         main_file.write('sbatch ' + name + '\n')
         main_file.write('sleep 10\n')
         file = open(home + '/' + name, 'w')
-        cmmd = command
+        cmmd = specs(conf=conf)
         aux, _ = build_command(inst=conf[0], ps_r=pass_reward,
                                ps_act=pass_action,
                                bl_dur=conf[1], num_u=conf[2],
@@ -185,6 +169,29 @@ def produce_sh_files():
         file.write(cmmd)
         file.close()
     main_file.close()
+
+
+def specs(conf=None):
+    command = ''
+    command += '#!/bin/sh\n'
+    command += '#SBATCH --account=theory\n'
+    if conf is None:
+        command += '#SBATCH --job-name=RUN\n'
+        command += '#SBATCH -c 1\n'
+        command += '#SBATCH --time=0:30:00\n'
+        command += '#SBATCH --mem-per-cpu=128gb\n'
+    else:
+        name = str(conf[2])
+        for ind in range(3, len(conf)):
+            name += '_' + str(conf[ind])
+        command += '#SBATCH --job-name=' + name + '\n'
+        command += '#SBATCH --cpus-per-task=24\n'
+        command += '#SBATCH --time=120:00:00\n'
+        command += '#SBATCH --mem-per-cpu=5gb\n'
+        command += '#SBATCH --exclusive\n'
+        command += 'module load anaconda/3-5.1\n'
+        command += 'module load tensorflow/anaconda3-5.1.0/1.7.0\n'
+    return command
 
 
 def arg_parser():
@@ -234,7 +241,7 @@ def main(args):
     bl_dur = args.bl_dur
     num_units = args.num_u
     net_type = args.net_type
-    num_steps_env = 1e8  # [1e9]
+    num_steps_env = 1e7  # [1e9]
     stim_ev = args.stimEv
     batch_size = args.n_steps
     insts = np.arange(args.num_insts)
