@@ -24,7 +24,8 @@ display_mode = False
 DPI = 400
 
 
-def plot_learning(performance, evidence, stim_position, w_conv=200):
+def plot_learning(performance, evidence, stim_position, w_conv=200,
+                  legend=False):
     """
     plots RNN and ideal observer performances.
     The function assumes that a figure has been created
@@ -61,7 +62,8 @@ def plot_learning(performance, evidence, stim_position, w_conv=200):
     plot_fractions([0, performance.shape[0]])
     plt.title('performance')
     plt.xlabel('trials')
-    plt.legend()
+    if legend:
+        plt.legend()
 
 
 def plot_fractions(lims):
@@ -1005,7 +1007,7 @@ def behavior_analysis(file='/home/linux/PassReward0_data.npz', folder=''):
 
 
 def bias_across_training(choice, evidence, performance, rep_prob=None,
-                         folder='', fig=True):
+                         folder='', fig=True, legend=False):
     # compute bias across training
     per = 100000
     num_stps = int(choice.shape[0] / per)
@@ -1046,7 +1048,8 @@ def bias_across_training(choice, evidence, performance, rep_prob=None,
                      label='rep. prob.: ' + str(bl_values[ind_bl]) +
                      ' after ' + lbl_perf[ind_perf])
     plt.title('bias across training')
-    plt.legend()
+    if legend:
+        plt.legend()
     if folder != '' and fig:
         f.savefig(folder + 'bias_evolution.png',
                   dpi=DPI, bbox_inches='tight')
@@ -1495,7 +1498,7 @@ def simple_agent(file='/home/linux/PassReward0_data.npz'):
 
 
 def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
-                                folder='', panels=None):
+                                folder='', panels=None, legend=False):
     """
     computes bias conditioned on the num. of previous consecutive ground truth
     alternations/repetitions for after correct/error trials
@@ -1562,9 +1565,8 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                              label='perf_hist')
                     plt.plot(perf[start:start+num], '-+', label='performance')
                     plt.plot(mask[start:start+num]-2, '-+', label='mask')
-                    print(values[ind_tr])
-                    print(ind_perf)
-                    plt.legend()
+                    if legend:
+                        plt.legend()
                 popt_next, _ = bias_calculation(ch, ev, mask)
                 mat_biases.append([popt[1], ind_perf,
                                    ind_tr/(values.shape[0]-1), conv_window,
@@ -1597,7 +1599,7 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
 
 
 def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
-                              folder='', panels=None):
+                              folder='', panels=None, legend=False):
     """
     computes bias conditioned on the number of consecutive ground truth
     alternations/repetitions during the last trials
@@ -1718,7 +1720,8 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
                         ' (N=' + str(perc_tr) + ')'
                     plt.plot(mat_biases[index, 4], mat_biases[index, 0],
                              color=color, lw=1, label=label)
-        plt.legend()
+        if legend:
+            plt.legend()
         plt.ylabel('bias')
         plt.xlabel('number of ground truth transitions')
 
@@ -1825,14 +1828,17 @@ def batch_analysis(main_folder, trials_fig=True,
                     plot_learning(performance[start_point:start_point+num_tr],
                                   evidence[start_point:start_point+num_tr],
                                   correct_side[start_point:start_point+num_tr],
-                                  w_conv=1000)
+                                  w_conv=1000, legend=(ind_f == 0))
                     plt.subplot(3, 2, 2)
                     bias_across_training(choice, evidence, performance,
-                                         rep_prob=rep_prob, fig=False)
+                                         rep_prob=rep_prob, fig=False,
+                                         legend=(ind_f == 0))
                     #
-                    bias_after_altRep_seqs(file=file, panels=[3, 2, 3])
+                    bias_after_altRep_seqs(file=file, panels=[3, 2, 3],
+                                           legend=(ind_f == 0))
                     #
-                    bias_after_transEv_change(file=file, panels=[3, 2, 5])
+                    bias_after_transEv_change(file=file, panels=[3, 2, 5],
+                                              legend=(ind_f == 0))
             f.savefig(saving_folder + '/bhvr_fig.png', dpi=DPI,
                       bbox_inches='tight')
             f.savefig(saving_folder_all + folder_name + '.png', dpi=DPI,
