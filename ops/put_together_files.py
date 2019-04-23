@@ -18,7 +18,7 @@ from neurogym.ops import utils as ut
 # import os
 
 
-def put_files_together(folder):
+def put_files_together(folder, min_num_trials=1e6):
     print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
     print('searching here:' + folder)
     files = glob.glob(folder + '/Pass*npz')
@@ -67,6 +67,7 @@ def put_files_together(folder):
         data = {'choice': choice_mat, 'stimulus': stim_mat,
                 'correct_side': side_mat, 'rep_prob': r_prob_mat}
         np.savez(folder + '/bhvr_data_all.npz', **data)
+    if choice_mat.shape[0] > min_num_trials:
         return True
     else:
         return False
