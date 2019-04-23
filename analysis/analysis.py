@@ -1846,6 +1846,19 @@ def batch_analysis(main_folder, trials_fig=True,
                     #
                     bias_after_transEv_change(file=file, panels=[3, 2, 5],
                                               legend=(ind_f == 0))
+            maximo = -np.inf
+            minimo = np.inf
+            for ind_pl in range(2, 7):
+                plt.subplot(3, 2, ind_pl)
+                ax = plt.gca()
+                lims = ax.get_ylim()
+                maximo = max(maximo, lims[1])
+                minimo = min(minimo, lims[0])
+            for ind_pl in range(2, 7):
+                plt.subplot(3, 2, ind_pl)
+                ax = plt.gca()
+                lims = ax.set_ylim([minimo, maximo])
+
             f.savefig(saving_folder + '/bhvr_fig.png', dpi=DPI,
                       bbox_inches='tight')
             f.savefig(saving_folder_all + folder_name + '.png', dpi=DPI,
