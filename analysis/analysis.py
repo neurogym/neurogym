@@ -1589,7 +1589,8 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                      label=lbl_tr[ind_tr] + ' + ' + lbl_perf[ind_perf])
             plt.plot(mat_conv, mat_biases[index, 4], '--', color=color, lw=1,
                      label=lbl_tr[ind_tr] + ' at t+2')
-        plt.legend()
+        if legend:
+            plt.legend()
         plt.ylabel('bias')
         plt.xlabel('number of ground truth transitions')
     if (panels is None) and folder != '':
