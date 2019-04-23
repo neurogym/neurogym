@@ -135,8 +135,8 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
 
 def produce_sh_files(cluster='hab'):
     if cluster == 'hab':
-        save_folder='/rigel/theory/users/mm5514/'
-        run_folder='/rigel/home/mm5514/'
+        save_folder = '/rigel/theory/users/mm5514/'
+        run_folder = '/rigel/home/mm5514/'
     else:
         save_folder = '/gpfs/projects/hcli64/manuel/results/'
         run_folder = '/gpfs/projects/hcli64/manuel/code/'
@@ -144,7 +144,7 @@ def produce_sh_files(cluster='hab'):
     pass_reward = True
     pass_action = True
     bl_dur = [200]
-    num_units = [64]  # [32, 64]
+    num_units = [44]  # [32, 64]
     net_type = ['twin_net']  # ['twin_net', 'cont_rnn']
     num_steps_env = 1e8  # [1e9]
     stim_ev = [.5]  # [.3, .6, 1.]
@@ -315,6 +315,6 @@ def main(args):
 
 
 if __name__ == '__main__':
-    produce_sh_files(cluster='bsc')
+    produce_sh_files()
     #    asdsad
     #    main(sys.argv)

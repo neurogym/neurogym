@@ -1513,6 +1513,7 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
     side = correct_side[start_point:start_point+num_tr]
     mat_biases = []
     mat_conv = np.arange(1, 10)
+    mat_num_samples = np.zeros((10, 2))
     lbl_perf = ['error', 'correct']
     for conv_window in mat_conv:
         # get number of repetitions during the last conv_window trials
@@ -1540,7 +1541,7 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                                               perf == ind_perf,
                                               perf_hist == conv_window))
                 mask = np.concatenate((np.array([False]), mask[:-1]))
-                # assert np.sum(mask) > 2000
+                mat_num_samples[conv_window, ind_perf] += np.sum(mask)
                 popt, _ = bias_calculation(ch, ev, mask)
                 # here I want to compute the bias at t+2 later when the trial
                 # 1 step later was correct
@@ -1580,19 +1581,24 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
             plt.subplot(1, 2, int(not(ind_perf))+1)
         else:
             plt.subplot(panels[0], panels[1], panels[2]+int(not(ind_perf)))
-        plt.title('bias after ' + lbl_perf[ind_perf])
+        ax = plt.gca()
+        ax._set_title('bias after ' + lbl_perf[ind_perf])
+        # plot number of samples per number of rep/alt transition
+        ax2 = ax.twinx()
+        ax2.plot(mat_num_samples[:, ind_perf], color=(.7, .7, .7))
+        ax2.set_ylabel('total num. of samples')
         for ind_tr in [0, 1]:
             color = ((1-ind_tr), 0, ind_tr)
             index = np.logical_and(mat_biases[:, 1] == ind_perf,
                                    mat_biases[:, 2] == ind_tr)
-            plt.plot(mat_conv, mat_biases[index, 0], color=color, lw=1,
-                     label=lbl_tr[ind_tr] + ' + ' + lbl_perf[ind_perf])
-            plt.plot(mat_conv, mat_biases[index, 4], '--', color=color, lw=1,
-                     label=lbl_tr[ind_tr] + ' at t+2')
+            ax.plot(mat_conv, mat_biases[index, 0], color=color, lw=1,
+                    label=lbl_tr[ind_tr] + ' + ' + lbl_perf[ind_perf])
+            ax.plot(mat_conv, mat_biases[index, 4], '--', color=color, lw=1,
+                    label=lbl_tr[ind_tr] + ' at t+2')
         if legend:
             plt.legend()
-        plt.ylabel('bias')
-        plt.xlabel('number of ground truth transitions')
+        ax.set_ylabel('bias')
+        ax.set_xlabel('number of ground truth transitions')
     if (panels is None) and folder != '':
         f.savefig(folder + 'bias_after_saltRep_seqs.png',
                   dpi=DPI, bbox_inches='tight')
