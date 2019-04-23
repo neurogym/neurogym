@@ -67,7 +67,7 @@ def put_files_together(folder, min_num_trials=1e6):
         data = {'choice': choice_mat, 'stimulus': stim_mat,
                 'correct_side': side_mat, 'rep_prob': r_prob_mat}
         np.savez(folder + '/bhvr_data_all.npz', **data)
-    if SIZE[0]*len(files) > min_num_trials:
-        return True
-    else:
-        return False
+        if SIZE[0]*len(files) > min_num_trials:
+            return True
+        else:
+            return False
