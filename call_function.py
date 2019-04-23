@@ -133,13 +133,19 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     return command, save_path
 
 
-def produce_sh_files():
+def produce_sh_files(cluster='hab'):
+    if cluster == 'hab':
+        save_folder='/rigel/theory/users/mm5514/'
+        run_folder='/rigel/home/mm5514/'
+    else:
+        save_folder = '/gpfs/projects/hcli64/manuel/results/'
+        run_folder = '/gpfs/projects/hcli64/manuel/code/'
     home = str(Path.home())
     pass_reward = True
     pass_action = True
     bl_dur = [200]
-    num_units = [32]  # [32, 64]
-    net_type = ['cont_rnn']  # ['twin_net', 'cont_rnn']
+    num_units = [64]  # [32, 64]
+    net_type = ['twin_net']  # ['twin_net', 'cont_rnn']
     num_steps_env = 1e8  # [1e9]
     stim_ev = [.5]  # [.3, .6, 1.]
     batch_size = [20]  # [5, 20]
@@ -147,19 +153,20 @@ def produce_sh_files():
     load_path = ''  # '/home/linux/00010'
     params_config = itertools.product(insts, bl_dur, num_units, stim_ev,
                                       batch_size, net_type)
-    main_file = file = open(home + '/scripts/main.sh', 'w')
-    command = specs()
+    main_file = file = open(home + '/scripts/main_' + cluster + '.sh', 'w')
+    command = specs(cluster=cluster)
     main_file.write(command)
 
     for conf in params_config:
         name = 'scripts/' + str(conf[1]) + '_' + str(conf[2]) +\
             '_' + str(conf[3]) + '_' + str(conf[4]) + '_' +\
-            str(conf[5]) + '_' + str(conf[0]) + '.sh'
+            str(conf[5]) + '_' + str(conf[0]) + '_' + cluster + '.sh'
         main_file.write('sbatch ' + name + '\n')
         main_file.write('sleep 10\n')
         file = open(home + '/' + name, 'w')
-        cmmd = specs(conf=conf)
-        aux, _ = build_command(inst=conf[0], ps_r=pass_reward,
+        cmmd = specs(conf=conf, cluster=cluster)
+        aux, _ = build_command(save_folder=save_folder, run_folder=run_folder,
+                               inst=conf[0], ps_r=pass_reward,
                                ps_act=pass_action,
                                bl_dur=conf[1], num_u=conf[2],
                                net_type=conf[5], num_stps_env=num_steps_env,
@@ -171,23 +178,69 @@ def produce_sh_files():
     main_file.close()
 
 
-def specs(conf=None):
+def specs(conf=None, cluster='hab'):
     command = ''
     command += '#!/bin/sh\n'
-    command += '#SBATCH --account=theory\n'
+    if cluster == 'hab':
+        command += '#SBATCH --account=theory\n'
+        if conf is None:
+            command += '#SBATCH --job-name=RUN\n'
+            command += '#SBATCH -c 1\n'
+            command += '#SBATCH --time=0:30:00\n'
+            command += '#SBATCH --mem-per-cpu=128gb\n'
+        else:
+            name = str(conf[2])
+            for ind in range(3, len(conf)):
+                name += '_' + str(conf[ind])
+            command += '#SBATCH --job-name=' + name + '\n'
+            command += '#SBATCH --cpus-per-task=24\n'
+            command += '#SBATCH --time=120:00:00\n'
+            command += '#SBATCH --mem-per-cpu=5gb\n'
+            command += '#SBATCH --exclusive\n'
+            command += 'module load anaconda/3-5.1\n'
+            command += 'module load tensorflow/anaconda3-5.1.0/1.7.0\n'
+    else:
+        if conf is None:
+            command += '#SBATCH --job-name=RUN\n'
+            command += '#SBATCH -c 1\n'
+            command += '#SBATCH --time=0:30:00\n'
+        else:
+            name = str(conf[2])
+            for ind in range(3, len(conf)):
+                name += '_' + str(conf[ind])
+            command += '#SBATCH --job-name=' + name + '\n'
+            command += '#SBATCH --cpus-per-task=40\n'
+            command += '#SBATCH --time=48:00:00\n'
+            command += '#SBATCH --exclusive\n'
+            command += 'module purge\n'
+            command += 'module load gcc/6.4.0\n'
+            command += 'module load cuda/9.1\n'
+            command += 'module load cudnn/7.1.3\n'
+            command += 'module load openmpi/3.0.0\n'
+            command += 'module load atlas/3.10.3\n'
+            command += 'module load scalapack/2.0.2\n'
+            command += 'module load fftw/3.3.7\n'
+            command += 'module load szip/2.1.1\n'
+            command += 'module load opencv/3.4.1\n'
+            command += 'module load python/3.6.5_ML\n'
+
+    return command
+
+
+def specs_bsc(conf=None):
+    command = ''
+    command += '#!/bin/sh\n'
     if conf is None:
         command += '#SBATCH --job-name=RUN\n'
         command += '#SBATCH -c 1\n'
         command += '#SBATCH --time=0:30:00\n'
-        command += '#SBATCH --mem-per-cpu=128gb\n'
     else:
         name = str(conf[2])
         for ind in range(3, len(conf)):
             name += '_' + str(conf[ind])
         command += '#SBATCH --job-name=' + name + '\n'
-        command += '#SBATCH --cpus-per-task=24\n'
-        command += '#SBATCH --time=120:00:00\n'
-        command += '#SBATCH --mem-per-cpu=5gb\n'
+        command += '#SBATCH --cpus-per-task=40\n'
+        command += '#SBATCH --time=48:00:00\n'
         command += '#SBATCH --exclusive\n'
         command += 'module load anaconda/3-5.1\n'
         command += 'module load tensorflow/anaconda3-5.1.0/1.7.0\n'
@@ -262,6 +315,6 @@ def main(args):
 
 
 if __name__ == '__main__':
-    produce_sh_files()
+    produce_sh_files(cluster='bsc')
     #    asdsad
     #    main(sys.argv)
