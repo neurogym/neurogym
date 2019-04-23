@@ -1513,7 +1513,7 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
     side = correct_side[start_point:start_point+num_tr]
     mat_biases = []
     mat_conv = np.arange(1, 10)
-    mat_num_samples = np.zeros((10, 2))
+    mat_num_samples = np.zeros((9, 2))
     lbl_perf = ['error', 'correct']
     for conv_window in mat_conv:
         # get number of repetitions during the last conv_window trials
@@ -1541,7 +1541,7 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                                               perf == ind_perf,
                                               perf_hist == conv_window))
                 mask = np.concatenate((np.array([False]), mask[:-1]))
-                mat_num_samples[conv_window, ind_perf] += np.sum(mask)
+                mat_num_samples[conv_window-1, ind_perf] += np.sum(mask)
                 popt, _ = bias_calculation(ch, ev, mask)
                 # here I want to compute the bias at t+2 later when the trial
                 # 1 step later was correct
@@ -1582,10 +1582,10 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
         else:
             plt.subplot(panels[0], panels[1], panels[2]+int(not(ind_perf)))
         ax = plt.gca()
-        ax._set_title('bias after ' + lbl_perf[ind_perf])
+        ax.set_title('bias after ' + lbl_perf[ind_perf])
         # plot number of samples per number of rep/alt transition
         ax2 = ax.twinx()
-        ax2.plot(mat_num_samples[:, ind_perf], color=(.7, .7, .7))
+        ax2.plot(mat_conv, mat_num_samples[:, ind_perf], color=(.7, .7, .7))
         ax2.set_ylabel('total num. of samples')
         for ind_tr in [0, 1]:
             color = ((1-ind_tr), 0, ind_tr)
