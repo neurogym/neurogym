@@ -1541,6 +1541,25 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                                               perf == ind_perf,
                                               perf_hist == conv_window))
                 mask = np.concatenate((np.array([False]), mask[:-1]))
+                if conv_window == 2 and False:
+                    num = 50
+                    start = 200
+                    plt.figure()
+                    for ind in range(num):
+                        plt.plot([ind, ind], [-2, 2], '--', color=(.6, .6, .6))
+                    repeat = get_repetitions(side)
+                    plt.plot(repeat[start:start+num]-1, '-+', lw=1,
+                             label='repeat')
+                    plt.plot(transitions[start:start+num], '-+', lw=1,
+                             label='transitions')
+                    plt.plot(perf_hist[start:start+num], '-+', lw=1,
+                             label='perf_hist')
+                    plt.plot(perf[start:start+num]-1, '-+', lw=1,
+                             label='performance')
+                    plt.plot(mask[start:start+num]-2, '-+', lw=1,
+                             label='mask')
+                    plt.legend()
+
                 mat_num_samples[conv_window-1, ind_perf] += np.sum(mask)
                 popt, _ = bias_calculation(ch, ev, mask)
                 # here I want to compute the bias at t+2 later when the trial
@@ -1552,22 +1571,6 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                                               next_perf == 1))
 
                 mask = np.concatenate((np.array([False, False]), mask[:-2]))
-                if False:
-                    num = 50
-                    start = 0
-                    plt.plot(mask[start:start+num]-2, '-+',
-                             label='selectd trials')
-                    repeat = get_repetitions(side)
-                    plt.plot(repeat[start:start+num], '-+',
-                             label='repeat')
-                    plt.plot(transitions[start:start+num], '-+',
-                             label='transitions')
-                    plt.plot(perf_hist[start:start+num], '-+',
-                             label='perf_hist')
-                    plt.plot(perf[start:start+num], '-+', label='performance')
-                    plt.plot(mask[start:start+num]-2, '-+', label='mask')
-                    if legend:
-                        plt.legend()
                 popt_next, _ = bias_calculation(ch, ev, mask)
                 mat_biases.append([popt[1], ind_perf,
                                    ind_tr/(values.shape[0]-1), conv_window,
@@ -1796,7 +1799,7 @@ def batch_analysis(main_folder, trials_fig=True,
     num_units = [32]  # [32, 64]
     tot_num_steps = int(1e8)  # [1e9]
     stim_ev = [.5]  # [.3, .6, 1.]
-    net_type = ['cont_rnn']  # ['twin_net', 'cont_rnn']
+    net_type = ['twin_net', 'cont_rnn']  # ['twin_net', 'cont_rnn']
     params_config = itertools.product(net_type, stim_ev, num_units,
                                       n_steps, bl_d)
     for conf in params_config:
