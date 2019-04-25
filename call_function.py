@@ -20,9 +20,8 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
                   run_folder='/rigel/home/mm5514/',
                   ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
                   net_type='twin_net', num_stps_env=1e9, load_path='',
-                  save=True, nsteps=20, inst=0):
+                  save=True, nsteps=20, inst=0, alg='a2c'):
     seed = datetime.now().microsecond
-    alg = 'a2c'
     env = 'RDM-v0'
     num_env = 24
     tot_num_stps = num_stps_env*num_env
@@ -133,7 +132,7 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     return command, save_path
 
 
-def produce_sh_files(cluster='hab'):
+def produce_sh_files(cluster='hab', alg='a2c'):
     if cluster == 'hab':
         save_folder = '/rigel/theory/users/mm5514/'
         run_folder = '/rigel/home/mm5514/'
@@ -171,7 +170,7 @@ def produce_sh_files(cluster='hab'):
                                bl_dur=conf[1], num_u=conf[2],
                                net_type=conf[5], num_stps_env=num_steps_env,
                                load_path=load_path, stimEv=conf[3],
-                               nsteps=conf[4], save=False)
+                               nsteps=conf[4], save=False, alg=alg)
         cmmd += aux
         file.write(cmmd)
         file.close()
@@ -315,6 +314,6 @@ def main(args):
 
 
 if __name__ == '__main__':
-    produce_sh_files()
+    produce_sh_files(alg='supervised')
     #    asdsad
     #    main(sys.argv)
