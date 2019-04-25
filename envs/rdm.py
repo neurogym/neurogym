@@ -170,7 +170,8 @@ class RDM(ngym.ngym):
 
         if new_trial:
             info['new_trial'] = True
-            info['gt'] = trial['ground_truth']
+            info['gt'] = np.zeros((3,))
+            info['gt'][trial['ground_truth']+1] = 1
             self.t = 0
             self.num_tr += 1
             # compute perf
@@ -179,6 +180,8 @@ class RDM(ngym.ngym):
                                        self.num_tr_perf, tr_perf)
         else:
             self.t += self.dt
+            info['gt'] = np.zeros((3,))
+            info['gt'][1] = 1
 
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info, new_trial
