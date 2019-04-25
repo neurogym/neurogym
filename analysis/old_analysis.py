@@ -6,7 +6,7 @@ Created on Thu Apr 25 09:55:06 2019
 @author: linux
 """
 import sys
-import numy as np
+import numpy as np
 from pathlib import Path
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
