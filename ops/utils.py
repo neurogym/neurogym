@@ -122,3 +122,9 @@ def get_fig(display_mode=True):
     plt.subplots_adjust(left=left, bottom=bottom, right=right,
                         top=top, wspace=wspace, hspace=hspace)
     return f
+
+
+def order_by_sufix(file_list):
+    sfx = [int(x[x.rfind('_')+1:x.rfind('.')]) for x in file_list]
+    sorted_list = [x for _, x in sorted(zip(sfx, file_list))]
+    return sorted_list

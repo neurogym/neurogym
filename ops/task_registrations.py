@@ -14,7 +14,7 @@ import gym
 #              'readysetgo', 'DelayedMatchSample-v0', 'DawTwoStep-v0',
 #              'MatchingPenny-v0', 'Bandit-v0']
 all_tasks = {'Mante-v0': 'mante:Mante', 'Romo-v0': 'romo:Romo',
-             'RDM-v0': 'rdm:RDM', 'padoaSch-v0': 'padoa_sch:PadoaSch',
+             'RDM-v0': 'neurogym.envs.rdm:RDM', 'padoaSch-v0': 'padoa_sch:PadoaSch',
              'pdWager-v0': 'pd_wager:PDWager', 'DPA-v0': 'dpa:DPA',
              'GNG-v0': 'gng:GNG', 'ReadySetGo-v0': 'readysetgo:ReadySetGo',
              'DelayedMatchSample-v0': 'delaymatchsample:DelayedMatchToSample',

@@ -7,7 +7,8 @@ Created on Fri Mar  1 11:48:59 2019
 """
 
 from gym.core import Wrapper
-import tasktools
+from neurogym.ops import tasktools
+
 
 
 class TrialHistory(Wrapper):
@@ -54,7 +55,7 @@ class TrialHistory(Wrapper):
         obs, reward, done, info, new_trial = self.env._step(action)
 
         if new_trial:
-            info['rep_prob'] = self.rep_prob
+            info['rep_prob'] = self.rep_prob[self.curr_block]
             self.env.trial = self._new_trial()
 
         return obs, reward, done, info

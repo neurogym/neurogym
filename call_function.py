@@ -6,28 +6,31 @@ Created on Thu Mar 14 08:20:00 2019
 @author: linux
 """
 import os
-import utils as ut
 import numpy as np
 import itertools
 import matplotlib
 from pathlib import Path
+from datetime import datetime
+from neurogym.ops import utils as ut
 home = str(Path.home())
 matplotlib.use('Agg')
 
 
-def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
+def build_command(save_folder='/rigel/theory/users/mm5514/',
+                  run_folder='/rigel/home/mm5514/',
+                  ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
                   net_type='twin_net', num_stps_env=1e9, load_path='',
-                  save=True, nsteps=20, inst=0):
-    alg = 'a2c'
+                  save=True, nsteps=20, inst=0, alg='a2c'):
+    seed = datetime.now().microsecond
     env = 'RDM-v0'
-    num_env = 10
+    num_env = 24
     tot_num_stps = num_stps_env*num_env
     num_steps_per_logging = 1000000
     li = num_steps_per_logging / nsteps
-    ent_coef = 0.1
+    ent_coef = 0.05  # 0.1
     lr = 1e-3
     lr_sch = 'constant'
-    gamma = 0.9
+    gamma = .8  # 0.9
     if net_type == 'twin_net':
         nlstm = num_u // 2
     else:
@@ -75,8 +78,8 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
     else:
         load_path_cmmd = ' --load_path=' + load_path
 
-    save_path = home + '/neurogym/' + alg + '_' + env + timing_flag + \
-        tr_h_flag + ps_rw_flag + ps_a_flag + '_' + net_type
+    save_path = save_folder + alg + '_' + env +\
+        timing_flag + tr_h_flag + ps_rw_flag + ps_a_flag + '_' + net_type
     save_path += '_ec_' + str(ent_coef)
     save_path += '_lr_' + str(lr)
     save_path += '_lrs_' + lr_sch
@@ -86,14 +89,14 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
     save_path += '_ne_' + str(num_env)
     save_path += '_nu_' + str(nlstm)
     save_path += '_ev_' + str(stimEv)
-    save_path += '_' + str(inst)
+    save_path += '_' + str(seed)
     save_path = save_path.replace('-v0', '')
     save_path = save_path.replace('constant', 'c')
     save_path = save_path.replace('linear', 'l')
     # load_path = save_path + '/checkpoints/00020'
     if not os.path.exists(save_path) and save:
         os.mkdir(save_path)
-    command = 'python -m baselines.run --alg=' + alg
+    command = run_folder + 'run.py --alg=' + alg
     command += ' --env=' + env
     command += ' --network=' + net_type
     command += ' --nsteps=' + str(nsteps)
@@ -107,12 +110,13 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
     command += ' --save_path=' + save_path
     command += ' --nlstm=' + str(nlstm)
     command += ' --stimEv=' + str(stimEv)
+    command += ' --seed=' + str(seed)
     command += tr_h_cmmd
     command += ps_rw_cmmd
     command += ps_a_cmmd
     command += timing_cmmd
     command += load_path_cmmd
-    command += ' --figs=True'
+    # command += ' --figs=True'
     print('Path: ')
     print(save_path)
     if save:
@@ -128,27 +132,192 @@ def build_command(ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
     return command, save_path
 
 
-if __name__ == '__main__':
-    pass_reward = [True]
-    pass_action = [True]
+def produce_sh_files(cluster='hab', alg='a2c', hours='120'):
+    if cluster == 'hab':
+        save_folder = '/rigel/theory/users/mm5514/'
+        run_folder = '/rigel/home/mm5514/'
+    else:
+        save_folder = '/gpfs/projects/hcli64/manuel/results/'
+        run_folder = '/gpfs/projects/hcli64/manuel/code/'
+    home = str(Path.home())
+    pass_reward = True
+    pass_action = True
     bl_dur = [200]
-    num_units = [64]
-    net_type = ['twin_net']  # ['twin_net', 'cont_rnn']
-    num_steps_env = [1e8]  # [1e9]
-    stim_ev = [1.]
-    batch_size = [20]
-    insts = np.arange(5)
+    num_units = [32, 16]  # [32, 64]
+    net_type = ['cont_rnn']  # ['twin_net', 'cont_rnn']
+    num_steps_env = 1e7  # [1e9]
+    stim_ev = [.5]  # [.3, .6, 1.]
+    batch_size = [20, 12]  # [5, 20]
+    insts = np.arange(10)
     load_path = ''  # '/home/linux/00010'
-    params_config = itertools.product(insts, pass_reward, pass_action, bl_dur,
-                                      num_units, net_type, num_steps_env,
-                                      stim_ev, batch_size)
+    params_config = itertools.product(batch_size,
+                                      bl_dur,
+                                      num_units,
+                                      stim_ev,
+                                      net_type,
+                                      insts)
+    main_file = file = open(home + '/scripts/main_' + cluster + '.sh', 'w')
+    command = specs(cluster=cluster, hours='1')
+    main_file.write(command)
+
+    for conf in params_config:
+        name = 'scripts/' + str(conf[1]) + '_' + str(conf[2]) +\
+            '_' + str(conf[3]) + '_' + str(conf[4]) + '_' +\
+            str(conf[5]) + '_' + str(conf[0]) + '_' + cluster + '.sh'
+        main_file.write('sbatch ' + name + '\n')
+        main_file.write('sleep 10\n')
+        file = open(home + '/' + name, 'w')
+        cmmd = specs(conf=conf, cluster=cluster, hours=hours)
+        aux, _ = build_command(save_folder=save_folder, run_folder=run_folder,
+                               inst=conf[5], ps_r=pass_reward,
+                               ps_act=pass_action,
+                               bl_dur=conf[1], num_u=conf[2],
+                               net_type=conf[4], num_stps_env=num_steps_env,
+                               load_path=load_path, stimEv=conf[3],
+                               nsteps=conf[0], save=False, alg=alg)
+        cmmd += aux
+        file.write(cmmd)
+        file.close()
+    main_file.close()
+
+
+def specs(conf=None, cluster='hab', hours='120'):
+    command = ''
+    command += '#!/bin/sh\n'
+    if cluster == 'hab':
+        command += '#SBATCH --account=theory\n'
+        if conf is None:
+            command += '#SBATCH --job-name=RUN\n'
+            command += '#SBATCH -c 1\n'
+            command += '#SBATCH --time=0:30:00\n'
+            command += '#SBATCH --mem-per-cpu=128gb\n'
+        else:
+            name = str(conf[2])
+            for ind in range(3, len(conf)):
+                name += '_' + str(conf[ind])
+            command += '#SBATCH --job-name=' + name + '\n'
+            command += '#SBATCH --cpus-per-task=24\n'
+            command += '#SBATCH --time=' + hours + ':00:00\n'
+            command += '#SBATCH --mem-per-cpu=5gb\n'
+            command += '#SBATCH --exclusive\n'
+            command += 'module load anaconda/3-5.1\n'
+            command += 'module load tensorflow/anaconda3-5.1.0/1.7.0\n'
+    else:
+        if conf is None:
+            command += '#SBATCH --job-name=RUN\n'
+            command += '#SBATCH -c 1\n'
+            command += '#SBATCH --time=0:30:00\n'
+        else:
+            name = str(conf[2])
+            for ind in range(3, len(conf)):
+                name += '_' + str(conf[ind])
+            command += '#SBATCH --job-name=' + name + '\n'
+            command += '#SBATCH --cpus-per-task=40\n'
+            command += '#SBATCH --time=48:00:00\n'
+            command += '#SBATCH --exclusive\n'
+            command += 'module purge\n'
+            command += 'module load gcc/6.4.0\n'
+            command += 'module load cuda/9.1\n'
+            command += 'module load cudnn/7.1.3\n'
+            command += 'module load openmpi/3.0.0\n'
+            command += 'module load atlas/3.10.3\n'
+            command += 'module load scalapack/2.0.2\n'
+            command += 'module load fftw/3.3.7\n'
+            command += 'module load szip/2.1.1\n'
+            command += 'module load opencv/3.4.1\n'
+            command += 'module load python/3.6.5_ML\n'
+
+    return command
+
+
+def specs_bsc(conf=None):
+    command = ''
+    command += '#!/bin/sh\n'
+    if conf is None:
+        command += '#SBATCH --job-name=RUN\n'
+        command += '#SBATCH -c 1\n'
+        command += '#SBATCH --time=0:30:00\n'
+    else:
+        name = str(conf[2])
+        for ind in range(3, len(conf)):
+            name += '_' + str(conf[ind])
+        command += '#SBATCH --job-name=' + name + '\n'
+        command += '#SBATCH --cpus-per-task=40\n'
+        command += '#SBATCH --time=48:00:00\n'
+        command += '#SBATCH --exclusive\n'
+        command += 'module load anaconda/3-5.1\n'
+        command += 'module load tensorflow/anaconda3-5.1.0/1.7.0\n'
+    return command
+
+
+def arg_parser():
+    """
+    Create an empty argparse.ArgumentParser.
+    """
+    import argparse
+    aadhf = argparse.ArgumentDefaultsHelpFormatter
+    return argparse.ArgumentParser(formatter_class=aadhf)
+
+
+def neuro_arg_parser():
+    """
+    Create an argparse.ArgumentParser for neuro environments
+    """
+    parser = arg_parser()
+    parser.add_argument('--num_insts',
+                        help='number of instances to run',
+                        type=int, default=1)
+    parser.add_argument('--pass_reward',
+                        help='whether to pass the prev. reward with obs',
+                        type=bool, default=True)
+    parser.add_argument('--pass_action',
+                        help='whether to pass the prev. action with obs',
+                        type=bool, default=True)
+    parser.add_argument('--net_type', help='type of architecture',
+                        type=str, default='twin_net')
+    parser.add_argument('--num_u',
+                        help='number of total units',
+                        type=int, nargs='+', default=(32,))
+    parser.add_argument('--n_steps',
+                        help='rollout',
+                        type=float, nargs='+', default=(20,))
+    parser.add_argument('--bl_dur',
+                        help='dur. of block in the trial-hist wrappr (trials)',
+                        type=int, nargs='+', default=(200,))
+    parser.add_argument('--stimEv', help='allows scaling stimulus evidence',
+                        type=float, nargs='+', default=(1.,))
+    return parser
+
+
+def main(args):
+    arg_parser = neuro_arg_parser()
+    args, unknown_args = arg_parser.parse_known_args(args)
+    pass_reward = args.pass_reward
+    pass_action = args.pass_action
+    bl_dur = args.bl_dur
+    num_units = args.num_u
+    net_type = args.net_type
+    num_steps_env = 1e7  # [1e9]
+    stim_ev = args.stimEv
+    batch_size = args.n_steps
+    insts = np.arange(args.num_insts)
+    load_path = ''  # '/home/linux/00010'
+    params_config = itertools.product(insts, bl_dur, num_units, stim_ev,
+                                      batch_size)
     batch_command = ''
     for conf in params_config:
         print('---------------------------------------------')
-        cmmd, _ = build_command(inst=conf[0], ps_r=conf[1], ps_act=conf[2],
-                                bl_dur=conf[3], num_u=conf[4],
-                                net_type=conf[5], num_stps_env=conf[6],
-                                load_path=load_path, stimEv=conf[7],
-                                nsteps=conf[8])
+        cmmd, _ = build_command(inst=conf[0], ps_r=pass_reward,
+                                ps_act=pass_action,
+                                bl_dur=conf[1], num_u=conf[2],
+                                net_type=net_type, num_stps_env=num_steps_env,
+                                load_path=load_path, stimEv=conf[3],
+                                nsteps=conf[4])
         batch_command += cmmd + '\n'
     os.system(batch_command)
+
+
+if __name__ == '__main__':
+    produce_sh_files(alg='supervised', hours='4')
+    #    asdsad
+    #    main(sys.argv)

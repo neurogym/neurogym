@@ -19,8 +19,8 @@ from __future__ import division
 
 import numpy as np
 from gym import spaces
-import tasktools
-import ngym
+from neurogym.ops import tasktools
+from neurogym.envs import ngym
 
 
 class RDM(ngym.ngym):
@@ -36,8 +36,8 @@ class RDM(ngym.ngym):
 
         # trial conditions
         self.choices = [-1, 1]
-        self.cohs = np.logspace(-6, 6, num=20, base=2)*stimEv
-        # self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
+        # self.cohs = np.logspace(-6, 6, num=20, base=2)*stimEv
+        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
 
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
@@ -170,7 +170,8 @@ class RDM(ngym.ngym):
 
         if new_trial:
             info['new_trial'] = True
-            info['gt'] = trial['ground_truth']
+            info['gt'] = np.zeros((3,))
+            info['gt'][int((trial['ground_truth']/2+1.5))] = 1
             self.t = 0
             self.num_tr += 1
             # compute perf
@@ -179,6 +180,8 @@ class RDM(ngym.ngym):
                                        self.num_tr_perf, tr_perf)
         else:
             self.t += self.dt
+            info['gt'] = np.zeros((3,))
+            info['gt'][0] = 1
 
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info, new_trial
