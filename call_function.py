@@ -132,7 +132,7 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     return command, save_path
 
 
-def produce_sh_files(cluster='hab', alg='a2c'):
+def produce_sh_files(cluster='hab', alg='a2c', hours='120'):
     if cluster == 'hab':
         save_folder = '/rigel/theory/users/mm5514/'
         run_folder = '/rigel/home/mm5514/'
@@ -143,17 +143,21 @@ def produce_sh_files(cluster='hab', alg='a2c'):
     pass_reward = True
     pass_action = True
     bl_dur = [200]
-    num_units = [44]  # [32, 64]
+    num_units = [22, 11]  # [32, 64]
     net_type = ['twin_net']  # ['twin_net', 'cont_rnn']
-    num_steps_env = 1e8  # [1e9]
+    num_steps_env = 1e7  # [1e9]
     stim_ev = [.5]  # [.3, .6, 1.]
-    batch_size = [20]  # [5, 20]
+    batch_size = [20, 12]  # [5, 20]
     insts = np.arange(10)
     load_path = ''  # '/home/linux/00010'
-    params_config = itertools.product(insts, bl_dur, num_units, stim_ev,
-                                      batch_size, net_type)
+    params_config = itertools.product(batch_size,
+                                      bl_dur,
+                                      num_units,
+                                      stim_ev,
+                                      net_type,
+                                      insts)
     main_file = file = open(home + '/scripts/main_' + cluster + '.sh', 'w')
-    command = specs(cluster=cluster)
+    command = specs(cluster=cluster, hours='1')
     main_file.write(command)
 
     for conf in params_config:
@@ -163,21 +167,21 @@ def produce_sh_files(cluster='hab', alg='a2c'):
         main_file.write('sbatch ' + name + '\n')
         main_file.write('sleep 10\n')
         file = open(home + '/' + name, 'w')
-        cmmd = specs(conf=conf, cluster=cluster)
+        cmmd = specs(conf=conf, cluster=cluster, hours=hours)
         aux, _ = build_command(save_folder=save_folder, run_folder=run_folder,
-                               inst=conf[0], ps_r=pass_reward,
+                               inst=conf[5], ps_r=pass_reward,
                                ps_act=pass_action,
                                bl_dur=conf[1], num_u=conf[2],
-                               net_type=conf[5], num_stps_env=num_steps_env,
+                               net_type=conf[4], num_stps_env=num_steps_env,
                                load_path=load_path, stimEv=conf[3],
-                               nsteps=conf[4], save=False, alg=alg)
+                               nsteps=conf[0], save=False, alg=alg)
         cmmd += aux
         file.write(cmmd)
         file.close()
     main_file.close()
 
 
-def specs(conf=None, cluster='hab'):
+def specs(conf=None, cluster='hab', hours='120'):
     command = ''
     command += '#!/bin/sh\n'
     if cluster == 'hab':
@@ -193,7 +197,7 @@ def specs(conf=None, cluster='hab'):
                 name += '_' + str(conf[ind])
             command += '#SBATCH --job-name=' + name + '\n'
             command += '#SBATCH --cpus-per-task=24\n'
-            command += '#SBATCH --time=120:00:00\n'
+            command += '#SBATCH --time=' + hours + ':00:00\n'
             command += '#SBATCH --mem-per-cpu=5gb\n'
             command += '#SBATCH --exclusive\n'
             command += 'module load anaconda/3-5.1\n'
@@ -314,6 +318,6 @@ def main(args):
 
 
 if __name__ == '__main__':
-    produce_sh_files(alg='supervised')
+    produce_sh_files(alg='supervised', hours='4')
     #    asdsad
     #    main(sys.argv)
