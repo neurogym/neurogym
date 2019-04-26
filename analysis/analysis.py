@@ -979,7 +979,7 @@ def perf_cond_on_stim_ev(file='/home/linux/PassAction.npz', save_path='',
     plt.ylabel('count')
 
 
-def simple_agent(file='/home/linux/PassReward0_data.npz', alpha=0.5):
+def simple_agent(file='/home/linux/PassReward0_data.npz', alpha=0.5, noise=0):
     """
     tests performance and bias of an agent that just applies a simple kernel
     to the transition history. See figure in the if ... and False for an
@@ -987,30 +987,56 @@ def simple_agent(file='/home/linux/PassReward0_data.npz', alpha=0.5):
     infer the 'block' from the transition values at t-2, measure the
     performance at t-1 and compute the bias at t.
     """
-    num = 50
+    num = 40
     data = np.load(file)
     correct_side = data['correct_side']
     stimulus = data['stimulus']
     evidence = stimulus[:, 1] - stimulus[:, 2]
-    correct_side[np.where(correct_side == -1)] = 2
-    correct_side = np.abs(correct_side-3)
+    evidence += np.random.normal(scale=noise, size=evidence.shape)
     rep_side = get_repetitions(correct_side)
     kernel = np.array([1, 1/2, 1/4, 1/8])
     kernel /= np.sum(kernel)
     bias = np.convolve(rep_side,
                        kernel, mode='full')[0:-kernel.shape[0]+1]
-    bias = np.concatenate((np.array([0]), bias[:-1]))
+    bias = (np.concatenate((np.array([0]), bias[:-1]))-0.5)*2
+    ut.get_fig()
+    plt.hist(bias)
+    plt.xlabel('transition bias')
     choice = np.zeros_like(bias)
-    choice[0] = ((evidence[0] < 0)-0.5)*2
+    stim_comp = np.zeros_like(bias)
+    hist_comp = np.zeros_like(bias)
+    choice[0] = ((evidence[0] > 0)-0.5)*2
     prev_ch = choice[0]
     for ind_tr in range(1, evidence.shape[0]):
-        choice[ind_tr] = (((1-alpha)*(evidence[ind_tr] +
-                                      alpha*prev_ch*bias[ind_tr]) < 0)-0.5)*2
+        stim_comp[ind_tr] = -(1-alpha)*evidence[ind_tr]
+        hist_comp[ind_tr] = alpha*prev_ch*bias[ind_tr]
+        choice[ind_tr] = ((stim_comp[ind_tr] + hist_comp[ind_tr] > 0)-0.5)*2
         prev_ch = choice[ind_tr]
 
     choice[np.where(choice == -1)] = 2
     choice = np.abs(choice-3)
+    correct_side[np.where(correct_side == -1)] = 2
+    correct_side = np.abs(correct_side-3)
+    #
     performance = (choice == correct_side)
+    ut.get_fig()
+    for ind in range(num):
+        plt.plot([ind, ind], [-1, 1], '--', color=(.8, .8, .8))
+    rep_choice = get_repetitions(choice)
+    plt.subplot(2, 1, 1)
+    plt.plot(rep_choice[:num], '+-', label='repetition')
+    plt.plot(rep_side[:num], '+-', label='repetition (gt)')
+    plt.plot(bias[:num], '+-', label='bias')
+    plt.legend()
+    plt.subplot(2, 1, 2)
+    plt.plot(choice[:num], '+-', label='choice')
+    plt.plot(correct_side[:num], '+-', label='correct side')
+    plt.plot(stim_comp[:num], '+-', label='evidence')
+    plt.plot(hist_comp[:num], '+-', label='history')
+    plt.plot(performance[:num]-1, '+-', label='performance')
+    plt.plot([0, num], [0, 0])
+    plt.legend()
+    # asdasd
     rep_prob = build_block_mat(choice.shape, block_dur=200,
                                corr_side=correct_side)
     #    print(choice[:20])
@@ -1026,7 +1052,6 @@ def simple_agent(file='/home/linux/PassReward0_data.npz', alpha=0.5):
                   evidence[start_point:start_point+num_tr],
                   correct_side[start_point:start_point+num_tr],
                   w_conv=1000, legend=True)
-    asdasddsa
     plt.subplot(3, 2, 2)
     bias_across_training(choice, evidence, performance,
                          rep_prob=rep_prob, fig=False,
@@ -1057,59 +1082,6 @@ def simple_agent(file='/home/linux/PassReward0_data.npz', alpha=0.5):
     plt.plot(np.flip(kernel))
     plt.ylabel('weights')
     plt.xlabel('previous transitions')
-    ut.get_fig()
-    plt.hist(bias)
-    plt.xlabel('transition bias')
-    decision = ((bias > 0)-0.5)*2
-    perf = (rep_side == decision)
-    print(np.mean(perf))
-    conv_window = 4
-    transitions = get_transition_mat(correct_side, conv_window=conv_window)
-    values = np.unique(transitions)
-    margin = 0
-    max_tr = values.shape[0]-margin
-    mat_biases = np.empty((conv_window-2*margin+1, 2, 2))
-    for ind_perf in range(2):
-        for ind_tr in range(margin, max_tr):
-            mask = np.logical_and(transitions == values[ind_tr],
-                                  perf == ind_perf)
-            mask = np.concatenate((np.array([False]), mask[:-1]))
-            if ind_tr == 0 and ind_perf == 1 and False:
-                start = 0
-                plt.plot(rep_side[start:start+num], '-+',
-                         label='correct transition')
-                plt.plot(transitions[start:start+num], '-+',
-                         label='transitions')
-                plt.plot(bias[start:start+num], '-+', label='bias')
-                plt.plot(perf[start:start+num], '-+', label='performance')
-                plt.plot(mask[start:start+num], '-+', label='mask')
-                plt.legend()
-                plt.figure()
-                plt.hist(bias[mask])
-                print(mask)
-                print(np.where(mask > 0))
-                print(np.where(bias[mask] > -0.1))
-                print(bias[mask].shape)
-
-            mat_biases[ind_tr, ind_perf, 0] = np.mean(bias[mask])
-            mat_biases[ind_tr, ind_perf, 1] =\
-                np.std(np.abs(bias[mask]))  # /np.sqrt(bias[mask].shape[0])
-    ut.get_fig()
-    plt.errorbar(values, mat_biases[:, 0, 0],
-                 mat_biases[:, 0, 1], label='after error')
-    plt.errorbar(values, mat_biases[:, 1, 0],
-                 mat_biases[:, 1, 1], label='after correct')
-    plt.plot([np.min(values), np.max(values)], [0, 0], '--')
-    plt.legend()
-    plt.xlabel('transition evidence')
-    plt.ylabel('transition bias')
-    ut.get_fig()
-    plt.plot(rep_side[:num], '-+', label='correct transition')
-    # plt.plot(bias[:num], '-+', label='bias')
-    # plt.plot(decision[:num], '-+', label='decision')
-    plt.plot(transitions[:num], '-+', label='transitions bias')
-    plt.xlabel('trials')
-    plt.legend()
 
 
 def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
@@ -1462,7 +1434,8 @@ def batch_analysis(main_folder, trials_fig=True,
 
 if __name__ == '__main__':
     plt.close('all')
-    simple_agent(file='/home/linux/simple_agent/bhvr_data_all.npz', alpha=1)
+    simple_agent(file='/home/linux/simple_agent/bhvr_data_all.npz',
+                 alpha=0.5, noise=0.0)
     asdasd
     if len(sys.argv) > 1:
         main_folder = sys.argv[1]
