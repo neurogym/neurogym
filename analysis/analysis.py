@@ -1342,6 +1342,7 @@ def batch_analysis(main_folder, trials_fig=True,
     #    n_envs = 10  # 12
     #    env = 0
     #    obs_size = 5  # 4
+    alg = ['supervised']
     n_steps = [20, 12]  # [5, 20]
     num_units = 64  # 128
     # params to get folder
@@ -1353,7 +1354,7 @@ def batch_analysis(main_folder, trials_fig=True,
     stim_ev = [.5]  # [.3, .6, 1.]
     net_type = ['cont_rnn']  # ['twin_net', 'cont_rnn']
     params_config = itertools.product(net_type, stim_ev, num_units,
-                                      n_steps, bl_d)
+                                      n_steps, bl_d, alg)
     for conf in params_config:
         print('------------------------')
         print(conf)
@@ -1363,7 +1364,7 @@ def batch_analysis(main_folder, trials_fig=True,
                                      nsteps=conf[3], stimEv=conf[1],
                                      net_type=conf[0],
                                      num_stps_env=tot_num_steps,
-                                     save=False)
+                                     save=False, alg=conf[5])
         folder = os.path.basename(os.path.normpath(folder + '/'))
         undscr_ind = folder.rfind('_')
         folder_name = folder[:undscr_ind]

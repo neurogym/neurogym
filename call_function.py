@@ -143,7 +143,7 @@ def produce_sh_files(cluster='hab', alg='a2c', hours='120'):
     pass_reward = True
     pass_action = True
     bl_dur = [200]
-    num_units = [22, 11]  # [32, 64]
+    num_units = [22, 44]  # [32, 64]
     net_type = ['twin_net']  # ['twin_net', 'cont_rnn']
     num_steps_env = 1e7  # [1e9]
     stim_ev = [.5]  # [.3, .6, 1.]
