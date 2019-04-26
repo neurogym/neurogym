@@ -1342,16 +1342,16 @@ def batch_analysis(main_folder, trials_fig=True,
     #    n_envs = 10  # 12
     #    env = 0
     #    obs_size = 5  # 4
-    n_steps = [20]  # [5, 20]
+    n_steps = [20, 12]  # [5, 20]
     num_units = 64  # 128
     # params to get folder
     pass_reward = True
     pass_action = True
     bl_d = [200]
-    num_units = [32, 44]  # [32, 64]
-    tot_num_steps = int(1e8)  # [1e9]
+    num_units = [32, 16]  # [32, 64]
+    tot_num_steps = int(1e7)  # [1e9]
     stim_ev = [.5]  # [.3, .6, 1.]
-    net_type = ['twin_net', 'cont_rnn']  # ['twin_net', 'cont_rnn']
+    net_type = ['cont_rnn']  # ['twin_net', 'cont_rnn']
     params_config = itertools.product(net_type, stim_ev, num_units,
                                       n_steps, bl_d)
     for conf in params_config:
@@ -1434,9 +1434,6 @@ def batch_analysis(main_folder, trials_fig=True,
 
 if __name__ == '__main__':
     plt.close('all')
-    simple_agent(file='/home/linux/simple_agent/bhvr_data_all.npz',
-                 alpha=0.5, noise=0.0)
-    asdasd
     if len(sys.argv) > 1:
         main_folder = sys.argv[1]
     else:
