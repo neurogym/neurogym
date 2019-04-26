@@ -8,13 +8,15 @@ Created on Thu Apr 25 09:55:06 2019
 import sys
 import numpy as np
 from pathlib import Path
-import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+import matplotlib
 home = str(Path.home())
 sys.path.append(home + '/neurogym')
 from neurogym.analysis import analysis as an
 from neurogym.ops import utils as ut
-display_mode = True
+matplotlib.use('Agg')  # Qt5Agg
+import matplotlib.pyplot as plt
+display_mode = False
 DPI = 400
 
 
