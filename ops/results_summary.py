@@ -61,7 +61,7 @@ def explore_folder(main_folder):
     for ind_f in range(len(folders)):
         file = folders[ind_f] + '/params.npz'
         if os.path.exists(file):
-            args = np.load(file)
+            args = load(file)
             if len(experiments) == 0:
                 experiments.append([args])
                 group = 0
@@ -71,7 +71,10 @@ def explore_folder(main_folder):
             # count number of trials
             ptf.put_files_together(folders[ind_f], min_num_trials=1)
             data = np.load(folders[ind_f] + '/bhvr_data_all.npz')
-            num_trials[group].append(data['choice'].shape[0])
+            if len(num_trials) == 0:
+                num_trials.append(data['choice'].shape[0])
+            else:
+                num_trials[group] = data['choice'].shape[0]
     args = experiments[0][0]
     p_exp = {k: args[k] for k in args if k not in params_explored}
     print('common params')
