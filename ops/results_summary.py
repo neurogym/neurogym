@@ -30,7 +30,7 @@ def compare_dicts(x, y):
     assert len(x) == len(y)
     shared_items = {k: x[k] for k in x if k in y and x[k] == y[k]}
     non_shared_items = {k: x[k] for k in x if k in y and x[k] != y[k]}
-    if len(shared_items) == len(args)-1 and 'seed' in non_shared_items.keys():
+    if len(shared_items) == len(x)-1 and 'seed' in non_shared_items.keys():
         return True, []
     else:
         shared_items = {k: x[k] for k in x if k in y and x[k] != y[k]}
@@ -49,7 +49,7 @@ def check_new_exp(experiments, args, params_explored):
         params_explored.update(non_shared)
     if new:
         experiments.append([args])
-        group = ind_exps
+        group = len(experiments) - 1
     return experiments, params_explored, group
 
 
@@ -62,11 +62,17 @@ def explore_folder(main_folder):
         file = folders[ind_f] + '/params.npz'
         if os.path.exists(file):
             args = np.load(file)
-            experiments, params_explored, group =\
-                check_new_exp(experiments, args, params_explored)
+            if len(experiments) == 0:
+                experiments.append([args])
+                group = 0
+            else:
+                experiments, params_explored, group =\
+                    check_new_exp(experiments, args, params_explored)
+            # count number of trials
             ptf.put_files_together(folders[ind_f], min_num_trials=1)
             data = np.load(folders[ind_f] + '/bhvr_data_all.npz')
             num_trials[group].append(data['choice'].shape[0])
+    args = experiments[0][0]
     p_exp = {k: args[k] for k in args if k not in params_explored}
     print('common params')
     print(p_exp)
@@ -82,4 +88,8 @@ def explore_folder(main_folder):
         
     
 if __name__ == '__main__':
-    explore_folder('/rigel/theory/users/mm5514/')
+    if len(sys.argv) > 1:
+        main_folder = sys.argv[1]
+    else:
+        main_folder = home + '/mm5514/'
+    explore_folder(main_folder)
