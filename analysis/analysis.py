@@ -16,7 +16,6 @@ sys.path.append(home + '/mm5514/')
 print(os.getcwd())
 from neurogym.ops import utils as ut
 from neurogym.ops import put_together_files as ptf
-from neurogym.analysis import old_analysis as oa
 import call_function as cf
 matplotlib.use('Agg')  # Qt5Agg
 import matplotlib.pyplot as plt

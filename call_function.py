@@ -143,11 +143,11 @@ def produce_sh_files(cluster='hab', alg='a2c', hours='120'):
     pass_reward = True
     pass_action = True
     bl_dur = [200]
-    num_units = [16, 32]  # [32, 64]
+    num_units = [32]  # [32, 64]
     net_type = ['cont_rnn']  # ['twin_net', 'cont_rnn']
     num_steps_env = 1e8  # [1e9]
     stim_ev = [.5]  # [.3, .6, 1.]
-    batch_size = [12, 20]  # [5, 20]
+    batch_size = [20]  # [5, 20]
     insts = np.arange(3)
     load_path = ''  # '/home/linux/00010'
     params_config = itertools.product(batch_size,
@@ -163,7 +163,8 @@ def produce_sh_files(cluster='hab', alg='a2c', hours='120'):
     for conf in params_config:
         name = 'scripts/' + str(conf[1]) + '_' + str(conf[2]) +\
             '_' + str(conf[3]) + '_' + str(conf[4]) + '_' +\
-            str(conf[5]) + '_' + str(conf[0]) + '_' + cluster + '.sh'
+            str(conf[5]) + '_' + str(conf[0]) + '_' + alg + '_' + hours +\
+            '_' + cluster + '.sh'
         main_file.write('sbatch ' + name + '\n')
         main_file.write('sleep 10\n')
         file = open(home + '/' + name, 'w')
@@ -181,7 +182,7 @@ def produce_sh_files(cluster='hab', alg='a2c', hours='120'):
     main_file.close()
 
 
-def specs(conf=None, cluster='hab', hours='120'):
+def specs(conf=None, cluster='hab', hours='120', alg='a2c'):
     command = ''
     command += '#!/bin/sh\n'
     if cluster == 'hab':
@@ -192,9 +193,10 @@ def specs(conf=None, cluster='hab', hours='120'):
             command += '#SBATCH --time=0:30:00\n'
             command += '#SBATCH --mem-per-cpu=128gb\n'
         else:
-            name = str(conf[2])
-            for ind in range(3, len(conf)):
+            name = alg[:3] + '_' + str(conf[2])
+            for ind in range(3, len(conf)-1):
                 name += '_' + str(conf[ind])
+            name += '_' + hours
             command += '#SBATCH --job-name=' + name + '\n'
             command += '#SBATCH --cpus-per-task=24\n'
             command += '#SBATCH --time=' + hours + ':00:00\n'
@@ -318,6 +320,6 @@ def main(args):
 
 
 if __name__ == '__main__':
-    produce_sh_files(alg='a2c', hours='48')
+    produce_sh_files(alg='supervised', hours='4')
     #    asdsad
     #    main(sys.argv)

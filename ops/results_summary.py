@@ -6,6 +6,13 @@ Created on Sat Apr 27 09:56:14 2019
 @author: linux
 """
 import numpy as np
+import glob
+import os
+from pathlib import Path
+import sys
+home = str(Path.home())
+sys.path.append(home + '/neurogym')
+from neurogym.ops import put_together_files as ptf
 
 
 def load(file='/home/linux/params.npz'):
@@ -37,25 +44,42 @@ def check_new_exp(experiments, args, params_explored):
         if same_exp:
             experiments[ind_exps].append(args)
             new = False
+            group = ind_exps
             break
         params_explored.update(non_shared)
     if new:
         experiments.append([args])
-    return experiments, params_explored
+        group = ind_exps
+    return experiments, params_explored, group
 
-    
-if __name__ == '__main__':
+
+def explore_folder(main_folder):
     params_explored = {}
     experiments = []
-    args = load()
-    experiments.append([args])
-    args2 = args.copy()
-    args2['seed'] = 12355
-    experiments, params_explored =\
-        check_new_exp(experiments, args2, params_explored)
-    args3 = args.copy()
-    args3['env'] = 'asd'
-    experiments, params_explored =\
-        check_new_exp(experiments, args3, params_explored)
-    print(experiments)
-    print(params_explored)
+    num_trials = []
+    folders = glob.glob(main_folder + '/*')
+    for ind_f in range(len(folders)):
+        file = folders[ind_f] + '/params.npz'
+        if os.path.exists(file):
+            args = np.load(file)
+            experiments, params_explored, group =\
+                check_new_exp(experiments, args, params_explored)
+            ptf.put_files_together(folders[ind_f], min_num_trials=1)
+            data = np.load(folders[ind_f] + '/bhvr_data_all.npz')
+            num_trials[group].append(data['choice'].shape[0])
+    p_exp = {k: args[k] for k in args if k not in params_explored}
+    print('common params')
+    print(p_exp)
+    print('xxxxxxxxxxxxxxxx')
+    for ind_exps in range(len(experiments)):
+        args = experiments[ind_exps][0]
+        p_exp = {k: args[k] for k in args if k in params_explored}
+        print(p_exp)
+        print('number of instances: ' + str(len(experiments[ind_exps])))
+        print('number of trials per instance:' + str(num_trials[ind_exps]))
+        print('------------------------')
+        
+        
+    
+if __name__ == '__main__':
+    explore_folder('/rigel/theory/users/mm5514/')
