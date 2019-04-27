@@ -37,7 +37,7 @@ def put_files_together(folder, min_num_trials=1e6):
         stim = data['stimulus']
         r_prob = data['rep_prob']
         side = data['correct_side']
-        side = side.reshape((side.shape[0], 1))
+        side = side.reshape((side.shape[0], -1))
         if side.shape[1] != 1:
             side = np.argmax(side, axis=1)
         else:
