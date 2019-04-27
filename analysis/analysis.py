@@ -1099,8 +1099,9 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
     ch = choice[start_point:start_point+num_tr]
     side = correct_side[start_point:start_point+num_tr]
     mat_biases = []
-    mat_conv = np.arange(1, 10)
-    mat_num_samples = np.zeros((9, 2))
+    num_trials_back = 6
+    mat_conv = np.arange(1, num_trials_back)
+    mat_num_samples = np.zeros((num_trials_back-1, 2))
     lbl_perf = ['error', 'correct']
     for conv_window in mat_conv:
         # get number of repetitions during the last conv_window trials
@@ -1211,7 +1212,8 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
     repeat_choice = get_repetitions(side)
     perf = performance[start_point:start_point+num_tr]
     mat_biases = []
-    mat_conv = np.arange(2, 10)
+    num_trials_back = 6
+    mat_conv = np.arange(2, num_trials_back)
     for conv_window in mat_conv:
         # get number of repetitions during the last conv_window trials
         # (not including the current trial)
