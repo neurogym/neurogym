@@ -21,7 +21,7 @@ import call_function as cf
 matplotlib.use('Agg')  # Qt5Agg
 import matplotlib.pyplot as plt
 
-display_mode = False
+display_mode = True
 DPI = 400
 
 ############################################
@@ -160,7 +160,7 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
     corresponding to a given environment
     """
     data = np.load(file)
-    rows = 4
+    rows = 5
     cols = 1
     # states
     states = data['states'][:, :, env, :]
@@ -174,7 +174,7 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
     actions = actions[:, env, :]
     # flatten
     actions = actions.flatten()
-    actions = np.concatenate((np.array([0]), actions[:-1]))
+    # actions = np.concatenate((np.array([0]), actions[:-1]))
     # obs and rewards (rewards are passed as part of the observation)
     obs = np.reshape(data['obs'], (-1, n_envs, num_steps, obs_size))
     obs = obs[:, env, :, :]
@@ -191,6 +191,11 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
     trials = np.concatenate((np.array([0]), trials[:-1]))
 
     if fig:
+        # get ground truth
+        gt = np.reshape(data['gt'], (-1, n_envs, num_steps, 3))
+        gt = gt[:, env, :, :]
+        gt = np.reshape(np.transpose(gt, (2, 0, 1)),
+                         (gt.shape[2], np.prod(gt.shape[0:2])))
         num_steps = 200
         ut.get_fig(display_mode)
         # FIGURE
@@ -211,6 +216,9 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
         plt.subplot(rows, cols, 4)
         plt.plot(trials[0:num_steps], '-+')
         plt.xlim([-0.5, num_steps-0.5])
+        # gt
+        plt.subplot(rows, cols, 5)
+        plt.imshow(gt[:, 0:num_steps], aspect='auto')
 
     return states, rewards, actions, ev, trials
 
@@ -1437,7 +1445,11 @@ def batch_analysis(main_folder, trials_fig=True,
 
 
 if __name__ == '__main__':
-    plt.close('all')
+    #    plt.close('all')
+    #    get_simulation_vars(file='/home/linux/network_data_76999.npz', fig=True,
+    #                        n_envs=24, env=0, num_steps=20, obs_size=5,
+    #                        num_units=32)
+    #    asdasd
     if len(sys.argv) > 1:
         main_folder = sys.argv[1]
     else:
