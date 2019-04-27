@@ -13,6 +13,8 @@ import sys
 home = str(Path.home())
 sys.path.append(home + '/neurogym')
 from neurogym.ops import put_together_files as ptf
+non_relevant_params = {'seed': 0, 'save_path': 0, 'log_interval': 0,
+                       'num_timesteps': 0}
 
 
 def load(file='/home/linux/params.npz'):
@@ -28,13 +30,16 @@ def load(file='/home/linux/params.npz'):
 
 def compare_dicts(x, y):
     assert len(x) == len(y)
-    shared_items = {k: x[k] for k in x if k in y and x[k] == y[k]}
     non_shared_items = {k: x[k] for k in x if k in y and x[k] != y[k]}
-    if len(shared_items) == len(x)-1 and 'seed' in non_shared_items.keys():
-        return True, []
-    else:
-        shared_items = {k: x[k] for k in x if k in y and x[k] != y[k]}
+    different = False
+    for param in non_shared_items.keys():
+        if param not in non_relevant_params.keys():
+            different = True
+            break
+    if different:
         return False, non_shared_items
+    else:
+        return True, []
  
 
 def check_new_exp(experiments, args, params_explored):
@@ -82,6 +87,10 @@ def explore_folder(main_folder):
                 num_trials.append([num_tr])
             else:
                 num_trials[group].append(num_tr)
+
+    params_explored = {k: args[k] for k in params_explored 
+                       if k not in non_relevant_params}
+
     args = experiments[0][0]
     p_exp = {k: args[k] for k in args if k not in params_explored}
     print('common params')
