@@ -20,7 +20,7 @@ import call_function as cf
 matplotlib.use('Agg')  # Qt5Agg
 import matplotlib.pyplot as plt
 
-display_mode = True
+display_mode = False
 DPI = 400
 
 ############################################
@@ -188,13 +188,13 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
     trials = trials[:, env, :]
     trials = trials.flatten()
     trials = np.concatenate((np.array([0]), trials[:-1]))
-
+    # get ground truth
+    gt = np.reshape(data['gt'], (-1, n_envs, num_steps, 3))
+    gt = gt[:, env, :, :]
+    gt = np.reshape(np.transpose(gt, (2, 0, 1)),
+                     (gt.shape[2], np.prod(gt.shape[0:2])))
     if fig:
-        # get ground truth
-        gt = np.reshape(data['gt'], (-1, n_envs, num_steps, 3))
-        gt = gt[:, env, :, :]
-        gt = np.reshape(np.transpose(gt, (2, 0, 1)),
-                         (gt.shape[2], np.prod(gt.shape[0:2])))
+
         num_steps = 200
         ut.get_fig(display_mode)
         # FIGURE
@@ -219,7 +219,7 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
         plt.subplot(rows, cols, 5)
         plt.imshow(gt[:, 0:num_steps], aspect='auto')
 
-    return states, rewards, actions, ev, trials
+    return states, rewards, actions, ev, trials, gt
 
 
 def neuron_selectivity(activity, feature, all_times, feat_bin=None,
@@ -416,7 +416,7 @@ def mean_neural_activity(file='/home/linux/network_data_492999.npz',
     get variables from experiment in file and plot selectivities to:
     action, reward, stimulus and action conditioned on prev. reward
     """
-    states, _, _, _, _ =\
+    states, _, _, _, _, _ =\
         get_simulation_vars(file=file, fig=fig, n_envs=n_envs, env=env,
                             num_steps=num_steps, obs_size=obs_size,
                             num_units=num_units)
@@ -451,7 +451,7 @@ def neural_analysis(file='/home/linux/network_data_492999.npz',
     get variables from experiment in file and plot selectivities to:
     action, reward, stimulus and action conditioned on prev. reward
     """
-    states, rewards, actions, obs, trials =\
+    states, rewards, actions, obs, trials, _ =\
         get_simulation_vars(file=file, fig=fig, n_envs=n_envs, env=env,
                             num_steps=num_steps, obs_size=obs_size,
                             num_units=num_units)
@@ -557,7 +557,7 @@ def transition_analysis(file='/home/linux/network_data_492999.npz',
     win_l = int(np.diff(window))
     index = np.linspace(dt*window[0], dt*window[1],
                         int(win_l), endpoint=False).reshape((win_l, 1))
-    states, rewards, actions, obs, trials =\
+    states, rewards, actions, obs, trials, _ =\
         get_simulation_vars(file=file, fig=fig, n_envs=n_envs, env=env,
                             num_steps=num_steps, obs_size=obs_size,
                             num_units=num_units)
@@ -610,7 +610,7 @@ def bias_analysis(file='/home/linux/network_data_492999.npz',
     win_l = int(np.diff(window))
     index = np.linspace(dt*window[0], dt*window[1],
                         int(win_l), endpoint=False).reshape((win_l, 1))
-    states, rewards, actions, obs, trials =\
+    states, rewards, actions, obs, trials, _ =\
         get_simulation_vars(file=file, fig=fig, n_envs=n_envs, env=env,
                             num_steps=num_steps, obs_size=obs_size,
                             num_units=num_units)

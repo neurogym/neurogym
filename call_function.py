@@ -168,7 +168,7 @@ def produce_sh_files(cluster='hab', alg='a2c', hours='120'):
         main_file.write('sbatch ' + name + '\n')
         main_file.write('sleep 10\n')
         file = open(home + '/' + name, 'w')
-        cmmd = specs(conf=conf, cluster=cluster, hours=hours)
+        cmmd = specs(conf=conf, cluster=cluster, hours=hours, alg=alg)
         aux, _ = build_command(save_folder=save_folder, run_folder=run_folder,
                                inst=conf[5], ps_r=pass_reward,
                                ps_act=pass_action,
