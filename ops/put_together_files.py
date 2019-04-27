@@ -70,8 +70,8 @@ def put_files_together(folder, min_num_trials=1e6):
         stim_mat = np.reshape(np.array(stim_mat), (SIZE[0]*len(files),
                                                    stim.shape[1]))
         side_mat = np.reshape(np.array(side_mat), (SIZE[0]*len(files), ))
-        r_prob_mat = np.reshape(np.array(r_prob_mat), (SIZE[0]*len(files),))
-
+        # r_prob_mat = np.reshape(np.array(r_prob_mat), (SIZE[0]*len(files),))
+        r_prob_mat = []
         data = {'choice': choice_mat, 'stimulus': stim_mat,
                 'correct_side': side_mat, 'rep_prob': r_prob_mat}
         np.savez(folder + '/bhvr_data_all.npz', **data)

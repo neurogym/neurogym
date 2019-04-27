@@ -48,8 +48,8 @@ def check_new_exp(experiments, args, params_explored):
             break
         params_explored.update(non_shared)
     if new:
-        group = len(experiments) - 1
         experiments.append([args])
+        group = len(experiments) - 1
 
     return experiments, params_explored, group
 
@@ -73,10 +73,15 @@ def explore_folder(main_folder):
             flag = ptf.put_files_together(folders[ind_f], min_num_trials=1)
             if flag:
                 data = np.load(folders[ind_f] + '/bhvr_data_all.npz')
-                if len(num_trials) == 0:
-                    num_trials.append(data['choice'].shape[0])
-                else:
-                    num_trials[group] = data['choice'].shape[0]
+                num_tr= data['choice'].shape[0]
+            else:
+                num_tr = 0
+            if len(num_trials) == 0:
+                num_trials.append([num_tr])
+            elif group > len(num_trials)-1:
+                num_trials.append([num_tr])
+            else:
+                num_trials[group].append(num_tr)
     args = experiments[0][0]
     p_exp = {k: args[k] for k in args if k not in params_explored}
     print('common params')
