@@ -24,7 +24,7 @@ class ngym(gym.Env):
         self.rng = np.random.RandomState(seed=0)
         self.perf = 0
         self.num_tr_perf = 0
-        self.num_tr_exp = 500000  # num trials after which done = True
+        self.num_tr_exp = 100000  # num trials after which done = True
 
         print('------------------')
         print(self.__class__.__name__)

@@ -25,7 +25,7 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     env = 'RDM-v0'
     num_env = 24
     tot_num_stps = num_stps_env*num_env
-    num_steps_per_logging = 1000000
+    num_steps_per_logging = 500000
     li = num_steps_per_logging // nsteps
     ent_coef = 0.05  # 0.1
     lr = 1e-3
@@ -143,12 +143,12 @@ def produce_sh_files(cluster='hab', alg='a2c', hours='120'):
     pass_reward = True
     pass_action = True
     bl_dur = [200]
-    num_units = [32]  # [32, 64]
+    num_units = [16, 32]  # [32, 64]
     net_type = ['cont_rnn']  # ['twin_net', 'cont_rnn']
-    num_steps_env = 1e8  # [1e9]
+    num_steps_env = 1e7  # [1e9]
     stim_ev = [.5]  # [.3, .6, 1.]
-    batch_size = [20]  # [5, 20]
-    insts = np.arange(3)
+    batch_size = [12, 20]  # [5, 20]
+    insts = np.arange(5)
     load_path = ''  # '/home/linux/00010'
     params_config = itertools.product(batch_size,
                                       bl_dur,
