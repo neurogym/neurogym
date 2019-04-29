@@ -94,17 +94,19 @@ def explore_folder(main_folder):
 
     args = experiments[0][0]
     p_exp = {k: args[k] for k in args if k not in params_explored}
-    main_file = file = open('results.sh', 'w')
-    main_file.write('common params')
-    file.write(json.dumps(p_exp))
-    main_file.write('xxxxxxxxxxxxxxxx')
+    main_file = open('results.sh', 'w')
+    main_file.write('common params\n')
+    main_file.write(json.dumps(p_exp))
+    main_file.write('\nxxxxxxxxxxxxxxxx\n')
     for ind_exps in range(len(experiments)):
         args = experiments[ind_exps][0]
         p_exp = {k: args[k] for k in args if k in params_explored}
-        file.write(json.dumps(p_exp))
-        main_file.write('number of instances: ' + str(len(experiments[ind_exps])))
-        main_file.write('number of trials per instance:' + str(num_trials[ind_exps]))
-        main_file.write('------------------------')
+        main_file.write(json.dumps(p_exp))
+        main_file.write('\nnumber of instances: ' +
+                        str(len(experiments[ind_exps])) + '\n')
+        main_file.write('number of trials per instance:' +
+                        str(num_trials[ind_exps]) + '\n')
+        main_file.write('------------------------\n')
     main_file.close()
     data = {'experiments': experiments}
     np.savez('experiments.npz', **data)
