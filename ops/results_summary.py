@@ -10,6 +10,7 @@ import glob
 import os
 from pathlib import Path
 import sys
+import json
 home = str(Path.home())
 sys.path.append(home + '/neurogym')
 from neurogym.ops import put_together_files as ptf
@@ -95,12 +96,12 @@ def explore_folder(main_folder):
     p_exp = {k: args[k] for k in args if k not in params_explored}
     main_file = file = open('results.sh', 'w')
     main_file.write('common params')
-    main_file.write(p_exp)
+    file.write(json.dumps(p_exp))
     main_file.write('xxxxxxxxxxxxxxxx')
     for ind_exps in range(len(experiments)):
         args = experiments[ind_exps][0]
         p_exp = {k: args[k] for k in args if k in params_explored}
-        main_file.write(p_exp)
+        file.write(json.dumps(p_exp))
         main_file.write('number of instances: ' + str(len(experiments[ind_exps])))
         main_file.write('number of trials per instance:' + str(num_trials[ind_exps]))
         main_file.write('------------------------')
