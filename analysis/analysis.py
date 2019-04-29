@@ -152,7 +152,7 @@ def plot_lines(x_max, y_value):
 
 def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
                         n_envs=12, env=0, num_steps=100, obs_size=4,
-                        num_units=128):
+                        num_units=128, num_act=3):
     """
     given a file produced by the A2C algorithm in baselines, it returns the
     states, rewards, actions, stimulus evidence and new trials vectors
@@ -196,16 +196,16 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
                          (gt.shape[2], np.prod(gt.shape[0:2])))
     else:
         gt = []
-    if 'actions2' in data.keys():
-        # actions
+    if 'pi' in data.keys():
+        print(data['pi'].shape)
         # separate into diff. envs
-        actions2 = np.reshape(data['actions2'], (-1, n_envs, num_steps))
+        pi = np.reshape(data['pi'], (-1, n_envs, num_steps, num_act))
         # select env.
-        actions2 = actions2[:, env, :]
+        pi = pi[:, env, :]
         # flatten
-        actions2 = actions2.flatten()
+        pi = pi.flatten()
     else:
-        actions2 = []
+        pi = []
     if fig:
 
         num_steps = 200
@@ -232,7 +232,7 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
         plt.subplot(rows, cols, 5)
         plt.imshow(gt[:, 0:num_steps], aspect='auto')
 
-    return states, rewards, actions, ev, trials, gt, actions2
+    return states, rewards, actions, ev, trials, gt, pi
 
 
 def neuron_selectivity(activity, feature, all_times, feat_bin=None,
@@ -1407,7 +1407,7 @@ def batch_analysis(main_folder, trials_fig=True,
                     rep_prob = build_block_mat(choice.shape, block_dur=200,
                                                corr_side=correct_side)
                     # plot performance
-                    num_tr = 1000000
+                    num_tr = 10000000
                     start_point = 0
                     plt.subplot(3, 2, 1)
                     plot_learning(performance[start_point:start_point+num_tr],
