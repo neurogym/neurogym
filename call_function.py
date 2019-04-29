@@ -143,11 +143,11 @@ def produce_sh_files(cluster='hab', alg='a2c', hours='120'):
     pass_reward = True
     pass_action = True
     bl_dur = [200]
-    num_units = [16, 32]  # [32, 64]
-    net_type = ['cont_rnn']  # ['twin_net', 'cont_rnn']
+    num_units = [32, 16, 64]  # [32, 64]
+    net_type = ['cont_rnn', 'twin_net']  # ['twin_net', 'cont_rnn']
     num_steps_env = 1e7  # [1e9]
-    stim_ev = [.5]  # [.3, .6, 1.]
-    batch_size = [12, 20]  # [5, 20]
+    stim_ev = [.5, .25, .75]  # [.3, .6, 1.]
+    batch_size = [20, 12, 50]  # [5, 20]
     insts = np.arange(5)
     load_path = ''  # '/home/linux/00010'
     params_config = itertools.product(batch_size,
@@ -157,7 +157,7 @@ def produce_sh_files(cluster='hab', alg='a2c', hours='120'):
                                       net_type,
                                       insts)
     main_file = file = open(home + '/scripts/main_' + cluster + '.sh', 'w')
-    command = specs(cluster=cluster, hours='1')
+    command = specs(cluster=cluster, hours='2')
     main_file.write(command)
 
     for conf in params_config:
@@ -166,7 +166,7 @@ def produce_sh_files(cluster='hab', alg='a2c', hours='120'):
             str(conf[5]) + '_' + str(conf[0]) + '_' + alg + '_' + hours +\
             '_' + cluster + '.sh'
         main_file.write('sbatch ' + name + '\n')
-        main_file.write('sleep 10\n')
+        main_file.write('sleep 20\n')
         file = open(home + '/' + name, 'w')
         cmmd = specs(conf=conf, cluster=cluster, hours=hours, alg=alg)
         aux, _ = build_command(save_folder=save_folder, run_folder=run_folder,
@@ -190,7 +190,7 @@ def specs(conf=None, cluster='hab', hours='120', alg='a2c'):
         if conf is None:
             command += '#SBATCH --job-name=RUN\n'
             command += '#SBATCH -c 1\n'
-            command += '#SBATCH --time=0:30:00\n'
+            command += '#SBATCH --time=' + hours + ':00:00\n'
             command += '#SBATCH --mem-per-cpu=128gb\n'
         else:
             name = alg[:3] + '_' + str(conf[2])
