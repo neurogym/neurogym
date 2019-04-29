@@ -93,19 +93,23 @@ def explore_folder(main_folder):
 
     args = experiments[0][0]
     p_exp = {k: args[k] for k in args if k not in params_explored}
-    print('common params')
-    print(p_exp)
-    print('xxxxxxxxxxxxxxxx')
+    main_file = file = open('results.sh', 'w')
+    main_file.write('common params')
+    main_file.write(p_exp)
+    main_file.write('xxxxxxxxxxxxxxxx')
     for ind_exps in range(len(experiments)):
         args = experiments[ind_exps][0]
         p_exp = {k: args[k] for k in args if k in params_explored}
-        print(p_exp)
-        print('number of instances: ' + str(len(experiments[ind_exps])))
-        print('number of trials per instance:' + str(num_trials[ind_exps]))
-        print('------------------------')
-        
-        
-    
+        main_file.write(p_exp)
+        main_file.write('number of instances: ' + str(len(experiments[ind_exps])))
+        main_file.write('number of trials per instance:' + str(num_trials[ind_exps]))
+        main_file.write('------------------------')
+    main_file.close()
+    data = {'experiments': experiments}
+    np.savez('experiments.npz', **data)
+    return experiments
+
+
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         main_folder = sys.argv[1]
