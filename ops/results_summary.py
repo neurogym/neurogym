@@ -14,6 +14,7 @@ import json
 home = str(Path.home())
 sys.path.append(home + '/neurogym')
 from neurogym.ops import put_together_files as ptf
+from neurogym import call_function as cf
 non_relevant_params = {'seed': 0, 'save_path': 0, 'log_interval': 0,
                        'num_timesteps': 0}
 
@@ -61,6 +62,8 @@ def check_new_exp(experiments, args, params_explored):
 
 
 def explore_folder(main_folder):
+    save_folder = '/rigel/theory/users/mm5514/'
+    run_folder = '/rigel/home/mm5514/'
     params_explored = {}
     experiments = []
     num_trials = []
@@ -69,6 +72,32 @@ def explore_folder(main_folder):
         file = folders[ind_f] + '/params.npz'
         if os.path.exists(file):
             args = load(file)
+            conf = [args['alg'], args['nlstm'], args['network']]
+            cmmd = cf.specs(conf=conf, cluster='hab', hours=4, alg=args['alg'])
+            aux, _ = cf.build_command(save_folder=save_folder,
+                                      run_folder=run_folder,
+                                      inst=args['seed'],
+                                      ps_r=args['pass_reward'],
+                                      ps_act=args['pass_action'],
+                                      bl_dur=args['bl_dur'],
+                                      num_u=args['nlstm'],
+                                      net_type=args['network'],
+                                      num_stps_env=args['num_timesteps'],
+                                      load_path=folders[ind_f],
+                                      stimEv=args['stimEv'],
+                                      nsteps=args['nsteps'], save=False,
+                                      alg=args['alg'],
+                                      timing=args['timing'],
+                                      num_env=args['num_env'],
+                                      ent_coef=args['ent_coef'], lr=args['lr'],
+                                      lr_sch=args['lrschedule'],
+                                      gamma=args['gamma'],
+                                      rep_prob=args['rep_prob'])
+            with open(folders[ind_f] + '/testing.sh', 'w') as file:
+                cmmd += aux
+                file.write(cmmd)
+                file.close()
+            
             if len(experiments) == 0:
                 experiments.append([args])
                 group = 0

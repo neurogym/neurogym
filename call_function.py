@@ -20,24 +20,21 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
                   run_folder='/rigel/home/mm5514/',
                   ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
                   net_type='twin_net', num_stps_env=1e9, load_path='',
-                  save=True, nsteps=20, inst=0, alg='a2c'):
-    seed = datetime.now().microsecond
-    env = 'RDM-v0'
-    num_env = 24
+                  save=True, nsteps=20, inst=0, alg='a2c', env='RDM-v0',
+                  seed=None, num_env=24, ent_coef=0.05, lr=1e-3,
+                  lr_sch='constant', gamma=.8, rep_prob=(.2, .8),
+                  timing=[100, 200, 200, 200, 100]):
+    if seed is None:
+        seed = datetime.now().microsecond
     tot_num_stps = num_stps_env*num_env
     num_steps_per_logging = 500000
     li = num_steps_per_logging // nsteps
-    ent_coef = 0.05  # 0.1
-    lr = 1e-3
-    lr_sch = 'constant'
-    gamma = .8  # 0.9
     if net_type == 'twin_net':
         nlstm = num_u // 2
     else:
         nlstm = num_u
 
     if env == 'RDM-v0':
-        timing = [100, 200, 200, 200, 100]
         timing_flag = '_t_' + ut.list_str(timing)
         timing_cmmd = ' --timing '
         for ind_t in range(len(timing)):
@@ -48,7 +45,6 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     # trial history
     trial_hist = True
     if trial_hist:
-        rep_prob = (.2, .8)
         tr_h_flag = '_TH_' + ut.list_str(rep_prob) + '_' + str(bl_dur)
         tr_h_cmmd = ' --trial_hist=True --bl_dur=' + str(bl_dur) +\
             ' --rep_prob '
@@ -143,11 +139,11 @@ def produce_sh_files(cluster='hab', alg='a2c', hours='120'):
     pass_reward = True
     pass_action = True
     bl_dur = [200]
-    num_units = [32, 16, 64]  # [32, 64]
-    net_type = ['cont_rnn', 'twin_net']  # ['twin_net', 'cont_rnn']
-    num_steps_env = 1e7  # [1e9]
-    stim_ev = [.5, .25, .75]  # [.3, .6, 1.]
-    batch_size = [20, 12, 50]  # [5, 20]
+    num_units = [32, 16]  # [32, 64]
+    net_type = ['cont_rnn']  # ['twin_net', 'cont_rnn']
+    num_steps_env = 1e8  # [1e9]
+    stim_ev = [.5]  # [.3, .6, 1.]
+    batch_size = [20, 12]  # [5, 20]
     insts = np.arange(5)
     load_path = ''  # '/home/linux/00010'
     params_config = itertools.product(batch_size,
@@ -320,6 +316,6 @@ def main(args):
 
 
 if __name__ == '__main__':
-    produce_sh_files(alg='supervised', hours='4')
+    produce_sh_files(alg='supervised', hours='24')
     #    asdsad
     #    main(sys.argv)
