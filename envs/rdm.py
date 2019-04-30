@@ -27,18 +27,12 @@ class RDM(ngym.ngym):
     def __init__(self, dt=100, timing=[500, 80, 330, 1500, 500], stimEv=1.,
                  **kwargs):
         super().__init__(dt=dt)
-        # Inputs
-        self.inputs = tasktools.to_map('FIXATION', 'LEFT', 'RIGHT')
-
         # Actions
-        #        self.actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT',
-        #                                        'CHOOSE-RIGHT')
         self.actions = [0, -1, 1]
         # trial conditions
         self.choices = [-1, 1]
         # self.cohs = np.logspace(-6, 6, num=20, base=2)*stimEv
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
-        self.cohs = self.scale(self.cohs)
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
 
@@ -123,16 +117,12 @@ class RDM(ngym.ngym):
         # rewards
         reward = 0
         # observations
-        obs = np.zeros(len(self.inputs))
-        if trial['ground_truth'] < 0:
-            high = self.inputs['LEFT']
-            low = self.inputs['RIGHT']
-        else:
-            high = self.inputs['RIGHT']
-            low = self.inputs['LEFT']
+        obs = np.zeros((3,))
+        high = (trial['ground_truth'] > 0) + 1
+        low = (trial['ground_truth'] < 0) + 1
 
         if self.in_epoch(self.t, 'fixation'):
-            obs[self.inputs['FIXATION']] = 1
+            obs[0] = 1
             if self.actions[action] != 0:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
@@ -144,10 +134,10 @@ class RDM(ngym.ngym):
 
         # this is an 'if' to allow the stimulus and fixation periods to overlap
         if self.in_epoch(self.t, 'stimulus'):
-            obs[self.inputs['FIXATION']] = 1
-            obs[high] = trial['coh'] +\
+            obs[0] = 1
+            obs[high] = self.scale(trial['coh']) +\
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
-            obs[low] = -trial['coh'] +\
+            obs[low] = self.scale(-trial['coh']) +\
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
         
         # ---------------------------------------------------------------------
