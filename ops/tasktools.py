@@ -56,7 +56,7 @@ def truncated_exponential(rng, dt, mean, xmin=0, xmax=np.inf):
 
 
 def choice(rng, a):
-    return a[rng.choice(len(a))]
+    return a[rng.randint(len(a))]
 
 
 def divide(x, y):

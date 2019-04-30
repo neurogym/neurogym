@@ -31,14 +31,14 @@ class RDM(ngym.ngym):
         self.inputs = tasktools.to_map('FIXATION', 'LEFT', 'RIGHT')
 
         # Actions
-        self.actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT',
-                                        'CHOOSE-RIGHT')
-
+        #        self.actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT',
+        #                                        'CHOOSE-RIGHT')
+        self.actions = [0, -1, 1]
         # trial conditions
         self.choices = [-1, 1]
         # self.cohs = np.logspace(-6, 6, num=20, base=2)*stimEv
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
-
+        self.cohs = self.scale(self.cohs)
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
 
@@ -50,6 +50,10 @@ class RDM(ngym.ngym):
         self.decision = timing[4]
         self.mean_trial_duration = self.fixation + self.stimulus_mean +\
             self.decision
+        if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
+            print('XXXXXXXXXXXXXXXXXXXXXX')
+            print('periods duration must be higher than 0')
+            print('XXXXXXXXXXXXXXXXXXXXXX')
         print('mean trial duration: ' + str(self.mean_trial_duration) +
               ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
               ')')
@@ -95,7 +99,6 @@ class RDM(ngym.ngym):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-        # TODO: allow ground_truth be provided as inputs to _new_trial
         ground_truth = tasktools.choice(self.rng, self.choices)
 
         coh = tasktools.choice(self.rng, self.cohs)
@@ -111,39 +114,16 @@ class RDM(ngym.ngym):
         return (1 + coh/100)/2
 
     def _step(self, action):
+        # TODO: maybe allow self.in_epoch(self.t, ['fixation', 'stimulus',...])
         # ---------------------------------------------------------------------
-        # Reward
+        # Reward and observations
         # ---------------------------------------------------------------------
         trial = self.trial
         info = {'new_trial': False}
-
+        # rewards
         reward = 0
-        tr_perf = False
-        if self.in_epoch(self.t, 'fixation'):
-            if (action != self.actions['FIXATE']):
-                info['new_trial'] = self.abort
-                reward = self.R_ABORTED
-        # this is an if to allow multiple actions
-        if self.in_epoch(self.t, 'decision'):
-            # TODO: this part can be simplified
-            if action == self.actions['CHOOSE-LEFT']:
-                tr_perf = True
-                info['new_trial'] = True
-                if (trial['ground_truth'] < 0):
-                    reward = self.R_CORRECT
-                else:
-                    reward = self.R_FAIL
-            elif action == self.actions['CHOOSE-RIGHT']:
-                tr_perf = True
-                info['new_trial'] = True
-                if (trial['ground_truth'] > 0):
-                    reward = self.R_CORRECT
-                else:
-                    reward = self.R_FAIL
-        # ---------------------------------------------------------------------
-        # Inputs
-        # ---------------------------------------------------------------------
-
+        # observations
+        obs = np.zeros(len(self.inputs))
         if trial['ground_truth'] < 0:
             high = self.inputs['LEFT']
             low = self.inputs['RIGHT']
@@ -151,17 +131,25 @@ class RDM(ngym.ngym):
             high = self.inputs['RIGHT']
             low = self.inputs['LEFT']
 
-        obs = np.zeros(len(self.inputs))
-        # TODO: maybe allow self.in_epoch(self.t, ['fixation', 'stimulus',...])
-        if self.in_epoch(self.t, 'fixation') or\
-           self.in_epoch(self.t, 'stimulus'):
+        if self.in_epoch(self.t, 'fixation'):
             obs[self.inputs['FIXATION']] = 1
-        if self.in_epoch(self.t, 'stimulus'):
-            obs[high] = self.scale(+trial['coh']) +\
-                self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
-            obs[low] = self.scale(-trial['coh']) +\
-                self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
+            if self.actions[action] != 0:
+                info['new_trial'] = self.abort
+                reward = self.R_ABORTED
+        elif self.in_epoch(self.t, 'decision'):
+            if (np.sign(trial['ground_truth']) == np.sign(self.actions[action])):
+                reward = self.R_CORRECT
+            else:
+                reward = self.R_FAIL
 
+        # this is an 'if' to allow the stimulus and fixation periods to overlap
+        if self.in_epoch(self.t, 'stimulus'):
+            obs[self.inputs['FIXATION']] = 1
+            obs[high] = trial['coh'] +\
+                self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
+            obs[low] = -trial['coh'] +\
+                self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
+        
         # ---------------------------------------------------------------------
         # new trial?
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
@@ -174,10 +162,6 @@ class RDM(ngym.ngym):
             info['gt'][int((trial['ground_truth']/2+1.5))] = 1
             self.t = 0
             self.num_tr += 1
-            # compute perf
-            self.perf, self.num_tr_perf =\
-                tasktools.compute_perf(self.perf, reward,
-                                       self.num_tr_perf, tr_perf)
         else:
             self.t += self.dt
             info['gt'] = np.zeros((3,))
@@ -191,3 +175,9 @@ class RDM(ngym.ngym):
         if new_trial:
             self.trial = self._new_trial()
         return obs, reward, done, info
+
+
+if __name__ == '__main__':
+    env = RDM(timing=[100, 200, 200, 200, 100])
+    for ind in range(10000):
+        env.step(env.action_space.sample())
