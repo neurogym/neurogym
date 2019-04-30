@@ -316,6 +316,6 @@ def main(args):
 
 
 if __name__ == '__main__':
-    produce_sh_files(alg='supervised', hours='24')
+    produce_sh_files(alg='supervised', hours='4')
     #    asdsad
     #    main(sys.argv)

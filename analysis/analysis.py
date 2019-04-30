@@ -1365,14 +1365,14 @@ def batch_analysis(main_folder, trials_fig=True,
     #    env = 0
     #    obs_size = 5  # 4
     alg = ['supervised']
-    n_steps = [20, 12, 50]  # [5, 20]
+    n_steps = [20, 12]  # [5, 20]
     # params to get folder
     pass_reward = True
     pass_action = True
     bl_d = [200]
-    num_units = [32, 16, 64]  # [32, 64]
-    tot_num_steps = int(1e7)  # [1e9]
-    stim_ev = [.25, .5, .75]  # [.3, .6, 1.]
+    num_units = [32, 16]  # [32, 64]
+    tot_num_steps = int(1e8)  # [1e9]
+    stim_ev = [.5]  # [.3, .6, 1.]
     net_type = ['cont_rnn', 'twin_net']  # ['twin_net', 'cont_rnn']
     params_config = itertools.product(net_type, stim_ev, num_units,
                                       n_steps, bl_d, alg)
@@ -1456,8 +1456,8 @@ def batch_analysis(main_folder, trials_fig=True,
 
 
 if __name__ == '__main__':
-    #    plt.close('all')
-    #    get_simulation_vars(file='/home/linux/network_data_76999.npz', fig=True,
+    plt.close('all')
+    #    get_simulation_vars(file='/home/linux/network_data_4999.npz', fig=True,
     #                        n_envs=24, env=0, num_steps=20, obs_size=5,
     #                        num_units=32)
     #    asdasd
