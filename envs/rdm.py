@@ -31,7 +31,6 @@ class RDM(ngym.ngym):
         self.actions = [0, -1, 1]
         # trial conditions
         self.choices = [-1, 1]
-        # self.cohs = np.logspace(-6, 6, num=20, base=2)*stimEv
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
@@ -136,9 +135,9 @@ class RDM(ngym.ngym):
         if self.in_epoch(self.t, 'stimulus'):
             obs[0] = 1
             obs[high] = self.scale(trial['coh']) +\
-                self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
+                self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
             obs[low] = self.scale(-trial['coh']) +\
-                self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
+                self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
         
         # ---------------------------------------------------------------------
         # new trial?

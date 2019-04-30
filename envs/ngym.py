@@ -7,8 +7,7 @@ Created on Fri Feb 22 08:52:21 2019
 """
 
 import gym
-import numpy as np
-# from gym.utils import seeding
+import random
 
 
 class ngym(gym.Env):
@@ -21,11 +20,10 @@ class ngym(gym.Env):
         self.dt = dt
         self.t = 0
         self.num_tr = 0
-        self.rng = np.random.RandomState(seed=0)
         self.perf = 0
         self.num_tr_perf = 0
         self.num_tr_exp = 100000  # num trials after which done = True
-
+        self.seed()
         print('------------------')
         print(self.__class__.__name__)
         print('time step: ' + str(self.dt))
@@ -68,7 +66,8 @@ class ngym(gym.Env):
 
     # Auxiliary functions
     def seed(self, seed=None):
-        self.rng = np.random.RandomState(seed)
+        self.rng = random
+        self.rng.seed(seed)
         return [seed]
 
     def _new_trial(self):
