@@ -1457,7 +1457,7 @@ def batch_analysis(main_folder, trials_fig=True,
 
 if __name__ == '__main__':
     plt.close('all')
-    #    get_simulation_vars(file='/home/linux/network_data_4999.npz', fig=True,
+    #    get_simulation_vars(file='/home/linux/network_data_16999.npz', fig=True,
     #                        n_envs=24, env=0, num_steps=20, obs_size=5,
     #                        num_units=32)
     #    asdasd

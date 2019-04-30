@@ -42,8 +42,8 @@ class TrialHistory(Wrapper):
             probs = (1-self.rep_prob[self.curr_block],
                      self.rep_prob[self.curr_block])
 
-        trial['ground_truth'] = self.env.rng.choice(self.env.choices,
-                                                    p=probs)
+        trial['ground_truth'] = self.env.rng.choices(self.env.choices,
+                                                    weights=probs)[0]
         self.prev_trial = trial['ground_truth']
 
         return trial
