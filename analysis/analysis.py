@@ -19,9 +19,29 @@ from neurogym.ops import put_together_files as ptf
 import call_function as cf
 matplotlib.use('Agg')  # Qt5Agg
 import matplotlib.pyplot as plt
-
-display_mode = False
+import argparse
+display_mode = True
 DPI = 400
+parser = argparse.ArgumentParser()
+parser.add_argument('--algorithm', help='training algorithm',
+                default='a2c', type=str)
+parser.add_argument('--pass_reward',
+                    help='whether to pass the prev. reward with obs',
+                    type=bool, default=False)
+parser.add_argument('--pass_action',
+                    help='whether to pass the prev. action with obs',
+                    type=bool, default=False)
+parser.add_argument('--rep_prob',
+                    help='probs of repeating if using trial-hist wrapper',
+                    type=float, nargs='+', default=(.2, .8))
+parser.add_argument('--bl_dur',
+                    help='dur. of block in the trial-hist wrappr (trials)',
+                    type=int, default=200)
+parser.add_argument('--stimEv', help='allows scaling stimulus evidence',
+                    type=float, default=1.)
+parser.add_argument('--save_path', help='where to save the data and model',
+                        type=str, default='')
+args = parser.parse_args()
 
 ############################################
 # AUXLIARY FUNCTIONS
@@ -1356,42 +1376,28 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
         plt.close(f)
 
 
-def batch_analysis(main_folder, trials_fig=True,
-                   neural_analysis_flag=True, behavior_analysis_flag=True,
-                   n_envs=10, env=0, num_steps=20, obs_size=5,
-                   num_units=64, p_lbl=['1', '2']):
+def batch_analysis(main_folder, alg=['supervised'], n_steps=[20, 12, 50],
+                   pass_r=[True], pass_act=[True], bl_d=[200],
+                   num_units=[32, 16], num_steps_env=int(1e8), stim_ev=[.5],
+                   rep_prob=[[.2, .8]], net_type=['cont_rnn', 'twin_net'],
+                   neural_analysis_flag=False, behavior_analysis_flag=True):
     saving_folder_all = main_folder + 'all_results/'
     if not os.path.exists(saving_folder_all):
         os.mkdir(saving_folder_all)
-    # params for analysis
-    #    fig = True
-    #    window = (-5, 20)
-    #    # params related to experiment
-    #    n_envs = 10  # 12
-    #    env = 0
-    #    obs_size = 5  # 4
-    alg = ['supervised']
-    n_steps = [20, 12, 50]  # [5, 20]
-    # params to get folder
-    pass_reward = True
-    pass_action = True
-    bl_d = [200]
-    num_units = [32, 16]  # [32, 64]
-    tot_num_steps = int(1e8)  # [1e9]
-    stim_ev = [.5]  # [.3, .6, 1.]
-    net_type = ['cont_rnn', 'twin_net']  # ['twin_net', 'cont_rnn']
     params_config = itertools.product(net_type, stim_ev, num_units,
-                                      n_steps, bl_d, alg)
+                                      n_steps, bl_d, alg, rep_prob,
+                                      pass_r, pass_act)
     for conf in params_config:
         print('------------------------')
         print(conf)
         _, folder = cf.build_command(save_folder=main_folder,
-                                     ps_r=pass_reward, ps_act=pass_action,
+                                     ps_r=conf[7], ps_act=conf[8],
                                      bl_dur=conf[4], num_u=conf[2],
                                      nsteps=conf[3], stimEv=conf[1],
                                      net_type=conf[0],
-                                     num_stps_env=tot_num_steps,
-                                     save=False, alg=conf[5])
+                                     num_stps_env=num_steps_env,
+                                     save=False, alg=conf[5],
+                                     rep_prob=conf[6])
         folder = os.path.basename(os.path.normpath(folder + '/'))
         undscr_ind = folder.rfind('_')
         folder_name = folder[:undscr_ind]
@@ -1447,101 +1453,33 @@ def batch_analysis(main_folder, trials_fig=True,
                       bbox_inches='tight')
             f.savefig(saving_folder_all + folder_name + '.png', dpi=DPI,
                       bbox_inches='tight')
-#
-#        files = glob.glob(folder + 'network_data_*.npz')
-#        files.sort(key=os.path.getmtime)
-#        file = files[-1]
-#        print('all network files:')
-#        print("\n".join(files))
-#        print('using:')
-#        print(file)
-#        if conf[1] == 'twin_net':
-#            p_lbl = ['pi_1', 'default']
-#        else:
-#            p_lbl = ['1', '2']
 
 
 if __name__ == '__main__':
     plt.close('all')
-    #    get_simulation_vars(file='/home/linux/network_data_16999.npz', fig=True,
-    #                        n_envs=24, env=0, num_steps=20, obs_size=5,
-    #                        num_units=32)
-    #    asdasd
+    get_simulation_vars(file='/home/linux/supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20_d_2KKK_ne_24_nu_32_ev_0.5_408140/network_data_999.npz',
+                        n_envs=24, env=0, num_steps=20, obs_size=5,
+                        num_units=32, fig=True)
+    asdasd
     if len(sys.argv) > 1:
         main_folder = sys.argv[1]
     else:
         main_folder = home + '/mm5514/'
-    batch_analysis(main_folder=main_folder,
-                   trials_fig=True, neural_analysis_flag=True,
-                   behavior_analysis_flag=True,
-                   n_envs=10, env=0, num_steps=20, obs_size=5,
-                   num_units=64, p_lbl=['1', '2'])
-#    # params for analysis
-#    fig = True
-#    window = (-5, 20)
-#    # params related to experiment
-#    n_envs = 10  # 12
-#    env = 0
-#    num_steps = 20  # 100
-#    obs_size = 5  # 4
-#    num_units = 64  # 128
-#    # params to get folder
-#    pass_reward = True
-#    pass_action = True
-#    bl_d = 200
-#    num_units = 64
-#    tot_num_steps = int(1e8)  # [1e9]
-#    insts = np.arange(2, 3)
-#    stim_ev = [1.]  # [.1, .25, .5, 1.]
-#    net_type = ['twin_net']  # ['twin_net', 'cont_rnn']
-#    params_config = itertools.product(insts, net_type, stim_ev)
-#    for conf in params_config:
-#        _, folder = cf.build_command(ps_r=pass_reward, ps_act=pass_action,
-#                                     bl_dur=bl_d, num_u=num_units,
-#                                     stimEv=conf[2], net_type=conf[1],
-#                                     num_stps_env=tot_num_steps, inst=conf[0],
-#                                     save=False)
-#        folder = os.path.basename(os.path.normpath(folder + '/'))
-#        folder = 'C:/Users/MOLANO/Desktop/priors_data/' + folder + '/'
-#        if os.path.exists(folder):
-#            files = glob.glob(folder + 'bhvr_data_all*.npz')
-#            files.sort(key=os.path.getmtime)
-#            file_bhvr = files[-1]
-#            print('all behavioral files:')
-#            print("\n".join(files))
-#            print('using:')
-#            print(file_bhvr)
-#            print('---------------')
-#            files = glob.glob(folder + 'network_data_*.npz')
-#            files.sort(key=os.path.getmtime)
-#            file = files[-1]
-#            print('all network files:')
-#            print("\n".join(files))
-#            print('using:')
-#            print(file)
-#            if conf[1] == 'twin_net':
-#                p_lbl = ['pi_1', 'default']
-#            else:
-#                p_lbl = ['1', '2']
-#            exp_analysis(folder, file, file_bhvr, trials_fig=True,
-#                         neural_analysis_flag=True,
-#                         behavior_analysis_flag=True, n_envs=n_envs,
-#                         env=env, num_steps=num_steps, obs_size=obs_size,
-#                         num_units=num_units, p_lbl=p_lbl)
-#        else:
-#            print(folder + ' DOES NOT EXIST')
-
-#    no_stim_analysis(file=file,
-#                     save_path='', fig=True)
-    #    trans_evidence_cond_on_outcome(file='/home/linux/PassReward0_data.npz',
-    #                                   measure='trans_change',
-    #                                   save_path='', fig=True)
-    #    trans_evidence_cond_on_outcome(file='/home/linux/PassReward0_data.npz',
-    #                                   measure='side_repeat',
-    #                                   save_path='', fig=True)
-    #    trans_evidence_cond_on_outcome(file='/home/linux/PassReward0_data.npz',
-    #                                   measure='repeat_choice',
-    #                                   save_path='', fig=True)
-    #    perf_cond_on_stim_ev(file='/home/linux/PassReward0_data.npz',
-    #                         save_path='', fig=True)
-    # simple_agent()
+    alg = ['a2c']
+    num_units = [32]
+    bl_dur = [200]
+    stim_ev = [.5]
+    batch_size = [20]
+    net_type = ['cont_rnn']
+    rep_prob = [[.2, .8]]
+    pass_r = [True, False]
+    pass_act = [True, False]
+    num_insts = 5
+    num_steps_env = 1e8
+    experiment = 'pass_reward_action'
+    main_folder = '/rigel/theory/users/mm5514/'
+    batch_analysis(main_folder=main_folder, alg=alg, n_steps=batch_size,
+                   pass_r=pass_r, pass_act=pass_act, bl_d=bl_dur,
+                   num_units=num_units, num_steps_env=num_steps_env,
+                   stim_ev=stim_ev, rep_prob=rep_prob, net_type=net_type,
+                   neural_analysis_flag=False, behavior_analysis_flag=True)

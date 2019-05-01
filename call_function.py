@@ -82,7 +82,6 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     save_path += '_lrs_' + lr_sch
     save_path += '_g_' + str(gamma)
     save_path += '_b_' + ut.num2str(nsteps)
-    save_path += '_d_' + ut.num2str(tot_num_stps)
     save_path += '_ne_' + str(num_env)
     save_path += '_nu_' + str(nlstm)
     save_path += '_ev_' + str(stimEv)
@@ -131,49 +130,50 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     return command, save_path
 
 
-def produce_sh_files(cluster='hab', alg='a2c', hours='120'):
+def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
+                     bl_dur=[10, 40, 500, 10000], stim_ev=[.5],
+                     rep_prob=[[.2, .8]], batch_size=[20],
+                     net_type=['cont_rnn'], pass_r=[True], pass_act=[True],
+                     num_insts=5, experiment='', main_folder='',
+                     num_steps_env=1e8):
     if cluster == 'hab':
-        save_folder = '/rigel/theory/users/mm5514/'
+        save_folder = main_folder + experiment
         run_folder = '/rigel/home/mm5514/'
     else:
-        save_folder = '/gpfs/projects/hcli64/manuel/results/'
+        save_folder = main_folder + experiment
         run_folder = '/gpfs/projects/hcli64/manuel/code/'
     home = str(Path.home())
-    pass_reward = True
-    pass_action = True
-    bl_dur = [200]
-    num_units = [32, 16]  # [32, 64]
-    net_type = ['cont_rnn', 'twin_net']  # ['twin_net', 'cont_rnn']
-    num_steps_env = 1e8  # [1e9]
-    stim_ev = [.5]  # [.3, .6, 1.]
-    batch_size = [20, 12, 50]  # [5, 20]
-    insts = np.arange(5)
-    load_path = ''  # '/home/linux/00010'
-    params_config = itertools.product(batch_size,
-                                      bl_dur,
-                                      num_units,
-                                      stim_ev,
-                                      net_type,
+    num_steps_env = num_steps_env
+    insts = np.arange(num_insts)
+    load_path = ''
+    params_config = itertools.product(batch_size, bl_dur, num_units, stim_ev,
+                                      net_type, pass_r, pass_act, alg, rep_prob,
                                       insts)
-    main_file = file = open(home + '/scripts/main_' + cluster + '.sh', 'w')
+    scripts_folder = home + '/scripts/' + experiment + '/'
+    if not os.path.exists(scripts_folder):
+        os.mkdir(scripts_folder)
+    main_file = file = open(scripts_folder + 'main_' +\
+                            cluster + '.sh', 'w')
     command = specs(cluster=cluster, hours='2')
     main_file.write(command)
 
     for conf in params_config:
-        name = 'scripts/' + str(conf[1]) + '_' + str(conf[2]) +\
+        name = str(conf[1]) + '_' + str(conf[2]) +\
             '_' + str(conf[3]) + '_' + str(conf[4]) + '_' +\
-            str(conf[5]) + '_' + str(conf[0]) + '_' + alg + '_' + hours +\
-            '_' + cluster + '.sh'
+            '_' + str(conf[5]) + '_' + str(conf[6]) + '_' +\
+            str(conf[7]) + '_' + str(conf[0]) + '_' + str(conf[8][0]) +\
+            str(conf[8][1]) + '_' + str(conf[9]) + '_' + hours + '_' +\
+            cluster + '.sh'
         main_file.write('sbatch ' + name + '\n')
         main_file.write('sleep 20\n')
-        file = open(home + '/' + name, 'w')
-        cmmd = specs(conf=conf, cluster=cluster, hours=hours, alg=alg)
+        file = open(scripts_folder + name, 'w')
+        cmmd = specs(conf=conf, cluster=cluster, hours=hours, alg=conf[7])
         aux, _ = build_command(save_folder=save_folder, run_folder=run_folder,
-                               ps_r=pass_reward, ps_act=pass_action,
+                               ps_r=conf[5], ps_act=conf[6], rep_prob=conf[8],
                                bl_dur=conf[1], num_u=conf[2],
                                net_type=conf[4], num_stps_env=num_steps_env,
                                load_path=load_path, stimEv=conf[3],
-                               nsteps=conf[0], save=False, alg=alg)
+                               nsteps=conf[0], save=False, alg=conf[7])
         cmmd += aux
         file.write(cmmd)
         file.close()
@@ -318,6 +318,23 @@ def main(args):
 
 
 if __name__ == '__main__':
-    produce_sh_files(alg='supervised', hours='4')
-    #    asdsad
-    #    main(sys.argv)
+    hours = '4'
+    alg = ['a2c']
+    num_units = [32]
+    bl_dur = [200]
+    stim_ev = [.5]
+    batch_size = [20]
+    net_type = ['cont_rnn']
+    rep_prob = [[.2, .8]]
+    pass_r = [True, False]
+    pass_act = [True, False]
+    num_insts = 5
+    num_steps_env = 1e8
+    experiment = 'pass_reward_action'
+    main_folder = '/rigel/theory/users/mm5514/'
+    produce_sh_files(cluster='hab', alg=alg, hours=hours, num_units=num_units,
+                     bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
+                     batch_size=batch_size, net_type=net_type,
+                     pass_r=pass_r, pass_act=pass_act,
+                     num_insts=num_insts, experiment=experiment,
+                     main_folder=main_folder, num_steps_env=num_steps_env)
