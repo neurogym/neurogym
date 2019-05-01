@@ -74,7 +74,7 @@ def write_script(conf, save_folder, run_folder, load_folder, args, train_more):
         sv_f_name = '/evaluating/'
         file_name = 'evaluating.sh'
         
-    cmmd = cf.specs(conf=conf, cluster='hab', hours=4, alg=args['alg'])
+    cmmd = cf.specs(conf=conf, cluster='hab', hours='4', alg=args['alg'])
     aux, _ = cf.build_command(save_folder=save_folder,
                               run_folder=run_folder,
                               inst=args['seed'],
