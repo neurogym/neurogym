@@ -20,7 +20,7 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
                   run_folder='/rigel/home/mm5514/',
                   ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
                   net_type='twin_net', num_stps_env=1e9, load_path='',
-                  save=True, nsteps=20, inst=0, alg='a2c', env='RDM-v0',
+                  save=True, nsteps=20, alg='a2c', env='RDM-v0',
                   seed=None, num_env=24, ent_coef=0.05, lr=1e-3,
                   lr_sch='constant', gamma=.8, rep_prob=(.2, .8),
                   timing=[100, 200, 200, 200, 100], save_folder_name='',
@@ -169,8 +169,7 @@ def produce_sh_files(cluster='hab', alg='a2c', hours='120'):
         file = open(home + '/' + name, 'w')
         cmmd = specs(conf=conf, cluster=cluster, hours=hours, alg=alg)
         aux, _ = build_command(save_folder=save_folder, run_folder=run_folder,
-                               inst=conf[5], ps_r=pass_reward,
-                               ps_act=pass_action,
+                               ps_r=pass_reward, ps_act=pass_action,
                                bl_dur=conf[1], num_u=conf[2],
                                net_type=conf[4], num_stps_env=num_steps_env,
                                load_path=load_path, stimEv=conf[3],
@@ -308,7 +307,7 @@ def main(args):
     batch_command = ''
     for conf in params_config:
         print('---------------------------------------------')
-        cmmd, _ = build_command(inst=conf[0], ps_r=pass_reward,
+        cmmd, _ = build_command(ps_r=pass_reward,
                                 ps_act=pass_action,
                                 bl_dur=conf[1], num_u=conf[2],
                                 net_type=net_type, num_stps_env=num_steps_env,

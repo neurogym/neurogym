@@ -79,7 +79,7 @@ def write_script(conf, save_folder, run_folder, load_folder, args, train_more):
     cmmd = cf.specs(conf=conf, cluster='hab', hours='4', alg=args['alg'])
     aux, _ = cf.build_command(save_folder=save_folder,
                               run_folder=run_folder,
-                              inst=args['seed'],
+                              seed=args['seed'],
                               ps_r=args['pass_reward'],
                               ps_act=args['pass_action'],
                               bl_dur=args['bl_dur'],
