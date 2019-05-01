@@ -95,8 +95,9 @@ def write_script(conf, save_folder, run_folder, load_folder, args, train_more):
                               gamma=args['gamma'],
                               rep_prob=args['rep_prob'],
                               save_folder_name=sv_f_name)
-    undscr_ind = load_folder.rfind('_')
-    name_aux = load_folder[:undscr_ind]
+    f_aux = os.path.basename(os.path.normpath(load_folder + '/'))
+    undscr_ind = f_aux.rfind('_')
+    name_aux = f_aux[:undscr_ind]
     with open(retr_ev_scr + name_aux + '_' + file_name, 'w') as file:
         cmmd += aux
         file.write(cmmd)
