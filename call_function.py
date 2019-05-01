@@ -23,7 +23,8 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
                   save=True, nsteps=20, inst=0, alg='a2c', env='RDM-v0',
                   seed=None, num_env=24, ent_coef=0.05, lr=1e-3,
                   lr_sch='constant', gamma=.8, rep_prob=(.2, .8),
-                  timing=[100, 200, 200, 200, 100], save_folder_name=''):
+                  timing=[100, 200, 200, 200, 100], save_folder_name='',
+                  eval_steps=100000):
     if seed is None:
         seed = datetime.now().microsecond
     tot_num_stps = num_stps_env*num_env
@@ -108,6 +109,7 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     command += ' --nlstm=' + str(nlstm)
     command += ' --stimEv=' + str(stimEv)
     command += ' --seed=' + str(seed)
+    command += ' --eval_steps=' + str(eval_steps)
     command += tr_h_cmmd
     command += ps_rw_cmmd
     command += ps_a_cmmd

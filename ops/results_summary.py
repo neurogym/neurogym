@@ -69,10 +69,12 @@ def write_script(conf, save_folder, run_folder, load_folder, args, train_more):
         num_steps = args['num_timesteps']
         sv_f_name = '/post_training/'
         file_name = 'ptrain.sh'
+        eval_steps = 0
     else:
         num_steps = 0
         sv_f_name = '/evaluating/'
         file_name = 'ev.sh'
+        eval_steps = 100000
         
     cmmd = cf.specs(conf=conf, cluster='hab', hours='4', alg=args['alg'])
     aux, _ = cf.build_command(save_folder=save_folder,
@@ -94,7 +96,8 @@ def write_script(conf, save_folder, run_folder, load_folder, args, train_more):
                               lr_sch=args['lrschedule'],
                               gamma=args['gamma'],
                               rep_prob=args['rep_prob'],
-                              save_folder_name=sv_f_name)
+                              save_folder_name=sv_f_name,
+                              eval_steps=eval_steps)
     name_aux = os.path.basename(os.path.normpath(load_folder + '/'))
     with open(retr_ev_scr + name_aux + '_' + file_name, 'w') as file:
         cmmd += aux
