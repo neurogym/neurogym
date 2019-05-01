@@ -733,8 +733,6 @@ def load_behavioral_data(file):
         dec_time = dec_time[dec_time_aux != 1]
         choice = choice[dec_time]
         stimulus = stimulus[dec_time-1, :]
-    correct_side[np.where(correct_side == -1)] = 2
-    correct_side = np.abs(correct_side-3)
     print('correct side values:')
     print(np.unique(correct_side))
     performance = (choice == correct_side)
@@ -805,8 +803,10 @@ def bias_across_training(choice, evidence, performance, rep_prob=None,
             for ind_bl in range(2):
                 mask = np.logical_and(blocks == bl_values[ind_bl],
                                       prev_perf == ind_perf)
-                assert np.sum(mask) > 0
-                popt, pcov = bias_calculation(ch, ev, mask)
+                if np.sum(mask) > 100:
+                    popt, pcov = bias_calculation(ch, ev, mask)
+                else:
+                    popt = [0, 0]
                 bias_mat.append([popt[1], ind_perf, bl_values[ind_bl]])
     time_stps = np.linspace(per, choice.shape[0], num_stps)
     bias_mat = np.array(bias_mat)
@@ -1169,7 +1169,10 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                     plt.legend()
 
                 mat_num_samples[conv_window-1, ind_perf] += np.sum(mask)
-                popt, _ = bias_calculation(ch, ev, mask)
+                if np.sum(mask) > 100:
+                    popt, _ = bias_calculation(ch, ev, mask)
+                else:
+                    popt = [0, 0]
                 # here I want to compute the bias at t+2 later when the trial
                 # 1 step later was correct
                 next_perf = np.concatenate((np.array([0]), perf[:-1]))
@@ -1179,7 +1182,10 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                                               next_perf == 1))
 
                 mask = np.concatenate((np.array([False, False]), mask[:-2]))
-                popt_next, _ = bias_calculation(ch, ev, mask)
+                if np.sum(mask) > 100:
+                    popt_next, _ = bias_calculation(ch, ev, mask)
+                else:
+                    popt_next = [0, 0]
                 mat_biases.append([popt[1], ind_perf,
                                    ind_tr/(values.shape[0]-1), conv_window,
                                    popt_next[1]])
@@ -1365,7 +1371,7 @@ def batch_analysis(main_folder, trials_fig=True,
     #    env = 0
     #    obs_size = 5  # 4
     alg = ['supervised']
-    n_steps = [20, 12]  # [5, 20]
+    n_steps = [20, 12, 50]  # [5, 20]
     # params to get folder
     pass_reward = True
     pass_action = True

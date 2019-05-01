@@ -40,9 +40,6 @@ def put_files_together(folder, min_num_trials=1e6):
         side = side.reshape((side.shape[0], -1))
         if side.shape[1] != 1:
             side = np.argmax(side, axis=1)
-            side[side == 1] = -1
-            side[side == 2] = 1
-            side[side == -1] = 2
         else:
             side = side.reshape((side.shape[0],))
         if choice.shape[0] != side.shape[0]:

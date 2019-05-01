@@ -140,10 +140,10 @@ def produce_sh_files(cluster='hab', alg='a2c', hours='120'):
     pass_action = True
     bl_dur = [200]
     num_units = [32, 16]  # [32, 64]
-    net_type = ['cont_rnn']  # ['twin_net', 'cont_rnn']
+    net_type = ['cont_rnn', 'twin_net']  # ['twin_net', 'cont_rnn']
     num_steps_env = 1e8  # [1e9]
     stim_ev = [.5]  # [.3, .6, 1.]
-    batch_size = [20, 12]  # [5, 20]
+    batch_size = [20, 12, 50]  # [5, 20]
     insts = np.arange(5)
     load_path = ''  # '/home/linux/00010'
     params_config = itertools.product(batch_size,
