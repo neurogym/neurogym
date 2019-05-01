@@ -61,6 +61,46 @@ def check_new_exp(experiments, args, params_explored):
     return experiments, params_explored, group
 
 
+def write_script(conf, save_folder, run_folder, load_folder, args, train_more):
+    retr_ev_scr = run_folder+'/re_training_evaluating_scripts/'
+    if not os.path.exists(retr_ev_scr):
+        os.mkdir(retr_ev_scr)
+    if train_more:
+        num_steps = args['num_timesteps']
+        sv_f_name = '/post_training/'
+        file_name = 'post_training.sh'
+    else:
+        num_steps = 0
+        sv_f_name = '/evaluating/'
+        file_name = 'evaluating.sh'
+        
+    cmmd = cf.specs(conf=conf, cluster='hab', hours=4, alg=args['alg'])
+    aux, _ = cf.build_command(save_folder=save_folder,
+                              run_folder=run_folder,
+                              inst=args['seed'],
+                              ps_r=args['pass_reward'],
+                              ps_act=args['pass_action'],
+                              bl_dur=args['bl_dur'],
+                              num_u=args['nlstm'],
+                              net_type=args['network'],
+                              num_stps_env=num_steps,
+                              load_path=load_folder,
+                              stimEv=args['stimEv'],
+                              nsteps=args['nsteps'], save=False,
+                              alg=args['alg'],
+                              timing=args['timing'],
+                              num_env=args['num_env'],
+                              ent_coef=args['ent_coef'], lr=args['lr'],
+                              lr_sch=args['lrschedule'],
+                              gamma=args['gamma'],
+                              rep_prob=args['rep_prob'],
+                              save_folder_name=sv_f_name)
+    with open(retr_ev_scr + file_name, 'w') as file:
+        cmmd += aux
+        file.write(cmmd)
+        file.close()
+    
+
 def explore_folder(main_folder):
     save_folder = '/rigel/theory/users/mm5514/'
     run_folder = '/rigel/home/mm5514/'
@@ -73,30 +113,10 @@ def explore_folder(main_folder):
         if os.path.exists(file):
             args = load(file)
             conf = [args['alg'], args['nlstm'], args['network']]
-            cmmd = cf.specs(conf=conf, cluster='hab', hours=4, alg=args['alg'])
-            aux, _ = cf.build_command(save_folder=save_folder,
-                                      run_folder=run_folder,
-                                      inst=args['seed'],
-                                      ps_r=args['pass_reward'],
-                                      ps_act=args['pass_action'],
-                                      bl_dur=args['bl_dur'],
-                                      num_u=args['nlstm'],
-                                      net_type=args['network'],
-                                      num_stps_env=args['num_timesteps'],
-                                      load_path=folders[ind_f],
-                                      stimEv=args['stimEv'],
-                                      nsteps=args['nsteps'], save=False,
-                                      alg=args['alg'],
-                                      timing=args['timing'],
-                                      num_env=args['num_env'],
-                                      ent_coef=args['ent_coef'], lr=args['lr'],
-                                      lr_sch=args['lrschedule'],
-                                      gamma=args['gamma'],
-                                      rep_prob=args['rep_prob'])
-            with open(folders[ind_f] + '/testing.sh', 'w') as file:
-                cmmd += aux
-                file.write(cmmd)
-                file.close()
+            write_script(conf, save_folder, run_folder,
+                         folders[ind_f], args, 1)
+            write_script(conf, save_folder, run_folder,
+                         folders[ind_f], args, 0)
             
             if len(experiments) == 0:
                 experiments.append([args])
