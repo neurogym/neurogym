@@ -183,20 +183,7 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
         cmmd += aux
         file.write(cmmd)
         file.close()
-        # evaluation script
-        file = open(scripts_folder + name + 'eval', 'w')
-        cmmd = specs(conf=conf, cluster=cluster, hours=hours, alg=conf[7],
-                     name=name)
-        load_path = save_folder + '/checkpoints/'
-        aux, _ = build_command(save_folder=save_folder, run_folder=run_folder,
-                               ps_r=conf[5], ps_act=conf[6], rep_prob=conf[8],
-                               bl_dur=conf[1], num_u=conf[2],
-                               net_type=conf[4], num_stps_env=0,
-                               load_path=load_path, stimEv=conf[3],
-                               nsteps=conf[0], save=False, alg=conf[7])
-        cmmd += aux
-        file.write(cmmd)
-        file.close()
+
     main_file.close()
 
 
