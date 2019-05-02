@@ -7,7 +7,6 @@ import glob
 import numpy as np
 import scipy.stats as sstats
 from scipy.optimize import curve_fit
-import itertools
 import matplotlib
 from pathlib import Path
 home = str(Path.home())
@@ -16,33 +15,12 @@ sys.path.append(home + '/mm5514/')
 print(os.getcwd())
 from neurogym.ops import utils as ut
 from neurogym.ops import put_together_files as ptf
+from neurogym.ops import results_summary as res_summ
 import call_function as cf
 matplotlib.use('Agg')  # Qt5Agg
 import matplotlib.pyplot as plt
-import argparse
 display_mode = True
 DPI = 400
-parser = argparse.ArgumentParser()
-parser.add_argument('--algorithm', help='training algorithm',
-                default='a2c', type=str)
-parser.add_argument('--pass_reward',
-                    help='whether to pass the prev. reward with obs',
-                    type=bool, default=False)
-parser.add_argument('--pass_action',
-                    help='whether to pass the prev. action with obs',
-                    type=bool, default=False)
-parser.add_argument('--rep_prob',
-                    help='probs of repeating if using trial-hist wrapper',
-                    type=float, nargs='+', default=(.2, .8))
-parser.add_argument('--bl_dur',
-                    help='dur. of block in the trial-hist wrappr (trials)',
-                    type=int, default=200)
-parser.add_argument('--stimEv', help='allows scaling stimulus evidence',
-                    type=float, default=1.)
-parser.add_argument('--save_path', help='where to save the data and model',
-                        type=str, default='')
-args = parser.parse_args()
-
 ############################################
 # AUXLIARY FUNCTIONS
 ############################################
@@ -1124,8 +1102,7 @@ def simple_agent(file='/home/linux/PassReward0_data.npz', alpha=0.5, noise=0):
     plt.xlabel('previous transitions')
 
 
-def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
-                                folder='', panels=None, legend=False):
+def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz'):
     """
     computes bias conditioned on the num. of previous consecutive ground truth
     alternations/repetitions for after correct/error trials
@@ -1142,7 +1119,6 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
     num_trials_back = 6
     mat_conv = np.arange(1, num_trials_back)
     mat_num_samples = np.zeros((num_trials_back-1, 2))
-    lbl_perf = ['error', 'correct']
     for conv_window in mat_conv:
         # get number of repetitions during the last conv_window trials
         # (not including the current trial)
@@ -1210,6 +1186,12 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                                    ind_tr/(values.shape[0]-1), conv_window,
                                    popt_next[1]])
     mat_biases = np.array(mat_biases)
+    return mat_biases, mat_conv, mat_num_samples
+
+
+def plot_bias_after_altRep_seqs(mat_biases, mat_conv, mat_num_samples,
+                                folder='', panels=None, legend=False):
+    lbl_perf = ['error', 'correct']
     lbl_tr = ['alt', 'rep']
     if panels is None:
         f = ut.get_fig(display_mode)
@@ -1240,10 +1222,10 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
         f.savefig(folder + 'bias_after_saltRep_seqs.png',
                   dpi=DPI, bbox_inches='tight')
         plt.close(f)
+    return mat_biases
 
 
-def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
-                              folder='', panels=None, legend=False):
+def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz'):
     """
     computes bias conditioned on the number of consecutive ground truth
     alternations/repetitions during the last trials
@@ -1333,6 +1315,10 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
                     mat_biases.append([popt[1], ind_ch, ind_perf, ind_tr,
                                        conv_window, np.sum(mask)])
     mat_biases = np.array(mat_biases)
+    return mat_biases
+
+def plot_bias_after_transEv_change(mat_biases, folder, panels=None,
+                                   legend=False):
     if panels is None:
         f = ut.get_fig(display_mode)
     lbl_ch = ['less', 'equal']  # , 'more evidence']
@@ -1359,10 +1345,7 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
                     index = np.logical_and.reduce((mat_biases[:, 1] == ind_ch,
                                                   mat_biases[:, 2] == ind_perf,
                                                   mat_biases[:, 3] == ind_tr))
-                    perc_tr = np.sum(100*mat_biases[index, 5]) /\
-                        (np.sum(index)*perf.shape[0])
-                    label = lbl_tr[ind_tr] + ', after ' + lbl_perf[ind_perf] +\
-                        ' (N=' + str(perc_tr) + ')'
+                    label = lbl_tr[ind_tr] + ', after ' + lbl_perf[ind_perf]
                     plt.plot(mat_biases[index, 4], mat_biases[index, 0],
                              color=color, lw=1, label=label)
         if legend:
@@ -1376,28 +1359,29 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
         plt.close(f)
 
 
-def batch_analysis(main_folder, alg=['supervised'], n_steps=[20, 12, 50],
-                   pass_r=[True], pass_act=[True], bl_d=[200],
-                   num_units=[32, 16], num_steps_env=int(1e8), stim_ev=[.5],
-                   rep_prob=[[.2, .8]], net_type=['cont_rnn', 'twin_net'],
-                   neural_analysis_flag=False, behavior_analysis_flag=True):
+def batch_analysis(main_folder, neural_analysis_flag=False,
+                   behavior_analysis_flag=True):
     saving_folder_all = main_folder + 'all_results/'
     if not os.path.exists(saving_folder_all):
         os.mkdir(saving_folder_all)
-    params_config = itertools.product(net_type, stim_ev, num_units,
-                                      n_steps, bl_d, alg, rep_prob,
-                                      pass_r, pass_act)
-    for conf in params_config:
+
+    experiments = res_summ.explore_folder(main_folder, count=False)
+    experiments = experiments['experiments']
+    for exp in experiments:
+        params = exp[0]
         print('------------------------')
-        print(conf)
+        print(params)
         _, folder = cf.build_command(save_folder=main_folder,
-                                     ps_r=conf[7], ps_act=conf[8],
-                                     bl_dur=conf[4], num_u=conf[2],
-                                     nsteps=conf[3], stimEv=conf[1],
-                                     net_type=conf[0],
-                                     num_stps_env=num_steps_env,
-                                     save=False, alg=conf[5],
-                                     rep_prob=conf[6])
+                                     ps_r=params['pass_reward'],
+                                     ps_act=params['pass_action'],
+                                     bl_dur=params['bl_dur'],
+                                     num_u=params['nlstm'],
+                                     nsteps=params['nsteps'],
+                                     stimEv=params['stimEv'],
+                                     net_type=params['network'],
+                                     num_stps_env=params['num_timesteps'],
+                                     save=False, alg=params['alg'],
+                                     rep_prob=params['rep_prob'])
         folder = os.path.basename(os.path.normpath(folder + '/'))
         undscr_ind = folder.rfind('_')
         folder_name = folder[:undscr_ind]
@@ -1431,11 +1415,18 @@ def batch_analysis(main_folder, alg=['supervised'], n_steps=[20, 12, 50],
                                          rep_prob=rep_prob, fig=False,
                                          legend=(ind_f == 0))
                     #
-                    bias_after_altRep_seqs(file=file, panels=[3, 2, 3],
-                                           legend=(ind_f == 0))
+                    mat_biases, mat_conv, mat_num_samples =\
+                        bias_after_altRep_seqs(file=file)
+                    plot_bias_after_altRep_seqs(mat_biases, mat_conv,
+                                                mat_num_samples, folder='',
+                                                panels=[3, 2, 3],
+                                                legend=(ind_f == 0))
                     #
-                    bias_after_transEv_change(file=file, panels=[3, 2, 5],
-                                              legend=(ind_f == 0))
+                    mat_biases = bias_after_transEv_change(file=file)
+                    plot_bias_after_transEv_change(mat_biases,
+                                                   folder=saving_folder,
+                                                   panels=[3, 2, 5],
+                                                   legend=(ind_f == 0))
             maximo = -np.inf
             minimo = np.inf
             for ind_pl in range(2, 7):
@@ -1457,29 +1448,9 @@ def batch_analysis(main_folder, alg=['supervised'], n_steps=[20, 12, 50],
 
 if __name__ == '__main__':
     plt.close('all')
-    get_simulation_vars(file='/home/linux/supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20_d_2KKK_ne_24_nu_32_ev_0.5_408140/network_data_999.npz',
-                        n_envs=24, env=0, num_steps=20, obs_size=5,
-                        num_units=32, fig=True)
-    asdasd
     if len(sys.argv) > 1:
         main_folder = sys.argv[1]
     else:
         main_folder = home + '/mm5514/'
-    alg = ['a2c']
-    num_units = [32]
-    bl_dur = [200]
-    stim_ev = [.5]
-    batch_size = [20]
-    net_type = ['cont_rnn']
-    rep_prob = [[.2, .8]]
-    pass_r = [True, False]
-    pass_act = [True, False]
-    num_insts = 5
-    num_steps_env = 1e8
-    experiment = 'pass_reward_action'
-    main_folder = '/rigel/theory/users/mm5514/'
-    batch_analysis(main_folder=main_folder, alg=alg, n_steps=batch_size,
-                   pass_r=pass_r, pass_act=pass_act, bl_d=bl_dur,
-                   num_units=num_units, num_steps_env=num_steps_env,
-                   stim_ev=stim_ev, rep_prob=rep_prob, net_type=net_type,
-                   neural_analysis_flag=False, behavior_analysis_flag=True)
+    batch_analysis(main_folder=main_folder, neural_analysis_flag=False,
+                   behavior_analysis_flag=True)

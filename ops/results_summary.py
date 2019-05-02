@@ -105,7 +105,7 @@ def write_script(conf, save_folder, run_folder, load_folder, args, train_more):
         file.close()
     
 
-def explore_folder(main_folder):
+def explore_folder(main_folder, count=True):
     save_folder = '/rigel/theory/users/mm5514/'
     run_folder = '/rigel/home/mm5514/'
     params_explored = {}
@@ -129,18 +129,19 @@ def explore_folder(main_folder):
                 experiments, params_explored, group =\
                     check_new_exp(experiments, args, params_explored)
             # count number of trials
-            flag = ptf.put_files_together(folders[ind_f], min_num_trials=1)
-            if flag:
-                data = np.load(folders[ind_f] + '/bhvr_data_all.npz')
-                num_tr= data['choice'].shape[0]
-            else:
-                num_tr = 0
-            if len(num_trials) == 0:
-                num_trials.append([num_tr])
-            elif group > len(num_trials)-1:
-                num_trials.append([num_tr])
-            else:
-                num_trials[group].append(num_tr)
+            if count:
+                flag = ptf.put_files_together(folders[ind_f], min_num_trials=1)
+                if flag:
+                    data = np.load(folders[ind_f] + '/bhvr_data_all.npz')
+                    num_tr= data['choice'].shape[0]
+                else:
+                    num_tr = 0
+                if len(num_trials) == 0:
+                    num_trials.append([num_tr])
+                elif group > len(num_trials)-1:
+                    num_trials.append([num_tr])
+                else:
+                    num_trials[group].append(num_tr)
 
     params_explored = {k: args[k] for k in params_explored 
                        if k not in non_relevant_params}
@@ -162,7 +163,7 @@ def explore_folder(main_folder):
         main_file.write('------------------------\n')
     main_file.close()
     data = {'experiments': experiments}
-    np.savez('experiments.npz', **data)
+    np.savez(main_folder + '/experiments.npz', **data)
     return experiments
 
 
