@@ -780,50 +780,58 @@ def plot_learning(performance, evidence, stim_position, w_conv=200,
         plt.legend()
 
 
-def bias_across_training(choice, evidence, performance, rep_prob=None,
-                         folder='', fig=True, legend=False):
+def bias_across_training(choice, evidence, performance,
+                         per=100000, conv_window=3):
     # compute bias across training
-    per = 100000
     num_stps = int(choice.shape[0] / per)
     bias_mat = []
     for ind_per in range(num_stps):
         ev = evidence[ind_per*per:(ind_per+1)*per]
         perf = performance[ind_per*per:(ind_per+1)*per]
-        if rep_prob is None:
-            blocks = build_block_mat(ev.shape, block_dur=200)
-        else:
-            blocks = rep_prob[ind_per*per:(ind_per+1)*per]
-        bl_values = np.unique(blocks)
         rand_perf = np.random.choice([0, 1], size=(1,))
         prev_perf = np.concatenate((rand_perf, perf[:-1]))
         ch = choice[ind_per*per:(ind_per+1)*per]
+        transitions = get_transition_mat(ch, conv_window=conv_window)
+        perf_hist = np.convolve(perf, np.ones((conv_window,)),
+                                mode='full')[0:-conv_window+1]
+        perf_hist = np.concatenate((np.array([0]), perf_hist[:-1]))
+        values = np.unique(transitions)
         for ind_perf in range(2):
-            for ind_bl in range(2):
-                mask = np.logical_and(blocks == bl_values[ind_bl],
-                                      prev_perf == ind_perf)
+            for ind_tr in [0, values.shape[0]-1]:
+                mask = np.logical_and.reduce((transitions == ind_tr,
+                                              prev_perf == ind_perf,
+                                              perf_hist == conv_window))
                 if np.sum(mask) > 100:
                     popt, pcov = bias_calculation(ch, ev, mask)
                 else:
                     popt = [0, 0]
-                bias_mat.append([popt[1], ind_perf, bl_values[ind_bl]])
-    time_stps = np.linspace(per, choice.shape[0], num_stps)
+                bias_mat.append([popt[1], ind_perf, ind_tr])
     bias_mat = np.array(bias_mat)
+    return bias_mat
+
+
+def plot_bias_across_training(bias_mat, tot_num_trials, folder='', fig=True,
+                              legend=False, per=100000, conv_window=3):
+    num_stps = int(tot_num_trials / per)
+    time_stps = np.linspace(per, tot_num_trials, num_stps)
     lbl_perf = ['error', 'correct']
+    lbl_trans = ['alts', 'reps']
     if fig:
         f = ut.get_fig(display_mode)
     for ind_perf in range(2):
-        for ind_bl in range(2):
+        for ind_tr in range(2):
             if ind_perf == 0:
-                color = np.array([1-0.25*ind_bl, 0.75, 0.75*(ind_bl + 1)])
+                color = np.array([1-0.25*ind_tr, 0.75, 0.75*(ind_tr + 1)])
                 color[color > 1] = 1
             else:
-                color = ((1-ind_bl), 0, ind_bl)
+                color = ((1-ind_tr), 0, ind_tr)
             index = np.logical_and(bias_mat[:, 1] == ind_perf,
-                                   bias_mat[:, 2] == bl_values[ind_bl])
+                                   bias_mat[:, 2] == ind_tr)
             plt.plot(time_stps, bias_mat[index, 0], color=color, lw=1,
-                     label='rep. prob.: ' + str(bl_values[ind_bl]) +
+                     label= str(conv_window) + ' ' + lbl_trans[ind_tr] +
                      ' after ' + lbl_perf[ind_perf])
-    plt.title('bias across training')
+    plt.title('bias after ' + str(conv_window) +
+              ' correct trans. across training')
     if legend:
         plt.legend()
     if folder != '' and fig:
@@ -1109,7 +1117,7 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz'):
     """
     choice, correct_side, performance, evidence, _ = load_behavioral_data(file)
     # BIAS CONDITIONED ON TRANSITION HISTORY (NUMBER OF REPETITIONS)
-    num_tr = 2000000
+    num_tr = 100000
     start_point = performance.shape[0]-num_tr
     ev = evidence[start_point:start_point+num_tr]
     perf = performance[start_point:start_point+num_tr]
@@ -1232,7 +1240,7 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz'):
     """
     choice, correct_side, performance, evidence, _ = load_behavioral_data(file)
     # BIAS CONDITIONED ON TRANSITION HISTORY (NUMBER OF REPETITIONS)
-    num_tr = 5000000
+    num_tr = 100000
     start_point = performance.shape[0]-num_tr
     ev = evidence[start_point:start_point+num_tr]
     ch = choice[start_point:start_point+num_tr]
@@ -1393,6 +1401,9 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
             if not os.path.exists(saving_folder):
                 os.mkdir(saving_folder)
             f = ut.get_fig(display_mode)
+            biases_after_seqs = []
+            biases_after_transEv = []
+            bias_across_training = []
             for ind_f in range(len(files)):
                 file = files[ind_f] + '/bhvr_data_all.npz'
                 data_flag = ptf.put_files_together(files[ind_f],
@@ -1400,8 +1411,6 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                 if data_flag:
                     choice, correct_side, performance, evidence, _ =\
                         load_behavioral_data(file)
-                    rep_prob = build_block_mat(choice.shape, block_dur=200,
-                                               corr_side=correct_side)
                     # plot performance
                     num_tr = 10000000
                     start_point = 0
@@ -1411,22 +1420,31 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                                   correct_side[start_point:start_point+num_tr],
                                   w_conv=1000, legend=(ind_f == 0))
                     plt.subplot(3, 2, 2)
-                    bias_across_training(choice, evidence, performance,
-                                         rep_prob=rep_prob, fig=False,
-                                         legend=(ind_f == 0))
+                    bias_mat = bias_across_training(choice, evidence,
+                                                    performance, per=100000,
+                                                    conv_window=3)
+                    plot_bias_across_training(bias_mat,
+                                              tot_num_trials=choice.shape[0],
+                                              folder=saving_folder,
+                                              fig=False, legend=(ind_f == 0),
+                                              per=100000, conv_window=3)
+                    bias_across_training.append(bias_mat)
                     #
                     mat_biases, mat_conv, mat_num_samples =\
                         bias_after_altRep_seqs(file=file)
                     plot_bias_after_altRep_seqs(mat_biases, mat_conv,
-                                                mat_num_samples, folder='',
+                                                mat_num_samples,
+                                                folder=saving_folder,
                                                 panels=[3, 2, 3],
                                                 legend=(ind_f == 0))
+                    biases_after_seqs.append(mat_biases)
                     #
                     mat_biases = bias_after_transEv_change(file=file)
                     plot_bias_after_transEv_change(mat_biases,
                                                    folder=saving_folder,
                                                    panels=[3, 2, 5],
                                                    legend=(ind_f == 0))
+                    biases_after_transEv.append(mat_biases)
             maximo = -np.inf
             minimo = np.inf
             for ind_pl in range(2, 7):
@@ -1440,6 +1458,10 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                 ax = plt.gca()
                 lims = ax.set_ylim([minimo, maximo])
 
+            results = {'biases_after_transEv': biases_after_transEv,
+                       'biases_after_seqs': biases_after_seqs,
+                       'bias_across_training': bias_across_training}
+            np.savez('results.npz', **results)
             f.savefig(saving_folder + '/bhvr_fig.png', dpi=DPI,
                       bbox_inches='tight')
             f.savefig(saving_folder_all + folder_name + '.png', dpi=DPI,
