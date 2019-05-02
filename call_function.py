@@ -137,15 +137,13 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
                      num_insts=5, experiment='', main_folder='',
                      num_steps_env=1e8):
     if cluster == 'hab':
-        save_folder = main_folder + experiment
+        save_folder = main_folder + experiment + '/'
         run_folder = '/rigel/home/mm5514/'
     else:
-        save_folder = main_folder + experiment
+        save_folder = main_folder + experiment + '/'
         run_folder = '/gpfs/projects/hcli64/manuel/code/'
     home = str(Path.home())
-    num_steps_env = num_steps_env
     insts = np.arange(num_insts)
-    load_path = ''
     params_config = itertools.product(batch_size, bl_dur, num_units, stim_ev,
                                       net_type, pass_r, pass_act, alg, rep_prob,
                                       insts)
@@ -158,20 +156,42 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
     main_file.write(command)
 
     for conf in params_config:
+        print('-----------------------')
+        print(conf)
         name = str(conf[1]) + '_' + str(conf[2]) +\
             '_' + str(conf[3]) + '_' + str(conf[4]) + '_' +\
             '_' + str(conf[5]) + '_' + str(conf[6]) + '_' +\
-            str(conf[7]) + '_' + str(conf[0]) + '_' + str(conf[8][0]) +\
-            str(conf[8][1]) + '_' + str(conf[9]) + '_' + hours + '_' +\
-            cluster + '.sh'
+            str(conf[7]) + '_' + str(conf[0]) + '_' + ut.list_str(conf[8]) +\
+            '_' + str(conf[9]) + '_' + hours + '_' +\
+            cluster 
+        name = name.replace('.', '')
+        name += '.sh'
+        print(name)
         main_file.write('sbatch ' + name + '\n')
         main_file.write('sleep 20\n')
+        # training script
         file = open(scripts_folder + name, 'w')
-        cmmd = specs(conf=conf, cluster=cluster, hours=hours, alg=conf[7])
+        cmmd = specs(conf=conf, cluster=cluster, hours=hours, alg=conf[7],
+                     name=name)
         aux, _ = build_command(save_folder=save_folder, run_folder=run_folder,
                                ps_r=conf[5], ps_act=conf[6], rep_prob=conf[8],
                                bl_dur=conf[1], num_u=conf[2],
                                net_type=conf[4], num_stps_env=num_steps_env,
+                               load_path='', stimEv=conf[3],
+                               nsteps=conf[0], save=False, alg=conf[7],
+                               eval_steps=0)
+        cmmd += aux
+        file.write(cmmd)
+        file.close()
+        # evaluation script
+        file = open(scripts_folder + name + 'eval', 'w')
+        cmmd = specs(conf=conf, cluster=cluster, hours=hours, alg=conf[7],
+                     name=name)
+        load_path = save_folder + '/checkpoints/'
+        aux, _ = build_command(save_folder=save_folder, run_folder=run_folder,
+                               ps_r=conf[5], ps_act=conf[6], rep_prob=conf[8],
+                               bl_dur=conf[1], num_u=conf[2],
+                               net_type=conf[4], num_stps_env=0,
                                load_path=load_path, stimEv=conf[3],
                                nsteps=conf[0], save=False, alg=conf[7])
         cmmd += aux
@@ -180,7 +200,7 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
     main_file.close()
 
 
-def specs(conf=None, cluster='hab', hours='120', alg='a2c'):
+def specs(conf=None, cluster='hab', hours='120', alg='a2c', name=''):
     command = ''
     command += '#!/bin/sh\n'
     if cluster == 'hab':
@@ -191,10 +211,7 @@ def specs(conf=None, cluster='hab', hours='120', alg='a2c'):
             command += '#SBATCH --time=' + hours + ':00:00\n'
             command += '#SBATCH --mem-per-cpu=128gb\n'
         else:
-            name = alg[:3] + '_' + str(conf[2])
-            for ind in range(3, len(conf)-1):
-                name += '_' + str(conf[ind])
-            name += '_' + hours
+            name = name[:-3] + '_' + hours
             command += '#SBATCH --job-name=' + name + '\n'
             command += '#SBATCH --cpus-per-task=24\n'
             command += '#SBATCH --time=' + hours + ':00:00\n'
@@ -318,8 +335,9 @@ def main(args):
 
 
 if __name__ == '__main__':
+    # PASS REWARD/ACTION EXPERIMENT
     hours = '4'
-    alg = ['a2c']
+    alg = ['supervised']
     num_units = [32]
     bl_dur = [200]
     stim_ev = [.5]
@@ -328,9 +346,53 @@ if __name__ == '__main__':
     rep_prob = [[.2, .8]]
     pass_r = [True, False]
     pass_act = [True, False]
-    num_insts = 5
+    num_insts = 10
     num_steps_env = 1e8
     experiment = 'pass_reward_action'
+    main_folder = '/rigel/theory/users/mm5514/'
+    produce_sh_files(cluster='hab', alg=alg, hours=hours, num_units=num_units,
+                     bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
+                     batch_size=batch_size, net_type=net_type,
+                     pass_r=pass_r, pass_act=pass_act,
+                     num_insts=num_insts, experiment=experiment,
+                     main_folder=main_folder, num_steps_env=num_steps_env)
+
+    # NUMBER OF NEURONS EXPERIMENT
+    hours = '4'
+    alg = ['supervised']
+    num_units = [8, 16, 32, 64]
+    bl_dur = [200]
+    stim_ev = [.5]
+    batch_size = [20]
+    net_type = ['cont_rnn']
+    rep_prob = [[.2, .8]]
+    pass_r = [True]
+    pass_act = [True]
+    num_insts = 10
+    num_steps_env = 1e8
+    experiment = 'num_neurons'
+    main_folder = '/rigel/theory/users/mm5514/'
+    produce_sh_files(cluster='hab', alg=alg, hours=hours, num_units=num_units,
+                     bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
+                     batch_size=batch_size, net_type=net_type,
+                     pass_r=pass_r, pass_act=pass_act,
+                     num_insts=num_insts, experiment=experiment,
+                     main_folder=main_folder, num_steps_env=num_steps_env)
+
+    # ROLLOUT
+    hours = '4'
+    alg = ['supervised']
+    num_units = [32]
+    bl_dur = [200]
+    stim_ev = [.5]
+    batch_size = [4, 8, 12, 20]
+    net_type = ['cont_rnn']
+    rep_prob = [[.2, .8]]
+    pass_r = [True]
+    pass_act = [True]
+    num_insts = 10
+    num_steps_env = 1e8
+    experiment = 'rollout'
     main_folder = '/rigel/theory/users/mm5514/'
     produce_sh_files(cluster='hab', alg=alg, hours=hours, num_units=num_units,
                      bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
