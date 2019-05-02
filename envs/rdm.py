@@ -126,10 +126,13 @@ class RDM(ngym.ngym):
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch(self.t, 'decision'):
-            if (np.sign(trial['ground_truth']) == np.sign(self.actions[action])):
+            gt_sign = np.sign(trial['ground_truth'])
+            action_sign = np.sign(self.actions[action])
+            if gt_sign == action_sign:
                 reward = self.R_CORRECT
-            else:
+            elif gt_sign == -action_sign:
                 reward = self.R_FAIL
+            info['new_trial'] = self.actions[action] != 0
 
         # this is an 'if' to allow the stimulus and fixation periods to overlap
         if self.in_epoch(self.t, 'stimulus'):
@@ -168,5 +171,16 @@ class RDM(ngym.ngym):
 
 if __name__ == '__main__':
     env = RDM(timing=[100, 200, 200, 200, 100])
-    for ind in range(10000):
-        env.step(env.action_space.sample())
+    for ind in range(100):
+        action = 1  # env.action_space.sample()
+        obs, reward, done, info = env.step(action)
+        print(env.t)
+        print(action)
+        print(obs)
+        print(reward)
+        if info['new_trial']:
+            print(info['gt'])
+            print('xxxxxxxxxxxxxxxx')
+        else:
+            print('----------------')
+
