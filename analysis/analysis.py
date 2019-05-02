@@ -782,7 +782,9 @@ def plot_learning(performance, evidence, stim_position, w_conv=200,
 
 def bias_across_training(choice, evidence, performance,
                          per=100000, conv_window=3):
-    # compute bias across training
+    """
+    compute bias across training
+    """
     num_stps = int(choice.shape[0] / per)
     bias_mat = []
     for ind_per in range(num_stps):
@@ -1110,7 +1112,8 @@ def simple_agent(file='/home/linux/PassReward0_data.npz', alpha=0.5, noise=0):
     plt.xlabel('previous transitions')
 
 
-def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz'):
+def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
+                           num_tr=100000):
     """
     computes bias conditioned on the num. of previous consecutive ground truth
     alternations/repetitions for after correct/error trials
@@ -1233,14 +1236,14 @@ def plot_bias_after_altRep_seqs(mat_biases, mat_conv, mat_num_samples,
     return mat_biases
 
 
-def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz'):
+def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
+                              num_tr=100000):
     """
     computes bias conditioned on the number of consecutive ground truth
     alternations/repetitions during the last trials
     """
     choice, correct_side, performance, evidence, _ = load_behavioral_data(file)
     # BIAS CONDITIONED ON TRANSITION HISTORY (NUMBER OF REPETITIONS)
-    num_tr = 100000
     start_point = performance.shape[0]-num_tr
     ev = evidence[start_point:start_point+num_tr]
     ch = choice[start_point:start_point+num_tr]
@@ -1369,6 +1372,7 @@ def plot_bias_after_transEv_change(mat_biases, folder, panels=None,
 
 def batch_analysis(main_folder, neural_analysis_flag=False,
                    behavior_analysis_flag=True):
+    per = 100000
     saving_folder_all = main_folder + 'all_results/'
     if not os.path.exists(saving_folder_all):
         os.mkdir(saving_folder_all)
@@ -1407,7 +1411,7 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
             for ind_f in range(len(files)):
                 file = files[ind_f] + '/bhvr_data_all.npz'
                 data_flag = ptf.put_files_together(files[ind_f],
-                                                   min_num_trials=100000)
+                                                   min_num_trials=2*per)
                 if data_flag:
                     choice, correct_side, performance, evidence, _ =\
                         load_behavioral_data(file)
@@ -1421,17 +1425,17 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                                   w_conv=1000, legend=(ind_f == 0))
                     plt.subplot(3, 2, 2)
                     bias_mat = bias_across_training(choice, evidence,
-                                                    performance, per=100000,
+                                                    performance, per=per,
                                                     conv_window=3)
                     plot_bias_across_training(bias_mat,
                                               tot_num_trials=choice.shape[0],
                                               folder=saving_folder,
                                               fig=False, legend=(ind_f == 0),
-                                              per=100000, conv_window=3)
+                                              per=per, conv_window=3)
                     bias_across_training.append(bias_mat)
                     #
                     mat_biases, mat_conv, mat_num_samples =\
-                        bias_after_altRep_seqs(file=file)
+                        bias_after_altRep_seqs(file=file, num_tr=per)
                     plot_bias_after_altRep_seqs(mat_biases, mat_conv,
                                                 mat_num_samples,
                                                 folder=saving_folder,
@@ -1439,7 +1443,8 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                                                 legend=(ind_f == 0))
                     biases_after_seqs.append(mat_biases)
                     #
-                    mat_biases = bias_after_transEv_change(file=file)
+                    mat_biases = bias_after_transEv_change(file=file,
+                                                           num_tr=per)
                     plot_bias_after_transEv_change(mat_biases,
                                                    folder=saving_folder,
                                                    panels=[3, 2, 5],

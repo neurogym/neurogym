@@ -330,6 +330,9 @@ def main(args):
 
 
 if __name__ == '__main__':
+    scripts_folder = home + '/scripts/'
+    all_analysis_file = file = open(scripts_folder + 'all_analysis_hab.sh', 'w')
+    command = specs(cluster='hab', hours='4')
     # PASS REWARD/ACTION EXPERIMENT
     hours = '4'
     alg = ['supervised']
@@ -351,7 +354,7 @@ if __name__ == '__main__':
                      pass_r=pass_r, pass_act=pass_act,
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
-
+    command += 'sbatch /' + experiment + '/analysis_hab.sh\n'
     # NUMBER OF NEURONS EXPERIMENT
     hours = '4'
     alg = ['supervised']
@@ -373,7 +376,7 @@ if __name__ == '__main__':
                      pass_r=pass_r, pass_act=pass_act,
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
-
+    command += 'sbatch /' + experiment + '/analysis_hab.sh\n'
     # ROLLOUT
     hours = '4'
     alg = ['supervised']
@@ -395,3 +398,6 @@ if __name__ == '__main__':
                      pass_r=pass_r, pass_act=pass_act,
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
+    command += 'sbatch /' + experiment + '/analysis_hab.sh\n'
+    all_analysis_file.write(command)
+    all_analysis_file.close()
