@@ -818,6 +818,7 @@ def plot_bias_across_training(bias_mat, tot_num_trials, folder='', fig=True,
     time_stps = np.linspace(per, tot_num_trials, num_stps)
     lbl_perf = ['error', 'correct']
     lbl_trans = ['alts', 'reps']
+    trans_values = [0, conv_window]
     if fig:
         f = ut.get_fig(display_mode)
     for ind_perf in range(2):
@@ -828,7 +829,7 @@ def plot_bias_across_training(bias_mat, tot_num_trials, folder='', fig=True,
             else:
                 color = ((1-ind_tr), 0, ind_tr)
             index = np.logical_and(bias_mat[:, 1] == ind_perf,
-                                   bias_mat[:, 2] == ind_tr)
+                                   bias_mat[:, 2] == trans_values[ind_tr])
             plt.plot(time_stps, bias_mat[index, 0], color=color, lw=1,
                      label= str(conv_window) + ' ' + lbl_trans[ind_tr] +
                      ' after ' + lbl_perf[ind_perf])
@@ -1425,12 +1426,12 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                     plt.subplot(3, 2, 2)
                     bias_mat = bias_across_training(choice, evidence,
                                                     performance, per=per,
-                                                    conv_window=3)
+                                                    conv_window=2)
                     plot_bias_across_training(bias_mat,
                                               tot_num_trials=choice.shape[0],
                                               folder=saving_folder,
                                               fig=False, legend=(ind_f == 0),
-                                              per=per, conv_window=3)
+                                              per=per, conv_window=2)
                     bias_acr_training.append(bias_mat)
                     #
                     mat_biases, mat_conv, mat_num_samples =\
@@ -1474,6 +1475,23 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
 
 if __name__ == '__main__':
     plt.close('all')
+    #    per = 10000
+    #    folder = '/home/linux/supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20_d_2KKK_ne_24_nu_32_ev_0.5_408140/'
+    #    file = folder + '/bhvr_data_all.npz'
+    #    data_flag = ptf.put_files_together(folder,
+    #                                       min_num_trials=0)
+    #    choice, correct_side, performance, evidence, _ =\
+    #        load_behavioral_data(file)
+    #    # plot performance
+    #    bias_mat = bias_across_training(choice, evidence,
+    #                                    performance, per=per,
+    #                                    conv_window=3)
+    #    plot_bias_across_training(bias_mat,
+    #                              tot_num_trials=choice.shape[0],
+    #                              folder='',
+    #                              fig=True, legend=True,
+    #                              per=per, conv_window=3)
+    #    asdasd
     if len(sys.argv) > 1:
         main_folder = sys.argv[1]
     else:
