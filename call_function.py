@@ -185,6 +185,14 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
         file.close()
 
     main_file.close()
+    analysis_file = file = open(scripts_folder + 'analysis_' +\
+                                cluster + '.sh', 'w')
+    command = specs(cluster=cluster, hours='2')
+    command += 'module load anaconda/3-5.1\n'
+    command += 'module load tensorflow/anaconda3-5.1.0/1.7.0\n'
+    command += '/rigel/home/mm5514/analysis.py ' + save_folder
+    analysis_file.write(command)
+    analysis_file.close()
 
 
 def specs(conf=None, cluster='hab', hours='120', alg='a2c', name=''):
