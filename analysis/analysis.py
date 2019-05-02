@@ -1378,7 +1378,6 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
         os.mkdir(saving_folder_all)
 
     experiments = res_summ.explore_folder(main_folder, count=False)
-    experiments = experiments['experiments']
     for exp in experiments:
         params = exp[0]
         print('------------------------')

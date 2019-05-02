@@ -158,8 +158,9 @@ def explore_folder(main_folder, count=True):
         main_file.write(json.dumps(p_exp))
         main_file.write('\nnumber of instances: ' +
                         str(len(experiments[ind_exps])) + '\n')
-        main_file.write('number of trials per instance:' +
-                        str(num_trials[ind_exps]) + '\n')
+        if count:
+            main_file.write('number of trials per instance:' +
+                            str(num_trials[ind_exps]) + '\n')
         main_file.write('------------------------\n')
     main_file.close()
     data = {'experiments': experiments}
