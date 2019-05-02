@@ -1406,7 +1406,7 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
             f = ut.get_fig(display_mode)
             biases_after_seqs = []
             biases_after_transEv = []
-            bias_across_training = []
+            bias_acr_training = []
             for ind_f in range(len(files)):
                 file = files[ind_f] + '/bhvr_data_all.npz'
                 data_flag = ptf.put_files_together(files[ind_f],
@@ -1431,7 +1431,7 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                                               folder=saving_folder,
                                               fig=False, legend=(ind_f == 0),
                                               per=per, conv_window=3)
-                    bias_across_training.append(bias_mat)
+                    bias_acr_training.append(bias_mat)
                     #
                     mat_biases, mat_conv, mat_num_samples =\
                         bias_after_altRep_seqs(file=file, num_tr=per)
@@ -1464,7 +1464,7 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
 
             results = {'biases_after_transEv': biases_after_transEv,
                        'biases_after_seqs': biases_after_seqs,
-                       'bias_across_training': bias_across_training}
+                       'bias_across_training': bias_acr_training}
             np.savez('results.npz', **results)
             f.savefig(saving_folder + '/bhvr_fig.png', dpi=DPI,
                       bbox_inches='tight')
