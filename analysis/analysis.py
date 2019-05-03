@@ -12,7 +12,6 @@ from pathlib import Path
 home = str(Path.home())
 sys.path.append(home + '/neurogym')
 sys.path.append(home + '/mm5514/')
-print(os.getcwd())
 from neurogym.ops import utils as ut
 from neurogym.ops import put_together_files as ptf
 from neurogym.ops import results_summary as res_summ
@@ -194,7 +193,6 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
     else:
         gt = []
     if 'pi' in data.keys():
-        print(data['pi'].shape)
         # separate into diff. envs
         pi = np.reshape(data['pi'], (-1, n_envs, num_steps, num_act))
         # select env.
@@ -1091,10 +1089,6 @@ def simple_agent(file='/home/linux/PassReward0_data.npz', alpha=0.5, noise=0):
     # asdasd
     rep_prob = build_block_mat(choice.shape, block_dur=200,
                                corr_side=correct_side)
-    #    print(choice[:20])
-    #    print(correct_side[:20])
-    #    print(bias[:20])
-    #    asdasd
     # plot performance
     num_tr = 1000000
     start_point = 0
