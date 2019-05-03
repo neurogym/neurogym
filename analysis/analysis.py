@@ -1213,7 +1213,6 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                     plt.plot(mask_side[start:start+num]-3, '--+', lw=1,
                              label='mask_ch')
                     plt.legend()
-                    asdasd
 
                 mat_num_samples[conv_window-1, ind_perf] += np.sum(mask)
                 if np.sum(mask) > 100:
@@ -1528,38 +1527,38 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
 
 if __name__ == '__main__':
     # plt.close('all')
-    per = 50000
-    conv_window = 2
-    folder = '/home/linux/supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20_d_2KKK_ne_24_nu_32_ev_0.5_408140/'
-    file = folder + '/bhvr_data_all.npz'
-    data_flag = ptf.put_files_together(folder,
-                                       min_num_trials=0)
-    choice, correct_side, performance, evidence, _ =\
-        load_behavioral_data(file)
-    # plot performance
-    bias_mat = bias_across_training(choice, evidence,
-                                    performance, per=per,
-                                    conv_window=conv_window)
-    plot_bias_across_training(bias_mat,
-                              tot_num_trials=choice.shape[0],
-                              folder='',
-                              fig=True, legend=True,
-                              per=per, conv_window=conv_window)
-    mat_biases, mat_conv, mat_num_samples =\
-        bias_after_altRep_seqs(file=file, num_tr=per)
-    plot_bias_after_altRep_seqs(mat_biases, mat_conv,
-                                mat_num_samples,
-                                folder='',
-                                panels=None,
-                                legend=True)
-    #
-    mat_biases = bias_after_transEv_change(file=file,
-                                           num_tr=per)
-    plot_bias_after_transEv_change(mat_biases,
-                                   folder='',
-                                   panels=None,
-                                   legend=True)
-    asdasd
+    #    per = 50000
+    #    conv_window = 2
+    #    folder = '/home/linux/supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20_d_2KKK_ne_24_nu_32_ev_0.5_408140/'
+    #    file = folder + '/bhvr_data_all.npz'
+    #    data_flag = ptf.put_files_together(folder,
+    #                                       min_num_trials=0)
+    #    choice, correct_side, performance, evidence, _ =\
+    #        load_behavioral_data(file)
+    #    # plot performance
+    #    bias_mat = bias_across_training(choice, evidence,
+    #                                    performance, per=per,
+    #                                    conv_window=conv_window)
+    #    plot_bias_across_training(bias_mat,
+    #                              tot_num_trials=choice.shape[0],
+    #                              folder='',
+    #                              fig=True, legend=True,
+    #                              per=per, conv_window=conv_window)
+    #    mat_biases, mat_conv, mat_num_samples =\
+    #        bias_after_altRep_seqs(file=file, num_tr=per)
+    #    plot_bias_after_altRep_seqs(mat_biases, mat_conv,
+    #                                mat_num_samples,
+    #                                folder='',
+    #                                panels=None,
+    #                                legend=True)
+    #    #
+    #    mat_biases = bias_after_transEv_change(file=file,
+    #                                           num_tr=per)
+    #    plot_bias_after_transEv_change(mat_biases,
+    #                                   folder='',
+    #                                   panels=None,
+    #                                   legend=True)
+    #    asdasd
     if len(sys.argv) > 1:
         main_folder = sys.argv[1]
     else:
