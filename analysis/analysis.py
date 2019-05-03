@@ -52,7 +52,6 @@ def get_transition_mat(choice, times=None, num_steps=None, conv_window=5):
                              mode='full')[0:-conv_window+1]
     transition_ev = np.concatenate((np.array([0]), transition[:-1]))
     transition_ev -= conv_window/2
-
     if times is not None:
         trans_mat = np.zeros((num_steps,))
         for ind_t in range(times.shape[0]):
@@ -786,39 +785,63 @@ def bias_across_training(choice, evidence, performance,
     compute bias across training
     """
     num_stps = int(choice.shape[0] / per)
+    transitions = get_transition_mat(choice, conv_window=conv_window)
+    perf_hist = np.convolve(performance, np.ones((conv_window,)),
+                            mode='full')[0:-conv_window+1]
+    perf_hist = np.concatenate((np.array([0]), perf_hist[:-1]))
+    values = np.unique(transitions)
     bias_mat = []
     for ind_per in range(num_stps):
         ev = evidence[ind_per*per:(ind_per+1)*per]
         perf = performance[ind_per*per:(ind_per+1)*per]
-        rand_perf = np.random.choice([0, 1], size=(1,))
-        prev_perf = np.concatenate((rand_perf, perf[:-1]))
         ch = choice[ind_per*per:(ind_per+1)*per]
-        transitions = get_transition_mat(ch, conv_window=conv_window)
-        perf_hist = np.convolve(perf, np.ones((conv_window,)),
-                                mode='full')[0:-conv_window+1]
-        perf_hist = np.concatenate((np.array([0]), perf_hist[:-1]))
-        values = np.unique(transitions)
+        trans = transitions[ind_per*per:(ind_per+1)*per]
+        p_hist = perf_hist[ind_per*per:(ind_per+1)*per]
         for ind_perf in range(2):
             for ind_tr in [0, values.shape[0]-1]:
-                mask = np.logical_and.reduce((transitions == ind_tr,
-                                              prev_perf == ind_perf,
-                                              perf_hist == conv_window))
+                mask = np.logical_and.reduce((trans == values[ind_tr],
+                                              perf == ind_perf,
+                                              p_hist == conv_window))
+                mask = np.concatenate((np.array([False]), mask[:-1]))
+                if ind_perf == 0  and ind_tr == 0 and\
+                    ind_per==num_stps-1 and False:
+                    # repeat = get_repetitions(ch)
+                    ut.get_fig()
+                    num = 50
+                    start = 5000
+                    #                    plt.plot(ch[start:start+num], '-+',
+                    #                             label='choice', lw=1)
+                    plt.plot(trans[start:start+num], '-+',
+                             label='transitions', lw=1)
+                    plt.plot(perf[start:start+num]-3, '--+', label='perf',
+                             lw=1)
+                    plt.plot(mask[start:start+num]-3, '-+', label='mask',
+                             lw=1)
+                    #                    plt.plot(repeat[start:start+num]*2, '-+', label='repeat',
+                    #                             lw=1)
+                    plt.plot(p_hist[start:start+num], '-+',
+                             label='perf_hist', lw=1)
+                    for ind in range(num):
+                        plt.plot([ind, ind], [-3, 3], '--',
+                                 color=(.7, .7, .7))
+                    plt.legend()
+
                 if np.sum(mask) > 100:
-                    popt, pcov = bias_calculation(ch, ev, mask)
+                    popt, pcov = bias_calculation(ch.copy(), ev.copy(),
+                                                  mask.copy())
                 else:
                     popt = [0, 0]
-                bias_mat.append([popt[1], ind_perf, ind_tr])
+                bias_mat.append([popt[1], ind_perf, ind_tr/(values.shape[0]-1)])
     bias_mat = np.array(bias_mat)
     return bias_mat
 
 
-def plot_bias_across_training(bias_mat, tot_num_trials, folder='', fig=True,
-                              legend=False, per=100000, conv_window=3):
+def plot_bias_across_training(bias_mat, tot_num_trials, folder='',
+                              fig=True, legend=False, per=100000, conv_window=3):
     num_stps = int(tot_num_trials / per)
     time_stps = np.linspace(per, tot_num_trials, num_stps)
     lbl_perf = ['error', 'correct']
     lbl_trans = ['alts', 'reps']
-    trans_values = [0, conv_window]
     if fig:
         f = ut.get_fig(display_mode)
     for ind_perf in range(2):
@@ -829,8 +852,8 @@ def plot_bias_across_training(bias_mat, tot_num_trials, folder='', fig=True,
             else:
                 color = ((1-ind_tr), 0, ind_tr)
             index = np.logical_and(bias_mat[:, 1] == ind_perf,
-                                   bias_mat[:, 2] == trans_values[ind_tr])
-            plt.plot(time_stps, bias_mat[index, 0], color=color, lw=1,
+                                   bias_mat[:, 2] == ind_tr)
+            plt.plot(time_stps, bias_mat[index, 0], '+-', color=color, lw=1,
                      label= str(conv_window) + ' ' + lbl_trans[ind_tr] +
                      ' after ' + lbl_perf[ind_perf])
     plt.title('bias after ' + str(conv_window) +
@@ -1121,8 +1144,8 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
     """
     choice, correct_side, performance, evidence, _ = load_behavioral_data(file)
     # BIAS CONDITIONED ON TRANSITION HISTORY (NUMBER OF REPETITIONS)
-    num_tr = 100000
     start_point = performance.shape[0]-num_tr
+    print(start_point)
     ev = evidence[start_point:start_point+num_tr]
     perf = performance[start_point:start_point+num_tr]
     ch = choice[start_point:start_point+num_tr]
@@ -1135,10 +1158,12 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
         # get number of repetitions during the last conv_window trials
         # (not including the current trial)
         if conv_window > 1:
-            transitions = get_transition_mat(side, conv_window=conv_window)
+            transitions = get_transition_mat(ch, conv_window=conv_window)
         else:
-            repeat = get_repetitions(side)
+            repeat = get_repetitions(ch)
             transitions = np.concatenate((np.array([0]), repeat[:-1]))
+        if conv_window == 2:
+            transitions_side = get_transition_mat(side, conv_window=conv_window)
         # perf_hist is use to check that all previous last trials where correct
         if conv_window > 1:
             perf_hist = np.convolve(perf, np.ones((conv_window,)),
@@ -1157,28 +1182,43 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                                               perf == ind_perf,
                                               perf_hist == conv_window))
                 mask = np.concatenate((np.array([False]), mask[:-1]))
+                if conv_window == 2:
+                    print(ind_perf)
+                    print(ind_tr)
+                    mask_side = np.logical_and.reduce((transitions_side == values[ind_tr],
+                                              perf == ind_perf,
+                                              perf_hist == conv_window))
+                    mask_side = np.concatenate((np.array([False]), mask_side[:-1]))
+                    index = np.where(mask_side != mask)[0]
+                    print(index)
                 if conv_window == 2 and False:
                     num = 50
-                    start = 200
+                    start = index[0]-10
                     plt.figure()
                     for ind in range(num):
                         plt.plot([ind, ind], [-2, 2], '--', color=(.6, .6, .6))
-                    repeat = get_repetitions(side)
+                    repeat = get_repetitions(ch)
                     plt.plot(repeat[start:start+num]-1, '-+', lw=1,
                              label='repeat')
                     plt.plot(transitions[start:start+num], '-+', lw=1,
                              label='transitions')
+                    plt.plot(transitions_side[start:start+num], '--+', lw=1,
+                             label='transitions side')
                     plt.plot(perf_hist[start:start+num], '-+', lw=1,
                              label='perf_hist')
-                    plt.plot(perf[start:start+num]-1, '-+', lw=1,
+                    plt.plot(perf[start:start+num]-3, '-+', lw=1,
                              label='performance')
-                    plt.plot(mask[start:start+num]-2, '-+', lw=1,
+                    plt.plot(mask[start:start+num]-3, '-+', lw=1,
                              label='mask')
+                    plt.plot(mask_side[start:start+num]-3, '--+', lw=1,
+                             label='mask_ch')
                     plt.legend()
+                    asdasd
 
                 mat_num_samples[conv_window-1, ind_perf] += np.sum(mask)
                 if np.sum(mask) > 100:
-                    popt, _ = bias_calculation(ch, ev, mask)
+                    popt, _ = bias_calculation(ch.copy(), ev.copy(),
+                                               mask.copy())
                 else:
                     popt = [0, 0]
                 # here I want to compute the bias at t+2 later when the trial
@@ -1191,7 +1231,8 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
 
                 mask = np.concatenate((np.array([False, False]), mask[:-2]))
                 if np.sum(mask) > 100:
-                    popt_next, _ = bias_calculation(ch, ev, mask)
+                    popt_next, _ = bias_calculation(ch.copy(), ev.copy(),
+                                                    mask.copy())
                 else:
                     popt_next = [0, 0]
                 mat_biases.append([popt[1], ind_perf,
@@ -1218,11 +1259,11 @@ def plot_bias_after_altRep_seqs(mat_biases, mat_conv, mat_num_samples,
         ax2 = ax.twinx()
         ax2.plot(mat_conv, mat_num_samples[:, ind_perf], color=(.7, .7, .7))
         ax2.set_ylabel('total num. of samples')
-        for ind_tr in [0, 1]:
+        for ind_tr in range(2):
             color = ((1-ind_tr), 0, ind_tr)
             index = np.logical_and(mat_biases[:, 1] == ind_perf,
                                    mat_biases[:, 2] == ind_tr)
-            ax.plot(mat_conv, mat_biases[index, 0], color=color, lw=1,
+            ax.plot(mat_conv, mat_biases[index, 0], '+-', color=color, lw=1,
                     label=lbl_tr[ind_tr] + ' + ' + lbl_perf[ind_perf])
             ax.plot(mat_conv, mat_biases[index, 4], '--', color=color, lw=1,
                     label=lbl_tr[ind_tr] + ' at t+2')
@@ -1249,7 +1290,6 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
     ev = evidence[start_point:start_point+num_tr]
     ch = choice[start_point:start_point+num_tr]
     side = correct_side[start_point:start_point+num_tr]
-    repeat_choice = get_repetitions(side)
     perf = performance[start_point:start_point+num_tr]
     mat_biases = []
     num_trials_back = 6
@@ -1264,17 +1304,7 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
         else:
             repeat = get_repetitions(side)
             trans = np.concatenate((np.array([0]), repeat[:-1]))
-        # perf_hist is use to check that all previous last trials where correct
-        if conv_window > 1:
-            perf_hist = np.convolve(perf, np.ones((conv_window,)),
-                                    mode='full')[0:-conv_window+1]
-            perf_hist = np.concatenate((np.array([0]), perf_hist[:-1]))
-        else:
-            perf_hist = np.concatenate((np.array([0]), perf[:-1]))
-
-        values_tr = np.unique(trans)
         # use only extreme cases (all alt., all  rep.)
-        values_tr = [values_tr[0], values_tr[-1]]
         abs_trans = np.abs(trans)
         # the order of the concatenation is imposed by the fact that
         # transitions measures the trans. ev. in the previous trials, *not
@@ -1282,7 +1312,22 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
         tr_change = np.concatenate((abs_trans, abs_trans[0].reshape((1,))))
         tr_change = np.diff(tr_change)
         values = np.unique(tr_change)
-        for ind_tr in range(2):
+        # now get choice transitions
+        if conv_window > 1:
+            trans = get_transition_mat(ch, conv_window=conv_window)
+        else:
+            repeat = get_repetitions(ch)
+            trans = np.concatenate((np.array([0]), repeat[:-1]))
+        values_tr = np.unique(trans)
+        # perf_hist is use to check that all previous last trials where correct
+        if conv_window > 1:
+            perf_hist = np.convolve(perf, np.ones((conv_window,)),
+                                    mode='full')[0:-conv_window+1]
+            perf_hist = np.concatenate((np.array([0]), perf_hist[:-1]))
+        else:
+            perf_hist = np.concatenate((np.array([0]), perf[:-1]))
+        # TODO: this could be simplified by ignoring transition values (i.e. ind_tr)
+        for ind_tr in [0, values_tr.shape[0]-1]:
             # since we are just looking at the extrem cases (see above),
             # there cannot be an increase in transition evidence
             for ind_ch in range(2):
@@ -1297,6 +1342,7 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
                                                  perf_hist == conv_window))
                     mask = np.concatenate((np.array([False]), mask[:-1]))
                     if False:
+                        repeat_choice = get_repetitions(ch)
                         print(np.where(mask == 1))
                         print('tr change : ' + str(values[ind_ch]))
                         print('perf. : ' + str(ind_perf))
@@ -1321,12 +1367,15 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
                         plt.legend()
                         # asdas
                     if np.sum(mask) > 100:
-                        popt, pcov = bias_calculation(ch, ev, mask)
+                        popt, pcov = bias_calculation(ch.copy(), ev.copy(),
+                                                      mask.copy())
                     else:
                         popt = [0, 0]
-                    mat_biases.append([popt[1], ind_ch, ind_perf, ind_tr,
+                    mat_biases.append([popt[1], ind_ch, ind_perf,
+                                       ind_tr/(values_tr.shape[0]-1),
                                        conv_window, np.sum(mask)])
     mat_biases = np.array(mat_biases)
+    print(mat_biases)
     return mat_biases
 
 def plot_bias_after_transEv_change(mat_biases, folder, panels=None,
@@ -1357,6 +1406,10 @@ def plot_bias_after_transEv_change(mat_biases, folder, panels=None,
                     index = np.logical_and.reduce((mat_biases[:, 1] == ind_ch,
                                                   mat_biases[:, 2] == ind_perf,
                                                   mat_biases[:, 3] == ind_tr))
+                    print(ind_tr)
+                    print(np.unique(mat_biases[:, 3]))
+                    print(index)
+                    print('---------')
                     label = lbl_tr[ind_tr] + ', after ' + lbl_perf[ind_perf]
                     plt.plot(mat_biases[index, 4], mat_biases[index, 0],
                              color=color, lw=1, label=label)
@@ -1474,24 +1527,39 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
 
 
 if __name__ == '__main__':
-    plt.close('all')
-    #    per = 10000
-    #    folder = '/home/linux/supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20_d_2KKK_ne_24_nu_32_ev_0.5_408140/'
-    #    file = folder + '/bhvr_data_all.npz'
-    #    data_flag = ptf.put_files_together(folder,
-    #                                       min_num_trials=0)
-    #    choice, correct_side, performance, evidence, _ =\
-    #        load_behavioral_data(file)
-    #    # plot performance
-    #    bias_mat = bias_across_training(choice, evidence,
-    #                                    performance, per=per,
-    #                                    conv_window=3)
-    #    plot_bias_across_training(bias_mat,
-    #                              tot_num_trials=choice.shape[0],
-    #                              folder='',
-    #                              fig=True, legend=True,
-    #                              per=per, conv_window=3)
-    #    asdasd
+    # plt.close('all')
+    per = 50000
+    conv_window = 2
+    folder = '/home/linux/supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20_d_2KKK_ne_24_nu_32_ev_0.5_408140/'
+    file = folder + '/bhvr_data_all.npz'
+    data_flag = ptf.put_files_together(folder,
+                                       min_num_trials=0)
+    choice, correct_side, performance, evidence, _ =\
+        load_behavioral_data(file)
+    # plot performance
+    bias_mat = bias_across_training(choice, evidence,
+                                    performance, per=per,
+                                    conv_window=conv_window)
+    plot_bias_across_training(bias_mat,
+                              tot_num_trials=choice.shape[0],
+                              folder='',
+                              fig=True, legend=True,
+                              per=per, conv_window=conv_window)
+    mat_biases, mat_conv, mat_num_samples =\
+        bias_after_altRep_seqs(file=file, num_tr=per)
+    plot_bias_after_altRep_seqs(mat_biases, mat_conv,
+                                mat_num_samples,
+                                folder='',
+                                panels=None,
+                                legend=True)
+    #
+    mat_biases = bias_after_transEv_change(file=file,
+                                           num_tr=per)
+    plot_bias_after_transEv_change(mat_biases,
+                                   folder='',
+                                   panels=None,
+                                   legend=True)
+    asdasd
     if len(sys.argv) > 1:
         main_folder = sys.argv[1]
     else:
