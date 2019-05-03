@@ -1139,7 +1139,6 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
     choice, correct_side, performance, evidence, _ = load_behavioral_data(file)
     # BIAS CONDITIONED ON TRANSITION HISTORY (NUMBER OF REPETITIONS)
     start_point = performance.shape[0]-num_tr
-    print(start_point)
     ev = evidence[start_point:start_point+num_tr]
     perf = performance[start_point:start_point+num_tr]
     ch = choice[start_point:start_point+num_tr]
@@ -1177,14 +1176,11 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                                               perf_hist == conv_window))
                 mask = np.concatenate((np.array([False]), mask[:-1]))
                 if conv_window == 2:
-                    print(ind_perf)
-                    print(ind_tr)
                     mask_side = np.logical_and.reduce((transitions_side == values[ind_tr],
                                               perf == ind_perf,
                                               perf_hist == conv_window))
                     mask_side = np.concatenate((np.array([False]), mask_side[:-1]))
                     index = np.where(mask_side != mask)[0]
-                    print(index)
                 if conv_window == 2 and False:
                     num = 50
                     start = index[0]-10
@@ -1368,7 +1364,6 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
                                        ind_tr/(values_tr.shape[0]-1),
                                        conv_window, np.sum(mask)])
     mat_biases = np.array(mat_biases)
-    print(mat_biases)
     return mat_biases
 
 def plot_bias_after_transEv_change(mat_biases, folder, panels=None,
@@ -1399,10 +1394,6 @@ def plot_bias_after_transEv_change(mat_biases, folder, panels=None,
                     index = np.logical_and.reduce((mat_biases[:, 1] == ind_ch,
                                                   mat_biases[:, 2] == ind_perf,
                                                   mat_biases[:, 3] == ind_tr))
-                    print(ind_tr)
-                    print(np.unique(mat_biases[:, 3]))
-                    print(index)
-                    print('---------')
                     label = lbl_tr[ind_tr] + ', after ' + lbl_perf[ind_perf]
                     plt.plot(mat_biases[index, 4], mat_biases[index, 0],
                              color=color, lw=1, label=label)
@@ -1498,16 +1489,16 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                     biases_after_transEv.append(mat_biases)
             maximo = -np.inf
             minimo = np.inf
+            #            for ind_pl in range(2, 7):
+            #                plt.subplot(3, 2, ind_pl)
+            #                ax = plt.gca()
+            #                lims = ax.get_ylim()
+            #                maximo = max(maximo, lims[1])
+            #                minimo = min(minimo, lims[0])
             for ind_pl in range(2, 7):
                 plt.subplot(3, 2, ind_pl)
                 ax = plt.gca()
-                lims = ax.get_ylim()
-                maximo = max(maximo, lims[1])
-                minimo = min(minimo, lims[0])
-            for ind_pl in range(2, 7):
-                plt.subplot(3, 2, ind_pl)
-                ax = plt.gca()
-                lims = ax.set_ylim([minimo, maximo])
+                lims = ax.set_ylim([-10, 10])
 
             results = {'biases_after_transEv': biases_after_transEv,
                        'biases_after_seqs': biases_after_seqs,
