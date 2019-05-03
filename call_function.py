@@ -115,8 +115,6 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     command += timing_cmmd
     command += load_path_cmmd
     # command += ' --figs=True'
-    print('Path: ')
-    print(save_path)
     if save:
         print('Command:')
         print(command)
@@ -354,7 +352,7 @@ if __name__ == '__main__':
                      pass_r=pass_r, pass_act=pass_act,
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
-    command += 'sbatch /' + experiment + '/analysis_hab.sh\n'
+    command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
     # NUMBER OF NEURONS EXPERIMENT
     hours = '4'
     alg = ['supervised']
@@ -376,7 +374,7 @@ if __name__ == '__main__':
                      pass_r=pass_r, pass_act=pass_act,
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
-    command += 'sbatch /' + experiment + '/analysis_hab.sh\n'
+    command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
     # ROLLOUT
     hours = '4'
     alg = ['supervised']
@@ -398,6 +396,6 @@ if __name__ == '__main__':
                      pass_r=pass_r, pass_act=pass_act,
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
-    command += 'sbatch /' + experiment + '/analysis_hab.sh\n'
+    command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
     all_analysis_file.write(command)
     all_analysis_file.close()

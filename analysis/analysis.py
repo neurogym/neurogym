@@ -728,8 +728,6 @@ def load_behavioral_data(file):
         dec_time = dec_time[dec_time_aux != 1]
         choice = choice[dec_time]
         stimulus = stimulus[dec_time-1, :]
-    print('correct side values:')
-    print(np.unique(correct_side))
     performance = (choice == correct_side)
     evidence = stimulus[:, 1] - stimulus[:, 2]
     return choice, correct_side, performance, evidence, rep_prob
@@ -1435,8 +1433,6 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
         undscr_ind = folder.rfind('_')
         folder_name = folder[:undscr_ind]
         files = glob.glob(main_folder+folder_name + '*')
-        print('files:')
-        print(files)
         if len(files) > 0:
             saving_folder = main_folder + 'MAIN_' + folder_name
             if not os.path.exists(saving_folder):
@@ -1489,16 +1485,16 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                     biases_after_transEv.append(mat_biases)
             maximo = -np.inf
             minimo = np.inf
-            #            for ind_pl in range(2, 7):
-            #                plt.subplot(3, 2, ind_pl)
-            #                ax = plt.gca()
-            #                lims = ax.get_ylim()
-            #                maximo = max(maximo, lims[1])
-            #                minimo = min(minimo, lims[0])
+            for ind_pl in range(2, 5):
+                plt.subplot(3, 2, ind_pl)
+                ax = plt.gca()
+                lims = ax.get_ylim()
+                maximo = max(maximo, lims[1])
+                minimo = min(minimo, lims[0])
             for ind_pl in range(2, 7):
                 plt.subplot(3, 2, ind_pl)
                 ax = plt.gca()
-                lims = ax.set_ylim([-10, 10])
+                lims = ax.set_ylim([minimo, maximo])
 
             results = {'biases_after_transEv': biases_after_transEv,
                        'biases_after_seqs': biases_after_seqs,

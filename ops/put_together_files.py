@@ -19,14 +19,8 @@ from neurogym.ops import utils as ut
 
 
 def put_files_together(folder, min_num_trials=1e6):
-    print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
-    print('searching here:' + folder)
     files = glob.glob(folder + '/*_bhvr_data*npz')
-    # files.sort(key=os.path.getmtime)
     files = ut.order_by_sufix(files)
-    print('found files (sorted by date):')
-    print("\n".join(files))
-    print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
     choice_mat = []
     stim_mat = []
     r_prob_mat = []
