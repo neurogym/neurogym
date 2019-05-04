@@ -5,6 +5,7 @@ from scipy.special import erf
 import os
 import glob
 import numpy as np
+import json
 import scipy.stats as sstats
 from scipy.optimize import curve_fit
 import matplotlib
@@ -20,6 +21,8 @@ matplotlib.use('Agg')  # Qt5Agg
 import matplotlib.pyplot as plt
 display_mode = True
 DPI = 400
+num_trials_back = 6
+
 ############################################
 # AUXLIARY FUNCTIONS
 ############################################
@@ -86,7 +89,7 @@ def bias_calculation(choice, ev, mask):
     except:
         popt = [0, 0]
         pcov = 0
-        print('no fitting') 
+        print('no fitting')
     return popt, pcov
 
 
@@ -194,7 +197,7 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
         gt = np.reshape(data['gt'], (-1, n_envs, num_steps, 3))
         gt = gt[:, env, :, :]
         gt = np.reshape(np.transpose(gt, (2, 0, 1)),
-                         (gt.shape[2], np.prod(gt.shape[0:2])))
+                        (gt.shape[2], np.prod(gt.shape[0:2])))
     else:
         gt = []
     if 'pi' in data.keys():
@@ -804,8 +807,8 @@ def bias_across_training(choice, evidence, performance,
                                               perf == ind_perf,
                                               p_hist == conv_window))
                 mask = np.concatenate((np.array([False]), mask[:-1]))
-                if ind_perf == 0  and ind_tr == 0 and\
-                    ind_per==num_stps-1 and False:
+                if ind_perf == 0 and ind_tr == 0 and\
+                   ind_per == num_stps-1 and False:
                     # repeat = get_repetitions(ch)
                     ut.get_fig()
                     num = 50
@@ -818,8 +821,8 @@ def bias_across_training(choice, evidence, performance,
                              lw=1)
                     plt.plot(mask[start:start+num]-3, '-+', label='mask',
                              lw=1)
-                    #                    plt.plot(repeat[start:start+num]*2, '-+', label='repeat',
-                    #                             lw=1)
+                    # plt.plot(repeat[start:start+num]*2, '-+', label='repeat',
+                    # lw=1)
                     plt.plot(p_hist[start:start+num], '-+',
                              label='perf_hist', lw=1)
                     for ind in range(num):
@@ -832,13 +835,15 @@ def bias_across_training(choice, evidence, performance,
                                                   mask.copy())
                 else:
                     popt = [0, 0]
-                bias_mat.append([popt[1], ind_perf, ind_tr/(values.shape[0]-1)])
+                bias_mat.append([popt[1], ind_perf,
+                                 ind_tr/(values.shape[0]-1)])
     bias_mat = np.array(bias_mat)
     return bias_mat
 
 
 def plot_bias_across_training(bias_mat, tot_num_trials, folder='',
-                              fig=True, legend=False, per=100000, conv_window=3):
+                              fig=True, legend=False, per=100000,
+                              conv_window=3):
     num_stps = int(tot_num_trials / per)
     time_stps = np.linspace(per, tot_num_trials, num_stps)
     lbl_perf = ['error', 'correct']
@@ -855,7 +860,7 @@ def plot_bias_across_training(bias_mat, tot_num_trials, folder='',
             index = np.logical_and(bias_mat[:, 1] == ind_perf,
                                    bias_mat[:, 2] == ind_tr)
             plt.plot(time_stps, bias_mat[index, 0], '+-', color=color, lw=1,
-                     label= str(conv_window) + ' ' + lbl_trans[ind_tr] +
+                     label=str(conv_window) + ' ' + lbl_trans[ind_tr] +
                      ' after ' + lbl_perf[ind_perf])
     plt.title('bias after ' + str(conv_window) +
               ' correct trans. across training')
@@ -1147,7 +1152,6 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
     ch = choice[start_point:start_point+num_tr]
     side = correct_side[start_point:start_point+num_tr]
     mat_biases = []
-    num_trials_back = 6
     mat_conv = np.arange(1, num_trials_back)
     mat_num_samples = np.zeros((num_trials_back-1, 2))
     for conv_window in mat_conv:
@@ -1159,7 +1163,8 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
             repeat = get_repetitions(ch)
             transitions = np.concatenate((np.array([0]), repeat[:-1]))
         if conv_window == 2:
-            transitions_side = get_transition_mat(side, conv_window=conv_window)
+            transitions_side = get_transition_mat(side,
+                                                  conv_window=conv_window)
         # perf_hist is use to check that all previous last trials where correct
         if conv_window > 1:
             perf_hist = np.convolve(perf, np.ones((conv_window,)),
@@ -1179,10 +1184,13 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                                               perf_hist == conv_window))
                 mask = np.concatenate((np.array([False]), mask[:-1]))
                 if conv_window == 2:
-                    mask_side = np.logical_and.reduce((transitions_side == values[ind_tr],
-                                              perf == ind_perf,
-                                              perf_hist == conv_window))
-                    mask_side = np.concatenate((np.array([False]), mask_side[:-1]))
+                    aux = transitions_side == values[ind_tr]
+                    aux2 = perf_hist == conv_window
+                    mask_side = np.logical_and.reduce((aux,
+                                                       perf == ind_perf,
+                                                       aux2))
+                    mask_side = np.concatenate((np.array([False]),
+                                                mask_side[:-1]))
                     index = np.where(mask_side != mask)[0]
                 if conv_window == 2 and False:
                     num = 50
@@ -1231,7 +1239,7 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                                    ind_tr/(values.shape[0]-1), conv_window,
                                    popt_next[1]])
     mat_biases = np.array(mat_biases)
-    return mat_biases, mat_conv, mat_num_samples
+    return mat_biases, mat_num_samples
 
 
 def plot_bias_after_altRep_seqs(mat_biases, mat_conv, mat_num_samples,
@@ -1284,7 +1292,6 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
     side = correct_side[start_point:start_point+num_tr]
     perf = performance[start_point:start_point+num_tr]
     mat_biases = []
-    num_trials_back = 6
     mat_conv = np.arange(1, num_trials_back)
     for conv_window in mat_conv:
         # get number of repetitions during the last conv_window trials
@@ -1374,6 +1381,7 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
     mat_biases = np.array(mat_biases)
     return mat_biases
 
+
 def plot_bias_after_transEv_change(mat_biases, folder, panels=None,
                                    legend=False):
     if panels is None:
@@ -1393,12 +1401,12 @@ def plot_bias_after_transEv_change(mat_biases, folder, panels=None,
                       lbl_ch[ind_ch] + ' transition evidence')
         for ind_tr in range(2):
             for ind_perf in range(2):
-                    if ind_perf == 0:
-                        color = np.array([1-0.25*ind_tr, 0.75,
-                                          0.75*(ind_tr + 1)])
-                        color[color > 1] = 1
-                    else:
-                        color = ((1-ind_tr), 0, ind_tr)
+                if ind_perf == 0:
+                    color = np.array([1-0.25*ind_tr, 0.75,
+                                      0.75*(ind_tr + 1)])
+                    color[color > 1] = 1
+                else:
+                    color = ((1-ind_tr), 0, ind_tr)
                     index = np.logical_and.reduce((mat_biases[:, 1] == ind_ch,
                                                   mat_biases[:, 2] == ind_perf,
                                                   mat_biases[:, 3] == ind_tr))
@@ -1419,15 +1427,14 @@ def plot_bias_after_transEv_change(mat_biases, folder, panels=None,
 def batch_analysis(main_folder, neural_analysis_flag=False,
                    behavior_analysis_flag=True):
     per = 100000
-    saving_folder_all = main_folder + 'all_results/'
-    if not os.path.exists(saving_folder_all):
-        os.mkdir(saving_folder_all)
 
-    experiments = res_summ.explore_folder(main_folder, count=False)
+    experiments, expl_params = res_summ.explore_folder(main_folder,
+                                                       count=False)
     for exp in experiments:
         params = exp[0]
         print('------------------------')
-        print(params)
+        p_exp = {k: params[k] for k in params if k in expl_params}
+        print(p_exp)
         _, folder = cf.build_command(save_folder=main_folder,
                                      ps_r=params['pass_reward'],
                                      ps_act=params['pass_action'],
@@ -1451,69 +1458,123 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
             biases_after_seqs = []
             biases_after_transEv = []
             bias_acr_training = []
+            num_samples_mat = []
             for ind_f in range(len(files)):
                 file = files[ind_f] + '/bhvr_data_all.npz'
                 data_flag = ptf.put_files_together(files[ind_f],
                                                    min_num_trials=per)
                 if data_flag:
-                    choice, correct_side, performance, evidence, _ =\
-                        load_behavioral_data(file)
-                    # plot performance
-                    num_tr = 10000000
-                    start_point = 0
-                    plt.subplot(3, 2, 1)
-                    plot_learning(performance[start_point:start_point+num_tr],
-                                  evidence[start_point:start_point+num_tr],
-                                  correct_side[start_point:start_point+num_tr],
-                                  w_conv=1000, legend=(ind_f == 0))
-                    plt.subplot(3, 2, 2)
-                    bias_mat = bias_across_training(choice, evidence,
-                                                    performance, per=per,
-                                                    conv_window=2)
-                    plot_bias_across_training(bias_mat,
-                                              tot_num_trials=choice.shape[0],
-                                              folder=saving_folder,
-                                              fig=False, legend=(ind_f == 0),
-                                              per=per, conv_window=2)
-                    bias_acr_training.append(bias_mat)
-                    #
-                    mat_biases, mat_conv, mat_num_samples =\
-                        bias_after_altRep_seqs(file=file, num_tr=per)
-                    plot_bias_after_altRep_seqs(mat_biases, mat_conv,
-                                                mat_num_samples,
-                                                folder=saving_folder,
-                                                panels=[3, 2, 3],
-                                                legend=(ind_f == 0))
-                    biases_after_seqs.append(mat_biases)
-                    #
-                    mat_biases = bias_after_transEv_change(file=file,
-                                                           num_tr=per)
-                    plot_bias_after_transEv_change(mat_biases,
-                                                   folder=saving_folder,
-                                                   panels=[3, 2, 5],
-                                                   legend=(ind_f == 0))
-                    biases_after_transEv.append(mat_biases)
-            maximo = -np.inf
-            minimo = np.inf
-            for ind_pl in range(3, 4):
-                plt.subplot(3, 2, ind_pl)
-                ax = plt.gca()
-                lims = ax.get_ylim()
-                maximo = max(maximo, lims[1])
-                minimo = min(minimo, lims[0])
-            for ind_pl in range(2, 7):
-                plt.subplot(3, 2, ind_pl)
-                ax = plt.gca()
-                lims = ax.set_ylim([minimo, maximo])
+                    bias_acr_training,\
+                        biases_after_seqs,\
+                        biases_after_transEv, num_samples_mat =\
+                        get_main_results(file, bias_acr_training,
+                                         biases_after_seqs,
+                                         biases_after_transEv, num_samples_mat,
+                                         per)
+                    plot_main_results(file, bias_acr_training,
+                                      biases_after_seqs,
+                                      biases_after_transEv,
+                                      num_samples_mat, ind_f == 0, per)
+            set_yaxis()
+            # get mean biases
+            mean_biases = np.empty((len(biases_after_seqs),
+                                    num_trials_back, 4))
+            mean_biases_t_2 = np.empty((len(biases_after_seqs),
+                                        num_trials_back, 4))
+            for ind_exp in range(len(biases_after_seqs)):
+                mat_biases = biases_after_seqs[ind_exp]
+                counter = 0
+                for ind_perf in range(2):
+                    for ind_tr in range(2):
+                        index = np.logical_and(mat_biases[:, 1] == ind_perf,
+                                               mat_biases[:, 2] == ind_tr)
+                        mean_biases[ind_exp, :, counter] = mat_biases[index, 0]
+                        mean_biases_t_2[ind_exp, :, counter] =\
+                            mat_biases[index, 4]
+                        counter += 1
 
             results = {'biases_after_transEv': biases_after_transEv,
                        'biases_after_seqs': biases_after_seqs,
-                       'bias_across_training': bias_acr_training}
-            np.savez('results.npz', **results)
+                       'bias_across_training': bias_acr_training,
+                       'num_samples_mat': num_samples_mat,
+                       'mean_biases': mean_biases,
+                       'mean_biases_t_2': mean_biases_t_2}
+            np.savez(json.dumps(p_exp) + '_results.npz', **results)
             f.savefig(saving_folder + '/bhvr_fig.png', dpi=DPI,
                       bbox_inches='tight')
-            f.savefig(saving_folder_all + folder_name + '.png', dpi=DPI,
-                      bbox_inches='tight')
+
+
+def get_main_results(file, bias_acr_training, biases_after_seqs,
+                     biases_after_transEv, num_samples_mat, per):
+    choice, _, performance, evidence, _ =\
+        load_behavioral_data(file)
+    # plot performance
+    bias_mat = bias_across_training(choice, evidence,
+                                    performance, per=per,
+                                    conv_window=2)
+    bias_acr_training.append(bias_mat)
+    #
+    mat_biases, mat_num_samples =\
+        bias_after_altRep_seqs(file=file, num_tr=per)
+    biases_after_seqs.append(mat_biases)
+    num_samples_mat.append(mat_num_samples)
+    #
+    mat_biases = bias_after_transEv_change(file=file,
+                                           num_tr=per)
+    biases_after_transEv.append(mat_biases)
+    return bias_acr_training, biases_after_seqs, biases_after_transEv,\
+        num_samples_mat
+
+
+def plot_main_results(file, bias_acr_training, biases_after_seqs,
+                      biases_after_transEv, num_samples_mat, leg_flag, per):
+    mat_conv = np.arange(1, num_trials_back)
+    choice, correct_side, performance, evidence, _ =\
+        load_behavioral_data(file)
+    # plot performance
+    num_tr = 10000000
+    start_point = 0
+    plt.subplot(3, 2, 1)
+    plot_learning(performance[start_point:start_point+num_tr],
+                  evidence[start_point:start_point+num_tr],
+                  correct_side[start_point:start_point+num_tr],
+                  w_conv=1000, legend=leg_flag)
+    plt.subplot(3, 2, 2)
+    bias_mat = bias_acr_training[-1]
+    plot_bias_across_training(bias_mat,
+                              tot_num_trials=choice.shape[0],
+                              folder='',
+                              fig=False, legend=leg_flag,
+                              per=per, conv_window=2)
+    #
+    mat_biases = biases_after_seqs[-1]
+    mat_num_samples = num_samples_mat[-1]
+    plot_bias_after_altRep_seqs(mat_biases, mat_conv,
+                                mat_num_samples,
+                                folder='',
+                                panels=[3, 2, 3],
+                                legend=leg_flag)
+    #
+    mat_biases = biases_after_transEv
+    plot_bias_after_transEv_change(mat_biases,
+                                   folder='',
+                                   panels=[3, 2, 5],
+                                   legend=leg_flag)
+
+
+def set_yaxis():
+    maximo = -np.inf
+    minimo = np.inf
+    for ind_pl in range(3, 4):
+        plt.subplot(3, 2, ind_pl)
+        ax = plt.gca()
+        lims = ax.get_ylim()
+        maximo = max(maximo, lims[1])
+        minimo = min(minimo, lims[0])
+    for ind_pl in range(2, 7):
+        plt.subplot(3, 2, ind_pl)
+        ax = plt.gca()
+        lims = ax.set_ylim([minimo, maximo])
 
 
 if __name__ == '__main__':
@@ -1553,6 +1614,6 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         main_folder = sys.argv[1]
     else:
-        main_folder = home + '/mm5514/'
+        main_folder = home + '/all_results/'
     batch_analysis(main_folder=main_folder, neural_analysis_flag=False,
                    behavior_analysis_flag=True)

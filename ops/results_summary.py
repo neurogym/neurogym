@@ -29,7 +29,6 @@ def load(file='/home/linux/params.npz'):
     return args
 
 
-
 def compare_dicts(x, y):
     assert len(x) == len(y)
     non_shared_items = {k: x[k] for k in x if k in y and x[k] != y[k]}
@@ -42,7 +41,7 @@ def compare_dicts(x, y):
         return False, non_shared_items
     else:
         return True, []
- 
+
 
 def check_new_exp(experiments, args, params_explored):
     new = True
@@ -75,7 +74,7 @@ def write_script(conf, save_folder, run_folder, load_folder, args, train_more):
         sv_f_name = '/evaluating/'
         file_name = 'ev.sh'
         eval_steps = 100000
-        
+
     cmmd = cf.specs(conf=conf, cluster='hab', hours='4', alg=args['alg'])
     aux, _ = cf.build_command(save_folder=save_folder,
                               run_folder=run_folder,
@@ -103,11 +102,11 @@ def write_script(conf, save_folder, run_folder, load_folder, args, train_more):
         cmmd += aux
         file.write(cmmd)
         file.close()
-    
 
-def explore_folder(main_folder, count=True):
-    save_folder = '/rigel/theory/users/mm5514/'
-    run_folder = '/rigel/home/mm5514/'
+
+def explore_folder(main_folder, count=True,
+                   save_folder='/rigel/theory/users/mm5514/',
+                   run_folder='/rigel/home/mm5514/'):
     params_explored = {}
     experiments = []
     num_trials = []
@@ -121,7 +120,7 @@ def explore_folder(main_folder, count=True):
                          folders[ind_f], args, 1)
             write_script(conf, save_folder, run_folder,
                          folders[ind_f], args, 0)
-            
+
             if len(experiments) == 0:
                 experiments.append([args])
                 group = 0
@@ -133,7 +132,7 @@ def explore_folder(main_folder, count=True):
                 flag = ptf.put_files_together(folders[ind_f], min_num_trials=1)
                 if flag:
                     data = np.load(folders[ind_f] + '/bhvr_data_all.npz')
-                    num_tr= data['choice'].shape[0]
+                    num_tr = data['choice'].shape[0]
                 else:
                     num_tr = 0
                 if len(num_trials) == 0:
@@ -143,7 +142,7 @@ def explore_folder(main_folder, count=True):
                 else:
                     num_trials[group].append(num_tr)
 
-    params_explored = {k: args[k] for k in params_explored 
+    params_explored = {k: args[k] for k in params_explored
                        if k not in non_relevant_params}
 
     args = experiments[0][0]
@@ -165,7 +164,7 @@ def explore_folder(main_folder, count=True):
     main_file.close()
     data = {'experiments': experiments}
     np.savez(main_folder + '/experiments.npz', **data)
-    return experiments
+    return experiments, params_explored
 
 
 if __name__ == '__main__':
