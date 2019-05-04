@@ -1504,13 +1504,17 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
             f.savefig(saving_folder + '/bhvr_fig.png', dpi=DPI,
                       bbox_inches='tight')
     f = ut.get_fig(display_mode)
+    print(inter_exp_biases)
     counter = 0
-    for ind_perf in range(2):
-        for ind_tr in range(2):
-            color = ((1-ind_tr), 0, ind_tr)
-            aux = inter_exp_biases[2, counter]
-            plt.plot(aux, color=color)
-            counter += 1
+    for ind_exp in range(len(inter_exp_biases)):
+        aux = inter_exp_biases[ind_exp]
+        for ind_perf in range(2):
+            for ind_tr in range(2):
+                color = np.array(((1-ind_tr), 0, ind_tr)) + 0.5*(1-ind_per)
+                color[color > 1] = 1
+                aux2 = aux[2, counter]
+                plt.plot(ind_exp, aux2, color=color, '+')
+                counter += 1
 
 
 def get_main_results(file, bias_acr_training, biases_after_seqs,
