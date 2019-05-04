@@ -1427,7 +1427,9 @@ def plot_bias_after_transEv_change(mat_biases, folder, panels=None,
 def batch_analysis(main_folder, neural_analysis_flag=False,
                    behavior_analysis_flag=True):
     per = 100000
-
+    saving_folder_all = main_folder + 'all_results/'
+    if not os.path.exists(saving_folder_all):
+        os.mkdir(saving_folder_all)
     experiments, expl_params = res_summ.explore_folder(main_folder,
                                                        count=False)
     inter_exp_biases = []
@@ -1500,9 +1502,10 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                        'num_samples_mat': num_samples_mat,
                        'mean_biases': mean_biases,
                        'mean_biases_t_2': mean_biases_t_2}
-            np.savez(json.dumps(p_exp) + '_results.npz', **results)
-            f.savefig(saving_folder + '/bhvr_fig.png', dpi=DPI,
-                      bbox_inches='tight')
+            np.savez(saving_folder_all + '/' + json.dumps(p_exp) +
+                     '_results.npz', **results)
+            f.savefig(saving_folder_all + '/' + folder_name +
+                      '_bhvr_fig.png', dpi=DPI, bbox_inches='tight')
     f = ut.get_fig(display_mode)
     print(inter_exp_biases)
     counter = 0
@@ -1510,11 +1513,13 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
         aux = inter_exp_biases[ind_exp]
         for ind_perf in range(2):
             for ind_tr in range(2):
-                color = np.array(((1-ind_tr), 0, ind_tr)) + 0.5*(1-ind_per)
+                color = np.array(((1-ind_tr), 0, ind_tr)) + 0.5*(1-ind_perf)
                 color[color > 1] = 1
                 aux2 = aux[2, counter]
-                plt.plot(ind_exp, aux2, color=color, '+')
+                plt.plot(ind_exp, aux2, '+', color=color)
                 counter += 1
+    f.savefig(saving_folder_all + '/all_together.png', dpi=DPI,
+              bbox_inches='tight')
 
 
 def get_main_results(file, bias_acr_training, biases_after_seqs,
@@ -1568,7 +1573,7 @@ def plot_main_results(file, bias_acr_training, biases_after_seqs,
                                 panels=[3, 2, 3],
                                 legend=leg_flag)
     #
-    mat_biases = biases_after_transEv
+    mat_biases = biases_after_transEv[-1]
     plot_bias_after_transEv_change(mat_biases,
                                    folder='',
                                    panels=[3, 2, 5],
@@ -1594,7 +1599,9 @@ if __name__ == '__main__':
     plt.close('all')
     #    per = 50000
     #    conv_window = 2
-    #    folder = '/home/linux/supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20_d_2KKK_ne_24_nu_32_ev_0.5_408140/'
+    #    folder = '/home/linux/supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8
+    # _200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20_d_2KKK_ne_24_nu_32
+    # _ev_0.5_408140/'
     #    file = folder + '/bhvr_data_all.npz'
     #    data_flag = ptf.put_files_together(folder,
     #                                       min_num_trials=0)
