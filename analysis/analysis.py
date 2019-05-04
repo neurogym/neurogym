@@ -1502,7 +1502,7 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                        'num_samples_mat': num_samples_mat,
                        'mean_biases': mean_biases,
                        'mean_biases_t_2': mean_biases_t_2}
-            np.savez(saving_folder_all + '/' + json.dumps(p_exp) +
+            np.savez(saving_folder_all + '/' + folder_name +
                      '_results.npz', **results)
             f.savefig(saving_folder_all + '/' + folder_name +
                       '_bhvr_fig.png', dpi=DPI, bbox_inches='tight')
