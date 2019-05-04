@@ -80,8 +80,13 @@ def bias_calculation(choice, ev, mask):
         (-1)**(choice_repeating == 2)
     rep_ev_mask = rep_ev[mask]
     repeat_mask = repeat[mask]
-    popt, pcov = curve_fit(probit_lapse_rates, rep_ev_mask, repeat_mask,
-                           maxfev=10000)
+    try:
+        popt, pcov = curve_fit(probit_lapse_rates, rep_ev_mask, repeat_mask,
+                               maxfev=10000)
+    except:
+        popt = [0, 0]
+        pcov = 0
+        print('no fitting') 
     return popt, pcov
 
 

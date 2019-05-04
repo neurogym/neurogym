@@ -397,5 +397,27 @@ if __name__ == '__main__':
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
     command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
+    # A2C (RL). PASS REWARD/ACTION EXPERIMENT
+    hours = '4'
+    alg = ['a2c']
+    num_units = [32]
+    bl_dur = [200]
+    stim_ev = [.5]
+    batch_size = [20]
+    net_type = ['cont_rnn']
+    rep_prob = [[.2, .8]]
+    pass_r = [True, False]
+    pass_act = [True, False]
+    num_insts = 10
+    num_steps_env = 1e8
+    experiment = 'a2c_pass_reward_action'
+    main_folder = '/rigel/theory/users/mm5514/'
+    produce_sh_files(cluster='hab', alg=alg, hours=hours, num_units=num_units,
+                     bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
+                     batch_size=batch_size, net_type=net_type,
+                     pass_r=pass_r, pass_act=pass_act,
+                     num_insts=num_insts, experiment=experiment,
+                     main_folder=main_folder, num_steps_env=num_steps_env)
+    command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
     all_analysis_file.write(command)
     all_analysis_file.close()
