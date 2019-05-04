@@ -1430,6 +1430,7 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
 
     experiments, expl_params = res_summ.explore_folder(main_folder,
                                                        count=False)
+    inter_exp_biases = []
     for exp in experiments:
         params = exp[0]
         print('------------------------')
@@ -1492,7 +1493,7 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                         mean_biases_t_2[ind_exp, :, counter] =\
                             mat_biases[index, 4]
                         counter += 1
-
+            inter_exp_biases.append(np.mean(mean_biases, axis=0))
             results = {'biases_after_transEv': biases_after_transEv,
                        'biases_after_seqs': biases_after_seqs,
                        'bias_across_training': bias_acr_training,
@@ -1502,6 +1503,14 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
             np.savez(json.dumps(p_exp) + '_results.npz', **results)
             f.savefig(saving_folder + '/bhvr_fig.png', dpi=DPI,
                       bbox_inches='tight')
+    f = ut.get_fig(display_mode)
+    counter = 0
+    for ind_perf in range(2):
+        for ind_tr in range(2):
+            color = ((1-ind_tr), 0, ind_tr)
+            aux = inter_exp_biases[2, counter]
+            plt.plot(aux, color=color)
+            counter += 1
 
 
 def get_main_results(file, bias_acr_training, biases_after_seqs,
