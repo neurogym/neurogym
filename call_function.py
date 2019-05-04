@@ -143,13 +143,13 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
     home = str(Path.home())
     insts = np.arange(num_insts)
     params_config = itertools.product(batch_size, bl_dur, num_units, stim_ev,
-                                      net_type, pass_r, pass_act, alg, rep_prob,
-                                      insts)
+                                      net_type, pass_r, pass_act, alg,
+                                      rep_prob, insts)
     scripts_folder = home + '/scripts/' + experiment + '/'
     if not os.path.exists(scripts_folder):
         os.mkdir(scripts_folder)
-    main_file = file = open(scripts_folder + 'main_' +\
-                            cluster + '.sh', 'w')
+    main_file = open(scripts_folder + 'main_' +
+                     cluster + '.sh', 'w')
     command = specs(cluster=cluster, hours='2')
     main_file.write(command)
 
@@ -160,8 +160,7 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
             '_' + str(conf[3]) + '_' + str(conf[4]) + '_' +\
             '_' + str(conf[5]) + '_' + str(conf[6]) + '_' +\
             str(conf[7]) + '_' + str(conf[0]) + '_' + ut.list_str(conf[8]) +\
-            '_' + str(conf[9]) + '_' + hours + '_' +\
-            cluster 
+            '_' + str(conf[9]) + '_' + hours + '_' + cluster
         name = name.replace('.', '')
         name += '.sh'
         print(name)
@@ -183,8 +182,8 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
         file.close()
 
     main_file.close()
-    analysis_file = file = open(scripts_folder + 'analysis_' +\
-                                cluster + '.sh', 'w')
+    analysis_file = open(scripts_folder + 'analysis_' +
+                         cluster + '.sh', 'w')
     command = specs(cluster=cluster, hours='2')
     command += 'module load anaconda/3-5.1\n'
     command += 'module load tensorflow/anaconda3-5.1.0/1.7.0\n'
@@ -329,7 +328,8 @@ def main(args):
 
 if __name__ == '__main__':
     scripts_folder = home + '/scripts/'
-    all_analysis_file = file = open(scripts_folder + 'all_analysis_hab.sh', 'w')
+    all_analysis_file = open(scripts_folder + 'all_analysis_hab.sh',
+                             'w')
     command = specs(cluster='hab', hours='4')
     # PASS REWARD/ACTION EXPERIMENT
     hours = '4'
