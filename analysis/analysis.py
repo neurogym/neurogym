@@ -1490,7 +1490,7 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                     biases_after_transEv.append(mat_biases)
             maximo = -np.inf
             minimo = np.inf
-            for ind_pl in range(2, 5):
+            for ind_pl in range(3, 4):
                 plt.subplot(3, 2, ind_pl)
                 ax = plt.gca()
                 lims = ax.get_ylim()
