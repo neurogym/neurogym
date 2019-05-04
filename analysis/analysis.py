@@ -1285,23 +1285,23 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
     perf = performance[start_point:start_point+num_tr]
     mat_biases = []
     num_trials_back = 6
-    mat_conv = np.arange(2, num_trials_back)
+    mat_conv = np.arange(1, num_trials_back)
     for conv_window in mat_conv:
         # get number of repetitions during the last conv_window trials
         # (not including the current trial)
         # get number of repetitions during the last conv_window trials
         # (not including the current trial)
         if conv_window > 1:
-            trans = get_transition_mat(side, conv_window=conv_window)
+            trans_gt = get_transition_mat(side, conv_window=conv_window)
         else:
             repeat = get_repetitions(side)
-            trans = np.concatenate((np.array([0]), repeat[:-1]))
+            trans_gt = np.concatenate((np.array([0]), repeat[:-1]))
         # use only extreme cases (all alt., all  rep.)
-        abs_trans = np.abs(trans)
+        abs_trans = np.abs(trans_gt)
         # the order of the concatenation is imposed by the fact that
         # transitions measures the trans. ev. in the previous trials, *not
         # counting the current trial*
-        tr_change = np.concatenate((abs_trans, abs_trans[0].reshape((1,))))
+        tr_change = np.concatenate((abs_trans[0].reshape((1,)), abs_trans))
         tr_change = np.diff(tr_change)
         values = np.unique(tr_change)
         # now get choice transitions
@@ -1333,7 +1333,7 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
                                                  trans == values_tr[ind_tr],
                                                  perf_hist == conv_window))
                     mask = np.concatenate((np.array([False]), mask[:-1]))
-                    if False:
+                    if conv_window == 2 and False:
                         repeat_choice = get_repetitions(ch)
                         print(np.where(mask == 1))
                         print('tr change : ' + str(values[ind_ch]))
@@ -1341,10 +1341,13 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
                         print('transition : ' + str(values_tr[ind_tr]))
                         print('conv. : ' + str(conv_window))
                         ut.get_fig()
-                        num = 20
-                        start = 200
-                        plt.plot(trans[start:start+num], '-+',
-                                 label='transitions', lw=1)
+                        num = 70
+                        start = 160
+                        plt.title('change:' + str(values[ind_ch]) +
+                                  '  perf:' + str(ind_perf) +
+                                  '  trans:' + str(values_tr[ind_tr]))
+                        plt.plot(trans_gt[start:start+num], '-+',
+                                 label='transitions gt', lw=1)
                         plt.plot(tr_change[start:start+num], '-+',
                                  label='tr_change', lw=1)
                         plt.plot(perf[start:start+num]-3, '--+', label='perf',
@@ -1353,6 +1356,8 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
                                  lw=1)
                         plt.plot(repeat_choice[start:start+num]+2, '-+',
                                  label='repeat', lw=1)
+                        plt.plot(trans[start:start+num], '--+',
+                                 label='transitions choice', lw=1)
                         for ind in range(num):
                             plt.plot([ind, ind], [-3, 3], '--',
                                      color=(.7, .7, .7))
@@ -1512,7 +1517,7 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
 
 
 if __name__ == '__main__':
-    # plt.close('all')
+    plt.close('all')
     #    per = 50000
     #    conv_window = 2
     #    folder = '/home/linux/supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20_d_2KKK_ne_24_nu_32_ev_0.5_408140/'
