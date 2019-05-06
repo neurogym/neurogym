@@ -27,15 +27,15 @@ class RDM(ngym.ngym):
     def __init__(self, dt=100, timing=[500, 80, 330, 1500, 500], stimEv=1.,
                  **kwargs):
         super().__init__(dt=dt)
-        # Actions
+        # Actions (fixate, left, right)
         self.actions = [0, -1, 1]
         # trial conditions
         self.choices = [-1, 1]
+        # cohs specifies the amount of evidence (which is modulated by stimEv)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
-
-        # Durations
+        # Durations (stimulus duration will be drawn from an exponential)
         self.fixation = timing[0]
         self.stimulus_min = timing[1]
         self.stimulus_mean = timing[2]
@@ -45,18 +45,17 @@ class RDM(ngym.ngym):
             self.decision
         if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
             print('XXXXXXXXXXXXXXXXXXXXXX')
-            print('periods duration must be higher than 0')
+            print('the duration of each period must be higher than 0')
             print('XXXXXXXXXXXXXXXXXXXXXX')
         print('mean trial duration: ' + str(self.mean_trial_duration) +
-              ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
-              ')')
+              ' (max num. steps: ' +
+              str(self.mean_trial_duration/self.dt) + ')')
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
         self.R_FAIL = 0.
         self.R_MISS = 0.
         self.abort = False
-
         # action and observation spaces
         self.stimulus_min = np.max([self.stimulus_min, dt])
         self.action_space = spaces.Discrete(3)
@@ -65,9 +64,6 @@ class RDM(ngym.ngym):
         # seeding
         self.seed()
         self.viewer = None
-
-        # set parameters TODO
-        # [setattr(self, k, v) for k, v in kwargs]
 
         # start new trial
         self.trial = self._new_trial()
@@ -93,7 +89,6 @@ class RDM(ngym.ngym):
         # Trial
         # ---------------------------------------------------------------------
         ground_truth = tasktools.choice(self.rng, self.choices)
-
         coh = tasktools.choice(self.rng, self.cohs)
 
         return {
@@ -107,7 +102,6 @@ class RDM(ngym.ngym):
         return (1 + coh/100)/2
 
     def _step(self, action):
-        # TODO: maybe allow self.in_epoch(self.t, ['fixation', 'stimulus',...])
         # ---------------------------------------------------------------------
         # Reward and observations
         # ---------------------------------------------------------------------
@@ -141,7 +135,7 @@ class RDM(ngym.ngym):
                 self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
             obs[low] = self.scale(-trial['coh']) +\
                 self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
-        
+
         # ---------------------------------------------------------------------
         # new trial?
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
@@ -174,7 +168,6 @@ if __name__ == '__main__':
     for ind in range(100):
         action = 1  # env.action_space.sample()
         obs, reward, done, info = env.step(action)
-        print(env.t)
         print(action)
         print(obs)
         print(reward)
@@ -183,4 +176,3 @@ if __name__ == '__main__':
             print('xxxxxxxxxxxxxxxx')
         else:
             print('----------------')
-
