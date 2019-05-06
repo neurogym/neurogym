@@ -106,7 +106,7 @@ class GNG(ngym.ngym):
         trial = self.trial
         info = {'new_trial': False}
         reward = 0
-        obs = np.zeros(len(self.inputs))
+        obs = np.zeros((3,))
         if self.in_epoch(self.t, 'fixation'):
             obs[0] = 1
             if self.actions[action] != -1:

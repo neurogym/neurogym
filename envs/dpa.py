@@ -22,39 +22,42 @@ from gym import spaces
 
 
 class DPA(ngym.ngym):
-    def __init__(self, dt=100):
+    def __init__(self, dt=100,
+                 timing=[100, 500, 500, 500, 500, 200, 500]):
         # call ngm __init__ function
         super().__init__(dt=dt)
-        # Inputs
-        self.inputs = tasktools.to_map('FIXATION', 'S1', 'S2', 'S3', 'S4')
         # Actions
-        self.actions = tasktools.to_map('NO_GO', 'GO')
+        self.actions = [-1, 1]
         # trial conditions
         self.dpa_pairs = [(1, 3), (1, 4), (2, 3), (2, 4)]
         # Input noise
         self.sigma = np.sqrt(2*100*0.001)
         # Epoch durations
-        self.fixation = 0
-        self.dpa1 = 500
-        self.delay_min = 500  # Original paper: 13000
-        self.delay_max = 500
-        self.delay_mean = (self.delay_min + self.delay_max) / 2
-        self.dpa2 = 500
-        self.resp_delay = 500
-        self.decision = 500
+        self.fixation = timing[0]
+        self.dpa1 = timing[1]
+        self.delay_min = timing[2]
+        self.delay_max = timing[3]
+        self.dpa2 = timing[4]
+        self.resp_delay = timing[5]
+        self.decision = timing[6]
+        self.delay_mean = (self.delay_min + self.delay_max)/2
         self.mean_trial_duration = self.fixation + self.dpa1 +\
             self.delay_mean + self.dpa2 + self.resp_delay + self.decision
+        if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
+            print('XXXXXXXXXXXXXXXXXXXXXX')
+            print('the duration of the fixation, stimulus and decision ' +
+                  'periods must be larger than 0')
+            print('XXXXXXXXXXXXXXXXXXXXXX')
         print('mean trial duration: ' + str(self.mean_trial_duration) +
-              ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
-              ')')
-
+              ' (max num. steps: ' +
+              str(self.mean_trial_duration/self.dt) + ')')
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
         self.R_INCORRECT = -1.
         self.R_MISS = 0.
         self.abort = False
-
+        # set action and observation spaces
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-1., 1, shape=(5, ),
                                             dtype=np.float32)
@@ -62,6 +65,7 @@ class DPA(ngym.ngym):
         self.seed()
         self.viewer = None
 
+        # start new trial
         self.trial = self._new_trial()
 
     def _new_trial(self):
@@ -92,24 +96,15 @@ class DPA(ngym.ngym):
         pair = tasktools.choice(self.rng, self.dpa_pairs)
 
         if np.diff(pair)[0] == 2:
-            ground_truth = 'GO'
+            ground_truth = 1
         else:
-            ground_truth = 'NO_GO'
+            ground_truth = -1
 
         return {
             'durations': durations,
             'ground_truth':     ground_truth,
             'pair':     pair
             }
-
-    def scale(self, f):
-        return (f - self.fmin)/(self.fmax - self.fmin)
-
-    def scale_p(self, f):
-        return (1 + self.scale(f))/2
-
-    def scale_n(self, f):
-        return (1 - self.scale(f))/2
 
     def _step(self, action):
         trial = self.trial
@@ -120,53 +115,45 @@ class DPA(ngym.ngym):
         # epochs = trial['epochs']
         info = {'new_trial': False}
         reward = 0
-        tr_perf = False
-        # if self.t not in epochs['decision']:
+        obs = np.zeros((5,))
         if self.in_epoch(self.t, 'fixation'):
-            if (action != self.actions['NO_GO']):
+            obs[0] = 1
+            if self.actions[action] != -1:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         if self.in_epoch(self.t, 'decision'):
-            # print('decision period')
-            if action == self.actions['GO']:
-                tr_perf = True
+            gt_sign = np.sign(trial['ground_truth'])
+            action_sign = np.sign(self.actions[action])
+            if (gt_sign > 0) and (action_sign > 0):
+                reward = self.R_CORRECT
                 info['new_trial'] = True
-                if (trial['ground_truth'] == 'GO'):
-                    reward = self.R_CORRECT
-                else:
-                    reward = self.R_INCORRECT
+        else:
+            obs[0] = 1
 
         # ---------------------------------------------------------------------
         # Inputs
         # ---------------------------------------------------------------------
-        dpa1, dpa2 = trial['pair']
-        obs = np.zeros(len(self.inputs))
-        # if self.t not in epochs['decision']:
-        if not self.in_epoch(self.t, 'decision'):
-            obs[self.inputs['FIXATION']] = 1
         # if self.t in epochs['dpa1']:
         if self.in_epoch(self.t, 'dpa1'):
-            # TODO: Do we need self.inputs?
+            dpa1, _ = trial['pair']
             obs[dpa1] = 1
         # if self.t in epochs['dpa2']:
         if self.in_epoch(self.t, 'dpa2'):
+            _, dpa2 = trial['pair']
             obs[dpa2] = 1
         # ---------------------------------------------------------------------
         # new trial?
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
                                                 info['new_trial'],
                                                 self.R_MISS, reward)
-
+        info['gt'] = np.zeros((2,))
         if new_trial:
             info['new_trial'] = True
-            info['gt'] = trial['ground_truth']
+            info['gt'][int((trial['ground_truth']/2+.5))] = 1
             self.t = 0
             self.num_tr += 1
-            # compute perf
-            self.perf, self.num_tr_perf =\
-                tasktools.compute_perf(self.perf, reward,
-                                       self.num_tr_perf, tr_perf)
         else:
+            info['gt'][0] = 1
             self.t += self.dt
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info, new_trial
