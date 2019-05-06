@@ -419,8 +419,6 @@ if __name__ == '__main__':
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
     command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
-    all_analysis_file.write(command)
-    all_analysis_file.close()
     # REPEATING PROBABILITY
     hours = '4'
     alg = ['supervised']
@@ -487,3 +485,5 @@ if __name__ == '__main__':
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
     command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
+    all_analysis_file.write(command)
+    all_analysis_file.close()

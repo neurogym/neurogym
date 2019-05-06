@@ -1483,7 +1483,7 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
             mean_biases = np.empty((len(biases_after_seqs),
                                     num_trials_back-1, 4))
             mean_biases_t_2 = np.empty((len(biases_after_seqs),
-                                        num_trials_back, 4))
+                                        num_trials_back-1, 4))
             for ind_exp in range(len(biases_after_seqs)):
                 mat_biases = biases_after_seqs[ind_exp]
                 counter = 0
