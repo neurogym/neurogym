@@ -1508,9 +1508,9 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                       '_bhvr_fig.png', dpi=DPI, bbox_inches='tight')
     f = ut.get_fig(display_mode)
     print(inter_exp_biases)
-    counter = 0
     for ind_exp in range(len(inter_exp_biases)):
         aux = inter_exp_biases[ind_exp]
+        counter = 0
         for ind_perf in range(2):
             for ind_tr in range(2):
                 color = np.array(((1-ind_tr), 0, ind_tr)) + 0.5*(1-ind_perf)
