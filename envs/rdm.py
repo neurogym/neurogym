@@ -45,7 +45,7 @@ class RDM(ngym.ngym):
             self.decision
         if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
             print('XXXXXXXXXXXXXXXXXXXXXX')
-            print('the duration of each period must be higher than 0')
+            print('the duration of all periods must be larger than 0')
             print('XXXXXXXXXXXXXXXXXXXXXX')
         print('mean trial duration: ' + str(self.mean_trial_duration) +
               ' (max num. steps: ' +
@@ -111,9 +111,6 @@ class RDM(ngym.ngym):
         reward = 0
         # observations
         obs = np.zeros((3,))
-        high = (trial['ground_truth'] > 0) + 1
-        low = (trial['ground_truth'] < 0) + 1
-
         if self.in_epoch(self.t, 'fixation'):
             obs[0] = 1
             if self.actions[action] != 0:
@@ -131,6 +128,8 @@ class RDM(ngym.ngym):
         # this is an 'if' to allow the stimulus and fixation periods to overlap
         if self.in_epoch(self.t, 'stimulus'):
             obs[0] = 1
+            high = (trial['ground_truth'] > 0) + 1
+            low = (trial['ground_truth'] < 0) + 1
             obs[high] = self.scale(trial['coh']) +\
                 self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
             obs[low] = self.scale(-trial['coh']) +\
@@ -141,16 +140,14 @@ class RDM(ngym.ngym):
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
                                                 info['new_trial'],
                                                 self.R_MISS, reward)
-
+        info['gt'] = np.zeros((3,))
         if new_trial:
             info['new_trial'] = True
-            info['gt'] = np.zeros((3,))
             info['gt'][int((trial['ground_truth']/2+1.5))] = 1
             self.t = 0
             self.num_tr += 1
         else:
             self.t += self.dt
-            info['gt'] = np.zeros((3,))
             info['gt'][0] = 1
 
         done = self.num_tr > self.num_tr_exp
