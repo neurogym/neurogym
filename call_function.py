@@ -497,7 +497,7 @@ if __name__ == '__main__':
     bl_dur = [200]
     stim_ev = [.5]
     batch_size = [20]
-    net_type = ['twin_net']
+    net_type = ['cont_rnn', 'twin_net']
     rep_prob = [[.2, .8]]
     pass_r = [True]
     pass_act = [True]

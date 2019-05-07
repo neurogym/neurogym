@@ -1308,7 +1308,7 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                 color = np.array(((1-ind_tr), 0, ind_tr)) + 0.5*(1-ind_perf)
                 color[color > 1] = 1
                 aux = mat_biases[2, counter]
-                plt.plot(ind_exp, aux, '+', color=color, markerSize=2)
+                plt.plot(ind_exp, aux, '+', color=color, markerSize=10)
                 counter += 1
     plt.xticks(np.arange(len(inter_exp_biases)), xticks)
     print(xticks)

@@ -117,7 +117,7 @@ def get_fig(display_mode=True):
     wspace = 0.4  # width reserved for blank space between subplots
     hspace = 0.4  # height reserved for white space between subplots
     f = plt.figure(figsize=(8, 8), dpi=250)
-    matplotlib.rcParams.update({'font.size': 4, 'lines.linewidth': 0.5,
+    matplotlib.rcParams.update({'font.size': 6, 'lines.linewidth': 0.5,
                                 'axes.titlepad': 1, 'lines.markersize': 3})
     plt.subplots_adjust(left=left, bottom=bottom, right=right,
                         top=top, wspace=wspace, hspace=hspace)
