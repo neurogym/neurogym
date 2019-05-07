@@ -1302,6 +1302,7 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
         mat_biases = p_exp['mean_biases']
         del p_exp['mean_biases']
         xticks.append(json.dumps(p_exp))
+        counter = 0
         for ind_perf in range(2):
             for ind_tr in range(2):
                 color = np.array(((1-ind_tr), 0, ind_tr)) + 0.5*(1-ind_perf)
@@ -1317,7 +1318,8 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
 
 def sort_results(mat, expl_params):
     if len(expl_params) == 1:
-        mat = sorted(mat, key=lambda i: i[expl_params.keys()[0]])
+        keys = list(expl_params.keys())
+        mat = sorted(mat, key=lambda i: i[keys[0]])
     return mat
 
 
