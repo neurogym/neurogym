@@ -383,7 +383,7 @@ if __name__ == '__main__':
     num_units = [32]
     bl_dur = [200]
     stim_ev = [.5]
-    batch_size = [4, 8, 12, 20]
+    batch_size = [40]  # [4, 8, 12, 20]
     net_type = ['cont_rnn']
     rep_prob = [[.2, .8]]
     pass_r = [True]
@@ -449,7 +449,7 @@ if __name__ == '__main__':
     hours = '4'
     alg = ['supervised']
     num_units = [32]
-    bl_dur = [10, 40, 200, 1000, 10000]
+    bl_dur = [100, 400]  # [10, 40, 200, 1000, 10000]
     stim_ev = [.5]
     batch_size = [20]
     net_type = ['cont_rnn']
@@ -493,11 +493,11 @@ if __name__ == '__main__':
     # TWIN NETWORK
     hours = '4'
     alg = ['supervised']
-    num_units = [32]
+    num_units = [44]  # [32]
     bl_dur = [200]
     stim_ev = [.5]
     batch_size = [20]
-    net_type = ['cont_rnn', 'twin_net']
+    net_type = ['twin_net']  # ['cont_rnn', 'twin_net']
     rep_prob = [[.2, .8]]
     pass_r = [True]
     pass_act = [True]
