@@ -1295,13 +1295,13 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
             f.savefig(saving_folder_all + '/' + folder_name +
                       '_bhvr_fig.png', dpi=DPI, bbox_inches='tight')
     f = ut.get_fig(display_mode)
-    inter_exp_biases = sort_results(inter_exp_biases)
+    inter_exp_biases = sort_results(inter_exp_biases, expl_params)
     xticks = []
     for ind_exp in range(len(inter_exp_biases)):
         p_exp = inter_exp_biases[ind_exp].copy()
         mat_biases = p_exp['mean_biases']
         del p_exp['mean_biases']
-        xticks.append(json(p_exp))
+        xticks.append(json.dumps(p_exp))
         for ind_perf in range(2):
             for ind_tr in range(2):
                 color = np.array(((1-ind_tr), 0, ind_tr)) + 0.5*(1-ind_perf)
@@ -1310,6 +1310,7 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                 plt.plot(ind_exp, aux, '+', color=color, markerSize=2)
                 counter += 1
     plt.xticks(np.arange(len(inter_exp_biases)), xticks)
+    print(xticks)
     f.savefig(saving_folder_all + '/all_together.png', dpi=DPI,
               bbox_inches='tight')
 
