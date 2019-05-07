@@ -8,6 +8,7 @@ import numpy as np
 import scipy.stats as sstats
 from scipy.optimize import curve_fit
 import matplotlib
+import json
 from pathlib import Path
 home = str(Path.home())
 sys.path.append(home + '/neurogym')
@@ -1281,7 +1282,8 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                         mean_biases_t_2[ind_exp, :, counter] =\
                             mat_biases[index, 4]
                         counter += 1
-            inter_exp_biases.append(np.mean(mean_biases, axis=0))
+            p_exp['mean_biases'] = np.mean(mean_biases, axis=0)
+            inter_exp_biases.append(p_exp)
             results = {'biases_after_transEv': biases_after_transEv,
                        'biases_after_seqs': biases_after_seqs,
                        'bias_across_training': bias_acr_training,
@@ -1293,19 +1295,29 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
             f.savefig(saving_folder_all + '/' + folder_name +
                       '_bhvr_fig.png', dpi=DPI, bbox_inches='tight')
     f = ut.get_fig(display_mode)
-    print(inter_exp_biases)
+    inter_exp_biases = sort_results(inter_exp_biases)
+    xticks = []
     for ind_exp in range(len(inter_exp_biases)):
-        aux = inter_exp_biases[ind_exp]
-        counter = 0
+        p_exp = inter_exp_biases[ind_exp].copy()
+        mat_biases = p_exp['mean_biases']
+        del p_exp['mean_biases']
+        xticks.append(json(p_exp))
         for ind_perf in range(2):
             for ind_tr in range(2):
                 color = np.array(((1-ind_tr), 0, ind_tr)) + 0.5*(1-ind_perf)
                 color[color > 1] = 1
-                aux2 = aux[2, counter]
-                plt.plot(ind_exp, aux2, '+', color=color)
+                aux = mat_biases[2, counter]
+                plt.plot(ind_exp, aux, '+', color=color, markerSize=2)
                 counter += 1
+    plt.xticks(np.arange(len(inter_exp_biases)), xticks)
     f.savefig(saving_folder_all + '/all_together.png', dpi=DPI,
               bbox_inches='tight')
+
+
+def sort_results(mat, expl_params):
+    if len(expl_params) == 1:
+        mat = sorted(mat, key=lambda i: i[expl_params.keys()[0]])
+    return mat
 
 
 def get_main_results(file, bias_acr_training, biases_after_seqs,
