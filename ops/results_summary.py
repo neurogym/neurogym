@@ -16,7 +16,7 @@ sys.path.append(home + '/neurogym')
 from neurogym.ops import put_together_files as ptf
 from neurogym import call_function as cf
 non_relevant_params = {'seed': 0, 'save_path': 0, 'log_interval': 0,
-                       'num_timesteps': 0}
+                       'num_timesteps': 0, 'eval_steps': 0}
 
 
 def load(file='/home/linux/params.npz'):
