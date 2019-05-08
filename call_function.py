@@ -24,7 +24,7 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
                   seed=None, num_env=24, ent_coef=0.05, lr=1e-3,
                   lr_sch='constant', gamma=.8, rep_prob=(.2, .8),
                   timing=[100, 200, 200, 200, 100], save_folder_name='',
-                  eval_steps=100000):
+                  eval_steps=100000, alpha=0.1):
     if seed is None:
         seed = datetime.now().microsecond
     tot_num_stps = num_stps_env*num_env
@@ -85,6 +85,7 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     save_path += '_ne_' + str(num_env)
     save_path += '_nu_' + str(nlstm)
     save_path += '_ev_' + str(stimEv)
+    save_path += '_a_' + str(alpha)
     save_path += '_' + str(seed)
     save_path += save_folder_name
     save_path = save_path.replace('-v0', '')
@@ -109,6 +110,7 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     command += ' --stimEv=' + str(stimEv)
     command += ' --seed=' + str(seed)
     command += ' --eval_steps=' + str(eval_steps)
+    command += ' --alpha=' + str(alpha)
     command += tr_h_cmmd
     command += ps_rw_cmmd
     command += ps_a_cmmd
@@ -133,7 +135,7 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
                      rep_prob=[[.2, .8]], batch_size=[20],
                      net_type=['cont_rnn'], pass_r=[True], pass_act=[True],
                      num_insts=5, experiment='', main_folder='',
-                     num_steps_env=1e8):
+                     num_steps_env=1e8, alpha=[0.1]):
     if cluster == 'hab':
         save_folder = main_folder + experiment + '/'
         run_folder = '/rigel/home/mm5514/'
@@ -144,7 +146,7 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
     insts = np.arange(num_insts)
     params_config = itertools.product(batch_size, bl_dur, num_units, stim_ev,
                                       net_type, pass_r, pass_act, alg,
-                                      rep_prob, insts)
+                                      rep_prob, alpha, insts)
     scripts_folder = home + '/scripts/' + experiment + '/'
     if not os.path.exists(scripts_folder):
         os.mkdir(scripts_folder)
@@ -155,12 +157,12 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
 
     for conf in params_config:
         print('-----------------------')
-        print(conf)
         name = str(conf[1]) + '_' + str(conf[2]) +\
             '_' + str(conf[3]) + '_' + str(conf[4]) + '_' +\
             '_' + str(conf[5]) + '_' + str(conf[6]) + '_' +\
             str(conf[7]) + '_' + str(conf[0]) + '_' + ut.list_str(conf[8]) +\
-            '_' + str(conf[9]) + '_' + hours + '_' + cluster
+            '_' + str(conf[9]) + '_' + str(conf[10]) + '_' + hours + 'h_' +\
+            cluster
         name = name.replace('.', '')
         name += '.sh'
         print(name)
@@ -176,7 +178,7 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
                                net_type=conf[4], num_stps_env=num_steps_env,
                                load_path='', stimEv=conf[3],
                                nsteps=conf[0], save=False, alg=conf[7],
-                               eval_steps=0)
+                               eval_steps=0, alpha=conf[9])
         cmmd += aux
         file.write(cmmd)
         file.close()
@@ -513,5 +515,29 @@ if __name__ == '__main__':
                      main_folder=main_folder, num_steps_env=num_steps_env)
     command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
 
+    # ALPHAEXPERIMENT
+    hours = '4'
+    alg = ['supervised']
+    num_units = [32]
+    bl_dur = [200]
+    stim_ev = [.5]
+    batch_size = [20]
+    net_type = ['cont_rnn']
+    rep_prob = [[.2, .8]]
+    pass_r = [True]
+    pass_act = [True]
+    alpha = [.1, .25, .5]
+    num_insts = 10
+    num_steps_env = 1e8
+    experiment = 'alpha'
+    main_folder = '/rigel/theory/users/mm5514/'
+    produce_sh_files(cluster='hab', alg=alg, hours=hours, num_units=num_units,
+                     bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
+                     batch_size=batch_size, net_type=net_type,
+                     pass_r=pass_r, pass_act=pass_act,
+                     num_insts=num_insts, experiment=experiment,
+                     main_folder=main_folder, num_steps_env=num_steps_env,
+                     alpha=alpha)
+    command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
     all_analysis_file.write(command)
     all_analysis_file.close()
