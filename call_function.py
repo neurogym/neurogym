@@ -385,7 +385,7 @@ if __name__ == '__main__':
     num_units = [32]
     bl_dur = [200]
     stim_ev = [.5]
-    batch_size = [40]  # [4, 8, 12, 20]
+    batch_size = [4, 8, 12, 20, 40]
     net_type = ['cont_rnn']
     rep_prob = [[.2, .8]]
     pass_r = [True]
@@ -451,7 +451,7 @@ if __name__ == '__main__':
     hours = '4'
     alg = ['supervised']
     num_units = [32]
-    bl_dur = [100, 400]  # [10, 40, 200, 1000, 10000]
+    bl_dur = [10, 40, 100, 200, 400, 1000, 10000]
     stim_ev = [.5]
     batch_size = [20]
     net_type = ['cont_rnn']
@@ -495,11 +495,11 @@ if __name__ == '__main__':
     # TWIN NETWORK
     hours = '4'
     alg = ['supervised']
-    num_units = [44]  # [32]
+    num_units = [32, 44]  # 44 value not run with cont_rnn
     bl_dur = [200]
     stim_ev = [.5]
     batch_size = [20]
-    net_type = ['twin_net']  # ['cont_rnn', 'twin_net']
+    net_type = ['cont_rnn', 'twin_net']
     rep_prob = [[.2, .8]]
     pass_r = [True]
     pass_act = [True]
@@ -515,7 +515,7 @@ if __name__ == '__main__':
                      main_folder=main_folder, num_steps_env=num_steps_env)
     command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
 
-    # ALPHAEXPERIMENT
+    # ALPHA EXPERIMENT
     hours = '4'
     alg = ['supervised']
     num_units = [32]
@@ -541,3 +541,26 @@ if __name__ == '__main__':
     command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
     all_analysis_file.write(command)
     all_analysis_file.close()
+
+    # COMPARISON WITH STANDARD NETWORKS (LSTM, VAINILLA RNN)
+    hours = '4'
+    alg = ['supervised']
+    num_units = [32]
+    bl_dur = [200]
+    stim_ev = [.5]
+    batch_size = [20]
+    net_type = ['cont_rnn', 'lstm', 'rnn']
+    rep_prob = [[.2, .8]]
+    pass_r = [True]
+    pass_act = [True]
+    num_insts = 10
+    num_steps_env = 1e8
+    experiment = 'twin_net'
+    main_folder = '/rigel/theory/users/mm5514/'
+    produce_sh_files(cluster='hab', alg=alg, hours=hours, num_units=num_units,
+                     bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
+                     batch_size=batch_size, net_type=net_type,
+                     pass_r=pass_r, pass_act=pass_act,
+                     num_insts=num_insts, experiment=experiment,
+                     main_folder=main_folder, num_steps_env=num_steps_env)
+    command += 'sbatch ' + experiment + '/analysis_hab.sh\n'

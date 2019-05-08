@@ -1079,6 +1079,7 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
     ch = choice[start_point:start_point+num_tr]
     side = correct_side[start_point:start_point+num_tr]
     perf = performance[start_point:start_point+num_tr]
+    next_perf = np.concatenate((np.array([0]), perf[:-1]))
     mat_biases = []
     mat_conv = np.arange(1, num_trials_back)
     for conv_window in mat_conv:
@@ -1096,7 +1097,7 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
         # the order of the concatenation is imposed by the fact that
         # transitions measures the trans. ev. in the previous trials, *not
         # counting the current trial*
-        tr_change = np.concatenate((abs_trans[0].reshape((1,)), abs_trans))
+        tr_change = np.concatenate((abs_trans, abs_trans[0].reshape((1,))))
         tr_change = np.diff(tr_change)
         values = np.unique(tr_change)
         # now get choice transitions
@@ -1123,11 +1124,11 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
                     # is values[ind_tr] we then need to shift these times
                     # to get the bias in the trial following them
                     mask = np.logical_and.reduce((tr_change == values[ind_ch],
-                                                 perf == ind_perf,
+                                                 next_perf == ind_perf,
                                                  trans == values_tr[ind_tr],
                                                  perf_hist == conv_window))
                     mask = np.concatenate((np.array([False]), mask[:-1]))
-                    if conv_window == 2 and False:
+                    if conv_window == 2 and ind_ch == 0 and False:
                         repeat_choice = get_repetitions(ch)
                         print(np.where(mask == 1))
                         print('tr change : ' + str(values[ind_ch]))
@@ -1135,7 +1136,7 @@ def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
                         print('transition : ' + str(values_tr[ind_tr]))
                         print('conv. : ' + str(conv_window))
                         ut.get_fig()
-                        num = 70
+                        num = 700
                         start = 160
                         plt.title('change:' + str(values[ind_ch]) +
                                   '  perf:' + str(ind_perf) +
@@ -1397,12 +1398,15 @@ def set_yaxis():
 
 
 if __name__ == '__main__':
-    plt.close('all')
+    #    plt.close('all')
     #    per = 50000
     #    conv_window = 2
-    #    folder = '/home/linux/supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8
-    # _200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20_d_2KKK_ne_24_nu_32
-    # _ev_0.5_408140/'
+    #    mat_conv = np.arange(1, num_trials_back)
+    #    folder = '/home/linux/all_results/supervised_RDM_' +\
+    #        't_100_200_200_200_100_TH_0.2_0.8' +\
+    #        '_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20_' +\
+    #        'd_2KKK_ne_24_nu_32' +\
+    #        '_ev_0.5_408140/'
     #    file = folder + '/bhvr_data_all.npz'
     #    data_flag = ptf.put_files_together(folder,
     #                                       min_num_trials=0)
@@ -1417,7 +1421,7 @@ if __name__ == '__main__':
     #                              folder='',
     #                              fig=True, legend=True,
     #                              per=per, conv_window=conv_window)
-    #    mat_biases, mat_conv, mat_num_samples =\
+    #    mat_biases, mat_num_samples =\
     #        bias_after_altRep_seqs(file=file, num_tr=per)
     #    plot_bias_after_altRep_seqs(mat_biases, mat_conv,
     #                                mat_num_samples,
