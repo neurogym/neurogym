@@ -31,9 +31,9 @@ class ReactionTime(Wrapper):
         return self.env.reset()
 
     def step(self, action):
-        obs, reward, done, info, new_trial = self.env._step(action)
+        obs, reward, done, info = self.env._step(action)
 
-        if new_trial:
+        if info['new_trial']:
             self.env.trial = self._new_trial()
 
         return obs, reward, done, info

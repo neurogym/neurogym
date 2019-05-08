@@ -55,16 +55,18 @@ class combine():
         action1, action2 = self.action_split[action]
         if self.env1_on:
             #            print('env1 on')
-            obs1, reward1, done1, info1, new_trial1 = self.env1._step(action1)
-            self.env1_on = not new_trial1
+            obs1, reward1, done1, info1 = self.env1._step(action1)
+            self.env1_on = not info1['new_trial']
+            new_trial1 = info1['new_trial']
         else:
             obs1, reward1, done1 = self.standby_step(1)
             new_trial1 = False
 
         if self.t > self.delay and self.env2_on:
             #            print('env2 on')
-            obs2, reward2, done2, info2, new_trial2 = self.env2._step(action2)
-            self.env2_on = not new_trial2
+            obs2, reward2, done2, info2 = self.env2._step(action2)
+            self.env2_on = not info2['new_trial']
+            new_trial2 = info2['new_trial']
         else:
             obs2, reward2, done2 = self.standby_step(2)
             new_trial2 = False
@@ -88,6 +90,7 @@ class combine():
         done = done1  # TODO: done whenever the primary task is done?
 
         # new trial information
+        # TODO: info should also store the ground truth
         info = {}
         if new_trial1 or new_trial2:
             info = {'new_trial': True}
