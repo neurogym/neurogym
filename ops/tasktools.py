@@ -54,6 +54,7 @@ def truncated_exponential(rng, dt, mean, xmin=0, xmax=np.inf):
             if xmin <= x < xmax:
                 return (x//dt)*dt
 
+
 def choice(rng, a):
     return a[rng.randint(0, len(a)-1)]
 

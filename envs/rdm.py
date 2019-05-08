@@ -30,7 +30,7 @@ class RDM(ngym.ngym):
         super().__init__(dt=dt)
         # Actions (fixate, left, right)
         self.actions = [0, -1, 1]
-        # trial conditions
+        # trial conditions (left, right)
         self.choices = [-1, 1]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
@@ -70,6 +70,16 @@ class RDM(ngym.ngym):
         self.trial = self._new_trial()
 
     def _new_trial(self):
+        """
+        _new_trial() is called when a trial ends to get the specifications of
+        the next trial. Such specifications are stored in a dictionary with
+        the following items:
+            durations, which stores the duration of the different periods (in
+            the case of rdm: fixation, stimulus and decision periods)
+            ground truth: correct response for the trial
+            coh: stimulus coherence (evidence) for the trial
+
+        """
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
@@ -103,6 +113,15 @@ class RDM(ngym.ngym):
         return (1 + coh/100)/2
 
     def _step(self, action):
+        """
+        _step receives an action and returns:
+            a new observation, obs
+            reward associated with the action, reward
+            a boolean variable indicating whether the experiment has end, done
+            a dictionary with extra information:
+                ground truth correct response, info['gt']
+                boolean indicating the end of the trial, info['new_trial']
+        """
         # ---------------------------------------------------------------------
         # Reward and observations
         # ---------------------------------------------------------------------
@@ -138,12 +157,12 @@ class RDM(ngym.ngym):
 
         # ---------------------------------------------------------------------
         # new trial?
-        reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                info['new_trial'],
-                                                self.R_MISS, reward)
+        reward, info['new_trial'] = tasktools.new_trial(self.t, self.tmax,
+                                                        self.dt,
+                                                        info['new_trial'],
+                                                        self.R_MISS, reward)
         info['gt'] = np.zeros((3,))
-        if new_trial:
-            info['new_trial'] = True
+        if info['new_trial']:
             info['gt'][int((trial['ground_truth']/2+1.5))] = 1
             self.t = 0
             self.num_tr += 1
@@ -152,11 +171,23 @@ class RDM(ngym.ngym):
             info['gt'][0] = 1
 
         done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info, new_trial
+        return obs, reward, done, info
 
     def step(self, action):
-        obs, reward, done, info, new_trial = self._step(action)
-        if new_trial:
+        """
+        step receives an action and returns:
+            a new observation, obs
+            reward associated with the action, reward
+            a boolean variable indicating whether the experiment has end, done
+            a dictionary with extra information:
+                ground truth correct response, info['gt']
+                boolean indicating the end of the trial, info['new_trial']
+        Note that the main computations are done by the function _step(action),
+        and the extra lines are basically checking whether to call the
+        _new_trial() function in order to start a new trial
+        """
+        obs, reward, done, info = self._step(action)
+        if info['new_trial']:
             self.trial = self._new_trial()
         return obs, reward, done, info
 
