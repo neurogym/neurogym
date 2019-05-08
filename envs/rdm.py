@@ -25,8 +25,10 @@ from neurogym.envs import ngym
 
 
 class RDM(ngym.ngym):
-    def __init__(self, dt=100, timing=[500, 80, 330, 1500, 500], stimEv=1.,
+    def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500), stimEv=1.,
                  **kwargs):
+        # TODO: separate timing list into variables
+        # TODO: stimEv to stim_ev
         super().__init__(dt=dt)
         # Actions (fixate, left, right)
         self.actions = [0, -1, 1]
