@@ -1226,6 +1226,8 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
         print('------------------------')
         p_exp = {k: params[k] for k in params if k in expl_params}
         print(p_exp)
+        if params['network'] == 'twin_net':
+            params['nlstm'] *= 2
         _, folder = cf.build_command(save_folder=main_folder,
                                      ps_r=params['pass_reward'],
                                      ps_act=params['pass_action'],
@@ -1240,11 +1242,16 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
         folder = os.path.basename(os.path.normpath(folder + '/'))
         undscr_ind = folder.rfind('_')
         folder_name = folder[:undscr_ind]
-        files = glob.glob(main_folder+folder_name + '*')
+        print(folder_name)
+        files = glob.glob(main_folder + folder_name + '*')
+        # only late experiments indicate the parameter alpha explicitly in the
+        # name of the folder
+        if len(files) == 0:
+            undscr_ind = folder.rfind('_a_')
+            folder_name = folder[:undscr_ind]
+            files = glob.glob(main_folder + folder_name + '*')
+
         if len(files) > 0:
-            saving_folder = main_folder + 'MAIN_' + folder_name
-            if not os.path.exists(saving_folder):
-                os.mkdir(saving_folder)
             f = ut.get_fig(display_mode)
             biases_after_seqs = []
             biases_after_transEv = []
@@ -1312,7 +1319,6 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                 plt.plot(ind_exp, aux, '+', color=color, markerSize=10)
                 counter += 1
     plt.xticks(np.arange(len(inter_exp_biases)), xticks)
-    print(xticks)
     f.savefig(saving_folder_all + '/all_together.png', dpi=DPI,
               bbox_inches='tight')
 

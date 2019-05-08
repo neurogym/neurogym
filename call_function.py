@@ -526,7 +526,7 @@ if __name__ == '__main__':
     rep_prob = [[.2, .8]]
     pass_r = [True]
     pass_act = [True]
-    alpha = [.1, .25, .5]
+    alpha = [.1, .25, .5, .75, 1.]
     num_insts = 10
     num_steps_env = 1e8
     experiment = 'alpha'
@@ -539,8 +539,6 @@ if __name__ == '__main__':
                      main_folder=main_folder, num_steps_env=num_steps_env,
                      alpha=alpha)
     command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
-    all_analysis_file.write(command)
-    all_analysis_file.close()
 
     # COMPARISON WITH STANDARD NETWORKS (LSTM, VAINILLA RNN)
     hours = '4'
@@ -564,3 +562,5 @@ if __name__ == '__main__':
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
     command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
+    all_analysis_file.write(command)
+    all_analysis_file.close()
