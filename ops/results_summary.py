@@ -117,8 +117,8 @@ def explore_folder(main_folder, count=True,
         file = path + '/params.npz'
         if os.path.exists(file):
             args = load(file)
-            update_exp(args, folder, file, main_folder, key='alpha', value=0.1,
-                       look_for='_a_', replace_with='_a_0.1')
+            args = update_exp(args, folder, file, main_folder, key='alpha',
+                              value=0.1, look_for='_a_', replace_with='_a_0.1')
 
             if len(experiments) == 0:
                 experiments.append([args])
@@ -175,6 +175,7 @@ def update_exp(args, folder, file, main_folder, key='alpha', value=0.1,
         aux = folder.rfind('_')
         new_name = folder.replace(folder[aux:], replace_with+folder[aux:])
         os.rename(main_folder+'/'+folder, main_folder+'/'+new_name)
+    return args
 
 
 if __name__ == '__main__':
