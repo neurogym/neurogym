@@ -367,7 +367,7 @@ if __name__ == '__main__':
     rep_prob = [[.2, .8]]
     pass_r = [True]
     pass_act = [True]
-    num_insts = 10
+    num_insts = 20
     num_steps_env = 1e8
     experiment = 'num_neurons'
     main_folder = '/rigel/theory/users/mm5514/'

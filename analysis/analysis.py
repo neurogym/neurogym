@@ -1220,6 +1220,7 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
         os.mkdir(saving_folder_all)
     experiments, expl_params = res_summ.explore_folder(main_folder,
                                                        count=False)
+    expl_keys = list(expl_params.keys())
     inter_exp_biases = []
     for exp in experiments:
         params = exp[0]
@@ -1240,15 +1241,16 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                                      save=False, alg=params['alg'],
                                      rep_prob=params['rep_prob'])
         folder = os.path.basename(os.path.normpath(folder + '/'))
-        undscr_ind = folder.rfind('_')
-        folder_name = folder[:undscr_ind]
-        print(folder_name)
-        files = glob.glob(main_folder + folder_name + '*')
         # only late experiments indicate the parameter alpha explicitly in the
         # name of the folder
-        if len(files) == 0:
+        if 'alpha' not in expl_keys:
             undscr_ind = folder.rfind('_a_')
             folder_name = folder[:undscr_ind]
+            files = glob.glob(main_folder + folder_name + '*')
+        else:
+            undscr_ind = folder.rfind('_')
+            folder_name = folder[:undscr_ind]
+            print(folder_name)
             files = glob.glob(main_folder + folder_name + '*')
 
         if len(files) > 0:
