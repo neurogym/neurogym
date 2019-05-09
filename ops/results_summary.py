@@ -112,14 +112,18 @@ def explore_folder(main_folder, count=True,
     num_trials = []
     folders = glob.glob(main_folder + '/*')
     for ind_f in range(len(folders)):
-        file = folders[ind_f] + '/params.npz'
+        path = folders[ind_f]
+        folder = os.path.basename(os.path.normpath(path + '/'))
+        file = path + '/params.npz'
         if os.path.exists(file):
             args = load(file)
+            update_exp(args, folder, file, key='alpha', value=0.1,
+                       look_for='_a_', replace_with='_a_0.1')
             conf = [args['alg'], args['nlstm'], args['network']]
             write_script(conf, save_folder, run_folder,
-                         folders[ind_f], args, 1)
+                         path, args, 1)
             write_script(conf, save_folder, run_folder,
-                         folders[ind_f], args, 0)
+                         path, args, 0)
 
             if len(experiments) == 0:
                 experiments.append([args])
@@ -129,9 +133,9 @@ def explore_folder(main_folder, count=True,
                     check_new_exp(experiments, args, params_explored)
             # count number of trials
             if count:
-                flag = ptf.put_files_together(folders[ind_f], min_num_trials=1)
+                flag = ptf.put_files_together(path, min_num_trials=1)
                 if flag:
-                    data = np.load(folders[ind_f] + '/bhvr_data_all.npz')
+                    data = np.load(path + '/bhvr_data_all.npz')
                     num_tr = data['choice'].shape[0]
                 else:
                     num_tr = 0
@@ -165,6 +169,17 @@ def explore_folder(main_folder, count=True,
     data = {'experiments': experiments}
     np.savez(main_folder + '/experiments.npz', **data)
     return experiments, params_explored
+
+
+def update_exp(args, folder, file, key='alpha', value=0.1, look_for='_a_',
+               replace_with='_a_0.1'):
+    if key not in args.keys():
+        args[key] = value
+    np.savez(file, **args)
+    if folder.find(look_for) == -1:
+        aux = folder.rfind('_')
+        new_name = folder.replace(folder[aux:], replace_with+folder[aux:])
+        os.rename(main_folder+'/'+folder, main_folder+'/'+new_name)
 
 
 if __name__ == '__main__':
