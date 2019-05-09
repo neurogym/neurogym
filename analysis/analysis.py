@@ -1293,6 +1293,8 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                             mat_biases[index, 4]
                         counter += 1
             p_exp['mean_biases'] = np.mean(mean_biases, axis=0)
+            p_exp['std_biases'] = np.std(mean_biases, axis=0)
+            p_exp['num_exps'] = mean_biases.shape[0]
             inter_exp_biases.append(p_exp)
             results = {'biases_after_transEv': biases_after_transEv,
                        'biases_after_seqs': biases_after_seqs,
@@ -1309,16 +1311,25 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
     xticks = []
     for ind_exp in range(len(inter_exp_biases)):
         p_exp = inter_exp_biases[ind_exp].copy()
-        mat_biases = p_exp['mean_biases']
+        mat_means = p_exp['mean_biases']
+        mat_std = p_exp['std_biases']
+        num_exps = p_exp['num_exps']
         del p_exp['mean_biases']
-        xticks.append(json.dumps(p_exp))
+        del p_exp['std_biases']
+        specs = json.dumps(p_exp)
+        specs = specs.replace('pass_reward', 'pass_r')
+        specs = specs.replace('pass_action', 'pass_a')
+        specs = specs.replace('num_exps', 'N')
+        xticks.append(specs)
         counter = 0
         for ind_perf in range(2):
             for ind_tr in range(2):
                 color = np.array(((1-ind_tr), 0, ind_tr)) + 0.5*(1-ind_perf)
                 color[color > 1] = 1
-                aux = mat_biases[2, counter]
-                plt.plot(ind_exp, aux, '+', color=color, markerSize=10)
+                mean = mat_means[2, counter]
+                std = mat_std[2, counter]
+                plt.errorbar(ind_exp, mean, std/np.sqrt(num_exps),
+                             '+', color=color, markerSize=10)
                 counter += 1
     plt.xticks(np.arange(len(inter_exp_biases)), xticks)
     f.savefig(saving_folder_all + '/all_together.png', dpi=DPI,
