@@ -119,11 +119,6 @@ def explore_folder(main_folder, count=True,
             args = load(file)
             update_exp(args, folder, file, key='alpha', value=0.1,
                        look_for='_a_', replace_with='_a_0.1')
-            conf = [args['alg'], args['nlstm'], args['network']]
-            write_script(conf, save_folder, run_folder,
-                         path, args, 1)
-            write_script(conf, save_folder, run_folder,
-                         path, args, 0)
 
             if len(experiments) == 0:
                 experiments.append([args])
