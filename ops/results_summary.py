@@ -117,7 +117,7 @@ def explore_folder(main_folder, count=True,
         file = path + '/params.npz'
         if os.path.exists(file):
             args = load(file)
-            update_exp(args, folder, file, key='alpha', value=0.1,
+            update_exp(args, folder, file, main_folder, key='alpha', value=0.1,
                        look_for='_a_', replace_with='_a_0.1')
 
             if len(experiments) == 0:
@@ -166,8 +166,8 @@ def explore_folder(main_folder, count=True,
     return experiments, params_explored
 
 
-def update_exp(args, folder, file, key='alpha', value=0.1, look_for='_a_',
-               replace_with='_a_0.1'):
+def update_exp(args, folder, file, main_folder, key='alpha', value=0.1,
+               look_for='_a_', replace_with='_a_0.1'):
     if key not in args.keys():
         args[key] = value
     np.savez(file, **args)
