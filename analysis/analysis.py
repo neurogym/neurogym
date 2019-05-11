@@ -1308,13 +1308,12 @@ def plot_biases_all_experiments(inter_exp_biases, expl_params,
     xticks = []
     for ind_exp in range(len(inter_exp_biases)):
         p_exp = inter_exp_biases[ind_exp].copy()
-        mat_means = p_exp['biases']
-        mat_std = p_exp['std_biases']
+        all_biases = p_exp['biases']
+        mat_means = np.mean(all_biases, axis=0)
+        mat_std = np.std(all_biases, axis=0)
         num_exps = p_exp['num_exps']
         del p_exp['biases']
-        del p_exp['std_biases']
         del p_exp['perfs']
-        del p_exp['std_perfs']
         specs = json.dumps(p_exp)
         specs = specs.replace('pass_reward', 'pass_r')
         specs = specs.replace('pass_action', 'pass_a')
@@ -1327,6 +1326,9 @@ def plot_biases_all_experiments(inter_exp_biases, expl_params,
                 color[color > 1] = 1
                 mean = mat_means[2, counter]
                 std = mat_std[2, counter]
+                plt.plot(np.ones((all_biases.shape,))*ind_exp,
+                         all_biases[:, 2, counter],
+                         marker='.', color=color, markerSize=5, alpha=0.5)
                 plt.errorbar(ind_exp, mean, std/np.sqrt(num_exps),
                              marker='+', color=color, markerSize=10)
                 counter += 1
@@ -1342,20 +1344,21 @@ def plot_perf_all_experiments(inter_exp_biases, expl_params,
     xticks = []
     for ind_exp in range(len(inter_exp_biases)):
         p_exp = inter_exp_biases[ind_exp].copy()
-        mat_means = p_exp['perfs']
-        mat_std = p_exp['std_perfs']
+        all_perfs = p_exp['perfs']
+        mat_means = np.mean(all_perfs, axis=0)
+        mat_std = np.std(all_perfs, axis=0)
         num_exps = p_exp['num_exps']
         del p_exp['biases']
-        del p_exp['std_biases']
         del p_exp['perfs']
-        del p_exp['std_perfs']
         specs = json.dumps(p_exp)
         specs = specs.replace('pass_reward', 'pass_r')
         specs = specs.replace('pass_action', 'pass_a')
         specs = specs.replace('num_exps', 'N')
         xticks.append(specs)
+        plt.plot(np.ones((all_perfs.shape,))*ind_exp, all_perfs,
+                 marker='.', color='b', markerSize=5, alpha=0.5)
         plt.errorbar(ind_exp, mat_means, mat_std/np.sqrt(num_exps),
-                     marker='+', markerSize=10)
+                     marker='+', color='b', markerSize=10)
     plt.xticks(np.arange(len(inter_exp_biases)), xticks)
     f_bias.savefig(saving_folder_all + '/all_together_perf.png', dpi=DPI,
                    bbox_inches='tight')
