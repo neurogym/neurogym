@@ -1278,10 +1278,8 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
             set_yaxis()
             # get biases
             biases, biases_t_2 = organize_biases(biases_after_seqs)
-            p_exp['biases'] = np.mean(biases, axis=0)
-            p_exp['std_biases'] = np.std(biases, axis=0)
-            p_exp['perfs'] = np.mean(performances, axis=0)
-            p_exp['std_perfs'] = np.std(performances, axis=0)
+            p_exp['biases'] = biases
+            p_exp['perfs'] = performances
             p_exp['num_exps'] = biases.shape[0]
             inter_exp_biases.append(p_exp)
             results = {'biases_after_transEv': biases_after_transEv,
@@ -1314,6 +1312,7 @@ def plot_biases_all_experiments(inter_exp_biases, expl_params,
         num_exps = p_exp['num_exps']
         del p_exp['biases']
         del p_exp['perfs']
+        print(p_exp)
         specs = json.dumps(p_exp)
         specs = specs.replace('pass_reward', 'pass_r')
         specs = specs.replace('pass_action', 'pass_a')
