@@ -28,7 +28,7 @@ def load(file='/home/linux/params.npz'):
         args.update(n_args)
         args.update(extra_args)
     else:
-        args = params
+        args = dict(params)
     return args
 
 
