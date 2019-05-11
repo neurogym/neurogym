@@ -1325,7 +1325,8 @@ def plot_biases_all_experiments(inter_exp_biases, expl_params,
                 color[color > 1] = 1
                 mean = mat_means[2, counter]
                 std = mat_std[2, counter]
-                plt.plot(np.ones((all_biases.shape,))*ind_exp,
+                plt.plot(np.random.normal(loc=ind_exp, scale=0.1,
+                                          size=(all_biases.shape[0],)),
                          all_biases[:, 2, counter],
                          marker='.', color=color, markerSize=5, alpha=0.5)
                 plt.errorbar(ind_exp, mean, std/np.sqrt(num_exps),
@@ -1354,7 +1355,8 @@ def plot_perf_all_experiments(inter_exp_biases, expl_params,
         specs = specs.replace('pass_action', 'pass_a')
         specs = specs.replace('num_exps', 'N')
         xticks.append(specs)
-        plt.plot(np.ones((all_perfs.shape,))*ind_exp, all_perfs,
+        plt.plot(np.random.normal(loc=ind_exp, scale=0.1,
+                                  size=(len(all_perfs),)), all_perfs,
                  marker='.', color='b', markerSize=5, alpha=0.5)
         plt.errorbar(ind_exp, mat_means, mat_std/np.sqrt(num_exps),
                      marker='+', color='b', markerSize=10)
