@@ -1295,10 +1295,10 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                      '_results.npz', **results)
             f.savefig(saving_folder_all + '/' + folder_name +
                       '_bhvr_fig.png', dpi=DPI, bbox_inches='tight')
-            plot_biases_all_experiments(inter_exp_biases, expl_params,
-                                        saving_folder_all)
-            plot_perf_all_experiments(inter_exp_biases, expl_params,
-                                      saving_folder_all)
+        plot_biases_all_experiments(inter_exp_biases, expl_params,
+                                    saving_folder_all)
+        plot_perf_all_experiments(inter_exp_biases, expl_params,
+                                  saving_folder_all)
 
 
 def plot_biases_all_experiments(inter_exp_biases, expl_params,
@@ -1354,9 +1354,7 @@ def plot_perf_all_experiments(inter_exp_biases, expl_params,
         specs = specs.replace('pass_action', 'pass_a')
         specs = specs.replace('num_exps', 'N')
         xticks.append(specs)
-        mean = mat_means[ind_exp]
-        std = mat_std[ind_exp]
-        plt.errorbar(ind_exp, mean, std/np.sqrt(num_exps),
+        plt.errorbar(ind_exp, mat_means, mat_std/np.sqrt(num_exps),
                      marker='+', markerSize=10)
     plt.xticks(np.arange(len(inter_exp_biases)), xticks)
     f_bias.savefig(saving_folder_all + '/all_together_perf.png', dpi=DPI,
