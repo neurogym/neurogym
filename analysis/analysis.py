@@ -1354,8 +1354,8 @@ def plot_perf_all_experiments(inter_exp_biases, expl_params,
         specs = specs.replace('pass_action', 'pass_a')
         specs = specs.replace('num_exps', 'N')
         xticks.append(specs)
-        mean = mat_means[2, ind_exp]
-        std = mat_std[2, ind_exp]
+        mean = mat_means[ind_exp]
+        std = mat_std[ind_exp]
         plt.errorbar(ind_exp, mean, std/np.sqrt(num_exps),
                      marker='+', markerSize=10)
     plt.xticks(np.arange(len(inter_exp_biases)), xticks)
