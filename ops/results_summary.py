@@ -21,11 +21,14 @@ non_relevant_params = {'seed': 0, 'save_path': 0, 'log_interval': 0,
 
 def load(file='/home/linux/params.npz'):
     params = np.load(file)
-    args = vars(params['args'].tolist())
-    n_args = vars(params['n_args'].tolist())
-    extra_args = params['extra_args'].tolist()
-    args.update(n_args)
-    args.update(extra_args)
+    if 'args' in params.keys():
+        args = vars(params['args'].tolist())
+        n_args = vars(params['n_args'].tolist())
+        extra_args = params['extra_args'].tolist()
+        args.update(n_args)
+        args.update(extra_args)
+    else:
+        args = params
     return args
 
 
