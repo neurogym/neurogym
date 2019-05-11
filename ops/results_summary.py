@@ -28,7 +28,11 @@ def load(file='/home/linux/params.npz'):
         args.update(n_args)
         args.update(extra_args)
     else:
-        args = dict(params)
+        keys = params.keys()
+        args = {}
+        for key in keys:
+            args[key] = params[key].tolist()
+
     return args
 
 
