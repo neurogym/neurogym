@@ -1325,14 +1325,16 @@ def plot_biases_all_experiments(inter_exp_biases, expl_params,
                 color[color > 1] = 1
                 mean = mat_means[2, counter]
                 std = mat_std[2, counter]
-                plt.plot(np.random.normal(loc=ind_exp, scale=0.1,
+                plt.plot(np.random.normal(loc=ind_exp,
+                                          scale=0.01*len(inter_exp_biases),
                                           size=(all_biases.shape[0],)),
                          all_biases[:, 2, counter], '.', color=color,
-                         markerSize=5, alpha=0.25)
+                         markerSize=5, alpha=1.)
                 plt.errorbar(ind_exp, mean, std/np.sqrt(num_exps),
                              marker='+', color=color, markerSize=10)
                 counter += 1
     plt.xticks(np.arange(len(inter_exp_biases)), xticks)
+    plt.xlim([-0.5, len(inter_exp_biases)-0.5])
     f_bias.savefig(saving_folder_all + '/all_together_bias.png', dpi=DPI,
                    bbox_inches='tight')
 
@@ -1355,12 +1357,14 @@ def plot_perf_all_experiments(inter_exp_biases, expl_params,
         specs = specs.replace('pass_action', 'pass_a')
         specs = specs.replace('num_exps', 'N')
         xticks.append(specs)
-        plt.plot(np.random.normal(loc=ind_exp, scale=0.1,
+        plt.plot(np.random.normal(loc=ind_exp,
+                                  scale=0.01*len(inter_exp_biases),
                                   size=(len(all_perfs),)), all_perfs, '.',
-                 color='b', markerSize=5, alpha=0.25)
+                 color='b', markerSize=5, alpha=1.)
         plt.errorbar(ind_exp, mat_means, mat_std/np.sqrt(num_exps),
                      marker='+', color='b', markerSize=10)
     plt.xticks(np.arange(len(inter_exp_biases)), xticks)
+    plt.xlim([-0.5, len(inter_exp_biases)-0.5])
     f_bias.savefig(saving_folder_all + '/all_together_perf.png', dpi=DPI,
                    bbox_inches='tight')
 
