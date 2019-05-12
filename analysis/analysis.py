@@ -1353,16 +1353,17 @@ def plot_perf_all_experiments(inter_exp_biases, expl_params,
         del p_exp['biases']
         del p_exp['perfs']
         specs = json.dumps(p_exp)
-        specs = specs.replace('pass_reward', 'pass_r')
-        specs = specs.replace('pass_action', 'pass_a')
+        specs = specs.replace('pass_reward', 'Rew')
+        specs = specs.replace('pass_action', 'Act')
         specs = specs.replace('num_exps', 'N')
+        specs = specs.replace('bl_dur', 'bl')
         xticks.append(specs)
         plt.plot(np.random.normal(loc=ind_exp,
                                   scale=0.01*len(inter_exp_biases),
                                   size=(len(all_perfs),)), all_perfs, '.',
-                 color='b', markerSize=5, alpha=1.)
+                 color='b', markerSize=3, alpha=1.)
         plt.errorbar(ind_exp, mat_means, mat_std/np.sqrt(num_exps),
-                     marker='+', color='b', markerSize=10)
+                     marker='+', color='b', markerSize=12)
     plt.xticks(np.arange(len(inter_exp_biases)), xticks)
     plt.xlim([-0.5, len(inter_exp_biases)-0.5])
     f_bias.savefig(saving_folder_all + '/all_together_perf.png', dpi=DPI,
