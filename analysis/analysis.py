@@ -1370,6 +1370,10 @@ def reduce_xticks(specs):
     specs = specs.replace('pass_action', 'Act')
     specs = specs.replace('num_exps', 'N')
     specs = specs.replace('bl_dur', 'bl')
+    specs = specs.replace('network', 'net')
+    specs = specs.replace('nlstm', 'n_un')
+    specs = specs.replace('twin_net', 'twin')
+    specs = specs.replace('cont_rnn', 'rnn')
     return specs
 
 
