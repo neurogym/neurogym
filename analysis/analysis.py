@@ -1416,12 +1416,12 @@ def get_main_results(file, bias_acr_training, biases_after_seqs,
     bias_acr_training.append(bias_mat)
     #
     mat_biases, mat_num_samples =\
-        bias_after_altRep_seqs(file=file, num_tr=per)
+        bias_after_altRep_seqs(file=file, num_tr=500000)
     biases_after_seqs.append(mat_biases)
     num_samples_mat.append(mat_num_samples)
     #
     mat_biases = bias_after_transEv_change(file=file,
-                                           num_tr=per)
+                                           num_tr=500000)
     biases_after_transEv.append(mat_biases)
     return perf_last_stage, bias_acr_training, biases_after_seqs,\
         biases_after_transEv, num_samples_mat
