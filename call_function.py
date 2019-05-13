@@ -451,14 +451,14 @@ if __name__ == '__main__':
     hours = '4'
     alg = ['supervised']
     num_units = [32]
-    bl_dur = [10, 40, 100, 200, 400, 1000, 10000]
+    bl_dur = [10, 40, 100, 200, 300, 400, 1000, 10000]
     stim_ev = [.5]
     batch_size = [20]
     net_type = ['cont_rnn']
     rep_prob = [[.2, .8]]
     pass_r = [True]
     pass_act = [True]
-    num_insts = 10
+    num_insts = 20
     num_steps_env = 1e8
     experiment = 'block_size'
     main_folder = '/rigel/theory/users/mm5514/'

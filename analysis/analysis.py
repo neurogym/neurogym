@@ -1314,9 +1314,7 @@ def plot_biases_all_experiments(inter_exp_biases, expl_params,
         del p_exp['perfs']
         print(p_exp)
         specs = json.dumps(p_exp)
-        specs = specs.replace('pass_reward', 'pass_r')
-        specs = specs.replace('pass_action', 'pass_a')
-        specs = specs.replace('num_exps', 'N')
+        specs = reduce_xticks(specs)
         xticks.append(specs)
         counter = 0
         for ind_perf in range(2):
@@ -1353,10 +1351,7 @@ def plot_perf_all_experiments(inter_exp_biases, expl_params,
         del p_exp['biases']
         del p_exp['perfs']
         specs = json.dumps(p_exp)
-        specs = specs.replace('pass_reward', 'Rew')
-        specs = specs.replace('pass_action', 'Act')
-        specs = specs.replace('num_exps', 'N')
-        specs = specs.replace('bl_dur', 'bl')
+        specs = reduce_xticks(specs)
         xticks.append(specs)
         plt.plot(np.random.normal(loc=ind_exp,
                                   scale=0.01*len(inter_exp_biases),
@@ -1368,6 +1363,14 @@ def plot_perf_all_experiments(inter_exp_biases, expl_params,
     plt.xlim([-0.5, len(inter_exp_biases)-0.5])
     f_bias.savefig(saving_folder_all + '/all_together_perf.png', dpi=DPI,
                    bbox_inches='tight')
+
+
+def reduce_xticks(specs):
+    specs = specs.replace('pass_reward', 'Rew')
+    specs = specs.replace('pass_action', 'Act')
+    specs = specs.replace('num_exps', 'N')
+    specs = specs.replace('bl_dur', 'bl')
+    return specs
 
 
 def organize_biases(biases_after_seqs):
