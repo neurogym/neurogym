@@ -1295,6 +1295,8 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                       '_bhvr_fig.png', dpi=DPI, bbox_inches='tight')
         plot_biases_all_experiments(inter_exp_biases, expl_params,
                                     saving_folder_all)
+        plot_bias_ratios_all_experiments(inter_exp_biases, expl_params,
+                                         saving_folder_all)
         plot_perf_all_experiments(inter_exp_biases, expl_params,
                                   saving_folder_all)
 
