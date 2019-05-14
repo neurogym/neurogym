@@ -1337,6 +1337,42 @@ def plot_biases_all_experiments(inter_exp_biases, expl_params,
                    bbox_inches='tight')
 
 
+def plot_bias_ratios_all_experiments(inter_exp_biases, expl_params,
+                                     saving_folder_all):
+    f_bias = ut.get_fig(display_mode)
+    inter_exp_biases = sort_results(inter_exp_biases, expl_params)
+    xticks = []
+    for ind_exp in range(len(inter_exp_biases)):
+        p_exp = inter_exp_biases[ind_exp].copy()
+        all_biases = p_exp['biases']
+        num_exps = p_exp['num_exps']
+        del p_exp['biases']
+        del p_exp['perfs']
+        print(p_exp)
+        specs = json.dumps(p_exp)
+        specs = reduce_xticks(specs)
+        xticks.append(specs)
+        counter = 0
+        for ind_tr in range(2):
+            color = np.array(((1-ind_tr), 0, ind_tr))
+            color[color > 1] = 1
+            ratios = all_biases[:, 2, ind_tr]/all_biases[:, 2, 2+ind_tr]
+            mean = np.mean(ratios)
+            std = np.std(ratios)
+            plt.plot(np.random.normal(loc=ind_exp,
+                                      scale=0.01*len(inter_exp_biases),
+                                      size=(all_biases.shape[0],)),
+                     ratios, '.', color=color,
+                     markerSize=5, alpha=1.)
+            plt.errorbar(ind_exp, mean, std/np.sqrt(num_exps),
+                         marker='+', color=color, markerSize=10)
+            counter += 1
+    plt.xticks(np.arange(len(inter_exp_biases)), xticks)
+    plt.xlim([-0.5, len(inter_exp_biases)-0.5])
+    f_bias.savefig(saving_folder_all + '/all_together_ratios.png', dpi=DPI,
+                   bbox_inches='tight')
+
+
 def plot_perf_all_experiments(inter_exp_biases, expl_params,
                               saving_folder_all):
     f_bias = ut.get_fig(display_mode)
