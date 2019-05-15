@@ -141,16 +141,15 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
         run_folder = '/rigel/home/mm5514/'
     else:
         save_folder = main_folder + experiment + '/'
-        run_folder = '/gpfs/projects/hcli64/manuel/code/'
-    home = str(Path.home())
+        run_folder = '/home/hcli64/hcli64348/'
     insts = np.arange(num_insts)
     params_config = itertools.product(batch_size, bl_dur, num_units, stim_ev,
                                       net_type, pass_r, pass_act, alg,
                                       rep_prob, alpha, insts)
-    scripts_folder = home + '/scripts/' + experiment + '/'
-    if not os.path.exists(scripts_folder):
-        os.mkdir(scripts_folder)
-    main_file = open(scripts_folder + 'main_' +
+    scr_folder = scripts_folder + experiment + '/'
+    if not os.path.exists(scr_folder):
+        os.makedirs(scr_folder)
+    main_file = open(scr_folder + 'main_' +
                      cluster + '.sh', 'w')
     command = specs(cluster=cluster, hours='4')
     main_file.write(command)
@@ -169,7 +168,7 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
         main_file.write('sbatch ' + name + '\n')
         main_file.write('sleep 20\n')
         # training script
-        file = open(scripts_folder + name, 'w')
+        file = open(scr_folder + name, 'w')
         cmmd = specs(conf=conf, cluster=cluster, hours=hours, alg=conf[7],
                      name=name)
         aux, _ = build_command(save_folder=save_folder, run_folder=run_folder,
@@ -184,7 +183,7 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
         file.close()
 
     main_file.close()
-    analysis_file = open(scripts_folder + 'analysis_' +
+    analysis_file = open(scr_folder + 'analysis_' +
                          cluster + '.sh', 'w')
     command = specs(cluster=cluster, hours='2')
     command += 'module load anaconda/3-5.1\n'
@@ -219,9 +218,7 @@ def specs(conf=None, cluster='hab', hours='120', alg='a2c', name=''):
             command += '#SBATCH -c 1\n'
             command += '#SBATCH --time=0:30:00\n'
         else:
-            name = str(conf[2])
-            for ind in range(3, len(conf)):
-                name += '_' + str(conf[ind])
+            name = name[:-3] + '_' + hours
             command += '#SBATCH --job-name=' + name + '\n'
             command += '#SBATCH --cpus-per-task=40\n'
             command += '#SBATCH --time=48:00:00\n'
@@ -238,26 +235,6 @@ def specs(conf=None, cluster='hab', hours='120', alg='a2c', name=''):
             command += 'module load opencv/3.4.1\n'
             command += 'module load python/3.6.5_ML\n'
 
-    return command
-
-
-def specs_bsc(conf=None):
-    command = ''
-    command += '#!/bin/sh\n'
-    if conf is None:
-        command += '#SBATCH --job-name=RUN\n'
-        command += '#SBATCH -c 1\n'
-        command += '#SBATCH --time=0:30:00\n'
-    else:
-        name = str(conf[2])
-        for ind in range(3, len(conf)):
-            name += '_' + str(conf[ind])
-        command += '#SBATCH --job-name=' + name + '\n'
-        command += '#SBATCH --cpus-per-task=40\n'
-        command += '#SBATCH --time=48:00:00\n'
-        command += '#SBATCH --exclusive\n'
-        command += 'module load anaconda/3-5.1\n'
-        command += 'module load tensorflow/anaconda3-5.1.0/1.7.0\n'
     return command
 
 
@@ -329,10 +306,16 @@ def main(args):
 
 
 if __name__ == '__main__':
-    scripts_folder = home + '/scripts/'
+    cluster = 'bsc'  # 'hab'
+    # main_folder = '/rigel/theory/users/mm5514/'
+    main_folder = '/gpfs/scratch/hcli64/hcli64348/priors/'
+    scripts_folder = home + '/priors/' + cluster + '_scripts/'
+    if not os.path.exists(scripts_folder):
+        os.makedirs(scripts_folder)
+
     all_analysis_file = open(scripts_folder + 'all_analysis_hab.sh',
                              'w')
-    command = specs(cluster='hab', hours='4')
+    command = specs(cluster=cluster, hours='4')
     # PASS REWARD/ACTION EXPERIMENT
     hours = '4'
     alg = ['supervised']
@@ -347,8 +330,9 @@ if __name__ == '__main__':
     num_insts = 10
     num_steps_env = 1e8
     experiment = 'pass_reward_action'
-    main_folder = '/rigel/theory/users/mm5514/'
-    produce_sh_files(cluster='hab', alg=alg, hours=hours, num_units=num_units,
+
+    produce_sh_files(cluster=cluster, alg=alg, hours=hours,
+                     num_units=num_units,
                      bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
                      batch_size=batch_size, net_type=net_type,
                      pass_r=pass_r, pass_act=pass_act,
@@ -370,8 +354,9 @@ if __name__ == '__main__':
     num_insts = 20
     num_steps_env = 1e8
     experiment = 'num_neurons'
-    main_folder = '/rigel/theory/users/mm5514/'
-    produce_sh_files(cluster='hab', alg=alg, hours=hours, num_units=num_units,
+
+    produce_sh_files(cluster=cluster, alg=alg, hours=hours,
+                     num_units=num_units,
                      bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
                      batch_size=batch_size, net_type=net_type,
                      pass_r=pass_r, pass_act=pass_act,
@@ -393,8 +378,9 @@ if __name__ == '__main__':
     num_insts = 10
     num_steps_env = 1e8
     experiment = 'rollout'
-    main_folder = '/rigel/theory/users/mm5514/'
-    produce_sh_files(cluster='hab', alg=alg, hours=hours, num_units=num_units,
+
+    produce_sh_files(cluster=cluster, alg=alg, hours=hours,
+                     num_units=num_units,
                      bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
                      batch_size=batch_size, net_type=net_type,
                      pass_r=pass_r, pass_act=pass_act,
@@ -416,8 +402,9 @@ if __name__ == '__main__':
     num_insts = 10
     num_steps_env = 1e8
     experiment = 'a2c_pass_reward_action'
-    main_folder = '/rigel/theory/users/mm5514/'
-    produce_sh_files(cluster='hab', alg=alg, hours=hours, num_units=num_units,
+
+    produce_sh_files(cluster=cluster, alg=alg, hours=hours,
+                     num_units=num_units,
                      bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
                      batch_size=batch_size, net_type=net_type,
                      pass_r=pass_r, pass_act=pass_act,
@@ -439,8 +426,9 @@ if __name__ == '__main__':
     num_insts = 10
     num_steps_env = 1e8
     experiment = 'repeating_probability'
-    main_folder = '/rigel/theory/users/mm5514/'
-    produce_sh_files(cluster='hab', alg=alg, hours=hours, num_units=num_units,
+
+    produce_sh_files(cluster=cluster, alg=alg, hours=hours,
+                     num_units=num_units,
                      bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
                      batch_size=batch_size, net_type=net_type,
                      pass_r=pass_r, pass_act=pass_act,
@@ -461,8 +449,9 @@ if __name__ == '__main__':
     num_insts = 20
     num_steps_env = 1e8
     experiment = 'block_size'
-    main_folder = '/rigel/theory/users/mm5514/'
-    produce_sh_files(cluster='hab', alg=alg, hours=hours, num_units=num_units,
+
+    produce_sh_files(cluster=cluster, alg=alg, hours=hours,
+                     num_units=num_units,
                      bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
                      batch_size=batch_size, net_type=net_type,
                      pass_r=pass_r, pass_act=pass_act,
@@ -483,8 +472,9 @@ if __name__ == '__main__':
     num_insts = 10
     num_steps_env = 1e8
     experiment = 'pass_reward_action_long_train'
-    main_folder = '/rigel/theory/users/mm5514/'
-    produce_sh_files(cluster='hab', alg=alg, hours=hours, num_units=num_units,
+
+    produce_sh_files(cluster=cluster, alg=alg, hours=hours,
+                     num_units=num_units,
                      bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
                      batch_size=batch_size, net_type=net_type,
                      pass_r=pass_r, pass_act=pass_act,
@@ -506,8 +496,9 @@ if __name__ == '__main__':
     num_insts = 10
     num_steps_env = 1e8
     experiment = 'twin_net'
-    main_folder = '/rigel/theory/users/mm5514/'
-    produce_sh_files(cluster='hab', alg=alg, hours=hours, num_units=num_units,
+
+    produce_sh_files(cluster=cluster, alg=alg, hours=hours,
+                     num_units=num_units,
                      bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
                      batch_size=batch_size, net_type=net_type,
                      pass_r=pass_r, pass_act=pass_act,
@@ -530,8 +521,9 @@ if __name__ == '__main__':
     num_insts = 10
     num_steps_env = 1e8
     experiment = 'alpha'
-    main_folder = '/rigel/theory/users/mm5514/'
-    produce_sh_files(cluster='hab', alg=alg, hours=hours, num_units=num_units,
+
+    produce_sh_files(cluster=cluster, alg=alg, hours=hours,
+                     num_units=num_units,
                      bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
                      batch_size=batch_size, net_type=net_type,
                      pass_r=pass_r, pass_act=pass_act,
@@ -554,8 +546,9 @@ if __name__ == '__main__':
     num_insts = 10
     num_steps_env = 1e8
     experiment = 'a2c_long_train'
-    main_folder = '/rigel/theory/users/mm5514/'
-    produce_sh_files(cluster='hab', alg=alg, hours=hours, num_units=num_units,
+
+    produce_sh_files(cluster=cluster, alg=alg, hours=hours,
+                     num_units=num_units,
                      bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
                      batch_size=batch_size, net_type=net_type,
                      pass_r=pass_r, pass_act=pass_act,
@@ -577,8 +570,9 @@ if __name__ == '__main__':
     num_insts = 150
     num_steps_env = 1e8
     experiment = '16_neurons_100_instances'
-    main_folder = '/rigel/theory/users/mm5514/'
-    produce_sh_files(cluster='hab', alg=alg, hours=hours, num_units=num_units,
+
+    produce_sh_files(cluster=cluster, alg=alg, hours=hours,
+                     num_units=num_units,
                      bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
                      batch_size=batch_size, net_type=net_type,
                      pass_r=pass_r, pass_act=pass_act,
