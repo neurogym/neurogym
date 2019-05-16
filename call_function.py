@@ -186,9 +186,7 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
     analysis_file = open(scr_folder + 'analysis_' +
                          cluster + '.sh', 'w')
     command = specs(cluster=cluster, hours='2')
-    command += 'module load anaconda/3-5.1\n'
-    command += 'module load tensorflow/anaconda3-5.1.0/1.7.0\n'
-    command += '/rigel/home/mm5514/analysis.py ' + save_folder
+    command += run_folder + 'analysis.py ' + save_folder
     analysis_file.write(command)
     analysis_file.close()
 
@@ -203,6 +201,8 @@ def specs(conf=None, cluster='hab', hours='120', alg='a2c', name=''):
             command += '#SBATCH -c 1\n'
             command += '#SBATCH --time=' + hours + ':00:00\n'
             command += '#SBATCH --mem-per-cpu=128gb\n'
+            command += 'module load anaconda/3-5.1\n'
+            command += 'module load tensorflow/anaconda3-5.1.0/1.7.0\n'
         else:
             name = name[:-3] + '_' + hours
             command += '#SBATCH --job-name=' + name + '\n'
@@ -216,7 +216,18 @@ def specs(conf=None, cluster='hab', hours='120', alg='a2c', name=''):
         if conf is None:
             command += '#SBATCH --job-name=RUN\n'
             command += '#SBATCH -c 1\n'
-            command += '#SBATCH --time=0:30:00\n'
+            command += '#SBATCH --time=' + hours + ':00:00\n'
+            command += 'module purge\n'
+            command += 'module load gcc/6.4.0\n'
+            command += 'module load cuda/9.1\n'
+            command += 'module load cudnn/7.1.3\n'
+            command += 'module load openmpi/3.0.0\n'
+            command += 'module load atlas/3.10.3\n'
+            command += 'module load scalapack/2.0.2\n'
+            command += 'module load fftw/3.3.7\n'
+            command += 'module load szip/2.1.1\n'
+            command += 'module load opencv/3.4.1\n'
+            command += 'module load python/3.6.5_ML\n'
         else:
             name = name[:-3] + '_' + hours
             command += '#SBATCH --job-name=' + name + '\n'
@@ -308,7 +319,7 @@ def main(args):
 if __name__ == '__main__':
     cluster = 'bsc'  # 'hab'
     # main_folder = '/rigel/theory/users/mm5514/'
-    main_folder = '/gpfs/scratch/hcli64/hcli64348/priors/'
+    main_folder = '/gpfs/projects/hcli64/molano/priors/'
     scripts_folder = home + '/priors/' + cluster + '_scripts/'
     if not os.path.exists(scripts_folder):
         os.makedirs(scripts_folder)
@@ -338,7 +349,7 @@ if __name__ == '__main__':
                      pass_r=pass_r, pass_act=pass_act,
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
-    command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
+    command += 'sbatch ' + experiment + '/analysis_' + cluster + '.sh\n'
 
     # NUMBER OF NEURONS EXPERIMENT
     hours = '4'
@@ -362,7 +373,7 @@ if __name__ == '__main__':
                      pass_r=pass_r, pass_act=pass_act,
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
-    command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
+    command += 'sbatch ' + experiment + '/analysis_' + cluster + '.sh\n'
 
     # ROLLOUT
     hours = '4'
@@ -386,7 +397,7 @@ if __name__ == '__main__':
                      pass_r=pass_r, pass_act=pass_act,
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
-    command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
+    command += 'sbatch ' + experiment + '/analysis_' + cluster + '.sh\n'
 
     # A2C (RL). PASS REWARD/ACTION EXPERIMENT
     hours = '4'
@@ -410,7 +421,7 @@ if __name__ == '__main__':
                      pass_r=pass_r, pass_act=pass_act,
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
-    command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
+    command += 'sbatch ' + experiment + '/analysis_' + cluster + '.sh\n'
 
     # REPEATING PROBABILITY
     hours = '4'
@@ -434,7 +445,7 @@ if __name__ == '__main__':
                      pass_r=pass_r, pass_act=pass_act,
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
-    command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
+    command += 'sbatch ' + experiment + '/analysis_' + cluster + '.sh\n'
     # BLOCK SIZE
     hours = '4'
     alg = ['supervised']
@@ -457,7 +468,7 @@ if __name__ == '__main__':
                      pass_r=pass_r, pass_act=pass_act,
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
-    command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
+    command += 'sbatch ' + experiment + '/analysis_' + cluster + '.sh\n'
     # PASS REWARD/ACTION EXPERIMENT LONG TRAINING
     hours = '48'
     alg = ['supervised']
@@ -480,7 +491,7 @@ if __name__ == '__main__':
                      pass_r=pass_r, pass_act=pass_act,
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
-    command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
+    command += 'sbatch ' + experiment + '/analysis_' + cluster + '.sh\n'
 
     # TWIN NETWORK
     hours = '4'
@@ -504,7 +515,7 @@ if __name__ == '__main__':
                      pass_r=pass_r, pass_act=pass_act,
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
-    command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
+    command += 'sbatch ' + experiment + '/analysis_' + cluster + '.sh\n'
 
     # ALPHA EXPERIMENT
     hours = '4'
@@ -530,7 +541,7 @@ if __name__ == '__main__':
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env,
                      alpha=alpha)
-    command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
+    command += 'sbatch ' + experiment + '/analysis_' + cluster + '.sh\n'
 
     # A2C (RL) LONG TRAIN
     hours = '120'
@@ -554,7 +565,7 @@ if __name__ == '__main__':
                      pass_r=pass_r, pass_act=pass_act,
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
-    command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
+    command += 'sbatch ' + experiment + '/analysis_' + cluster + '.sh\n'
 
     # 16 NEURONS 100 INSTANCES
     hours = '4'
@@ -578,7 +589,7 @@ if __name__ == '__main__':
                      pass_r=pass_r, pass_act=pass_act,
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
-    command += 'sbatch ' + experiment + '/analysis_hab.sh\n'
+    command += 'sbatch ' + experiment + '/analysis_' + cluster + '.sh\n'
 
     all_analysis_file.write(command)
     all_analysis_file.close()
