@@ -8,10 +8,10 @@ Created on Sat Apr 27 09:56:14 2019
 import numpy as np
 import glob
 import os
-from pathlib import Path
 import sys
 import json
-home = str(Path.home())
+from os.path import expanduser
+home = expanduser("~")
 sys.path.append(home + '/neurogym')
 from neurogym.ops import put_together_files as ptf
 from neurogym import call_function as cf
