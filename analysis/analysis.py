@@ -9,8 +9,8 @@ import scipy.stats as sstats
 from scipy.optimize import curve_fit
 import matplotlib
 import json
-from pathlib import Path
-home = str(Path.home())
+from os.path import expanduser
+home = expanduser("~")
 sys.path.append(home + '/neurogym')
 sys.path.append(home + '/mm5514/')
 from neurogym.ops import utils as ut
