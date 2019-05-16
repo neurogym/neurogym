@@ -767,7 +767,7 @@ def plot_learning(performance, evidence, stim_position, w_conv=200,
     plt.plot(np.linspace(0, num_trials, performance_smoothed.shape[0]),
              performance_smoothed, color=(0.39, 0.39, 0.39), lw=0.5,
              label='RNN perf. (' + str(round(RNN_perf, 3)) + ')')
-    print('RNN perf: ' + str(round(RNN_perf, 3)))
+    #    print('RNN perf: ' + str(round(RNN_perf, 3)))
     # plot ideal observer performance
     io_perf_smoothed = np.convolve(io_performance,
                                    np.ones((w_conv,))/w_conv,
@@ -1250,7 +1250,6 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
         else:
             undscr_ind = folder.rfind('_')
             folder_name = folder[:undscr_ind]
-            print(folder_name)
             files = glob.glob(main_folder + folder_name + '*')
 
         if len(files) > 0:
@@ -1262,6 +1261,7 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
             performances = []
             for ind_f in range(len(files)):
                 file = files[ind_f] + '/bhvr_data_all.npz'
+                print(files[ind_f])
                 data_flag = ptf.put_files_together(files[ind_f],
                                                    min_num_trials=per)
                 if data_flag:
@@ -1314,7 +1314,6 @@ def plot_biases_all_experiments(inter_exp_biases, expl_params,
         num_exps = p_exp['num_exps']
         del p_exp['biases']
         del p_exp['perfs']
-        print(p_exp)
         specs = json.dumps(p_exp)
         specs = reduce_xticks(specs)
         xticks.append(specs)
@@ -1350,7 +1349,6 @@ def plot_bias_ratios_all_experiments(inter_exp_biases, expl_params,
         num_exps = p_exp['num_exps']
         del p_exp['biases']
         del p_exp['perfs']
-        print(p_exp)
         specs = json.dumps(p_exp)
         specs = reduce_xticks(specs)
         xticks.append(specs)
