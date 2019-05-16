@@ -9,10 +9,10 @@ import os
 import numpy as np
 import itertools
 import matplotlib
-from pathlib import Path
 from datetime import datetime
 from neurogym.ops import utils as ut
-home = str(Path.home())
+from os.path import expanduser
+home = expanduser("~")
 matplotlib.use('Agg')
 
 
