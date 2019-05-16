@@ -25,10 +25,12 @@ def put_files_together(folder, min_num_trials=1e6):
     stim_mat = []
     r_prob_mat = []
     side_mat = []
+    counter = 0
     for ind_f in range(len(files)):
         loaded = True
         try:
             data = np.load(files[ind_f])
+            counter += 1
         except:
             loaded = False
         if loaded:
@@ -62,17 +64,17 @@ def put_files_together(folder, min_num_trials=1e6):
             rps = r_prob.shape
             assert (SIZE[0] == rps[0]), str(SIZE) + ' ' + str(rps)
             assert (SIZE == side.shape), str(SIZE) + ' ' + str(side.shape)
-    if len(files) > 0:
-        choice_mat = np.reshape(np.array(choice_mat), (SIZE[0]*len(files), ))
-        stim_mat = np.reshape(np.array(stim_mat), (SIZE[0]*len(files),
+    if counter > 0:
+        choice_mat = np.reshape(np.array(choice_mat), (SIZE[0]*counter, ))
+        stim_mat = np.reshape(np.array(stim_mat), (SIZE[0]*counter,
                                                    stim.shape[1]))
-        side_mat = np.reshape(np.array(side_mat), (SIZE[0]*len(files), ))
-        # r_prob_mat = np.reshape(np.array(r_prob_mat), (SIZE[0]*len(files),))
+        side_mat = np.reshape(np.array(side_mat), (SIZE[0]*counter, ))
+        # r_prob_mat = np.reshape(np.array(r_prob_mat), (SIZE[0]*counter,))
         r_prob_mat = []
         data = {'choice': choice_mat, 'stimulus': stim_mat,
                 'correct_side': side_mat, 'rep_prob': r_prob_mat}
         np.savez(folder + '/bhvr_data_all.npz', **data)
-        if SIZE[0]*len(files) > min_num_trials:
+        if SIZE[0]*counter > min_num_trials:
             return True
         else:
             return False
