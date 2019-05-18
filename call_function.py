@@ -139,9 +139,11 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
     if cluster == 'hab':
         save_folder = main_folder + experiment + '/'
         run_folder = '/rigel/home/mm5514/'
+        n_envs = 24
     else:
         save_folder = main_folder + experiment + '/'
         run_folder = '/home/hcli64/hcli64348/'
+        n_envs = 40
     insts = np.arange(num_insts)
     params_config = itertools.product(batch_size, bl_dur, num_units, stim_ev,
                                       net_type, pass_r, pass_act, alg,
@@ -170,10 +172,10 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
         # training script
         file = open(scr_folder + name, 'w')
         cmmd = specs(conf=conf, cluster=cluster, hours=hours, alg=conf[7],
-                     name=name)
+                     name=name, n_envs=n_envs)
         aux, _ = build_command(save_folder=save_folder, run_folder=run_folder,
                                ps_r=conf[5], ps_act=conf[6], rep_prob=conf[8],
-                               bl_dur=conf[1], num_u=conf[2],
+                               bl_dur=conf[1], num_u=conf[2], num_env=n_envs,
                                net_type=conf[4], num_stps_env=num_steps_env,
                                load_path='', stimEv=conf[3],
                                nsteps=conf[0], save=False, alg=conf[7],
@@ -191,7 +193,8 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
     analysis_file.close()
 
 
-def specs(conf=None, cluster='hab', hours='120', alg='a2c', name=''):
+def specs(conf=None, cluster='hab', hours='120', alg='a2c', name='',
+          n_envs=24):
     command = ''
     command += '#!/bin/sh\n'
     if cluster == 'hab':
@@ -206,7 +209,7 @@ def specs(conf=None, cluster='hab', hours='120', alg='a2c', name=''):
         else:
             name = name[:-3] + '_' + hours
             command += '#SBATCH --job-name=' + name + '\n'
-            command += '#SBATCH --cpus-per-task=24\n'
+            command += '#SBATCH --cpus-per-task=' + str(n_envs) + '\n'
             command += '#SBATCH --time=' + hours + ':00:00\n'
             command += '#SBATCH --mem-per-cpu=5gb\n'
             command += '#SBATCH --exclusive\n'
@@ -231,8 +234,8 @@ def specs(conf=None, cluster='hab', hours='120', alg='a2c', name=''):
         else:
             name = name[:-3] + '_' + hours
             command += '#SBATCH --job-name=' + name + '\n'
-            command += '#SBATCH --cpus-per-task=40\n'
-            command += '#SBATCH --time=48:00:00\n'
+            command += '#SBATCH --cpus-per-task=' + str(n_envs) + '\n'
+            command += '#SBATCH --time=' + hours + ':00:00\n'
             command += '#SBATCH --exclusive\n'
             command += 'module purge\n'
             command += 'module load gcc/6.4.0\n'

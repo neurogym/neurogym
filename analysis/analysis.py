@@ -44,7 +44,7 @@ def get_transition_mat(choice, times=None, num_steps=None, conv_window=5):
     """
     convolves the repetition vector obtained from choice to get a count of the
     number of repetitions in the last N trials (N = conv_window),
-    **without taking into accountthe current trial**.
+    **without taking into account the current trial**.
     It can return the whole vector (times!=None) or just the outcomes
     (i.e. transition.shape==choice.shape)
     """
@@ -1239,7 +1239,8 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                                      net_type=params['network'],
                                      num_stps_env=params['num_timesteps'],
                                      save=False, alg=params['alg'],
-                                     rep_prob=params['rep_prob'])
+                                     rep_prob=params['rep_prob'],
+                                     num_env=params['num_env'])
         folder = os.path.basename(os.path.normpath(folder + '/'))
         # only late experiments indicate the parameter alpha explicitly in the
         # name of the folder
@@ -1515,47 +1516,9 @@ def set_yaxis():
 
 
 if __name__ == '__main__':
-    #    plt.close('all')
-    #    per = 50000
-    #    conv_window = 2
-    #    mat_conv = np.arange(1, num_trials_back)
-    #    folder = '/home/linux/all_results/supervised_RDM_' +\
-    #        't_100_200_200_200_100_TH_0.2_0.8' +\
-    #        '_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20_' +\
-    #        'd_2KKK_ne_24_nu_32' +\
-    #        '_ev_0.5_408140/'
-    #    file = folder + '/bhvr_data_all.npz'
-    #    data_flag = ptf.put_files_together(folder,
-    #                                       min_num_trials=0)
-    #    choice, correct_side, performance, evidence, _ =\
-    #        load_behavioral_data(file)
-    #    # plot performance
-    #    bias_mat = bias_across_training(choice, evidence,
-    #                                    performance, per=per,
-    #                                    conv_window=conv_window)
-    #    plot_bias_across_training(bias_mat,
-    #                              tot_num_trials=choice.shape[0],
-    #                              folder='',
-    #                              fig=True, legend=True,
-    #                              per=per, conv_window=conv_window)
-    #    mat_biases, mat_num_samples =\
-    #        bias_after_altRep_seqs(file=file, num_tr=per)
-    #    plot_bias_after_altRep_seqs(mat_biases, mat_conv,
-    #                                mat_num_samples,
-    #                                folder='',
-    #                                panels=None,
-    #                                legend=True)
-    #    #
-    #    mat_biases = bias_after_transEv_change(file=file,
-    #                                           num_tr=per)
-    #    plot_bias_after_transEv_change(mat_biases,
-    #                                   folder='',
-    #                                   panels=None,
-    #                                   legend=True)
-    #    asdasd
     if len(sys.argv) > 1:
         main_folder = sys.argv[1]
     else:
-        main_folder = home + '/all_results/'
+        main_folder = home + '/priors/results/16_neurons_100_instances/'
     batch_analysis(main_folder=main_folder, neural_analysis_flag=False,
                    behavior_analysis_flag=True)
