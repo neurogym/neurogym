@@ -167,7 +167,7 @@ def plot_lines(x_max, y_value):
 
 def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
                         n_envs=12, env=0, num_steps=100, obs_size=4,
-                        num_units=128, num_act=3):
+                        num_units=128, num_act=3, num_steps_fig=200):
     """
     given a file produced by the A2C algorithm in baselines, it returns the
     states, rewards, actions, stimulus evidence and new trials vectors
@@ -221,8 +221,6 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
     else:
         pi = []
     if fig:
-
-        num_steps = 200
         ut.get_fig(display_mode)
         # FIGURE
         # states
@@ -230,21 +228,21 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
         maxs = np.max(states, axis=1).reshape((num_units, 1))
         states_norm = states / maxs
         states_norm[np.where(maxs == 0), :] = 0
-        plt.imshow(states_norm[:, 0:num_steps], aspect='auto')
+        plt.imshow(states_norm[:, 0:num_steps_fig], aspect='auto')
         # actions
         plt.subplot(rows, cols, 3)
-        plt.plot(actions[0:num_steps], '-+')
-        plt.xlim([-0.5, num_steps-0.5])
+        plt.plot(actions[0:num_steps_fig], '-+')
+        plt.xlim([-0.5, num_steps_fig-0.5])
         # obs
         plt.subplot(rows, cols, 1)
-        plt.imshow(obs[:, 0:num_steps], aspect='auto')
+        plt.imshow(obs[:, 0:num_steps_fig], aspect='auto')
         # trials
         plt.subplot(rows, cols, 4)
-        plt.plot(trials[0:num_steps], '-+')
-        plt.xlim([-0.5, num_steps-0.5])
+        plt.plot(trials[0:num_steps_fig], '-+')
+        plt.xlim([-0.5, num_steps_fig-0.5])
         # gt
         plt.subplot(rows, cols, 5)
-        plt.imshow(gt[:, 0:num_steps], aspect='auto')
+        plt.imshow(gt[:, 0:num_steps_fig], aspect='auto')
 
     return states, rewards, actions, ev, trials, gt, pi
 
