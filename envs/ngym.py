@@ -22,7 +22,7 @@ class ngym(gym.Env):
         self.num_tr = 0
         self.perf = 0
         self.num_tr_perf = 0
-        self.num_tr_exp = 100000  # num trials after which done = True
+        self.num_tr_exp = 10000000  # num trials after which done = True
         self.seed()
         print('------------------')
         print(self.__class__.__name__)

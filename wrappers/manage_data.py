@@ -36,6 +36,7 @@ class manage_data(Wrapper):
             self.obs_mat = []
             self.act_mat = []
             self.rew_mat = []
+            self.num_tr_save = 100000
             self.max_num_samples = 200
             self.num_subplots = 3
             self.plt_tr = plt_tr and self.do
@@ -56,23 +57,6 @@ class manage_data(Wrapper):
                 self.env.__class__.__name__ + str(self.inst)
 
     def reset(self):
-        if self.do and len(self.rew_mat) > 0:
-            data = {'choice': self.choice_mat, 'stimulus': self.stim_mat,
-                    'correct_side': self.side_mat, 'obs_mat': self.obs_mat,
-                    'act_mat': self.act_mat, 'rew_mat': self.rew_mat,
-                    'rep_prob': self.rep_prob_mat}
-            np.savez(self.saving_name + '_bhvr_data_' +
-                     str(self.num_tr) + '.npz', **data)
-            if self.plt_tr:
-                self.render()
-
-            self.choice_mat = []
-            self.side_mat = []
-            self.rep_prob_mat = []
-            self.stim_mat = []
-            self.obs_mat = []
-            self.act_mat = []
-            self.rew_mat = []
         return self.env.reset()
 
     def step(self, action):
@@ -90,6 +74,27 @@ class manage_data(Wrapper):
                 if 'rep_prob' in info.keys():
                     self.rep_prob_mat.append(info['rep_prob'])
 
+                # save data
+                if self.num_tr > self.num_tr_save:
+                    data = {'choice': self.choice_mat,
+                            'stimulus': self.stim_mat,
+                            'correct_side': self.side_mat,
+                            'obs_mat': self.obs_mat,
+                            'act_mat': self.act_mat,
+                            'rew_mat': self.rew_mat,
+                            'rep_prob': self.rep_prob_mat}
+                    np.savez(self.saving_name + '_bhvr_data_' +
+                             str(self.num_tr) + '.npz', **data)
+                    if self.plt_tr:
+                        self.render()
+
+                    self.choice_mat = []
+                    self.side_mat = []
+                    self.rep_prob_mat = []
+                    self.stim_mat = []
+                    self.obs_mat = []
+                    self.act_mat = []
+                    self.rew_mat = []
         return obs, rew, done, info
 
     def render(self, mode='human'):
