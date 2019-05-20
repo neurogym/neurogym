@@ -24,15 +24,14 @@ def plot_pca(comps, times_aux, color, ax, num_stps_bck):
     mat = []
     times_aux = times_aux[times_aux > num_stps_bck]
     assert times_aux.shape[0] > 0
-    print(times_aux.shape[0])
     for ind_t in range(times_aux.shape[0]):
         mat.append([comps[times_aux[ind_t]-num_stps_bck:times_aux[ind_t], 0],
                     comps[times_aux[ind_t]-num_stps_bck:times_aux[ind_t], 1],
                     comps[times_aux[ind_t]-num_stps_bck:times_aux[ind_t], 2]])
 
-    ax.set_xlabel('X Label')
-    ax.set_ylabel('Y Label')
-    ax.set_zlabel('Z Label')
+    ax.set_xlabel('PC 1')
+    ax.set_ylabel('PC 2')
+    ax.set_zlabel('PC 3')
     mat = np.array(mat)
     print(mat.shape)
     mat_mean = np.mean(mat, axis=0)
@@ -90,14 +89,13 @@ def pca():
             an.get_simulation_vars(file=file, fig=False,
                                    n_envs=24, env=0, num_steps=20, obs_size=5,
                                    num_units=32, num_act=3, num_steps_fig=100)
-        #        plt.figure()
-        #        plt.plot(np.sum(states, axis=0), '+-')
         reset = np.where(np.sum(states, axis=0) < 0.37)[0]
-        # asdasd
-        states = states[:, reset[1]-200000:reset[1]-1]
-        rewards = rewards[reset[1]-200000:reset[1]-1]
-        actions = actions[reset[1]-200000:reset[1]-1]
-        trials = trials[reset[1]-200000:reset[1]-1]
+        # select period between 'dones'
+        period = 300000
+        states = states[:, reset[1]-period:reset[1]-1]
+        rewards = rewards[reset[1]-period:reset[1]-1]
+        actions = actions[reset[1]-period:reset[1]-1]
+        trials = trials[reset[1]-period:reset[1]-1]
 #        an.transition_analysis(file=file,
 #                               fig=True, n_envs=24, env=0, num_steps=20,
 #                               obs_size=5, num_units=32, window=(-5, 10),
@@ -105,7 +103,7 @@ def pca():
         times = np.where(trials == 1)[0]
         choice = actions[times-1]
         perf = rewards[times]
-        # states_tr = states[:, times]
+
         # PCA analysis over all states
         num_comps = 3
         pca = PCA(n_components=num_comps)
@@ -160,21 +158,8 @@ def pca():
         ax3.set_xlim(ax1.get_xlim())
         ax3.set_ylim(ax1.get_ylim())
         ax3.set_zlim(ax1.get_zlim())
-        kjgk
-        # plt.plot(peaks_ind, peaks, '+r')
-        # plt.plot(peaks_ind, 75*bl_change, '+-')
-        values = np.unique(trans)
-        p_hist = np.convolve(perf, np.ones((conv_window,)),
-                             mode='full')[0:-conv_window+1]
-        p_hist = np.concatenate((np.array([0]), p_hist[:-1]))
 
-        comps_tr = comps[times]
-        fig = ut.get_fig()
-        ax = fig.gca(projection='3d')
-        num_p = 10000
-        ax.scatter(comps[:num_p, 0], comps[:num_p, 1], comps[:num_p, 2], '.')
-
-        
+        # plot trans. evidence, components and states
         start = 0  # 98000
         num_p = 100000  # 2000
         mask = full_switch == np.max(full_switch)
@@ -185,23 +170,13 @@ def pca():
         plt.plot(10*mask[start:start+num_p], label='mask')
         plt.legend()
         plt.subplot(3, 1, 2)
-        plt.plot(comps_tr[start:start+num_p, 0], label='comp 1')
-        plt.plot(comps_tr[start:start+num_p, 1], label='comp 2')
-        plt.plot(comps_tr[start:start+num_p, 2], label='comp 3')
+        plt.plot(comps[start:start+num_p, 0], label='comp 1')
+        plt.plot(comps[start:start+num_p, 1], label='comp 2')
+        plt.plot(comps[start:start+num_p, 2], label='comp 3')
         plt.subplot(3, 1, 3)
         plt.imshow(states[:, start:start+num_p], aspect='auto')
         plt.legend()
-        times_aux = times[mask]
-        fig = ut.get_fig()
-        ax2 = fig.gca(projection='3d')
-        num_stps_back = 16
-        plot_pca(comps, times_aux, 'rm', ax2, num_stps_back)
-        mask = full_switch == np.min(full_switch)
-        times_aux = times[mask]
-        plot_pca(comps, times_aux, 'bc', ax2, num_stps_back)
-        #        ax2.set_xlim(ax.get_xlim())
-        #        ax2.set_ylim(ax.get_ylim())
-        #        ax2.set_zlim(ax.get_zlim())
+
         asasdasd
 
         ut.get_fig()
