@@ -15,8 +15,8 @@ from mpl_toolkits.mplot3d import Axes3D
 plt.close('all')
 dt = 100
 conv_window = 6
-bs = 4
-rw = 8
+bs = 1
+rw = 2
 per = 500000
 
 
@@ -64,7 +64,7 @@ def find_peaks(trans, peaks_ind):
 
 
 def pca():
-    index = np.linspace(-dt*bs, dt*rw, int(bs+rw), endpoint=False)
+    index = np.linspace(-bs, rw, int(bs+rw), endpoint=False)
     main_folder = '/home/molano/priors/results/pass_reward_action/'
     folder = main_folder + 'supervised_RDM_t_100_200_200_200_100_' +\
         'TH_0.2_0.8_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20' +\
@@ -73,17 +73,17 @@ def pca():
     data_flag = ptf.put_files_together(folder, min_num_trials=per)
     print(data_flag)
     if data_flag:
-        choice, _, performance, evidence, _ =\
-            an.load_behavioral_data(file)
+        #        choice, _, performance, evidence, _ =\
+        #            an.load_behavioral_data(file)
         # plot performance
-#        bias_mat = an.bias_across_training(choice, evidence,
-#                                           performance, per=per,
-#                                           conv_window=2)
-#        an.plot_bias_across_training(bias_mat,
-#                                     tot_num_trials=choice.shape[0],
-#                                     folder='',
-#                                     fig=False, legend=True,
-#                                     per=per, conv_window=2)
+        #        bias_mat = an.bias_across_training(choice, evidence,
+        #                                           performance, per=per,
+        #                                           conv_window=2)
+        #        an.plot_bias_across_training(bias_mat,
+        #                                     tot_num_trials=choice.shape[0],
+        #                                     folder='',
+        #                                     fig=False, legend=True,
+        #                                     per=per, conv_window=2)
         file = folder + '/network_data_224999.npz'
         states, rewards, actions, _, trials, _, _ =\
             an.get_simulation_vars(file=file, fig=False,
@@ -159,6 +159,24 @@ def pca():
         ax3.set_ylim(ax1.get_ylim())
         ax3.set_zlim(ax1.get_zlim())
 
+        # conditioned on error
+        num_stps_back = 20
+        fig = ut.get_fig()
+        ax3 = fig.gca(projection='3d')
+        trans = an.get_transition_mat(choice, conv_window=conv_window)
+        kernel_fsw = np.arange(conv_window+1) - conv_window/2
+        full_switch = np.convolve(trans, kernel_fsw,
+                                  mode='full')[0:-conv_window]
+        mask = full_switch == np.min(full_switch)
+        times_aux = np.where(mask > 0)[0]
+        plot_pca(comps, times_aux, 'rm', ax3, num_stps_back)
+        mask = full_switch == np.max(full_switch)
+        times_aux = np.where(mask > 0)[0]
+        plot_pca(comps, times_aux, 'bc', ax3, num_stps_back)
+        ax3.set_xlim(ax1.get_xlim())
+        ax3.set_ylim(ax1.get_ylim())
+        ax3.set_zlim(ax1.get_zlim())
+
         # plot trans. evidence, components and states
         start = 0  # 98000
         num_p = 100000  # 2000
@@ -177,13 +195,13 @@ def pca():
         plt.imshow(states[:, start:start+num_p], aspect='auto')
         plt.legend()
 
-        asasdasd
-
+        values = np.unique(trans)
+        p_hist = np.convolve(perf, np.ones((conv_window,)),
+                             mode='full')[0:-conv_window+1]
+        p_hist = np.concatenate((np.array([0]), p_hist[:-1]))
         ut.get_fig()
-        rows = 3
-        cols = 3
-        plt.plot(comps[:, 0], comps[:, 1], '.')
-        print(pca.explained_variance_ratio_)
+        rows = 2
+        cols = 2
         mat_pcs = np.empty((num_comps, bs+rw, 2, 2))
         for ind_perf in range(2):
             for ind_tr in [0, values.shape[0]-1]:
@@ -192,7 +210,7 @@ def pca():
                                               perf == ind_perf,
                                               p_hist == conv_window))
                 mask = np.concatenate((np.array([False]), mask[:-1]))
-                times_aux = times[mask]
+                times_aux = np.where(mask > 0)[0]
                 print(np.sum(mask))
                 if ind_perf == 1 and ind_tr == values.shape[0]-1 and False:
                     ut.get_fig()
@@ -231,27 +249,27 @@ def pca():
         for ind_perf in range(2):
             for ind_tr in range(2):
                 plt.figure(f2.number)
-                ax.scatter(mat_pcs[0, :, ind_perf, ind_tr],
-                           mat_pcs[1, :, ind_perf, ind_tr],
-                           mat_pcs[2, :, ind_perf, ind_tr],
+                ax.plot(mat_pcs[0, :, ind_perf, ind_tr],
+                        mat_pcs[1, :, ind_perf, ind_tr],
+                        mat_pcs[2, :, ind_perf, ind_tr],
+                        color=(1-ind_tr, 0, ind_tr), lw=1.,
+                        alpha=1.-0.75*(1-ind_perf), marker='.')
+                ax.scatter(mat_pcs[0, 0, ind_perf, ind_tr],
+                           mat_pcs[1, 0, ind_perf, ind_tr],
+                           mat_pcs[2, 0, ind_perf, ind_tr],
                            color=(1-ind_tr, 0, ind_tr), lw=1.,
-                           alpha=1.-0.75*(1-ind_perf))
+                           alpha=1.-0.75*(1-ind_perf), marker='o')
+                ax.scatter(mat_pcs[0, -1, ind_perf, ind_tr],
+                           mat_pcs[1, -1, ind_perf, ind_tr],
+                           mat_pcs[2, -1, ind_perf, ind_tr],
+                           color=(1-ind_tr, 0, ind_tr), lw=1.,
+                           alpha=1.-0.75*(1-ind_perf), marker='x')
                 plt.figure(f1.number)
                 for comp in range(num_comps):
                     plt.subplot(rows, cols, comp+1)
                     plt.plot(index, mat_pcs[comp, :, ind_perf, ind_tr],
                              color=(1-ind_tr, 0, ind_tr), lw=1.,
                              alpha=1.-0.75*(1-ind_perf))
-                    # asdsad
-        #            plt.plot(comps[times_aux[ind_t]-bs:times_aux[ind_t]+rw, 0],
-        #                     comps[times_aux[ind_t]-bs:times_aux[ind_t]+rw, 1],
-        #                     '.', color=(1-ind_tr/(values.shape[0]-1), 0,
-        #                                 ind_tr/(values.shape[0]-1)),
-        #                     alpha=1.-0.5*(1-ind_perf))
-        #            plt.plot(comps[times_aux[ind_t], 0],
-        #                     comps[times_aux[ind_t], 1],
-        #                     '+', color='k')
-    
-    
+
 if __name__ == '__main__':
     pca()
