@@ -1212,7 +1212,10 @@ def plot_bias_after_transEv_change(mat_biases, folder, panels=None,
 
 def single_exp_analysis(file, exp, per,  bias_acr_training=[],
                         biases_after_seqs=[], biases_after_transEv=[],
-                        num_samples_mat=[], performances=[], leg_flag=True):
+                        num_samples_mat=[], performances=[], leg_flag=True,
+                        fig=False, plot=True):
+    if fig:
+        ut.get_fig()
     data_flag = ptf.put_files_together(exp,
                                        min_num_trials=per)
     if data_flag:
@@ -1222,10 +1225,11 @@ def single_exp_analysis(file, exp, per,  bias_acr_training=[],
                              biases_after_seqs,
                              biases_after_transEv, num_samples_mat,
                              per, performances)
-        plot_main_results(file, bias_acr_training,
-                          biases_after_seqs,
-                          biases_after_transEv,
-                          num_samples_mat, leg_flag, per)
+        if plot:
+            plot_main_results(file, bias_acr_training,
+                              biases_after_seqs,
+                              biases_after_transEv,
+                              num_samples_mat, leg_flag, per)
     return bias_acr_training, biases_after_seqs, biases_after_transEv,\
         num_samples_mat, performances,
 
@@ -1306,8 +1310,6 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                       '_bhvr_fig.png', dpi=DPI, bbox_inches='tight')
         plot_biases_all_experiments(inter_exp_biases, expl_params,
                                     saving_folder_all)
-        plot_bias_ratios_all_experiments(inter_exp_biases, expl_params,
-                                         saving_folder_all)
         plot_perf_all_experiments(inter_exp_biases, expl_params,
                                   saving_folder_all)
 
@@ -1491,6 +1493,15 @@ def set_yaxis():
 
 
 if __name__ == '__main__':
+    main_folder = '/home/molano/priors/results/pass_reward_action/'
+    folder = main_folder + 'supervised_RDM_t_100_200_200_200_100' +\
+        '_TH_0.2_0.8' +\
+        '_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20' +\
+        '_ne_24_nu_32_' +\
+        'ev_0.5_a_0.1_183704/'
+    file = folder + 'bhvr_data_all.npz'
+    single_exp_analysis(file, folder, 100000, fig=True)
+    asdasdasd
     if len(sys.argv) > 1:
         main_folder = sys.argv[1]
     else:
