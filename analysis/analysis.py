@@ -1210,6 +1210,26 @@ def plot_bias_after_transEv_change(mat_biases, folder, panels=None,
         plt.close(f)
 
 
+def single_exp_analysis(file, exp, per,  bias_acr_training=[],
+                        biases_after_seqs=[], biases_after_transEv=[],
+                        num_samples_mat=[], performances=[], leg_flag=True):
+    data_flag = ptf.put_files_together(exp,
+                                       min_num_trials=per)
+    if data_flag:
+        performances, bias_acr_training, biases_after_seqs,\
+            biases_after_transEv, num_samples_mat =\
+            get_main_results(file, bias_acr_training,
+                             biases_after_seqs,
+                             biases_after_transEv, num_samples_mat,
+                             per, performances)
+        plot_main_results(file, bias_acr_training,
+                          biases_after_seqs,
+                          biases_after_transEv,
+                          num_samples_mat, leg_flag, per)
+    return bias_acr_training, biases_after_seqs, biases_after_transEv,\
+        num_samples_mat, performances,
+
+
 def batch_analysis(main_folder, neural_analysis_flag=False,
                    behavior_analysis_flag=True):
     per = 100000
@@ -1259,21 +1279,13 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
             num_samples_mat = []
             performances = []
             for ind_f in range(len(files)):
+                leg_flag = ind_f == 0
                 file = files[ind_f] + '/bhvr_data_all.npz'
                 print(files[ind_f])
-                data_flag = ptf.put_files_together(files[ind_f],
-                                                   min_num_trials=per)
-                if data_flag:
-                    performances, bias_acr_training, biases_after_seqs,\
-                        biases_after_transEv, num_samples_mat =\
-                        get_main_results(file, bias_acr_training,
-                                         biases_after_seqs,
-                                         biases_after_transEv, num_samples_mat,
-                                         per, performances)
-                    plot_main_results(file, bias_acr_training,
-                                      biases_after_seqs,
-                                      biases_after_transEv,
-                                      num_samples_mat, ind_f == 0, per)
+                single_exp_analysis(file, files[ind_f], per,
+                                    bias_acr_training, biases_after_seqs,
+                                    biases_after_transEv, num_samples_mat,
+                                    performances, leg_flag)
             set_yaxis()
             # get biases
             biases, biases_t_2 = organize_biases(biases_after_seqs)
