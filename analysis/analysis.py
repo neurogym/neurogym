@@ -939,18 +939,17 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
     side = correct_side[start_point:start_point+num_tr]
     mat_biases = []
     mat_conv = np.arange(1, num_trials_back)
-    mat_num_samples = np.zeros((num_trials_back-1, 2))
+    mat_num_samples = np.zeros((num_trials_back-1, 2, 2, 2))
     for conv_window in mat_conv:
         # get number of repetitions during the last conv_window trials
         # (not including the current trial)
         if conv_window > 1:
-            transitions = get_transition_mat(ch, conv_window=conv_window)
+            trans = get_transition_mat(ch, conv_window=conv_window)
         else:
             repeat = get_repetitions(ch)
-            transitions = np.concatenate((np.array([0]), repeat[:-1]))
+            trans = np.concatenate((np.array([0]), repeat[:-1]))
         if conv_window == 2:
-            transitions_side = get_transition_mat(side,
-                                                  conv_window=conv_window)
+            trans_side = get_transition_mat(side, conv_window=conv_window)
         # perf_hist is use to check that all previous last trials where correct
         if conv_window > 1:
             perf_hist = np.convolve(perf, np.ones((conv_window,)),
@@ -958,109 +957,129 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
             perf_hist = np.concatenate((np.array([0]), perf_hist[:-1]))
         else:
             perf_hist = np.concatenate((np.array([0]), perf[:-1]))
-        values = np.unique(transitions)
+        next_perf = np.concatenate((np.array([0]), perf[:-1]))
+        values = np.unique(trans)
         for ind_perf in range(2):
             for ind_tr in [0, values.shape[0]-1]:
-                # mask finds all times in which the current trial is
-                # correct/error and the trial history (num. of repetitions)
-                # is values[ind_tr] we then need to shift these times
-                # to get the bias in the trial following them
-                mask = np.logical_and.reduce((transitions == values[ind_tr],
-                                              perf == ind_perf,
-                                              perf_hist == conv_window))
-                mask = np.concatenate((np.array([False]), mask[:-1]))
-                if conv_window == 2:
-                    aux = transitions_side == values[ind_tr]
-                    aux2 = perf_hist == conv_window
-                    mask_side = np.logical_and.reduce((aux,
-                                                       perf == ind_perf,
-                                                       aux2))
-                    mask_side = np.concatenate((np.array([False]),
-                                                mask_side[:-1]))
-                    index = np.where(mask_side != mask)[0]
-                if conv_window == 2 and False:
-                    num = 50
-                    start = index[0]-10
-                    plt.figure()
-                    for ind in range(num):
-                        plt.plot([ind, ind], [-2, 2], '--', color=(.6, .6, .6))
-                    repeat = get_repetitions(ch)
-                    plt.plot(repeat[start:start+num]-1, '-+', lw=1,
-                             label='repeat')
-                    plt.plot(transitions[start:start+num], '-+', lw=1,
-                             label='transitions')
-                    plt.plot(transitions_side[start:start+num], '--+', lw=1,
-                             label='transitions side')
-                    plt.plot(perf_hist[start:start+num], '-+', lw=1,
-                             label='perf_hist')
-                    plt.plot(perf[start:start+num]-3, '-+', lw=1,
-                             label='performance')
-                    plt.plot(mask[start:start+num]-3, '-+', lw=1,
-                             label='mask')
-                    plt.plot(mask_side[start:start+num]-3, '--+', lw=1,
-                             label='mask_ch')
-                    plt.legend()
+                for ind_curr_tr in range(2):
+                    # mask finds all times in which the current trial is
+                    # correct/error and the trial history (num. of repetitions)
+                    # is values[ind_tr] we then need to shift these times
+                    # to get the bias in the trial following them
+                    mask = np.logical_and.reduce((trans == values[ind_tr],
+                                                  perf == ind_perf,
+                                                  perf_hist == conv_window,
+                                                  repeat == ind_curr_tr))
+                    mask = np.concatenate((np.array([False]), mask[:-1]))
+                    if conv_window == 2:
+                        aux = trans_side == values[ind_tr]
+                        aux2 = perf_hist == conv_window
+                        mask_side = np.logical_and.reduce((aux,
+                                                           perf == ind_perf,
+                                                           aux2))
+                        mask_side = np.concatenate((np.array([False]),
+                                                    mask_side[:-1]))
+                        index = np.where(mask_side != mask)[0]
+                    if conv_window == 2 and False:
+                        num = 50
+                        start = index[0]-10
+                        plt.figure()
+                        for ind in range(num):
+                            plt.plot([ind, ind], [-2, 2], '--',
+                                     color=(.6, .6, .6))
+                        repeat = get_repetitions(ch)
+                        plt.plot(repeat[start:start+num]-1, '-+', lw=1,
+                                 label='repeat')
+                        plt.plot(trans[start:start+num], '-+', lw=1,
+                                 label='trans')
+                        plt.plot(trans_side[start:start+num], '--+', lw=1,
+                                 label='trans side')
+                        plt.plot(perf_hist[start:start+num], '-+', lw=1,
+                                 label='perf_hist')
+                        plt.plot(perf[start:start+num]-3, '-+', lw=1,
+                                 label='performance')
+                        plt.plot(mask[start:start+num]-3, '-+', lw=1,
+                                 label='mask')
+                        plt.plot(mask_side[start:start+num]-3, '--+', lw=1,
+                                 label='mask_ch')
+                        plt.legend()
 
-                mat_num_samples[conv_window-1, ind_perf] += np.sum(mask)
-                if np.sum(mask) > 100:
-                    popt, _ = bias_calculation(ch.copy(), ev.copy(),
-                                               mask.copy())
-                else:
-                    popt = [0, 0]
-                # here I want to compute the bias at t+2 later when the trial
-                # 1 step later was correct
-                next_perf = np.concatenate((np.array([0]), perf[:-1]))
-                mask = np.logical_and.reduce((transitions == values[ind_tr],
-                                              perf == ind_perf,
-                                              perf_hist == conv_window,
-                                              next_perf == 1))
+                    mat_num_samples[conv_window-1,
+                                    int(ind_tr/(values.shape[0]-1)),
+                                    ind_perf, ind_curr_tr] += np.sum(mask)
+                    if np.sum(mask) > 100:
+                        popt, _ = bias_calculation(ch.copy(), ev.copy(),
+                                                   mask.copy())
+                    else:
+                        popt = [0, 0]
+                    # here I want to compute the bias at t+2 later
+                    # when the trial 1 step later was correct
+                    mask = np.logical_and.reduce((trans == values[ind_tr],
+                                                  perf == ind_perf,
+                                                  perf_hist == conv_window,
+                                                  next_perf == 1,
+                                                  repeat == ind_curr_tr))
 
-                mask = np.concatenate((np.array([False, False]), mask[:-2]))
-                if np.sum(mask) > 100:
-                    popt_next, _ = bias_calculation(ch.copy(), ev.copy(),
-                                                    mask.copy())
-                else:
-                    popt_next = [0, 0]
-                mat_biases.append([popt[1], ind_perf,
-                                   ind_tr/(values.shape[0]-1), conv_window,
-                                   popt_next[1]])
+                    mask = np.concatenate((np.array([False, False]),
+                                           mask[:-2]))
+                    if np.sum(mask) > 100:
+                        popt_next, _ = bias_calculation(ch.copy(), ev.copy(),
+                                                        mask.copy())
+                    else:
+                        popt_next = [0, 0]
+                    mat_biases.append([popt[1], ind_perf,
+                                       ind_tr/(values.shape[0]-1), ind_curr_tr,
+                                       conv_window, popt_next[1]])
     mat_biases = np.array(mat_biases)
     return mat_biases, mat_num_samples
 
 
 def plot_bias_after_altRep_seqs(mat_biases, mat_conv, mat_num_samples,
                                 folder='', panels=None, legend=False):
+    lbl_curr_tr = ['alt', 'rep']
     lbl_perf = ['error', 'correct']
     lbl_tr = ['alt', 'rep']
     if panels is None:
-        f = ut.get_fig(display_mode)
-    for ind_perf in range(2):
-        if panels is None:
-            plt.subplot(1, 2, int(not(ind_perf))+1)
-        else:
-            plt.subplot(panels[0], panels[1], panels[2]+int(not(ind_perf)))
-        ax = plt.gca()
-        ax.set_title('bias after ' + lbl_perf[ind_perf])
-        # plot number of samples per number of rep/alt transition
-        ax2 = ax.twinx()
-        ax2.plot(mat_conv, mat_num_samples[:, ind_perf], color=(.7, .7, .7))
-        ax2.set_ylabel('total num. of samples')
-        for ind_tr in range(2):
-            color = ((1-ind_tr), 0, ind_tr)
-            index = np.logical_and(mat_biases[:, 1] == ind_perf,
-                                   mat_biases[:, 2] == ind_tr)
-            ax.plot(mat_conv, mat_biases[index, 0], '+-', color=color, lw=1,
-                    label=lbl_tr[ind_tr] + ' + ' + lbl_perf[ind_perf])
-            ax.plot(mat_conv, mat_biases[index, 4], '--', color=color, lw=1,
-                    label=lbl_tr[ind_tr] + ' at t+2')
-        if legend:
-            plt.legend()
-        ax.set_ylabel('bias')
-        ax.set_xlabel('number of ground truth transitions')
-    if (panels is None) and folder != '':
-        f.savefig(folder + 'bias_after_saltRep_seqs.png',
-                  dpi=DPI, bbox_inches='tight')
-        plt.close(f)
+        f = ut.get_fig(display_mode, font=4)
+    counter = 4
+    for ind_c_tr in range(2):
+        for ind_perf in range(2):
+            counter -= 1
+            if panels is None:
+                plt.subplot(2, 2, counter+1)
+            else:
+                plt.subplot(panels[0], panels[1], panels[2]+counter)
+            ax = plt.gca()
+            ax.set_title('bias after ' + lbl_perf[ind_perf] +
+                         ' + ' + lbl_curr_tr[ind_c_tr])
+            for ind_tr in range(2):
+                color = ((1-ind_tr), 0, ind_tr)
+                # plot number of samples per number of rep/alt transition
+                ax2 = ax.twinx()
+                ax2.plot(mat_conv, mat_num_samples[:, ind_tr,
+                                                   ind_perf, ind_c_tr],
+                         color=color, alpha=0.2)
+                ax2.set_ylabel('total num. of samples')
+
+                index = np.logical_and.reduce((mat_biases[:, 1] == ind_perf,
+                                               mat_biases[:, 2] == ind_tr,
+                                               mat_biases[:, 3] == ind_c_tr))
+                print(index)
+                print(mat_biases)
+                ax.plot(mat_conv, mat_biases[index, 0], '+-', color=color,
+                        lw=1,
+                        label=lbl_tr[ind_tr] + ' + ' + lbl_perf[ind_perf])
+                ax.plot(mat_conv, mat_biases[index, 5], '--', color=color,
+                        lw=1,
+                        label=lbl_tr[ind_tr] + ' at t+2')
+            if legend:
+                plt.legend()
+            ax.set_ylabel('bias')
+            ax.set_xlabel('number of ground truth transitions')
+        if (panels is None) and folder != '':
+            f.savefig(folder + 'bias_after_saltRep_seqs.png',
+                      dpi=DPI, bbox_inches='tight')
+            plt.close(f)
     return mat_biases
 
 
@@ -1215,7 +1234,7 @@ def single_exp_analysis(file, exp, per,  bias_acr_training=[],
                         num_samples_mat=[], performances=[], leg_flag=True,
                         fig=False, plot=True):
     if fig:
-        ut.get_fig()
+        ut.get_fig(display_mode, font=4)
     data_flag = ptf.put_files_together(exp,
                                        min_num_trials=per)
     if data_flag:
@@ -1286,10 +1305,12 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                 leg_flag = ind_f == 0
                 file = files[ind_f] + '/bhvr_data_all.npz'
                 print(files[ind_f])
-                single_exp_analysis(file, files[ind_f], per,
-                                    bias_acr_training, biases_after_seqs,
-                                    biases_after_transEv, num_samples_mat,
-                                    performances, leg_flag)
+                bias_acr_training, biases_after_seqs, biases_after_transEv,\
+                    num_samples_mat, performances =\
+                    single_exp_analysis(file, files[ind_f], per,
+                                        bias_acr_training, biases_after_seqs,
+                                        biases_after_transEv, num_samples_mat,
+                                        performances, leg_flag)
             set_yaxis()
             # get biases
             biases, biases_t_2 = organize_biases(biases_after_seqs)
@@ -1393,20 +1414,22 @@ def reduce_xticks(specs):
 
 def organize_biases(biases_after_seqs):
     biases = np.empty((len(biases_after_seqs),
-                       num_trials_back-1, 4))
+                       num_trials_back-1, 2, 2, 2))
     biases_t_2 = np.empty((len(biases_after_seqs),
-                           num_trials_back-1, 4))
+                           num_trials_back-1, 2, 2, 2))
     for ind_exp in range(len(biases_after_seqs)):
-        mat_biases = biases_after_seqs[ind_exp]
-        counter = 0
+        mat_b = biases_after_seqs[ind_exp]
         for ind_perf in range(2):
             for ind_tr in range(2):
-                index = np.logical_and(mat_biases[:, 1] == ind_perf,
-                                       mat_biases[:, 2] == ind_tr)
-                biases[ind_exp, :, counter] = mat_biases[index, 0]
-                biases_t_2[ind_exp, :, counter] =\
-                    mat_biases[index, 4]
-                counter += 1
+                for ind_c_tr in range(2):
+                    index = np.logical_and.reduce((mat_b[:, 1] == ind_perf,
+                                                   mat_b[:, 2] == ind_tr,
+                                                   mat_b[:, 3] == ind_c_tr))
+                    biases[ind_exp, :, ind_perf, ind_tr, ind_c_tr] =\
+                        mat_b[index, 0]
+                    biases_t_2[ind_exp, :, ind_perf, ind_tr, ind_c_tr] =\
+                        mat_b[index, 5]
+
     return biases, biases_t_2
 
 
@@ -1470,11 +1493,11 @@ def plot_main_results(file, bias_acr_training, biases_after_seqs,
                                 panels=[3, 2, 3],
                                 legend=leg_flag)
     #
-    mat_biases = biases_after_transEv[-1]
-    plot_bias_after_transEv_change(mat_biases,
-                                   folder='',
-                                   panels=[3, 2, 5],
-                                   legend=leg_flag)
+    #    mat_biases = biases_after_transEv[-1]
+    #    plot_bias_after_transEv_change(mat_biases,
+    #                                   folder='',
+    #                                   panels=[3, 2, 5],
+    #                                   legend=leg_flag)
 
 
 def set_yaxis():
@@ -1502,9 +1525,9 @@ if __name__ == '__main__':
     file = folder + 'bhvr_data_all.npz'
     single_exp_analysis(file, folder, 100000, fig=True)
     asdasdasd
-    if len(sys.argv) > 1:
-        main_folder = sys.argv[1]
-    else:
-        main_folder = home + '/priors/results/16_neurons_100_instances/'
-    batch_analysis(main_folder=main_folder, neural_analysis_flag=False,
-                   behavior_analysis_flag=True)
+#    if len(sys.argv) > 1:
+#        main_folder = sys.argv[1]
+#    else:
+#        main_folder = home + '/priors/results/16_neurons_100_instances/'
+#    batch_analysis(main_folder=main_folder, neural_analysis_flag=False,
+#                   behavior_analysis_flag=True)

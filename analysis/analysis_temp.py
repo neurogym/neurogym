@@ -20,7 +20,7 @@ plt.close('all')
 
 def plot_biases(after_error_rep, after_correct_rep,
                 after_error_alt, after_correct_alt,
-                pl_axis=[[-6, 6], [-8, 8]],
+                pl_axis=[[-6, 6], [-10, 10]],
                 max_tr_dur=11):
     plt.subplot(2, 2, 1)
     colores = 'br'
@@ -82,7 +82,7 @@ def plot_biases_core(pair1, pair2, labels, axis_lbs, colores, max_tr_dur):
              alpha=pair1[0].shape[0]/max_tr_dur)
 
 
-folder = '/home/molano/priors/results/16_neurons_100_instances/'
+folder = '/home/molano/priors/results/16_neurons_100_instances/all_results/'
 data = np.load(folder +
                'supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_' +
                'PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20_ne_24_' +
