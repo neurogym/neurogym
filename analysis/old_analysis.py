@@ -18,6 +18,7 @@ matplotlib.use('Agg')  # Qt5Agg
 import matplotlib.pyplot as plt
 display_mode = False
 DPI = 400
+num_trials_back = 6
 
 
 def plot_psychometric_curves(evidence, performance, action,
@@ -734,3 +735,150 @@ def simple_agent(file='/home/linux/PassReward0_data.npz', alpha=0.5, noise=0):
     plt.plot(np.flip(kernel))
     plt.ylabel('weights')
     plt.xlabel('previous transitions')
+
+
+def bias_after_transEv_change(file='/home/linux/PassReward0_data.npz',
+                              num_tr=100000):
+    """
+    computes bias conditioned on the number of consecutive ground truth
+    alternations/repetitions during the last trials
+    """
+    choice, correct_side, performance, evidence, _ =\
+        an.load_behavioral_data(file)
+    # BIAS CONDITIONED ON TRANSITION HISTORY (NUMBER OF REPETITIONS)
+    start_point = performance.shape[0]-num_tr
+    ev = evidence[start_point:start_point+num_tr]
+    ch = choice[start_point:start_point+num_tr]
+    side = correct_side[start_point:start_point+num_tr]
+    perf = performance[start_point:start_point+num_tr]
+    next_perf = np.concatenate((np.array([0]), perf[:-1]))
+    mat_biases = []
+    mat_conv = np.arange(1, num_trials_back)
+    for conv_window in mat_conv:
+        # get number of repetitions during the last conv_window trials
+        # (not including the current trial)
+        # get number of repetitions during the last conv_window trials
+        # (not including the current trial)
+        if conv_window > 1:
+            trans_gt = an.get_transition_mat(side, conv_window=conv_window)
+        else:
+            repeat = an.get_repetitions(side)
+            trans_gt = np.concatenate((np.array([0]), repeat[:-1]))
+        # use only extreme cases (all alt., all  rep.)
+        abs_trans = np.abs(trans_gt)
+        # the order of the concatenation is imposed by the fact that
+        # transitions measures the trans. ev. in the previous trials, *not
+        # counting the current trial*
+        tr_change = np.concatenate((abs_trans, abs_trans[0].reshape((1,))))
+        tr_change = np.diff(tr_change)
+        values = np.unique(tr_change)
+        # now get choice transitions
+        if conv_window > 1:
+            trans = an.get_transition_mat(ch, conv_window=conv_window)
+        else:
+            repeat = an.get_repetitions(ch)
+            trans = np.concatenate((np.array([0]), repeat[:-1]))
+        values_tr = np.unique(trans)
+        # perf_hist is use to check that all previous last trials where correct
+        if conv_window > 1:
+            perf_hist = np.convolve(perf, np.ones((conv_window,)),
+                                    mode='full')[0:-conv_window+1]
+            perf_hist = np.concatenate((np.array([0]), perf_hist[:-1]))
+        else:
+            perf_hist = np.concatenate((np.array([0]), perf[:-1]))
+        for ind_tr in [0, values_tr.shape[0]-1]:
+            # since we are just looking at the extrem cases (see above),
+            # there cannot be an increase in transition evidence
+            for ind_ch in range(2):
+                for ind_perf in range(2):
+                    # mask finds all times in which the current trial is
+                    # correct/error and the trial history (num. of repetitions)
+                    # is values[ind_tr] we then need to shift these times
+                    # to get the bias in the trial following them
+                    mask = np.logical_and.reduce((tr_change == values[ind_ch],
+                                                 next_perf == ind_perf,
+                                                 trans == values_tr[ind_tr],
+                                                 perf_hist == conv_window))
+                    mask = np.concatenate((np.array([False]), mask[:-1]))
+                    if conv_window == 2 and ind_ch == 0 and False:
+                        repeat_choice = an.get_repetitions(ch)
+                        print(np.where(mask == 1))
+                        print('tr change : ' + str(values[ind_ch]))
+                        print('perf. : ' + str(ind_perf))
+                        print('transition : ' + str(values_tr[ind_tr]))
+                        print('conv. : ' + str(conv_window))
+                        ut.get_fig()
+                        num = 700
+                        start = 160
+                        plt.title('change:' + str(values[ind_ch]) +
+                                  '  perf:' + str(ind_perf) +
+                                  '  trans:' + str(values_tr[ind_tr]))
+                        plt.plot(trans_gt[start:start+num], '-+',
+                                 label='transitions gt', lw=1)
+                        plt.plot(tr_change[start:start+num], '-+',
+                                 label='tr_change', lw=1)
+                        plt.plot(perf[start:start+num]-3, '--+', label='perf',
+                                 lw=1)
+                        plt.plot(mask[start:start+num]-3, '-+', label='mask',
+                                 lw=1)
+                        plt.plot(repeat_choice[start:start+num]+2, '-+',
+                                 label='repeat', lw=1)
+                        plt.plot(trans[start:start+num], '--+',
+                                 label='transitions choice', lw=1)
+                        for ind in range(num):
+                            plt.plot([ind, ind], [-3, 3], '--',
+                                     color=(.7, .7, .7))
+                        plt.legend()
+                        # asdas
+                    if np.sum(mask) > 100:
+                        popt, pcov = an.bias_calculation(ch.copy(), ev.copy(),
+                                                         mask.copy())
+                    else:
+                        popt = [0, 0]
+                    mat_biases.append([popt[1], ind_ch, ind_perf,
+                                       ind_tr/(values_tr.shape[0]-1),
+                                       conv_window, np.sum(mask)])
+    mat_biases = np.array(mat_biases)
+    return mat_biases
+
+
+def plot_bias_after_transEv_change(mat_biases, folder, panels=None,
+                                   legend=False):
+    if panels is None:
+        f = ut.get_fig(display_mode)
+    lbl_ch = ['less', 'equal']  # , 'more evidence']
+    lbl_perf = ['error', 'correct']
+    lbl_tr = ['alt. bl.', 'rep. bl.']
+
+    for ind_ch in range(2):
+        if panels is None:
+            plt.subplot(1, 2, ind_ch+1)
+            plt.title('after change to ' +
+                      lbl_ch[ind_ch] + ' transition evidence')
+        else:
+            plt.subplot(panels[0], panels[1], panels[2]+ind_ch)
+            plt.title('after change to ' +
+                      lbl_ch[ind_ch] + ' transition evidence')
+        for ind_tr in range(2):
+            for ind_perf in range(2):
+                if ind_perf == 0:
+                    color = np.array([1-0.25*ind_tr, 0.75,
+                                      0.75*(ind_tr + 1)])
+                    color[color > 1] = 1
+                else:
+                    color = ((1-ind_tr), 0, ind_tr)
+                    index = np.logical_and.reduce((mat_biases[:, 1] == ind_ch,
+                                                  mat_biases[:, 2] == ind_perf,
+                                                  mat_biases[:, 3] == ind_tr))
+                    label = lbl_tr[ind_tr] + ', after ' + lbl_perf[ind_perf]
+                    plt.plot(mat_biases[index, 4], mat_biases[index, 0],
+                             color=color, lw=1, label=label)
+        if legend:
+            plt.legend()
+        plt.ylabel('bias')
+        plt.xlabel('number of ground truth transitions')
+
+    if (panels is None) and folder != '':
+        f.savefig(folder + 'bias_after_trans_ev_change.png',
+                  dpi=DPI, bbox_inches='tight')
+        plt.close(f)
