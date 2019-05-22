@@ -18,7 +18,7 @@ matplotlib.use('Agg')  # Qt5Agg
 import matplotlib.pyplot as plt
 display_mode = False
 DPI = 400
-num_trials_back = 6
+num_trials_back = 6 
 
 
 def plot_psychometric_curves(evidence, performance, action,

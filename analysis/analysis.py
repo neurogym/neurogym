@@ -93,6 +93,71 @@ def bias_calculation(choice, ev, mask):
     return popt, pcov
 
 
+def compute_bias_perf_transHist(ch, ev, trans, perf, p_hist, conv_window,
+                                figs=False):
+    values = np.unique(trans)
+    biases = np.empty((2, 2))
+    if figs:
+        ut.get_fig(display_mode, font=8)
+        labels = ['after error alt', 'after error rep',
+                  'after correct alt', 'after correct rep']
+        counter = 0
+    for ind_perf in range(2):
+        for ind_tr in [0, values.shape[0]-1]:
+            ind_tr_ = int(ind_tr/(values.shape[0]-1))
+            mask = np.logical_and.reduce((trans == values[ind_tr],
+                                          perf == ind_perf,
+                                          p_hist == conv_window))
+            mask = np.concatenate((np.array([False]), mask[:-1]))
+            if ind_perf == 0 and ind_tr == 0 and False:
+                # repeat = get_repetitions(ch)
+                ut.get_fig()
+                num = 50
+                start = 5000
+                #                    plt.plot(ch[start:start+num], '-+',
+                #                             label='choice', lw=1)
+                plt.plot(trans[start:start+num], '-+',
+                         label='transitions', lw=1)
+                plt.plot(perf[start:start+num]-3, '--+', label='perf',
+                         lw=1)
+                plt.plot(mask[start:start+num]-3, '-+', label='mask',
+                         lw=1)
+                # plt.plot(repeat[start:start+num]*2, '-+', label='repeat',
+                # lw=1)
+                plt.plot(p_hist[start:start+num], '-+',
+                         label='perf_hist', lw=1)
+                for ind in range(num):
+                    plt.plot([ind, ind], [-3, 3], '--',
+                             color=(.7, .7, .7))
+                plt.legend()
+
+            if np.sum(mask) > 100:
+                popt, pcov = bias_calculation(ch.copy(), ev.copy(),
+                                              mask.copy())
+                if figs:
+                    color = (1-ind_tr_, 0, ind_tr_)
+                    x = np.linspace(np.min(ev),
+                                    np.max(ev), 50)
+                    label = labels[counter] + ' b: ' + str(round(popt[1], 3))
+                    alpha = 1-0.75*(1-ind_perf)
+                    plot_psycho_curve(x, popt, label, color, alpha)
+                    counter += 1
+            else:
+                popt = [0, 0]
+            biases[ind_perf, ind_tr_] = popt[1]
+    return biases
+
+
+def plot_psycho_curve(x, popt, label='', color='b', alpha=1):
+    # get the y values for the fitting
+    y = probit_lapse_rates(x, popt[0], popt[1],
+                           popt[2], popt[3])
+    plt.plot(x, y, color=color,  label=label, lw=0.5,
+             alpha=alpha)
+    plt.legend(loc="lower right")
+    plot_dashed_lines(-np.max(ev), np.max(ev))
+
+
 def build_block_mat(shape, block_dur, corr_side=None):
     """
     create rep/alt blocks based on the block duration. If the correct side is
@@ -792,7 +857,6 @@ def bias_across_training(choice, evidence, performance,
     perf_hist = np.convolve(performance, np.ones((conv_window,)),
                             mode='full')[0:-conv_window+1]
     perf_hist = np.concatenate((np.array([0]), perf_hist[:-1]))
-    values = np.unique(transitions)
     bias_mat = np.empty((num_stps+1, 2, 2))
     for ind_per in range(num_stps+1):
         if ind_per < num_stps:
@@ -807,42 +871,11 @@ def bias_across_training(choice, evidence, performance,
             ch = choice[-500000:]
             trans = transitions[-500000:]
             p_hist = perf_hist[-500000:]
+        biases = compute_bias_perf_transHist(ch, ev, trans, perf,
+                                             p_hist, conv_window)
         for ind_perf in range(2):
-            for ind_tr in [0, values.shape[0]-1]:
-                mask = np.logical_and.reduce((trans == values[ind_tr],
-                                              perf == ind_perf,
-                                              p_hist == conv_window))
-                mask = np.concatenate((np.array([False]), mask[:-1]))
-                if ind_perf == 0 and ind_tr == 0 and\
-                   ind_per == num_stps-1 and False:
-                    # repeat = get_repetitions(ch)
-                    ut.get_fig()
-                    num = 50
-                    start = 5000
-                    #                    plt.plot(ch[start:start+num], '-+',
-                    #                             label='choice', lw=1)
-                    plt.plot(trans[start:start+num], '-+',
-                             label='transitions', lw=1)
-                    plt.plot(perf[start:start+num]-3, '--+', label='perf',
-                             lw=1)
-                    plt.plot(mask[start:start+num]-3, '-+', label='mask',
-                             lw=1)
-                    # plt.plot(repeat[start:start+num]*2, '-+', label='repeat',
-                    # lw=1)
-                    plt.plot(p_hist[start:start+num], '-+',
-                             label='perf_hist', lw=1)
-                    for ind in range(num):
-                        plt.plot([ind, ind], [-3, 3], '--',
-                                 color=(.7, .7, .7))
-                    plt.legend()
-
-                if np.sum(mask) > 100:
-                    popt, pcov = bias_calculation(ch.copy(), ev.copy(),
-                                                  mask.copy())
-                else:
-                    popt = [0, 0]
-                bias_mat[ind_per, ind_perf,
-                         int(ind_tr/(values.shape[0]-1))] = popt[1]
+            for ind_tr in range(2):
+                bias_mat[ind_per, ind_perf, ind_tr] = biases[ind_perf, ind_tr]
     return bias_mat
 
 
@@ -1087,26 +1120,25 @@ def plot_bias_after_altRep_seqs(mat_biases, mat_conv, mat_num_samples,
 
 
 def single_exp_analysis(file, exp, per,  bias_acr_training=[],
-                        biases_after_seqs=[], biases_after_transEv=[],
-                        num_samples_mat=[], performances=[], leg_flag=True,
+                        biases_after_seqs=[], num_samples_mat=[],
+                        performances=[], leg_flag=True,
                         fig=False, plot=True):
     if fig:
         ut.get_fig(display_mode, font=4)
+
     data_flag = ptf.put_files_together(exp,
                                        min_num_trials=per)
     if data_flag:
         performances, bias_acr_training, biases_after_seqs,\
-            biases_after_transEv, num_samples_mat =\
-            get_main_results(file, bias_acr_training,
-                             biases_after_seqs,
-                             biases_after_transEv, num_samples_mat,
-                             per, performances)
+            num_samples_mat = get_main_results(file, bias_acr_training,
+                                               biases_after_seqs,
+                                               num_samples_mat,
+                                               per, performances)
         if plot:
             plot_main_results(file, bias_acr_training,
                               biases_after_seqs,
-                              biases_after_transEv,
                               num_samples_mat, leg_flag, per)
-    return bias_acr_training, biases_after_seqs, biases_after_transEv,\
+    return bias_acr_training, biases_after_seqs,\
         num_samples_mat, performances,
 
 
@@ -1145,16 +1177,16 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
         if 'alpha' not in expl_keys:
             undscr_ind = folder.rfind('_a_')
             folder_name = folder[:undscr_ind]
-            files = glob.glob(main_folder + folder_name + '*')
         else:
             undscr_ind = folder.rfind('_')
             folder_name = folder[:undscr_ind]
-            files = glob.glob(main_folder + folder_name + '*')
-
+        n_envs_ind = folder_name.find('_ne_')
+        folder_name =\
+            folder_name.replace(folder_name[n_envs_ind:n_envs_ind+6], '*')
+        files = glob.glob(main_folder + folder_name + '*')
         if len(files) > 0:
             f = ut.get_fig(display_mode)
             biases_after_seqs = []
-            biases_after_transEv = []
             bias_acr_training = []
             num_samples_mat = []
             performances = []
@@ -1162,11 +1194,11 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                 leg_flag = ind_f == 0
                 file = files[ind_f] + '/bhvr_data_all.npz'
                 print(files[ind_f])
-                bias_acr_training, biases_after_seqs, biases_after_transEv,\
+                bias_acr_training, biases_after_seqs,\
                     num_samples_mat, performances =\
                     single_exp_analysis(file, files[ind_f], per,
                                         bias_acr_training, biases_after_seqs,
-                                        biases_after_transEv, num_samples_mat,
+                                        num_samples_mat,
                                         performances, leg_flag)
             set_yaxis()
             # get biases
@@ -1176,10 +1208,10 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
             p_exp['perfs'] = performances
             p_exp['num_exps'] = biases.shape[0]
             inter_exp_biases.append(p_exp)
-            results = {'biases_after_transEv': biases_after_transEv,
-                       'biases_after_seqs': biases_after_seqs,
+            results = {'biases_after_seqs': biases_after_seqs,
                        'bias_across_training': bias_acr_training,
                        'num_samples_mat': num_samples_mat,
+                       'non_cond_biases': non_cond_biases,
                        'biases': biases,
                        'biases_t_2': biases_t_2,
                        'performances': performances}
@@ -1214,7 +1246,7 @@ def plot_biases_all_experiments(inter_exp_biases, expl_params,
                 color = np.array(((1-ind_tr), 0, ind_tr)) + 0.5*(1-ind_perf)
                 color[color > 1] = 1
                 mean = mat_means[ind_perf, ind_tr]
-                std = mat_std[2, ind_perf, ind_tr]
+                std = mat_std[ind_perf, ind_tr]
                 plt.plot(np.random.normal(loc=ind_exp,
                                           scale=0.01*len(inter_exp_biases),
                                           size=(all_biases.shape[0],)),
@@ -1301,7 +1333,7 @@ def sort_results(mat, expl_params):
 
 
 def get_main_results(file, bias_acr_training, biases_after_seqs,
-                     biases_after_transEv, num_samples_mat, per,
+                     num_samples_mat, per,
                      perf_last_stage):
     choice, _, performance, evidence, _ =\
         load_behavioral_data(file)
@@ -1317,15 +1349,12 @@ def get_main_results(file, bias_acr_training, biases_after_seqs,
     biases_after_seqs.append(mat_biases)
     num_samples_mat.append(mat_num_samples)
     #
-    mat_biases = bias_after_transEv_change(file=file,
-                                           num_tr=500000)
-    biases_after_transEv.append(mat_biases)
     return perf_last_stage, bias_acr_training, biases_after_seqs,\
-        biases_after_transEv, num_samples_mat
+        num_samples_mat
 
 
 def plot_main_results(file, bias_acr_training, biases_after_seqs,
-                      biases_after_transEv, num_samples_mat, leg_flag, per):
+                      num_samples_mat, leg_flag, per):
     mat_conv = np.arange(1, num_trials_back)
     choice, correct_side, performance, evidence, _ =\
         load_behavioral_data(file)
@@ -1352,12 +1381,6 @@ def plot_main_results(file, bias_acr_training, biases_after_seqs,
                                 folder='',
                                 panels=[3, 2, 3],
                                 legend=leg_flag)
-    #
-    #    mat_biases = biases_after_transEv[-1]
-    #    plot_bias_after_transEv_change(mat_biases,
-    #                                   folder='',
-    #                                   panels=[3, 2, 5],
-    #                                   legend=leg_flag)
 
 
 def set_yaxis():
@@ -1376,18 +1399,39 @@ def set_yaxis():
 
 
 if __name__ == '__main__':
-    #    main_folder = '/home/molano/priors/results/pass_reward_action/'
-    #    folder = main_folder + 'supervised_RDM_t_100_200_200_200_100' +\
-    #        '_TH_0.2_0.8' +\
-    #        '_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20' +\
-    #        '_ne_24_nu_32_' +\
-    #        'ev_0.5_a_0.1_183704/'
-    #    file = folder + 'bhvr_data_all.npz'
-    #    single_exp_analysis(file, folder, 100000, fig=True)
-    #    asdasdasd
+    plt.close('all')
+    conv_window = 2
+    main_folder = '/home/molano/priors/results/pass_reward_action/'
+    folder = main_folder + 'supervised_RDM_t_100_200_200_200_100' +\
+        '_TH_0.2_0.8' +\
+        '_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20' +\
+        '_ne_24_nu_32_' +\
+        'ev_0.5_a_0.1_183704/'
+    file = folder + 'bhvr_data_all.npz'
+    single_exp_analysis(file, folder, 100000, fig=True)
+    ch, _, perf, ev, _ =\
+        load_behavioral_data(file)
+    ev = ev[-500000:]
+    perf = perf[-500000:]
+    ch = ch[-500000:]
+    trans = get_transition_mat(ch, conv_window=conv_window)
+    p_hist = np.convolve(perf, np.ones((conv_window,)),
+                         mode='full')[0:-conv_window+1]
+    p_hist = np.concatenate((np.array([0]), p_hist[:-1]))
+    compute_bias_perf_transHist(ch, ev, trans, perf, p_hist, conv_window,
+                                figs=True)
+    ax = plt.gca()
+    ax.set_xlim([-1, 1])
+    asdasdasd
     if len(sys.argv) > 1:
         main_folder = sys.argv[1]
     else:
         main_folder = home + '/priors/results/16_neurons_100_instances/'
     batch_analysis(main_folder=main_folder, neural_analysis_flag=False,
                    behavior_analysis_flag=True)
+    #    x = np.linspace(-1.5, 1.5, 50)
+    #    ut.get_fig()
+    #    plot_psycho_curve(x, [12., 4., 1., 1.], label='', color='b', alpha=1)
+    #    plot_psycho_curve(x, [8., 4., 1., 1.], label='', color='r', alpha=1)
+    #    plot_psycho_curve(x, [12., 8., 1., 1.], label='', color='g', alpha=1)
+    #    asd
