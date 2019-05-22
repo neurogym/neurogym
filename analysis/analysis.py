@@ -1009,19 +1009,12 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                                                   perf_hist == conv_window,
                                                   repeat == ind_curr_tr))
                     mask = np.concatenate((np.array([False]), mask[:-1]))
-                    if conv_window == 2:
-                        aux = trans_side == values[ind_tr]
-                        aux2 = perf_hist == conv_window
-                        mask_side = np.logical_and.reduce((aux,
-                                                           perf == ind_perf,
-                                                           aux2))
-                        mask_side = np.concatenate((np.array([False]),
-                                                    mask_side[:-1]))
-                        index = np.where(mask_side != mask)[0]
-                    if conv_window == 2 and False:
+                    if conv_window == 2 and ind_curr_tr == 0 and\
+                       ind_perf == 1 and False:
+                        index = np.where(mask != 0)[0]
                         num = 50
-                        start = index[0]-10
-                        plt.figure()
+                        start = index[0] - 10
+                        ut.get_fig(display_mode)
                         for ind in range(num):
                             plt.plot([ind, ind], [-2, 2], '--',
                                      color=(.6, .6, .6))
@@ -1030,16 +1023,12 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                                  label='repeat')
                         plt.plot(trans[start:start+num], '-+', lw=1,
                                  label='trans')
-                        plt.plot(trans_side[start:start+num], '--+', lw=1,
-                                 label='trans side')
                         plt.plot(perf_hist[start:start+num], '-+', lw=1,
                                  label='perf_hist')
                         plt.plot(perf[start:start+num]-3, '-+', lw=1,
                                  label='performance')
                         plt.plot(mask[start:start+num]-3, '-+', lw=1,
                                  label='mask')
-                        plt.plot(mask_side[start:start+num]-3, '--+', lw=1,
-                                 label='mask_ch')
                         plt.legend()
 
                     mat_num_samples[conv_window-1,
