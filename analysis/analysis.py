@@ -968,13 +968,12 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
     computes bias conditioned on the num. of previous consecutive ground truth
     alternations/repetitions for after correct/error trials
     """
-    choice, correct_side, performance, evidence, _ = load_behavioral_data(file)
+    choice, _, performance, evidence, _ = load_behavioral_data(file)
     # BIAS CONDITIONED ON TRANSITION HISTORY (NUMBER OF REPETITIONS)
     start_point = performance.shape[0]-num_tr
     ev = evidence[start_point:start_point+num_tr]
     perf = performance[start_point:start_point+num_tr]
     ch = choice[start_point:start_point+num_tr]
-    side = correct_side[start_point:start_point+num_tr]
     mat_biases = []
     mat_conv = np.arange(1, num_trials_back)
     mat_num_samples = np.zeros((num_trials_back-1, 2, 2, 2))
@@ -986,8 +985,6 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
         else:
             repeat = get_repetitions(ch)
             trans = np.concatenate((np.array([0]), repeat[:-1]))
-        if conv_window == 2:
-            trans_side = get_transition_mat(side, conv_window=conv_window)
         # perf_hist is use to check that all previous last trials where correct
         if conv_window > 1:
             perf_hist = np.convolve(perf, np.ones((conv_window,)),
@@ -1115,8 +1112,7 @@ def single_exp_analysis(file, exp, per,  bias_acr_training=[],
     if fig:
         ut.get_fig(display_mode, font=4)
 
-    data_flag = ptf.put_files_together(exp,
-                                       min_num_trials=per)
+    data_flag = ptf.put_files_together(exp, min_num_trials=per)
     if data_flag:
         performances, bias_acr_training, biases_after_seqs,\
             num_samples_mat = get_main_results(file, bias_acr_training,
@@ -1203,7 +1199,8 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                        'non_cond_biases': non_cond_biases,
                        'biases': biases,
                        'biases_t_2': biases_t_2,
-                       'performances': performances}
+                       'performances': performances,
+                       'exps': files}
             np.savez(saving_folder_all + '/' + folder_name +
                      '_results.npz', **results)
             f.savefig(saving_folder_all + '/' + folder_name +
@@ -1390,12 +1387,10 @@ def set_yaxis():
 if __name__ == '__main__':
     plt.close('all')
     conv_window = 2
-    main_folder = '/home/molano/priors/results/pass_reward_action/'
-    folder = main_folder + 'supervised_RDM_t_100_200_200_200_100' +\
-        '_TH_0.2_0.8' +\
-        '_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20' +\
-        '_ne_24_nu_32_' +\
-        'ev_0.5_a_0.1_183704/'
+    main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
+    folder = main_folder + 'supervised_RDM_t_100_200_200_200_100_' +\
+        'TH_0.2_0.8_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_' +\
+        'g_0.8_b_20_ne_40_nu_16_ev_0.5_a_0.1_937075/'
     file = folder + 'bhvr_data_all.npz'
     single_exp_analysis(file, folder, 100000, fig=True)
     ch, _, perf, ev, _ =\

@@ -148,13 +148,25 @@ for ind_exp in range(len(bias_acr_tr)-1):
     after_correct_alt = exp[:, 1, 0]
 
     after_correct_rep = exp[:, 1, 1]
+    after_corr_sum = (abs(after_correct_alt[-1]) + abs(after_correct_rep[-1]))
+    after_err_sum = (abs(after_error_alt[-1]) + abs(after_error_rep[-1]))
+    mean_ratio = after_err_sum / after_corr_sum
+
+    if abs(mean_ratio) < 0.05 and after_correct_rep.shape[0] > 9 and\
+       (after_corr_sum) > 1:
+        print(ind_exp)
+        print(mean_ratio)
+        print(after_corr_sum)
+        print(after_correct_rep.shape[0])
+        print('-----------')
     plt.figure(f1.number)
     plot_biases(after_error_rep, after_correct_rep,
                 after_error_alt, after_correct_alt,
                 pl_axis=[[-8, 8], [-8, 8]], max_tr_dur=max_train_duration)
+    # zoom
     plt.figure(f2.number)
     plot_biases(after_error_rep, after_correct_rep,
                 after_error_alt, after_correct_alt,
                 pl_axis=[[-3, 3], [-3, 3]],  max_tr_dur=max_train_duration)
-#f1.savefig(folder + 'biases_evolution.png', dpi=DPI, bbox_inches='tight')
-#f2.savefig(folder + 'biases_evolution_zoom.png', dpi=DPI, bbox_inches='tight')
+f1.savefig(folder + 'biases_evolution.png', dpi=DPI, bbox_inches='tight')
+f2.savefig(folder + 'biases_evolution_zoom.png', dpi=DPI, bbox_inches='tight')
