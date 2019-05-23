@@ -155,7 +155,7 @@ def plot_psycho_curve(x, popt, label='', color='b', alpha=1):
     plt.plot(x, y, color=color,  label=label, lw=0.5,
              alpha=alpha)
     plt.legend(loc="lower right")
-    plot_dashed_lines(-np.max(ev), np.max(ev))
+    plot_dashed_lines(-np.max(x), np.max(x))
 
 
 def build_block_mat(shape, block_dur, corr_side=None):
@@ -1124,7 +1124,7 @@ def single_exp_analysis(file, exp, per,  bias_acr_training=[],
                               biases_after_seqs,
                               num_samples_mat, leg_flag, per)
     return bias_acr_training, biases_after_seqs,\
-        num_samples_mat, performances,
+        num_samples_mat, performances, data_flag
 
 
 def batch_analysis(main_folder, neural_analysis_flag=False,
@@ -1169,22 +1169,26 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
         folder_name =\
             folder_name.replace(folder_name[n_envs_ind:n_envs_ind+6], '*')
         files = glob.glob(main_folder + folder_name + '*')
+
         if len(files) > 0:
             f = ut.get_fig(display_mode)
             biases_after_seqs = []
             bias_acr_training = []
             num_samples_mat = []
             performances = []
+            files_used = []
             for ind_f in range(len(files)):
                 leg_flag = ind_f == 0
                 file = files[ind_f] + '/bhvr_data_all.npz'
                 print(files[ind_f])
                 bias_acr_training, biases_after_seqs,\
-                    num_samples_mat, performances =\
+                    num_samples_mat, performances, data_flag =\
                     single_exp_analysis(file, files[ind_f], per,
                                         bias_acr_training, biases_after_seqs,
                                         num_samples_mat,
                                         performances, leg_flag)
+                if data_flag:
+                    files_used.append(files[ind_f])
             set_yaxis()
             # get biases
             biases, biases_t_2, non_cond_biases =\
@@ -1200,7 +1204,7 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                        'biases': biases,
                        'biases_t_2': biases_t_2,
                        'performances': performances,
-                       'exps': files}
+                       'exps': files_used}
             np.savez(saving_folder_all + '/' + folder_name +
                      '_results.npz', **results)
             f.savefig(saving_folder_all + '/' + folder_name +
@@ -1390,7 +1394,7 @@ if __name__ == '__main__':
     main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
     folder = main_folder + 'supervised_RDM_t_100_200_200_200_100_' +\
         'TH_0.2_0.8_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_' +\
-        'g_0.8_b_20_ne_40_nu_16_ev_0.5_a_0.1_937075/'
+        'g_0.8_b_20_ne_24_nu_16_ev_0.5_a_0.1_857002/'
     file = folder + 'bhvr_data_all.npz'
     single_exp_analysis(file, folder, 100000, fig=True)
     ch, _, perf, ev, _ =\

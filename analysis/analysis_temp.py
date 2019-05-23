@@ -86,6 +86,7 @@ data = np.load(folder +
                'supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_' +
                'PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20*_' +
                'nu_16_ev_0.5_results.npz')
+files = data['exps']
 biases = data['non_cond_biases']
 print(biases.shape)
 plt.figure()
@@ -158,6 +159,7 @@ for ind_exp in range(len(bias_acr_tr)-1):
         print(mean_ratio)
         print(after_corr_sum)
         print(after_correct_rep.shape[0])
+        print(files[ind_exp])
         print('-----------')
     plt.figure(f1.number)
     plot_biases(after_error_rep, after_correct_rep,
