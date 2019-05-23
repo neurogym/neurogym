@@ -1388,6 +1388,69 @@ def set_yaxis():
         lims = ax.set_ylim([minimo, maximo])
 
 
+def plot_biases_acrr_tr_all_exps(after_error_rep, after_correct_rep,
+                                 after_error_alt, after_correct_alt,
+                                 pl_axis=[[-6, 6], [-10, 10]],
+                                 max_tr_dur=11):
+    plt.subplot(2, 2, 1)
+    colores = 'br'
+    labels = ['after error rep VS after correct rep',
+              'after error alt VS after correct alt']
+    axis_lbs = ['after error bias', 'after correct bias']
+    pair1 = [after_error_rep, after_correct_rep]
+    pair2 = [after_error_alt, after_correct_alt]
+    plot_biases_core(pair1, pair2, labels, axis_lbs, colores,
+                     max_tr_dur=max_tr_dur)
+    plt.xlim(pl_axis[0])
+    plt.ylim(pl_axis[1])
+
+    plt.subplot(2, 2, 2)
+    colores = 'kg'
+    labels = ['after error rep VS after correct alt',
+              'after error alt VS after correct rep']
+    axis_lbs = ['after error bias', 'after correct bias']
+    pair1 = [after_error_rep, after_correct_alt]
+    pair2 = [after_error_alt, after_correct_rep]
+    plot_biases_core(pair1, pair2, labels, axis_lbs, colores,
+                     max_tr_dur=max_tr_dur)
+    plt.xlim(pl_axis[0])
+    plt.ylim(pl_axis[1])
+    plt.subplot(2, 2, 3)
+    colores = 'kg'
+    labels = ['after error rep VS after error alt',
+              'after correc rep VS after correct alt']
+    axis_lbs = ['after rep bias', 'after alt bias']
+    pair1 = [after_error_rep, after_error_alt]
+    pair2 = [after_correct_rep, after_correct_alt]
+    plot_biases_core(pair1, pair2, labels, axis_lbs, colores,
+                     max_tr_dur=max_tr_dur)
+    plt.xlim(pl_axis[0])
+    plt.ylim(pl_axis[1])
+
+
+def plot_biases_core(pair1, pair2, labels, axis_lbs, colores, max_tr_dur):
+    if ind_exp == 0:
+        plt.plot(pair1[0], pair1[1], color=colores[0],
+                 lw=0.1, label=labels[0])
+        plt.plot(pair2[0], pair2[1], color=colores[1],
+                 lw=0.1, label=labels[1])
+        plt.xlabel(axis_lbs[0])
+        plt.ylabel(axis_lbs[1])
+        plt.plot([-6, 6], [0, 0], '--k', lw=0.2)
+        plt.plot([0, 0], [-8, 8], '--k', lw=0.2)
+        plt.legend()
+    else:
+        plt.plot(pair1[0], pair1[1], color=colores[0],
+                 lw=0.1)
+        plt.plot(pair2[0], pair2[1], color=colores[1],
+                 lw=0.1)
+
+    plt.plot(pair1[0][-1], pair1[1][-1], marker='.', color=colores[0],
+             alpha=pair1[0].shape[0]/max_tr_dur)
+    plt.plot(pair2[0][-1], pair2[1][-1], marker='.', color=colores[1],
+             alpha=pair1[0].shape[0]/max_tr_dur)
+
+
 if __name__ == '__main__':
     plt.close('all')
     conv_window = 2
