@@ -1440,98 +1440,101 @@ def bin_bias(medians, pair, binning, b):
 
 if __name__ == '__main__':
     plt.close('all')
-    folder = '/home/molano/priors/results/16_neurons_100_instances/' +\
-        'all_results/'
-    data = np.load(folder +
-                   'supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_' +
-                   'PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20*_' +
-                   'nu_16_ev_0.5_results.npz')
-    files = data['exps']
-    biases = data['non_cond_biases']
-    f1 = ut.get_fig(font=5)
-    plt.subplot(1, 2, 1)
-    b = 1
-    margin = 8.5
-    alpha = 0.3
-    xs = np.linspace(-margin, margin, int(2*margin/b+1))
-    hist = np.histogram(biases[:, 0, 0], bins=xs)[0]
-    plt.plot(xs[:-1]+b/2, hist, 'r', lw=1, alpha=alpha,
-             label='after error alt')
+#    folder = '/home/molano/priors/results/16_neurons_100_instances/' +\
+#        'all_results/'
+#    data = np.load(folder +
+#                   'supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_' +
+#                   'PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20*_' +
+#                   'nu_16_ev_0.5_results.npz')
+#    files = data['exps']
+#    biases = data['non_cond_biases']
+#    f1 = ut.get_fig(font=5)
+#    plt.subplot(1, 2, 1)
+#    b = 1
+#    margin = 8.5
+#    alpha = 0.3
+#    xs = np.linspace(-margin, margin, int(2*margin/b+1))
+#    hist = np.histogram(biases[:, 0, 0], bins=xs)[0]
+#    plt.plot(xs[:-1]+b/2, hist, 'r', lw=1, alpha=alpha,
+#             label='after error alt')
+#
+#    hist = np.histogram(biases[:, 0, 1], bins=xs)[0]
+#    plt.plot(xs[:-1]+b/2, hist, 'b', lw=1, alpha=alpha,
+#             label='after error rep')
+#
+#    hist = np.histogram(biases[:, 1, 0], bins=xs)[0]
+#    plt.plot(xs[:-1]+b/2, hist, 'r', lw=1, alpha=1.,
+#             label='after correct alt')
+#
+#    hist = np.histogram(biases[:, 1, 1], bins=xs)[0]
+#    plt.plot(xs[:-1]+b/2, hist, 'b', lw=1, alpha=1.,
+#             label='after correct rep')
+#    plt.legend()
+#    plt.xlabel('history bias')
+#    plt.ylabel('count')
+#    bias_acr_tr = data['bias_across_training']
+#    max_train_duration = max([x.shape[0] for x in bias_acr_tr])
+#    plt.subplot(1, 2, 2)
+#    colores = 'br'
+#    labels = ['after error rep VS after correct rep',
+#              'after error alt VS after correct alt']
+#    axis_lbs = ['after error bias', 'after correct bias']
+#    pl_axis = [[-6, 6], [-10, 10]]
+#    after_error_alt_all = np.empty((0,))
+#    after_error_rep_all = np.empty((0,))
+#    after_correct_alt_all = np.empty((0,))
+#    after_correct_rep_all = np.empty((0,))
+#
+#    for ind_exp in range(len(bias_acr_tr)-1):
+#        exp = bias_acr_tr[ind_exp]
+#        after_error_alt = exp[:, 0, 0]
+#
+#        after_error_rep = exp[:, 0, 1]
+#
+#        after_correct_alt = exp[:, 1, 0]
+#
+#        after_correct_rep = exp[:, 1, 1]
+#        after_error_alt_all = np.concatenate((after_error_alt_all,
+#                                              after_error_alt))
+#        after_error_rep_all = np.concatenate((after_error_rep_all,
+#                                              after_error_rep))
+#        after_correct_alt_all = np.concatenate((after_correct_alt_all,
+#                                                after_correct_alt))
+#        after_correct_rep_all = np.concatenate((after_correct_rep_all,
+#                                                after_correct_rep))
+#        # compute after error/correct bias ratio
+#        after_corr_sum = (abs(after_correct_alt[-1]) +
+#                          abs(after_correct_rep[-1]))
+#        after_err_sum = (abs(after_error_alt[-1]) + abs(after_error_rep[-1]))
+#        mean_ratio = after_err_sum / after_corr_sum
+#        if after_correct_rep.shape[0] > 9:
+#            if abs(mean_ratio) > 0.6 and (after_corr_sum) > 1:
+#                print(ind_exp)
+#                print(mean_ratio)
+#                print(after_corr_sum)
+#                print(after_correct_rep.shape[0])
+#                print(files[ind_exp])
+#                print('-----------')
+#        pair1 = [after_error_rep, after_correct_rep]
+#        pair2 = [after_error_alt, after_correct_alt]
+#        plot_biases_acr_tr_allExps(pair1, pair2, labels, axis_lbs, colores,
+#                                   max_tr_dur=max_train_duration,
+#                                   leg_flag=ind_exp == 0)
+#    plt.xlim(pl_axis[0])
+#    plt.ylim(pl_axis[1])
+#    pair1 = [after_error_rep_all, after_correct_rep_all]
+#    pair2 = [after_error_alt_all, after_correct_alt_all]
+#    plot_mean_bias(pair1, pair2, xs, b)
 
-    hist = np.histogram(biases[:, 0, 1], bins=xs)[0]
-    plt.plot(xs[:-1]+b/2, hist, 'b', lw=1, alpha=alpha,
-             label='after error rep')
-
-    hist = np.histogram(biases[:, 1, 0], bins=xs)[0]
-    plt.plot(xs[:-1]+b/2, hist, 'r', lw=1, alpha=1., label='after correct alt')
-
-    hist = np.histogram(biases[:, 1, 1], bins=xs)[0]
-    plt.plot(xs[:-1]+b/2, hist, 'b', lw=1, alpha=1., label='after correct rep')
-    plt.legend()
-    plt.xlabel('history bias')
-    plt.ylabel('count')
-    bias_acr_tr = data['bias_across_training']
-    max_train_duration = max([x.shape[0] for x in bias_acr_tr])
-    plt.subplot(1, 2, 2)
-    colores = 'br'
-    labels = ['after error rep VS after correct rep',
-              'after error alt VS after correct alt']
-    axis_lbs = ['after error bias', 'after correct bias']
-    pl_axis = [[-6, 6], [-10, 10]]
-    after_error_alt_all = np.empty((0,))
-    after_error_rep_all = np.empty((0,))
-    after_correct_alt_all = np.empty((0,))
-    after_correct_rep_all = np.empty((0,))
-
-    for ind_exp in range(len(bias_acr_tr)-1):
-        exp = bias_acr_tr[ind_exp]
-        after_error_alt = exp[:, 0, 0]
-
-        after_error_rep = exp[:, 0, 1]
-
-        after_correct_alt = exp[:, 1, 0]
-
-        after_correct_rep = exp[:, 1, 1]
-        after_error_alt_all = np.concatenate((after_error_alt_all,
-                                              after_error_alt))
-        after_error_rep_all = np.concatenate((after_error_rep_all,
-                                              after_error_rep))
-        after_correct_alt_all = np.concatenate((after_correct_alt_all,
-                                                after_correct_alt))
-        after_correct_rep_all = np.concatenate((after_correct_rep_all,
-                                                after_correct_rep))
-        # compute after error/correct bias ratio
-        after_corr_sum = (abs(after_correct_alt[-1]) +
-                          abs(after_correct_rep[-1]))
-        after_err_sum = (abs(after_error_alt[-1]) + abs(after_error_rep[-1]))
-        mean_ratio = after_err_sum / after_corr_sum
-        if after_correct_rep.shape[0] > 9:
-            if abs(mean_ratio) > 0.6 and (after_corr_sum) > 1:
-                print(ind_exp)
-                print(mean_ratio)
-                print(after_corr_sum)
-                print(after_correct_rep.shape[0])
-                print(files[ind_exp])
-                print('-----------')
-        pair1 = [after_error_rep, after_correct_rep]
-        pair2 = [after_error_alt, after_correct_alt]
-        plot_biases_acr_tr_allExps(pair1, pair2, labels, axis_lbs, colores,
-                                   max_tr_dur=max_train_duration,
-                                   leg_flag=ind_exp == 0)
-    plt.xlim(pl_axis[0])
-    plt.ylim(pl_axis[1])
-    pair1 = [after_error_rep_all, after_correct_rep_all]
-    pair2 = [after_error_alt_all, after_correct_alt_all]
-    plot_mean_bias(pair1, pair2, xs, b)
-
-    asdasd
-    if len(sys.argv) > 1:
-        main_folder = sys.argv[1]
-    else:
-        main_folder = home + '/priors/results/16_neurons_100_instances/'
-    batch_analysis(main_folder=main_folder, neural_analysis_flag=False,
-                   behavior_analysis_flag=True)
-    #    x = np.linspace(-1.5, 1.5, 50)
+#    asdasd
+    main_folder = home + '/priors/results/'
+    files = glob.glob(home + '/priors/results/*')
+    for ind_f in range(len(files)):
+        print(files[ind_f])
+        batch_analysis(main_folder=files[ind_f]+'/',
+                       neural_analysis_flag=False,
+                       behavior_analysis_flag=True)
+#    x = np.linspace(-1.5, 1.5, 50)
     #    ut.get_fig()
     #    plot_psycho_curve(x, [12., 4., 1., 1.], label='', color='b', alpha=1)
     #    plot_psycho_curve(x, [8., 4., 1., 1.], label='', color='r', alpha=1)
