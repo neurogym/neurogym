@@ -36,6 +36,7 @@ plt.plot(np.random.normal(loc=1, scale=0.01, size=(biases.shape[0],)),
          biases[:, 1, 1], '.', color='b', markerSize=5, alpha=1.)
 plt.xlim([0, 2])
 f1 = ut.get_fig(font=5)
+plt.subplot(1, 2, 1)
 b = 1
 margin = 8.5
 xs = np.linspace(-margin, margin, int(2*margin/b+1))
@@ -55,8 +56,7 @@ plt.xlabel('history bias')
 plt.ylabel('count')
 bias_acr_tr = data['bias_across_training']
 max_train_duration = max([x.shape[0] for x in bias_acr_tr])
-f2 = ut.get_fig(font=5)
-f3 = ut.get_fig(font=5)
+plt.subplot(1, 2, 2)
 for ind_exp in range(len(bias_acr_tr)-1):
     exp = bias_acr_tr[ind_exp]
     after_error_alt = exp[:, 0, 0]
@@ -78,18 +78,8 @@ for ind_exp in range(len(bias_acr_tr)-1):
         print(after_correct_rep.shape[0])
         print(files[ind_exp])
         print('-----------')
-    plt.figure(f2.number)
     an.plot_biases_acrr_tr_all_exps(after_error_rep, after_correct_rep,
                                     after_error_alt, after_correct_alt,
                                     pl_axis=[[-8, 8], [-8, 8]],
                                     max_tr_dur=max_train_duration,
                                     leg_flag=ind_exp == 0)
-    # zoom
-    plt.figure(f3.number)
-    an.plot_biases_acrr_tr_all_exps(after_error_rep, after_correct_rep,
-                                    after_error_alt, after_correct_alt,
-                                    pl_axis=[[-3, 3], [-3, 3]],
-                                    max_tr_dur=max_train_duration,
-                                    leg_flag=ind_exp == 0)
-f2.savefig(folder + 'biases_evolution.png', dpi=DPI, bbox_inches='tight')
-f3.savefig(folder + 'biases_evolution_zoom.png', dpi=DPI, bbox_inches='tight')

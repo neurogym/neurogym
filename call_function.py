@@ -429,7 +429,7 @@ if __name__ == '__main__':
     # REPEATING PROBABILITY
     hours = '4'
     alg = ['supervised']
-    num_units = [32]
+    num_units = [16]
     bl_dur = [200]
     stim_ev = [.5]
     batch_size = [20]
@@ -437,7 +437,7 @@ if __name__ == '__main__':
     rep_prob = [[.1, .9], [.2, .8], [.3, .7], [.4, .6], [.5, .5]]
     pass_r = [True]
     pass_act = [True]
-    num_insts = 10
+    num_insts = 20
     num_steps_env = 1e8
     experiment = 'repeating_probability'
 
@@ -449,6 +449,7 @@ if __name__ == '__main__':
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
     command += 'sbatch ' + experiment + '/analysis_' + cluster + '.sh\n'
+
     # BLOCK SIZE
     hours = '4'
     alg = ['supervised']
@@ -472,6 +473,7 @@ if __name__ == '__main__':
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
     command += 'sbatch ' + experiment + '/analysis_' + cluster + '.sh\n'
+
     # PASS REWARD/ACTION EXPERIMENT LONG TRAINING
     hours = '48'
     alg = ['supervised']
@@ -617,5 +619,54 @@ if __name__ == '__main__':
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
     command += 'sbatch ' + experiment + '/analysis_' + cluster + '.sh\n'
+
+    # NUM NEURONS MORE INSTANCES
+    hours = '4'
+    alg = ['supervised']
+    num_units = [8, 16, 32, 64]
+    bl_dur = [200]
+    stim_ev = [.5]
+    batch_size = [20]
+    net_type = ['cont_rnn']
+    rep_prob = [[.2, .8]]
+    pass_r = [True]
+    pass_act = [True]
+    num_insts = 20
+    num_steps_env = 1e8
+    experiment = 'num_neurons'
+
+    produce_sh_files(cluster=cluster, alg=alg, hours=hours,
+                     num_units=num_units,
+                     bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
+                     batch_size=batch_size, net_type=net_type,
+                     pass_r=pass_r, pass_act=pass_act,
+                     num_insts=num_insts, experiment=experiment,
+                     main_folder=main_folder, num_steps_env=num_steps_env)
+    command += 'sbatch ' + experiment + '/analysis_' + cluster + '.sh\n'
+
     all_analysis_file.write(command)
     all_analysis_file.close()
+
+    # STIM EVIDENCE
+    hours = '4'
+    alg = ['supervised']
+    num_units = [16]
+    bl_dur = [200]
+    stim_ev = [.1, .3, .5, .7, .9]
+    batch_size = [20]
+    net_type = ['cont_rnn']
+    rep_prob = [[.2, .8]]
+    pass_r = [True]
+    pass_act = [True]
+    num_insts = 20
+    num_steps_env = 1e8
+    experiment = 'stim_evidence'
+
+    produce_sh_files(cluster=cluster, alg=alg, hours=hours,
+                     num_units=num_units,
+                     bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
+                     batch_size=batch_size, net_type=net_type,
+                     pass_r=pass_r, pass_act=pass_act,
+                     num_insts=num_insts, experiment=experiment,
+                     main_folder=main_folder, num_steps_env=num_steps_env)
+    command += 'sbatch ' + experiment + '/analysis_' + cluster + '.sh\n'
