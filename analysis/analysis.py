@@ -1391,7 +1391,7 @@ def set_yaxis():
 def plot_biases_acrr_tr_all_exps(after_error_rep, after_correct_rep,
                                  after_error_alt, after_correct_alt,
                                  pl_axis=[[-6, 6], [-10, 10]],
-                                 max_tr_dur=11):
+                                 max_tr_dur=11, leg_flag=True):
     plt.subplot(2, 2, 1)
     colores = 'br'
     labels = ['after error rep VS after correct rep',
@@ -1400,7 +1400,7 @@ def plot_biases_acrr_tr_all_exps(after_error_rep, after_correct_rep,
     pair1 = [after_error_rep, after_correct_rep]
     pair2 = [after_error_alt, after_correct_alt]
     plot_biases_core(pair1, pair2, labels, axis_lbs, colores,
-                     max_tr_dur=max_tr_dur)
+                     max_tr_dur=max_tr_dur, leg_flag=leg_flag)
     plt.xlim(pl_axis[0])
     plt.ylim(pl_axis[1])
 
@@ -1412,7 +1412,7 @@ def plot_biases_acrr_tr_all_exps(after_error_rep, after_correct_rep,
     pair1 = [after_error_rep, after_correct_alt]
     pair2 = [after_error_alt, after_correct_rep]
     plot_biases_core(pair1, pair2, labels, axis_lbs, colores,
-                     max_tr_dur=max_tr_dur)
+                     max_tr_dur=max_tr_dur, leg_flag=leg_flag)
     plt.xlim(pl_axis[0])
     plt.ylim(pl_axis[1])
     plt.subplot(2, 2, 3)
@@ -1423,13 +1423,14 @@ def plot_biases_acrr_tr_all_exps(after_error_rep, after_correct_rep,
     pair1 = [after_error_rep, after_error_alt]
     pair2 = [after_correct_rep, after_correct_alt]
     plot_biases_core(pair1, pair2, labels, axis_lbs, colores,
-                     max_tr_dur=max_tr_dur)
+                     max_tr_dur=max_tr_dur, leg_flag=leg_flag)
     plt.xlim(pl_axis[0])
     plt.ylim(pl_axis[1])
 
 
-def plot_biases_core(pair1, pair2, labels, axis_lbs, colores, max_tr_dur):
-    if ind_exp == 0:
+def plot_biases_core(pair1, pair2, labels, axis_lbs, colores, max_tr_dur,
+                     leg_flag=True):
+    if leg_flag:
         plt.plot(pair1[0], pair1[1], color=colores[0],
                  lw=0.1, label=labels[0])
         plt.plot(pair2[0], pair2[1], color=colores[1],
