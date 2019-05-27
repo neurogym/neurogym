@@ -1536,9 +1536,10 @@ if __name__ == '__main__':
 #    asdasd
     if len(sys.argv) > 1:
         main_folder = sys.argv[1]
+        files = glob.glob(main_folder + '/*')
     else:
         main_folder = home + '/priors/results/'
-    files = glob.glob(home + '/priors/results/*')
+        files = glob.glob(home + '/priors/results/*')
     for ind_f in range(len(files)):
         plt.close('all')
         print(files[ind_f])
