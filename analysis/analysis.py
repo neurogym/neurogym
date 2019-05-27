@@ -1446,6 +1446,13 @@ if __name__ == '__main__':
 #                   'supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_' +
 #                   'PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20*_' +
 #                   'nu_16_ev_0.5_results.npz')
+#    folder = '/home/molano/priors/results/num_neurons/' +\
+#        'all_results/'
+#    data = np.load(folder +
+#                   'supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8' +
+#                   '_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8' +
+#                   '_b_20*_nu_8_ev_0.5_results.npz')
+#
 #    files = data['exps']
 #    biases = data['non_cond_biases']
 #    f1 = ut.get_fig(font=5)
@@ -1527,9 +1534,13 @@ if __name__ == '__main__':
 #    plot_mean_bias(pair1, pair2, xs, b)
 
 #    asdasd
-    main_folder = home + '/priors/results/'
+    if len(sys.argv) > 1:
+        main_folder = sys.argv[1]
+    else:
+        main_folder = home + '/priors/results/'
     files = glob.glob(home + '/priors/results/*')
     for ind_f in range(len(files)):
+        plt.close('all')
         print(files[ind_f])
         batch_analysis(main_folder=files[ind_f]+'/',
                        neural_analysis_flag=False,

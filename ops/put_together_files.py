@@ -12,6 +12,7 @@ Created on Thu Apr  4 11:20:01 2019
 # 'act_mat',
 # 'rew_mat',
 # 'rep_prob']
+import os
 import glob
 import numpy as np
 from neurogym.ops import utils as ut
@@ -74,6 +75,7 @@ def put_files_together(folder, min_num_trials=1e6):
         data = {'choice': choice_mat, 'stimulus': stim_mat,
                 'correct_side': side_mat, 'rep_prob': r_prob_mat}
         np.savez(folder + '/bhvr_data_all.npz', **data)
+        os.remove('*_bhvr_data*npz')
         if SIZE[0]*counter > min_num_trials:
             return True
         else:
