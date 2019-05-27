@@ -21,9 +21,8 @@ from neurogym.ops import utils as ut
 def put_files_together(folder, min_num_trials=1e6):
     files = glob.glob(folder + '/*_bhvr_data*npz')
     files = ut.order_by_sufix(files)
-    choice_mat = np.empty(())
-    stim_mat = np.empty(())
-    side_mat = np.empty(())
+    choice_mat = np.empty((0,))
+    side_mat = np.empty((0,))
     SIZE = 0
     for ind_f in range(len(files)):
         loaded = True
@@ -41,6 +40,8 @@ def put_files_together(folder, min_num_trials=1e6):
             else:
                 side = side.reshape((side.shape[0],))
             choice_mat = np.concatenate((choice_mat, choice))
+            if SIZE == 0:  # define stim_mat using stim shape
+                stim_mat = np.empty((0, stim.shape[1]))
             stim_mat = np.concatenate((stim_mat, stim))
             side_mat = np.concatenate((side_mat, side))
             SIZE += choice.shape[0]
