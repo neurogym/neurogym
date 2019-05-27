@@ -75,7 +75,7 @@ class manage_data(Wrapper):
                     self.rep_prob_mat.append(info['rep_prob'])
 
                 # save data
-                if self.num_tr > self.num_tr_save:
+                if self.num_tr % self.num_tr_save == 0:
                     data = {'choice': self.choice_mat,
                             'stimulus': self.stim_mat,
                             'correct_side': self.side_mat,
