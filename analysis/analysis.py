@@ -22,8 +22,8 @@ import matplotlib.pyplot as plt
 display_mode = True
 DPI = 400
 num_trials_back = 6
-n_exps_fig_2_ccn = 217  # 217
-
+n_exps_fig_2_ccn = 50  # 217
+acr_tr_per = 100000
 ############################################
 # AUXLIARY FUNCTIONS
 ############################################
@@ -817,6 +817,7 @@ def plot_learning(performance, evidence, stim_position, w_conv=200,
     The function assumes that a figure has been created
     before it is called.
     """
+    lw = 0.1
     num_trials = performance.shape[0]
     # remove all previous plots
     # ideal observer choice
@@ -832,7 +833,7 @@ def plot_learning(performance, evidence, stim_position, w_conv=200,
                                        mode='valid')
     performance_smoothed = performance_smoothed[0::w_conv]
     plt.plot(np.linspace(0, num_trials, performance_smoothed.shape[0]),
-             performance_smoothed, color=(0.39, 0.39, 0.39), lw=0.5,
+             performance_smoothed, color=(0.39, 0.39, 0.39), lw=lw,
              label='RNN perf. (' + str(round(RNN_perf, 3)) + ')')
     #    print('RNN perf: ' + str(round(RNN_perf, 3)))
     # plot ideal observer performance
@@ -841,7 +842,7 @@ def plot_learning(performance, evidence, stim_position, w_conv=200,
                                    mode='valid')
     io_perf_smoothed = io_perf_smoothed[0::w_conv]
     plt.plot(np.linspace(0, num_trials, io_perf_smoothed.shape[0]),
-             io_perf_smoothed, color=(1, 0.8, 0.5), lw=0.5,
+             io_perf_smoothed, color=(1, 0.8, 0.5), lw=lw,
              label='Ideal Obs. perf. (' + str(round(io_perf, 3)) + ')')
     # plot 0.25, 0.5 and 0.75 performance lines
     plot_fractions([0, performance.shape[0]])
@@ -1133,7 +1134,7 @@ def single_exp_analysis(file, exp, per,  bias_acr_training=[],
 
 def batch_analysis(main_folder, neural_analysis_flag=False,
                    behavior_analysis_flag=True):
-    per = 100000
+    per = acr_tr_per
     saving_folder_all = main_folder + 'all_results/'
     if not os.path.exists(saving_folder_all):
         os.mkdir(saving_folder_all)
@@ -1393,7 +1394,7 @@ def set_yaxis():
 
 
 def plot_biases_acr_tr_allExps(pair1, pair2, labels, axis_lbs, colores,
-                               max_tr_dur, leg_flag=True):
+                               max_tr_dur, leg_flag=True, alpha=1.):
     """
 
     """
@@ -1409,17 +1410,19 @@ def plot_biases_acr_tr_allExps(pair1, pair2, labels, axis_lbs, colores,
         plt.legend()
     else:
         plt.plot(pair1[0], pair1[1], color=colores[0],
-                 lw=0.1)
+                 lw=0.1, alpha=alpha)
         plt.plot(pair2[0], pair2[1], color=colores[1],
-                 lw=0.1)
+                 lw=0.1, alpha=alpha)
 
     plt.plot(pair1[0][-1], pair1[1][-1], marker='.', color=colores[0],
-             alpha=pair1[0].shape[0]/max_tr_dur)
+             alpha=pair1[0].shape[0]/max_tr_dur, markersize=4)
     plt.plot(pair2[0][-1], pair2[1][-1], marker='.', color=colores[1],
-             alpha=pair1[0].shape[0]/max_tr_dur)
+             alpha=pair1[0].shape[0]/max_tr_dur, markersize=4)
 
 
-def plot_mean_bias(pair1, pair2, xs, b):
+def plot_mean_bias(pair1, pair2, xs, b, invert=False):
+    lw = 1.5
+    factor = 0.75
     medians_pair1 = []
     medians_pair2 = []
     for ind_bin in range(xs.shape[0]-1):
@@ -1429,8 +1432,16 @@ def plot_mean_bias(pair1, pair2, xs, b):
                                  xs[ind_bin:ind_bin+2], b)
     medians_pair1 = np.array(medians_pair1)
     medians_pair2 = np.array(medians_pair2)
-    plt.plot(medians_pair1[:, 0], medians_pair1[:, 1], color=(0, 0, .5), lw=1)
-    plt.plot(medians_pair2[:, 0], medians_pair2[:, 1], color=(.5, 0, 0), lw=1)
+    if invert:
+        plt.plot(medians_pair1[:, 1], medians_pair1[:, 0],
+                 color=(0, 0, factor), lw=lw)
+        plt.plot(medians_pair2[:, 1], medians_pair2[:, 0],
+                 color=(factor, 0, 0), lw=lw)
+    else:
+        plt.plot(medians_pair1[:, 0], medians_pair1[:, 1],
+                 color=(0, 0, factor), lw=lw)
+        plt.plot(medians_pair2[:, 0], medians_pair2[:, 1],
+                 color=(factor, 0, 0), lw=lw)
 
 
 def bin_bias(medians, pair, binning, b):
@@ -1445,8 +1456,18 @@ def bin_bias(medians, pair, binning, b):
 def fig_2_ccn(file_all_exps, folder):
     f1 = ut.get_fig(font=8)
     margin_plt = 0.03
-#    plt.rc('text', usetex=True)
-    plt.subplot(2, 3, 1)
+    b = 0.2
+    margin = 8.1
+    alpha = .5
+    rows = 3
+    cols = 3
+    lw = 0.5
+    loc_main_panel = [0.5, 0.2, 0.3, 0.3]
+    ax_main_panel = f1.add_axes([loc_main_panel[0], loc_main_panel[1],
+                                 loc_main_panel[2], loc_main_panel[3]])
+    xs = np.linspace(-margin, margin, int(2*margin/b+1))
+    # PLOT PERFORMANCES
+    plt.subplot(rows, cols, 1)
     num_tr = 10000000
     start_point = 0
     files = glob.glob(folder + '/supervised*')
@@ -1466,45 +1487,16 @@ def fig_2_ccn(file_all_exps, folder):
     ax.set_title('')
     remove_top_right_axis()
     ax.set_ylabel('Performance')
-    ax.set_xlabel('Trials')
+    ax.set_xlabel('Trials   ')
     ax.set_xticks([0, 500000, 1000000])
     ax.set_xticklabels(['0', '0.5', '1 (M)'])
     points = ax.get_position().get_points()
     plt.text(points[0][0]-margin_plt, points[1][1]+margin_plt, 'a',
              transform=plt.gcf().transFigure)
 
-    plt.subplot(2, 2, 3)
     data = np.load(file_all_exps)
     files = data['exps']
-    biases = data['non_cond_biases']
-    b = 1
-    margin = 8.5
-    alpha = 0.3
-    xs = np.linspace(-margin, margin, int(2*margin/b+1))
-    hist = np.histogram(biases[:, 0, 0], bins=xs)[0]
-    plt.plot(xs[:-1]+b/2, hist, 'r', lw=1, alpha=alpha,
-             label='After error alt')
-
-    hist = np.histogram(biases[:, 0, 1], bins=xs)[0]
-    plt.plot(xs[:-1]+b/2, hist, 'b', lw=1, alpha=alpha,
-             label='After error rep')
-
-    hist = np.histogram(biases[:, 1, 0], bins=xs)[0]
-    plt.plot(xs[:-1]+b/2, hist, 'r', lw=1, alpha=1.,
-             label='After correct alt')
-
-    hist = np.histogram(biases[:, 1, 1], bins=xs)[0]
-    plt.plot(xs[:-1]+b/2, hist, 'b', lw=1, alpha=1.,
-             label='After correct rep')
-    plt.legend()
-    plt.xlabel('History bias')
-    plt.ylabel('Count')
-    remove_top_right_axis()
-    ax = plt.gca()
-    points = ax.get_position().get_points()
-    plt.text(points[0][0]-margin_plt, points[1][1]+margin_plt, 'd',
-             transform=plt.gcf().transFigure)
-
+    # biases = data['non_cond_biases']
     bias_acr_tr = data['bias_across_training']
     max_train_duration = max([x.shape[0] for x in bias_acr_tr])
     colores = 'br'
@@ -1516,16 +1508,16 @@ def fig_2_ccn(file_all_exps, folder):
     after_error_rep_all = np.empty((0,))
     after_correct_alt_all = np.empty((0,))
     after_correct_rep_all = np.empty((0,))
-
-    for ind_exp in range(len(bias_acr_tr)-1):
+    times = np.empty((0,))
+    for ind_exp in range(len(bias_acr_tr)):
         exp = bias_acr_tr[ind_exp]
-        after_error_alt = exp[:, 0, 0]
+        after_error_alt = exp[:, 0, 0][:-1]
 
-        after_error_rep = exp[:, 0, 1]
+        after_error_rep = exp[:, 0, 1][:-1]
 
-        after_correct_alt = exp[:, 1, 0]
+        after_correct_alt = exp[:, 1, 0][:-1]
 
-        after_correct_rep = exp[:, 1, 1]
+        after_correct_rep = exp[:, 1, 1][:-1]
         after_error_alt_all = np.concatenate((after_error_alt_all,
                                               after_error_alt))
         after_error_rep_all = np.concatenate((after_error_rep_all,
@@ -1534,10 +1526,11 @@ def fig_2_ccn(file_all_exps, folder):
                                                 after_correct_alt))
         after_correct_rep_all = np.concatenate((after_correct_rep_all,
                                                 after_correct_rep))
+        times = np.concatenate((times, np.arange(after_correct_rep.shape[0])))
         # compute after error/correct bias ratio
-        after_corr_sum = (abs(after_correct_alt[-1]) +
-                          abs(after_correct_rep[-1]))
-        after_err_sum = (abs(after_error_alt[-1]) + abs(after_error_rep[-1]))
+        after_corr_sum = (abs(exp[:, 1, 0][-1]) +
+                          abs(exp[:, 1, 1][-1]))
+        after_err_sum = (abs(exp[:, 0, 0][-1]) + abs(exp[:, 0, 1][-1]))
         mean_ratio = after_err_sum / after_corr_sum
         if after_correct_rep.shape[0] > 9:
             if abs(mean_ratio) > 0.6 and (after_corr_sum) > 1:
@@ -1549,22 +1542,23 @@ def fig_2_ccn(file_all_exps, folder):
                 print('-----------')
         pair1 = [after_error_rep, after_correct_rep]
         pair2 = [after_error_alt, after_correct_alt]
+        # PLOT BIASES ACROSS TRAINING
         if ind_exp < n_exps_fig_2_ccn:
-            plt.subplot(2, 3, 2)
+            plt.subplot(rows, cols, 2)
             plt.plot(100000*np.arange(after_correct_rep.shape[0]),
-                     after_correct_rep, 'b')
+                     after_correct_rep, 'b', alpha=alpha, lw=lw)
             plt.plot(100000*np.arange(after_correct_alt.shape[0]),
-                     after_correct_alt, 'r')
-            plt.subplot(2, 3, 3)
+                     after_correct_alt, 'r', alpha=alpha, lw=lw)
+            plt.subplot(rows, cols, 3)
             plt.plot(100000*np.arange(after_error_rep.shape[0]),
-                     after_error_rep, 'b', alpha=0.3)
+                     after_error_rep, 'b', alpha=alpha, lw=lw)
             plt.plot(100000*np.arange(after_error_alt.shape[0]),
-                     after_error_alt, 'r', alpha=0.3)
-        plt.subplot(2, 2, 4)
+                     after_error_alt, 'r', alpha=alpha, lw=lw)
+        plt.sca(ax_main_panel)
         plot_biases_acr_tr_allExps(pair1, pair2, labels, axis_lbs, colores,
                                    max_tr_dur=max_train_duration,
-                                   leg_flag=ind_exp == 0)
-    plt.subplot(2, 2, 4)
+                                   leg_flag=ind_exp == 0, alpha=alpha)
+    plt.sca(ax_main_panel)
     plt.xlim(pl_axis[0])
     plt.ylim(pl_axis[1])
     pair1 = [after_error_rep_all, after_correct_rep_all]
@@ -1575,7 +1569,47 @@ def fig_2_ccn(file_all_exps, folder):
     points = ax.get_position().get_points()
     plt.text(points[0][0]-margin_plt, points[1][1]+margin_plt, 'e',
              transform=plt.gcf().transFigure)
-    plt.subplot(2, 3, 2)
+    width_height = np.diff(points, axis=0)[0]
+    ax2 = f1.add_axes([points[0][0], points[1][1],
+                       width_height[0], width_height[1]/2])
+    hist = np.histogram(after_error_alt_all, bins=xs)[0]
+    plt.step(xs[:-1]+b/2, hist, 'r', lw=lw,
+             label='After error alt')
+
+    hist = np.histogram(after_error_rep_all, bins=xs)[0]
+    plt.step(xs[:-1]+b/2, hist, 'b', lw=lw,
+             label='After error rep')
+    ax2.axis('off')
+    ax2 = f1.add_axes([points[1][0], points[0][1],
+                       width_height[0]/2, width_height[1]])
+    hist = np.histogram(after_correct_alt_all, bins=xs)[0]
+    plt.step(hist, xs[:-1]+b/2, 'r', lw=lw,
+             label='After correct alt')
+
+    hist = np.histogram(after_correct_rep_all, bins=xs)[0]
+    plt.step(hist, xs[:-1]+b/2, 'b', lw=lw,
+             label='After correct rep')
+    ax2.axis('off')
+    # get data from first line of the plot
+#    # plt.legend()
+#    plt.xlabel('History bias')
+#    plt.ylabel('Count')
+#    remove_top_right_axis()
+#    ax = plt.gca()
+#    points = ax.get_position().get_points()
+#    plt.text(points[0][0]-margin_plt, points[1][1]+margin_plt, 'd',
+#             transform=plt.gcf().transFigure)
+
+    plt.subplot(rows, cols, 2)
+    times *= acr_tr_per
+    b_across_training = acr_tr_per
+    xs_across_training = np.linspace(-acr_tr_per/2,
+                                     acr_tr_per*(max_train_duration+1/2),
+                                     max_train_duration+2)
+    pair1 = [after_correct_rep_all, times]
+    pair2 = [after_correct_alt_all, times]
+    plot_mean_bias(pair1, pair2, xs_across_training, b_across_training,
+                   invert=True)
     ax = plt.gca()
     ylim = ax.get_ylim()
     remove_top_right_axis()
@@ -1586,7 +1620,11 @@ def fig_2_ccn(file_all_exps, folder):
     points = ax.get_position().get_points()
     plt.text(points[0][0]-margin_plt, points[1][1]+margin_plt, 'b',
              transform=plt.gcf().transFigure)
-    plt.subplot(2, 3, 3)
+    plt.subplot(rows, cols, 3)
+    pair1 = [after_error_rep_all, times]
+    pair2 = [after_error_alt_all, times]
+    plot_mean_bias(pair1, pair2, xs_across_training, b_across_training,
+                   invert=True)
     ax = plt.gca()
     ylim = ax.set_ylim(ylim)
     remove_top_right_axis()
