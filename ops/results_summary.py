@@ -118,6 +118,7 @@ def explore_folder(main_folder, count=True,
     experiments = []
     num_trials = []
     folders = glob.glob(main_folder + '/*')
+    assert(len(folders) > 0)
     for ind_f in range(len(folders)):
         path = folders[ind_f]
         folder = os.path.basename(os.path.normpath(path + '/'))

@@ -1392,7 +1392,7 @@ def plot_main_results(file, bias_acr_training, biases_after_seqs,
 def set_yaxis():
     maximo = -np.inf
     minimo = np.inf
-    for ind_pl in range(3, 4):
+    for ind_pl in range(2, 7):
         plt.subplot(3, 2, ind_pl)
         ax = plt.gca()
         lims = ax.get_ylim()
@@ -1402,6 +1402,56 @@ def set_yaxis():
         plt.subplot(3, 2, ind_pl)
         ax = plt.gca()
         lims = ax.set_ylim([minimo, maximo])
+
+
+def process_exp(exp, after_error_alt_all, after_error_rep_all,
+                after_correct_alt_all, after_correct_rep_all, times,
+                ax_main_panel, plt_b_acr_time, rows, cols, lw, alpha,
+                labels, axis_lbs, colores, leg_flag, max_train_duration,
+                marker='.'):
+    after_error_alt = exp[:, 0, 0][:-1]
+    after_error_rep = exp[:, 0, 1][:-1]
+    after_correct_alt = exp[:, 1, 0][:-1]
+    after_correct_rep = exp[:, 1, 1][:-1]
+    after_error_alt_all = np.concatenate((after_error_alt_all,
+                                          after_error_alt))
+    after_error_rep_all = np.concatenate((after_error_rep_all,
+                                          after_error_rep))
+    after_correct_alt_all = np.concatenate((after_correct_alt_all,
+                                            after_correct_alt))
+    after_correct_rep_all = np.concatenate((after_correct_rep_all,
+                                            after_correct_rep))
+    times = np.concatenate((times,
+                            np.arange(after_correct_rep.shape[0])))
+    plt.sca(ax_main_panel)
+    plot_2d_figure_with_biases(exp, after_error_alt, after_error_rep,
+                               after_correct_alt, after_correct_rep,
+                               labels, axis_lbs, colores, leg_flag,
+                               alpha, max_train_duration, marker=marker)
+    # PLOT BIASES ACROSS TRAINING
+    if plt_b_acr_time:
+        plt.subplot(rows, cols, 2)
+        plt.plot(100000*np.arange(after_correct_rep.shape[0]),
+                 after_correct_rep, color=azul, alpha=alpha, lw=lw)
+        plt.plot(100000*np.arange(after_correct_alt.shape[0]),
+                 after_correct_alt, color=rojo, alpha=alpha, lw=lw)
+        plt.subplot(rows, cols, 3)
+        plt.plot(100000*np.arange(after_error_rep.shape[0]),
+                 after_error_rep, color=azul, alpha=alpha, lw=lw)
+        plt.plot(100000*np.arange(after_error_alt.shape[0]),
+                 after_error_alt, color=rojo, alpha=alpha, lw=lw)
+
+
+def plot_2d_figure_with_biases(exp, after_error_alt, after_error_rep,
+                               after_correct_alt, after_correct_rep,
+                               labels, axis_lbs, colores, leg_flag,
+                               alpha, max_train_duration, marker='.'):
+    pair1 = [after_error_rep, after_correct_rep]
+    pair2 = [after_error_alt, after_correct_alt]
+    # PLOT PAIRED BIASES
+    plot_biases_acr_tr_allExps(pair1, pair2, labels, axis_lbs, colores,
+                               max_tr_dur=max_train_duration,
+                               leg_flag=leg_flag, alpha=alpha, marker=marker)
 
 
 def plot_psychocurve_examples(ax1, ax2):
@@ -1585,62 +1635,11 @@ def fig_2_ccn(file_all_exps, folder):
     for ind_exp in range(len(bias_acr_tr)):
         if (ind_exp != 137 and ind_exp != 19):
             exp = bias_acr_tr[ind_exp]
-            after_error_alt = exp[:, 0, 0][:-1]
-            after_error_rep = exp[:, 0, 1][:-1]
-            after_correct_alt = exp[:, 1, 0][:-1]
-            after_correct_rep = exp[:, 1, 1][:-1]
-            after_error_alt_all = np.concatenate((after_error_alt_all,
-                                                  after_error_alt))
-            after_error_rep_all = np.concatenate((after_error_rep_all,
-                                                  after_error_rep))
-            after_correct_alt_all = np.concatenate((after_correct_alt_all,
-                                                    after_correct_alt))
-            after_correct_rep_all = np.concatenate((after_correct_rep_all,
-                                                    after_correct_rep))
-            times = np.concatenate((times,
-                                    np.arange(after_correct_rep.shape[0])))
-            # compute after error/correct bias ratio
-            after_corr_sum = (abs(after_correct_alt[-1]) +
-                              abs(after_correct_rep[-1]))
-            after_err_sum = (abs(after_error_rep[-1]) +
-                             abs(after_error_alt[-1]))
-            mean_ratio = after_err_sum / after_corr_sum
-            if after_correct_rep.shape[0] > 9:
-                if abs(mean_ratio) < 0.05 and (after_corr_sum) > 1:
-                    print(files[ind_exp])
-                    print(ind_exp)
-                    print(mean_ratio)
-                    print(after_corr_sum)
-                    print(after_correct_rep.shape[0])
-                    print(files[ind_exp])
-                    print('-----------')
-                if abs(mean_ratio) > 0.75 and (after_corr_sum) > 1:
-                    print(files[ind_exp])
-                    print(ind_exp)
-                    print(mean_ratio)
-                    print(after_corr_sum)
-                    print(after_correct_rep.shape[0])
-                    print(files[ind_exp])
-                    print('xxxxxxxxxxxx')
-            pair1 = [after_error_rep, after_correct_rep]
-            pair2 = [after_error_alt, after_correct_alt]
-            # PLOT BIASES ACROSS TRAINING
-            if ind_exp < n_exps_fig_2_ccn:
-                plt.subplot(rows, cols, 2)
-                plt.plot(100000*np.arange(after_correct_rep.shape[0]),
-                         after_correct_rep, color=azul, alpha=alpha, lw=lw)
-                plt.plot(100000*np.arange(after_correct_alt.shape[0]),
-                         after_correct_alt, color=rojo, alpha=alpha, lw=lw)
-                plt.subplot(rows, cols, 3)
-                plt.plot(100000*np.arange(after_error_rep.shape[0]),
-                         after_error_rep, color=azul, alpha=alpha, lw=lw)
-                plt.plot(100000*np.arange(after_error_alt.shape[0]),
-                         after_error_alt, color=rojo, alpha=alpha, lw=lw)
-            # PLOT PAIRED BIASES
-            plt.sca(ax_main_panel)
-            plot_biases_acr_tr_allExps(pair1, pair2, labels, axis_lbs, colores,
-                                       max_tr_dur=max_train_duration,
-                                       leg_flag=ind_exp == 0, alpha=alpha)
+            process_exp(exp, after_error_alt_all, after_error_rep_all,
+                        after_correct_alt_all, after_correct_rep_all, times,
+                        ax_main_panel, ind_exp < n_exps_fig_2_ccn, rows,
+                        cols, lw, alpha, labels, axis_lbs, colores, leg_flag,
+                        max_train_duration, marker='.')
     plt.xlim(pl_axis[0])
     plt.ylim(pl_axis[1])
     pair1 = [after_error_rep_all, after_correct_rep_all]
@@ -1649,76 +1648,18 @@ def fig_2_ccn(file_all_exps, folder):
     remove_top_right_axis()
     ind_exp = 19
     exp = bias_acr_tr[ind_exp]
-    after_error_alt = exp[:, 0, 0][:-1]
-    after_error_rep = exp[:, 0, 1][:-1]
-    after_correct_alt = exp[:, 1, 0][:-1]
-    after_correct_rep = exp[:, 1, 1][:-1]
-    after_error_alt_all = np.concatenate((after_error_alt_all,
-                                          after_error_alt))
-    after_error_rep_all = np.concatenate((after_error_rep_all,
-                                          after_error_rep))
-    after_correct_alt_all = np.concatenate((after_correct_alt_all,
-                                            after_correct_alt))
-    after_correct_rep_all = np.concatenate((after_correct_rep_all,
-                                            after_correct_rep))
-    times = np.concatenate((times,
-                            np.arange(after_correct_rep.shape[0])))
-    pair1 = [after_error_rep, after_correct_rep]
-    pair2 = [after_error_alt, after_correct_alt]
-    # PLOT BIASES ACROSS TRAINING
-    if ind_exp < n_exps_fig_2_ccn:
-        plt.subplot(rows, cols, 2)
-        plt.plot(100000*np.arange(after_correct_rep.shape[0]),
-                 after_correct_rep, color=azul, alpha=alpha, lw=lw)
-        plt.plot(100000*np.arange(after_correct_alt.shape[0]),
-                 after_correct_alt, color=rojo, alpha=alpha, lw=lw)
-        plt.subplot(rows, cols, 3)
-        plt.plot(100000*np.arange(after_error_rep.shape[0]),
-                 after_error_rep, color=azul, alpha=alpha, lw=lw)
-        plt.plot(100000*np.arange(after_error_alt.shape[0]),
-                 after_error_alt, color=rojo, alpha=alpha, lw=lw)
-    # PLOT PAIRED BIASES
-    plt.sca(ax_main_panel)
-    plot_biases_acr_tr_allExps(pair1, pair2, labels, axis_lbs, colores,
-                               max_tr_dur=max_train_duration,
-                               leg_flag=ind_exp == 0, alpha=alpha,
-                               marker='x')
+    process_exp(exp, after_error_alt_all, after_error_rep_all,
+                after_correct_alt_all, after_correct_rep_all, times,
+                ax_main_panel, ind_exp < n_exps_fig_2_ccn, rows,
+                cols, lw, alpha, labels, axis_lbs, colores, leg_flag,
+                max_train_duration, marker='x')
     ind_exp = 137
     exp = bias_acr_tr[ind_exp]
-    after_error_alt = exp[:, 0, 0][:-1]
-    after_error_rep = exp[:, 0, 1][:-1]
-    after_correct_alt = exp[:, 1, 0][:-1]
-    after_correct_rep = exp[:, 1, 1][:-1]
-    after_error_alt_all = np.concatenate((after_error_alt_all,
-                                          after_error_alt))
-    after_error_rep_all = np.concatenate((after_error_rep_all,
-                                          after_error_rep))
-    after_correct_alt_all = np.concatenate((after_correct_alt_all,
-                                            after_correct_alt))
-    after_correct_rep_all = np.concatenate((after_correct_rep_all,
-                                            after_correct_rep))
-    times = np.concatenate((times,
-                            np.arange(after_correct_rep.shape[0])))
-    pair1 = [after_error_rep, after_correct_rep]
-    pair2 = [after_error_alt, after_correct_alt]
-    # PLOT BIASES ACROSS TRAINING
-    if ind_exp < n_exps_fig_2_ccn:
-        plt.subplot(rows, cols, 2)
-        plt.plot(100000*np.arange(after_correct_rep.shape[0]),
-                 after_correct_rep, color=azul, alpha=alpha, lw=lw)
-        plt.plot(100000*np.arange(after_correct_alt.shape[0]),
-                 after_correct_alt, color=rojo, alpha=alpha, lw=lw)
-        plt.subplot(rows, cols, 3)
-        plt.plot(100000*np.arange(after_error_rep.shape[0]),
-                 after_error_rep, color=azul, alpha=alpha, lw=lw)
-        plt.plot(100000*np.arange(after_error_alt.shape[0]),
-                 after_error_alt, color=rojo, alpha=alpha, lw=lw)
-    # PLOT PAIRED BIASES
-    plt.sca(ax_main_panel)
-    plot_biases_acr_tr_allExps(pair1, pair2, labels, axis_lbs, colores,
-                               max_tr_dur=max_train_duration,
-                               leg_flag=ind_exp == 0, alpha=alpha,
-                               marker='x')
+    process_exp(exp, after_error_alt_all, after_error_rep_all,
+                after_correct_alt_all, after_correct_rep_all, times,
+                ax_main_panel, ind_exp < n_exps_fig_2_ccn, rows,
+                cols, lw, alpha, labels, axis_lbs, colores, leg_flag,
+                max_train_duration, marker='+')
 
     ax = plt.gca()
     points = ax.get_position().get_points()
@@ -1799,7 +1740,7 @@ if __name__ == '__main__':
     else:
         main_folder = home + '/priors/results/'
         files = glob.glob(home + '/priors/results/*')
-    for ind_f in range(1, len(files)):
+    for ind_f in range(3, 4):  # len(files)):
         plt.close('all')
         print(files[ind_f])
         batch_analysis(main_folder=files[ind_f]+'/',

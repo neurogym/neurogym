@@ -882,3 +882,29 @@ def plot_bias_after_transEv_change(mat_biases, folder, panels=None,
         f.savefig(folder + 'bias_after_trans_ev_change.png',
                   dpi=DPI, bbox_inches='tight')
         plt.close(f)
+
+
+def compute_bias_ratio(after_correct_alt, after_correct_rep,
+                       after_error_alt, after_error_rep,
+                       ind_exp, file, ):
+    # compute after error/correct bias ratio
+    after_corr_sum = (abs(after_correct_alt[-1]) +
+                      abs(after_correct_rep[-1]))
+    after_err_sum = (abs(after_error_rep[-1]) +
+                     abs(after_error_alt[-1]))
+    mean_ratio = after_err_sum / after_corr_sum
+    if after_correct_rep.shape[0] > 9:
+        if abs(mean_ratio) < 0.05 and (after_corr_sum) > 1:
+            print(file)
+            print(ind_exp)
+            print(mean_ratio)
+            print(after_corr_sum)
+            print(after_correct_rep.shape[0])
+            print('-----------')
+        if abs(mean_ratio) > 0.75 and (after_corr_sum) > 1:
+            print(file)
+            print(ind_exp)
+            print(mean_ratio)
+            print(after_corr_sum)
+            print(after_correct_rep.shape[0])
+            print('xxxxxxxxxxxx')
