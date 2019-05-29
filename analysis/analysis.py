@@ -1530,6 +1530,9 @@ def fig_2_ccn(file_all_exps, folder):
     rows = 3
     cols = 3
     lw = 0.5
+    colores = np.concatenate((azul.reshape((1, 3)), rojo.reshape((1, 3))),
+                             axis=0)
+    # Panels, labels and other stuff for panel d
     loc_main_panel = [0.5, 0.2, 0.3, 0.3]
     ax_main_panel = f1.add_axes(loc_main_panel)
     loc_ex_panel = [0.2, 0.175, 0.15, 0.15]
@@ -1537,6 +1540,10 @@ def fig_2_ccn(file_all_exps, folder):
     loc_ex_panel = [0.2, 0.425, 0.15, 0.15]
     ax_ex_panel2 = f1.add_axes(loc_ex_panel)
     xs = np.linspace(-margin, margin, int(2*margin/b+1))
+    labels = ['After error rep VS after correct rep',
+              'After error alt VS after correct alt']
+    axis_lbs = ['After error bias', 'After correct bias']
+    pl_axis = [[-6, 6], [-10, 10]]
     # PLOT PERFORMANCES
     plt.subplot(rows, cols, 1)
     num_tr = 10000000
@@ -1565,17 +1572,11 @@ def fig_2_ccn(file_all_exps, folder):
     plt.text(points[0][0]-margin_plt, points[1][1]+margin_plt, 'a',
              transform=plt.gcf().transFigure)
 
+    # PLOT BIAS ACROSS TRAINING
     data = np.load(file_all_exps)
     files = data['exps']
-    # biases = data['non_cond_biases']
     bias_acr_tr = data['bias_across_training']
     max_train_duration = max([x.shape[0] for x in bias_acr_tr])
-    colores = np.concatenate((azul.reshape((1, 3)), rojo.reshape((1, 3))),
-                             axis=0)
-    labels = ['After error rep VS after correct rep',
-              'After error alt VS after correct alt']
-    axis_lbs = ['After error bias', 'After correct bias']
-    pl_axis = [[-6, 6], [-10, 10]]
     after_error_alt_all = np.empty((0,))
     after_error_rep_all = np.empty((0,))
     after_correct_alt_all = np.empty((0,))
@@ -1742,16 +1743,6 @@ def fig_2_ccn(file_all_exps, folder):
     plt.step(hist, xs[:-1]+b/2, color=azul, lw=lw,
              label='After correct rep')
     ax2.axis('off')
-    # get data from first line of the plot
-#    # plt.legend()
-#    plt.xlabel('History bias')
-#    plt.ylabel('Count')
-#    remove_top_right_axis()
-#    ax = plt.gca()
-#    points = ax.get_position().get_points()
-#    plt.text(points[0][0]-margin_plt, points[1][1]+margin_plt, 'd',
-#             transform=plt.gcf().transFigure)
-
     plt.subplot(rows, cols, 2)
     times *= acr_tr_per
     b_across_training = acr_tr_per
