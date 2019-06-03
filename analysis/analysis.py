@@ -250,15 +250,14 @@ def remove_top_right_axis():
 
 def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
                         n_envs=12, env=0, num_steps=100, obs_size=4,
-                        num_units=128, num_act=3, num_steps_fig=200):
+                        num_units=128, num_act=3, num_steps_fig=200, start=0,
+                        save_folder=''):
     """
     given a file produced by the A2C algorithm in baselines, it returns the
     states, rewards, actions, stimulus evidence and new trials vectors
     corresponding to a given environment
     """
     data = np.load(file)
-    rows = 5
-    cols = 1
     # states
     states = data['states'][:, :, env, :]
 
@@ -304,28 +303,63 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
     else:
         pi = []
     if fig:
-        ut.get_fig(display_mode)
+        rows = 4
+        cols = 1
+        lw = 1
+        gris = (.6, .6, .6)
+        trials_temp = trials[start:start+num_steps_fig]
+        tr_time = np.where(trials_temp == 1)[0] + 0.5
+        f = ut.get_fig(display_mode, font=16)
         # FIGURE
         # states
         plt.subplot(rows, cols, 2)
         maxs = np.max(states, axis=1).reshape((num_units, 1))
         states_norm = states / maxs
         states_norm[np.where(maxs == 0), :] = 0
-        plt.imshow(states_norm[:, 0:num_steps_fig], aspect='auto')
-        # actions
+        plt.imshow(states_norm[:, start:start+num_steps_fig], aspect='auto')
+        for ind_tr in range(len(tr_time)):
+            plt.plot(np.ones((2,))*tr_time[ind_tr], [-0.5, num_units-0.5],
+                     '--', color=gris, lw=lw)
+        plt.ylabel('Neurons activity')
+        plt.yticks([])
+        plt.xticks([])
+        # actions and gt
+        gt_temp = np.argmax(gt, axis=0)
         plt.subplot(rows, cols, 3)
-        plt.plot(actions[0:num_steps_fig], '-+')
+        for ind_tr in range(len(tr_time)):
+            plt.plot(np.ones((2,))*tr_time[ind_tr], [0, 2], '--',
+                     color=gris, lw=lw)
+        plt.plot(actions[start:start+num_steps_fig], '-+', lw=lw,
+                 color=colores[2, :])
+        plt.plot(gt_temp[start:start+num_steps_fig], '--+', lw=lw,
+                 color=colores[4, :])
         plt.xlim([-0.5, num_steps_fig-0.5])
+        plt.ylabel('Action (gt)')
+        plt.xticks([])
+        plt.yticks([0, 1, 2])
         # obs
         plt.subplot(rows, cols, 1)
-        plt.imshow(obs[:, 0:num_steps_fig], aspect='auto')
-        # trials
+        plt.imshow(obs[:, start:start+num_steps_fig], aspect='auto')
+        for ind_tr in range(len(tr_time)):
+            plt.plot(np.ones((2,))*tr_time[ind_tr], [-0.5, obs_size-0.5], '--',
+                     color=gris, lw=lw)
+        plt.ylabel('Observation')
+        plt.yticks([])
+        plt.xticks([])
+        # rewards
         plt.subplot(rows, cols, 4)
-        plt.plot(trials[0:num_steps_fig], '-+')
+        for ind_tr in range(len(tr_time)):
+            plt.plot(np.ones((2,))*tr_time[ind_tr], [0, 1], '--',
+                     color=gris, lw=lw)
+        plt.plot(rewards[start:start+num_steps_fig], '-+', lw=lw,
+                 color='k')
         plt.xlim([-0.5, num_steps_fig-0.5])
-        # gt
-        plt.subplot(rows, cols, 5)
-        plt.imshow(gt[:, 0:num_steps_fig], aspect='auto')
+        plt.ylabel('Reward')
+        plt.xlabel('Timesteps (a.u)')
+        plt.yticks([0, 1])
+        if save_folder != '':
+            f.savefig(save_folder+'/experiment_structure.svg', dpi=DPI,
+                      bbox_inches='tight')
 
     return states, rewards, actions, ev, trials, gt, pi
 
@@ -847,9 +881,10 @@ def plot_learning(performance, evidence, stim_position, w_conv=200,
     performance_smoothed = performance_smoothed[0::w_conv]
     plt.plot(np.linspace(0, num_trials, performance_smoothed.shape[0]),
              performance_smoothed, color=(0.39, 0.39, 0.39), lw=lw,
-             label='RNN perf. (' + str(round(RNN_perf, 3)) + ')')
+             label='RNN perf. (' + str(round(RNN_perf, 3)) + ')', alpha=0.5)
     # plot ideal observer performance
-    plt.plot([0, num_trials], np.ones((2,))*io_perf, color=(1, 0.8, 0.5), lw=0.5,
+    plt.plot([0, num_trials], np.ones((2,))*io_perf, color=(1, 0.8, 0.5),
+             lw=0.5,
              label='Ideal Obs. perf. (' + str(round(io_perf, 3)) + ')')
     # plot 0.25, 0.5 and 0.75 performance lines
     plot_fractions([0, performance.shape[0]])
@@ -1225,10 +1260,10 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
             p_exp['biases'] = non_cond_biases
             p_exp['perfs'] = performances
             inter_exp_biases.append(p_exp)
-        plot_biases_all_experiments(inter_exp_biases, expl_params,
-                                    saving_folder_all)
-        plot_perf_all_experiments(inter_exp_biases, expl_params,
-                                  saving_folder_all)
+    plot_biases_all_experiments(inter_exp_biases, expl_params,
+                                saving_folder_all)
+    plot_perf_all_experiments(inter_exp_biases, expl_params,
+                              saving_folder_all)
 
 
 def plot_biases_all_experiments(inter_exp_biases, expl_params,
@@ -1265,7 +1300,9 @@ def plot_biases_all_experiments(inter_exp_biases, expl_params,
                              alpha=0.5*(1+ind_perf))
     plt.xticks(np.arange(len(inter_exp_biases)), xticks)
     plt.xlim([-0.5, len(inter_exp_biases)-0.5])
-    f_bias.savefig(saving_folder_all + '/all_together_bias.png', dpi=DPI,
+    f_bias.savefig(saving_folder_all + '/all_together_bias.pdf', dpi=DPI,
+                   bbox_inches='tight')
+    f_bias.savefig(saving_folder_all + '/all_together_bias.svg', dpi=DPI,
                    bbox_inches='tight')
 
 
@@ -1293,7 +1330,9 @@ def plot_perf_all_experiments(inter_exp_biases, expl_params,
                      marker='+', color=azul, markerSize=12)
     plt.xticks(np.arange(len(inter_exp_biases)), xticks)
     plt.xlim([-0.5, len(inter_exp_biases)-0.5])
-    f_bias.savefig(saving_folder_all + '/all_together_perf.png', dpi=DPI,
+    f_bias.savefig(saving_folder_all + '/all_together_perf.svg', dpi=DPI,
+                   bbox_inches='tight')
+    f_bias.savefig(saving_folder_all + '/all_together_perf.pdf', dpi=DPI,
                    bbox_inches='tight')
 
 
@@ -1413,7 +1452,7 @@ def set_yaxis():
 
 
 def process_exp(exp, after_error_alt_all, after_error_rep_all,
-                after_correct_alt_all, after_correct_rep_all, times,
+                after_correct_alt_all, after_correct_rep_all, times, perfs,
                 ax_main_panel, plt_b_acr_time, rows, cols, lw, alpha,
                 labels, axis_lbs, leg_flag, max_train_duration,
                 marker='.'):
@@ -1450,7 +1489,7 @@ def process_exp(exp, after_error_alt_all, after_error_rep_all,
         plt.plot(100000*np.arange(after_error_alt.shape[0]),
                  after_error_alt, color=rojo, alpha=alpha, lw=lw)
     return after_error_alt_all, after_error_rep_all,\
-        after_correct_alt_all, after_correct_rep_all, times
+        after_correct_alt_all, after_correct_rep_all, times, perfs
 
 
 def plot_hist_proj(after_error_alt_all, after_error_rep_all,
@@ -1570,8 +1609,8 @@ def plot_biases_acr_tr_allExps(after_error_alt, after_error_rep,
                  markersize=3)
 
 
-def plot_mean_bias(pair1, pair2, xs, b, colores, invert=False):
-    lw = 1.5
+def plot_mean_bias(pair1, pair2, xs, b, colores, invert=False, label='',
+                   lw=1.5):
     factor = 0.75
     medians_pair1 = []
     medians_pair2 = []
@@ -1589,7 +1628,7 @@ def plot_mean_bias(pair1, pair2, xs, b, colores, invert=False):
                  color=colores[1, :]*factor, lw=lw)
     else:
         plt.plot(medians_pair1[:, 0], medians_pair1[:, 1],
-                 color=colores[0, :]*factor, lw=lw)
+                 color=colores[0, :]*factor, lw=lw, label=label)
         plt.plot(medians_pair2[:, 0], medians_pair2[:, 1],
                  color=colores[1, :]*factor, lw=lw)
 
@@ -1601,6 +1640,25 @@ def bin_bias(medians, pair, binning, b):
         medians.append([np.mean(pair[0][indx]),
                         binning[0]+b/2])
     return medians
+
+
+def plot_mean_perf(pair, perf, xs):
+    mat_perfs = np.zeros((xs.shape[0]-1, xs.shape[0]-1))
+    for ind_bin1 in range(xs.shape[0]-1):
+        for ind_bin2 in range(xs.shape[0]-1):
+            mat_perfs[ind_bin1, ind_bin2] = bin_perf(pair, perf,
+                                                     xs[ind_bin1:ind_bin1+2],
+                                                     xs[ind_bin2:ind_bin2+2])
+    plt.imshow(mat_perfs, aspect='auto')
+
+
+def bin_perf(pair, perf, bin1, bin2):
+    indx = np.logical_and.reduce((pair[0] > bin1[0],
+                                  pair[0] <= bin1[1],
+                                  pair[1] > bin2[0],
+                                  pair[1] <= bin2[1]))
+    mean_ = np.mean(perf[indx]) if np.sum(indx) != 0 else 0.5
+    return mean_
 
 
 def fig_2_ccn(file_all_exps, folder):
@@ -1641,7 +1699,7 @@ def fig_2_ccn(file_all_exps, folder):
                           w_conv=1000, legend=leg_flag)
     ax = plt.gca()
     ax.get_legend().remove()
-    plt.legend(['RNNs', 'Ideal obserber'])
+    plt.legend(['RNNs', 'Perfect integrator'])
     ax.set_title('')
     remove_top_right_axis()
     ax.set_ylabel('Performance')
@@ -1656,21 +1714,24 @@ def fig_2_ccn(file_all_exps, folder):
     data = np.load(file_all_exps)
     files = data['exps']
     bias_acr_tr = data['bias_across_training']
+    perfs = data['performances']
     max_train_duration = max([x.shape[0] for x in bias_acr_tr])
     after_error_alt_all = np.empty((0,))
     after_error_rep_all = np.empty((0,))
     after_correct_alt_all = np.empty((0,))
     after_correct_rep_all = np.empty((0,))
     times = np.empty((0,))
+    perfs = np.empty((0,))
     for ind_exp in range(len(bias_acr_tr)):
-        if (ind_exp != 137 and ind_exp != 19):
+        if (ind_exp != 137 and ind_exp != 19) and perfs[ind_exp] > 0.6:
             exp = bias_acr_tr[ind_exp]
             after_error_alt_all, after_error_rep_all, after_correct_alt_all,\
-                after_correct_rep_all, times =\
+                after_correct_rep_all, times, perfs =\
                 process_exp(exp,
                             after_error_alt_all, after_error_rep_all,
                             after_correct_alt_all, after_correct_rep_all,
-                            times, ax_main_panel, ind_exp < n_exps_fig_2_ccn,
+                            times, perfs, ax_main_panel,
+                            ind_exp < n_exps_fig_2_ccn,
                             rows, cols, lw, alpha, labels, axis_lbs,
                             ind_exp == 0, max_train_duration, marker='.')
     plt.xlim(pl_axis[0])
@@ -1682,18 +1743,18 @@ def fig_2_ccn(file_all_exps, folder):
     ind_exp = 19
     exp = bias_acr_tr[ind_exp]
     after_error_alt_all, after_error_rep_all, after_correct_alt_all,\
-        after_correct_rep_all, times =\
+        after_correct_rep_all, times, perfs =\
         process_exp(exp, after_error_alt_all, after_error_rep_all,
-                    after_correct_alt_all, after_correct_rep_all, times,
+                    after_correct_alt_all, after_correct_rep_all, times, perfs,
                     ax_main_panel, ind_exp < n_exps_fig_2_ccn, rows,
                     cols, lw, alpha, labels, axis_lbs, leg_flag,
                     max_train_duration, marker='x')
     ind_exp = 137
     exp = bias_acr_tr[ind_exp]
     after_error_alt_all, after_error_rep_all, after_correct_alt_all,\
-        after_correct_rep_all, times =\
+        after_correct_rep_all, times, perfs =\
         process_exp(exp, after_error_alt_all, after_error_rep_all,
-                    after_correct_alt_all, after_correct_rep_all, times,
+                    after_correct_alt_all, after_correct_rep_all, times, perfs,
                     ax_main_panel, ind_exp < n_exps_fig_2_ccn, rows,
                     cols, lw, alpha, labels, axis_lbs, leg_flag,
                     max_train_duration, marker='+')
@@ -1702,6 +1763,7 @@ def fig_2_ccn(file_all_exps, folder):
     plot_hist_proj(after_error_alt_all, after_error_rep_all,
                    after_correct_alt_all, after_correct_rep_all,
                    xs, lw, b, f1)
+    # PLOT MEANS AND TUNE PANEL B
     plt.subplot(rows, cols, 2)
     times *= acr_tr_per
     b_across_training = acr_tr_per
@@ -1722,6 +1784,8 @@ def fig_2_ccn(file_all_exps, folder):
     points = ax.get_position().get_points()
     plt.text(points[0][0]-margin_plt, points[1][1]+margin_plt, 'b',
              transform=plt.gcf().transFigure)
+
+    # PLOT MEANS AND TUNE PANEL c
     plt.subplot(rows, cols, 3)
     pair1 = [after_error_rep_all, times]
     pair2 = [after_error_alt_all, times]
@@ -1738,11 +1802,14 @@ def fig_2_ccn(file_all_exps, folder):
     plt.text(points[0][0]-margin_plt, points[1][1]+margin_plt, 'c',
              transform=plt.gcf().transFigure)
 
+    # PLOT PSYCHOCURVE EXAMPLES
     plot_psychocurve_examples(ax_ex_panel1, ax_ex_panel2)
     ax = plt.gca()
     points = ax.get_position().get_points()
     plt.text(points[0][0]-2*margin_plt, points[1][1]+margin_plt, 'd',
              transform=plt.gcf().transFigure)
+
+    # PLOT MEAN PERFORMANCES
 
     f1.savefig('/home/molano/priors/figures_CCN/Fig2.svg', dpi=DPI,
                bbox_inches='tight')
@@ -1750,10 +1817,11 @@ def fig_2_ccn(file_all_exps, folder):
                bbox_inches='tight')
 
 
-def plot_2d_fig_biases(file, color):
-    f = ut.get_fig(font=8)
-    b = 0.2
-    margin = 8.1
+def plot_2d_fig_biases(file, plot_all=False, f=None, leg_flg=False,
+                       pl_axis=[[-9, 9], [-12, 12]], b=1):
+    if f is None:
+        f = ut.get_fig(font=8)
+    margin = pl_axis[1][1]+b/2
     alpha = .5
     lw = 0.5
     # Panels, labels and other stuff for panel d
@@ -1761,11 +1829,11 @@ def plot_2d_fig_biases(file, color):
     labels = ['Repeating context',
               'Alternating context']
     axis_lbs = ['After error bias', 'After correct bias']
-    pl_axis = [[-6, 6], [-10, 10]]
     # PLOT BIAS ACROSS TRAINING
     data = np.load(file)
     bias_acr_tr = data['bias_across_training']
     p_exp = data['p_exp']
+    perfs = data['performances']
     specs = json.dumps(p_exp.tolist())
     specs = reduce_xticks(specs)
     max_train_duration = max([x.shape[0] for x in bias_acr_tr])
@@ -1775,67 +1843,246 @@ def plot_2d_fig_biases(file, color):
     after_correct_rep_all = np.empty((0,))
     times = np.empty((0,))
     loc_main_panel = [0.3, 0.2, 0.4, 0.4]
-    f.add_axes(loc_main_panel)
+    if f is None:
+        f.add_axes(loc_main_panel)
     for ind_exp in range(len(bias_acr_tr)):
-        exp = bias_acr_tr[ind_exp]
-        after_error_alt = exp[:, 0, 0][:-1]
-        after_error_rep = exp[:, 0, 1][:-1]
-        after_correct_alt = exp[:, 1, 0][:-1]
-        after_correct_rep = exp[:, 1, 1][:-1]
-        after_error_alt_all = np.concatenate((after_error_alt_all,
-                                              after_error_alt))
-        after_error_rep_all = np.concatenate((after_error_rep_all,
-                                              after_error_rep))
-        after_correct_alt_all = np.concatenate((after_correct_alt_all,
-                                                after_correct_alt))
-        after_correct_rep_all = np.concatenate((after_correct_rep_all,
-                                                after_correct_rep))
-        times = np.concatenate((times,
-                                np.arange(after_correct_rep.shape[0])))
-        plot_biases_acr_tr_allExps(after_error_alt, after_error_rep,
-                                   after_correct_alt, after_correct_rep,
-                                   labels, axis_lbs,
-                                   max_train_duration,
-                                   ind_exp == 0, alpha, marker='.')
+        if perfs[ind_exp] > 0.6:
+            exp = bias_acr_tr[ind_exp]
+            after_error_alt = exp[:, 0, 0][:-1]
+            after_error_rep = exp[:, 0, 1][:-1]
+            after_correct_alt = exp[:, 1, 0][:-1]
+            after_correct_rep = exp[:, 1, 1][:-1]
+            after_error_alt_all = np.concatenate((after_error_alt_all,
+                                                  after_error_alt))
+            after_error_rep_all = np.concatenate((after_error_rep_all,
+                                                  after_error_rep))
+            after_correct_alt_all = np.concatenate((after_correct_alt_all,
+                                                    after_correct_alt))
+            after_correct_rep_all = np.concatenate((after_correct_rep_all,
+                                                    after_correct_rep))
+            times = np.concatenate((times,
+                                    np.arange(after_correct_rep.shape[0])))
+            if plot_all:
+                plot_biases_acr_tr_allExps(after_error_alt, after_error_rep,
+                                           after_correct_alt,
+                                           after_correct_rep,
+                                           labels, axis_lbs,
+                                           max_train_duration,
+                                           (ind_exp == 0 and leg_flg), alpha,
+                                           marker='.')
     plt.xlim(pl_axis[0])
     plt.ylim(pl_axis[1])
     pair1 = [after_error_rep_all, after_correct_rep_all]
     pair2 = [after_error_alt_all, after_correct_alt_all]
-    colores_temp = np.concatenate((color.reshape((1, 3)),
-                                   color.reshape((1, 3))))
-    plot_mean_bias(pair1, pair2, xs, b, colores_temp)
+    plot_mean_bias(pair1, pair2, xs, b, colores, label=specs, lw=0.5)
     remove_top_right_axis()
-    plot_hist_proj(after_error_alt_all, after_error_rep_all,
-                   after_correct_alt_all, after_correct_rep_all,
-                   xs, lw, b, f)
+    plt.xlabel(axis_lbs[0])
+    plt.ylabel(axis_lbs[1])
+    plt.plot([-pl_axis[0][1], pl_axis[0][1]], [0, 0], '--k', lw=0.2)
+    plt.plot([0, 0], [-pl_axis[1][1], pl_axis[1][1]], '--k', lw=0.2)
+    plt.plot([-pl_axis[0][1], pl_axis[0][1]], [pl_axis[1][1], -pl_axis[1][1]],
+             '--k', lw=0.2)
+    if plot_all:
+        plot_hist_proj(after_error_alt_all, after_error_rep_all,
+                       after_correct_alt_all, after_correct_rep_all,
+                       xs, lw, b, f)
 
 
-def plot_2d_fig_diff_params(main_folder):
+def plot_2d_fig_diff_params(main_folder, order=None, save_folder='',
+                            pl_axis=[[-9, 9], [-12, 12]], name=''):
     folder = main_folder + 'all_results/'
     files = glob.glob(folder + '*results.npz')
+    f = ut.get_fig(font=8)
+    if order is None:
+        order = np.arange(len(files))
     for ind_f in range(len(files)):
-        plot_2d_fig_biases(files[ind_f], colores[ind_f, :])
+        print(files[order[ind_f]])
+        plt.subplot(3, len(files)*2, len(files)*2+2*ind_f+1)
+        plot_2d_fig_biases(files[order[ind_f]], plot_all=True, f=f,
+                           leg_flg=False, pl_axis=pl_axis)
+    if save_folder != '':
+        f.savefig(save_folder + '/' + name + '_2d_plots.svg', dpi=DPI,
+                  bbox_inches='tight')
+        f.savefig(save_folder + '/' + name + '_2d_plots.pdf', dpi=DPI,
+                  bbox_inches='tight')
+
+
+def plot_biases_diff_parameterss(file, means, perfs_means,
+                                 plot_all=False, f=None, leg_flg=False,
+                                 b=1, ind=0):
+    data = np.load(file)
+    bias_acr_tr = data['bias_across_training']
+    perfs = data['performances']
+    means_temp = np.empty((len(bias_acr_tr), 4))
+    perfs_temp = []
+    for ind_exp in range(len(bias_acr_tr)):
+        perfs_temp.append(perfs[ind_exp])
+        exp = bias_acr_tr[ind_exp]
+        after_error_alt = exp[:, 0, 0][-2]
+        after_error_rep = exp[:, 0, 1][-2]
+        after_correct_alt = exp[:, 1, 0][-2]
+        after_correct_rep = exp[:, 1, 1][-2]
+        markersize = 2
+        plt.plot(ind, after_correct_alt, color=rojo, marker='.',
+                 markersize=markersize)
+        plt.plot(ind, after_error_alt, color=rojo, marker='.',
+                 markersize=markersize, alpha=0.4)
+        plt.plot(ind, after_correct_rep, color=azul, marker='.',
+                 markersize=markersize)
+        plt.plot(ind, after_error_rep, color=azul, marker='.',
+                 markersize=markersize, alpha=0.4)
+        means_temp[ind_exp, :] = [after_correct_alt, after_error_alt,
+                                  after_correct_rep, after_error_rep]
+    means.append(np.mean(means_temp, axis=0))
+    perfs_means.append([np.mean(perfs_temp),
+                        np.std(perfs_temp)/np.sqrt(len(perfs_temp))])
+    return means, perfs_means
+
+
+def plot_fig_diff_params(main_folder, save_folder=''):
+    f = ut.get_fig(font=8)
+    list_exps = ['repeating_probability', 'num_neurons', 'block_size',
+                 'pass_reward_action']
+    order_all = [[0, 2, 4, 1, 3], [0, 2, 3, 1], [7, 3, 6, 2, 1, 5, 0, 4],
+                 [1, 0, 3, 2]]
+    xticks = [['0.5-0.5', '0.6-0.4', '0.7-0.3', '0.8-0.2', '0.9-0.1'],
+              ['8 unts', '16 unts', '32 unts', '64 unts'],
+              ['10', '40', '100', '200', '300', '400', '1000', '10000'],
+              ['-', 'Act', 'Rew', 'Rew+Act']]
+    xlabel = ['Repeating probability', 'Number of units', 'Block size',
+              'Extra information']
+    panels = 'abcd'
+    for ind_exp in range(len(list_exps)):
+        plt.subplot(4, 2, 2*(ind_exp+1) + (ind_exp+1) % 2)
+        folder = main_folder + list_exps[ind_exp] + '/all_results/'
+        files = glob.glob(folder + '*results.npz')
+        print(files)
+        print('-----------------')
+        order = order_all[ind_exp]
+        means = []
+        perfs_means = []
+        for ind_f in range(len(files)):
+            print(files[order[ind_f]])
+            print('xxxxxxxxxxxxxxx')
+            means, perfs_means =\
+                plot_biases_diff_parameterss(files[order[ind_f]], means,
+                                             perfs_means,
+                                             plot_all=True, f=f,
+                                             leg_flg=False,
+                                             ind=ind_f)
+        means = np.array(means)
+        perfs_means = np.array(perfs_means)
+        markersize = 4
+        plt.plot(means[:, 0], '-+', color=rojo, markersize=markersize)
+        plt.plot(means[:, 1], '-+', color=rojo, markersize=markersize,
+                 alpha=0.4)
+        plt.plot(means[:, 2], '-+', color=azul, markersize=markersize)
+        plt.plot(means[:, 3], '-+', color=azul, markersize=markersize,
+                 alpha=0.4)
+        plt.xlabel(xlabel[ind_exp])
+        plt.ylabel('Bias')
+        ax = plt.gca()
+        ax.set_xticks(np.arange(len(files)))
+        ax.set_xticklabels(xticks[ind_exp])
+        remove_top_right_axis()
+        # add axis for performances
+        ax = plt.gca()
+        points = ax.get_position().get_points()
+        width_height = np.diff(points, axis=0)[0]
+        ax2 = f.add_axes([points[0][0]+0.0, points[1][1]+0.01,
+                          width_height[0], width_height[1]])
+        remove_top_right_axis()
+        plt.errorbar(np.arange(perfs_means.shape[0]),
+                     perfs_means[:, 0], perfs_means[:, 1],
+                     color='k', lw=1)
+        ax2.set_ylim([min(perfs_means[:, 0])-0.05,
+                      max(perfs_means[:, 0])+0.05])
+        points = ax2.get_position().get_points()
+        margin_plt = 0.05
+        plt.text(points[0][0]-margin_plt, points[1][1]+margin_plt/2,
+                 panels[ind_exp], transform=plt.gcf().transFigure)
+        plt.ylabel('Performance')
+        ax2.set_xticks([])
+    if save_folder != '':
+        f.savefig(save_folder + '/Fig3_diff_params.svg', dpi=DPI,
+                  bbox_inches='tight')
+        f.savefig(save_folder + '/Fig3_diff_params.pdf', dpi=DPI,
+                  bbox_inches='tight')
+
+
+def plot_2d_fig_perfs(file, b=5):
+    f = ut.get_fig(font=8)
+    axis_lbs = ['After error bias', 'After correct bias']
+    # PLOT BIAS ACROSS TRAINING
+    data = np.load(file)
+    bias_acr_tr = data['bias_across_training']
+    p_exp = data['p_exp']
+    perfs = data['performances']
+    specs = json.dumps(p_exp.tolist())
+    specs = reduce_xticks(specs)
+    mat_all = []
+    loc_main_panel = [0.3, 0.2, 0.4, 0.4]
+    f.add_axes(loc_main_panel)
+    maximo = -np.inf
+    for ind_exp in range(len(bias_acr_tr)):
+        exp = bias_acr_tr[ind_exp]
+        after_error_alt = exp[:, 0, 0][-2]
+        after_error_rep = exp[:, 0, 1][-2]
+        after_correct_alt = exp[:, 1, 0][-2]
+        after_correct_rep = exp[:, 1, 1][-2]
+        values = [perfs[ind_exp], after_error_alt, after_error_rep,
+                  after_correct_alt, after_correct_rep]
+        mat_all.append(values)
+        maximo = max(max(np.abs(values[1:])), maximo)
+    mat_all = np.array(mat_all)
+    pair = [np.concatenate((mat_all[:, 1], mat_all[:, 2])),
+            np.concatenate((mat_all[:, 3], mat_all[:, 4]))]
+    perfs = np.concatenate((mat_all[:, 0], mat_all[:, 0]))
+    margin = maximo+b/2
+    xs = np.linspace(-margin, margin, int(2*margin/b+1))
+    plot_mean_perf(pair, perfs, xs)
+    plt.xlabel(axis_lbs[0])
+    plt.ylabel(axis_lbs[1])
 
 
 if __name__ == '__main__':
     plt.close('all')
-    main_folder = '/home/molano/priors/results/num_neurons/'
-    plot_2d_fig_diff_params(main_folder)
-#    asd
+    save_folder = '/home/molano/priors/figures_CCN/'
+
+    # PLOT BIAS DIFFERENT PARAMETERS
+    main_folder = '/home/molano/priors/results/'
+    plot_fig_diff_params(main_folder, save_folder)
+    # asasd
+    # PLOT EXPERIMENT STRUCTURE
 #    main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
 #    file = main_folder + 'supervised_RDM_t_100_200_200_200_100_' +\
 #        'TH_0.2_0.8_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_' +\
 #        'g_0.8_b_20_ne_24_nu_16_ev_0.5_a_0.1_891427/network_data_124999.npz'
-#    get_simulation_vars(file=file, fig=True,
-#                        n_envs=24, env=0, num_steps=20, obs_size=5,
-#                        num_units=16, num_act=3, num_steps_fig=40)
-#    asddas
+#    get_simulation_vars(file=file, fig=True, n_envs=24, env=0, num_steps=20,
+#                        obs_size=5, num_units=16, num_act=3,
+#                        num_steps_fig=24, start=1002,
+#                        save_folder=save_folder)
+    # PLOT 2D FIG NUM. NEURONS
+#    main_folder = '/home/molano/priors/results/num_neurons/'
+#    plot_2d_fig_diff_params(main_folder, order=[0, 2, 3, 1],
+#                            save_folder=save_folder,
+#                            pl_axis=[[-9, 9], [-12, 12]], name='num_neurons')
+#    asd
+    # PLOT 2D FIG 16-UNIT NETWORKS
+#    main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
+#    folder = main_folder + 'all_results/'
+#    file = folder + 'supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_' +\
+#        'PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20*_' +\
+#        'nu_16_ev_0.5_results.npz'
+#    fig_2_ccn(file, main_folder)
+#    asd
+    # PLOT PERFORMANCE AS A FUNCTION OF HISTORY BIASES
     main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
     folder = main_folder + 'all_results/'
     file = folder + 'supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_' +\
         'PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20*_' +\
         'nu_16_ev_0.5_results.npz'
-    fig_2_ccn(file, main_folder)
+    plot_2d_fig_perfs(file, b=5)
     asd
     if len(sys.argv) > 1:
         main_folder = sys.argv[1]
@@ -1844,9 +2091,14 @@ if __name__ == '__main__':
         main_folder = home + '/priors/results/'
         files = glob.glob(home + '/priors/results/*')
     print(files)
+    asd
+    # index = 1 --> pass reward/action
     # index = 3 --> num_neurons
+    # index = 4 --> rollout
+    # index = 6 --> repeating probability
     # index = 7 --> 16-unit nets
-    list_exps = [3, 7]
+    # index = 11 --> a2c pass reward/action
+    list_exps = [4, 5, 8, 9]  # [3, 6, 7]
     for ind_f in range(len(files)):
         if ind_f in list_exps:
             plt.close('all')
