@@ -1453,6 +1453,36 @@ def process_exp(bias_exps, perfs_exp, after_error_alt_all, after_error_rep_all,
                 ax_main_panel, plt_b_acr_time, rows, cols, lw, alpha,
                 labels, axis_lbs, leg_flag, max_train_duration,
                 marker='.'):
+    after_error_alt, after_error_rep, after_correct_alt,\
+        after_correct_rep, after_error_alt_all, after_error_rep_all,\
+        after_correct_alt_all, after_correct_rep_all, times, perfs_all =\
+        accumulate_data(bias_exps, perfs_exp, after_error_alt_all,
+                        after_error_rep_all, after_correct_alt_all,
+                        after_correct_rep_all, times, perfs_all)
+    plt.sca(ax_main_panel)
+    plot_biases_acr_tr_allExps(after_error_alt, after_error_rep,
+                               after_correct_alt, after_correct_rep,
+                               labels, axis_lbs, max_train_duration,
+                               leg_flag, alpha, marker=marker)
+    # PLOT BIASES ACROSS TRAINING
+    if plt_b_acr_time:
+        plt.subplot(rows, cols, 2)
+        plt.plot(100000*np.arange(after_correct_rep.shape[0]),
+                 after_correct_rep, color=azul, alpha=alpha, lw=lw)
+        plt.plot(100000*np.arange(after_correct_alt.shape[0]),
+                 after_correct_alt, color=rojo, alpha=alpha, lw=lw)
+        plt.subplot(rows, cols, 3)
+        plt.plot(100000*np.arange(after_error_rep.shape[0]),
+                 after_error_rep, color=azul, alpha=alpha, lw=lw)
+        plt.plot(100000*np.arange(after_error_alt.shape[0]),
+                 after_error_alt, color=rojo, alpha=alpha, lw=lw)
+    return after_error_alt_all, after_error_rep_all,\
+        after_correct_alt_all, after_correct_rep_all, times, perfs_all
+
+
+def accumulate_data(bias_exps, perfs_exp, after_error_alt_all,
+                    after_error_rep_all, after_correct_alt_all,
+                    after_correct_rep_all, times, perfs_all):
     after_error_alt = bias_exps[:, 0, 0]
     after_error_rep = bias_exps[:, 0, 1]
     after_correct_alt = bias_exps[:, 1, 0]
@@ -1469,26 +1499,9 @@ def process_exp(bias_exps, perfs_exp, after_error_alt_all, after_error_rep_all,
                             np.arange(after_correct_rep.shape[0])))
     perfs_all = np.concatenate((perfs_all, perfs_exp))
 
-    plt.sca(ax_main_panel)
-    plot_biases_acr_tr_allExps(after_error_alt, after_error_rep,
-                               after_correct_alt, after_correct_rep,
-                               labels, axis_lbs, max_train_duration,
-                               leg_flag, alpha, marker=marker)
-
-    # PLOT BIASES ACROSS TRAINING
-    if plt_b_acr_time:
-        plt.subplot(rows, cols, 2)
-        plt.plot(100000*np.arange(after_correct_rep.shape[0]),
-                 after_correct_rep, color=azul, alpha=alpha, lw=lw)
-        plt.plot(100000*np.arange(after_correct_alt.shape[0]),
-                 after_correct_alt, color=rojo, alpha=alpha, lw=lw)
-        plt.subplot(rows, cols, 3)
-        plt.plot(100000*np.arange(after_error_rep.shape[0]),
-                 after_error_rep, color=azul, alpha=alpha, lw=lw)
-        plt.plot(100000*np.arange(after_error_alt.shape[0]),
-                 after_error_alt, color=rojo, alpha=alpha, lw=lw)
-    return after_error_alt_all, after_error_rep_all,\
-        after_correct_alt_all, after_correct_rep_all, times
+    return after_error_alt, after_error_rep, after_correct_alt,\
+        after_correct_rep, after_error_alt_all, after_error_rep_all,\
+        after_correct_alt_all, after_correct_rep_all, times, perfs_all
 
 
 def plot_hist_proj(after_error_alt_all, after_error_rep_all,
@@ -1660,11 +1673,10 @@ def bin_perf(pair, perf, bin1, bin2):
     return mean_
 
 
-def fig_2_ccn(file_all_exps, folder):
+def fig_2_ccn(file_all_exps, folder, pl_axis=[[-9, 9], [-12, 12]], b=0.8):
     f1 = ut.get_fig(font=8)
     margin_plt = 0.03
-    b = 0.2
-    margin = 8.1
+    margin = pl_axis[1][1]+b/2
     alpha = .5
     rows = 3
     cols = 3
@@ -1680,7 +1692,6 @@ def fig_2_ccn(file_all_exps, folder):
     labels = ['Repeating context',
               'Alternating context']
     axis_lbs = ['After error bias', 'After correct bias']
-    pl_axis = [[-6, 6], [-10, 10]]
     # PLOT PERFORMANCES
     plt.subplot(rows, cols, 1)
     num_tr = 10000000
@@ -1741,23 +1752,29 @@ def fig_2_ccn(file_all_exps, folder):
     plot_mean_bias(pair1, pair2, xs, b, colores)
     remove_top_right_axis()
     ind_exp = 19
-    exp = bias_acr_tr[ind_exp]
+    bias_exp = bias_acr_tr[ind_exp]
+    perfs_exp = perfs[ind_exp]
     after_error_alt_all, after_error_rep_all, after_correct_alt_all,\
-        after_correct_rep_all, times =\
-        process_exp(exp, after_error_alt_all, after_error_rep_all,
-                    after_correct_alt_all, after_correct_rep_all, times,
-                    ax_main_panel, ind_exp < n_exps_fig_2_ccn, rows,
-                    cols, lw, alpha, labels, axis_lbs, leg_flag,
-                    max_train_duration, marker='x')
+        after_correct_rep_all, times, perfs_all =\
+        process_exp(bias_exp, perfs_exp,
+                    after_error_alt_all, after_error_rep_all,
+                    after_correct_alt_all, after_correct_rep_all,
+                    times, perfs_all, ax_main_panel,
+                    ind_exp < n_exps_fig_2_ccn,
+                    rows, cols, lw, alpha, labels, axis_lbs,
+                    ind_exp == 0, max_train_duration, marker='x')
     ind_exp = 137
-    exp = bias_acr_tr[ind_exp]
+    bias_exp = bias_acr_tr[ind_exp]
+    perfs_exp = perfs[ind_exp]
     after_error_alt_all, after_error_rep_all, after_correct_alt_all,\
-        after_correct_rep_all, times =\
-        process_exp(exp, after_error_alt_all, after_error_rep_all,
-                    after_correct_alt_all, after_correct_rep_all, times,
-                    ax_main_panel, ind_exp < n_exps_fig_2_ccn, rows,
-                    cols, lw, alpha, labels, axis_lbs, leg_flag,
-                    max_train_duration, marker='+')
+        after_correct_rep_all, times, perfs_all =\
+        process_exp(bias_exp, perfs_exp,
+                    after_error_alt_all, after_error_rep_all,
+                    after_correct_alt_all, after_correct_rep_all,
+                    times, perfs_all, ax_main_panel,
+                    ind_exp < n_exps_fig_2_ccn,
+                    rows, cols, lw, alpha, labels, axis_lbs,
+                    ind_exp == 0, max_train_duration, marker='+')
 
     # PLOT PROJECTIONS
     plot_hist_proj(after_error_alt_all, after_error_rep_all,
@@ -1815,9 +1832,9 @@ def fig_2_ccn(file_all_exps, folder):
                bbox_inches='tight')
 
 
-def plot_2d_fig_biases(file, plot_all=False, f=None, leg_flg=False,
+def plot_2d_fig_biases(file, plot_all=False, fig=None, leg_flg=False,
                        pl_axis=[[-9, 9], [-12, 12]], b=1):
-    if f is None:
+    if fig is None:
         f = ut.get_fig(font=8)
     margin = pl_axis[1][1]+b/2
     alpha = .5
@@ -1840,26 +1857,21 @@ def plot_2d_fig_biases(file, plot_all=False, f=None, leg_flg=False,
     after_correct_alt_all = np.empty((0,))
     after_correct_rep_all = np.empty((0,))
     times = np.empty((0,))
+    perfs_all = np.empty((0,))
     loc_main_panel = [0.3, 0.2, 0.4, 0.4]
-    if f is None:
+    if fig is None:
         f.add_axes(loc_main_panel)
     for ind_exp in range(len(bias_acr_tr)):
         if perfs[ind_exp][-1] > 0.6:
-            exp = bias_acr_tr[ind_exp]
-            after_error_alt = exp[:, 0, 0]
-            after_error_rep = exp[:, 0, 1]
-            after_correct_alt = exp[:, 1, 0]
-            after_correct_rep = exp[:, 1, 1]
-            after_error_alt_all = np.concatenate((after_error_alt_all,
-                                                  after_error_alt))
-            after_error_rep_all = np.concatenate((after_error_rep_all,
-                                                  after_error_rep))
-            after_correct_alt_all = np.concatenate((after_correct_alt_all,
-                                                    after_correct_alt))
-            after_correct_rep_all = np.concatenate((after_correct_rep_all,
-                                                    after_correct_rep))
-            times = np.concatenate((times,
-                                    np.arange(after_correct_rep.shape[0])))
+            bias_exps = bias_acr_tr[ind_exp]
+            perfs_exp = perfs[ind_exp]
+            after_error_alt, after_error_rep, after_correct_alt,\
+                after_correct_rep, after_error_alt_all, after_error_rep_all,\
+                after_correct_alt_all, after_correct_rep_all,\
+                times, perfs_all =\
+                accumulate_data(bias_exps, perfs_exp, after_error_alt_all,
+                                after_error_rep_all, after_correct_alt_all,
+                                after_correct_rep_all, times, perfs_all)
             if plot_all:
                 plot_biases_acr_tr_allExps(after_error_alt, after_error_rep,
                                            after_correct_alt,
@@ -2067,12 +2079,16 @@ if __name__ == '__main__':
 #                            pl_axis=[[-9, 9], [-12, 12]], name='num_neurons')
 #    asd
 #     PLOT 2D FIG 16-UNIT NETWORKS
+    b = 0.8
+    pl_axis = [[-9, 9], [-12, 12]]
     main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
     folder = main_folder + 'all_results/'
     file = folder + 'supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_' +\
         'PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20*_' +\
         'nu_16_ev_0.5_results.npz'
-    fig_2_ccn(file, main_folder)
+    fig_2_ccn(file, main_folder, pl_axis=pl_axis, b=b)
+    plot_2d_fig_biases(file, plot_all=True, fig=None, leg_flg=True,
+                       pl_axis=pl_axis, b=b)
     asd
     # PLOT PERFORMANCE AS A FUNCTION OF HISTORY BIASES
 #    main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
