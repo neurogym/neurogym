@@ -904,26 +904,23 @@ def bias_across_training(choice, evidence, performance,
     perf_hist = np.convolve(performance, np.ones((conv_window,)),
                             mode='full')[0:-conv_window+1]
     perf_hist = np.concatenate((np.array([0]), perf_hist[:-1]))
-    bias_mat = np.empty((num_stps+1, 2, 2))
-    for ind_per in range(num_stps+1):
+    bias_mat = np.empty((num_stps, 2, 2))
+    perf_mat = np.empty((num_stps))
+    for ind_per in range(num_stps):
         if ind_per < num_stps:
             ev = evidence[ind_per*per:(ind_per+1)*per]
             perf = performance[ind_per*per:(ind_per+1)*per]
             ch = choice[ind_per*per:(ind_per+1)*per]
             trans = transitions[ind_per*per:(ind_per+1)*per]
             p_hist = perf_hist[ind_per*per:(ind_per+1)*per]
-        else:
-            ev = evidence[-500000:]
-            perf = performance[-500000:]
-            ch = choice[-500000:]
-            trans = transitions[-500000:]
-            p_hist = perf_hist[-500000:]
+
+        perf_mat[ind_per] = np.mean(perf)
         biases = compute_bias_perf_transHist(ch, ev, trans, perf,
                                              p_hist, conv_window)
         for ind_perf in range(2):
             for ind_tr in range(2):
                 bias_mat[ind_per, ind_perf, ind_tr] = biases[ind_perf, ind_tr]
-    return bias_mat
+    return bias_mat, perf_mat
 
 
 def plot_bias_across_training(bias_mat, tot_num_trials, folder='',
@@ -945,7 +942,7 @@ def plot_bias_across_training(bias_mat, tot_num_trials, folder='',
             elif ind_tr == 1:
                 color = azul
             bias = bias_mat[:, ind_perf, ind_tr]
-            plt.plot(time_stps, bias[:-1], '+-', color=color, lw=1,
+            plt.plot(time_stps, bias, '+-', color=color, lw=1,
                      label=str(conv_window) + ' ' + lbl_trans[ind_tr] +
                      ' after ' + lbl_perf[ind_perf], alpha=0.5*(1+ind_perf))
     plt.title('bias after ' + str(conv_window) +
@@ -1258,7 +1255,7 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                       '_bhvr_fig.png', dpi=DPI, bbox_inches='tight')
 
             p_exp['biases'] = non_cond_biases
-            p_exp['perfs'] = performances
+            p_exp['perfs'] = performances[-1]
             inter_exp_biases.append(p_exp)
     plot_biases_all_experiments(inter_exp_biases, expl_params,
                                 saving_folder_all)
@@ -1382,22 +1379,22 @@ def sort_results(mat, expl_params):
 
 def get_main_results(file, bias_acr_training, biases_after_seqs,
                      num_samples_mat, per,
-                     perf_last_stage):
+                     perf_acr_training):
     choice, _, performance, evidence =\
         load_behavioral_data(file)
-    perf_last_stage.append(np.mean(performance[20000:].flatten()))
     # plot performance
-    bias_mat = bias_across_training(choice, evidence,
-                                    performance, per=per,
-                                    conv_window=2)
+    bias_mat, perf_mat = bias_across_training(choice, evidence,
+                                              performance, per=per,
+                                              conv_window=2)
     bias_acr_training.append(bias_mat)
+    perf_acr_training.append(perf_mat)
     #
     mat_biases, mat_num_samples =\
         bias_after_altRep_seqs(file=file, num_tr=500000)
     biases_after_seqs.append(mat_biases)
     num_samples_mat.append(mat_num_samples)
     #
-    return perf_last_stage, bias_acr_training, biases_after_seqs,\
+    return perf_acr_training, bias_acr_training, biases_after_seqs,\
         num_samples_mat
 
 
@@ -1451,15 +1448,15 @@ def set_yaxis():
 ############################################
 
 
-def process_exp(exp, after_error_alt_all, after_error_rep_all,
-                after_correct_alt_all, after_correct_rep_all, times, perfs,
+def process_exp(bias_exps, perfs_exp, after_error_alt_all, after_error_rep_all,
+                after_correct_alt_all, after_correct_rep_all, times, perfs_all,
                 ax_main_panel, plt_b_acr_time, rows, cols, lw, alpha,
                 labels, axis_lbs, leg_flag, max_train_duration,
                 marker='.'):
-    after_error_alt = exp[:, 0, 0][:-1]
-    after_error_rep = exp[:, 0, 1][:-1]
-    after_correct_alt = exp[:, 1, 0][:-1]
-    after_correct_rep = exp[:, 1, 1][:-1]
+    after_error_alt = bias_exps[:, 0, 0]
+    after_error_rep = bias_exps[:, 0, 1]
+    after_correct_alt = bias_exps[:, 1, 0]
+    after_correct_rep = bias_exps[:, 1, 1]
     after_error_alt_all = np.concatenate((after_error_alt_all,
                                           after_error_alt))
     after_error_rep_all = np.concatenate((after_error_rep_all,
@@ -1470,6 +1467,8 @@ def process_exp(exp, after_error_alt_all, after_error_rep_all,
                                             after_correct_rep))
     times = np.concatenate((times,
                             np.arange(after_correct_rep.shape[0])))
+    perfs_all = np.concatenate((perfs_all, perfs_exp))
+
     plt.sca(ax_main_panel)
     plot_biases_acr_tr_allExps(after_error_alt, after_error_rep,
                                after_correct_alt, after_correct_rep,
@@ -1489,7 +1488,7 @@ def process_exp(exp, after_error_alt_all, after_error_rep_all,
         plt.plot(100000*np.arange(after_error_alt.shape[0]),
                  after_error_alt, color=rojo, alpha=alpha, lw=lw)
     return after_error_alt_all, after_error_rep_all,\
-        after_correct_alt_all, after_correct_rep_all, times, perfs
+        after_correct_alt_all, after_correct_rep_all, times
 
 
 def plot_hist_proj(after_error_alt_all, after_error_rep_all,
@@ -1721,16 +1720,17 @@ def fig_2_ccn(file_all_exps, folder):
     after_correct_alt_all = np.empty((0,))
     after_correct_rep_all = np.empty((0,))
     times = np.empty((0,))
-    perfs = np.empty((0,))
+    perfs_all = np.empty((0,))
     for ind_exp in range(len(bias_acr_tr)):
-        if (ind_exp != 137 and ind_exp != 19) and perfs[ind_exp] > 0.6:
-            exp = bias_acr_tr[ind_exp]
+        if (ind_exp != 137 and ind_exp != 19) and perfs[ind_exp][-1] > 0.6:
+            bias_exp = bias_acr_tr[ind_exp]
+            perfs_exp = perfs[ind_exp]
             after_error_alt_all, after_error_rep_all, after_correct_alt_all,\
-                after_correct_rep_all, times, perfs =\
-                process_exp(exp,
+                after_correct_rep_all, times, perfs_all =\
+                process_exp(bias_exp, perfs_exp,
                             after_error_alt_all, after_error_rep_all,
                             after_correct_alt_all, after_correct_rep_all,
-                            times, perfs, ax_main_panel,
+                            times, perfs_all, ax_main_panel,
                             ind_exp < n_exps_fig_2_ccn,
                             rows, cols, lw, alpha, labels, axis_lbs,
                             ind_exp == 0, max_train_duration, marker='.')
@@ -1743,18 +1743,18 @@ def fig_2_ccn(file_all_exps, folder):
     ind_exp = 19
     exp = bias_acr_tr[ind_exp]
     after_error_alt_all, after_error_rep_all, after_correct_alt_all,\
-        after_correct_rep_all, times, perfs =\
+        after_correct_rep_all, times =\
         process_exp(exp, after_error_alt_all, after_error_rep_all,
-                    after_correct_alt_all, after_correct_rep_all, times, perfs,
+                    after_correct_alt_all, after_correct_rep_all, times,
                     ax_main_panel, ind_exp < n_exps_fig_2_ccn, rows,
                     cols, lw, alpha, labels, axis_lbs, leg_flag,
                     max_train_duration, marker='x')
     ind_exp = 137
     exp = bias_acr_tr[ind_exp]
     after_error_alt_all, after_error_rep_all, after_correct_alt_all,\
-        after_correct_rep_all, times, perfs =\
+        after_correct_rep_all, times =\
         process_exp(exp, after_error_alt_all, after_error_rep_all,
-                    after_correct_alt_all, after_correct_rep_all, times, perfs,
+                    after_correct_alt_all, after_correct_rep_all, times,
                     ax_main_panel, ind_exp < n_exps_fig_2_ccn, rows,
                     cols, lw, alpha, labels, axis_lbs, leg_flag,
                     max_train_duration, marker='+')
@@ -1809,8 +1809,6 @@ def fig_2_ccn(file_all_exps, folder):
     plt.text(points[0][0]-2*margin_plt, points[1][1]+margin_plt, 'd',
              transform=plt.gcf().transFigure)
 
-    # PLOT MEAN PERFORMANCES
-
     f1.savefig('/home/molano/priors/figures_CCN/Fig2.svg', dpi=DPI,
                bbox_inches='tight')
     f1.savefig('/home/molano/priors/figures_CCN/Fig2.pdf', dpi=DPI,
@@ -1846,12 +1844,12 @@ def plot_2d_fig_biases(file, plot_all=False, f=None, leg_flg=False,
     if f is None:
         f.add_axes(loc_main_panel)
     for ind_exp in range(len(bias_acr_tr)):
-        if perfs[ind_exp] > 0.6:
+        if perfs[ind_exp][-1] > 0.6:
             exp = bias_acr_tr[ind_exp]
-            after_error_alt = exp[:, 0, 0][:-1]
-            after_error_rep = exp[:, 0, 1][:-1]
-            after_correct_alt = exp[:, 1, 0][:-1]
-            after_correct_rep = exp[:, 1, 1][:-1]
+            after_error_alt = exp[:, 0, 0]
+            after_error_rep = exp[:, 0, 1]
+            after_correct_alt = exp[:, 1, 0]
+            after_correct_rep = exp[:, 1, 1]
             after_error_alt_all = np.concatenate((after_error_alt_all,
                                                   after_error_alt))
             after_error_rep_all = np.concatenate((after_error_rep_all,
@@ -1916,12 +1914,12 @@ def plot_biases_diff_parameterss(file, means, perfs_means,
     means_temp = np.empty((len(bias_acr_tr), 4))
     perfs_temp = []
     for ind_exp in range(len(bias_acr_tr)):
-        perfs_temp.append(perfs[ind_exp])
+        perfs_temp.append(perfs[ind_exp][-1])
         exp = bias_acr_tr[ind_exp]
-        after_error_alt = exp[:, 0, 0][-2]
-        after_error_rep = exp[:, 0, 1][-2]
-        after_correct_alt = exp[:, 1, 0][-2]
-        after_correct_rep = exp[:, 1, 1][-2]
+        after_error_alt = exp[:, 0, 0][-1]
+        after_error_rep = exp[:, 0, 1][-1]
+        after_correct_alt = exp[:, 1, 0][-1]
+        after_correct_rep = exp[:, 1, 1][-1]
         markersize = 2
         plt.plot(ind, after_correct_alt, color=rojo, marker='.',
                  markersize=markersize)
@@ -2026,11 +2024,11 @@ def plot_2d_fig_perfs(file, b=5):
     maximo = -np.inf
     for ind_exp in range(len(bias_acr_tr)):
         exp = bias_acr_tr[ind_exp]
-        after_error_alt = exp[:, 0, 0][-2]
-        after_error_rep = exp[:, 0, 1][-2]
-        after_correct_alt = exp[:, 1, 0][-2]
-        after_correct_rep = exp[:, 1, 1][-2]
-        values = [perfs[ind_exp], after_error_alt, after_error_rep,
+        after_error_alt = exp[:, 0, 0][-1]
+        after_error_rep = exp[:, 0, 1][-1]
+        after_correct_alt = exp[:, 1, 0][-1]
+        after_correct_rep = exp[:, 1, 1][-1]
+        values = [perfs[ind_exp][-1], after_error_alt, after_error_rep,
                   after_correct_alt, after_correct_rep]
         mat_all.append(values)
         maximo = max(max(np.abs(values[1:])), maximo)
@@ -2050,8 +2048,8 @@ if __name__ == '__main__':
     save_folder = '/home/molano/priors/figures_CCN/'
 
     # PLOT BIAS DIFFERENT PARAMETERS
-    main_folder = '/home/molano/priors/results/'
-    plot_fig_diff_params(main_folder, save_folder)
+#    main_folder = '/home/molano/priors/results/'
+#    plot_fig_diff_params(main_folder, save_folder)
     # asasd
     # PLOT EXPERIMENT STRUCTURE
 #    main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
@@ -2068,22 +2066,22 @@ if __name__ == '__main__':
 #                            save_folder=save_folder,
 #                            pl_axis=[[-9, 9], [-12, 12]], name='num_neurons')
 #    asd
-    # PLOT 2D FIG 16-UNIT NETWORKS
-#    main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
-#    folder = main_folder + 'all_results/'
-#    file = folder + 'supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_' +\
-#        'PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20*_' +\
-#        'nu_16_ev_0.5_results.npz'
-#    fig_2_ccn(file, main_folder)
-#    asd
-    # PLOT PERFORMANCE AS A FUNCTION OF HISTORY BIASES
+#     PLOT 2D FIG 16-UNIT NETWORKS
     main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
     folder = main_folder + 'all_results/'
     file = folder + 'supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_' +\
         'PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20*_' +\
         'nu_16_ev_0.5_results.npz'
-    plot_2d_fig_perfs(file, b=5)
+    fig_2_ccn(file, main_folder)
     asd
+    # PLOT PERFORMANCE AS A FUNCTION OF HISTORY BIASES
+#    main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
+#    folder = main_folder + 'all_results/'
+#    file = folder + 'supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_' +\
+#        'PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20*_' +\
+#        'nu_16_ev_0.5_results.npz'
+#    plot_2d_fig_perfs(file, b=5)
+#    asd
     if len(sys.argv) > 1:
         main_folder = sys.argv[1]
         files = glob.glob(main_folder + '/*')
@@ -2091,14 +2089,13 @@ if __name__ == '__main__':
         main_folder = home + '/priors/results/'
         files = glob.glob(home + '/priors/results/*')
     print(files)
-    asd
     # index = 1 --> pass reward/action
     # index = 3 --> num_neurons
     # index = 4 --> rollout
     # index = 6 --> repeating probability
     # index = 7 --> 16-unit nets
     # index = 11 --> a2c pass reward/action
-    list_exps = [4, 5, 8, 9]  # [3, 6, 7]
+    list_exps = [1, 3, 4, 6, 7, 8, 9, 10, 11]  # [3, 6, 7]
     for ind_f in range(len(files)):
         if ind_f in list_exps:
             plt.close('all')
