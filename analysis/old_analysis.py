@@ -10,6 +10,7 @@ import numpy as np
 from pathlib import Path
 from scipy.optimize import curve_fit
 import matplotlib
+import json
 home = str(Path.home())
 sys.path.append(home + '/neurogym')
 from neurogym.analysis import analysis as an
@@ -908,3 +909,57 @@ def compute_bias_ratio(after_correct_alt, after_correct_rep,
             print(after_corr_sum)
             print(after_correct_rep.shape[0])
             print('xxxxxxxxxxxx')
+
+
+def plot_2d_fig_perfs(file, b=5):
+    f = ut.get_fig(font=8)
+    axis_lbs = ['After error bias', 'After correct bias']
+    # PLOT BIAS ACROSS TRAINING
+    data = np.load(file)
+    bias_acr_tr = data['bias_across_training']
+    p_exp = data['p_exp']
+    perfs = data['performances']
+    specs = json.dumps(p_exp.tolist())
+    specs = an.reduce_xticks(specs)
+    mat_all = []
+    loc_main_panel = [0.3, 0.2, 0.4, 0.4]
+    f.add_axes(loc_main_panel)
+    maximo = -np.inf
+    for ind_exp in range(len(bias_acr_tr)):
+        exp = bias_acr_tr[ind_exp]
+        after_error_alt = exp[:, 0, 0][-1]
+        after_error_rep = exp[:, 0, 1][-1]
+        after_correct_alt = exp[:, 1, 0][-1]
+        after_correct_rep = exp[:, 1, 1][-1]
+        values = [perfs[ind_exp][-1], after_error_alt, after_error_rep,
+                  after_correct_alt, after_correct_rep]
+        mat_all.append(values)
+        maximo = max(max(np.abs(values[1:])), maximo)
+    mat_all = np.array(mat_all)
+    pair = [np.concatenate((mat_all[:, 1], mat_all[:, 2])),
+            np.concatenate((mat_all[:, 3], mat_all[:, 4]))]
+    perfs = np.concatenate((mat_all[:, 0], mat_all[:, 0]))
+    margin = maximo+b/2
+    xs = np.linspace(-margin, margin, int(2*margin/b+1))
+    plot_mean_perf(pair, perfs, xs)
+    plt.xlabel(axis_lbs[0])
+    plt.ylabel(axis_lbs[1])
+
+
+def plot_mean_perf(pair, perf, xs):
+    mat_perfs = np.zeros((xs.shape[0]-1, xs.shape[0]-1))
+    for ind_bin1 in range(xs.shape[0]-1):
+        for ind_bin2 in range(xs.shape[0]-1):
+            mat_perfs[ind_bin1, ind_bin2] = bin_perf(pair, perf,
+                                                     xs[ind_bin1:ind_bin1+2],
+                                                     xs[ind_bin2:ind_bin2+2])
+    plt.imshow(mat_perfs, aspect='auto')
+
+
+def bin_perf(pair, perf, bin1, bin2):
+    indx = np.logical_and.reduce((pair[0] > bin1[0],
+                                  pair[0] <= bin1[1],
+                                  pair[1] > bin2[0],
+                                  pair[1] <= bin2[1]))
+    mean_ = np.mean(perf[indx]) if np.sum(indx) != 0 else 0.5
+    return mean_

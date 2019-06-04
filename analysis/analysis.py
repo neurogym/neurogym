@@ -1651,26 +1651,12 @@ def bin_bias(medians, pair, binning, b):
     if np.sum(indx) > 0:
         medians.append([np.mean(pair[0][indx]),
                         binning[0]+b/2])
+#        print(binning)
+#        print(binning[0]+b/2)
+#        print(np.sum(indx))
+#        print(np.mean(pair[0][indx]))
+#        print('--------------------')
     return medians
-
-
-def plot_mean_perf(pair, perf, xs):
-    mat_perfs = np.zeros((xs.shape[0]-1, xs.shape[0]-1))
-    for ind_bin1 in range(xs.shape[0]-1):
-        for ind_bin2 in range(xs.shape[0]-1):
-            mat_perfs[ind_bin1, ind_bin2] = bin_perf(pair, perf,
-                                                     xs[ind_bin1:ind_bin1+2],
-                                                     xs[ind_bin2:ind_bin2+2])
-    plt.imshow(mat_perfs, aspect='auto')
-
-
-def bin_perf(pair, perf, bin1, bin2):
-    indx = np.logical_and.reduce((pair[0] > bin1[0],
-                                  pair[0] <= bin1[1],
-                                  pair[1] > bin2[0],
-                                  pair[1] <= bin2[1]))
-    mean_ = np.mean(perf[indx]) if np.sum(indx) != 0 else 0.5
-    return mean_
 
 
 def fig_2_ccn(file_all_exps, folder, pl_axis=[[-9, 9], [-12, 12]], b=0.8):
@@ -2020,8 +2006,17 @@ def plot_fig_diff_params(main_folder, save_folder=''):
                   bbox_inches='tight')
 
 
-def plot_2d_fig_perfs(file, b=5):
-    f = ut.get_fig(font=8)
+def plot_2d_fig_biases_VS_perf(file, plot_all=False, fig=None, leg_flg=False,
+                               pl_axis=[[-12, 12], [0.5, 1]], b=1):
+    if fig is None:
+        f = ut.get_fig(font=8)
+    margin = pl_axis[0][1]+b/2
+    alpha = .5
+    lw = 0.5
+    # Panels, labels and other stuff for panel d
+    xs = np.linspace(-margin, margin, int(2*margin/b+1))
+    labels = ['Repeating context',
+              'Alternating context']
     axis_lbs = ['After error bias', 'After correct bias']
     # PLOT BIAS ACROSS TRAINING
     data = np.load(file)
@@ -2030,29 +2025,67 @@ def plot_2d_fig_perfs(file, b=5):
     perfs = data['performances']
     specs = json.dumps(p_exp.tolist())
     specs = reduce_xticks(specs)
-    mat_all = []
+    max_train_duration = max([x.shape[0] for x in bias_acr_tr])
+    after_error_alt_all = np.empty((0,))
+    after_error_rep_all = np.empty((0,))
+    after_correct_alt_all = np.empty((0,))
+    after_correct_rep_all = np.empty((0,))
+    times = np.empty((0,))
+    perfs_all = np.empty((0,))
     loc_main_panel = [0.3, 0.2, 0.4, 0.4]
-    f.add_axes(loc_main_panel)
-    maximo = -np.inf
+    if fig is None:
+        f.add_axes(loc_main_panel)
     for ind_exp in range(len(bias_acr_tr)):
-        exp = bias_acr_tr[ind_exp]
-        after_error_alt = exp[:, 0, 0][-1]
-        after_error_rep = exp[:, 0, 1][-1]
-        after_correct_alt = exp[:, 1, 0][-1]
-        after_correct_rep = exp[:, 1, 1][-1]
-        values = [perfs[ind_exp][-1], after_error_alt, after_error_rep,
-                  after_correct_alt, after_correct_rep]
-        mat_all.append(values)
-        maximo = max(max(np.abs(values[1:])), maximo)
-    mat_all = np.array(mat_all)
-    pair = [np.concatenate((mat_all[:, 1], mat_all[:, 2])),
-            np.concatenate((mat_all[:, 3], mat_all[:, 4]))]
-    perfs = np.concatenate((mat_all[:, 0], mat_all[:, 0]))
-    margin = maximo+b/2
-    xs = np.linspace(-margin, margin, int(2*margin/b+1))
-    plot_mean_perf(pair, perfs, xs)
+        if np.abs(bias_acr_tr[ind_exp][:, 0, 0][-1]) > 1 and\
+           np.abs(bias_acr_tr[ind_exp][:, 0, 1][-1]) > 1:
+            bias_exps = bias_acr_tr[ind_exp]
+            perfs_exp = perfs[ind_exp]
+            after_error_alt, after_error_rep, after_correct_alt,\
+                after_correct_rep, after_error_alt_all, after_error_rep_all,\
+                after_correct_alt_all, after_correct_rep_all,\
+                times, perfs_all =\
+                accumulate_data(bias_exps, perfs_exp, after_error_alt_all,
+                                after_error_rep_all, after_correct_alt_all,
+                                after_correct_rep_all, times, perfs_all)
+            plt.subplot(1, 2, 1)
+            plt.plot(after_correct_rep, perfs_exp, color=azul)
+            plt.plot(after_correct_alt, perfs_exp, color=rojo)
+            plt.xlabel('after correct')
+            plt.ylabel('performance')
+            plt.subplot(1, 2, 2)
+            plt.plot(after_error_rep, perfs_exp, color=azul)
+            plt.plot(after_error_alt, perfs_exp, color=rojo)
+            plt.xlabel('after error')
+            plt.ylabel('performance')
+    plt.subplot(1, 2, 1)
+    pair1 = [perfs_all, after_correct_rep_all]
+    pair2 = [perfs_all, after_correct_alt_all]
+    plot_mean_bias(pair1, pair2, xs, b, colores, invert=True)
+    plt.subplot(1, 2, 2)
+    pair1 = [perfs_all, after_error_rep_all]
+    pair2 = [perfs_all, after_error_alt_all]
+    plot_mean_bias(pair1, pair2, xs, b, colores, invert=True)
+
+#    plt.xlim(pl_axis[0])
+#    plt.ylim(pl_axis[1])
+
+    remove_top_right_axis()
     plt.xlabel(axis_lbs[0])
     plt.ylabel(axis_lbs[1])
+#    plt.plot([-pl_axis[0][1], pl_axis[0][1]], [0, 0], '--k', lw=0.2)
+#    plt.plot([0, 0], [-pl_axis[1][1], pl_axis[1][1]], '--k', lw=0.2)
+#    plt.plot([-pl_axis[0][1], pl_axis[0][1]], [pl_axis[1][1], -pl_axis[1][1]],
+#             '--k', lw=0.2)
+    f = ut.get_fig(font=8)
+    times *= acr_tr_per
+    b_across_training = 100
+    xs_across_training = np.linspace(-acr_tr_per/2,
+                                     acr_tr_per*(max_train_duration+1/2),
+                                     max_train_duration+2)
+    pair1 = [perfs, times]
+    pair2 = [perfs, times]
+    plot_mean_bias(pair1, pair2, xs_across_training, b_across_training,
+                   colores, invert=True)
 
 
 if __name__ == '__main__':
@@ -2078,7 +2111,18 @@ if __name__ == '__main__':
 #                            save_folder=save_folder,
 #                            pl_axis=[[-9, 9], [-12, 12]], name='num_neurons')
 #    asd
-#     PLOT 2D FIG 16-UNIT NETWORKS
+    # PLOT BIASES VERSUS PERFORMANCE
+    b = 0.8
+    pl_axis = [[-12, 12], [0.5, 1]]
+    main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
+    folder = main_folder + 'all_results/'
+    file = folder + 'supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_' +\
+        'PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20*_' +\
+        'nu_16_ev_0.5_results.npz'
+    plot_2d_fig_biases_VS_perf(file, plot_all=False, fig=None, leg_flg=False,
+                               pl_axis=[[-12, 12], [0.5, 1]], b=b)
+#    asd
+    # PLOT 2D FIG 16-UNIT NETWORKS
     b = 0.8
     pl_axis = [[-9, 9], [-12, 12]]
     main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
@@ -2087,9 +2131,10 @@ if __name__ == '__main__':
         'PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20*_' +\
         'nu_16_ev_0.5_results.npz'
     fig_2_ccn(file, main_folder, pl_axis=pl_axis, b=b)
-    plot_2d_fig_biases(file, plot_all=True, fig=None, leg_flg=True,
-                       pl_axis=pl_axis, b=b)
+#    plot_2d_fig_biases(file, plot_all=True, fig=None, leg_flg=True,
+#                       pl_axis=pl_axis, b=b)
     asd
+#    asd
     # PLOT PERFORMANCE AS A FUNCTION OF HISTORY BIASES
 #    main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
 #    folder = main_folder + 'all_results/'
