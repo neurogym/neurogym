@@ -38,9 +38,10 @@ colores = np.concatenate((azul.reshape((1, 3)), rojo.reshape((1, 3)),
 # AUXLIARY FUNCTIONS
 ############################################
 
+
 def get_times(num, per, step):
     return np.linspace(0, num-per, (num-per)//step+1, dtype=int)
-    
+
 
 def get_repetitions(mat):
     """
@@ -1594,18 +1595,20 @@ def plot_psychocurve_examples(ax1, ax2):
 
 def plot_biases_acr_tr_allExps(after_error_alt, after_error_rep,
                                after_correct_alt, after_correct_rep,
-                               labels, axis_lbs,
-                               max_tr_dur, leg_flag=True, alpha=1.,
+                               labels, axis_lbs, max_tr_dur, colors=None,
+                               leg_flag=True, alpha=1.,
                                marker='.'):
     """
 
     """
+    if colors is None:
+        colors = colores
     pair1 = [after_error_rep, after_correct_rep]
     pair2 = [after_error_alt, after_correct_alt]
     if leg_flag:
-        plt.plot(pair1[0], pair1[1], color=colores[0, :],
+        plt.plot(pair1[0], pair1[1], color=colors[0, :],
                  lw=0.1, label=labels[0])
-        plt.plot(pair2[0], pair2[1], color=colores[1, :],
+        plt.plot(pair2[0], pair2[1], color=colors[1, :],
                  lw=0.1, label=labels[1])
         plt.xlabel(axis_lbs[0])
         plt.ylabel(axis_lbs[1])
@@ -1614,9 +1617,9 @@ def plot_biases_acr_tr_allExps(after_error_alt, after_error_rep,
         plt.plot([-6, 6], [8, -8], '--k', lw=0.2)
         plt.legend()
     else:
-        plt.plot(pair1[0], pair1[1], color=colores[0, :],
+        plt.plot(pair1[0], pair1[1], color=colors[0, :],
                  lw=0.1, alpha=alpha)
-        plt.plot(pair2[0], pair2[1], color=colores[1, :],
+        plt.plot(pair2[0], pair2[1], color=colors[1, :],
                  lw=0.1, alpha=alpha)
     if marker == 'x' or marker == '+':
         plt.plot(pair1[0][-1], pair1[1][-1], marker=marker, color='k',
@@ -1625,15 +1628,15 @@ def plot_biases_acr_tr_allExps(after_error_alt, after_error_rep,
                  alpha=pair1[0].shape[0]/max_tr_dur, markersize=3)
     else:
         plt.plot(pair1[0][-1], pair1[1][-1], marker=marker,
-                 color=colores[0, :], alpha=pair1[0].shape[0]/max_tr_dur,
+                 color=colors[0, :], alpha=pair1[0].shape[0]/max_tr_dur,
                  markersize=3)
         plt.plot(pair2[0][-1], pair2[1][-1], marker=marker,
-                 color=colores[1, :], alpha=pair1[0].shape[0]/max_tr_dur,
+                 color=colors[1, :], alpha=pair1[0].shape[0]/max_tr_dur,
                  markersize=3)
 
 
 def plot_mean_bias(pair1, pair2, xs, b, colores, invert=False, label='',
-                   lw=1.5):
+                   lw=1.5, alpha=1.):
     factor = 0.75
     medians_pair1 = []
     medians_pair2 = []
@@ -1645,22 +1648,22 @@ def plot_mean_bias(pair1, pair2, xs, b, colores, invert=False, label='',
     medians_pair1 = np.array(medians_pair1)
     medians_pair2 = np.array(medians_pair2)
     if invert:
-        plt.plot(medians_pair1[:, 1], medians_pair1[:, 0],
-                 color=colores[0, :]*factor, lw=lw)
+        plt.plot(medians_pair1[:, 1], medians_pair1[:, 0], label=label,
+                 color=colores[0, :]*factor, lw=lw, alpha=alpha)
         plt.plot(medians_pair2[:, 1], medians_pair2[:, 0],
-                 color=colores[1, :]*factor, lw=lw)
+                 color=colores[1, :]*factor, lw=lw, alpha=alpha)
     else:
         plt.plot(medians_pair1[:, 0], medians_pair1[:, 1],
-                 color=colores[0, :]*factor, lw=lw, label=label)
+                 color=colores[0, :]*factor, lw=lw, alpha=alpha, label=label)
         plt.plot(medians_pair2[:, 0], medians_pair2[:, 1],
-                 color=colores[1, :]*factor, lw=lw)
+                 color=colores[1, :]*factor, lw=lw, alpha=alpha)
 
 
 def bin_bias(medians, pair, binning, b):
     indx = np.logical_and(pair[1] > binning[0],
                           pair[1] <= binning[1])
     if np.sum(indx) > 0:
-        medians.append([np.mean(pair[0][indx]),
+        medians.append([np.median(pair[0][indx]),
                         binning[0]+b/2])
 #        print(binning)
 #        print(binning[0]+b/2)
@@ -1829,9 +1832,11 @@ def fig_2_ccn(file_all_exps, folder, pl_axis=[[-9, 9], [-12, 12]], b=0.8):
 
 
 def plot_2d_fig_biases(file, plot_all=False, fig=None, leg_flg=False,
-                       pl_axis=[[-9, 9], [-12, 12]], b=1):
+                       pl_axis=[[-9, 9], [-12, 12]], b=1, colors=None):
     if fig is None:
         f = ut.get_fig(font=8)
+    if colors is None:
+        colors = colores
     margin = pl_axis[1][1]+b/2
     alpha = .5
     lw = 0.5
@@ -1876,7 +1881,7 @@ def plot_2d_fig_biases(file, plot_all=False, fig=None, leg_flg=False,
                                            after_correct_alt,
                                            after_correct_rep,
                                            labels, axis_lbs,
-                                           max_train_duration,
+                                           max_train_duration, colors=colors,
                                            (ind_exp == 0 and leg_flg), alpha,
                                            marker='.')
     plt.xlim(pl_axis[0])
@@ -1907,7 +1912,7 @@ def plot_2d_fig_diff_params(main_folder, order=None, save_folder='',
     for ind_f in range(len(files)):
         print(files[order[ind_f]])
         plt.subplot(3, len(files)*2, len(files)*2+2*ind_f+1)
-        plot_2d_fig_biases(files[order[ind_f]], plot_all=True, f=f,
+        plot_2d_fig_biases(files[order[ind_f]], plot_all=True, fig=f,
                            leg_flg=False, pl_axis=pl_axis)
     if save_folder != '':
         f.savefig(save_folder + '/' + name + '_2d_plots.svg', dpi=DPI,
@@ -2019,19 +2024,23 @@ def plot_fig_diff_params(main_folder, save_folder=''):
                   bbox_inches='tight')
 
 
-def plot_2d_fig_biases_VS_perf(file, plot_all=False, fig=None, leg_flg=False,
-                               pl_axis=[[-12, 12], [0.5, 1]], b=1):
-    if fig is None:
-        f_b = ut.get_fig(font=8)
+def plot_2d_fig_biases_VS_perf(file, pl_axis=[[-12, 12], [0.5, 1]], b=1,
+                               dur_th=2000, aft_err_th=2, perf_th=.7,
+                               eq_fact=1, plot_all=True, f_p=None, alpha=1.):
+    f_b = ut.get_fig(font=8)
+    if f_p is None:
         f_p = ut.get_fig(font=8)
+        loc_main_panel = [0.3, 0.2, 0.4, 0.4]
+        f_p.add_axes(loc_main_panel)
+    rows = 2
+    cols = 2
+    lw = 0.2
     margin = pl_axis[0][1]+b/2
-#    alpha = .5
-#    lw = 0.5
     # Panels, labels and other stuff for panel d
     xs = np.linspace(-margin, margin, int(2*margin/b+1))
 #    labels = ['Repeating context',
 #              'Alternating context']
-    axis_lbs = ['After error bias', 'After correct bias']
+    # axis_lbs = ['After error bias', 'After correct bias']
     # PLOT BIAS ACROSS TRAINING
     data = np.load(file)
     bias_acr_tr = data['bias_across_training']
@@ -2039,9 +2048,15 @@ def plot_2d_fig_biases_VS_perf(file, plot_all=False, fig=None, leg_flg=False,
     perfs = data['performances']
     per = data['per']
     step = data['step']
+    last_time_point = dur_th*step+per/2
     specs = json.dumps(p_exp.tolist())
     specs = reduce_xticks(specs)
     max_train_duration = max([x.shape[0] for x in bias_acr_tr])
+#    durations = np.unique([x.shape[0] for x in bias_acr_tr])
+#    print(durations)
+#    print(durations.shape)
+#    print(np.histogram([x.shape[0] for x in bias_acr_tr], bins=durations))
+#    asdsd
     b_across_training = acr_tr_per
     xs_across_training = np.linspace(-acr_tr_per/2,
                                      acr_tr_per*(max_train_duration+1/2),
@@ -2052,13 +2067,15 @@ def plot_2d_fig_biases_VS_perf(file, plot_all=False, fig=None, leg_flg=False,
     after_correct_rep_all = np.empty((0,))
     times = np.empty((0,))
     perfs_all = np.empty((0,))
-    loc_main_panel = [0.3, 0.2, 0.4, 0.4]
-    if fig is None:
-        f_p.add_axes(loc_main_panel)
+
+    counter = 0
     for ind_exp in range(len(bias_acr_tr)):
-        if perfs[ind_exp].shape[0] > 150:
-            bias_exps = bias_acr_tr[ind_exp]
-            perfs_exp = perfs[ind_exp]
+        bias_exps = bias_acr_tr[ind_exp]
+        perfs_exp = perfs[ind_exp]
+        if perfs_exp.shape[0] > dur_th and perfs_exp[-1] > perf_th and\
+           eq_fact*np.abs(bias_exps[-1, 0, 0]) > eq_fact*aft_err_th and\
+           eq_fact*np.abs(bias_exps[-1, 0, 1]) > eq_fact*aft_err_th:
+            counter += 1
             after_error_alt, after_error_rep, after_correct_alt,\
                 after_correct_rep, after_error_alt_all, after_error_rep_all,\
                 after_correct_alt_all, after_correct_rep_all,\
@@ -2067,48 +2084,94 @@ def plot_2d_fig_biases_VS_perf(file, plot_all=False, fig=None, leg_flg=False,
                                 after_error_rep_all, after_correct_alt_all,
                                 after_correct_rep_all, times, perfs_all,
                                 per, step)
-            plt.figure(f_b.number)
-            plt.subplot(1, 2, 1)
-            plt.plot(after_correct_rep, perfs_exp, color=azul)
-            plt.plot(after_correct_alt, perfs_exp, color=rojo)
-            plt.xlabel('after correct')
-            plt.ylabel('performance')
-            plt.subplot(1, 2, 2)
-            plt.plot(after_error_rep, perfs_exp, color=azul)
-            plt.plot(after_error_alt, perfs_exp, color=rojo)
-            plt.xlabel('after error')
-            plt.ylabel('performance')
+            if plot_all:
+                plt.figure(f_b.number)
+                plt.subplot(1, 2, 1)
+                plt.plot(after_correct_rep, perfs_exp, color=azul)
+                plt.plot(after_correct_alt, perfs_exp, color=rojo)
+                plt.xlabel('after correct')
+                plt.ylabel('performance')
+                plt.subplot(1, 2, 2)
+                plt.plot(after_error_rep, perfs_exp, color=azul)
+                plt.plot(after_error_alt, perfs_exp, color=rojo)
+                plt.xlabel('after error')
+                plt.ylabel('performance')
 
-            plt.figure(f_p.number)
-            times_aux = times[-perfs[ind_exp].shape[0]:]
-            plt.plot(times_aux, perfs[ind_exp], '-', color=(.7, .7, .7))
+                plt.figure(f_p.number)
+                times_aux = times[-perfs[ind_exp].shape[0]:]
+                plt.subplot(rows, cols, 1)
+                plt.plot(times_aux[:dur_th], perfs[ind_exp][:dur_th], '-',
+                         color=(.7, .7, .7), lw=lw, alpha=0.5*alpha)
+                plt.subplot(rows, cols, 2)
+                plt.plot(times_aux[:dur_th], perfs[ind_exp][:dur_th], '-',
+                         color=(.7, .7, .7), lw=lw, alpha=0.5*alpha)
+                plt.subplot(rows, cols, 3)
+                plt.plot(times_aux[:dur_th], after_correct_rep[:dur_th],
+                         color=azul, lw=lw, alpha=0.5*alpha)
+                plt.plot(times_aux[:dur_th], after_correct_alt[:dur_th],
+                         color=rojo, lw=lw, alpha=0.5*alpha)
+                plt.subplot(rows, cols, 4)
+                plt.plot(times_aux[:dur_th], after_error_rep[:dur_th],
+                         color=azul, lw=lw, alpha=0.5*alpha)
+                plt.plot(times_aux[:dur_th], after_error_alt[:dur_th],
+                         color=rojo, lw=lw, alpha=0.5*alpha)
 
     plt.figure(f_b.number)
     plt.subplot(1, 2, 1)
     pair1 = [perfs_all, after_correct_rep_all]
     pair2 = [perfs_all, after_correct_alt_all]
-    plot_mean_bias(pair1, pair2, xs, b, colores, invert=True)
+    plot_mean_bias(pair1, pair2, xs, b, colores, invert=True, alpha=alpha)
+    remove_top_right_axis()
+
     plt.subplot(1, 2, 2)
     pair1 = [perfs_all, after_error_rep_all]
     pair2 = [perfs_all, after_error_alt_all]
-    plot_mean_bias(pair1, pair2, xs, b, colores, invert=True)
-
-#    plt.xlim(pl_axis[0])
-#    plt.ylim(pl_axis[1])
+    plot_mean_bias(pair1, pair2, xs, b, colores, invert=True, alpha=alpha)
     remove_top_right_axis()
-    plt.xlabel(axis_lbs[0])
-    plt.ylabel(axis_lbs[1])
-#    plt.plot([-pl_axis[0][1], pl_axis[0][1]], [0, 0], '--k', lw=0.2)
-#    plt.plot([0, 0], [-pl_axis[1][1], pl_axis[1][1]], '--k', lw=0.2)
-#    plt.plot([-pl_axis[0][1], pl_axis[0][1]], [pl_axis[1][1], -pl_axis[1][1]],
-#             '--k', lw=0.2)
+
+    plt.figure(f_p.number)
     pair1 = [perfs_all, times]
     pair2 = [perfs_all, times]
     xs_across_training = np.unique(times)
+    xs_across_training = xs_across_training[xs_across_training <=
+                                            last_time_point]
     b_across_training = step
-    plt.figure(f_p.number)
+    last_event = np.floor(last_time_point/per) + 1
+    ylim = [.7, .82]
+    colors = np.zeros((2, 3))
+    plt.subplot(rows, cols, 1)
     plot_mean_bias(pair1, pair2, xs_across_training, b_across_training,
-                   colores, invert=True)
+                   colors, invert=True, alpha=alpha,
+                   label='median perf. (N=: ' + str(counter) + ')')
+    plt.legend()
+    plt.plot([per/2, last_time_point], [0.709, 0.709], color=(1, .8, .5))
+    plot_time_event(np.arange(1, last_event)*per)
+    plt.ylim(ylim)
+    remove_top_right_axis()
+    plt.subplot(rows, cols, 2)
+    plot_mean_bias(pair1, pair2, xs_across_training, b_across_training,
+                   colors, invert=True, alpha=alpha)
+    plt.plot([per/2, last_time_point], [0.709, 0.709], color=(1, .8, .5))
+    plot_time_event(np.arange(1, last_event)*per)
+    plt.ylim(ylim)
+    remove_top_right_axis()
+    plt.subplot(rows, cols, 3)
+    pair1 = [after_correct_rep_all, times]
+    pair2 = [after_correct_alt_all, times]
+    plot_mean_bias(pair1, pair2, xs_across_training, b_across_training,
+                   colores, invert=True, alpha=alpha)
+    plt.plot([per/2, last_time_point], [0, 0], color=(.5, .5, .5))
+    plot_time_event(np.arange(1, last_event)*per)
+    remove_top_right_axis()
+    plt.subplot(rows, cols, 4)
+    pair1 = [after_error_rep_all, times]
+    pair2 = [after_error_alt_all, times]
+    plot_mean_bias(pair1, pair2, xs_across_training, b_across_training,
+                   colores, invert=True, alpha=alpha)
+    plt.plot([per/2, last_time_point], [0, 0], color=(.5, .5, .5))
+    plot_time_event(np.arange(1, last_event)*per)
+    remove_top_right_axis()
+    return f_p
 
 
 if __name__ == '__main__':
@@ -2137,15 +2200,31 @@ if __name__ == '__main__':
     # PLOT BIASES VERSUS PERFORMANCE
     b = 0.2
     pl_axis = [[-12, 12], [0.5, 1]]
+    dur_th = 1500
+    perf_th = .7
+    plot_all = False
     main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
     folder = main_folder + 'all_results/'
     file = folder + 'supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_' +\
         'PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20*_' +\
         'nu_16_ev_0.5_results.npz'
-    plot_2d_fig_biases_VS_perf(file, plot_all=False, fig=None, leg_flg=False,
-                               pl_axis=[[-12, 12], [0.5, 1]], b=b)
-    asd
+    fp = plot_2d_fig_biases_VS_perf(file, pl_axis=pl_axis, b=b,
+                                    dur_th=dur_th, aft_err_th=2,
+                                    perf_th=perf_th,
+                                    eq_fact=1, plot_all=plot_all, f_p=None)
+    fp = plot_2d_fig_biases_VS_perf(file, pl_axis=pl_axis, b=b,
+                                    dur_th=dur_th, aft_err_th=2,
+                                    perf_th=perf_th,
+                                    eq_fact=-1, plot_all=plot_all,
+                                    f_p=fp, alpha=0.3)
+    fp.savefig(save_folder+'/perf_and_bias_' + str(dur_th) + '_' +
+               str(perf_th) + '_' + str(plot_all) + '.svg', dpi=DPI,
+               bbox_inches='tight')
+    fp.savefig(save_folder+'/perf_and_bias_' + str(dur_th) + '_' +
+               str(perf_th) + '_' + str(plot_all) + '.pdf', dpi=DPI,
+               bbox_inches='tight')
     # PLOT 2D FIG 16-UNIT NETWORKS
+#    asd
     b = 0.8
     pl_axis = [[-9, 9], [-12, 12]]
     main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
@@ -2156,7 +2235,7 @@ if __name__ == '__main__':
     fig_2_ccn(file, main_folder, pl_axis=pl_axis, b=b)
     plot_2d_fig_biases(file, plot_all=True, fig=None, leg_flg=True,
                        pl_axis=pl_axis, b=b)
-    asd
+#    asd
     if len(sys.argv) > 1:
         main_folder = sys.argv[1]
         files = glob.glob(main_folder + '/*')
@@ -2170,7 +2249,7 @@ if __name__ == '__main__':
     # index = 6 --> repeating probability
     # index = 7 --> 16-unit nets
     # index = 11 --> a2c pass reward/action
-    list_exps = [7]  # [1, 3, 4, 6, 7, 8, 9, 10, 11]  # [3, 6, 7]
+    list_exps = [3]  # [1, 3, 4, 6, 7, 8, 9, 10, 11]  # [3, 6, 7]
     for ind_f in range(len(files)):
         if ind_f in list_exps:
             plt.close('all')
