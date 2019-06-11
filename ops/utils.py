@@ -103,7 +103,7 @@ def color_axis(ax, color='r'):
     ax.spines['left'].set_color(color)
 
 
-def get_fig(display_mode=True, font=6):
+def get_fig(display_mode=True, font=6, figsize=(8, 8)):
     import matplotlib
     if display_mode:
         matplotlib.use('Qt5Agg')
@@ -116,7 +116,7 @@ def get_fig(display_mode=True, font=6):
     top = 0.9  # the top of the subplots of the figure
     wspace = 0.4  # width reserved for blank space between subplots
     hspace = 0.4  # height reserved for white space between subplots
-    f = plt.figure(figsize=(8, 8), dpi=250)
+    f = plt.figure(figsize=figsize, dpi=250)
     matplotlib.rcParams.update({'font.size': font, 'lines.linewidth': 0.5,
                                 'axes.titlepad': 1, 'lines.markersize': 3})
     plt.subplots_adjust(left=left, bottom=bottom, right=right,
