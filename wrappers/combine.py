@@ -15,23 +15,34 @@ class combine():
     """
     combines two different tasks
     """
-    def __init__(self, env1, env2, delay=1, dt=100):
+    def __init__(self, env1, env2, delay=1, dt=100, mix=[.3, .3, .4],
+                 share_action_space=True):
+        self.share_action_space = share_action_space
         self.t = 0
         self.delay = delay/dt
         self.delay_on = True
         self.env1 = env1
         self.env2 = env2
-        self.num_act1 = self.env1.action_space.n
-        self.num_act2 = self.env2.action_space.n
-        self.action_space = spaces.Discrete(self.num_act1 *
-                                            self.num_act2)
+        num_act1 = self.env1.action_space.n
+        num_act2 = self.env2.action_space.n
+        if self.share_action_space:
+            assert num_act1 == num_act2, "action spaces must be of same size"
+            self.num_act = num_act1
+            self.action_space = spaces.Discrete(self.num_act)
+            act_list = np.arange(self.num_act).reshape((self.num_act, 1))
+            self.action_split = np.hstack((act_list, act_list))
+        else:
+            self.num_act = self.num_act1 * self.num_act2
+            self.action_space = spaces.Discrete(self.num_act)
+            self.action_split =\
+                list(itertools.product(np.arange(self.num_act1),
+                                       np.arange(self.num_act2)))
+
         self.observation_space = \
             spaces.Box(-np.inf, np.inf,
                        shape=(self.env1.observation_space.shape[0] +
                               self.env2.observation_space.shape[0], ),
                        dtype=np.float32)
-        self.action_split = list(itertools.product(np.arange(self.num_act1),
-                                                   np.arange(self.num_act2)))
         # start trials
         self.env1_on = True
         self.env2_on = True
@@ -45,8 +56,20 @@ class combine():
         self.spec = None
 
     def _new_trial(self):
-        self.env1.trial = self.env1._new_trial()
-        self.env2.trial = self.env2._new_trial()
+        task_type = np.random.choice([0, 1, 2], p=self.mix)
+        if task_type == 0:
+            self.env1.trial = self.env1._new_trial()
+            self.env1_on = True
+            self.env2_on = False
+        elif task_type == 1:
+            self.env2.trial = self.env2._new_trial()
+            self.env1_on = False
+            self.env2_on = True
+        else:
+            self.env1.trial = self.env1._new_trial()
+            self.env2.trial = self.env2._new_trial()
+            self.env1_on = True
+            self.env2_on = True
 
     def reset(self):
         return np.concatenate((self.env1.reset(), self.env2.reset()), axis=0)
@@ -54,7 +77,6 @@ class combine():
     def step(self, action):
         action1, action2 = self.action_split[action]
         if self.env1_on:
-            #            print('env1 on')
             obs1, reward1, done1, info1 = self.env1._step(action1)
             self.env1_on = not info1['new_trial']
             new_trial1 = info1['new_trial']
@@ -63,7 +85,6 @@ class combine():
             new_trial1 = False
 
         if self.t > self.delay and self.env2_on:
-            #            print('env2 on')
             obs2, reward2, done2, info2 = self.env2._step(action2)
             self.env2_on = not info2['new_trial']
             new_trial2 = info2['new_trial']
@@ -72,17 +93,9 @@ class combine():
             new_trial2 = False
 
         if not self.env1_on and not self.env2_on:
-            #            print('new trial')
-            self._new_trial()
             self.t = 0
-            self.env1_on = True
-            self.env2_on = True
+            self._new_trial()
 
-        #        print(self.t)
-        #        print(action1)
-        #        print(reward1)
-        #        print(reward2)
-        #        print('--------')
         self.t += 1
 
         obs = np.concatenate((obs1, obs2), axis=0)
@@ -91,9 +104,19 @@ class combine():
 
         # new trial information
         # TODO: info should also store the ground truth
+        # ground truth
+        if self.share_action_space:
+            if (info1['gt'] == info2['gt']).all:
+                info = {'gt': info1['gt']}
+            elif info1['gt'][self.def1] == 0 and info2['gt'][self.def2] == 1:
+                info = {'gt': info1['gt']}
+            elif info1['gt'][self.def1] == 1 and info2['gt'][self.def2] == 0:
+                info = {'gt': info2['gt']}
         info = {}
         if new_trial1 or new_trial2:
             info = {'new_trial': True}
+        else:
+            info = {'new_trial': False}
 
         return obs, reward, done, info
 
