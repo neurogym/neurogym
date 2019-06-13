@@ -16,8 +16,8 @@ Delay Pair Association (DPA) task based on:
 
 """
 import numpy as np
-import tasktools
-import ngym
+from neurogym.ops import tasktools
+from neurogym.envs import ngym
 from gym import spaces
 
 
@@ -37,13 +37,14 @@ class DPA(ngym.ngym):
         self.dpa1 = timing[1]
         self.delay_min = timing[2]
         self.delay_max = timing[3]
+        stimulus_mean = (timing[2]+timing[3])/2
         self.dpa2 = timing[4]
         self.resp_delay = timing[5]
         self.decision = timing[6]
         self.delay_mean = (self.delay_min + self.delay_max)/2
         self.mean_trial_duration = self.fixation + self.dpa1 +\
             self.delay_mean + self.dpa2 + self.resp_delay + self.decision
-        if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
+        if self.fixation == 0 or self.decision == 0 or stimulus_mean == 0:
             print('XXXXXXXXXXXXXXXXXXXXXX')
             print('the duration of the fixation, stimulus and decision ' +
                   'periods must be larger than 0')
@@ -156,10 +157,10 @@ class DPA(ngym.ngym):
             info['gt'][0] = 1
             self.t += self.dt
         done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info, new_trial
+        return obs, reward, done, info
 
     def step(self, action):
-        obs, reward, done, info, new_trial = self._step(action)
-        if new_trial:
+        obs, reward, done, info = self._step(action)
+        if info['new_trial']:
             self.trial = self._new_trial()
         return obs, reward, done, info

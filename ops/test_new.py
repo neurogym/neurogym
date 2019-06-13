@@ -1,14 +1,25 @@
-# TODO:
-import gym
+
 import numpy as np
-import trial_hist
-import reaction_time
-import combine
-import pass_reward
-import manage_data as md
+import sys
+import os
+from os.path import expanduser
+home = expanduser("~")
+print(sys.path)
+print(home)
+print('--------------')
+sys.path.append(home + '/neurogym')
+sys.path.append(home + '/gym')
+# print(os.environ['PYTHONPATH'].split(os.pathsep))
+print(sys.path)
+import gym
+from neurogym.wrappers import trial_hist
+from neurogym.wrappers import reaction_time
+from neurogym.wrappers import combine
+from neurogym.wrappers import pass_reward
+from neurogym.wrappers import manage_data as md
 
 import sys
-import task_registrations
+from neurogym.ops import task_registrations
 import matplotlib
 display_mode = True
 if display_mode:

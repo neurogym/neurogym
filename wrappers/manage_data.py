@@ -48,7 +48,7 @@ class manage_data(Wrapper):
             if folder is not None:
                 self.folder = folder + '/'
             else:
-                self.folder = "../tmp/"
+                self.folder = "/tmp/"
             if not os.path.exists(self.folder):
                 os.mkdir(self.folder)
             # seeding

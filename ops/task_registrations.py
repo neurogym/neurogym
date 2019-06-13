@@ -13,14 +13,19 @@ import gym
 # all_tasks = ['rdm', 'dpa', 'mante', 'romo', 'gng', 'padoa_sch', 'pd_wager',
 #              'readysetgo', 'DelayedMatchSample-v0', 'DawTwoStep-v0',
 #              'MatchingPenny-v0', 'Bandit-v0']
-all_tasks = {'Mante-v0': 'mante:Mante', 'Romo-v0': 'romo:Romo',
-             'RDM-v0': 'neurogym.envs.rdm:RDM', 'padoaSch-v0': 'padoa_sch:PadoaSch',
-             'pdWager-v0': 'pd_wager:PDWager', 'DPA-v0': 'dpa:DPA',
-             'GNG-v0': 'gng:GNG', 'ReadySetGo-v0': 'readysetgo:ReadySetGo',
-             'DelayedMatchSample-v0': 'delaymatchsample:DelayedMatchToSample',
-             'DawTwoStep-v0': 'dawtwostep:DawTwoStep',
-             'MatchingPenny-v0': 'matchingpenny:MatchingPenny',
-             'Bandit-v0': 'bandit:Bandit'}
+all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
+             'Romo-v0': 'neurogym.envs.romo:Romo',
+             'RDM-v0': 'neurogym.envs.rdm:RDM',
+             'padoaSch-v0': 'neurogym.envs.padoa_sch:PadoaSch',
+             'pdWager-v0': 'neurogym.envs.pd_wager:PDWager',
+             'DPA-v0': 'neurogym.envs.dpa:DPA',
+             'GNG-v0': 'neurogym.envs.gng:GNG',
+             'ReadySetGo-v0': 'neurogym.envs.readysetgo:ReadySetGo',
+             'DelayedMatchSample-v0':
+                 'neurogym.envs.delaymatchsample:DelayedMatchToSample',
+             'DawTwoStep-v0': 'neurogym.envs.dawtwostep:DawTwoStep',
+             'MatchingPenny-v0': 'neurogym.envs.matchingpenny:MatchingPenny',
+             'Bandit-v0': 'neurogym.envs.bandit:Bandit'}
 
 
 def register_neuroTask(id_task):

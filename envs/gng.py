@@ -18,8 +18,8 @@ from __future__ import division
 
 import numpy as np
 from gym import spaces
-import tasktools
-import ngym
+from neurogym.ops import tasktools
+from neurogym.envs import ngym
 
 
 class GNG(ngym.ngym):
@@ -144,10 +144,10 @@ class GNG(ngym.ngym):
             self.t += self.dt
 
         done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info, new_trial
+        return obs, reward, done, info
 
     def step(self, action):
-        obs, reward, done, info, new_trial = self._step(action)
-        if new_trial:
+        obs, reward, done, info = self._step(action)
+        if info['new_trial']:
             self.trial = self._new_trial()
         return obs, reward, done, info

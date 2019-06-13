@@ -16,13 +16,17 @@ class combine():
     combines two different tasks
     """
     def __init__(self, env1, env2, delay=1, dt=100, mix=[.3, .3, .4],
-                 share_action_space=True):
+                 share_action_space=True, defaults=[0, 0]):
         self.share_action_space = share_action_space
         self.t = 0
         self.delay = delay/dt
         self.delay_on = True
         self.env1 = env1
         self.env2 = env2
+        # default behavior
+        self.defaults = defaults
+        # sub-tasks probabilities
+        self.mix = mix
         num_act1 = self.env1.action_space.n
         num_act2 = self.env2.action_space.n
         if self.share_action_space:
@@ -81,7 +85,7 @@ class combine():
             self.env1_on = not info1['new_trial']
             new_trial1 = info1['new_trial']
         else:
-            obs1, reward1, done1 = self.standby_step(1)
+            obs1, reward1, done1, info1 = self.standby_step(1)
             new_trial1 = False
 
         if self.t > self.delay and self.env2_on:
@@ -89,7 +93,7 @@ class combine():
             self.env2_on = not info2['new_trial']
             new_trial2 = info2['new_trial']
         else:
-            obs2, reward2, done2 = self.standby_step(2)
+            obs2, reward2, done2, info2 = self.standby_step(2)
             new_trial2 = False
 
         if not self.env1_on and not self.env2_on:
@@ -100,19 +104,20 @@ class combine():
 
         obs = np.concatenate((obs1, obs2), axis=0)
         reward = reward1 + reward2
-        done = done1  # TODO: done whenever the primary task is done?
+        done = done1  # done whenever the task 1 is done
 
         # new trial information
-        # TODO: info should also store the ground truth
+        info = {}
         # ground truth
         if self.share_action_space:
             if (info1['gt'] == info2['gt']).all:
+                info = {'gt': info1['gt']}  # task 1 is the default task
+            elif (info1['gt'][self.defaults[0]] == 0 and
+                  info2['gt'][self.defaults[1]] == 1):
                 info = {'gt': info1['gt']}
-            elif info1['gt'][self.def1] == 0 and info2['gt'][self.def2] == 1:
-                info = {'gt': info1['gt']}
-            elif info1['gt'][self.def1] == 1 and info2['gt'][self.def2] == 0:
+            elif (info1['gt'][self.defaults[0]] == 1 and
+                  info2['gt'][self.defaults[1]] == 0):
                 info = {'gt': info2['gt']}
-        info = {}
         if new_trial1 or new_trial2:
             info = {'new_trial': True}
         else:
@@ -127,7 +132,8 @@ class combine():
             obs = np.zeros((self.env2.observation_space.shape[0], ))
         rew = 0
         done = False
-        return obs, rew, done
+        info = {'new_trial': False, 'gt': np.zeros((self.num_act,))}
+        return obs, rew, done, info
 
-    def seed(self, seed=None):  # TODO: seeding only with env1?
+    def seed(self, seed=None):  # seeding with task 1
         return self.env1.seed()

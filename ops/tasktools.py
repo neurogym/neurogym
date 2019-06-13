@@ -50,7 +50,7 @@ def truncated_exponential(rng, dt, mean, xmin=0, xmax=np.inf):
         return (xmax//dt)*dt
     else:
         while True:
-            x = rng.expovariate(mean)
+            x = rng.expovariate(1/mean)
             if xmin <= x < xmax:
                 return (x//dt)*dt
 
