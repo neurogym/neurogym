@@ -117,8 +117,8 @@ def compute_bias_perf_transHist(ch, ev, trans, perf, p_hist, conv_window,
     if figs:
         if new_fig:
             ut.get_fig(display_mode, font=8)
-        labels = ['after error alt', 'after error rep',
-                  'after correct alt', 'after correct rep']
+        labels = ['alt b-:', 'rep b-:',
+                  'alt b+:', 'rep b+:']
         counter = 0
     for ind_perf in range(2):
         for ind_tr in [0, values.shape[0]-1]:
@@ -159,7 +159,7 @@ def compute_bias_perf_transHist(ch, ev, trans, perf, p_hist, conv_window,
                         color = azul
                     x = np.linspace(np.min(ev),
                                     np.max(ev), 50)
-                    label = labels[counter] + ' b: ' + str(round(popt[1], 3))
+                    label = labels[counter] + str(round(popt[1], 3))
                     alpha = 0.4+0.6*ind_perf
                     plot_psycho_curve(x, popt, label, color, alpha, lw=lw)
                     counter += 1
@@ -938,6 +938,7 @@ def bias_across_training(choice, evidence, performance,
         ev = evidence[ind_per:ind_per+per]
         perf = performance[ind_per:ind_per+per]
         ch = choice[ind_per:ind_per+per]
+        # TODO: this could be done inside compute_bias_perf_transHist
         trans = transitions[ind_per:ind_per+per]
         p_hist = perf_hist[ind_per:ind_per+per]
         periods_mat[ind] = ind_per + per/2
@@ -1761,6 +1762,7 @@ def plot_psychocurve_examples(ax1, ax2, lw=0.5):
     ev = ev[-acr_tr_per:]
     perf = perf[-acr_tr_per:]
     ch = ch[-acr_tr_per:]
+    # TODO: this could be done inside compute_bias_perf_transHist
     trans = get_transition_mat(ch, conv_window=conv_window)
     p_hist = np.convolve(perf, np.ones((conv_window,)),
                          mode='full')[0:-conv_window+1]
@@ -2347,10 +2349,79 @@ def plot_2d_fig_biases_VS_perf(file, pl_axis=[[-12, 12], [0.5, 1]], b=1,
     return f_p
 
 
+def plot_psychoCurve_examples_diff_tr_back(seed):
+    # example psychocurve
+    num_tr_back = 4
+    f = ut.get_fig(font=8)
+    bias_mat = np.empty((num_tr_back, 2, 2))
+    for ind_conv in range(1, num_tr_back+1):
+        plt.subplot(3, 2, ind_conv)
+        conv_window = ind_conv
+        lw = 1
+        main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
+        folder = main_folder + 'supervised_RDM_t_100_200_200_200_100_' +\
+            'TH_0.2_0.8_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_' +\
+            'g_0.8_b_20_ne_24_nu_16_ev_0.5_a_0.1_' + seed + '/'
+        file = folder + 'bhvr_data_all.npz'
+        ch, _, perf, ev =\
+            load_behavioral_data(file)
+        ev = ev[-acr_tr_per:]
+        perf = perf[-acr_tr_per:]
+        ch = ch[-acr_tr_per:]
+        # TODO: this could be done inside compute_bias_perf_transHist
+        if conv_window == 1:
+            repeat = get_repetitions(ch)
+            trans = np.concatenate((np.array([0]), repeat[:-1]))
+            p_hist = perf
+            p_hist = np.concatenate((np.array([0]), p_hist[:-1]))
+        else:
+            trans = get_transition_mat(ch, conv_window=conv_window)
+            p_hist = np.convolve(perf, np.ones((conv_window,)),
+                                 mode='full')[0:-conv_window+1]
+            p_hist = np.concatenate((np.array([0]), p_hist[:-1]))
+        biases = compute_bias_perf_transHist(ch, ev, trans, perf, p_hist,
+                                             conv_window, figs=True,
+                                             new_fig=False, lw=lw)
+        for ind_perf in range(2):
+            for ind_tr in range(2):
+                bias_mat[ind_conv-1, ind_perf, ind_tr] = biases[ind_perf,
+                                                                ind_tr]
+        ax1 = plt.gca()
+        ax1.set_xlim([-1, 1])
+        if ind_conv == 3:
+            ax1.set_xlabel('Repeating evidence')
+            ax1.set_ylabel('Repeating probability')
+        remove_top_right_axis()
+        plt.title('Num. prev. correct transitions: ' + str(conv_window))
+    plt.subplot(3, 1, 3)
+    index = np.arange(1, num_tr_back+1)
+    plt.plot(index, bias_mat[:, 0, 0], color='r', alpha=0.3, lw=1)
+    plt.plot(index, bias_mat[:, 0, 1], color='b', alpha=0.3, lw=1)
+    plt.plot(index, bias_mat[:, 1, 0], color='r', alpha=1., lw=1)
+    plt.plot(index, bias_mat[:, 1, 1], color='b', alpha=1., lw=1)
+    plt.xlabel('Num. correct transitions')
+    plt.ylabel('Bias')
+    plt.xticks(index)
+    if save_folder != '':
+        f.savefig(save_folder + '/ex_diff_tr_back_' +
+                  seed + '.svg', dpi=DPI,
+                  bbox_inches='tight')
+        f.savefig(save_folder + '/ex_diff_tr_back_' +
+                  seed + '.pdf', dpi=DPI,
+                  bbox_inches='tight')
+        f.savefig(save_folder + '/ex_diff_tr_back_' +
+                  seed + '.png', dpi=DPI,
+                  bbox_inches='tight')
+
+
 if __name__ == '__main__':
     plt.close('all')
     save_folder = '/home/molano/priors/results/main_results/'
 
+    # PLOT PSYCHOCURVE EXAMPLES DIFFERENT NUM TRIALS BACK
+    plot_psychoCurve_examples_diff_tr_back(seed='865154')
+    plot_psychoCurve_examples_diff_tr_back(seed='891427')
+    asdasd
     # PLOT BIAS DIFFERENT PARAMETERS
     main_folder = '/home/molano/priors/results/'
     list_exps = np.arange(8)
