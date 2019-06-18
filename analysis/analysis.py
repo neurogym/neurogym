@@ -250,6 +250,24 @@ def remove_top_right_axis():
     ax = plt.gca()
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
+
+
+def set_yaxis(panels_to_set, rows, cols):
+    """
+    set max/min of all panels in panels_to_set to the global max/min
+    """
+    maximo = -np.inf
+    minimo = np.inf
+    for ind_pl in range(panels_to_set[0], panels_to_set[1]):
+        plt.subplot(rows, cols, ind_pl)
+        ax = plt.gca()
+        lims = ax.get_ylim()
+        maximo = max(maximo, lims[1])
+        minimo = min(minimo, lims[0])
+    for ind_pl in range(panels_to_set[0], panels_to_set[1]):
+        plt.subplot(rows, cols, ind_pl)
+        ax = plt.gca()
+        lims = ax.set_ylim([minimo, maximo])
 ############################################
 # NEURAL ANALYSIS
 ############################################
@@ -902,7 +920,7 @@ def plot_learning(performance, evidence, stim_position, w_conv=200,
 
 
 def bias_across_training(choice, evidence, performance,
-                         per=100000, step=None, conv_window=3):
+                         per=100000, step=None, conv_window=2):
     """
     compute bias across training
     """
@@ -966,60 +984,10 @@ def plot_bias_across_training(bias_mat, tot_num_trials, folder='',
         plt.close(f)
 
 
-def perf_cond_on_stim_ev(file='/home/linux/PassAction.npz', save_path='',
-                         fig=True):
-    """
-    computes performance as a function of the stimulus evidence
-    """
-    _, _, performance, evidence = load_behavioral_data(file)
-    evidence = evidence[-2000000:]
-    performance = performance[-2000000:]
-    perf_mat = []
-    for ind_ev in range(10):
-        mask_ev = np.logical_and(evidence >= np.percentile(evidence,
-                                                           ind_ev*10),
-                                 evidence <= np.percentile(evidence,
-                                                           (ind_ev+1)*10))
-        perf_mat.append(np.mean(performance[mask_ev].flatten()))
-    ut.get_fig()
-    plt.plot(np.arange(10)*10+5, perf_mat, '-+')
-    plt.xlabel('stim evidence percentile')
-    plt.ylabel('performance')
-    print('Mean performance: ' + str(np.mean(performance)))
-    ut.get_fig()
-    sh_mat = []
-    # num_bins = 20
-    index = np.arange(50)
-    for ind_sh in range(10):
-        shuffled = performance.copy()
-        np.random.shuffle(shuffled)
-        inter_error_distance = np.diff(np.where(shuffled == 0)[0])
-        assert (inter_error_distance != 0).all()
-        sh_hist = np.histogram(inter_error_distance, index)[0]
-        sh_hist = sh_hist / np.sum(sh_hist)
-        sh_mat.append(sh_hist)
-
-    sh_mat = np.array(sh_mat)
-    or_hist = np.histogram(np.diff(np.where(performance == 0)[0]), index)[0]
-    or_hist = or_hist / np.sum(or_hist)
-    plt.errorbar(index[:-1], np.mean(sh_mat, axis=0), np.std(sh_mat, axis=0),
-                 label='shuffled')
-    for ind_p in np.arange(10)*0.1:
-        sh_mat2 = np.random.binomial(1, ind_p, size=performance.shape)
-        sh_hist = np.histogram(np.diff(np.where(sh_mat2 == 0)[0]), index)[0]
-        sh_hist = sh_hist / np.sum(sh_hist)
-        plt.plot(index[:-1], sh_hist, '--', color=(.9, .9, .9),
-                 label='binomial p=' + str(ind_p))
-    plt.plot(index[:-1], or_hist, label='orignal')
-    plt.legend()
-    plt.xlabel('distance between errors')
-    plt.ylabel('count')
-
-
 def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
                            num_tr=100000):
     """
-    computes bias conditioned on the num. of previous consecutive ground truth
+    computes bias conditioned on the num. of previous consecutive correct
     alternations/repetitions for after correct/error trials
     """
     choice, _, performance, evidence = load_behavioral_data(file)
@@ -1114,6 +1082,9 @@ def bias_after_altRep_seqs(file='/home/linux/PassReward0_data.npz',
 
 def plot_bias_after_altRep_seqs(mat_biases, mat_conv, mat_num_samples,
                                 folder='', panels=None, legend=False):
+    """
+    plot results produced by bias_after_altRep_seqs
+    """
     lbl_curr_tr = ['alt', 'rep']
     lbl_perf = ['error', 'correct']
     lbl_tr = ['alt', 'rep']
@@ -1162,30 +1133,13 @@ def plot_bias_after_altRep_seqs(mat_biases, mat_conv, mat_num_samples,
     return mat_biases
 
 
-def single_exp_analysis(file, exp, per, step, bias_acr_training=[],
-                        biases_after_seqs=[], num_samples_mat=[],
-                        performances=[], leg_flag=True,
-                        fig=False, plot=True):
-    if fig:
-        ut.get_fig(display_mode, font=4)
-
-    data_flag = ptf.put_files_together(exp, min_num_trials=per)
-    if data_flag:
-        performances, bias_acr_training, biases_after_seqs,\
-            num_samples_mat = get_main_results(file, bias_acr_training,
-                                               biases_after_seqs,
-                                               num_samples_mat,
-                                               per, step, performances)
-        if plot:
-            plot_main_results(file, bias_acr_training,
-                              biases_after_seqs,
-                              num_samples_mat, leg_flag, per, step)
-    return bias_acr_training, biases_after_seqs,\
-        num_samples_mat, performances, data_flag
-
-
 def batch_analysis(main_folder, neural_analysis_flag=False,
                    behavior_analysis_flag=True):
+    """
+    produce performance, bias-across-learning and bias-after-sequence figures
+    and data for a given set of instances corresponding to an particular
+    experiment
+    """
     per = acr_tr_per
     step = acr_train_step
     saving_folder_all = main_folder + 'all_results/'
@@ -1242,10 +1196,11 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
                 print(files[ind_f])
                 bias_acr_training, biases_after_seqs,\
                     num_samples_mat, performances, data_flag =\
-                    single_exp_analysis(file, files[ind_f], per, step,
-                                        bias_acr_training, biases_after_seqs,
-                                        num_samples_mat,
-                                        performances, leg_flag)
+                    single_instance_analysis(file, files[ind_f], per, step,
+                                             bias_acr_training,
+                                             biases_after_seqs,
+                                             num_samples_mat,
+                                             performances, leg_flag)
                 if data_flag:
                     files_used.append(files[ind_f])
             set_yaxis()
@@ -1253,6 +1208,7 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
             biases, biases_t_2, non_cond_biases =\
                 organize_biases(biases_after_seqs, bias_acr_training)
             p_exp['num_exps'] = biases.shape[0]
+            # save all data
             results = {'biases_after_seqs': biases_after_seqs,
                        'bias_across_training': bias_acr_training,
                        'num_samples_mat': num_samples_mat,
@@ -1272,124 +1228,37 @@ def batch_analysis(main_folder, neural_analysis_flag=False,
             p_exp['biases'] = non_cond_biases
             p_exp['perfs'] = performances[-1]
             inter_exp_biases.append(p_exp)
-    plot_biases_all_experiments(inter_exp_biases, expl_params,
-                                saving_folder_all)
+    # plot all results
+    plot_biases_all_instances(inter_exp_biases, expl_params,
+                              saving_folder_all)
     plot_perf_all_experiments(inter_exp_biases, expl_params,
                               saving_folder_all)
 
 
-def plot_biases_all_experiments(inter_exp_biases, expl_params,
-                                saving_folder_all):
-    f_bias = ut.get_fig(display_mode)
-    inter_exp_biases = sort_results(inter_exp_biases, expl_params)
-    xticks = []
-    for ind_exp in range(len(inter_exp_biases)):
-        p_exp = inter_exp_biases[ind_exp].copy()
-        all_biases = p_exp['biases']
-        mat_means = np.mean(all_biases, axis=0)
-        mat_std = np.std(all_biases, axis=0)
-        num_exps = p_exp['num_exps']
-        del p_exp['biases']
-        del p_exp['perfs']
-        specs = json.dumps(p_exp)
-        specs = reduce_xticks(specs)
-        xticks.append(specs)
-        for ind_perf in range(2):
-            for ind_tr in range(2):
-                if ind_tr == 0:
-                    color = rojo
-                elif ind_tr == 1:
-                    color = azul
-                mean = mat_means[ind_perf, ind_tr]
-                std = mat_std[ind_perf, ind_tr]
-                plt.plot(np.random.normal(loc=ind_exp,
-                                          scale=0.01*len(inter_exp_biases),
-                                          size=(all_biases.shape[0],)),
-                         all_biases[:, ind_perf, ind_tr], '.', color=color,
-                         markerSize=5, alpha=0.5*(1+ind_perf))
-                plt.errorbar(ind_exp, mean, std/np.sqrt(num_exps),
-                             marker='+', color=color, markerSize=10,
-                             alpha=0.5*(1+ind_perf))
-    plt.xticks(np.arange(len(inter_exp_biases)), xticks)
-    plt.xlim([-0.5, len(inter_exp_biases)-0.5])
-    f_bias.savefig(saving_folder_all + '/all_together_bias.pdf', dpi=DPI,
-                   bbox_inches='tight')
-    f_bias.savefig(saving_folder_all + '/all_together_bias.svg', dpi=DPI,
-                   bbox_inches='tight')
+def single_instance_analysis(file, exp, per, step, bias_acr_training=[],
+                             biases_after_seqs=[], num_samples_mat=[],
+                             performances=[], leg_flag=True,
+                             fig=False, plot=True):
+    """
+    produce performance, bias-across-learning and bias-after-sequence figures
+    for a given instance
+    """
+    if fig:
+        ut.get_fig(display_mode, font=4)
 
-
-def plot_perf_all_experiments(inter_exp_biases, expl_params,
-                              saving_folder_all):
-    f_bias = ut.get_fig(display_mode)
-    inter_exp_biases = sort_results(inter_exp_biases, expl_params)
-    xticks = []
-    for ind_exp in range(len(inter_exp_biases)):
-        p_exp = inter_exp_biases[ind_exp].copy()
-        all_perfs = p_exp['perfs']
-        mat_means = np.mean(all_perfs, axis=0)
-        mat_std = np.std(all_perfs, axis=0)
-        num_exps = p_exp['num_exps']
-        del p_exp['biases']
-        del p_exp['perfs']
-        specs = json.dumps(p_exp)
-        specs = reduce_xticks(specs)
-        xticks.append(specs)
-        plt.plot(np.random.normal(loc=ind_exp,
-                                  scale=0.01*len(inter_exp_biases),
-                                  size=(len(all_perfs),)), all_perfs, '.',
-                 color=azul, markerSize=3, alpha=1.)
-        plt.errorbar(ind_exp, mat_means, mat_std/np.sqrt(num_exps),
-                     marker='+', color=azul, markerSize=12)
-    plt.xticks(np.arange(len(inter_exp_biases)), xticks)
-    plt.xlim([-0.5, len(inter_exp_biases)-0.5])
-    f_bias.savefig(saving_folder_all + '/all_together_perf.svg', dpi=DPI,
-                   bbox_inches='tight')
-    f_bias.savefig(saving_folder_all + '/all_together_perf.pdf', dpi=DPI,
-                   bbox_inches='tight')
-
-
-def reduce_xticks(specs):
-    specs = specs.replace('pass_reward', 'Rew')
-    specs = specs.replace('pass_action', 'Act')
-    specs = specs.replace('num_exps', 'N')
-    specs = specs.replace('bl_dur', 'bl')
-    specs = specs.replace('network', 'net')
-    specs = specs.replace('nlstm', 'n_un')
-    specs = specs.replace('twin_net', 'twin')
-    specs = specs.replace('cont_rnn', 'rnn')
-    return specs
-
-
-def organize_biases(biases_after_seqs, bias_acr_training):
-    non_cond_biases = np.empty((len(biases_after_seqs), 2, 2))
-    biases = np.empty((len(biases_after_seqs),
-                       num_trials_back-1, 2, 2, 2))
-    biases_t_2 = np.empty((len(biases_after_seqs),
-                           num_trials_back-1, 2, 2, 2))
-    for ind_exp in range(len(biases_after_seqs)):
-        mat_b_non_cond = bias_acr_training[ind_exp]
-        mat_b = biases_after_seqs[ind_exp]
-        for ind_perf in range(2):
-            for ind_tr in range(2):
-                non_cond_biases[ind_exp, ind_perf, ind_tr] =\
-                    mat_b_non_cond[-1, ind_perf, ind_tr]
-                for ind_c_tr in range(2):
-                    index = np.logical_and.reduce((mat_b[:, 1] == ind_perf,
-                                                   mat_b[:, 2] == ind_tr,
-                                                   mat_b[:, 3] == ind_c_tr))
-                    biases[ind_exp, :, ind_perf, ind_tr, ind_c_tr] =\
-                        mat_b[index, 0]
-                    biases_t_2[ind_exp, :, ind_perf, ind_tr, ind_c_tr] =\
-                        mat_b[index, 5]
-
-    return biases, biases_t_2, non_cond_biases
-
-
-def sort_results(mat, expl_params):
-    if len(expl_params) == 1:
-        keys = list(expl_params.keys())
-        mat = sorted(mat, key=lambda i: i[keys[0]])
-    return mat
+    data_flag = ptf.put_files_together(exp, min_num_trials=per)
+    if data_flag:
+        performances, bias_acr_training, biases_after_seqs,\
+            num_samples_mat = get_main_results(file, bias_acr_training,
+                                               biases_after_seqs,
+                                               num_samples_mat,
+                                               per, step, performances)
+        if plot:
+            plot_main_results(file, bias_acr_training,
+                              biases_after_seqs,
+                              num_samples_mat, leg_flag, per, step)
+    return bias_acr_training, biases_after_seqs,\
+        num_samples_mat, performances, data_flag
 
 
 def get_main_results(file, bias_acr_training, biases_after_seqs,
@@ -1445,24 +1314,335 @@ def plot_main_results(file, bias_acr_training, biases_after_seqs,
                                 legend=leg_flag)
 
 
-def set_yaxis():
-    maximo = -np.inf
-    minimo = np.inf
-    for ind_pl in range(2, 7):
-        plt.subplot(3, 2, ind_pl)
-        ax = plt.gca()
-        lims = ax.get_ylim()
-        maximo = max(maximo, lims[1])
-        minimo = min(minimo, lims[0])
-    for ind_pl in range(2, 7):
-        plt.subplot(3, 2, ind_pl)
-        ax = plt.gca()
-        lims = ax.set_ylim([minimo, maximo])
+def plot_biases_all_instances(inter_exp_biases, expl_params,
+                              saving_folder_all):
+    """
+    plot biases for all instances corresponding to one experiment
+    """
+    f_bias = ut.get_fig(display_mode)
+    inter_exp_biases = sort_results(inter_exp_biases, expl_params)
+    xticks = []
+    for ind_exp in range(len(inter_exp_biases)):
+        p_exp = inter_exp_biases[ind_exp].copy()
+        all_biases = p_exp['biases']
+        mat_means = np.mean(all_biases, axis=0)
+        mat_std = np.std(all_biases, axis=0)
+        num_exps = p_exp['num_exps']
+        del p_exp['biases']
+        del p_exp['perfs']
+        specs = json.dumps(p_exp)
+        specs = reduce_xticks(specs)
+        xticks.append(specs)
+        for ind_perf in range(2):
+            for ind_tr in range(2):
+                if ind_tr == 0:
+                    color = rojo
+                elif ind_tr == 1:
+                    color = azul
+                mean = mat_means[ind_perf, ind_tr]
+                std = mat_std[ind_perf, ind_tr]
+                plt.plot(np.random.normal(loc=ind_exp,
+                                          scale=0.01*len(inter_exp_biases),
+                                          size=(all_biases.shape[0],)),
+                         all_biases[:, ind_perf, ind_tr], '.', color=color,
+                         markerSize=5, alpha=0.5*(1+ind_perf))
+                plt.errorbar(ind_exp, mean, std/np.sqrt(num_exps),
+                             marker='+', color=color, markerSize=10,
+                             alpha=0.5*(1+ind_perf))
+    plt.xticks(np.arange(len(inter_exp_biases)), xticks)
+    plt.xlim([-0.5, len(inter_exp_biases)-0.5])
+    f_bias.savefig(saving_folder_all + '/all_together_bias.pdf', dpi=DPI,
+                   bbox_inches='tight')
+    f_bias.savefig(saving_folder_all + '/all_together_bias.svg', dpi=DPI,
+                   bbox_inches='tight')
+
+
+def plot_perf_all_experiments(inter_exp_biases, expl_params,
+                              saving_folder_all):
+    """
+    plot performances for all instances corresponding to one experiment
+    """
+    f_bias = ut.get_fig(display_mode)
+    inter_exp_biases = sort_results(inter_exp_biases, expl_params)
+    xticks = []
+    for ind_exp in range(len(inter_exp_biases)):
+        p_exp = inter_exp_biases[ind_exp].copy()
+        all_perfs = p_exp['perfs']
+        mat_means = np.mean(all_perfs, axis=0)
+        mat_std = np.std(all_perfs, axis=0)
+        num_exps = p_exp['num_exps']
+        del p_exp['biases']
+        del p_exp['perfs']
+        specs = json.dumps(p_exp)
+        specs = reduce_xticks(specs)
+        xticks.append(specs)
+        plt.plot(np.random.normal(loc=ind_exp,
+                                  scale=0.01*len(inter_exp_biases),
+                                  size=(len(all_perfs),)), all_perfs, '.',
+                 color=azul, markerSize=3, alpha=1.)
+        plt.errorbar(ind_exp, mat_means, mat_std/np.sqrt(num_exps),
+                     marker='+', color=azul, markerSize=12)
+    plt.xticks(np.arange(len(inter_exp_biases)), xticks)
+    plt.xlim([-0.5, len(inter_exp_biases)-0.5])
+    f_bias.savefig(saving_folder_all + '/all_together_perf.svg', dpi=DPI,
+                   bbox_inches='tight')
+    f_bias.savefig(saving_folder_all + '/all_together_perf.pdf', dpi=DPI,
+                   bbox_inches='tight')
+
+
+def reduce_xticks(specs):
+    """
+    this is just to make xtick shorter for the figures showing the biases/
+    performance
+    """
+    specs = specs.replace('pass_reward', 'Rew')
+    specs = specs.replace('pass_action', 'Act')
+    specs = specs.replace('num_exps', 'N')
+    specs = specs.replace('bl_dur', 'bl')
+    specs = specs.replace('network', 'net')
+    specs = specs.replace('nlstm', 'n_un')
+    specs = specs.replace('twin_net', 'twin')
+    specs = specs.replace('cont_rnn', 'rnn')
+    return specs
+
+
+def organize_biases(biases_after_seqs, bias_acr_training):
+    """
+    reorganize data from lists to 5-d matrices:
+    num. instances X num. trials back X prev. outcome X
+     transition type (rep/alt) X prev. transition
+    """
+    non_cond_biases = np.empty((len(biases_after_seqs), 2, 2))
+    biases = np.empty((len(biases_after_seqs),
+                       num_trials_back-1, 2, 2, 2))
+    biases_t_2 = np.empty((len(biases_after_seqs),
+                           num_trials_back-1, 2, 2, 2))
+    for ind_exp in range(len(biases_after_seqs)):
+        mat_b_non_cond = bias_acr_training[ind_exp]
+        mat_b = biases_after_seqs[ind_exp]
+        for ind_perf in range(2):
+            for ind_tr in range(2):
+                non_cond_biases[ind_exp, ind_perf, ind_tr] =\
+                    mat_b_non_cond[-1, ind_perf, ind_tr]
+                for ind_c_tr in range(2):
+                    index = np.logical_and.reduce((mat_b[:, 1] == ind_perf,
+                                                   mat_b[:, 2] == ind_tr,
+                                                   mat_b[:, 3] == ind_c_tr))
+                    biases[ind_exp, :, ind_perf, ind_tr, ind_c_tr] =\
+                        mat_b[index, 0]
+                    biases_t_2[ind_exp, :, ind_perf, ind_tr, ind_c_tr] =\
+                        mat_b[index, 5]
+
+    return biases, biases_t_2, non_cond_biases
+
+
+def sort_results(mat, expl_params):
+    """
+    this just to sort results in a increasing order
+    """
+    if len(expl_params) == 1:
+        keys = list(expl_params.keys())
+        mat = sorted(mat, key=lambda i: i[keys[0]])
+    return mat
 
 
 ############################################
 # FIGURES
 ############################################
+def fig_2_ccn(file_all_exps, folder, pl_axis=[[-9, 9], [-12, 12]], b=0.8,
+              dur_th=2000, save_folder=''):
+    """
+    plot Figs. 2 and 3 of CCN paper
+    """
+    f1 = ut.get_fig(font=8, figsize=(8, 2))
+    f2 = ut.get_fig(font=8)
+    margin_plt = 0.03
+    margin = pl_axis[1][1]+b/2
+    alpha = .5
+    rows = 1
+    cols = 3
+    lw = 0.5
+    # Panels, labels and other stuff for panel d
+    loc_main_panel = [0.5, 0.2, 0.3, 0.3]
+    ax_main_panel = f2.add_axes(loc_main_panel)
+    loc_ex_panel = [0.25, 0.175, 0.15, 0.15]
+    ax_ex_panel1 = f2.add_axes(loc_ex_panel)
+    loc_ex_panel = [0.25, 0.475, 0.15, 0.15]
+    ax_ex_panel2 = f2.add_axes(loc_ex_panel)
+    xs = np.linspace(-margin, margin, int(2*margin/b+1))
+    labels = ['Repeating context',
+              'Alternating context']
+    axis_lbs = ['After error bias', 'After correct bias']
+
+    # PLOT PERFORMANCES
+    plt.figure(f1.number)
+    plt.subplot(rows, cols, 1)
+    num_tr = 10000000
+    start_point = 0
+    files = glob.glob(folder + '/supervised*')
+    for ind_f in range(n_exps_fig_2_ccn):
+        leg_flag = ind_f == 0
+        file = files[ind_f] + '/bhvr_data_all.npz'
+        if os.path.exists(file):
+            choice, correct_side, performance, evidence =\
+                load_behavioral_data(file)
+            plot_learning(performance[start_point:start_point+num_tr],
+                          evidence[start_point:start_point+num_tr],
+                          correct_side[start_point:start_point+num_tr],
+                          w_conv=1000, legend=leg_flag)
+    ax = plt.gca()
+    ax.get_legend().remove()
+    plt.legend(['RNNs', 'Perfect integrator'])
+    ax.set_title('')
+    remove_top_right_axis()
+    ax.set_ylabel('Performance')
+    ax.set_xlabel('Trials')
+    ax.set_xticks([0, 400000, 800000])
+    points = ax.get_position().get_points()
+    plt.text(points[0][0]-margin_plt, points[1][1]+margin_plt, 'a',
+             transform=plt.gcf().transFigure, fontsize=letters_size)
+
+    # PLOT BIAS ACROSS TRAINING
+    data = np.load(file_all_exps)
+    files = data['exps']
+    bias_acr_tr = data['bias_across_training']
+    perfs = data['performances']
+    per = data['per']
+    step = data['step']
+    last_time_point = dur_th*step+per/2
+    max_train_duration = max([x.shape[0] for x in bias_acr_tr])
+    after_error_alt_all = np.empty((0,))
+    after_error_rep_all = np.empty((0,))
+    after_correct_alt_all = np.empty((0,))
+    after_correct_rep_all = np.empty((0,))
+    times = np.empty((0,))
+    perfs_all = np.empty((0,))
+    for ind_exp in range(len(bias_acr_tr)):
+        if (ind_exp != 137 and ind_exp != 19) and perfs[ind_exp][-1] > 0.6:
+            bias_exp = bias_acr_tr[ind_exp]
+            perfs_exp = perfs[ind_exp]
+            after_error_alt_all, after_error_rep_all, after_correct_alt_all,\
+                after_correct_rep_all, times, perfs_all =\
+                process_exp(bias_exp, perfs_exp,
+                            after_error_alt_all, after_error_rep_all,
+                            after_correct_alt_all, after_correct_rep_all,
+                            times, perfs_all, per, step, ax_main_panel,
+                            ind_exp < n_exps_fig_2_ccn,
+                            rows, cols, lw, alpha, labels, axis_lbs,
+                            ind_exp == 0, max_train_duration, f1, f2,
+                            marker='.', dur_th=dur_th, pl_axis=pl_axis)
+    plt.figure(f2.number)
+    plt.xlim(pl_axis[0])
+    plt.ylim(pl_axis[1])
+    # PLOT MEDIANS
+    pair1 = [after_error_rep_all, after_correct_rep_all]
+    pair2 = [after_error_alt_all, after_correct_alt_all]
+    plot_mean_bias(pair1, pair2, xs, b, colores)
+    remove_top_right_axis()
+    # PLOT DATA FOR TWO SPECIFIC EXAMPLES (RESET AND REVERSE NETWORKS)
+    ind_exp = 19
+    bias_exp = bias_acr_tr[ind_exp]
+    perfs_exp = perfs[ind_exp]
+    after_error_alt_all, after_error_rep_all, after_correct_alt_all,\
+        after_correct_rep_all, times, perfs_all =\
+        process_exp(bias_exp, perfs_exp,
+                    after_error_alt_all, after_error_rep_all,
+                    after_correct_alt_all, after_correct_rep_all,
+                    times, perfs_all, per, step, ax_main_panel,
+                    ind_exp < n_exps_fig_2_ccn,
+                    rows, cols, lw, alpha, labels, axis_lbs,
+                    ind_exp == 0, max_train_duration, f1, f2, marker='x',
+                    dur_th=dur_th, pl_axis=pl_axis)
+    ind_exp = 137
+    bias_exp = bias_acr_tr[ind_exp]
+    perfs_exp = perfs[ind_exp]
+    after_error_alt_all, after_error_rep_all, after_correct_alt_all,\
+        after_correct_rep_all, times, perfs_all =\
+        process_exp(bias_exp, perfs_exp,
+                    after_error_alt_all, after_error_rep_all,
+                    after_correct_alt_all, after_correct_rep_all,
+                    times, perfs_all, per, step, ax_main_panel,
+                    ind_exp < n_exps_fig_2_ccn,
+                    rows, cols, lw, alpha, labels, axis_lbs,
+                    ind_exp == 0, max_train_duration, f1, f2, marker='+',
+                    dur_th=dur_th, pl_axis=pl_axis)
+
+    # SAME 2D-PLOT BUT COLORING DIFF. TYPES OF NETWORKS (RESET/REVERSE/NULL)
+    plt.figure(f2.number)
+    ax = plt.gca()
+    points = ax.get_position().get_points()
+    width_height = np.diff(points, axis=0)[0]
+    f2.add_axes([points[0][0]+0.02, points[0][1]+0.02,
+                 width_height[0]/2.5, width_height[1]/2.5])
+    colors_types = np.vstack((colores[2, :], colores[2, :],
+                              colores[4, :], colores[4, :]))
+    ax_temp = plot_2d_fig_biases(file_all_exps, plot_all=True, fig=f2,
+                                 leg_flg=False,
+                                 pl_axis=pl_axis, b=b, colors=colors_types,
+                                 perf_th=0.6, aft_err_th=1., plot_hists=False,
+                                 plot_means=False, plot_propr=True)
+    ax_temp.set_xticks([])
+    ax_temp.set_yticks([])
+    ax_temp.set_xlabel('')
+    ax_temp.set_ylabel('')
+
+    # PLOT HISTOGRAM PROJECTIONS
+    plt.sca(ax)
+    plot_hist_proj(after_error_alt_all, after_error_rep_all,
+                   after_correct_alt_all, after_correct_rep_all,
+                   xs, lw, b, f2)
+
+    # MEDIANS FOR ACROSS-TRAINING BIAS PLOT (AFTER CORRECT)
+    plt.figure(f1.number)
+    plt.subplot(rows, cols, 2)
+    xs_across_training = np.unique(times)
+    xs_across_training = xs_across_training[xs_across_training <=
+                                            last_time_point]
+    b_across_training = step
+    pair1 = [after_correct_rep_all, times]
+    pair2 = [after_correct_alt_all, times]
+    plot_mean_bias(pair1, pair2, xs_across_training, b_across_training,
+                   colores, invert=True)
+    ax = plt.gca()
+    ylim = ax.get_ylim()
+    remove_top_right_axis()
+    plt.ylabel('After correct bias')
+    plt.xlabel('Trials')
+    ax.set_xticks([0, 400000, 800000])
+    points = ax.get_position().get_points()
+    plt.text(points[0][0]-margin_plt, points[1][1]+margin_plt, 'b',
+             transform=plt.gcf().transFigure, fontsize=letters_size)
+
+    # MEDIANS FOR ACROSS-TRAINING BIAS PLOT (AFTER ERROR)
+    plt.subplot(rows, cols, 3)
+    pair1 = [after_error_rep_all, times]
+    pair2 = [after_error_alt_all, times]
+    plot_mean_bias(pair1, pair2, xs_across_training, b_across_training,
+                   colores, invert=True)
+    ax = plt.gca()
+    ylim = ax.set_ylim(ylim)
+    remove_top_right_axis()
+    plt.ylabel('After error bias')
+    plt.xlabel('Trials')
+    ax.set_xticks([0, 400000, 800000])
+    points = ax.get_position().get_points()
+    plt.text(points[0][0]-margin_plt, points[1][1]+margin_plt, 'c',
+             transform=plt.gcf().transFigure, fontsize=letters_size)
+
+    # PLOT PSYCHOCURVE EXAMPLES (RESET/REVERSE NETWORKS)
+    plt.figure(f2.number)
+    plot_psychocurve_examples(ax_ex_panel1, ax_ex_panel2, lw=1.5)
+    ax = plt.gca()
+    points = ax.get_position().get_points()
+
+    f1.savefig(save_folder + '/Fig2.svg', dpi=DPI,
+               bbox_inches='tight')
+    f1.savefig(save_folder + '/Fig2.pdf', dpi=DPI,
+               bbox_inches='tight')
+    f2.savefig(save_folder + '/Fig3.svg', dpi=DPI,
+               bbox_inches='tight')
+    f2.savefig(save_folder + '/Fig3.pdf', dpi=DPI,
+               bbox_inches='tight')
 
 
 def process_exp(bias_exps, perfs_exp, after_error_alt_all, after_error_rep_all,
@@ -1470,6 +1650,11 @@ def process_exp(bias_exps, perfs_exp, after_error_alt_all, after_error_rep_all,
                 per, step, ax_main_panel, plt_b_acr_time, rows, cols, lw,
                 alpha, labels, axis_lbs, leg_flag, max_train_duration, f1, f2,
                 marker='.', dur_th=2000,  pl_axis=[[-12, 12], [-12, 12]]):
+    """
+    this function plot bias VS bias and bias VS training and append bias/perf.
+    to the different lists (perfs_exp, after_error_alt_all...)
+    """
+    # append data to general lists
     after_error_alt, after_error_rep, after_correct_alt,\
         after_correct_rep, after_error_alt_all, after_error_rep_all,\
         after_correct_alt_all, after_correct_rep_all, times, perfs_all =\
@@ -1478,6 +1663,7 @@ def process_exp(bias_exps, perfs_exp, after_error_alt_all, after_error_rep_all,
                         after_correct_rep_all, times, perfs_all, per, step)
     plt.figure(f2.number)
     plt.sca(ax_main_panel)
+    # plot bias VS bias 2d figure
     plot_biases_acr_tr_allExps(after_error_alt, after_error_rep,
                                after_correct_alt, after_correct_rep,
                                labels, axis_lbs, max_train_duration,
@@ -1504,6 +1690,9 @@ def process_exp(bias_exps, perfs_exp, after_error_alt_all, after_error_rep_all,
 def accumulate_data(bias_exps, perfs_exp, after_error_alt_all,
                     after_error_rep_all, after_correct_alt_all,
                     after_correct_rep_all, times, perfs_all, per, step):
+    """
+    appends bias/perf. to different lists (perfs_exp, after_error_alt_all...)
+    """
     after_error_alt = bias_exps[:, 0, 0]
     after_error_rep = bias_exps[:, 0, 1]
     after_correct_alt = bias_exps[:, 1, 0]
@@ -1528,6 +1717,9 @@ def accumulate_data(bias_exps, perfs_exp, after_error_alt_all,
 def plot_hist_proj(after_error_alt_all, after_error_rep_all,
                    after_correct_alt_all, after_correct_rep_all,
                    xs, lw, b, f):
+    """
+    plot histogram projections
+    """
     ax = plt.gca()
     points = ax.get_position().get_points()
     width_height = np.diff(points, axis=0)[0]
@@ -1554,6 +1746,9 @@ def plot_hist_proj(after_error_alt_all, after_error_rep_all,
 
 
 def plot_psychocurve_examples(ax1, ax2, lw=0.5):
+    """
+    plot psychocurves for example networks
+    """
     # example reset after error
     conv_window = 2
     main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
@@ -1610,7 +1805,7 @@ def plot_biases_acr_tr_allExps(after_error_alt, after_error_rep,
                                leg_flag=True, alpha=1.,
                                marker='.', pl_axis=[[-12, 12], [-12, 12]]):
     """
-
+    bias-VS-bias plot for Fig. 3 of CCN paper
     """
     if colors is None:
         colors = colores
@@ -1652,6 +1847,9 @@ def plot_biases_acr_tr_allExps(after_error_alt, after_error_rep,
 
 def plot_mean_bias(pair1, pair2, xs, b, colores, invert=False, label='',
                    lw=1.5, alpha=1.):
+    """
+    medians for bias-VS-bias and across-training bias plots
+    """
     factor = 0.75
     medians_pair1 = []
     medians_pair2 = []
@@ -1675,209 +1873,15 @@ def plot_mean_bias(pair1, pair2, xs, b, colores, invert=False, label='',
 
 
 def bin_bias(medians, pair, binning, b):
+    """
+    bin bias in pair[0] based on pair[1] and binning
+    """
     indx = np.logical_and(pair[1] > binning[0],
                           pair[1] <= binning[1])
     if np.sum(indx) > 0:
         medians.append([np.median(pair[0][indx]),
                         binning[0]+b/2])
-#        print(binning)
-#        print(binning[0]+b/2)
-#        print(np.sum(indx))
-#        print(np.mean(pair[0][indx]))
-#        print('--------------------')
     return medians
-
-
-def fig_2_ccn(file_all_exps, folder, pl_axis=[[-9, 9], [-12, 12]], b=0.8,
-              dur_th=2000):
-    f1 = ut.get_fig(font=8, figsize=(8, 2))
-    f2 = ut.get_fig(font=8)
-    margin_plt = 0.03
-    margin = pl_axis[1][1]+b/2
-    alpha = .5
-    rows = 1
-    cols = 3
-    lw = 0.5
-    # Panels, labels and other stuff for panel d
-    loc_main_panel = [0.5, 0.2, 0.3, 0.3]
-    ax_main_panel = f2.add_axes(loc_main_panel)
-    loc_ex_panel = [0.25, 0.175, 0.15, 0.15]
-    ax_ex_panel1 = f2.add_axes(loc_ex_panel)
-    loc_ex_panel = [0.25, 0.475, 0.15, 0.15]
-    ax_ex_panel2 = f2.add_axes(loc_ex_panel)
-    xs = np.linspace(-margin, margin, int(2*margin/b+1))
-    labels = ['Repeating context',
-              'Alternating context']
-    axis_lbs = ['After error bias', 'After correct bias']
-    # PLOT PERFORMANCES
-    plt.figure(f1.number)
-    plt.subplot(rows, cols, 1)
-    num_tr = 10000000
-    start_point = 0
-    files = glob.glob(folder + '/supervised*')
-    for ind_f in range(n_exps_fig_2_ccn):
-        leg_flag = ind_f == 0
-        file = files[ind_f] + '/bhvr_data_all.npz'
-        if os.path.exists(file):
-            choice, correct_side, performance, evidence =\
-                load_behavioral_data(file)
-            plot_learning(performance[start_point:start_point+num_tr],
-                          evidence[start_point:start_point+num_tr],
-                          correct_side[start_point:start_point+num_tr],
-                          w_conv=1000, legend=leg_flag)
-    ax = plt.gca()
-    ax.get_legend().remove()
-    plt.legend(['RNNs', 'Perfect integrator'])
-    ax.set_title('')
-    remove_top_right_axis()
-    ax.set_ylabel('Performance')
-    ax.set_xlabel('Trials')
-    ax.set_xticks([0, 400000, 800000])
-    # ax.set_xticklabels(['0', '400', '800'])
-    points = ax.get_position().get_points()
-    plt.text(points[0][0]-margin_plt, points[1][1]+margin_plt, 'a',
-             transform=plt.gcf().transFigure, fontsize=letters_size)
-
-    # PLOT BIAS ACROSS TRAINING
-    data = np.load(file_all_exps)
-    files = data['exps']
-    bias_acr_tr = data['bias_across_training']
-    perfs = data['performances']
-    per = data['per']
-    step = data['step']
-    last_time_point = dur_th*step+per/2
-    max_train_duration = max([x.shape[0] for x in bias_acr_tr])
-    after_error_alt_all = np.empty((0,))
-    after_error_rep_all = np.empty((0,))
-    after_correct_alt_all = np.empty((0,))
-    after_correct_rep_all = np.empty((0,))
-    times = np.empty((0,))
-    perfs_all = np.empty((0,))
-    for ind_exp in range(len(bias_acr_tr)):
-        if (ind_exp != 137 and ind_exp != 19) and perfs[ind_exp][-1] > 0.6:
-            bias_exp = bias_acr_tr[ind_exp]
-            perfs_exp = perfs[ind_exp]
-            after_error_alt_all, after_error_rep_all, after_correct_alt_all,\
-                after_correct_rep_all, times, perfs_all =\
-                process_exp(bias_exp, perfs_exp,
-                            after_error_alt_all, after_error_rep_all,
-                            after_correct_alt_all, after_correct_rep_all,
-                            times, perfs_all, per, step, ax_main_panel,
-                            ind_exp < n_exps_fig_2_ccn,
-                            rows, cols, lw, alpha, labels, axis_lbs,
-                            ind_exp == 0, max_train_duration, f1, f2,
-                            marker='.', dur_th=dur_th, pl_axis=pl_axis)
-    plt.figure(f2.number)
-    plt.xlim(pl_axis[0])
-    plt.ylim(pl_axis[1])
-    pair1 = [after_error_rep_all, after_correct_rep_all]
-    pair2 = [after_error_alt_all, after_correct_alt_all]
-    plot_mean_bias(pair1, pair2, xs, b, colores)
-    remove_top_right_axis()
-    ind_exp = 19
-    bias_exp = bias_acr_tr[ind_exp]
-    perfs_exp = perfs[ind_exp]
-    after_error_alt_all, after_error_rep_all, after_correct_alt_all,\
-        after_correct_rep_all, times, perfs_all =\
-        process_exp(bias_exp, perfs_exp,
-                    after_error_alt_all, after_error_rep_all,
-                    after_correct_alt_all, after_correct_rep_all,
-                    times, perfs_all, per, step, ax_main_panel,
-                    ind_exp < n_exps_fig_2_ccn,
-                    rows, cols, lw, alpha, labels, axis_lbs,
-                    ind_exp == 0, max_train_duration, f1, f2, marker='x',
-                    dur_th=dur_th, pl_axis=pl_axis)
-    ind_exp = 137
-    bias_exp = bias_acr_tr[ind_exp]
-    perfs_exp = perfs[ind_exp]
-    after_error_alt_all, after_error_rep_all, after_correct_alt_all,\
-        after_correct_rep_all, times, perfs_all =\
-        process_exp(bias_exp, perfs_exp,
-                    after_error_alt_all, after_error_rep_all,
-                    after_correct_alt_all, after_correct_rep_all,
-                    times, perfs_all, per, step, ax_main_panel,
-                    ind_exp < n_exps_fig_2_ccn,
-                    rows, cols, lw, alpha, labels, axis_lbs,
-                    ind_exp == 0, max_train_duration, f1, f2, marker='+',
-                    dur_th=dur_th, pl_axis=pl_axis)
-
-    # PLOT DIFF. TYPES OF NETWORKS
-    plt.figure(f2.number)
-    ax = plt.gca()
-    points = ax.get_position().get_points()
-    width_height = np.diff(points, axis=0)[0]
-    f2.add_axes([points[0][0]+0.02, points[0][1]+0.02,
-                 width_height[0]/2.5, width_height[1]/2.5])
-    colors_types = np.vstack((colores[2, :], colores[2, :],
-                              colores[4, :], colores[4, :]))
-    ax_temp = plot_2d_fig_biases(file_all_exps, plot_all=True, fig=f2,
-                                 leg_flg=False,
-                                 pl_axis=pl_axis, b=b, colors=colors_types,
-                                 perf_th=0.6, aft_err_th=1., plot_hists=False,
-                                 plot_means=False, plot_propr=True)
-    ax_temp.set_xticks([])
-    ax_temp.set_yticks([])
-    ax_temp.set_xlabel('')
-    ax_temp.set_ylabel('')
-    # PLOT PROJECTIONS
-    plt.sca(ax)
-    plot_hist_proj(after_error_alt_all, after_error_rep_all,
-                   after_correct_alt_all, after_correct_rep_all,
-                   xs, lw, b, f2)
-
-    # PLOT MEANS AND TUNE PANEL B
-    plt.figure(f1.number)
-    plt.subplot(rows, cols, 2)
-    xs_across_training = np.unique(times)
-    xs_across_training = xs_across_training[xs_across_training <=
-                                            last_time_point]
-    b_across_training = step
-    pair1 = [after_correct_rep_all, times]
-    pair2 = [after_correct_alt_all, times]
-    plot_mean_bias(pair1, pair2, xs_across_training, b_across_training,
-                   colores, invert=True)
-    ax = plt.gca()
-    ylim = ax.get_ylim()
-    remove_top_right_axis()
-    plt.ylabel('After correct bias')
-    plt.xlabel('Trials')
-    ax.set_xticks([0, 400000, 800000])
-    # ax.set_xticklabels(['0', '400', '800'])
-    points = ax.get_position().get_points()
-    plt.text(points[0][0]-margin_plt, points[1][1]+margin_plt, 'b',
-             transform=plt.gcf().transFigure, fontsize=letters_size)
-
-    # PLOT MEANS AND TUNE PANEL c
-    plt.subplot(rows, cols, 3)
-    pair1 = [after_error_rep_all, times]
-    pair2 = [after_error_alt_all, times]
-    plot_mean_bias(pair1, pair2, xs_across_training, b_across_training,
-                   colores, invert=True)
-    ax = plt.gca()
-    ylim = ax.set_ylim(ylim)
-    remove_top_right_axis()
-    plt.ylabel('After error bias')
-    plt.xlabel('Trials')
-    ax.set_xticks([0, 400000, 800000])
-    # ax.set_xticklabels(['0', '400', '800'])
-    points = ax.get_position().get_points()
-    plt.text(points[0][0]-margin_plt, points[1][1]+margin_plt, 'c',
-             transform=plt.gcf().transFigure, fontsize=letters_size)
-
-    # PLOT PSYCHOCURVE EXAMPLES
-    plt.figure(f2.number)
-    plot_psychocurve_examples(ax_ex_panel1, ax_ex_panel2, lw=1.5)
-    ax = plt.gca()
-    points = ax.get_position().get_points()
-
-    f1.savefig('/home/molano/priors/figures_CCN/Fig2.svg', dpi=DPI,
-               bbox_inches='tight')
-    f1.savefig('/home/molano/priors/figures_CCN/Fig2.pdf', dpi=DPI,
-               bbox_inches='tight')
-    f2.savefig('/home/molano/priors/figures_CCN/Fig3.svg', dpi=DPI,
-               bbox_inches='tight')
-    f2.savefig('/home/molano/priors/figures_CCN/Fig3.pdf', dpi=DPI,
-               bbox_inches='tight')
 
 
 def plot_2d_fig_biases(file, plot_all=False, fig=None, leg_flg=False,
@@ -1885,6 +1889,9 @@ def plot_2d_fig_biases(file, plot_all=False, fig=None, leg_flg=False,
                        perf_th=0.6, aft_err_th=0.5, aft_corr_th=0.5,
                        plot_hists=True,
                        plot_means=True, plot_propr=True):
+    """
+    plot bias-VS-bias fig (without other panels shown in Fig. 3 of CCN paper)
+    """
     loc_main_panel = [0.3, 0.2, 0.4, 0.4]
     if fig is None:
         fig = ut.get_fig(font=8)
@@ -1997,6 +2004,9 @@ def plot_2d_fig_biases(file, plot_all=False, fig=None, leg_flg=False,
 
 def plot_2d_fig_diff_params(main_folder, order=None, save_folder='',
                             pl_axis=[[-9, 9], [-12, 12]], name=''):
+    """
+    plot bias-VS-bias fig for different paramenters
+    """
     loc_main = np.array([0.1, 0.05, 0.3, 0.3])
     displ = np.array([[0., 0.5, 0., 0.], [0.5, 0.5, 0., 0.],
                       [0., 0.0, 0., 0.], [0.5, 0.0, 0., 0.]])
@@ -2018,11 +2028,16 @@ def plot_2d_fig_diff_params(main_folder, order=None, save_folder='',
                   bbox_inches='tight')
         f.savefig(save_folder + '/' + name + '_2d_plots.pdf', dpi=DPI,
                   bbox_inches='tight')
+        f.savefig(save_folder + '/' + name + '_2d_plots.png', dpi=DPI,
+                  bbox_inches='tight')
 
 
 def plot_biases_diff_parameterss(file, means, perfs_means, net_types_mat,
                                  plot_all=False, f=None, leg_flg=False,
                                  b=1, ind=0, aft_err_th=.5, aft_corr_th=.5):
+    """
+    biases and perfs for a given experiment
+    """
     data = np.load(file)
     bias_acr_tr = data['bias_across_training']
     perfs = data['performances']
@@ -2066,19 +2081,24 @@ def plot_biases_diff_parameterss(file, means, perfs_means, net_types_mat,
 
 def plot_fig_diff_params(main_folder, save_folder='',
                          lista=[1, 3], rows=2, cols=2):
+    """
+    biases and perfs. as a function of different parameters
+    """
     bar_width = 0.2
     legend_size = 7
     f = ut.get_fig(font=8, figsize=(8, 8))
     list_exps = ['repeating_probability', 'num_neurons', 'block_size',
-                 'pass_reward_action']
+                 'pass_reward_action', 'rollout', 'twin_net']
     order_all = [[0, 2, 4, 1, 3], [0, 2, 3, 1], [7, 3, 6, 2, 1, 5, 0, 4],
-                 [1, 0, 3, 2]]
+                 [1, 0, 3, 2], [1, 4, 2, 3, 0], [1, 2, 3, 0]]
     xticks = [['0.5-0.5', '0.6-0.4', '0.7-0.3', '0.8-0.2', '0.9-0.1'],
               ['8 unts', '16 unts', '32 unts', '64 unts'],
               ['10', '40', '100', '200', '300', '400', '1000', '10000'],
-              ['-', 'Act', 'Rew', 'Rew+Act']]
+              ['-', 'Act', 'Rew', 'Rew+Act'], ['4', '8', '12', '20', '40'],
+              ['1 net. x 32 unts', '1 net. x 44 unts', '2 nets. x 16 unts',
+              '2 nets. x 22 unts']]
     xlabel = ['Repeating probability', 'Number of units', 'Block size',
-              'Extra information']
+              'Extra information', 'rollout', 'architectures']
     panels = 'abcd'
     for ind_exp in range(len(lista)):
         exp = lista[ind_exp]
@@ -2125,7 +2145,7 @@ def plot_fig_diff_params(main_folder, save_folder='',
         ax.set_xticklabels(xticks[exp])
         ax.set_xlim([-0.5, means.shape[0]-0.5])
         ax.spines['top'].set_visible(False)
-        ax.set_ylim([-12.5, 12.5])
+        ax.set_ylim([-16, 16])
         if ind_exp == (len(lista)-1):
             plt.legend(loc='upper left', prop={'size': legend_size})
         # add axis for performances
@@ -2165,11 +2185,15 @@ def plot_fig_diff_params(main_folder, save_folder='',
         ax_perf.set_yticks([0.65, 0.7, 0.75, 0.8, 0.85])
         ax_perf.set_ylim([0.65, 0.85])
     if save_folder != '':
+        list_aux = [list_exps[x] for x in lista]
         f.savefig(save_folder + '/Fig4_diff_params_' +
-                  ut.list_str(lista) + '.svg', dpi=DPI,
+                  ut.list_str(list_aux) + '.svg', dpi=DPI,
                   bbox_inches='tight')
         f.savefig(save_folder + '/Fig4_diff_params_' +
-                  ut.list_str(lista) + '.pdf', dpi=DPI,
+                  ut.list_str(list_aux) + '.pdf', dpi=DPI,
+                  bbox_inches='tight')
+        f.savefig(save_folder + '/Fig4_diff_params_' +
+                  ut.list_str(list_aux) + '.png', dpi=DPI,
                   bbox_inches='tight')
 
 
@@ -2325,9 +2349,14 @@ def plot_2d_fig_biases_VS_perf(file, pl_axis=[[-12, 12], [0.5, 1]], b=1,
 
 if __name__ == '__main__':
     plt.close('all')
-    save_folder = '/home/molano/priors/figures_CCN/'
+    save_folder = '/home/molano/priors/results/main_results/'
 
     # PLOT BIAS DIFFERENT PARAMETERS
+    main_folder = '/home/molano/priors/results/'
+    list_exps = np.arange(8)
+    for ind_exp in range(0, 6):  # list_exps.shape[0]):
+        plot_fig_diff_params(main_folder, save_folder,
+                             lista=[list_exps[ind_exp]], rows=2, cols=1)
 #    main_folder = '/home/molano/priors/results/'
 #    plot_fig_diff_params(main_folder, save_folder,
 #                         lista=[1, 3], rows=2, cols=2)
@@ -2336,54 +2365,54 @@ if __name__ == '__main__':
 #                         lista=[0], rows=2, cols=1)
 #    asasd
     # PLOT EXPERIMENT STRUCTURE
-#    main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
-#    file = main_folder + 'supervised_RDM_t_100_200_200_200_100_' +\
-#        'TH_0.2_0.8_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_' +\
-#        'g_0.8_b_20_ne_24_nu_16_ev_0.5_a_0.1_891427/network_data_124999.npz'
-#    get_simulation_vars(file=file, fig=True, n_envs=24, env=0, num_steps=20,
-#                        obs_size=5, num_units=16, num_act=3,
-#                        num_steps_fig=24, start=1002,
-#                        save_folder=save_folder)
+    main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
+    file = main_folder + 'supervised_RDM_t_100_200_200_200_100_' +\
+        'TH_0.2_0.8_200_PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_' +\
+        'g_0.8_b_20_ne_24_nu_16_ev_0.5_a_0.1_891427/network_data_124999.npz'
+    get_simulation_vars(file=file, fig=True, n_envs=24, env=0, num_steps=20,
+                        obs_size=5, num_units=16, num_act=3,
+                        num_steps_fig=24, start=1002,
+                        save_folder=save_folder)
     # PLOT 2D FIG NUM. NEURONS
-#    main_folder = '/home/molano/priors/results/num_neurons/'
-#    plot_2d_fig_diff_params(main_folder, order=[0, 2, 3, 1],
-#                            save_folder=save_folder,
-#                            pl_axis=[[-12, 12], [-12, 12]],
-#                            name='num_neurons')
+    main_folder = '/home/molano/priors/results/num_neurons/'
+    plot_2d_fig_diff_params(main_folder, order=[0, 2, 3, 1],
+                            save_folder=save_folder,
+                            pl_axis=[[-12, 12], [-12, 12]],
+                            name='num_neurons')
     # PLOT 2D FIG ACTION/REWARD
-#    print('------------------------')
-#    main_folder = '/home/molano/priors/results/pass_reward_action/'
-#    plot_2d_fig_diff_params(main_folder, order=[1, 0, 3, 2],
-#                            save_folder=save_folder,
-#                            pl_axis=[[-12, 12], [-12, 12]],
-#                            name='pass_reward_action')
+    print('------------------------')
+    main_folder = '/home/molano/priors/results/pass_reward_action/'
+    plot_2d_fig_diff_params(main_folder, order=[1, 0, 3, 2],
+                            save_folder=save_folder,
+                            pl_axis=[[-12, 12], [-12, 12]],
+                            name='pass_reward_action')
 #    asd
     # PLOT BIASES VERSUS PERFORMANCE
-#    b = 0.2
-#    pl_axis = [[-12, 12], [0.5, 1]]
-#    dur_th = 1500
-#    perf_th = .7
-#    plot_all = False
-#    main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
-#    folder = main_folder + 'all_results/'
-#    file = folder + 'supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_' +\
-#        'PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20*_' +\
-#        'nu_16_ev_0.5_results.npz'
-#    fp = plot_2d_fig_biases_VS_perf(file, pl_axis=pl_axis, b=b,
-#                                    dur_th=dur_th, aft_err_th=2,
-#                                    perf_th=perf_th,
-#                                    eq_fact=1, plot_all=plot_all, f_p=None)
-#    fp = plot_2d_fig_biases_VS_perf(file, pl_axis=pl_axis, b=b,
-#                                    dur_th=dur_th, aft_err_th=2,
-#                                    perf_th=perf_th,
-#                                    eq_fact=-1, plot_all=plot_all,
-#                                    f_p=fp, alpha=0.3)
-#    fp.savefig(save_folder+'/perf_and_bias_' + str(dur_th) + '_' +
-#               str(perf_th) + '_' + str(plot_all) + '.svg', dpi=DPI,
-#               bbox_inches='tight')
-#    fp.savefig(save_folder+'/perf_and_bias_' + str(dur_th) + '_' +
-#               str(perf_th) + '_' + str(plot_all) + '.pdf', dpi=DPI,
-#               bbox_inches='tight')
+    b = 0.2
+    pl_axis = [[-12, 12], [0.5, 1]]
+    dur_th = 1500
+    perf_th = .7
+    plot_all = False
+    main_folder = '/home/molano/priors/results/16_neurons_100_instances/'
+    folder = main_folder + 'all_results/'
+    file = folder + 'supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_' +\
+        'PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20*_' +\
+        'nu_16_ev_0.5_results.npz'
+    fp = plot_2d_fig_biases_VS_perf(file, pl_axis=pl_axis, b=b,
+                                    dur_th=dur_th, aft_err_th=2,
+                                    perf_th=perf_th,
+                                    eq_fact=1, plot_all=plot_all, f_p=None)
+    fp = plot_2d_fig_biases_VS_perf(file, pl_axis=pl_axis, b=b,
+                                    dur_th=dur_th, aft_err_th=2,
+                                    perf_th=perf_th,
+                                    eq_fact=-1, plot_all=plot_all,
+                                    f_p=fp, alpha=0.3)
+    fp.savefig(save_folder+'/perf_and_bias_' + str(dur_th) + '_' +
+               str(perf_th) + '_' + str(plot_all) + '.svg', dpi=DPI,
+               bbox_inches='tight')
+    fp.savefig(save_folder+'/perf_and_bias_' + str(dur_th) + '_' +
+               str(perf_th) + '_' + str(plot_all) + '.pdf', dpi=DPI,
+               bbox_inches='tight')
     # PLOT 2D FIG 16-UNIT NETWORKS
     b = 0.8
     pl_axis = [[-12, 12], [-12, 12]]
@@ -2392,7 +2421,7 @@ if __name__ == '__main__':
     file = folder + 'supervised_RDM_t_100_200_200_200_100_TH_0.2_0.8_200_' +\
         'PR_PA_cont_rnn_ec_0.05_lr_0.001_lrs_c_g_0.8_b_20*_' +\
         'nu_16_ev_0.5_results.npz'
-    fig_2_ccn(file, main_folder, pl_axis=pl_axis, b=b)
+    fig_2_ccn(file, main_folder, pl_axis=pl_axis, b=b, save_folder=save_folder)
 #    plot_2d_fig_biases(file, plot_all=True, fig=None, leg_flg=True,
 #                       pl_axis=pl_axis, b=b)
     asd
@@ -2403,13 +2432,18 @@ if __name__ == '__main__':
         main_folder = home + '/priors/results/'
         files = glob.glob(home + '/priors/results/*')
     print(files)
+
     # index = 1 --> pass reward/action
     # index = 3 --> num_neurons
     # index = 4 --> rollout
+    # index = 5 --> a2c pass reward/action long training
     # index = 6 --> repeating probability
     # index = 7 --> 16-unit nets
+    # index = 8 --> twin net
+    # index = 9 --> block size
+    # index = 10 --> alpha
     # index = 11 --> a2c pass reward/action
-    list_exps = [1]  # [1, 3, 4, 6, 7, 8, 9, 10, 11]  # [3, 6, 7]
+    list_exps = [1, 3, 4, 5, 6, 8, 9, 10, 11]
     for ind_f in range(len(files)):
         if ind_f in list_exps:
             plt.close('all')

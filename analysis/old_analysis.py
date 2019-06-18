@@ -963,3 +963,53 @@ def bin_perf(pair, perf, bin1, bin2):
                                   pair[1] <= bin2[1]))
     mean_ = np.mean(perf[indx]) if np.sum(indx) != 0 else 0.5
     return mean_
+
+
+def perf_cond_on_stim_ev(file='/home/linux/PassAction.npz', save_path='',
+                         fig=True):
+    """
+    computes performance as a function of the stimulus evidence
+    """
+    _, _, performance, evidence = an.load_behavioral_data(file)
+    evidence = evidence[-2000000:]
+    performance = performance[-2000000:]
+    perf_mat = []
+    for ind_ev in range(10):
+        mask_ev = np.logical_and(evidence >= np.percentile(evidence,
+                                                           ind_ev*10),
+                                 evidence <= np.percentile(evidence,
+                                                           (ind_ev+1)*10))
+        perf_mat.append(np.mean(performance[mask_ev].flatten()))
+    ut.get_fig()
+    plt.plot(np.arange(10)*10+5, perf_mat, '-+')
+    plt.xlabel('stim evidence percentile')
+    plt.ylabel('performance')
+    print('Mean performance: ' + str(np.mean(performance)))
+    ut.get_fig()
+    sh_mat = []
+    # num_bins = 20
+    index = np.arange(50)
+    for ind_sh in range(10):
+        shuffled = performance.copy()
+        np.random.shuffle(shuffled)
+        inter_error_distance = np.diff(np.where(shuffled == 0)[0])
+        assert (inter_error_distance != 0).all()
+        sh_hist = np.histogram(inter_error_distance, index)[0]
+        sh_hist = sh_hist / np.sum(sh_hist)
+        sh_mat.append(sh_hist)
+
+    sh_mat = np.array(sh_mat)
+    or_hist = np.histogram(np.diff(np.where(performance == 0)[0]), index)[0]
+    or_hist = or_hist / np.sum(or_hist)
+    plt.errorbar(index[:-1], np.mean(sh_mat, axis=0), np.std(sh_mat, axis=0),
+                 label='shuffled')
+    for ind_p in np.arange(10)*0.1:
+        sh_mat2 = np.random.binomial(1, ind_p, size=performance.shape)
+        sh_hist = np.histogram(np.diff(np.where(sh_mat2 == 0)[0]), index)[0]
+        sh_hist = sh_hist / np.sum(sh_hist)
+        plt.plot(index[:-1], sh_hist, '--', color=(.9, .9, .9),
+                 label='binomial p=' + str(ind_p))
+    plt.plot(index[:-1], or_hist, label='orignal')
+    plt.legend()
+    plt.xlabel('distance between errors')
+    plt.ylabel('count')

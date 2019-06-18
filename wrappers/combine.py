@@ -15,11 +15,12 @@ class combine():
     """
     combines two different tasks
     """
-    def __init__(self, env1, env2, delay=1, dt=100, mix=[.3, .3, .4],
+    def __init__(self, env1, env2, delay=800, dt=100, mix=[.3, .3, .4],
                  share_action_space=True, defaults=[0, 0]):
         self.share_action_space = share_action_space
         self.t = 0
-        self.delay = delay/dt
+        self.dt = dt
+        self.delay = delay
         self.delay_on = True
         self.env1 = env1
         self.env2 = env2
@@ -100,7 +101,7 @@ class combine():
             self.t = 0
             self._new_trial()
 
-        self.t += 1
+        self.t += self.dt
 
         obs = np.concatenate((obs1, obs2), axis=0)
         reward = reward1 + reward2

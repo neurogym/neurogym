@@ -140,7 +140,7 @@ def pca():
         ax2.set_xlim(ax1.get_xlim())
         ax2.set_ylim(ax1.get_ylim())
         ax2.set_zlim(ax1.get_zlim())
-
+        asasd
         # conditioned on switch in transition evidence
         num_stps_back = 20
         fig = ut.get_fig()
