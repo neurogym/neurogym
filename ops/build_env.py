@@ -19,16 +19,16 @@ def build_env(env_id, inst=0, **all_args):
     """
     builds environment with specifications indicated in args
     """
-    env_keys = ['dt']
+    env_keys = ['dt', 'timing']
     if env_id == 'RDM-v0':
-        env_keys.append('timing')
         env_keys.append('stimEv')
     env_args = {x: all_args[x] for x in env_keys}
-    # TODO: allow for envs to be wrapped before combined
+
     if all_args['combine']:
         env1 = gym.make(env_id, **env_args)
+        env_args['timing'] = all_args['timing2']
         env2 = gym.make(all_args['env2'], **env_args)
-        env = combine.combine(env1, env2)
+        env = combine.combine(env1, env2, delay=all_args['delay'])
     else:
         env = gym.make(env_id, **env_args)
         if all_args['trial_hist']:
@@ -36,10 +36,10 @@ def build_env(env_id, inst=0, **all_args):
                                           block_dur=all_args['bl_dur'])
         if all_args['reaction_time']:
             env = reaction_time.ReactionTime(env)
-        if all_args['pass_reward']:
-            env = pass_reward.PassReward(env)
-        if all_args['pass_action']:
-            env = pass_action.PassAction(env)
+    if all_args['pass_reward']:
+        env = pass_reward.PassReward(env)
+    if all_args['pass_action']:
+        env = pass_action.PassAction(env)
     env = manage_data.manage_data(env, inst=inst, plt_tr=all_args['figs'],
                                   folder=all_args['save_path'])
     return env

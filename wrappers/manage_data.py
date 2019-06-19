@@ -28,13 +28,17 @@ class manage_data(Wrapper):
             self.inst = inst
             # data to save
             self.choice_mat = []
-            self.side_mat = []
+            self.gt_mat = []
+            # for dual-task
+            self.config_mat = []
+            # for RDM + trial history
             self.rep_prob_mat = []
             self.stim_mat = []
             self.cum_obs = 0
             # for rendering
             self.obs_mat = []
             self.act_mat = []
+            self.gt_mat_render = []
             self.rew_mat = []
             self.num_tr_save = 100000
             self.max_num_samples = 200
@@ -63,37 +67,42 @@ class manage_data(Wrapper):
         obs, rew, done, info = self.env.step(action)
         if self.do:
             self.cum_obs += obs
-            self.store_data(obs, action, rew)
+            self.store_data(obs, action, rew, info['gt'])
             if info['new_trial']:
                 self.num_tr += 1
                 self.choice_mat.append(action)
                 self.stim_mat.append(self.cum_obs)
                 self.cum_obs = 0
                 if 'gt' in info.keys():
-                    self.side_mat.append(info['gt'])
+                    self.gt_mat.append(info['gt'])
                 if 'rep_prob' in info.keys():
                     self.rep_prob_mat.append(info['rep_prob'])
+                if 'config' in info.keys():
+                    self.config_mat.append(info['config'])
 
                 # save data
                 if self.num_tr % self.num_tr_save == 0:
                     data = {'choice': self.choice_mat,
                             'stimulus': self.stim_mat,
-                            'correct_side': self.side_mat,
-                            'obs_mat': self.obs_mat,
-                            'act_mat': self.act_mat,
-                            'rew_mat': self.rew_mat,
-                            'rep_prob': self.rep_prob_mat}
+                            'correct_side': self.gt_mat}
+                    if len(self.rep_prob_mat) != 0:
+                        data['rep_prob'] = self.rep_prob_mat
+                    if len(self.config_mat) != 0:
+                        data['config'] = self.config_mat
                     np.savez(self.saving_name + '_bhvr_data_' +
                              str(self.num_tr) + '.npz', **data)
                     if self.plt_tr:
                         self.render()
 
                     self.choice_mat = []
-                    self.side_mat = []
+                    self.gt_mat = []
+                    self.config_mat = []
                     self.rep_prob_mat = []
                     self.stim_mat = []
+                    # for rendering
                     self.obs_mat = []
                     self.act_mat = []
+                    self.gt_mat_render = []
                     self.rew_mat = []
         return obs, rew, done, info
 
@@ -107,9 +116,13 @@ class manage_data(Wrapper):
         self.ax[0].set_ylabel('obs')
         self.ax[0].set_xticks([])
         self.ax[0].set_yticks([])
-        # actions
+        # actions and ground truth
         self.ax[1].plot(np.arange(1, len(self.act_mat)+1)+0.5, self.act_mat)
-        self.ax[1].set_ylabel('action')
+        self.ax[1].set_ylabel('action (gt)')
+        self.ax[1].set_xlim([0, self.max_num_samples+0.5])
+        gt = np.array(self.gt_mat_render)
+        self.ax[1].plot(np.arange(1, len(self.act_mat)+1)+0.5,
+                        np.argmax(gt, axis=1), '--')
         self.ax[1].set_xlim([0, self.max_num_samples+0.5])
         self.ax[1].set_xticks([])
         self.ax[1].set_yticks([])
@@ -122,8 +135,9 @@ class manage_data(Wrapper):
         self.ax[1].cla()
         self.ax[2].cla()
 
-    def store_data(self, obs, action, rew):
+    def store_data(self, obs, action, rew, gt):
         if len(self.rew_mat) < self.max_num_samples:
             self.obs_mat.append(obs)
             self.act_mat.append(action)
             self.rew_mat.append(rew)
+            self.gt_mat_render.append(gt)
