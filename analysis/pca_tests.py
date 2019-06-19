@@ -108,7 +108,11 @@ def pca():
         num_comps = 3
         pca = PCA(n_components=num_comps)
         pca.fit(states.T)
-        comps = pca.transform(states.T)
+        proj = pca.transform(states.T)
+        comps = pca.components_
+        plt.figure()
+        plt.plot(comps.T)
+        asd
         trans = an.get_transition_mat(choice, conv_window=200)  # conv_window)
         peaks_ind = np.where(trans > np.percentile(trans, 75))[0]
         peaks_max = find_peaks(trans, peaks_ind)
@@ -116,27 +120,23 @@ def pca():
         fig = ut.get_fig()
         ax1 = fig.gca(projection='3d')
         num_stps_back = 801
-        plot_pca(comps, times[peaks_max], 'rm', ax1, num_stps_back)
+        plot_pca(proj, times[peaks_max], 'rm', ax1, num_stps_back)
         # minima
         peaks_ind = np.where(trans < np.percentile(trans, 25))[0]
         peaks_min = find_peaks(trans, peaks_ind)
         # plot components
-        plot_pca(comps, times[peaks_min], 'bc', ax1, num_stps_back)
+        plot_pca(proj, times[peaks_min], 'bc', ax1, num_stps_back)
 
         # PCA analysis over states at the end of the trial
-        num_comps = 3
-        #        pca = PCA(n_components=num_comps)
-        #        pca.fit(states_tr.T)
-        #        comps = pca.transform(states_tr.T)
-        comps = comps[times]
+        proj = proj[times]
         # plot components
         fig = ut.get_fig()
         ax2 = fig.gca(projection='3d')
         num_stps_back = 205
-        plot_pca(comps, peaks_max, 'rm', ax2, num_stps_back)
+        plot_pca(proj, peaks_max, 'rm', ax2, num_stps_back)
         # minima
         # plot components
-        plot_pca(comps, peaks_min, 'bc', ax2, num_stps_back)
+        plot_pca(proj, peaks_min, 'bc', ax2, num_stps_back)
         ax2.set_xlim(ax1.get_xlim())
         ax2.set_ylim(ax1.get_ylim())
         ax2.set_zlim(ax1.get_zlim())
