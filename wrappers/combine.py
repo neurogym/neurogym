@@ -80,49 +80,52 @@ class combine():
         return np.concatenate((self.env1.reset(), self.env2.reset()), axis=0)
 
     def step(self, action):
+        info = {}
         action1, action2 = self.action_split[action]
         if self.env1_on:
             obs1, reward1, done1, info1 = self.env1._step(action1)
             self.env1_on = not info1['new_trial']
-            new_trial1 = info1['new_trial']
+            info['new_trial1'] = info1['new_trial']
         else:
             obs1, reward1, done1, info1 = self.standby_step(1)
-            new_trial1 = False
+            info['new_trial1'] = False
 
         if self.t > self.delay and self.env2_on:
             obs2, reward2, done2, info2 = self.env2._step(action2)
             self.env2_on = not info2['new_trial']
-            new_trial2 = info2['new_trial']
+            info['new_trial2'] = info2['new_trial']
         else:
             obs2, reward2, done2, info2 = self.standby_step(2)
-            new_trial2 = False
+            info['new_trial2'] = False
 
         if not self.env1_on and not self.env2_on:
             self.t = 0
             self._new_trial()
+            info['new_trial'] = True
+            info['config'] = [self.env1_on, self.env2_on]
+        else:
+            info['new_trial'] = False
 
         self.t += self.dt
-
+        obs2 *= 2
         obs = np.concatenate((obs1, obs2), axis=0)
-        reward = reward1 + reward2
         done = done1  # done whenever the task 1 is done
 
-        # new trial information
-        info = {}
         # ground truth
         if self.share_action_space:
-            if (info1['gt'] == info2['gt']).all:
-                info = {'gt': info1['gt']}  # task 1 is the default task
+            if (info1['gt'] == info2['gt']).all():
+                info['gt'] = info1['gt']  # task 1 is the default task
+                reward = reward1 + reward2
             elif (info1['gt'][self.defaults[0]] == 0 and
                   info2['gt'][self.defaults[1]] == 1):
-                info = {'gt': info1['gt']}
+                info['gt'] = info1['gt']
+                reward = reward1
             elif (info1['gt'][self.defaults[0]] == 1 and
                   info2['gt'][self.defaults[1]] == 0):
-                info = {'gt': info2['gt']}
-        if new_trial1 or new_trial2:
-            info = {'new_trial': True}
+                info['gt'] = info2['gt']
+                reward = reward2
         else:
-            info = {'new_trial': False}
+            info['gt'] = np.concatenate((info2['gt'], info2['gt']))
 
         return obs, reward, done, info
 
@@ -133,7 +136,9 @@ class combine():
             obs = np.zeros((self.env2.observation_space.shape[0], ))
         rew = 0
         done = False
-        info = {'new_trial': False, 'gt': np.zeros((self.num_act,))}
+        gt = np.zeros((self.num_act,))
+        gt[self.defaults[env-1]] = 1
+        info = {'new_trial': False, 'gt': gt}
         return obs, rew, done, info
 
     def seed(self, seed=None):  # seeding with task 1

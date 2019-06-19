@@ -23,7 +23,7 @@ from gym import spaces
 
 class DPA(ngym.ngym):
     def __init__(self, dt=100,
-                 timing=[100, 200, 1000, 1000, 200, 200, 200]):
+                 timing=[100, 200, 600, 600, 200, 100, 100]):
         # call ngm __init__ function
         super().__init__(dt=dt)
         # Actions
@@ -55,7 +55,7 @@ class DPA(ngym.ngym):
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
-        self.R_INCORRECT = -1.
+        self.R_INCORRECT = 0.
         self.R_MISS = 0.
         self.abort = False
         # set action and observation spaces
@@ -111,34 +111,30 @@ class DPA(ngym.ngym):
         trial = self.trial
 
         # ---------------------------------------------------------------------
-        # Reward
+        # Reward and inputs
         # ---------------------------------------------------------------------
         # epochs = trial['epochs']
         info = {'new_trial': False}
         reward = 0
         obs = np.zeros((5,))
         if self.in_epoch(self.t, 'fixation'):
-            obs[0] = 1
+            obs[0] = 1  # TODO: fixation cue only during fixation period?
             if self.actions[action] != -1:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         if self.in_epoch(self.t, 'decision'):
             gt_sign = np.sign(trial['ground_truth'])
             action_sign = np.sign(self.actions[action])
-            if (gt_sign > 0) and (action_sign > 0):
-                reward = self.R_CORRECT
+            if (action_sign > 0):
                 info['new_trial'] = True
-        else:
-            obs[0] = 1
+                if (gt_sign > 0):
+                    reward = self.R_CORRECT
+                else:
+                    reward = self.R_INCORRECT
 
-        # ---------------------------------------------------------------------
-        # Inputs
-        # ---------------------------------------------------------------------
-        # if self.t in epochs['dpa1']:
         if self.in_epoch(self.t, 'dpa1'):
             dpa1, _ = trial['pair']
             obs[dpa1] = 1
-        # if self.t in epochs['dpa2']:
         if self.in_epoch(self.t, 'dpa2'):
             _, dpa2 = trial['pair']
             obs[dpa2] = 1

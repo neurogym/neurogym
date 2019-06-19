@@ -23,7 +23,7 @@ from neurogym.envs import ngym
 
 
 class GNG(ngym.ngym):
-    def __init__(self, dt=100, timing=[100, 200, 200, 200, 200, 500],
+    def __init__(self, dt=100, timing=[100, 200, 200, 200, 100, 100],
                  **kwargs):
         super().__init__(dt=dt)
         # Actions (fixate, go)
@@ -52,7 +52,7 @@ class GNG(ngym.ngym):
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
-        self.R_INCORRECT = -1.
+        self.R_INCORRECT = 0.
         self.R_MISS = 0.
         self.abort = False
         # set action and observation spaces
@@ -101,31 +101,30 @@ class GNG(ngym.ngym):
 
     def _step(self, action):
         # ---------------------------------------------------------------------
-        # Reward
+        # Reward and inputs
         # ---------------------------------------------------------------------
         trial = self.trial
         info = {'new_trial': False}
         reward = 0
         obs = np.zeros((3,))
         if self.in_epoch(self.t, 'fixation'):
-            obs[0] = 1
+            obs[0] = 1  # TODO: fixation cue only during fixation period?
             if self.actions[action] != -1:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         if self.in_epoch(self.t, 'decision'):
             gt_sign = np.sign(trial['ground_truth'])
             action_sign = np.sign(self.actions[action])
-            if (gt_sign > 0) and (action_sign > 0):
-                reward = self.R_CORRECT
+            if (action_sign > 0):
                 info['new_trial'] = True
+                if (gt_sign > 0):
+                    reward = self.R_CORRECT
+                else:
+                    reward = self.R_INCORRECT
 
-        # ---------------------------------------------------------------------
-        # Inputs
-        # ---------------------------------------------------------------------
         if self.in_epoch(self.t, 'stimulus'):
             # observation
             stim = (trial['ground_truth'] > 0) + 1
-            obs[0] = 1
             obs[stim] = 1
 
         # ---------------------------------------------------------------------
