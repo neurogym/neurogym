@@ -56,7 +56,7 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
         comb_flag = '_COMB_' + ut.list_str(rep_prob) + '_env2_' + env2 +\
             '_' + str(delay) + '_t2_' + ut.list_str(timing2)
         comb_cmmd = ' --combine=True --delay=' + str(delay) +\
-            ' --env2=' + env2 + ' --timing1 '
+            ' --env2=' + env2 + ' --timing2 '
         for ind_t in range(len(timing2)):
             comb_cmmd += str(timing2[ind_t]) + ' '
     else:
