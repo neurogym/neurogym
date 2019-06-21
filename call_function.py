@@ -354,6 +354,7 @@ if __name__ == '__main__':
     scripts_folder = home + '/' + project + '/' + cluster + '_scripts/'
     if not os.path.exists(scripts_folder):
         os.makedirs(scripts_folder)
+    # DIFFERENT NOISE VALUES
     hours = '4'
     alg = ['supervised']
     num_units = [16]
@@ -370,6 +371,34 @@ if __name__ == '__main__':
     timing = [100, 200, 600, 600, 200, 100, 100]
     timing2 = [100, 200, 200, 200, 100, 100]
     experiment = 'different_noise_values'
+
+    produce_sh_files(env='DPA-v0', env2='GNG-v0', cluster=cluster, alg=alg,
+                     hours=hours,
+                     num_units=num_units,
+                     batch_size=batch_size, net_type=net_type,
+                     pass_r=pass_r, pass_act=pass_act,
+                     num_insts=num_insts, experiment=experiment,
+                     main_folder=main_folder, num_steps_env=num_steps_env,
+                     combine=combine, noise=noise, delay=delay, timing=timing,
+                     timing2=timing2)
+
+    # DIFFERENT NOISE VALUES VANILLA RNN
+    hours = '4'
+    alg = ['supervised']
+    num_units = [16]
+    stim_ev = [.5]
+    batch_size = [20]
+    net_type = ['van_rnn']
+    pass_r = [True]
+    pass_act = [True]
+    combine = True
+    num_insts = 20
+    num_steps_env = 1e8
+    noise = [0, 0.5, 1, 2]
+    delay = [500]
+    timing = [100, 200, 600, 600, 200, 100, 100]
+    timing2 = [100, 200, 200, 200, 100, 100]
+    experiment = 'different_noise_values_vanilla'
 
     produce_sh_files(env='DPA-v0', env2='GNG-v0', cluster=cluster, alg=alg,
                      hours=hours,
