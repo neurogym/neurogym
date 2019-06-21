@@ -3,6 +3,7 @@ import numpy as np
 import sys
 from os.path import expanduser
 home = expanduser("~")
+sys.path.append(home)
 sys.path.append(home + '/neurogym')
 sys.path.append(home + '/gym')
 import gym

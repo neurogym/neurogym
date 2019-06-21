@@ -24,7 +24,9 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
                   seed=None, num_env=24, ent_coef=0.05, lr=1e-3,
                   lr_sch='constant', gamma=.8, rep_prob=(.2, .8),
                   timing=[100, 200, 200, 200, 100], save_folder_name='',
-                  eval_steps=100000, alpha=0.1):
+                  eval_steps=100000, alpha=0.1, env2='GNG-v0', delay=[500],
+                  timing2=[100, 200, 200, 200, 100, 100], combine=False,
+                  trial_hist=False, noise=0):
     if seed is None:
         seed = datetime.now().microsecond
     tot_num_stps = num_stps_env*num_env
@@ -34,17 +36,12 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
         nlstm = num_u // 2
     else:
         nlstm = num_u
-
-    if env == 'RDM-v0':
-        timing_flag = '_t_' + ut.list_str(timing)
-        timing_cmmd = ' --timing '
-        for ind_t in range(len(timing)):
-            timing_cmmd += str(timing[ind_t]) + ' '
-    else:
-        timing_flag = ''
-        timing_cmmd = ''
+    # duration of different periods
+    timing_flag = '_t_' + ut.list_str(timing)
+    timing_cmmd = ' --timing '
+    for ind_t in range(len(timing)):
+        timing_cmmd += str(timing[ind_t]) + ' '
     # trial history
-    trial_hist = True
     if trial_hist:
         tr_h_flag = '_TH_' + ut.list_str(rep_prob) + '_' + str(bl_dur)
         tr_h_cmmd = ' --trial_hist=True --bl_dur=' + str(bl_dur) +\
@@ -54,6 +51,17 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     else:
         tr_h_flag = ''
         tr_h_cmmd = ''
+    # combine
+    if combine:
+        comb_flag = '_COMB_' + ut.list_str(rep_prob) + '_env2_' + env2 +\
+            '_' + str(delay) + '_t2_' + ut.list_str(timing2)
+        comb_cmmd = ' --combine=True --delay=' + str(delay) +\
+            ' --env2=' + env2 + ' --timing1 '
+        for ind_t in range(len(timing2)):
+            comb_cmmd += str(timing2[ind_t]) + ' '
+    else:
+        comb_flag = ''
+        comb_cmmd = ''
     # pass reward
     if ps_r:
         ps_rw_flag = '_PR'
@@ -76,7 +84,8 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
         load_path_cmmd = ' --load_path=' + load_path
 
     save_path = save_folder + alg + '_' + env +\
-        timing_flag + tr_h_flag + ps_rw_flag + ps_a_flag + '_' + net_type
+        timing_flag + comb_flag + tr_h_flag + ps_rw_flag + ps_a_flag +\
+        '_' + net_type
     save_path += '_ec_' + str(ent_coef)
     save_path += '_lr_' + str(lr)
     save_path += '_lrs_' + lr_sch
@@ -86,6 +95,7 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     save_path += '_nu_' + str(nlstm)
     save_path += '_ev_' + str(stimEv)
     save_path += '_a_' + str(alpha)
+    save_path += '_n_' + str(noise)
     save_path += '_' + str(seed)
     save_path += save_folder_name
     save_path = save_path.replace('-v0', '')
@@ -111,7 +121,9 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     command += ' --seed=' + str(seed)
     command += ' --eval_steps=' + str(eval_steps)
     command += ' --alpha=' + str(alpha)
+    command += ' --sigma_rec=' + str(noise)
     command += tr_h_cmmd
+    command += comb_cmmd
     command += ps_rw_cmmd
     command += ps_a_cmmd
     command += timing_cmmd
@@ -130,12 +142,16 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     return command, save_path
 
 
-def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
-                     bl_dur=[10, 40, 500, 10000], stim_ev=[.5],
+def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
+                     num_units=[32], bl_dur=[200], stim_ev=[.5],
                      rep_prob=[[.2, .8]], batch_size=[20],
                      net_type=['cont_rnn'], pass_r=[True], pass_act=[True],
                      num_insts=5, experiment='', main_folder='',
-                     num_steps_env=1e8, alpha=[0.1]):
+                     num_steps_env=1e8, alpha=[0.1],
+                     combine=False, tr_hist=False, noise=[0], env='RDM-v0',
+                     env2='GNG-v0', delay=[500],
+                     timing=[100, 200, 200, 200, 100],
+                     timing2=[100, 200, 200, 200, 100, 100]):
     if cluster == 'hab':
         save_folder = main_folder + experiment + '/'
         run_folder = '/rigel/home/mm5514/'
@@ -147,7 +163,7 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
     insts = np.arange(num_insts)
     params_config = itertools.product(batch_size, bl_dur, num_units, stim_ev,
                                       net_type, pass_r, pass_act, alg,
-                                      rep_prob, alpha, insts)
+                                      rep_prob, alpha, delay, noise, insts)
     scr_folder = scripts_folder + experiment + '/'
     if not os.path.exists(scr_folder):
         os.makedirs(scr_folder)
@@ -158,12 +174,16 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
 
     for conf in params_config:
         print('-----------------------')
-        name = str(conf[1]) + '_' + str(conf[2]) +\
-            '_' + str(conf[3]) + '_' + str(conf[4]) + '_' +\
-            '_' + str(conf[5]) + '_' + str(conf[6]) + '_' +\
-            str(conf[7]) + '_' + str(conf[0]) + '_' + ut.list_str(conf[8]) +\
-            '_' + str(conf[9]) + '_' + str(conf[10]) + '_' + hours + 'h_' +\
-            cluster
+        name = ''
+        if tr_hist:
+            name += ut.list_str(conf[8])
+        if combine:
+            name += str(conf[10])
+        for ind in np.arange(8):
+            name += '_' + str(conf[ind])
+        for ind in [9, 11, 12]:
+            name += '_' + str(conf[ind])
+        name += '_' + hours + 'h_' + cluster
         name = name.replace('.', '')
         name += '.sh'
         print(name)
@@ -177,9 +197,12 @@ def produce_sh_files(cluster='hab', alg=['a2c'], hours='120', num_units=[32],
                                ps_r=conf[5], ps_act=conf[6], rep_prob=conf[8],
                                bl_dur=conf[1], num_u=conf[2], num_env=n_envs,
                                net_type=conf[4], num_stps_env=num_steps_env,
-                               load_path='', stimEv=conf[3],
+                               load_path='', stimEv=conf[3], noise=conf[11],
                                nsteps=conf[0], save=False, alg=conf[7],
-                               eval_steps=0, alpha=conf[9])
+                               eval_steps=0, alpha=conf[9], delay=conf[10],
+                               timing=timing, timing2=timing2,
+                               env=env, env2=env2, combine=combine,
+                               trial_hist=tr_hist)
         cmmd += aux
         file.write(cmmd)
         file.close()
@@ -324,30 +347,36 @@ if __name__ == '__main__':
     # DUAL TASK
     project = 'dual_task'
     cluster = 'bsc'
+
+    # where data will be save
     # main_folder = '/rigel/theory/users/mm5514/'
-    main_folder = '/gpfs/projects/hcli64/molano/priors/'
+    main_folder = '/gpfs/projects/hcli64/molano/dual_task/'
     scripts_folder = home + '/' + project + '/' + cluster + '_scripts/'
     if not os.path.exists(scripts_folder):
         os.makedirs(scripts_folder)
-    hours = '8'
+    hours = '4'
     alg = ['supervised']
     num_units = [16]
-    bl_dur = [200]
     stim_ev = [.5]
     batch_size = [20]
     net_type = ['cont_rnn']
     pass_r = [True]
     pass_act = [True]
-    combine = [True]
-    num_insts = 300
+    combine = True
+    num_insts = 20
     num_steps_env = 1e8
-    experiment = '16_neurons_100_instances_longer'
+    noise = [0, 0.5, 1, 2]
+    delay = [500]
+    timing = [100, 200, 600, 600, 200, 100, 100]
+    timing2 = [100, 200, 200, 200, 100, 100]
+    experiment = 'different_noise_values'
 
-    produce_sh_files(cluster=cluster, alg=alg, hours=hours,
+    produce_sh_files(env='DPA-v0', env2='GNG-v0', cluster=cluster, alg=alg,
+                     hours=hours,
                      num_units=num_units,
-                     bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
                      batch_size=batch_size, net_type=net_type,
                      pass_r=pass_r, pass_act=pass_act,
                      num_insts=num_insts, experiment=experiment,
-                     main_folder=main_folder, num_steps_env=num_steps_env)
-    command += 'sbatch ' + experiment + '/analysis_' + cluster + '.sh\n'
+                     main_folder=main_folder, num_steps_env=num_steps_env,
+                     combine=combine, noise=noise, delay=delay, timing=timing,
+                     timing2=timing2)
