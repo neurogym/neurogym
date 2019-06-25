@@ -13,17 +13,15 @@ A parametric working memory task, based on
 
 """
 import numpy as np
-import tasktools
-import ngym
 from gym import spaces
+from neurogym.ops import tasktools
+from neurogym.envs import ngym
 
 
 class Romo(ngym.ngym):
     def __init__(self, dt=100, timing=(750, 500, 2700, 3300, 500, 500)):
         # call ngm __init__ function
         super().__init__(dt=dt)
-        # Inputs
-        self.inputs = tasktools.to_map('FIXATION', 'F-POS', 'F-NEG')
 
         # Actions (fixate, left, right)
         self.actions = [0, -1, 1]
@@ -45,7 +43,7 @@ class Romo(ngym.ngym):
         self.decision = timing[5]
         self.mean_trial_duration = self.fixation + self.f1 + self.delay_mean +\
             self.f2 + self.decision
-        if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
+        if self.fixation == 0 or self.decision == 0 or self.delay_mean == 0:
             print('XXXXXXXXXXXXXXXXXXXXXX')
             print('the duration of all periods must be larger than 0')
             print('XXXXXXXXXXXXXXXXXXXXXX')
@@ -55,6 +53,7 @@ class Romo(ngym.ngym):
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
+        self.R_FAIL = 0.
         self.R_MISS = 0.
         self.abort = False
 
@@ -140,10 +139,10 @@ class Romo(ngym.ngym):
 
         if self.in_epoch(self.t, 'f1'):
             obs[1] = self.scale_p(trial['f1']) +\
-                self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
+                self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
         elif self.in_epoch(self.t, 'f2'):
             obs[1] = self.scale_p(trial['f2']) +\
-                self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
+                self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
 
         # ---------------------------------------------------------------------
         # new trial?
