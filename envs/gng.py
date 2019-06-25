@@ -108,7 +108,7 @@ class GNG(ngym.ngym):
         reward = 0
         obs = np.zeros((3,))
         if self.in_epoch(self.t, 'fixation'):
-            obs[0] = 1  # TODO: fixation cue only during fixation period?
+            obs[0] = 1  # fixation cue only during fixation period
             if self.actions[action] != -1:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
@@ -129,12 +129,12 @@ class GNG(ngym.ngym):
 
         # ---------------------------------------------------------------------
         # new trial?
-        reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                info['new_trial'],
-                                                self.R_MISS, reward)
+        reward, info['new_trial'] = tasktools.new_trial(self.t, self.tmax,
+                                                        self.dt,
+                                                        info['new_trial'],
+                                                        self.R_MISS, reward)
         info['gt'] = np.zeros((2,))
-        if new_trial:
-            info['new_trial'] = True
+        if info['new_trial']:
             info['gt'][int((trial['ground_truth']/2+.5))] = 1
             self.t = 0
             self.num_tr += 1

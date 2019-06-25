@@ -25,28 +25,33 @@ import ngym
 
 
 class ReadySetGo(ngym.ngym):
-    def __init__(self, dt=80):
+    def __init__(self, dt=80, timing=(500, 83, 83), gain=1):
         super().__init__(dt=dt)
         if dt > 80:
             raise ValueError('dt {:0.2f} too large for this task.'.format(dt))
-        # Inputs
-        self.inputs = tasktools.to_map('FIXATION', 'READY', 'SET')
-
-        # Actions
-        self.actions = tasktools.to_map('FIXATE', 'GO')
-
+        # Actions (fixate, go)
+        self.actions = [-1, 1]
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
+        # possible durations
+        self.measures = [500, 580, 660, 760, 840, 920, 1000]
+        # gain
+        self.gain = gain
 
         # Durations
-        self.fixation = 500
-        self.gain = 1
-        self.ready = 83
-        self.set = 83
-        max_trial_duration = self.fixation + 2500
-        print('max trial duration: ' + str(max_trial_duration) +
-              ' (max num. steps: ' + str(max_trial_duration/self.dt) +
-              ')')
+        self.fixation = timing[0]  # 500
+        self.ready = timing[1]  # 83
+        self.set = timing[2]  # 83
+        max_trial_duration = self.fixation + np.max(self.measures) +\
+            self.set + 2*gain*self.set
+        if self.fixation == 0 or self.ready == 0 or self.set == 0:
+            print('XXXXXXXXXXXXXXXXXXXXXX')
+            print('the duration of all periods must be larger than 0')
+            print('XXXXXXXXXXXXXXXXXXXXXX')
+        print('mean trial duration: ' + str(max_trial_duration) +
+              ' (max num. steps: ' +
+              str(max_trial_duration/self.dt) + ')')
+
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
@@ -57,7 +62,7 @@ class ReadySetGo(ngym.ngym):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
-
+        # seeding
         self.seed()
         self.viewer = None
 
@@ -67,10 +72,8 @@ class ReadySetGo(ngym.ngym):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        measure = tasktools.choice(self.rng, [500, 580, 660, 760,
-                                              840, 920, 1000])
-        gain = 1
-        production = measure * gain
+        measure = tasktools.choice(self.rng, self.measures)
+        production = measure * self.gain
         self.tmax = self.fixation + measure + self.set + 2*production
 
         durations = {
@@ -94,22 +97,27 @@ class ReadySetGo(ngym.ngym):
 
     def _step(self, action):
         # ---------------------------------------------------------------------
-        # Reward
+        # Reward and inputs
         # ---------------------------------------------------------------------
         trial = self.trial
-        info = {'new_trial': False}
+        info = {'new_trial': False, 'gt': np.zeros((2,))}
         reward = 0
-        tr_perf = False
+        obs = np.zeros((3,))
         if self.in_epoch(self.t, 'fixation'):
-            if (action != self.actions['FIXATE']):
+            obs[0] = 1
+            if self.actions[action] != -1:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         if self.in_epoch(self.t, 'production'):
-            if action == self.actions['GO']:
+            t_prod = self.t - trial['durations']['measure'][1]
+            eps = abs(t_prod - trial['production'])
+            if eps < self.dt:
+                info['gt'][1] = 1
+            else:
+                info['gt'][0] = 1
+            if action == 1:
                 info['new_trial'] = True  # terminate
                 # actual production time
-                t_prod = self.t - trial['durations']['measure'][1]
-                eps = abs(t_prod - trial['production'])
                 eps_threshold = 0.2*trial['production']+25
                 if eps > eps_threshold:
                     reward = self.R_FAIL
@@ -117,42 +125,31 @@ class ReadySetGo(ngym.ngym):
                     reward = (1. - eps/eps_threshold)**1.5
                     reward = min(reward, 0.1)
                     reward *= self.R_CORRECT
-                tr_perf = True
+        else:
+            info['gt'][0] = 1
 
-        # ---------------------------------------------------------------------
-        # Inputs
-        # ---------------------------------------------------------------------
-
-        obs = np.zeros(len(self.inputs))
-        obs[self.inputs['FIXATION']] = 1  # TODO: this is always on now
         if self.in_epoch(self.t, 'ready'):
-            obs[self.inputs['READY']] = 1
+            obs[1] = 1
         if self.in_epoch(self.t, 'set'):
-            obs[self.inputs['SET']] = 1
+            obs[2] = 1
 
         # ---------------------------------------------------------------------
         # new trial?
-        reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                info['new_trial'],
-                                                self.R_MISS, reward)
-
-        if new_trial:
-            info['new_trial'] = True
-            info['gt'] = trial['measure']
+        reward, info['new_trial'] = tasktools.new_trial(self.t, self.tmax,
+                                                        self.dt,
+                                                        info['new_trial'],
+                                                        self.R_MISS, reward)
+        if info['new_trial']:
             self.t = 0
             self.num_tr += 1
-            # compute perf
-            self.perf, self.num_tr_perf =\
-                tasktools.compute_perf(self.perf, reward,
-                                       self.num_tr_perf, tr_perf)
         else:
             self.t += self.dt
 
         done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info, new_trial
+        return obs, reward, done, info
 
     def step(self, action):
-        obs, reward, done, info, new_trial = self._step(action)
-        if new_trial:
+        obs, reward, done, info = self._step(action)
+        if info['new_trial']:
             self.trial = self._new_trial()
         return obs, reward, done, info
