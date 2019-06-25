@@ -19,35 +19,39 @@ from gym import spaces
 
 
 class Romo(ngym.ngym):
-    def __init__(self, dt=100):
+    def __init__(self, dt=100, timing=(750, 500, 2700, 3300, 500, 500)):
         # call ngm __init__ function
         super().__init__(dt=dt)
         # Inputs
         self.inputs = tasktools.to_map('FIXATION', 'F-POS', 'F-NEG')
 
-        # Actions
-        self.actions = tasktools.to_map('FIXATE', '>', '<')
+        # Actions (fixate, left, right)
+        self.actions = [0, -1, 1]
 
         # trial conditions
-        self.choices = ['>', '<']
+        self.choices = [-1, 1]
         self.fpairs = [(18, 10), (22, 14), (26, 18), (30, 22), (34, 26)]
 
         # Input noise
         self.sigma = np.sqrt(2*100*0.001)
 
         # Epoch durations
-        self.fixation = 750
-        self.f1 = 500
-        self.delay_min = 3000 - 300
-        self.delay_max = 3000 + 300
+        self.fixation = timing[0]
+        self.f1 = timing[1]
+        self.delay_min = timing[2]  # 3000 - 300
+        self.delay_max = timing[3]  # 3000 + 300
         self.delay_mean = (self.delay_max + self.delay_min) / 2
-        self.f2 = 500
-        self.decision = 500
+        self.f2 = timing[4]
+        self.decision = timing[5]
         self.mean_trial_duration = self.fixation + self.f1 + self.delay_mean +\
             self.f2 + self.decision
+        if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
+            print('XXXXXXXXXXXXXXXXXXXXXX')
+            print('the duration of all periods must be larger than 0')
+            print('XXXXXXXXXXXXXXXXXXXXXX')
         print('mean trial duration: ' + str(self.mean_trial_duration) +
-              ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
-              ')')
+              ' (max num. steps: ' +
+              str(self.mean_trial_duration/self.dt) + ')')
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
@@ -58,9 +62,10 @@ class Romo(ngym.ngym):
         self.fall = np.ravel(self.fpairs)
         self.fmin = np.min(self.fall)
         self.fmax = np.max(self.fall)
+
         # action and observation space
         self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3, ),
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2, ),
                                             dtype=np.float32)
         # seeding
         self.seed()
@@ -88,13 +93,16 @@ class Romo(ngym.ngym):
             }
 
         ground_truth = tasktools.choice(self.rng, self.choices)
-
         fpair = tasktools.choice(self.rng, self.fpairs)
-
+        if ground_truth == -1:
+            f1, f2 = fpair
+        else:
+            f2, f1 = fpair
         return {
             'durations': durations,
             'ground_truth': ground_truth,
-            'fpair': fpair
+            'f1': f1,
+            'f2': f2
             }
 
     def scale(self, f):
@@ -107,52 +115,34 @@ class Romo(ngym.ngym):
         return (1 - self.scale(f))/2
 
     def _step(self, action):
+        # ---------------------------------------------------------------------
+        # Reward and inputs
+        # ---------------------------------------------------------------------
         trial = self.trial
-
-        # ---------------------------------------------------------------------
-        # Reward
-        # ---------------------------------------------------------------------
-        # epochs = trial['epochs']
         info = {'new_trial': False}
+        # rewards
         reward = 0
-        tr_perf = False
+        # observations
+        obs = np.zeros((3,))
         if self.in_epoch(self.t, 'fixation'):
-            if (action != self.actions['FIXATE']):
+            obs[0] = 1
+            if self.actions[action] != 0:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
-        if self.in_epoch(self.t, 'decision'):
-            if action == self.actions['>']:
-                tr_perf = True
-                info['new_trial'] = True
-                if (trial['ground_truth'] == '>'):
-                    reward = self.R_CORRECT
-            elif action == self.actions['<']:
-                tr_perf = True
-                info['new_trial'] = True
-                if (trial['ground_truth'] == '<'):
-                    reward = self.R_CORRECT
+        elif self.in_epoch(self.t, 'decision'):
+            gt_sign = np.sign(trial['ground_truth'])
+            action_sign = np.sign(self.actions[action])
+            if gt_sign == action_sign:
+                reward = self.R_CORRECT
+            elif gt_sign == -action_sign:
+                reward = self.R_FAIL
+            info['new_trial'] = self.actions[action] != 0
 
-        # ---------------------------------------------------------------------
-        # Inputs
-        # ---------------------------------------------------------------------
-
-        if trial['ground_truth'] == '>':
-            f1, f2 = trial['fpair']
-        else:
-            f2, f1 = trial['fpair']
-
-        obs = np.zeros(len(self.inputs))
-        if not self.in_epoch(self.t, 'decision'):
-            obs[self.inputs['FIXATION']] = 1
         if self.in_epoch(self.t, 'f1'):
-            obs[self.inputs['F-POS']] = self.scale_p(f1) +\
+            obs[1] = self.scale_p(trial['f1']) +\
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
-            obs[self.inputs['F-NEG']] = self.scale_n(f1) +\
-                self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
-        if self.in_epoch(self.t, 'f2'):
-            obs[self.inputs['F-POS']] = self.scale_p(f2) +\
-                self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
-            obs[self.inputs['F-NEG']] = self.scale_n(f2) +\
+        elif self.in_epoch(self.t, 'f2'):
+            obs[1] = self.scale_p(trial['f2']) +\
                 self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
 
         # ---------------------------------------------------------------------
@@ -160,25 +150,20 @@ class Romo(ngym.ngym):
         reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
                                                 info['new_trial'],
                                                 self.R_MISS, reward)
-
-        if new_trial:
-            info['new_trial'] = True
-            info['gt'] = trial['ground_truth']
+        info['gt'] = np.zeros((3,))
+        if info['new_trial']:
+            info['gt'][int((trial['ground_truth']/2+1.5))] = 1
             self.t = 0
             self.num_tr += 1
-            # compute perf
-            self.perf, self.num_tr_perf =\
-                tasktools.compute_perf(self.perf, reward,
-                                       self.num_tr_perf,
-                                       tr_perf)
         else:
             self.t += self.dt
+            info['gt'][0] = 1
 
         done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info, new_trial
+        return obs, reward, done, info
 
     def step(self, action):
-        obs, reward, done, info, new_trial = self._step(action)
-        if new_trial:
+        obs, reward, done, info = self._step(action)
+        if info['new_trial']:
             self.trial = self._new_trial()
         return obs, reward, done, info
