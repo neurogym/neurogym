@@ -66,9 +66,9 @@ def neuro_arg_parser():
                         type=int, nargs='+', default=(200,))
     parser.add_argument('--stimEv', help='allows scaling stimulus evidence',
                         type=float, nargs='+', default=(1.,))
-    parser.add_argument('--plot',
-                        help='show figure',
+    parser.add_argument('--plot', help='show figure',
                         type=bool, default=True)
+    parser.add_argument('--dt', help='timestep', type=int, default=100)
     return parser
 
 
@@ -86,7 +86,7 @@ def main(args):
         delay = args.delay
     plot_fig = args.plot
     num_steps_env = args.n_steps  # [1e9]
-    dt = 100
+    dt = args.dt
 
     task_registrations.register_neuroTask(task1)
     # task
@@ -125,7 +125,7 @@ def main(args):
     gt = []
     config_mat = []
     for stp in range(int(num_steps_env)):
-        action = 1  # env.action_space.sample()
+        action = 0  # env.action_space.sample()
         obs, rew, done, info = env.step(action)
         if done:
             env.reset()

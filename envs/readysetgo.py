@@ -20,8 +20,8 @@ from __future__ import division
 
 import numpy as np
 from gym import spaces
-import tasktools
-import ngym
+from neurogym.ops import tasktools
+from neurogym.envs import ngym
 
 
 class ReadySetGo(ngym.ngym):
@@ -111,7 +111,7 @@ class ReadySetGo(ngym.ngym):
         if self.in_epoch(self.t, 'production'):
             t_prod = self.t - trial['durations']['measure'][1]
             eps = abs(t_prod - trial['production'])
-            if eps < self.dt:
+            if eps < self.dt/2 + 1:
                 info['gt'][1] = 1
             else:
                 info['gt'][0] = 1
