@@ -115,6 +115,7 @@ class DPA(ngym.ngym):
         # ---------------------------------------------------------------------
         # epochs = trial['epochs']
         info = {'new_trial': False}
+        info['gt'] = np.zeros((2,))
         reward = 0
         obs = np.zeros((5,))
         if self.in_epoch(self.t, 'fixation'):
@@ -123,6 +124,7 @@ class DPA(ngym.ngym):
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         if self.in_epoch(self.t, 'decision'):
+            info['gt'][int((trial['ground_truth']/2+.5))] = 1
             gt_sign = np.sign(trial['ground_truth'])
             action_sign = np.sign(self.actions[action])
             if (action_sign > 0):
@@ -131,6 +133,8 @@ class DPA(ngym.ngym):
                     reward = self.R_CORRECT
                 else:
                     reward = self.R_INCORRECT
+        else:
+            info['gt'][0] = 1
 
         if self.in_epoch(self.t, 'dpa1'):
             dpa1, _ = trial['pair']
@@ -140,17 +144,16 @@ class DPA(ngym.ngym):
             obs[dpa2] = 1
         # ---------------------------------------------------------------------
         # new trial?
-        reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                info['new_trial'],
-                                                self.R_MISS, reward)
-        info['gt'] = np.zeros((2,))
-        if new_trial:
+        reward, info['new_trial'] = tasktools.new_trial(self.t, self.tmax,
+                                                        self.dt,
+                                                        info['new_trial'],
+                                                        self.R_MISS, reward)
+
+        if info['new_trial']:
             info['new_trial'] = True
-            info['gt'][int((trial['ground_truth']/2+.5))] = 1
             self.t = 0
             self.num_tr += 1
         else:
-            info['gt'][0] = 1
             self.t += self.dt
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info
