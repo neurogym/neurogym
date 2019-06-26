@@ -9,8 +9,8 @@ from __future__ import division
 
 import numpy as np
 from gym import spaces
-import tasktools
-import ngym
+from neurogym.ops import tasktools
+from neurogym.envs import ngym
 
 
 class MatchingPenny(ngym.ngym):
@@ -50,7 +50,6 @@ class MatchingPenny(ngym.ngym):
 
     def _step(self, action):
         trial = self.trial
-        tr_perf = True
         obs = np.zeros(self.observation_space.shape)
         obs[trial['opponent_action']] = 1.
         if action == trial['opponent_action']:
@@ -59,21 +58,12 @@ class MatchingPenny(ngym.ngym):
             reward = self.R_FAIL
 
         # ---------------------------------------------------------------------
-        # new trial?
-        new_trial = True
-        info = {'new_trial': True}
-        self.t = 0
+        info = {'new_trial': True}  # trials are 1 step long
         self.num_tr += 1
-        # compute perf
-        self.perf, self.num_tr_perf =\
-            tasktools.compute_perf(self.perf, reward,
-                                   self.num_tr_perf, tr_perf)
-
         done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info, new_trial
+        return obs, reward, done, info
 
     def step(self, action):
-        obs, reward, done, info, new_trial = self._step(action)
-        if new_trial:
-            self.trial = self._new_trial()
+        obs, reward, done, info = self._step(action)
+        self.trial = self._new_trial()
         return obs, reward, done, info
