@@ -34,12 +34,12 @@ class MatchingPenny(ngym.ngym):
 
     def _new_trial(self):
         # ---------------------------------------------------------------------
-        # Trial
+        # Trial (trials are one step long)
         # ---------------------------------------------------------------------
         # TODO: Add more types of opponents
         # determine the transitions
         if self.opponent_type is None:
-            opponent_action = int(self.rng.rand() > 0.5)
+            opponent_action = int(self.rng.random() > 0.5)
         else:
             raise NotImplementedError('Opponent type {:s} not implemented'.
                                       format(self.opponent_type))
@@ -58,7 +58,7 @@ class MatchingPenny(ngym.ngym):
             reward = self.R_FAIL
 
         # ---------------------------------------------------------------------
-        info = {'new_trial': True}  # trials are 1 step long
+        info = {'new_trial': True, 'gt': obs}
         self.num_tr += 1
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info
