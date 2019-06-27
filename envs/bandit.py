@@ -8,12 +8,11 @@ from __future__ import division
 
 import numpy as np
 from gym import spaces
-import tasktools
-import ngym
+from neurogym.envs import ngym
 
 
 class Bandit(ngym.ngym):
-    def __init__(self, dt=100, n_arm=2):
+    def __init__(self, dt=100, n_arm=2, probs=[.9, .1]):
         super().__init__(dt=dt)
         # Rewards
         self.R_CORRECT = +1.
@@ -21,8 +20,8 @@ class Bandit(ngym.ngym):
         self.n_arm = n_arm
 
         # Reward probabilities
-        self.p_high = 0.9
-        self.p_low = 0.1
+        self.p_high = probs[0]
+        self.p_low = probs[1]
 
         self.action_space = spaces.Discrete(n_arm)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(1,),
@@ -47,8 +46,7 @@ class Bandit(ngym.ngym):
 
     def _step(self, action):
         trial = self.trial
-        info = {'continue': True}
-        tr_perf = True
+        info = {'continue': True, 'gt': np.zeros((self.n_arm,))}
 
         obs = np.zeros(self.observation_space.shape)
         if action == trial['high_reward_arm']:
@@ -58,20 +56,14 @@ class Bandit(ngym.ngym):
 
         # ---------------------------------------------------------------------
         # new trial?
-        new_trial = True
         info['new_trial'] = True
         self.t = 0
         self.num_tr += 1
-        # compute perf
-        self.perf, self.num_tr_perf =\
-            tasktools.compute_perf(self.perf, reward,
-                                   self.num_tr_perf, tr_perf)
-
         done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info, new_trial
+        return obs, reward, done, info
 
     def step(self, action):
-        obs, reward, done, info, new_trial = self._step(action)
-        if new_trial:
+        obs, reward, done, info = self._step(action)
+        if info['new_trial']:
             self.trial = self._new_trial()
         return obs, reward, done, info
