@@ -117,10 +117,7 @@ class DawTwoStep(ngym.ngym):
             self.t += self.dt
 
         done = self.num_tr > self.num_tr_exp
-        print('-----------------------')
-        print(self.t)
-        print(reward)
-        print('-----------------------')
+
         return obs, reward, done, info
 
     def step(self, action):
