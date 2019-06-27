@@ -23,7 +23,7 @@ from neurogym.envs import ngym
 
 
 class GNG(ngym.ngym):
-    def __init__(self, dt=100, timing=[100, 200, 200, 200, 100, 100],
+    def __init__(self, dt=100, timing=(100, 200, 200, 200, 100, 100),
                  **kwargs):
         super().__init__(dt=dt)
         # Actions (fixate, go)

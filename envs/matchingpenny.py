@@ -9,12 +9,11 @@ from __future__ import division
 
 import numpy as np
 from gym import spaces
-from neurogym.ops import tasktools
 from neurogym.envs import ngym
 
 
 class MatchingPenny(ngym.ngym):
-    def __init__(self, dt=100, opponent_type=None):
+    def __init__(self, dt=100, opponent_type=None, timing=()):
         super().__init__(dt=dt)
         # TODO: remain to be carefully tested
         # Opponent Type

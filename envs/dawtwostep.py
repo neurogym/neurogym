@@ -13,7 +13,7 @@ from neurogym.envs import ngym
 
 
 class DawTwoStep(ngym.ngym):
-    def __init__(self, dt=100):
+    def __init__(self, dt=100, timing=()):
         super().__init__(dt=dt)
         # Actions ('FIXATE', 'ACTION1', 'ACTION2')
         self.actions = [0, 1, 2]

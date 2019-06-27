@@ -12,7 +12,7 @@ from neurogym.envs import ngym
 
 
 class Bandit(ngym.ngym):
-    def __init__(self, dt=100, n_arm=2, probs=[.9, .1]):
+    def __init__(self, dt=100, n_arm=2, probs=[.9, .1], timing=[]):
         super().__init__(dt=dt)
         # Rewards
         self.R_CORRECT = +1.

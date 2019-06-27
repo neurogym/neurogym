@@ -125,7 +125,7 @@ def main(args):
     gt = []
     config_mat = []
     for stp in range(int(num_steps_env)):
-        action = 0  # env.action_space.sample()
+        action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
         if done:
             env.reset()
@@ -157,12 +157,15 @@ def main(args):
         plt.plot(actions_end_of_trial, '--')
         gt = np.array(gt)
         plt.plot(np.argmax(gt, axis=1), 'r')
+        # aux = np.argmax(obs, axis=1)
+        # aux[np.sum(obs, axis=1) == 0] = -1
+        # plt.plot(aux, '--k')
         plt.title('actions')
-        plt.xlim([0, len(rewards)])
+        plt.xlim([-0.5, len(rewards)+0.5])
         plt.subplot(rows, 1, 4)
         plt.plot(rewards, 'r')
         plt.title('reward')
-        plt.xlim([0, len(rewards)])
+        plt.xlim([-0.5, len(rewards)+0.5])
         plt.show()
 
 

@@ -22,7 +22,7 @@ from gym import spaces
 
 
 class PadoaSch(ngym.ngym):
-    def __init__(self, dt=100):
+    def __init__(self, dt=100, timing=(750, 1000, 2000, 750)):
         # call ngm __init__ function
         super().__init__(dt=dt)
         # Inputs
@@ -43,11 +43,11 @@ class PadoaSch(ngym.ngym):
         self.sigma = np.sqrt(2*100*0.001)
 
         # Durations
-        self.fixation = 750
-        self.offer_on_min = 1000
-        self.offer_on_max = 2000
+        self.fixation = timing[0]
+        self.offer_on_min = timing[1]
+        self.offer_on_max = timing[2]
         self.offer_on_mean = (self.offer_on_min + self.offer_on_max) / 2
-        self.decision = 750
+        self.decision = timing[3]
         self.mean_trial_duration = self.fixation + self.offer_on_mean +\
             self.decision
         print('mean trial duration: ' + str(self.mean_trial_duration) +

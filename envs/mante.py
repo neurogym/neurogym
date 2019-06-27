@@ -15,7 +15,7 @@ from neurogym.envs import ngym
 
 
 class Mante(ngym.ngym):
-    def __init__(self, dt=100):
+    def __init__(self, dt=100, timing=[750, 750, 83, 300, 1200, 500]):
         # call ngm __init__ function
         super().__init__(dt=dt)
 
@@ -41,12 +41,12 @@ class Mante(ngym.ngym):
         self.abort = False
 
         # Epoch durations
-        self.fixation = 750
-        self.stimulus = 750
-        self.delay_min = 300
-        self.delay_mean = 300
-        self.delay_max = 1200
-        self.decision = 500
+        self.fixation = timing[0]
+        self.stimulus = timing[1]
+        self.delay_min = timing[2]
+        self.delay_mean = timing[3]
+        self.delay_max = timing[4]
+        self.decision = timing[5]
         self.mean_trial_duration = self.fixation + self.stimulus +\
             self.delay_mean + self.decision
         print('mean trial duration: ' + str(self.mean_trial_duration) +

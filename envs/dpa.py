@@ -23,7 +23,7 @@ from gym import spaces
 
 class DPA(ngym.ngym):
     def __init__(self, dt=100,
-                 timing=[100, 200, 600, 600, 200, 100, 100]):
+                 timing=(100, 200, 600, 600, 200, 100, 100)):
         # call ngm __init__ function
         super().__init__(dt=dt)
         # Actions
