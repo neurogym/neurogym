@@ -16,9 +16,9 @@ Economic choice task, based on
 from __future__ import division
 
 import numpy as np
-import ngym
+from neurogym.ops import tasktools
+from neurogym.envs import ngym
 from gym import spaces
-import tasktools
 
 
 class PadoaSch(ngym.ngym):
@@ -124,8 +124,8 @@ class PadoaSch(ngym.ngym):
 
         # epochs = trial['epochs']
         info = {'new_trial': False}
+        info['gt'] = np.zeros((3,))
         reward = 0
-        tr_perf = False
         if (self.in_epoch(self.t, 'fixation') or
                 self.in_epoch(self.t, 'offer-on')):
             if (action != self.actions['FIXATE']):
@@ -134,7 +134,6 @@ class PadoaSch(ngym.ngym):
         if self.in_epoch(self.t, 'decision'):
             if action in [self.actions['CHOOSE-LEFT'],
                           self.actions['CHOOSE-RIGHT']]:
-                tr_perf = True
                 info['new_trial'] = True
 
                 juiceL, juiceR = trial['juice']
@@ -165,32 +164,28 @@ class PadoaSch(ngym.ngym):
             obs[self.inputs['R-'+juiceR]] = 1
 
             obs[self.inputs['N-L']] = self.scale(trial['nL']) +\
-                self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
+                self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
             obs[self.inputs['N-R']] = self.scale(trial['nR']) +\
-                self.rng.normal(scale=self.sigma)/np.sqrt(self.dt)
+                self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
 
         # ---------------------------------------------------------------------
         # new trial?
-        reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                info['new_trial'],
-                                                self.R_MISS, reward)
+        reward, info['new_trial'] = tasktools.new_trial(self.t, self.tmax,
+                                                        self.dt,
+                                                        info['new_trial'],
+                                                        self.R_MISS, reward)
 
-        if new_trial:
-            info['new_trial'] = True
+        if info['new_trial']:
             self.t = 0
             self.num_tr += 1
-            # compute perf
-            self.perf, self.num_tr_perf =\
-                tasktools.compute_perf(self.perf, reward,
-                                       self.num_tr_perf, tr_perf)
         else:
             self.t += self.dt
 
         done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info, new_trial
+        return obs, reward, done, info
 
     def step(self, action):
-        obs, reward, done, info, new_trial = self._step(action)
-        if new_trial:
+        obs, reward, done, info = self._step(action)
+        if info['new_trial']:
             self.trial = self._new_trial()
         return obs, reward, done, info
