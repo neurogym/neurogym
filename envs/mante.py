@@ -9,11 +9,9 @@ Code adapted from github.com/frsong/pyrl
 from __future__ import division
 
 import numpy as np
-
-import ngym
 from gym import spaces
-
-import tasktools
+from neurogym.ops import tasktools
+from neurogym.envs import ngym
 
 
 class Mante(ngym.ngym):
@@ -74,15 +72,15 @@ class Mante(ngym.ngym):
 
         # epochs = trial['epochs']
         info = {'new_trial': False}
+        info['gt'] = np.zeros((3,))
         reward = 0
-        tr_perf = False
         if self.in_epoch(self.t, 'fixation'):
             if (action != self.actions['FIXATE']):
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         if self.in_epoch(self.t, 'decision'):
+            info['gt'][int((trial['ground_truth']/2+1.5))] = 1
             if action == self.actions['left']:
-                tr_perf = True
                 info['new_trial'] = True
                 if trial['context'] == 'm':
                     correct = (trial['left_right_m'] < 0)
@@ -91,7 +89,6 @@ class Mante(ngym.ngym):
                 if correct:
                     reward = self.R_CORRECT
             elif action == self.actions['right']:
-                tr_perf = True
                 info['new_trial'] = True
                 if trial['context'] == 'm':
                     correct = (trial['left_right_m'] > 0)
@@ -99,6 +96,8 @@ class Mante(ngym.ngym):
                     correct = (trial['left_right_c'] > 0)
                 if correct:
                     reward = self.R_CORRECT
+        else:
+            info['gt'][0] = 1
 
         # -------------------------------------------------------------------------------------
         # Inputs
@@ -130,36 +129,32 @@ class Mante(ngym.ngym):
             obs[context] = 1
         if self.in_epoch(self.t, 'stimulus'):
             obs[high_m] = self.scale(+trial['coh_m']) +\
-                rng.normal(scale=self.sigma) / np.sqrt(dt)
+                rng.gauss(mu=0, sigma=self.sigma) / np.sqrt(dt)
             obs[low_m] = self.scale(-trial['coh_m']) +\
-                rng.normal(scale=self.sigma) / np.sqrt(dt)
+                rng.gauss(mu=0, sigma=self.sigma) / np.sqrt(dt)
             obs[high_c] = self.scale(+trial['coh_c']) +\
-                rng.normal(scale=self.sigma) / np.sqrt(dt)
+                rng.gauss(mu=0, sigma=self.sigma) / np.sqrt(dt)
             obs[low_c] = self.scale(-trial['coh_c']) +\
-                rng.normal(scale=self.sigma) / np.sqrt(dt)
+                rng.gauss(mu=0, sigma=self.sigma) / np.sqrt(dt)
         # ---------------------------------------------------------------------
         # new trial?
-        reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                info['new_trial'],
-                                                self.R_MISS, reward)
+        reward, info['new_trial'] = tasktools.new_trial(self.t, self.tmax,
+                                                        self.dt,
+                                                        info['new_trial'],
+                                                        self.R_MISS, reward)
 
-        if new_trial:
-            info['new_trial'] = True
+        if info['new_trial']:
             self.t = 0
             self.num_tr += 1
-            # compute perf
-            self.perf, self.num_tr_perf =\
-                tasktools.compute_perf(self.perf, reward,
-                                       self.num_tr_perf, tr_perf)
         else:
             self.t += self.dt
 
         done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info, new_trial
+        return obs, reward, done, info
 
     def step(self, action):
-        obs, reward, done, info, new_trial = self._step(action)
-        if new_trial:
+        obs, reward, done, info = self._step(action)
+        if info['new_trial']:
             self.trial = self._new_trial()
         return obs, reward, done, info
 
@@ -199,13 +194,19 @@ class Mante(ngym.ngym):
 
         coh_c = tasktools.choice(self.rng, self.cohs)
 
+        if context_ == 'm':
+            ground_truth = 2*(left_right_m > 0) - 1
+        else:
+            ground_truth = 2*(left_right_c > 0) - 1
+
         return {
             'durations':    durations,
             'context':      context_,
             'left_right_m': left_right_m,
             'left_right_c': left_right_c,
             'coh_m':        coh_m,
-            'coh_c':        coh_c
+            'coh_c':        coh_c,
+            'ground_truth': ground_truth
             }
 
     def scale(self, coh):
