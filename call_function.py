@@ -343,69 +343,53 @@ def main(args):
 
 
 if __name__ == '__main__':
-
-    # DUAL TASK
-    project = 'dual_task'
-    cluster = 'bsc'
-
-    # where data will be save
+    cluster = 'bsc'  # 'hab'
+    project = 'neurogym'
     # main_folder = '/rigel/theory/users/mm5514/'
-    main_folder = '/gpfs/projects/hcli64/molano/dual_task/'
+    main_folder = '/gpfs/projects/hcli64/molano/neurogym/'
     scripts_folder = home + '/' + project + '/' + cluster + '_scripts/'
     if not os.path.exists(scripts_folder):
         os.makedirs(scripts_folder)
-    # DIFFERENT NOISE VALUES
-    hours = '4'
-    alg = ['supervised']
-    num_units = [16]
-    stim_ev = [.5]
-    batch_size = [20]
-    net_type = ['cont_rnn']
-    pass_r = [True]
-    pass_act = [True]
-    combine = True
-    num_insts = 20
-    num_steps_env = 1e8
-    noise = [0, 0.5, 1, 2]
-    delay = [500]
-    timing = [100, 200, 600, 600, 200, 100, 100]
-    timing2 = [100, 200, 200, 200, 100, 100]
-    experiment = 'different_noise_values'
+    envs_list = ['Mante-v0',
+                 'Romo-v0',
+                 'RDM-v0',
+                 'padoaSch-v0',
+                 'pdWager-v0',
+                 'DPA-v0',
+                 'GNG-v0',
+                 'ReadySetGo-v0',
+                 'DelayedMatchSample-v0',
+                 'DawTwoStep-v0',
+                 'MatchingPenny-v0',
+                 'Bandit-v0']
+    timing_list = [(200, 300, 200, 300, 400, 200),
+                   (200, 300, 200, 400, 300, 200),
+                   (200, 200, 300, 400, 200),
+                   (200, 200, 400, 200),
+                   (200, 300, 400, 500, 200, 300, 400, 200, 200, 200, 200),
+                   (100, 200, 200, 400, 200, 100, 200),
+                   (100, 200, 200, 200, 100, 100),
+                   (500, 83, 83),
+                   (500, 500, 1500, 500, 500),
+                   (),
+                   (),
+                   ()]
+    for env in envs_list:
+        # DPA EXPERIMENT
+        hours = '4'
+        alg = ['a2c']
+        num_units = [64]
+        batch_size = [20]
+        net_type = ['lstm']
+        pass_r = [True]
+        pass_act = [True]
+        num_insts = 10
+        num_steps_env = 1e8
+        experiment = env[:-3]
 
-    produce_sh_files(env='DPA-v0', env2='GNG-v0', cluster=cluster, alg=alg,
-                     hours=hours,
-                     num_units=num_units,
-                     batch_size=batch_size, net_type=net_type,
-                     pass_r=pass_r, pass_act=pass_act,
-                     num_insts=num_insts, experiment=experiment,
-                     main_folder=main_folder, num_steps_env=num_steps_env,
-                     combine=combine, noise=noise, delay=delay, timing=timing,
-                     timing2=timing2)
-
-    # DIFFERENT NOISE VALUES VANILLA RNN
-    hours = '4'
-    alg = ['supervised']
-    num_units = [16]
-    stim_ev = [.5]
-    batch_size = [20]
-    net_type = ['van_rnn']
-    pass_r = [True]
-    pass_act = [True]
-    combine = True
-    num_insts = 20
-    num_steps_env = 1e8
-    noise = [0, 0.5, 1, 2]
-    delay = [500]
-    timing = [100, 200, 600, 600, 200, 100, 100]
-    timing2 = [100, 200, 200, 200, 100, 100]
-    experiment = 'different_noise_values_vanilla'
-
-    produce_sh_files(env='DPA-v0', env2='GNG-v0', cluster=cluster, alg=alg,
-                     hours=hours,
-                     num_units=num_units,
-                     batch_size=batch_size, net_type=net_type,
-                     pass_r=pass_r, pass_act=pass_act,
-                     num_insts=num_insts, experiment=experiment,
-                     main_folder=main_folder, num_steps_env=num_steps_env,
-                     combine=combine, noise=noise, delay=delay, timing=timing,
-                     timing2=timing2)
+        produce_sh_files(env=env, cluster=cluster, alg=alg, hours=hours,
+                         num_units=num_units,
+                         batch_size=batch_size, net_type=net_type,
+                         pass_r=pass_r, pass_act=pass_act,
+                         num_insts=num_insts, experiment=experiment,
+                         main_folder=main_folder, num_steps_env=num_steps_env)
