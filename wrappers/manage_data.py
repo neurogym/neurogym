@@ -34,7 +34,9 @@ class manage_data(Wrapper):
             # for RDM + trial history
             self.rep_prob_mat = []
             self.stim_mat = []
+            self.reward_mat = []
             self.cum_obs = 0
+            self.cum_rew = 0
             # for rendering
             self.obs_mat = []
             self.act_mat = []
@@ -67,12 +69,15 @@ class manage_data(Wrapper):
         obs, rew, done, info = self.env.step(action)
         if self.do:
             self.cum_obs += obs
+            self.cum_rew += rew
             self.store_data(obs, action, rew, info['gt'])
             if info['new_trial']:
                 self.num_tr += 1
                 self.choice_mat.append(action)
                 self.stim_mat.append(self.cum_obs)
                 self.cum_obs = 0
+                self.reward_mat.append(self.cum_rew)
+                self.cum_rew = 0
                 if 'gt' in info.keys():
                     self.gt_mat.append(info['gt'])
                 if 'rep_prob' in info.keys():
@@ -84,7 +89,8 @@ class manage_data(Wrapper):
                 if self.num_tr % self.num_tr_save == 0:
                     data = {'choice': self.choice_mat,
                             'stimulus': self.stim_mat,
-                            'correct_side': self.gt_mat}
+                            'correct_side': self.gt_mat,
+                            'reward': self.reward_mat}
                     if len(self.rep_prob_mat) != 0:
                         data['rep_prob'] = self.rep_prob_mat
                     if len(self.config_mat) != 0:
@@ -99,6 +105,7 @@ class manage_data(Wrapper):
                     self.config_mat = []
                     self.rep_prob_mat = []
                     self.stim_mat = []
+                    self.reward_mat = []
                     # for rendering
                     self.obs_mat = []
                     self.act_mat = []
