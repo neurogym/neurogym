@@ -37,10 +37,14 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     else:
         nlstm = num_u
     # duration of different periods
-    timing_flag = '_t_' + ut.list_str(timing)
-    timing_cmmd = ' --timing '
-    for ind_t in range(len(timing)):
-        timing_cmmd += str(timing[ind_t]) + ' '
+    if len(timing) > 0:
+        timing_flag = '_t_' + ut.list_str(timing)
+        timing_cmmd = ' --timing '
+        for ind_t in range(len(timing)):
+            timing_cmmd += str(timing[ind_t]) + ' '
+    else:
+        timing_flag = ''
+        timing_cmmd = ''
     # trial history
     if trial_hist:
         tr_h_flag = '_TH_' + ut.list_str(rep_prob) + '_' + str(bl_dur)
@@ -169,8 +173,6 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
         os.makedirs(scr_folder)
     main_file = open(scr_folder + 'main_' +
                      cluster + '.sh', 'w')
-    command = specs(cluster=cluster, hours='4')
-    main_file.write(command)
 
     for conf in params_config:
         print('-----------------------')
@@ -359,10 +361,10 @@ if __name__ == '__main__':
     # main_folder = '/rigel/theory/users/mm5514/'
     main_folder = '/gpfs/projects/hcli64/molano/neurogym/'
     scripts_folder = home + '/' + project + '/' + cluster + '_scripts/'
-    all_scripts_file = open(scripts_folder + 'all_scripts.sh', 'w')
-    command = specs(cluster=cluster, hours='4')
     if not os.path.exists(scripts_folder):
         os.makedirs(scripts_folder)
+    all_scripts_file = open(scripts_folder + 'all_scripts.sh', 'w')
+    command = ''
     envs_list = ['Mante-v0',
                  'Romo-v0',
                  'RDM-v0',
@@ -387,17 +389,19 @@ if __name__ == '__main__':
                    (),
                    (),
                    ()]
-    for env in envs_list:
-        # DPA EXPERIMENT
+    for ind, env in enumerate(envs_list):
         experiment = env[:-3]
-
+        print(timing_list[ind])
         produce_sh_files(env=env, cluster=cluster, alg=alg, hours=hours,
                          num_units=num_units,
                          batch_size=batch_size, net_type=net_type,
                          pass_r=pass_r, pass_act=pass_act,
                          num_insts=num_insts, experiment=experiment,
-                         main_folder=main_folder, num_steps_env=num_steps_env)
-        command += 'sbatch ' + experiment + '/main_' + cluster + '.sh\n'
+                         main_folder=main_folder, num_steps_env=num_steps_env,
+                         timing=timing_list[ind])
+        command += 'cd ' + experiment + '\n'
+        command += 'sbatch ' + 'main_' + cluster + '.sh\n'
+        command += 'cd ..\n'
 
     # DUAL TASK
     combine = True
@@ -416,9 +420,12 @@ if __name__ == '__main__':
                      main_folder=main_folder, num_steps_env=num_steps_env,
                      combine=combine, delay=delay, timing=timing,
                      timing2=timing2)
-    command += 'sbatch ' + experiment + '/main_' + cluster + '.sh\n'
+    command += 'cd ' + experiment + '\n'
+    command += 'sbatch ' + 'main_' + cluster + '.sh\n'
+    command += 'cd ..\n'
 
     # PRIORS
+    timing = (200, 200, 300, 400, 200)
     bl_dur = [200]
     rep_prob = [[.2, .8]]
     stim_ev = [.5]
@@ -428,10 +435,13 @@ if __name__ == '__main__':
                      num_units=num_units,
                      bl_dur=bl_dur, stim_ev=stim_ev, rep_prob=rep_prob,
                      batch_size=batch_size, net_type=net_type,
-                     pass_r=pass_r, pass_act=pass_act,
+                     pass_r=pass_r, pass_act=pass_act, timing=timing,
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
-    command += 'sbatch ' + experiment + '/main_' + cluster + '.sh\n'
+    command += 'cd ' + experiment + '\n'
+    command += 'sbatch ' + 'main_' + cluster + '.sh\n'
+    command += 'cd ..\n'
+
     # SUPERVISED LEARNING
     alg = ['supervised']
     envs_list = ['Mante-v0',
@@ -450,8 +460,7 @@ if __name__ == '__main__':
                    (500, 83, 83),
                    (500, 500, 1500, 500, 500),
                    ]
-    for env in envs_list:
-        # DPA EXPERIMENT
+    for ind, env in enumerate(envs_list):
         experiment = env[:-3] + '_supervised'
 
         produce_sh_files(env=env, cluster=cluster, alg=alg, hours=hours,
@@ -459,8 +468,12 @@ if __name__ == '__main__':
                          batch_size=batch_size, net_type=net_type,
                          pass_r=pass_r, pass_act=pass_act,
                          num_insts=num_insts, experiment=experiment,
-                         main_folder=main_folder, num_steps_env=num_steps_env)
-        command += 'sbatch ' + experiment + '/main_' + cluster + '.sh\n'
+                         main_folder=main_folder, num_steps_env=num_steps_env,
+                         timing=timing_list[ind])
+        command += 'cd ' + experiment + '\n'
+        command += 'sbatch ' + 'main_' + cluster + '.sh\n'
+        command += 'cd ..\n'
+
     # DUAL TASK
     combine = True
     delay = [500]
@@ -477,8 +490,12 @@ if __name__ == '__main__':
                      main_folder=main_folder, num_steps_env=num_steps_env,
                      combine=combine, delay=delay, timing=timing,
                      timing2=timing2)
-    command += 'sbatch ' + experiment + '/main_' + cluster + '.sh\n'
+    command += 'cd ' + experiment + '\n'
+    command += 'sbatch ' + 'main_' + cluster + '.sh\n'
+    command += 'cd ..\n'
+
     # PRIORS
+    timing = (200, 200, 300, 400, 200)
     bl_dur = [200]
     rep_prob = [[.2, .8]]
     stim_ev = [.5]
@@ -491,6 +508,8 @@ if __name__ == '__main__':
                      pass_r=pass_r, pass_act=pass_act,
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
-    command += 'sbatch ' + experiment + '/main_' + cluster + '.sh\n'
+    command += 'cd ' + experiment + '\n'
+    command += 'sbatch ' + 'main_' + cluster + '.sh\n'
+    command += 'cd ..\n'
     all_scripts_file.write(command)
     all_scripts_file.close()

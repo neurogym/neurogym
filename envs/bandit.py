@@ -36,8 +36,9 @@ class Bandit(ngym.ngym):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-        rew_high_reward_arm = (self.rng.rand() < self.p_high) * self.R_CORRECT
-        rew_low_reward_arm = (self.rng.rand() < self.p_low) * self.R_CORRECT
+        rew_high_reward_arm = (self.rng.random() <
+                               self.p_high) * self.R_CORRECT
+        rew_low_reward_arm = (self.rng.random() < self.p_low) * self.R_CORRECT
         return {
             'rew_high_reward_arm': rew_high_reward_arm,
             'rew_low_reward_arm': rew_low_reward_arm,
