@@ -176,7 +176,7 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
 
     for conf in params_config:
         print('-----------------------')
-        name = ''
+        name = env[:-3] + '_'
         if tr_hist:
             name += ut.list_str(conf[8])
         if combine:
@@ -243,6 +243,7 @@ def specs(conf=None, cluster='hab', hours='120', alg='a2c', name='',
     else:
         if conf is None:
             command += '#SBATCH --job-name=RUN\n'
+            command += '#SBATCH --output=RUN.sh\n'
             command += '#SBATCH -c 1\n'
             command += '#SBATCH --time=' + hours + ':00:00\n'
             command += 'module purge\n'
@@ -257,8 +258,9 @@ def specs(conf=None, cluster='hab', hours='120', alg='a2c', name='',
             command += 'module load opencv/3.4.1\n'
             command += 'module load python/3.6.5_ML\n'
         else:
-            name = name[:-3] + '_' + hours
+            name = name[:-3]
             command += '#SBATCH --job-name=' + name + '\n'
+            command += '#SBATCH --output=' + name + '.out\n'
             command += '#SBATCH --cpus-per-task=' + str(n_envs) + '\n'
             command += '#SBATCH --time=' + hours + ':00:00\n'
             command += '#SBATCH --exclusive\n'
@@ -400,7 +402,7 @@ if __name__ == '__main__':
                          main_folder=main_folder, num_steps_env=num_steps_env,
                          timing=timing_list[ind])
         command += 'cd ' + experiment + '\n'
-        command += 'sbatch ' + 'main_' + cluster + '.sh\n'
+        command += 'bash ' + 'main_' + cluster + '.sh\n'
         command += 'cd ..\n'
 
     # DUAL TASK
@@ -421,7 +423,7 @@ if __name__ == '__main__':
                      combine=combine, delay=delay, timing=timing,
                      timing2=timing2)
     command += 'cd ' + experiment + '\n'
-    command += 'sbatch ' + 'main_' + cluster + '.sh\n'
+    command += 'bash ' + 'main_' + cluster + '.sh\n'
     command += 'cd ..\n'
 
     # PRIORS
@@ -439,7 +441,7 @@ if __name__ == '__main__':
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
     command += 'cd ' + experiment + '\n'
-    command += 'sbatch ' + 'main_' + cluster + '.sh\n'
+    command += 'bash ' + 'main_' + cluster + '.sh\n'
     command += 'cd ..\n'
 
     # SUPERVISED LEARNING
@@ -471,7 +473,7 @@ if __name__ == '__main__':
                          main_folder=main_folder, num_steps_env=num_steps_env,
                          timing=timing_list[ind])
         command += 'cd ' + experiment + '\n'
-        command += 'sbatch ' + 'main_' + cluster + '.sh\n'
+        command += 'bash ' + 'main_' + cluster + '.sh\n'
         command += 'cd ..\n'
 
     # DUAL TASK
@@ -491,7 +493,7 @@ if __name__ == '__main__':
                      combine=combine, delay=delay, timing=timing,
                      timing2=timing2)
     command += 'cd ' + experiment + '\n'
-    command += 'sbatch ' + 'main_' + cluster + '.sh\n'
+    command += 'bash ' + 'main_' + cluster + '.sh\n'
     command += 'cd ..\n'
 
     # PRIORS
@@ -509,7 +511,7 @@ if __name__ == '__main__':
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env)
     command += 'cd ' + experiment + '\n'
-    command += 'sbatch ' + 'main_' + cluster + '.sh\n'
+    command += 'bash ' + 'main_' + cluster + '.sh\n'
     command += 'cd ..\n'
     all_scripts_file.write(command)
     all_scripts_file.close()
