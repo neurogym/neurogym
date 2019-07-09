@@ -33,9 +33,10 @@ class ngym(gym.Env):
 
     def step(self, action):
         """
-        receives an action and returns a new state, a reward, a flag variable
-        indicating whether the experiment has ended and a dictionary with
-        useful information
+        receives an action and calls the function _step to get a new state,
+        a reward, a boolean indicating the end or not of the experiment and
+        a dictionary (info). Aditionally, if the current trial is done
+        (info['new_trial']==True) it calls the function _new_trial
         """
         return None, None, None, None
 
@@ -70,6 +71,14 @@ class ngym(gym.Env):
         self.rng.seed(seed)
         return [seed]
 
+    def _step(self, action):
+        """
+        receives an action and returns a new state, a reward, a flag variable
+        indicating whether the experiment has ended and a dictionary with
+        useful information
+        """
+        return None, None, None, None
+
     def _new_trial(self):
         """Starts a new trials within the current experiment.
 
@@ -82,10 +91,3 @@ class ngym(gym.Env):
         """Check if t is in epoch."""
         dur = self.trial['durations']
         return (dur[epoch][0] <= t < dur[epoch][1])
-
-    def analysis(self):
-        """
-        performs behavioral analysis relevant for the task
-        (i.e. psychometric cuves)
-        """
-        pass
