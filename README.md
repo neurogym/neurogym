@@ -17,10 +17,11 @@ The toolkit also includes various modifier functions that greatly expand the spa
 
 ### Example
 
-Following example will run the Random Dots Motion task for 200 steps with random actions.
+The following example will run the Random Dots Motion task for 200 steps with random actions.
 
+```
 python /path-to-neurogym-toolbox/neurogym/ops/test_new.py --task1=RDM-v0  --n_steps=200 
-
+```
 
 ### Authors
 * [Manuel Molano](https://github.com/manuelmolano).
