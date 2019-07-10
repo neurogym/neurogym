@@ -31,7 +31,7 @@ python /path-to-baselines-toolbox/baselines/run.py --alg=a2c --env=RDM-v0 --netw
 ```
 
 **alg**: algorithm; **env**: task; **network**: type of network; **nsteps**: batch size; **nlstm**: number of units; **stimEv**: controls the difficulty of the experiment; **pass_reward**: if true, the task passes the previous reward as a part of the observation;  **pass_action**: if true, the task passes the previous action as a part of the observation; **timing**: duration of the different periods in a trial.
-```
+
 
 ### Authors
 * [Manuel Molano](https://github.com/manuelmolano).
