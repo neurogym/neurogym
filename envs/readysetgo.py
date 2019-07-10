@@ -27,8 +27,8 @@ from neurogym.envs import ngym
 class ReadySetGo(ngym.ngym):
     def __init__(self, dt=80, timing=(500, 83, 83), gain=1):
         super().__init__(dt=dt)
-        if dt > 80:
-            raise ValueError('dt {:0.2f} too large for this task.'.format(dt))
+        # if dt > 80:
+        # raise ValueError('dt {:0.2f} too large for this task.'.format(dt))
         # Actions (fixate, go)
         self.actions = [-1, 1]
         # Input noise
