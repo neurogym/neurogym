@@ -122,7 +122,7 @@ class Romo(ngym.ngym):
         # rewards
         reward = 0
         # observations
-        obs = np.zeros((3,))
+        obs = np.zeros((2,))
         if self.in_epoch(self.t, 'fixation'):
             obs[0] = 1
             if self.actions[action] != 0:

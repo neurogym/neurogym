@@ -12,10 +12,9 @@ import random
 
 class ngym(gym.Env):
     """
-    two-alternative forced choice task where the probability of repeating the
-    previous choice is parametrized
+    neurogym superclass specifying the basic structure of all tasks
     """
-    def __init__(self, dt=100, trial_hist=False, plt_tr=False):
+    def __init__(self, dt=100):
         super().__init__()
         self.dt = dt
         self.t = 0
@@ -27,16 +26,14 @@ class ngym(gym.Env):
         print('------------------')
         print(self.__class__.__name__)
         print('time step: ' + str(self.dt))
-        if trial_hist:
-            print('trial history')
         print('------------------')
 
     def step(self, action):
         """
-        receives an action and calls the function _step to get a new state,
-        a reward, a boolean indicating the end or not of the experiment and
-        a dictionary (info). Aditionally, if the current trial is done
-        (info['new_trial']==True) it calls the function _new_trial
+        receives an action and returns a new state, a reward, a flag variable
+        indicating whether the experiment has ended and a dictionary with
+        useful information (info). Aditionally, if the current trial is done
+        (info['new_trial']==True) it calls the function _new_trial.
         """
         return None, None, None, None
 
@@ -80,7 +77,7 @@ class ngym(gym.Env):
         return None, None, None, None
 
     def _new_trial(self):
-        """Starts a new trials within the current experiment.
+        """Starts a new trial within the current experiment.
 
         Returns:
             trial_info: a dictionary of trial information
