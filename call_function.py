@@ -155,7 +155,8 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
                      combine=False, tr_hist=False, noise=[0], env='RDM-v0',
                      env2='GNG-v0', delay=[500],
                      timing=[100, 200, 200, 200, 100],
-                     timing2=[100, 200, 200, 200, 100, 100]):
+                     timing2=[100, 200, 200, 200, 100, 100],
+                     scripts_folder=''):
     if cluster == 'hab':
         save_folder = main_folder + experiment + '/'
         run_folder = '/rigel/home/mm5514/'
@@ -400,7 +401,8 @@ if __name__ == '__main__':
                          pass_r=pass_r, pass_act=pass_act,
                          num_insts=num_insts, experiment=experiment,
                          main_folder=main_folder, num_steps_env=num_steps_env,
-                         timing=timing_list[ind])
+                         timing=timing_list[ind],
+                         scripts_folder=scripts_folder)
         command += 'cd ' + experiment + '\n'
         command += 'bash ' + 'main_' + cluster + '.sh\n'
         command += 'cd ..\n'
@@ -421,7 +423,8 @@ if __name__ == '__main__':
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env,
                      combine=combine, delay=delay, timing=timing,
-                     timing2=timing2)
+                     timing2=timing2,
+                     scripts_folder=scripts_folder)
     command += 'cd ' + experiment + '\n'
     command += 'bash ' + 'main_' + cluster + '.sh\n'
     command += 'cd ..\n'
@@ -439,7 +442,8 @@ if __name__ == '__main__':
                      batch_size=batch_size, net_type=net_type,
                      pass_r=pass_r, pass_act=pass_act, timing=timing,
                      num_insts=num_insts, experiment=experiment,
-                     main_folder=main_folder, num_steps_env=num_steps_env)
+                     main_folder=main_folder, num_steps_env=num_steps_env,
+                     scripts_folder=scripts_folder)
     command += 'cd ' + experiment + '\n'
     command += 'bash ' + 'main_' + cluster + '.sh\n'
     command += 'cd ..\n'
@@ -471,7 +475,8 @@ if __name__ == '__main__':
                          pass_r=pass_r, pass_act=pass_act,
                          num_insts=num_insts, experiment=experiment,
                          main_folder=main_folder, num_steps_env=num_steps_env,
-                         timing=timing_list[ind])
+                         timing=timing_list[ind],
+                         scripts_folder=scripts_folder)
         command += 'cd ' + experiment + '\n'
         command += 'bash ' + 'main_' + cluster + '.sh\n'
         command += 'cd ..\n'
@@ -491,7 +496,8 @@ if __name__ == '__main__':
                      num_insts=num_insts, experiment=experiment,
                      main_folder=main_folder, num_steps_env=num_steps_env,
                      combine=combine, delay=delay, timing=timing,
-                     timing2=timing2)
+                     timing2=timing2,
+                     scripts_folder=scripts_folder)
     command += 'cd ' + experiment + '\n'
     command += 'bash ' + 'main_' + cluster + '.sh\n'
     command += 'cd ..\n'
@@ -509,7 +515,8 @@ if __name__ == '__main__':
                      batch_size=batch_size, net_type=net_type,
                      pass_r=pass_r, pass_act=pass_act,
                      num_insts=num_insts, experiment=experiment,
-                     main_folder=main_folder, num_steps_env=num_steps_env)
+                     main_folder=main_folder, num_steps_env=num_steps_env,
+                     scripts_folder=scripts_folder)
     command += 'cd ' + experiment + '\n'
     command += 'bash ' + 'main_' + cluster + '.sh\n'
     command += 'cd ..\n'

@@ -146,11 +146,14 @@ class Romo(ngym.ngym):
 
         # ---------------------------------------------------------------------
         # new trial?
-        reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                info['new_trial'],
-                                                self.R_MISS, reward)
+        reward, info['new_trial'] = tasktools.new_trial(self.t, self.tmax,
+                                                        self.dt,
+                                                        info['new_trial'],
+                                                        self.R_MISS, reward)
         info['gt'] = np.zeros((3,))
         if info['new_trial']:
+            print(trial['ground_truth'])
+            print(trial['ground_truth']/2+1.5)
             info['gt'][int((trial['ground_truth']/2+1.5))] = 1
             self.t = 0
             self.num_tr += 1

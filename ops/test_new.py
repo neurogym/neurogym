@@ -51,15 +51,15 @@ def neuro_arg_parser():
     parser.add_argument('--reaction_time', '-rt',
                         help='whether to make the task a reaction-time task',
                         type=bool, default=False)
-    parser.add_argument('--task1', help='primary task',
+    parser.add_argument('--env', help='primary task',
                         type=str, default='pdWager-v0')
-    parser.add_argument('--task2', help='secondary task (if combine is True)',
+    parser.add_argument('--env2', help='secondary task (if combine is True)',
                         type=str, default='GNG-v0')
     parser.add_argument('--n_steps',
                         help='number of steps',
                         type=int, default=400)
     parser.add_argument('--delay',
-                        help='delay with which task2 will start',
+                        help='delay with which env2 will start',
                         type=int, default=500)
     parser.add_argument('--bl_dur',
                         help='dur. of block in the trial-hist wrappr (trials)',
@@ -75,23 +75,23 @@ def neuro_arg_parser():
 def main(args):
     arg_pars = neuro_arg_parser()
     args, unknown_args = arg_pars.parse_known_args(args)
-    task1 = args.task1
+    env = args.env
     pass_rew = args.pass_reward
     pass_act = args.pass_action
     tr_hist = args.trial_hist
     react_t = args.reaction_time
     comb = args.combine
     if combine:
-        task2 = args.task2
+        env2 = args.env2
         delay = args.delay
     plot_fig = args.plot
     num_steps_env = args.n_steps  # [1e9]
     dt = args.dt
 
-    task_registrations.register_neuroTask(task1)
+    task_registrations.register_neuroTask(env)
     # task
-    print('Making ' + task1 + ' task')
-    env = gym.make(task1, **{'dt': dt})  # TODO: add params for task
+    print('Making ' + env + ' task')
+    env = gym.make(env, **{'dt': dt})  # TODO: add params for task
     # wrappers
     print('xxxxxx')
     print('Wrappers')
@@ -102,9 +102,9 @@ def main(args):
         print('reaction time')
         env = reaction_time.ReactionTime(env)
     if comb:
-        print('combine with ' + task2)
-        task_registrations.register_neuroTask(task2)
-        env_extra = gym.make(task2, **{'dt': dt})  # TODO: add params for task
+        print('combine with ' + env2)
+        task_registrations.register_neuroTask(env2)
+        env_extra = gym.make(env2, **{'dt': dt})  # TODO: add params for task
         # delay is in ms
         env = combine.combine(dt=dt, env1=env, env2=env_extra, delay=delay)
     if pass_rew:
