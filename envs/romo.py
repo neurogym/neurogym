@@ -152,8 +152,6 @@ class Romo(ngym.ngym):
                                                         self.R_MISS, reward)
         info['gt'] = np.zeros((3,))
         if info['new_trial']:
-            print(trial['ground_truth'])
-            print(trial['ground_truth']/2+1.5)
             info['gt'][int((trial['ground_truth']/2+1.5))] = 1
             self.t = 0
             self.num_tr += 1
