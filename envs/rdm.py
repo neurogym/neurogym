@@ -135,6 +135,7 @@ class RDM(ngym.ngym):
         # observations
         obs = np.zeros((3,))
         if self.in_epoch(self.t, 'fixation'):
+            info['gt'][0] = 1
             obs[0] = 1
             if self.actions[action] != 0:
                 info['new_trial'] = self.abort

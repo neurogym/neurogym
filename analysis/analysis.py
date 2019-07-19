@@ -115,8 +115,8 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
                      (obs.shape[2], np.prod(obs.shape[0:2])))
     rewards = obs[obs_size-1, :]  # TODO: make this index a parameter
     rewards = rewards.flatten()
-#    ev = obs[1, :] - obs[2, :]
-#    ev = ev.flatten()
+    ev = obs[1, :] - obs[2, :]
+    ev = ev.flatten()
     # trials
     trials = np.reshape(data['trials'], (-1, n_envs, num_steps))
     trials = trials[:, env, :]
@@ -130,7 +130,7 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
                         (gt.shape[2], np.prod(gt.shape[0:2])))
     else:
         gt = []
-    print(gt.shape)
+
     if 'pi' in data.keys():
         # separate into diff. envs
         pi = np.reshape(data['pi'], (-1, n_envs, num_steps, num_act))
@@ -204,7 +204,7 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
             f.savefig(save_folder+'/experiment_structure.svg', dpi=DPI,
                       bbox_inches='tight')
 
-    return states, rewards, actions, trials, gt, pi
+    return states, rewards, actions, ev, trials, gt, pi
 
 
 if __name__ == '__main__':
@@ -212,10 +212,9 @@ if __name__ == '__main__':
     num_steps = 200
     get_simulation_vars(file='/home/molano/priors/tests/' +
                         'network_data_99.npz', fig=True,
-                        n_envs=1, env=0, num_steps=20, obs_size=2,
+                        n_envs=1, env=0, num_steps=20, obs_size=3,
                         num_units=64, num_act=3, num_steps_fig=num_steps,
-                        start=1800,
-                        save_folder='', title='tests')
+                        start=1800, save_folder='', title='tests')
     asdasd
 
 #    get_simulation_vars(file='/home/molano/neurogym/results/Romo/' +
