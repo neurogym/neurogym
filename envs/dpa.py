@@ -119,11 +119,12 @@ class DPA(ngym.ngym):
         reward = 0
         obs = np.zeros((5,))
         if self.in_epoch(self.t, 'fixation'):
+            info['gt'][0] = 1
             obs[0] = 1  # TODO: fixation cue only during fixation period?
             if self.actions[action] != -1:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
-        if self.in_epoch(self.t, 'decision'):
+        elif self.in_epoch(self.t, 'decision'):
             info['gt'][int((trial['ground_truth']/2+.5))] = 1
             gt_sign = np.sign(trial['ground_truth'])
             action_sign = np.sign(self.actions[action])

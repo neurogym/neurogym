@@ -105,6 +105,7 @@ class ReadySetGo(ngym.ngym):
         obs = np.zeros((3,))
         if self.in_epoch(self.t, 'fixation'):
             obs[0] = 1
+            info['gt'][0] = 1
             if self.actions[action] != -1:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED

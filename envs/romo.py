@@ -123,12 +123,15 @@ class Romo(ngym.ngym):
         reward = 0
         # observations
         obs = np.zeros((2,))
+        info['gt'] = np.zeros((3,))
         if self.in_epoch(self.t, 'fixation'):
+            info['gt'][0] = 1
             obs[0] = 1
             if self.actions[action] != 0:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch(self.t, 'decision'):
+            info['gt'][int((trial['ground_truth']/2+1.5))] = 1
             gt_sign = np.sign(trial['ground_truth'])
             action_sign = np.sign(self.actions[action])
             if gt_sign == action_sign:
@@ -136,6 +139,8 @@ class Romo(ngym.ngym):
             elif gt_sign == -action_sign:
                 reward = self.R_FAIL
             info['new_trial'] = self.actions[action] != 0
+        else:
+            info['gt'][0] = 1
 
         if self.in_epoch(self.t, 'f1'):
             obs[1] = self.scale_p(trial['f1']) +\
@@ -150,14 +155,11 @@ class Romo(ngym.ngym):
                                                         self.dt,
                                                         info['new_trial'],
                                                         self.R_MISS, reward)
-        info['gt'] = np.zeros((3,))
         if info['new_trial']:
-            info['gt'][int((trial['ground_truth']/2+1.5))] = 1
             self.t = 0
             self.num_tr += 1
         else:
             self.t += self.dt
-            info['gt'][0] = 1
 
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info

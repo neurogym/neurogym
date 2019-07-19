@@ -156,7 +156,7 @@ class PDWager(ngym.ngym):
             if self.actions[action] != 0:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
-        if self.in_epoch(self.t, 'decision'):
+        elif self.in_epoch(self.t, 'decision'):
             if self.actions[action] == 2:
                 if trial['wager']:
                     reward = self.R_SURE

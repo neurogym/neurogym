@@ -131,7 +131,7 @@ class PadoaSch(ngym.ngym):
             if (action != self.actions['FIXATE']):
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
-        if self.in_epoch(self.t, 'decision'):
+        elif self.in_epoch(self.t, 'decision'):
             if action in [self.actions['CHOOSE-LEFT'],
                           self.actions['CHOOSE-RIGHT']]:
                 info['new_trial'] = True

@@ -75,10 +75,11 @@ class Mante(ngym.ngym):
         info['gt'] = np.zeros((3,))
         reward = 0
         if self.in_epoch(self.t, 'fixation'):
+            info['gt'][0] = 1
             if (action != self.actions['FIXATE']):
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
-        if self.in_epoch(self.t, 'decision'):
+        elif self.in_epoch(self.t, 'decision'):
             info['gt'][int((trial['ground_truth']/2+1.5))] = 1
             if action == self.actions['left']:
                 info['new_trial'] = True

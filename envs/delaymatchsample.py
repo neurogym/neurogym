@@ -92,11 +92,12 @@ class DelayedMatchToSample(ngym.ngym):
         obs = np.zeros((3,))
 
         if self.in_epoch(self.t, 'fixation'):
+            info['gt'][0] = 1
             obs[0] = 1
             if self.actions[action] != 0:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
-        if self.in_epoch(self.t, 'decision'):
+        elif self.in_epoch(self.t, 'decision'):
             info['gt'][int((trial['ground_truth']/2+1.5))] = 1
             gt_sign = np.sign(trial['ground_truth'])
             action_sign = np.sign(self.actions[action])
