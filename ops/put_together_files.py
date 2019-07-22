@@ -52,7 +52,10 @@ def put_files_together(folder, min_num_trials=1e6):
         data = {'choice': choice_mat, 'stimulus': stim_mat,
                 'correct_side': side_mat, 'reward': reward_mat}
         np.savez(folder + '/bhvr_data_all.npz', **data)
-        if SIZE > min_num_trials:
+        if SIZE >= min_num_trials:
             return True
         else:
+            print('not enough data (' + str(SIZE) + ')')
             return False
+    else:
+        print('not enough data (0)')
