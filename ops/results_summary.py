@@ -15,8 +15,9 @@ home = expanduser("~")
 sys.path.append(home + '/neurogym')
 from neurogym.ops import put_together_files as ptf
 from neurogym import call_function as cf
-non_relevant_params = {'seed': 0, 'save_path': 0, 'log_interval': 0,
-                       'num_timesteps': 0, 'eval_steps': 0, 'num_env': 0}
+non_relevant_params = {'seed': 0, 'seed_task': 0, 'save_path': 0,
+                       'log_interval': 0, 'num_timesteps': 0,
+                       'eval_steps': 0, 'num_env': 0}
 
 
 def load(file='/home/linux/params.npz'):
@@ -127,7 +128,8 @@ def explore_folder(main_folder, count=True,
             args = load(file)
             args = update_exp(args, folder, file, main_folder, key='alpha',
                               value=0.1, look_for='_a_', replace_with='_a_0.1')
-
+            args.pop('seed_task', None)
+            # check whether to add a new experiment (i.e. w/ diff. parameters)
             if len(experiments) == 0:
                 experiments.append([args])
                 group = 0
@@ -176,6 +178,9 @@ def explore_folder(main_folder, count=True,
 
 def update_exp(args, folder, file, main_folder, key='alpha', value=0.1,
                look_for='_a_', replace_with='_a_0.1'):
+    """
+    updates file with new parameter
+    """
     if key not in args.keys():
         args[key] = value
     np.savez(file, **args)

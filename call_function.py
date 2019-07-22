@@ -21,14 +21,16 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
                   ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
                   net_type='twin_net', num_stps_env=1e9, load_path='',
                   save=True, nsteps=20, alg='a2c', env='RDM-v0',
-                  seed=None, num_env=24, ent_coef=0.05, lr=1e-3,
-                  lr_sch='constant', gamma=.8, rep_prob=(.2, .8),
+                  seed=None, seed_task=None, num_env=24, ent_coef=0.05,
+                  lr_sch='constant', gamma=.8, rep_prob=(.2, .8),  lr=1e-3,
                   timing=[100, 200, 200, 200, 100], save_folder_name='',
                   eval_steps=100000, alpha=0.1, env2='GNG-v0', delay=[500],
                   timing2=[100, 200, 200, 200, 100, 100], combine=False,
                   trial_hist=False, noise=0):
     if seed is None:
         seed = datetime.now().microsecond
+    if seed_task is None:
+        seed_task = datetime.now().microsecond
     tot_num_stps = num_stps_env*num_env
     num_steps_per_logging = 500000
     li = num_steps_per_logging // nsteps
@@ -101,6 +103,7 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     save_path += '_a_' + str(alpha)
     save_path += '_n_' + str(noise)
     save_path += '_' + str(seed)
+    save_path += str(seed_task)
     save_path += save_folder_name
     save_path = save_path.replace('-v0', '')
     save_path = save_path.replace('constant', 'c')
@@ -123,6 +126,7 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     command += ' --nlstm=' + str(nlstm)
     command += ' --stimEv=' + str(stimEv)
     command += ' --seed=' + str(seed)
+    command += ' --seed_task=' + str(seed_task)
     command += ' --eval_steps=' + str(eval_steps)
     command += ' --alpha=' + str(alpha)
     command += ' --sigma_rec=' + str(noise)
@@ -156,7 +160,7 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
                      env2='GNG-v0', delay=[500],
                      timing=[100, 200, 200, 200, 100],
                      timing2=[100, 200, 200, 200, 100, 100],
-                     scripts_folder=''):
+                     scripts_folder='', seed=None, seed_task=None):
     if cluster == 'hab':
         save_folder = main_folder + experiment + '/'
         run_folder = '/rigel/home/mm5514/'
@@ -205,7 +209,8 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
                                eval_steps=0, alpha=conf[9], delay=conf[10],
                                timing=timing, timing2=timing2,
                                env=env, env2=env2, combine=combine,
-                               trial_hist=tr_hist)
+                               trial_hist=tr_hist,
+                               seed=seed, seed_task=seed_task)
         cmmd += aux
         file.write(cmmd)
         file.close()

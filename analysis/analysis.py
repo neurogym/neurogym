@@ -209,12 +209,13 @@ def get_simulation_vars(file='/home/linux/network_data_492999.npz', fig=False,
 
 if __name__ == '__main__':
     plt.close('all')
-    num_steps = 200
-    get_simulation_vars(file='/home/molano/priors/tests/' +
+    num_steps = 100
+    test = 'tests2'
+    get_simulation_vars(file='/home/molano/priors/' + test + '/' +
                         'network_data_99.npz', fig=True,
                         n_envs=1, env=0, num_steps=20, obs_size=3,
                         num_units=64, num_act=3, num_steps_fig=num_steps,
-                        start=1800, save_folder='', title='tests')
+                        start=0, save_folder='', title=test)
     asdasd
 
 #    get_simulation_vars(file='/home/molano/neurogym/results/Romo/' +
