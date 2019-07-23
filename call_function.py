@@ -261,6 +261,7 @@ def specs(conf=None, cluster='hab', hours='120', alg='a2c', name='',
             command += 'module load scalapack/2.0.2\n'
             command += 'module load fftw/3.3.7\n'
             command += 'module load szip/2.1.1\n'
+            command += 'module load ffmpeg\n'
             command += 'module load opencv/3.4.1\n'
             command += 'module load python/3.6.5_ML\n'
         else:
@@ -279,6 +280,7 @@ def specs(conf=None, cluster='hab', hours='120', alg='a2c', name='',
             command += 'module load scalapack/2.0.2\n'
             command += 'module load fftw/3.3.7\n'
             command += 'module load szip/2.1.1\n'
+            command += 'module load ffmpeg\n'
             command += 'module load opencv/3.4.1\n'
             command += 'module load python/3.6.5_ML\n'
 
