@@ -103,12 +103,13 @@ def color_axis(ax, color='r'):
     ax.spines['left'].set_color(color)
 
 
-def get_fig(display_mode=True, font=6, figsize=(8, 8)):
+def get_fig(display_mode=None, font=6, figsize=(8, 8)):
     import matplotlib
-    if display_mode:
-        matplotlib.use('Qt5Agg')
-    else:
-        matplotlib.use('Agg')
+    if display_mode is not None:
+        if display_mode:
+            matplotlib.use('Qt5Agg')
+        else:
+            matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     left = 0.125  # the left side of the subplots of the figure
     right = 0.9  # the right side of the subplots of the figure
