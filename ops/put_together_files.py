@@ -35,7 +35,10 @@ def put_files_together(folder, min_num_trials=1e6):
             choice = data['choice']
             stim = data['stimulus']
             side = data['correct_side']
-            reward = data['reward']
+            if 'reward' in data.keys():
+                reward = data['reward']
+            else:
+                reward = np.array([])
             side = side.reshape((side.shape[0], -1))
             if side.shape[1] != 1:
                 side = np.argmax(side, axis=1)
