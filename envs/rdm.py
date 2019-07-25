@@ -50,15 +50,15 @@ class RDM(ngym.ngym):
             print('XXXXXXXXXXXXXXXXXXXXXX')
             print('the duration of all periods must be larger than 0')
             print('XXXXXXXXXXXXXXXXXXXXXX')
+        print('XXXXXXXXXXXXXXXXXXXXXX')
         print('Random Dots Motion Task')
         print('Fixation: ' + str(self.fixation))
         print('Min Stimulus Duration: ' + str(self.stimulus_min))
         print('Mean Stimulus Duration: ' + str(self.stimulus_mean))
         print('Max Stimulus Duration: ' + str(self.stimulus_max))
         print('Decision: ' + str(self.decision))
-        print('mean trial duration: ' + str(self.mean_trial_duration) +
-              ' (max num. steps: ' +
-              str(self.mean_trial_duration/self.dt) + ')')
+        print('(time step: ' + str(self.dt) + ')')
+        print('XXXXXXXXXXXXXXXXXXXXXX')
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.

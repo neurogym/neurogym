@@ -23,10 +23,6 @@ class ngym(gym.Env):
         self.num_tr_perf = 0
         self.num_tr_exp = 10000000  # num trials after which done = True
         self.seed()
-        print('------------------')
-        print(self.__class__.__name__)
-        print('time step: ' + str(self.dt))
-        print('------------------')
 
     def step(self, action):
         """
