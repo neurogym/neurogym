@@ -35,8 +35,9 @@ python /path-to-baselines-toolbox/baselines/run.py --alg=a2c --env=RDM-v0 --netw
 
 ### Contributing
 
-Contributing new tasks is easy. You can see a template of how a task should look like in the *superclass* ngym: 
+Contributing new tasks is easy. You can see a template of how a task should look like in the *superclass* ngym, which is thought to contain all functions that are common to all tasks:
 ```
+class ngym(gym.Env):
     def __init__(self, dt=100):
         """
 	initializes relevant variables (e.g. different periods durations)
@@ -89,7 +90,7 @@ Contributing new tasks is easy. You can see a template of how a task should look
 
 ```
 
-If you want to check an actual task, the Random Dots Motion task (RDM) is probably the one containing more comments.
+All tasks call ngym as their superclass and so they inherite all above functions. However you will likely want to modify some of them in your task. If you want to see how this is done in an actual task, the Random Dots Motion task (RDM) is probably the one containing more comments.
 
 ### Authors
 * [Manuel Molano](https://github.com/manuelmolano).
