@@ -13,7 +13,6 @@ from neurogym.wrappers import combine
 from neurogym.wrappers import pass_reward
 from neurogym.wrappers import pass_action
 from neurogym.wrappers import manage_data as md
-from neurogym.ops import task_registrations
 display_mode = True
 if display_mode:
     matplotlib.use('Qt5Agg')
@@ -88,10 +87,9 @@ def main(args):
     num_steps_env = args.n_steps  # [1e9]
     dt = args.dt
 
-    task_registrations.register_neuroTask(env)
     # task
     print('Making ' + env + ' task')
-    env = gym.make(env, **{'dt': dt})  # TODO: add params for task
+    env = gym.make(env, **{'dt': dt})
     # wrappers
     print('xxxxxx')
     print('Wrappers')
@@ -103,8 +101,7 @@ def main(args):
         env = reaction_time.ReactionTime(env)
     if comb:
         print('combine with ' + env2)
-        task_registrations.register_neuroTask(env2)
-        env_extra = gym.make(env2, **{'dt': dt})  # TODO: add params for task
+        env_extra = gym.make(env2, **{'dt': dt})
         # delay is in ms
         env = combine.combine(dt=dt, env1=env, env2=env_extra, delay=delay)
     if pass_rew:
