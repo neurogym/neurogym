@@ -10,7 +10,6 @@ from gym.core import Wrapper
 from neurogym.ops import tasktools
 
 
-
 class TrialHistory(Wrapper):
     """
     modfies a given environment by changing the probability of repeating the
@@ -43,7 +42,7 @@ class TrialHistory(Wrapper):
                      self.rep_prob[self.curr_block])
 
         trial['ground_truth'] = self.env.rng.choices(self.env.choices,
-                                                    weights=probs)[0]
+                                                     weights=probs)[0]
         self.prev_trial = trial['ground_truth']
 
         return trial
