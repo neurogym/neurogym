@@ -58,3 +58,8 @@ class TrialHistory(Wrapper):
             self.env.trial = self._new_trial()
 
         return obs, reward, done, info
+
+    def seed(self, seed=None):
+        self.env.seed(seed=seed)
+        # keeps track of the repeating prob of the current block
+        self.curr_block = tasktools.choice(self.env.rng, [0, 1])
