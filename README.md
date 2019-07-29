@@ -95,6 +95,12 @@ class ngym(gym.Env):
 
 All tasks call ngym as their superclass and so they inherite all above functions. However you will likely want to modify some of them in your task. If you want to see how this is done in an actual task, the Random Dots Motion task (RDM) is probably the one containing more comments.
 
+### Wrappers
+
+Wrappers are short scripts that allow introducing modifications the original tasks. For instance, the Random Dots Motion task can be transformed into a reaction time task by passing it through the *reaction_time* wrapper. Alternatively, the *combine* wrapper allows training an agent in two different tasks simultaneously. 
+
+
+
 ### Authors
 * [Manuel Molano](https://github.com/manuelmolano).
 * [Guangyu Robert Yang](https://github.com/gyyang).
