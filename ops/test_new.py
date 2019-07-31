@@ -12,6 +12,7 @@ from neurogym.wrappers import reaction_time
 from neurogym.wrappers import combine
 from neurogym.wrappers import pass_reward
 from neurogym.wrappers import pass_action
+from neurogym.wrappers import side_bias
 from neurogym.wrappers import manage_data as md
 display_mode = True
 if display_mode:
@@ -47,6 +48,9 @@ def neuro_arg_parser():
     parser.add_argument('--trial_hist',
                         help='whether to introduce trial history',
                         type=bool, default=False)
+    parser.add_argument('--side_bias',
+                        help='whether to introduce side bias',
+                        type=bool, default=False)
     parser.add_argument('--reaction_time', '-rt',
                         help='whether to make the task a reaction-time task',
                         type=bool, default=False)
@@ -79,6 +83,7 @@ def main(args):
     pass_act = args.pass_action
     tr_hist = args.trial_hist
     react_t = args.reaction_time
+    s_bias = args.side_bias
     comb = args.combine
     if combine:
         env2 = args.env2
@@ -110,6 +115,9 @@ def main(args):
     if pass_act:
         print('pass action')
         env = pass_action.PassAction(env)
+    if s_bias:
+        print('side bias')
+        env = side_bias.SideBias(env)
 
     # save/render data wrapper
     env = md.manage_data(env, plt_tr=False)
@@ -154,6 +162,8 @@ def main(args):
         plt.plot(actions_end_of_trial, '--')
         gt = np.array(gt)
         plt.plot(np.argmax(gt, axis=1), 'r')
+        print(np.sum(np.argmax(gt, axis=1) == 2))
+        print(np.sum(np.argmax(gt, axis=1) == 1))
         # aux = np.argmax(obs, axis=1)
         # aux[np.sum(obs, axis=1) == 0] = -1
         # plt.plot(aux, '--k')

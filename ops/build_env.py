@@ -13,6 +13,7 @@ from neurogym.wrappers import combine
 from neurogym.wrappers import reaction_time
 from neurogym.wrappers import pass_reward
 from neurogym.wrappers import pass_action
+from neurogym.wrappers import side_bias
 
 
 def build_env(env_id, inst=0, **all_args):
@@ -34,6 +35,9 @@ def build_env(env_id, inst=0, **all_args):
         if all_args['trial_hist']:
             env = trial_hist.TrialHistory(env, rep_prob=all_args['rep_prob'],
                                           block_dur=all_args['bl_dur'])
+        elif all_args['side_bias']:
+            env = side_bias.SideBias(env, prob=all_args['rep_prob'],
+                                     block_dur=all_args['bl_dur'])
         if all_args['reaction_time']:
             env = reaction_time.ReactionTime(env)
     if all_args['pass_reward']:
