@@ -18,7 +18,7 @@ from neurogym.ops import utils as ut
 # import os
 
 
-def put_files_together(folder, min_num_trials=1e6):
+def put_together_files(folder, min_num_trials=1e6):
     files = glob.glob(folder + '/*_bhvr_data*npz')
     files = ut.order_by_sufix(files)
     choice_mat = np.empty((0,))
