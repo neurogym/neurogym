@@ -129,6 +129,7 @@ def explore_folder(main_folder, count=True,
             args = update_exp(args, folder, file, main_folder, key='alpha',
                               value=0.1, look_for='_a_', replace_with='_a_0.1')
             args.pop('seed_task', None)
+            args.pop('side_bias', None)
             # check whether to add a new experiment (i.e. w/ diff. parameters)
             if len(experiments) == 0:
                 experiments.append([args])
