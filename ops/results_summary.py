@@ -18,9 +18,11 @@ from neurogym import call_function as cf
 non_relevant_params = {'seed': 0, 'seed_task': 0, 'save_path': 0,
                        'log_interval': 0, 'num_timesteps': 0,
                        'eval_steps': 0, 'num_env': 0}
+discard_list = ['extra_import', 'gamestate']
 
 
 def load(file='/home/linux/params.npz'):
+    print(file)
     params = np.load(file)
     if 'args' in params.keys():
         args = vars(params['args'].tolist())
@@ -32,7 +34,8 @@ def load(file='/home/linux/params.npz'):
         keys = params.keys()
         args = {}
         for key in keys:
-            args[key] = params[key].tolist()
+            if key not in discard_list:
+                args[key] = params[key].tolist()
 
     return args
 
