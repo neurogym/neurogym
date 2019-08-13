@@ -22,7 +22,6 @@ discard_list = ['extra_import', 'gamestate']
 
 
 def load(file='/home/linux/params.npz'):
-    print(file)
     params = np.load(file)
     if 'args' in params.keys():
         args = vars(params['args'].tolist())
