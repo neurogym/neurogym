@@ -18,7 +18,8 @@ from neurogym import call_function as cf
 non_relevant_params = {'seed': 0, 'seed_task': 0, 'save_path': 0,
                        'log_interval': 0, 'num_timesteps': 0,
                        'eval_steps': 0, 'num_env': 0}
-discard_list = ['extra_import', 'gamestate']
+discard_list = ['extra_import', 'gamestate', 'save_video_length',
+                'play', 'save_video_interval']
 
 
 def load(file='/home/linux/params.npz'):
@@ -132,6 +133,8 @@ def explore_folder(main_folder, count=True,
                               value=0.1, look_for='_a_', replace_with='_a_0.1')
             args.pop('seed_task', None)
             args.pop('side_bias', None)
+            for key_ in discard_list:
+                args.pop(key_, None)
             # check whether to add a new experiment (i.e. w/ diff. parameters)
             if len(experiments) == 0:
                 experiments.append([args])
