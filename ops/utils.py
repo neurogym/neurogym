@@ -32,7 +32,7 @@ def list_str(l):
     """
     list to str
     """
-    if isinstance(l, list) or isinstance(l, tuple):
+    if isinstance(l, (list, tuple, np.ndarray)):
         nice_string = str(l[0])
         for ind_el in range(1, len(l)):
             nice_string += '_'+str(l[ind_el])
