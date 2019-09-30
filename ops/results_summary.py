@@ -41,7 +41,7 @@ def load(file='/home/linux/params.npz'):
 
 
 def compare_dicts(x, y):
-    assert len(x) == len(y)
+    assert len(x) == len(y), '\n' + str(x) + '\n' + str(y)
     non_shared_items = {k: x[k] for k in x if k in y and x[k] != y[k]}
     different = False
     for param in non_shared_items.keys():
@@ -133,6 +133,8 @@ def explore_folder(main_folder, count=True,
                               value=0.1, look_for='_a_', replace_with='_a_0.1')
             args.pop('seed_task', None)
             args.pop('side_bias', None)
+            args.pop('delay', None)
+            args.pop('timing2', None)
             for key_ in discard_list:
                 args.pop(key_, None)
             # check whether to add a new experiment (i.e. w/ diff. parameters)
