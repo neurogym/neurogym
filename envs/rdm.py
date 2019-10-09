@@ -21,6 +21,7 @@ import numpy as np
 from gym import spaces
 from neurogym.ops import tasktools
 from neurogym.envs import ngym
+import matplotlib.pyplot as plt
 
 
 class RDM(ngym.ngym):
@@ -201,14 +202,49 @@ class RDM(ngym.ngym):
 
 if __name__ == '__main__':
     env = RDM(timing=[100, 200, 200, 200, 100])
-    for ind in range(100):
-        action = 1  # env.action_space.sample()
-        obs, reward, done, info = env.step(action)
-        print(action)
-        print(obs)
-        print(reward)
+    observations = []
+    rewards = []
+    actions = []
+    actions_end_of_trial = []
+    gt = []
+    config_mat = []
+    num_steps_env = 100
+    for stp in range(int(num_steps_env)):
+        action = env.action_space.sample()
+        obs, rew, done, info = env.step(action)
+        if done:
+            env.reset()
+        observations.append(obs)
         if info['new_trial']:
-            print(info['gt'])
-            print('xxxxxxxxxxxxxxxx')
+            actions_end_of_trial.append(action)
         else:
-            print('----------------')
+            actions_end_of_trial.append(-1)
+        rewards.append(rew)
+        actions.append(action)
+        gt.append(info['gt'])
+        if 'config' in info.keys():
+            config_mat.append(info['config'])
+        else:
+            config_mat.append([0, 0])
+
+    rows = 3
+    obs = np.array(observations)
+    plt.figure()
+    plt.subplot(rows, 1, 1)
+    plt.imshow(obs.T, aspect='auto')
+    plt.title('observations')
+    plt.subplot(rows, 1, 2)
+    plt.plot(actions, marker='+')
+    #    plt.plot(actions_end_of_trial, '--')
+    #    gt = np.array(gt)
+    #    plt.plot(np.argmax(gt, axis=1), 'r')
+    #    # aux = np.argmax(obs, axis=1)
+    # aux[np.sum(obs, axis=1) == 0] = -1
+    # plt.plot(aux, '--k')
+    plt.title('actions')
+    plt.xlim([-0.5, len(rewards)+0.5])
+    plt.subplot(rows, 1, 3)
+    plt.plot(rewards, 'r')
+    plt.title('reward')
+    plt.xlim([-0.5, len(rewards)+0.5])
+    plt.show()
