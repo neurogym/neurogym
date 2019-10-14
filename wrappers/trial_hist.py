@@ -15,7 +15,8 @@ class TrialHistory(Wrapper):
     modfies a given environment by changing the probability of repeating the
     previous correct response
     """
-    def __init__(self, env, rep_prob=(.2, .8), block_dur=200):
+    def __init__(self, env, rep_prob=(.2, .8), block_dur=200,
+                 blk_ch_prob=None):
         Wrapper.__init__(self, env=env)
         self.env = env
         self.rep_prob = rep_prob
@@ -24,6 +25,7 @@ class TrialHistory(Wrapper):
         # duration of block (in number oif trials)
         self.block_dur = block_dur
         self.prev_trial = self.env.trial['ground_truth']
+        self.blk_ch_prob = blk_ch_prob
 
     def _new_trial(self):
         # ---------------------------------------------------------------------
@@ -31,8 +33,12 @@ class TrialHistory(Wrapper):
         # ---------------------------------------------------------------------
         trial = self.env._new_trial()
         # change rep. prob. every self.block_dur trials
-        if self.env.num_tr % self.block_dur == 0:
-            self.curr_block = int(not self.curr_block)
+        if self.blk_ch_prob is None:
+            if self.env.num_tr % self.block_dur == 0:
+                self.curr_block = int(not self.curr_block)
+        else:
+            if self.env.rng.random() < self.blk_ch_prob:
+                self.curr_block = int(not self.curr_block)
 
         if self.prev_trial == -1:
             probs = (self.rep_prob[self.curr_block],

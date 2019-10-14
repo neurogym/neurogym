@@ -26,13 +26,13 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
                   timing=[100, 200, 200, 200, 100], save_folder_name='',
                   eval_steps=100000, alpha=0.1, env2='GNG-v0', delay=[500],
                   timing2=[100, 200, 200, 200, 100, 100], combine=False,
-                  trial_hist=False, noise=0):
+                  trial_hist=False, noise=0, num_steps_per_logging=500000,
+                  sv_neural=True, blk_ch_prob=None):
     if seed is None:
         seed = datetime.now().microsecond
     if seed_task is None:
         seed_task = datetime.now().microsecond
     tot_num_stps = num_stps_env*num_env
-    num_steps_per_logging = 500000
     li = num_steps_per_logging // nsteps
     if net_type == 'twin_net':
         nlstm = num_u // 2
@@ -49,9 +49,15 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
         timing_cmmd = ''
     # trial history
     if trial_hist:
-        tr_h_flag = '_TH_' + ut.list_str(rep_prob) + '_' + str(bl_dur)
-        tr_h_cmmd = ' --trial_hist=True --bl_dur=' + str(bl_dur) +\
-            ' --rep_prob '
+        if blk_ch_prob is None:
+            tr_h_flag = '_TH_' + ut.list_str(rep_prob) + '_' + str(bl_dur)
+            tr_h_cmmd = ' --trial_hist=True --bl_dur=' + str(bl_dur) +\
+                ' --rep_prob '
+        else:
+            tr_h_flag = '_TH_' + ut.list_str(rep_prob) + '_' + str(blk_ch_prob)
+            tr_h_cmmd = ' --trial_hist=True' +\
+                ' --blk_ch_prob=' + str(blk_ch_prob) + ' --rep_prob '
+
         for ind_rp in range(len(rep_prob)):
             tr_h_cmmd += str(rep_prob[ind_rp]) + ' '
     else:
@@ -88,7 +94,10 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
         load_path_cmmd = ''
     else:
         load_path_cmmd = ' --load_path=' + load_path
-
+    if sv_neural:
+        sv_n_cmmd = ' --save_neural_data=True'
+    else:
+        sv_n_cmmd = ''
     save_path = save_folder + alg + '_' + env +\
         timing_flag + comb_flag + tr_h_flag + ps_rw_flag + ps_a_flag +\
         '_' + net_type
@@ -136,6 +145,7 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     command += ps_a_cmmd
     command += timing_cmmd
     command += load_path_cmmd
+    command += sv_n_cmmd
     # command += ' --figs=True'
     if save:
         print('Command:')
@@ -160,7 +170,8 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
                      env2='GNG-v0', delay=[500],
                      timing=[100, 200, 200, 200, 100],
                      timing2=[100, 200, 200, 200, 100, 100],
-                     scripts_folder='', seed=None, seed_task=None):
+                     scripts_folder='', seed=None, seed_task=None,
+                     sv_neural=True, blk_ch_probs=[None]):
     if cluster == 'hab':
         save_folder = main_folder + experiment + '/'
         run_folder = '/rigel/home/mm5514/'
@@ -172,7 +183,8 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
     insts = np.arange(num_insts)
     params_config = itertools.product(batch_size, bl_dur, num_units, stim_ev,
                                       net_type, pass_r, pass_act, alg,
-                                      rep_prob, alpha, delay, noise, insts)
+                                      rep_prob, alpha, delay, noise,
+                                      blk_ch_probs, insts)
     scr_folder = scripts_folder + experiment + '/'
     if not os.path.exists(scr_folder):
         os.makedirs(scr_folder)
@@ -188,7 +200,7 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
             name += str(conf[10])
         for ind in np.arange(8):
             name += '_' + str(conf[ind])
-        for ind in [9, 11, 12]:
+        for ind in [9, 11, 12, 13]:
             name += '_' + str(conf[ind])
         name += '_' + hours + 'h_' + cluster
         name = name.replace('.', '')
@@ -210,7 +222,8 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
                                timing=timing, timing2=timing2,
                                env=env, env2=env2, combine=combine,
                                trial_hist=tr_hist,
-                               seed=seed, seed_task=seed_task)
+                               seed=seed, seed_task=seed_task,
+                               sv_neural=sv_neural, blk_ch_prob=conf[12])
         cmmd += aux
         file.write(cmmd)
         file.close()

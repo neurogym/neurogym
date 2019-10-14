@@ -34,7 +34,8 @@ def build_env(env_id, inst=0, **all_args):
         env = gym.make(env_id, **env_args)
         if all_args['trial_hist']:
             env = trial_hist.TrialHistory(env, rep_prob=all_args['rep_prob'],
-                                          block_dur=all_args['bl_dur'])
+                                          block_dur=all_args['bl_dur'],
+                                          blk_ch_prob=all_args['blk_ch_prob'])
         elif all_args['side_bias']:
             env = side_bias.SideBias(env, prob=all_args['rep_prob'],
                                      block_dur=all_args['bl_dur'])
