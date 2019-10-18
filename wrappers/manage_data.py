@@ -29,6 +29,8 @@ class manage_data(Wrapper):
             # data to save
             self.choice_mat = []
             self.gt_mat = []
+            # for catch trials
+            self.catch_tr_mat = []
             # for dual-task
             self.config_mat = []
             # for RDM + trial history
@@ -42,7 +44,7 @@ class manage_data(Wrapper):
             self.act_mat = []
             self.gt_mat_render = []
             self.rew_mat = []
-            self.num_tr_save = 100000
+            self.num_tr_save = 1000
             self.max_num_samples = 200
             self.num_subplots = 3
             self.plt_tr = plt_tr and self.do
@@ -84,6 +86,8 @@ class manage_data(Wrapper):
                     self.rep_prob_mat.append(info['rep_prob'])
                 if 'config' in info.keys():
                     self.config_mat.append(info['config'])
+                if 'catch_trial' in info.keys():
+                    self.catch_tr_mat.append(info['catch_trial'])
 
                 # save data
                 if self.num_tr % self.num_tr_save == 0:
@@ -95,6 +99,8 @@ class manage_data(Wrapper):
                         data['rep_prob'] = self.rep_prob_mat
                     if len(self.config_mat) != 0:
                         data['config'] = self.config_mat
+                    if len(self.catch_tr_mat) != 0:
+                        data['catch_trial'] = self.catch_tr_mat
                     np.savez(self.saving_name + '_bhvr_data_' +
                              str(self.num_tr) + '.npz', **data)
                     if self.plt_tr:
@@ -103,6 +109,7 @@ class manage_data(Wrapper):
                     self.choice_mat = []
                     self.gt_mat = []
                     self.config_mat = []
+                    self.catch_tr_mat = []
                     self.rep_prob_mat = []
                     self.stim_mat = []
                     self.reward_mat = []
