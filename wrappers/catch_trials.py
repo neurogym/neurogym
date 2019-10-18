@@ -61,3 +61,21 @@ class CatchTrials(Wrapper):
         self.task.seed(seed=seed)
         # keeps track of the repeating prob of the current block
         self.curr_block = tasktools.choice(self.task.rng, [0, 1])
+
+
+if __name__ == '__main__':
+    data = np.load('/home/molano/neurogym/results/example1/' +
+                   'PassReward0_bhvr_data_1000.npz')
+    stim = data['stimulus'][:, 1:3]
+    stim = np.diff(stim, axis=1)
+    inds = np.where(data['catch_trial'] == 1)[0]
+    print(np.mean(np.abs(stim)))
+    print(np.mean(np.abs(stim[inds])))
+
+    print(data['reward'][inds])
+    #    ut.get_fig(display_mode=1)
+    #    gt = np.argmax(data['correct_side'], axis=1)
+    #    reps = an.get_repetitions(gt)
+    #    plt.plot(reps)
+    #    plt.plot(np.convolve(reps, np.ones(100,)/100,  mode='same'))
+    
