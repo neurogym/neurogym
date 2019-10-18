@@ -27,7 +27,8 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
                   eval_steps=100000, alpha=0.1, env2='GNG-v0', delay=[500],
                   timing2=[100, 200, 200, 200, 100, 100], combine=False,
                   trial_hist=False, noise=0, num_steps_per_logging=500000,
-                  sv_neural=True, blk_ch_prob=None):
+                  sv_neural=True, blk_ch_prob=None,
+                  catch_tr=False, stim_th=10, catch_prob=0.01):
     if seed is None:
         seed = datetime.now().microsecond
     if seed_task is None:
@@ -63,6 +64,15 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     else:
         tr_h_flag = ''
         tr_h_cmmd = ''
+    # catch trials
+    if catch_tr:
+        ct_flag = '_CTR_' + str(catch_prob) + '_' + str(stim_th)
+        ct_cmmd = ' --catch_trials=True' +\
+            ' --catch_prob=' + str(catch_prob) + ' --stim_th=' + str(stim_th)
+    else:
+        ct_flag = ''
+        ct_cmmd = ''
+
     # combine
     if combine:
         comb_flag = '_COMB_' + ut.list_str(rep_prob) + '_env2_' + env2 +\
@@ -99,8 +109,8 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     else:
         sv_n_cmmd = ''
     save_path = save_folder + alg + '_' + env +\
-        timing_flag + comb_flag + tr_h_flag + ps_rw_flag + ps_a_flag +\
-        '_' + net_type
+        timing_flag + comb_flag + tr_h_flag + ct_flag + ps_rw_flag +\
+        ps_a_flag + '_' + net_type
     save_path += '_ec_' + str(ent_coef)
     save_path += '_lr_' + str(lr)
     save_path += '_lrs_' + lr_sch
@@ -146,6 +156,7 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     command += timing_cmmd
     command += load_path_cmmd
     command += sv_n_cmmd
+    command += ct_cmmd
     # command += ' --figs=True'
     if save:
         print('Command:')
@@ -171,7 +182,8 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
                      timing=[100, 200, 200, 200, 100],
                      timing2=[100, 200, 200, 200, 100, 100],
                      scripts_folder='', seed=None, seed_task=None,
-                     sv_neural=True, blk_ch_probs=[None]):
+                     sv_neural=True, blk_ch_probs=[None],
+                     catch_tr=False, stim_th=10, catch_prob=[0.01]):
     if cluster == 'hab':
         save_folder = main_folder + experiment + '/'
         run_folder = '/rigel/home/mm5514/'
@@ -184,7 +196,7 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
     params_config = itertools.product(batch_size, bl_dur, num_units, stim_ev,
                                       net_type, pass_r, pass_act, alg,
                                       rep_prob, alpha, delay, noise,
-                                      blk_ch_probs, insts)
+                                      blk_ch_probs, catch_prob, insts)
     scr_folder = scripts_folder + experiment + '/'
     if not os.path.exists(scr_folder):
         os.makedirs(scr_folder)
@@ -200,7 +212,7 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
             name += str(conf[10])
         for ind in np.arange(8):
             name += '_' + str(conf[ind])
-        for ind in [9, 11, 12, 13]:
+        for ind in [9, 11, 12, 13, 14]:
             name += '_' + str(conf[ind])
         name += '_' + hours + 'h_' + cluster
         name = name.replace('.', '')
@@ -223,7 +235,9 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
                                env=env, env2=env2, combine=combine,
                                trial_hist=tr_hist,
                                seed=seed, seed_task=seed_task,
-                               sv_neural=sv_neural, blk_ch_prob=conf[12])
+                               sv_neural=sv_neural, blk_ch_prob=conf[12],
+                               catch_tr=catch_tr, stim_th=stim_th,
+                               catch_prob=conf[13])
         cmmd += aux
         file.write(cmmd)
         file.close()
