@@ -44,7 +44,7 @@ class manage_data(Wrapper):
             self.act_mat = []
             self.gt_mat_render = []
             self.rew_mat = []
-            self.num_tr_save = 100000
+            self.num_tr_save = 10000
             self.max_num_samples = 200
             self.num_subplots = 3
             self.plt_tr = plt_tr and self.do
@@ -81,7 +81,8 @@ class manage_data(Wrapper):
                 self.reward_mat.append(self.cum_rew)
                 self.cum_rew = 0
                 if 'gt' in info.keys():
-                    self.gt_mat.append(info['gt'])
+                    gt = np.argmax(info['gt'])
+                    self.gt_mat.append(gt)
                 if 'rep_prob' in info.keys():
                     self.rep_prob_mat.append(info['rep_prob'])
                 if 'config' in info.keys():
