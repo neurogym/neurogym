@@ -158,6 +158,8 @@ def explore_folder(main_folder, count=True,
                     num_trials.append([num_tr])
                 else:
                     num_trials[group].append(num_tr)
+        else:
+            print('params does not exist')
 
     params_explored = {k: args[k] for k in params_explored
                        if k not in non_relevant_params}
