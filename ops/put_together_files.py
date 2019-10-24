@@ -24,6 +24,7 @@ def put_together_files(folder, min_num_trials=1e6):
     choice_mat = np.empty((0,))
     side_mat = np.empty((0,))
     reward_mat = np.empty((0,))
+    ctr_mat = np.empty((0,))
     SIZE = 0
     for ind_f in range(len(files)):
         loaded = True
@@ -39,6 +40,10 @@ def put_together_files(folder, min_num_trials=1e6):
                 reward = data['reward']
             else:
                 reward = np.array([])
+            if 'catch_trial' in data.keys():
+                catch_tr = data['catch_trial']
+            else:
+                catch_tr = np.array([])
             side = side.reshape((side.shape[0], -1))
             if side.shape[1] != 1:
                 side = np.argmax(side, axis=1)
@@ -46,6 +51,7 @@ def put_together_files(folder, min_num_trials=1e6):
                 side = side.reshape((side.shape[0],))
             choice_mat = np.concatenate((choice_mat, choice))
             reward_mat = np.concatenate((reward_mat, reward))
+            ctr_mat = np.concatenate((ctr_mat, catch_tr))
             if SIZE == 0:  # define stim_mat using stim shape
                 stim_mat = np.empty((0, stim.shape[1]))
             stim_mat = np.concatenate((stim_mat, stim))
@@ -53,7 +59,8 @@ def put_together_files(folder, min_num_trials=1e6):
             SIZE += choice.shape[0]
     if SIZE > 0:
         data = {'choice': choice_mat, 'stimulus': stim_mat,
-                'correct_side': side_mat, 'reward': reward_mat}
+                'correct_side': side_mat, 'reward': reward_mat,
+                'catch_trial': ctr_mat}
         np.savez(folder + '/bhvr_data_all.npz', **data)
         if SIZE >= min_num_trials:
             return True
