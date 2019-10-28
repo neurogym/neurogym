@@ -45,6 +45,7 @@ class TrialHistory(Wrapper):
         else:
             if self.task.rng.random() < self.blk_ch_prob:
                 self.curr_block = int(not self.curr_block)
+
         # rep. probs might depend on previous outcome
         if self.prev_correct or self.ae_probs is None:
             if self.prev_trial == -1:
@@ -72,13 +73,10 @@ class TrialHistory(Wrapper):
 
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
-
         if info['new_trial']:
             info['rep_prob'] = self.rep_prob[self.curr_block]
             self.prev_correct = reward == self.task.R_CORRECT
             self.task.trial = self._modify_trial()
-            
-
         return obs, reward, done, info
 
     def seed(self, seed=None):

@@ -14,141 +14,159 @@ from neurogym.ops import utils as ut
 from os.path import expanduser
 home = expanduser("~")
 matplotlib.use('Agg')
+params = {'ps_r': True, 'ps_act': True, 'bl_dur': 200, 'num_u': 32,
+          'stimEv': 1., 'net_type': 'twin_net', 'num_stps_env': 1e9,
+          'load_path': '', 'save': True, 'nsteps': 20, 'alg': 'a2c',
+          'env': 'RDM-v0', 'seed': None, 'seed_task': None, 'num_env': 24,
+          'ent_coef': 0.05, 'lr_sch': 'constant', 'gamma': .8,
+          'rep_prob': (.2, .8), 'ae_prob': (.2, .8),  'lr': 1e-3,
+          'timing': [100, 200, 200, 200, 100], 'save_folder_name': '',
+          'eval_steps': 100000, 'alpha': 0.1, 'env2': 'GNG-v0',
+          'delay': [500], 'timing2': [100, 200, 200, 200, 100, 100],
+          'combine': False, 'trial_hist': False, 'noise': 0,
+          'num_steps_per_logging': 500000, 'sv_neural': True,
+          'blk_ch_prob': None, 'catch_tr': False, 'stim_th': 10,
+          'catch_prob': 0.01}
 
 
 def build_command(save_folder='/rigel/theory/users/mm5514/',
-                  run_folder='/rigel/home/mm5514/',
-                  ps_r=True, ps_act=True, bl_dur=200, num_u=32, stimEv=1.,
-                  net_type='twin_net', num_stps_env=1e9, load_path='',
-                  save=True, nsteps=20, alg='a2c', env='RDM-v0',
-                  seed=None, seed_task=None, num_env=24, ent_coef=0.05,
-                  lr_sch='constant', gamma=.8, rep_prob=(.2, .8),  lr=1e-3,
-                  timing=[100, 200, 200, 200, 100], save_folder_name='',
-                  eval_steps=100000, alpha=0.1, env2='GNG-v0', delay=[500],
-                  timing2=[100, 200, 200, 200, 100, 100], combine=False,
-                  trial_hist=False, noise=0, num_steps_per_logging=500000,
-                  sv_neural=True, blk_ch_prob=None,
-                  catch_tr=False, stim_th=10, catch_prob=0.01):
-    if seed is None:
+                  run_folder='/rigel/home/mm5514/', **kwargs):
+    for par in kwargs.keys():
+        params[par] = kwargs[par]
+    if params['seed'] is None:
         seed = datetime.now().microsecond
-    if seed_task is None:
-        seed_task = datetime.now().microsecond
-    tot_num_stps = num_stps_env*num_env
-    li = num_steps_per_logging // nsteps
-    if net_type == 'twin_net':
-        nlstm = num_u // 2
     else:
-        nlstm = num_u
+        seed = params['seed']
+    if params['seed_task'] is None:
+        seed_task = datetime.now().microsecond
+    else:
+        seed_task = params['seed_task']
+    tot_num_stps = params['num_stps_env']*params['num_env']
+    li = params['num_steps_per_logging'] // params['nsteps']
+    if params['net_type'] == 'twin_net':
+        nlstm = params['num_u'] // 2
+    else:
+        nlstm = params['num_u']
     # duration of different periods
-    if len(timing) > 0:
-        timing_flag = '_t_' + ut.list_str(timing)
+    if len(params['timing']) > 0:
+        timing_flag = '_t_' + ut.list_str(params['timing'])
         timing_cmmd = ' --timing '
-        for ind_t in range(len(timing)):
-            timing_cmmd += str(timing[ind_t]) + ' '
+        for ind_t in range(len(params['timing'])):
+            timing_cmmd += str(params['timing'][ind_t]) + ' '
     else:
         timing_flag = ''
         timing_cmmd = ''
     # trial history
-    if trial_hist:
-        if blk_ch_prob is None:
-            tr_h_flag = '_TH_' + ut.list_str(rep_prob) + '_' + str(bl_dur)
-            tr_h_cmmd = ' --trial_hist=True --bl_dur=' + str(bl_dur) +\
-                ' --rep_prob '
+    if params['trial_hist']:
+        tr_h_flag = '_TH_' + ut.list_str(params['rep_prob']) + '_' +\
+            ut.list_str(params['ae_prob'])
+        tr_h_cmmd = ' --trial_hist=True'
+        if params['blk_ch_prob'] is None:
+            tr_h_flag += '_' + str(params['bl_dur'])
+            tr_h_cmmd += ' --bl_dur=' +\
+                str(params['bl_dur'])
         else:
-            tr_h_flag = '_TH_' + ut.list_str(rep_prob) + '_' + str(blk_ch_prob)
-            tr_h_cmmd = ' --trial_hist=True' +\
-                ' --blk_ch_prob=' + str(blk_ch_prob) + ' --rep_prob '
+            tr_h_flag += '_' + str(params['blk_ch_prob'])
+            tr_h_cmmd += ' --blk_ch_prob=' + str(params['blk_ch_prob'])
 
-        for ind_rp in range(len(rep_prob)):
-            tr_h_cmmd += str(rep_prob[ind_rp]) + ' '
+        tr_h_cmmd += ' --rep_prob '
+        for ind_rp in range(len(params['rep_prob'])):
+            tr_h_cmmd += str(params['rep_prob'][ind_rp]) + ' '
+        tr_h_cmmd += ' --ae_prob '
+        for ind_rp in range(len(params['ae_prob'])):
+            tr_h_cmmd += str(params['ae_prob'][ind_rp]) + ' '
+
     else:
         tr_h_flag = ''
         tr_h_cmmd = ''
     # catch trials
-    if catch_tr:
-        ct_flag = '_CTR_' + str(catch_prob) + '_' + str(stim_th)
+    if params['catch_tr']:
+        ct_flag = '_CTR_' + str(params['catch_prob']) + '_' +\
+            str(params['stim_th'])
         ct_cmmd = ' --catch_trials=True' +\
-            ' --catch_prob=' + str(catch_prob) + ' --stim_th=' + str(stim_th)
+            ' --catch_prob=' + str(params['catch_prob']) + ' --stim_th=' +\
+            str(params['stim_th'])
     else:
         ct_flag = ''
         ct_cmmd = ''
 
     # combine
-    if combine:
-        comb_flag = '_COMB_' + ut.list_str(rep_prob) + '_env2_' + env2 +\
-            '_' + str(delay) + '_t2_' + ut.list_str(timing2)
-        comb_cmmd = ' --combine=True --delay=' + str(delay) +\
-            ' --env2=' + env2 + ' --timing2 '
-        for ind_t in range(len(timing2)):
-            comb_cmmd += str(timing2[ind_t]) + ' '
+    if params['combine']:
+        comb_flag = '_COMB__env2_' + params['env2'] +\
+            '_' + str(params['delay']) + '_t2_' +\
+            ut.list_str(params['timing2'])
+        comb_cmmd = ' --combine=True --delay=' + str(params['delay']) +\
+            ' --env2=' + params['env2'] + ' --timing2 '
+        for ind_t in range(len(params['timing2'])):
+            comb_cmmd += str(params['timing2'][ind_t]) + ' '
     else:
         comb_flag = ''
         comb_cmmd = ''
     # pass reward
-    if ps_r:
+    if params['ps_r']:
         ps_rw_flag = '_PR'
         ps_rw_cmmd = ' --pass_reward=True'
     else:
         ps_rw_flag = ''
         ps_rw_cmmd = ''
     # pass action
-    if ps_act:
+    if params['ps_act']:
         ps_a_flag = '_PA'
         ps_a_cmmd = ' --pass_action=True'
     else:
         ps_a_flag = ''
         ps_a_cmmd = ''
 
-    load_path = load_path
+    load_path = params['load_path']
     if load_path == '':
         load_path_cmmd = ''
     else:
         load_path_cmmd = ' --load_path=' + load_path
-    if sv_neural:
+    if params['sv_neural']:
         sv_n_cmmd = ' --save_neural_data=True'
     else:
         sv_n_cmmd = ''
-    save_path = save_folder + alg + '_' + env +\
+    save_path = save_folder + params['alg'] + '_' + params['env'] +\
         timing_flag + comb_flag + tr_h_flag + ct_flag + ps_rw_flag +\
-        ps_a_flag + '_' + net_type
-    save_path += '_ec_' + str(ent_coef)
-    save_path += '_lr_' + str(lr)
-    save_path += '_lrs_' + lr_sch
-    save_path += '_g_' + str(gamma)
-    save_path += '_b_' + ut.num2str(nsteps)
-    save_path += '_ne_' + str(num_env)
+        ps_a_flag + '_' + params['net_type']
+    save_path += '_ec_' + str(params['ent_coef'])
+    save_path += '_lr_' + str(params['lr'])
+    save_path += '_lrs_' + params['lr_sch']
+    save_path += '_g_' + str(params['gamma'])
+    save_path += '_b_' + ut.num2str(params['nsteps'])
+    save_path += '_ne_' + str(params['num_env'])
     save_path += '_nu_' + str(nlstm)
-    save_path += '_ev_' + str(stimEv)
-    save_path += '_a_' + str(alpha)
-    save_path += '_n_' + str(noise)
-    save_path += '_' + str(seed)
-    save_path += str(seed_task)
-    save_path += save_folder_name
+    save_path += '_ev_' + str(params['stimEv'])
+    save_path += '_a_' + str(params['alpha'])
+    save_path += '_n_' + str(params['noise'])
+    save_path += '_' + str(params['seed'])
+    save_path += str(params['seed_task'])
+    save_path += params['save_folder_name']
     save_path = save_path.replace('-v0', '')
     save_path = save_path.replace('constant', 'c')
     save_path = save_path.replace('linear', 'l')
     # load_path = save_path + '/checkpoints/00020'
-    if not os.path.exists(save_path) and save:
+    if not os.path.exists(save_path) and params['save']:
         os.mkdir(save_path)
-    command = run_folder + 'run.py --alg=' + alg
-    command += ' --env=' + env
-    command += ' --network=' + net_type
-    command += ' --nsteps=' + str(nsteps)
+    command = run_folder + 'run.py --alg=' + params['alg']
+    command += ' --env=' + params['env']
+    command += ' --network=' + params['net_type']
+    command += ' --nsteps=' + str(params['nsteps'])
     command += ' --num_timesteps=' + str(tot_num_stps)
     command += ' --log_interval=' + str(li)
-    command += ' --ent_coef=' + str(ent_coef)
-    command += ' --lrschedule=' + lr_sch
-    command += ' --gamma=' + str(gamma)
-    command += ' --num_env=' + str(num_env)
-    command += ' --lr=' + str(lr)
+    command += ' --ent_coef=' + str(params['ent_coef'])
+    command += ' --lrschedule=' + params['lr_sch']
+    command += ' --gamma=' + str(params['gamma'])
+    command += ' --num_env=' + str(params['num_env'])
+    command += ' --lr=' + str(params['lr'])
     command += ' --save_path=' + save_path
     command += ' --nlstm=' + str(nlstm)
-    command += ' --stimEv=' + str(stimEv)
+    command += ' --stimEv=' + str(params['stimEv'])
     command += ' --seed=' + str(seed)
     command += ' --seed_task=' + str(seed_task)
-    command += ' --eval_steps=' + str(eval_steps)
-    command += ' --alpha=' + str(alpha)
-    command += ' --sigma_rec=' + str(noise)
+    command += ' --eval_steps=' + str(params['eval_steps'])
+    command += ' --alpha=' + str(params['alpha'])
+    command += ' --sigma_rec=' + str(params['noise'])
     command += tr_h_cmmd
     command += comb_cmmd
     command += ps_rw_cmmd
@@ -158,15 +176,15 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     command += sv_n_cmmd
     command += ct_cmmd
     # command += ' --figs=True'
-    if save:
+    if params['save']:
         print('Command:')
         print(command)
         vars_ = vars()
-        params = {x: vars_[x] for x in vars_.keys() if type(vars_[x]) == str or
-                  type(vars_[x]) == int or type(vars_[x]) == float or
-                  type(vars_[x]) == bool or type(vars_[x]) == list or
-                  type(vars_[x]) == tuple}
-        np.savez(save_path + '/params.npz', ** params)
+        params_to_save = {x: vars_[x] for x in vars_.keys()
+                          if type(vars_[x]) == str or type(vars_[x]) == int or
+                          type(vars_[x]) == float or type(vars_[x]) == bool or
+                          type(vars_[x]) == list or type(vars_[x]) == tuple}
+        np.savez(save_path + '/params.npz', ** params_to_save)
 
     return command, save_path
 
@@ -183,7 +201,8 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
                      timing2=[100, 200, 200, 200, 100, 100],
                      scripts_folder='', seed=None, seed_task=None,
                      sv_neural=True, blk_ch_probs=[None],
-                     catch_tr=False, stim_th=10, catch_prob=[0.01]):
+                     catch_tr=False, stim_th=10, catch_prob=[0.01],
+                     ae_prob=[[.2, .8]]):
     if cluster == 'hab':
         save_folder = main_folder + experiment + '/'
         run_folder = '/rigel/home/mm5514/'
@@ -196,7 +215,7 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
     params_config = itertools.product(batch_size, bl_dur, num_units, stim_ev,
                                       net_type, pass_r, pass_act, alg,
                                       rep_prob, alpha, delay, noise,
-                                      blk_ch_probs, catch_prob, insts)
+                                      blk_ch_probs, catch_prob, ae_prob, insts)
     scr_folder = scripts_folder + experiment + '/'
     if not os.path.exists(scr_folder):
         os.makedirs(scr_folder)
@@ -208,11 +227,12 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
         name = env[:-3] + '_'
         if tr_hist:
             name += ut.list_str(conf[8])
+            name += ut.list_str(conf[14])
         if combine:
             name += str(conf[10])
         for ind in np.arange(8):
             name += '_' + str(conf[ind])
-        for ind in [9, 11, 12, 13, 14]:
+        for ind in [9, 11, 12, 13, 15]:
             name += '_' + str(conf[ind])
         name += '_' + hours + 'h_' + cluster
         name = name.replace('.', '')
@@ -237,7 +257,7 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
                                seed=seed, seed_task=seed_task,
                                sv_neural=sv_neural, blk_ch_prob=conf[12],
                                catch_tr=catch_tr, stim_th=stim_th,
-                               catch_prob=conf[13])
+                               catch_prob=conf[13], ae_prob=conf[14])
         cmmd += aux
         file.write(cmmd)
         file.close()
