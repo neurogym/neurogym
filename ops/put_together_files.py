@@ -68,4 +68,5 @@ def put_together_files(folder, min_num_trials=1e6):
             print('not enough data (' + str(SIZE) + ')')
             return False
     else:
-        print('not enough data (0)')
+        print('not enough data here:')
+        print(folder + '/*_bhvr_data*npz')
