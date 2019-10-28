@@ -16,7 +16,7 @@ class TrialHistory(Wrapper):
     previous correct response
     """
     def __init__(self, env, rep_prob=(.2, .8), block_dur=200,
-                 blk_ch_prob=None):
+                 blk_ch_prob=None, ae_probs=None):
         Wrapper.__init__(self, env=env)
         self.env = env
         # we get the original task, in case we are composing wrappers
@@ -25,6 +25,7 @@ class TrialHistory(Wrapper):
             env_aux = env.env
         self.task = env_aux
         self.rep_prob = rep_prob
+        self.ae_probs = ae_probs
         # keeps track of the repeating prob of the current block
         self.curr_block = tasktools.choice(self.task.rng, [0, 1])
         # duration of block (in number oif trials)
@@ -44,13 +45,21 @@ class TrialHistory(Wrapper):
         else:
             if self.task.rng.random() < self.blk_ch_prob:
                 self.curr_block = int(not self.curr_block)
-
-        if self.prev_trial == -1:
-            probs = (self.rep_prob[self.curr_block],
-                     1-self.rep_prob[self.curr_block])
+        # rep. probs might depend on previous outcome
+        if self.prev_correct or self.ae_probs is None:
+            if self.prev_trial == -1:
+                probs = (self.rep_prob[self.curr_block],
+                         1-self.rep_prob[self.curr_block])
+            else:
+                probs = (1-self.rep_prob[self.curr_block],
+                         self.rep_prob[self.curr_block])
         else:
-            probs = (1-self.rep_prob[self.curr_block],
-                     self.rep_prob[self.curr_block])
+            if self.prev_trial == -1:
+                probs = (self.ae_probs[self.curr_block],
+                         1-self.ae_probs[self.curr_block])
+            else:
+                probs = (1-self.ae_probs[self.curr_block],
+                         self.ae_probs[self.curr_block])
 
         trial['ground_truth'] = self.task.rng.choices(self.task.choices,
                                                       weights=probs)[0]
@@ -66,7 +75,9 @@ class TrialHistory(Wrapper):
 
         if info['new_trial']:
             info['rep_prob'] = self.rep_prob[self.curr_block]
+            self.prev_correct = reward == self.task.R_CORRECT
             self.task.trial = self._modify_trial()
+            
 
         return obs, reward, done, info
 
