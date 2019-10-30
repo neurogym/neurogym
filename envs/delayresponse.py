@@ -12,6 +12,7 @@ import numpy as np
 from gym import spaces
 from neurogym.ops import tasktools
 from neurogym.envs import ngym
+import matplotlib.pyplot as plt
 
 
 class DR(ngym.ngym):
@@ -31,6 +32,7 @@ class DR(ngym.ngym):
         self.stimulus_mean = timing[2]
         self.stimulus_max = timing[3]
         self.decision = timing[4]
+        # TODO: why this here?
         self.delay = self.rng.choice([1000, 5000, 10000])
         self.mean_trial_duration = self.fixation + self.stimulus_mean +\
             self.delay + self.decision
@@ -134,7 +136,6 @@ class DR(ngym.ngym):
         reward = 0
         # observations
         obs = np.zeros((3,))
-
         if self.in_epoch(self.t, 'fixation'):
             info['gt'][0] = 1
             obs[0] = 1
@@ -152,7 +153,7 @@ class DR(ngym.ngym):
                 reward = self.R_FAIL
             info['new_trial'] = self.actions[action] != 0
 
-        elif self.in_epoch(self.t, 'delay'):
+        elif self.in_epoch(self.t, 'delay'):  # TODO: why this here?
             info['gt'][0] = 1
             if self.actions[action] != 0:
                 reward = self.R_ABORTED
@@ -206,6 +207,8 @@ class DR(ngym.ngym):
 
 
 if __name__ == '__main__':
+    plt.close('all')
+    rows = 3
     env = DR(timing=[100, 300, 300, 300, 300])
     observations = []
     rewards = []
@@ -237,3 +240,25 @@ if __name__ == '__main__':
             config_mat.append(info['config'])
         else:
             config_mat.append([0, 0])
+    observations = np.array(observations)
+    plt.figure()
+    plt.subplot(rows, 1, 1)
+    plt.imshow(observations.T, aspect='auto')
+    plt.title('observations')
+    plt.subplot(rows, 1, 2)
+    plt.plot(actions, marker='+')
+    plt.plot(actions_end_of_trial, '--')
+    gt = np.array(gt)
+    plt.plot(np.argmax(gt, axis=1), 'r')
+    print(np.sum(np.argmax(gt, axis=1) == 2))
+    print(np.sum(np.argmax(gt, axis=1) == 1))
+    # aux = np.argmax(obs, axis=1)
+    # aux[np.sum(obs, axis=1) == 0] = -1
+    # plt.plot(aux, '--k')
+    plt.title('actions')
+    plt.xlim([-0.5, len(rewards)+0.5])
+    plt.subplot(rows, 1, 3)
+    plt.plot(rewards, 'r')
+    plt.title('reward')
+    plt.xlim([-0.5, len(rewards)+0.5])
+    plt.show()
