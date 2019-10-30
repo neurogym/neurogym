@@ -12,7 +12,6 @@ import numpy as np
 from gym import spaces
 from neurogym.ops import tasktools
 from neurogym.envs import ngym
-import matplotlib.pyplot as plt
 
 
 class DR(ngym.ngym):
@@ -32,7 +31,7 @@ class DR(ngym.ngym):
         self.stimulus_mean = timing[2]
         self.stimulus_max = timing[3]
         self.decision = timing[4]
-        self.delay = self.rng.choice([1000,5000,10000])
+        self.delay = self.rng.choice([1000, 5000, 10000])
         self.mean_trial_duration = self.fixation + self.stimulus_mean +\
             self.delay + self.decision
         if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
@@ -67,8 +66,7 @@ class DR(ngym.ngym):
 
         # start new trial
         self.trial = self._new_trial()
-        
-        
+
     def _new_trial(self):
         """
         _new_trial() is called when a trial ends to get the specifications of
@@ -80,14 +78,14 @@ class DR(ngym.ngym):
             coh: stimulus coherence (evidence) for the trial
 
         """
-        
+
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
         stimulus = tasktools.truncated_exponential(self.rng, self.dt,
                                                    self.stimulus_mean,
                                                    xmin=self.stimulus_min,
-                                                   xmax=self.stimulus_max)       
+                                                   xmax=self.stimulus_max)
         # maximum length of current trial
         self.tmax = self.fixation + stimulus + self.delay + self.decision
         durations = {
@@ -96,26 +94,26 @@ class DR(ngym.ngym):
             'delay': (self.fixation + stimulus,
                       self.fixation + stimulus + self.delay),
             'decision': (self.fixation + stimulus + self.delay,
-                         self.fixation + stimulus + self.delay + 
+                         self.fixation + stimulus + self.delay +
                          self.decision),
             }
-        
+
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
         ground_truth = tasktools.choice(self.rng, self.choices)
         coh = tasktools.choice(self.rng, self.cohs)
-        
+
         return {
             'durations': durations,
             'ground_truth': ground_truth,
             'coh': coh
             }
-        
+
         # Input scaling
     def scale(self, coh):
         return (1 + coh/100)/2
-    
+
     def _step(self, action):
         """
         _step receives an action and returns:
@@ -136,14 +134,14 @@ class DR(ngym.ngym):
         reward = 0
         # observations
         obs = np.zeros((3,))
-        
+
         if self.in_epoch(self.t, 'fixation'):
             info['gt'][0] = 1
             obs[0] = 1
             if self.actions[action] != 0:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
-                
+
         elif self.in_epoch(self.t, 'decision'):
             info['gt'][int((trial['ground_truth']/2+1.5))] = 1
             gt_sign = np.sign(trial['ground_truth'])
@@ -159,10 +157,10 @@ class DR(ngym.ngym):
             if self.actions[action] != 0:
                 reward = self.R_ABORTED
                 info['new_trial'] = True
-            
+
         else:
             info['gt'][0] = 1
-            
+
         # this is an 'if' to allow the stimulus and fixation periods to overlap
         if self.in_epoch(self.t, 'stimulus'):
             obs[0] = 1
@@ -172,9 +170,7 @@ class DR(ngym.ngym):
                 self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
             obs[low] = self.scale(-trial['coh']) +\
                 self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
-                
-                
-            
+
         # ---------------------------------------------------------------------
         # new trial?
         reward, info['new_trial'] = tasktools.new_trial(self.t, self.tmax,
@@ -188,8 +184,8 @@ class DR(ngym.ngym):
             self.t += self.dt
 
         done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info        
-        
+        return obs, reward, done, info
+
     def step(self, action):
         """
         step receives an action and returns:
@@ -207,10 +203,10 @@ class DR(ngym.ngym):
         if info['new_trial']:
             self.trial = self._new_trial()
         return obs, reward, done, info
-    
+
 
 if __name__ == '__main__':
-    env = TT(timing=[100, 300, 300, 300, 300])
+    env = DR(timing=[100, 300, 300, 300, 300])
     observations = []
     rewards = []
     actions = []
@@ -241,16 +237,3 @@ if __name__ == '__main__':
             config_mat.append(info['config'])
         else:
             config_mat.append([0, 0])
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
