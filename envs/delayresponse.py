@@ -16,8 +16,8 @@ import matplotlib.pyplot as plt
 
 
 class DR(ngym.ngym):
-    def __init__(self, dt=100, timing=[], stimEv=1.,
-                 **kwargs):
+    def __init__(self, dt=100, timing=[], delays=[1000, 5000, 10000],
+                 stimEv=1., **kwargs):
         super().__init__(dt=dt)
         # Actions (fixate, left, right)
         self.actions = [0, -1, 1]
@@ -32,10 +32,9 @@ class DR(ngym.ngym):
         self.stimulus_mean = timing[2]
         self.stimulus_max = timing[3]
         self.decision = timing[4]
-        # TODO: why this here?
-        self.delay = self.rng.choice([1000, 5000, 10000])
+        self.delays = delays
         self.mean_trial_duration = self.fixation + self.stimulus_mean +\
-            self.delay + self.decision
+            np.mean(self.delays) + self.decision
         if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
             print('XXXXXXXXXXXXXXXXXXXXXX')
             print('the duration of all periods must be larger than 0')
@@ -46,7 +45,7 @@ class DR(ngym.ngym):
         print('Min Stimulus Duration: ' + str(self.stimulus_min))
         print('Mean Stimulus Duration: ' + str(self.stimulus_mean))
         print('Max Stimulus Duration: ' + str(self.stimulus_max))
-        print('Delay: ' + str(self.delay))
+        print('Delay: ' + str(self.delays))
         print('Decision: ' + str(self.decision))
         print('(time step: ' + str(self.dt) + ')')
         print('Mean Trial Duration: ' + str(self.mean_trial_duration))
@@ -88,6 +87,9 @@ class DR(ngym.ngym):
                                                    self.stimulus_mean,
                                                    xmin=self.stimulus_min,
                                                    xmax=self.stimulus_max)
+
+        self.delay = self.rng.choice(self.delays)
+
         # maximum length of current trial
         self.tmax = self.fixation + stimulus + self.delay + self.decision
         durations = {
@@ -153,11 +155,11 @@ class DR(ngym.ngym):
                 reward = self.R_FAIL
             info['new_trial'] = self.actions[action] != 0
 
-        elif self.in_epoch(self.t, 'delay'):  # TODO: why this here?
+        elif self.in_epoch(self.t, 'delay'):
             info['gt'][0] = 1
             if self.actions[action] != 0:
                 reward = self.R_ABORTED
-                info['new_trial'] = True
+                info['new_trial'] = self.abort
 
         else:
             info['gt'][0] = 1
@@ -183,6 +185,7 @@ class DR(ngym.ngym):
             self.num_tr += 1
         else:
             self.t += self.dt
+            print(self.t)
 
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info
@@ -216,7 +219,7 @@ if __name__ == '__main__':
     actions_end_of_trial = []
     gt = []
     config_mat = []
-    num_steps_env = 100
+    num_steps_env = 200
     for stp in range(int(num_steps_env)):
         action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
