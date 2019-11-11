@@ -19,7 +19,7 @@ params = {'ps_r': True, 'ps_act': True, 'bl_dur': 200, 'num_u': 32,
           'load_path': '', 'save': True, 'nsteps': 20, 'alg': 'a2c',
           'env': 'RDM-v0', 'seed': None, 'seed_task': None, 'num_env': 24,
           'ent_coef': 0.05, 'lr_sch': 'constant', 'gamma': .8,
-          'rep_prob': (.2, .8), 'ae_prob': (.2, .8),  'lr': 1e-3,
+          'rep_prob': (.2, .8), 'ae_probs': None,  'lr': 1e-3,
           'timing': [100, 200, 200, 200, 100], 'save_folder_name': '',
           'eval_steps': 100000, 'alpha': 0.1, 'env2': 'GNG-v0',
           'delay': [500], 'timing2': [100, 200, 200, 200, 100, 100],
@@ -41,6 +41,8 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
         seed_task = datetime.now().microsecond
     else:
         seed_task = params['seed_task']
+    assert seed is not None
+    assert seed_task is not None
     tot_num_stps = params['num_stps_env']*params['num_env']
     li = params['num_steps_per_logging'] // params['nsteps']
     if params['net_type'] == 'twin_net':
@@ -58,8 +60,9 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
         timing_cmmd = ''
     # trial history
     if params['trial_hist']:
-        tr_h_flag = '_TH_' + ut.list_str(params['rep_prob']) + '_' +\
-            ut.list_str(params['ae_prob'])
+        tr_h_flag = '_TH_' + ut.list_str(params['rep_prob'])
+        if params['ae_probs'] is not None:
+            tr_h_flag += '_' + ut.list_str(params['ae_probs'])
         tr_h_cmmd = ' --trial_hist=True'
         if params['blk_ch_prob'] is None:
             tr_h_flag += '_' + str(params['bl_dur'])
@@ -72,9 +75,10 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
         tr_h_cmmd += ' --rep_prob '
         for ind_rp in range(len(params['rep_prob'])):
             tr_h_cmmd += str(params['rep_prob'][ind_rp]) + ' '
-        tr_h_cmmd += ' --ae_prob '
-        for ind_rp in range(len(params['ae_prob'])):
-            tr_h_cmmd += str(params['ae_prob'][ind_rp]) + ' '
+        if params['ae_probs'] is not None:
+            tr_h_cmmd += ' --ae_probs '
+            for ind_rp in range(len(params['ae_probs'])):
+                tr_h_cmmd += str(params['ae_probs'][ind_rp]) + ' '
 
     else:
         tr_h_flag = ''
@@ -139,8 +143,8 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     save_path += '_ev_' + str(params['stimEv'])
     save_path += '_a_' + str(params['alpha'])
     save_path += '_n_' + str(params['noise'])
-    save_path += '_' + str(params['seed'])
-    save_path += str(params['seed_task'])
+    save_path += '_' + str(seed)
+    save_path += str(seed_task)
     save_path += params['save_folder_name']
     save_path = save_path.replace('-v0', '')
     save_path = save_path.replace('constant', 'c')
@@ -202,20 +206,26 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
                      scripts_folder='', seed=None, seed_task=None,
                      sv_neural=True, blk_ch_probs=[None],
                      catch_tr=False, stim_th=10, catch_prob=[0.01],
-                     ae_prob=[[.2, .8]]):
+                     ae_probs=[None]):
+    save_folder = main_folder + experiment + '/'
     if cluster == 'hab':
-        save_folder = main_folder + experiment + '/'
         run_folder = '/rigel/home/mm5514/'
         n_envs = 24
-    else:
-        save_folder = main_folder + experiment + '/'
+    elif cluster == 'bsc':
         run_folder = '/home/hcli64/hcli64348/'
         n_envs = 40
+    elif cluster == 'pc':
+        run_folder = 'python n_baselines/baselines/'
+        n_envs = 40
+    else:
+        return
+
     insts = np.arange(num_insts)
     params_config = itertools.product(batch_size, bl_dur, num_units, stim_ev,
                                       net_type, pass_r, pass_act, alg,
                                       rep_prob, alpha, delay, noise,
-                                      blk_ch_probs, catch_prob, ae_prob, insts)
+                                      blk_ch_probs, catch_prob, ae_probs,
+                                      insts)
     scr_folder = scripts_folder + experiment + '/'
     if not os.path.exists(scr_folder):
         os.makedirs(scr_folder)
@@ -236,6 +246,7 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
             name += '_' + str(conf[ind])
         name += '_' + hours + 'h_' + cluster
         name = name.replace('.', '')
+        name = name.replace('None', '')
         name += '.sh'
         print(name)
         main_file.write('sbatch ' + name + '\n')
@@ -257,7 +268,7 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
                                seed=seed, seed_task=seed_task,
                                sv_neural=sv_neural, blk_ch_prob=conf[12],
                                catch_tr=catch_tr, stim_th=stim_th,
-                               catch_prob=conf[13], ae_prob=conf[14])
+                               catch_prob=conf[13], ae_probs=conf[14])
         cmmd += aux
         file.write(cmmd)
         file.close()

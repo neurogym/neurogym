@@ -17,6 +17,8 @@ class TrialHistory(Wrapper):
     """
     def __init__(self, env, rep_prob=(.2, .8), block_dur=200,
                  blk_ch_prob=None, ae_probs=None):
+        if ae_probs is None:
+            ae_probs = rep_prob
         Wrapper.__init__(self, env=env)
         self.env = env
         # we get the original task, in case we are composing wrappers
@@ -41,13 +43,13 @@ class TrialHistory(Wrapper):
         # change rep. prob. every self.block_dur trials
         if self.blk_ch_prob is None:
             if self.task.num_tr % self.block_dur == 0:
-                self.curr_block = int(not self.curr_block)
+                self.curr_block = (self.curr_block + 1) % len(self.rep_prob)
         else:
             if self.task.rng.random() < self.blk_ch_prob:
-                self.curr_block = int(not self.curr_block)
+                self.curr_block = (self.curr_block + 1) % len(self.rep_prob)
 
         # rep. probs might depend on previous outcome
-        if self.prev_correct or self.ae_probs is None:
+        if self.prev_correct:
             if self.prev_trial == -1:
                 probs = (self.rep_prob[self.curr_block],
                          1-self.rep_prob[self.curr_block])
