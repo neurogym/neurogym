@@ -56,6 +56,7 @@ class DR(ngym.ngym):
         self.R_FAIL = -1.
         self.R_MISS = 0.
         self.abort = False
+        self.firstcounts = True
         # action and observation spaces
         self.stimulus_min = np.max([self.stimulus_min, dt])
         self.action_space = spaces.Discrete(3)
@@ -151,9 +152,10 @@ class DR(ngym.ngym):
             action_sign = np.sign(self.actions[action])
             if gt_sign == action_sign:
                 reward = self.R_CORRECT
+                info['new_trial'] = True
             elif gt_sign == -action_sign:
                 reward = self.R_FAIL
-            info['new_trial'] = self.actions[action] != 0
+                info['new_trial'] = self.firstcounts
 
         elif self.in_epoch(self.t, 'delay'):
             info['gt'][0] = 1
