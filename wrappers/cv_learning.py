@@ -15,6 +15,7 @@ sys.path.append(home + '/neurogym')
 sys.path.append(home + '/gym')
 from gym.core import Wrapper
 from neurogym.envs import delayresponse as DR
+from copy import copy
 
 
 class CurriculumLearning(Wrapper):
@@ -22,7 +23,7 @@ class CurriculumLearning(Wrapper):
     modfies a given environment by changing the probability of repeating the
     previous correct response
     """
-    def __init__(self, env, perf_w=10, max_num_reps=2):
+    def __init__(self, env, perf_w=10, max_num_reps=2, init_ph=0):
         Wrapper.__init__(self, env=env)
         self.env = env
         # we get the original task, in case we are composing wrappers
@@ -30,14 +31,14 @@ class CurriculumLearning(Wrapper):
         while env_aux.__class__.__module__.find('wrapper') != -1:
             env_aux = env.env
         self.task = env_aux
-        #        self.ori_task = {}
-        #        self.ori_task = type('ori_task',
-        #                             self.task.__bases__, dict(self.task.__dict__))
-        self.curr_ph = 0
+        self.ori_task = copy(env)
+        self.curr_ph = init_ph
         self.curr_perf = 0
         self.perf_window = perf_w
         self.counter = 0
         self.max_num_reps = max_num_reps
+        self._set_trial_params()
+        self.task.trial = self.task._new_trial()
 
     def _set_trial_params(self):
         # ---------------------------------------------------------------------
@@ -68,7 +69,7 @@ class CurriculumLearning(Wrapper):
             # first answer counts
             # TODO: use self.ori_task to recover original values for all
             # variables modified in phase 1
-            self.task.R_FAIL = -self.task.R_CORRECT
+            self.task.R_FAIL = self.ori_task.R_FAIL
             self.task.firstcounts = True
         elif self.curr_ph == 3:
             self.task.delays = [1000, 5000, 10000]
