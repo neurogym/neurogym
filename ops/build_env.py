@@ -8,6 +8,7 @@ Created on Fri Mar  8 10:22:19 2019
 # TODO: allow tasks parameters to be modfied
 import gym
 from neurogym.wrappers import trial_hist
+from neurogym.wrappers import trial_hist_reset
 from neurogym.wrappers import manage_data
 from neurogym.wrappers import combine
 from neurogym.wrappers import reaction_time
@@ -41,6 +42,8 @@ def build_env(env_id, inst=0, **all_args):
         elif all_args['side_bias']:
             env = side_bias.SideBias(env, prob=all_args['rep_prob'],
                                      block_dur=all_args['bl_dur'])
+        elif all_args['trial_hist_reset']:
+            env = trial_hist_reset.TrHReset(env, rep_prob=all_args['rep_prob'])
         if all_args['catch_trials']:
             env = catch_trials.CatchTrials(env,
                                            catch_prob=all_args['catch_prob'],

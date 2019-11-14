@@ -23,8 +23,8 @@ params = {'ps_r': True, 'ps_act': True, 'bl_dur': 200, 'num_u': 32,
           'timing': [100, 200, 200, 200, 100], 'save_folder_name': '',
           'eval_steps': 100000, 'alpha': 0.1, 'env2': 'GNG-v0',
           'delay': [500], 'timing2': [100, 200, 200, 200, 100, 100],
-          'combine': False, 'trial_hist': False, 'noise': 0,
-          'num_steps_per_logging': 500000, 'sv_neural': True,
+          'combine': False, 'trial_hist': False, 'trial_hist_reset': False,
+          'noise': 0, 'num_steps_per_logging': 500000, 'sv_neural': True,
           'blk_ch_prob': None, 'catch_tr': False, 'stim_th': 10,
           'catch_prob': 0.01}
 
@@ -43,6 +43,7 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
         seed_task = params['seed_task']
     assert seed is not None
     assert seed_task is not None
+    assert not (params['trial_hist'] and params['trial_hist_reset'])
     tot_num_stps = params['num_stps_env']*params['num_env']
     li = params['num_steps_per_logging'] // params['nsteps']
     if params['net_type'] == 'twin_net':
@@ -79,10 +80,22 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
             tr_h_cmmd += ' --ae_probs '
             for ind_rp in range(len(params['ae_probs'])):
                 tr_h_cmmd += str(params['ae_probs'][ind_rp]) + ' '
-
     else:
         tr_h_flag = ''
         tr_h_cmmd = ''
+
+    # trial history reset (block changes randomly after an error)
+    if params['trial_hist_reset']:
+        tr_h_r_flag = '_THR_' + ut.list_str(params['rep_prob'])
+        tr_h_r_cmmd = ' --trial_hist_reset=True'
+
+        tr_h_r_cmmd += ' --rep_prob '
+        for ind_rp in range(len(params['rep_prob'])):
+            tr_h_r_cmmd += str(params['rep_prob'][ind_rp]) + ' '
+    else:
+        tr_h_r_flag = ''
+        tr_h_r_cmmd = ''
+
     # catch trials
     if params['catch_tr']:
         ct_flag = '_CTR_' + str(params['catch_prob']) + '_' +\
@@ -131,8 +144,8 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     else:
         sv_n_cmmd = ''
     save_path = save_folder + params['alg'] + '_' + params['env'] +\
-        timing_flag + comb_flag + tr_h_flag + ct_flag + ps_rw_flag +\
-        ps_a_flag + '_' + params['net_type']
+        timing_flag + comb_flag + tr_h_flag + tr_h_r_flag + ct_flag +\
+        ps_rw_flag + ps_a_flag + '_' + params['net_type']
     save_path += '_ec_' + str(params['ent_coef'])
     save_path += '_lr_' + str(params['lr'])
     save_path += '_lrs_' + params['lr_sch']
@@ -172,6 +185,7 @@ def build_command(save_folder='/rigel/theory/users/mm5514/',
     command += ' --alpha=' + str(params['alpha'])
     command += ' --sigma_rec=' + str(params['noise'])
     command += tr_h_cmmd
+    command += tr_h_r_cmmd
     command += comb_cmmd
     command += ps_rw_cmmd
     command += ps_a_cmmd
@@ -199,8 +213,8 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
                      net_type=['cont_rnn'], pass_r=[True], pass_act=[True],
                      num_insts=5, experiment='', main_folder='',
                      num_steps_env=1e8, alpha=[0.1],
-                     combine=False, tr_hist=False, noise=[0], env='RDM-v0',
-                     env2='GNG-v0', delay=[500],
+                     combine=False, tr_hist=False, tr_hist_reset=False,
+                     noise=[0], env='RDM-v0', env2='GNG-v0', delay=[500],
                      timing=[100, 200, 200, 200, 100],
                      timing2=[100, 200, 200, 200, 100, 100],
                      scripts_folder='', seed=None, seed_task=None,
@@ -238,6 +252,8 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
         if tr_hist:
             name += ut.list_str(conf[8])
             name += ut.list_str(conf[14])
+        if tr_hist_reset:
+            name += ut.list_str(conf[8])
         if combine:
             name += str(conf[10])
         for ind in np.arange(8):
@@ -265,6 +281,7 @@ def produce_sh_files(cluster='hab', alg=['supervised'], hours='120',
                                timing=timing, timing2=timing2,
                                env=env, env2=env2, combine=combine,
                                trial_hist=tr_hist,
+                               trial_hist_reset=tr_hist_reset,
                                seed=seed, seed_task=seed_task,
                                sv_neural=sv_neural, blk_ch_prob=conf[12],
                                catch_tr=catch_tr, stim_th=stim_th,
