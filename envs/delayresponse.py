@@ -106,8 +106,8 @@ class DR(ngym.ngym):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-        ground_truth = tasktools.choice(self.rng, self.choices)
-        coh = tasktools.choice(self.rng, self.cohs)
+        ground_truth = self.rng.choice(self.choices)
+        coh = self.rng.choice(self.cohs)
 
         return {
             'durations': durations,

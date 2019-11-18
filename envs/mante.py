@@ -185,15 +185,15 @@ class Mante(ngym.ngym):
         # Trial
         # -------------------------------------------------------------------------
 
-        context_ = tasktools.choice(self.rng, self.contexts)
+        context_ = self.rng.choice(self.contexts)
 
-        left_right_m = tasktools.choice(self.rng, self.choices)
+        left_right_m = self.rng.choice(self.choices)
 
-        left_right_c = tasktools.choice(self.rng, self.choices)
+        left_right_c = self.rng.choice(self.choices)
 
-        coh_m = tasktools.choice(self.rng, self.cohs)
+        coh_m = self.rng.choice(self.cohs)
 
-        coh_c = tasktools.choice(self.rng, self.cohs)
+        coh_c = self.rng.choice(self.cohs)
 
         if context_ == 'm':
             ground_truth = 2*(left_right_m > 0) - 1

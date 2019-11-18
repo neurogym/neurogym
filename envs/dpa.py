@@ -94,7 +94,7 @@ class DPA(ngym.ngym):
                            self.resp_delay, self.tmax),
             }
 
-        pair = tasktools.choice(self.rng, self.dpa_pairs)
+        pair = self.rng.choice(self.dpa_pairs)
 
         if np.diff(pair)[0] == 2:
             ground_truth = 1

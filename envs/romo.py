@@ -91,8 +91,8 @@ class Romo(ngym.ngym):
                            self.tmax),
             }
 
-        ground_truth = tasktools.choice(self.rng, self.choices)
-        fpair = tasktools.choice(self.rng, self.fpairs)
+        ground_truth = self.rng.choice(self.choices)
+        fpair = self.rng.choice(self.fpairs)
         if ground_truth == -1:
             f1, f2 = fpair
         else:

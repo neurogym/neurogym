@@ -72,7 +72,7 @@ class ReadySetGo(ngym.ngym):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        measure = tasktools.choice(self.rng, self.measures)
+        measure = self.rng.choice(self.measures)
         production = measure * self.gain
         self.tmax = self.fixation + measure + self.set + 2*production
 
