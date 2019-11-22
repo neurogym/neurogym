@@ -25,7 +25,7 @@ class TrHReset(Wrapper):
         self.task = env_aux
         self.rep_prob = rep_prob
         # keeps track of the repeating prob of the current block
-        self.curr_block = tasktools.choice(self.task.rng, [0, 1])
+        self.curr_block = self.task.rng.choice([0, 1])
         self.prev_trial = self.task.trial['ground_truth']
 
     def _modify_trial(self):
@@ -36,7 +36,7 @@ class TrHReset(Wrapper):
         # rep. probs might depend on previous outcome
         if not self.prev_correct:
             self.curr_block = self.task.rng.randint(0, len(self.rep_prob)-1)
-            prev_trial = tasktools.choice(self.task.rng, self.task.choices)
+            prev_trial = self.task.rng.choice(self.task.choices)
         else:
             prev_trial = self.prev_trial
 
@@ -67,4 +67,4 @@ class TrHReset(Wrapper):
     def seed(self, seed=None):
         self.task.seed(seed=seed)
         # keeps track of the repeating prob of the current block
-        self.curr_block = tasktools.choice(self.task.rng, [0, 1])
+        self.curr_block = self.task.rng.choice([0, 1])

@@ -29,7 +29,7 @@ class TrialHistory(Wrapper):
         self.rep_prob = rep_prob
         self.ae_probs = ae_probs
         # keeps track of the repeating prob of the current block
-        self.curr_block = tasktools.choice(self.task.rng, [0, 1])
+        self.curr_block = self.task.rng.choice([0, 1])
         # duration of block (in number oif trials)
         self.block_dur = block_dur
         self.prev_trial = self.task.trial['ground_truth']
@@ -84,4 +84,4 @@ class TrialHistory(Wrapper):
     def seed(self, seed=None):
         self.task.seed(seed=seed)
         # keeps track of the repeating prob of the current block
-        self.curr_block = tasktools.choice(self.task.rng, [0, 1])
+        self.curr_block = self.task.rng.choice([0, 1])

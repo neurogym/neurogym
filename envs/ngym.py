@@ -37,12 +37,6 @@ class ngym(gym.Env):
         """
         restarts the experiment with the same parameters
         """
-        if self.num_tr > 1:
-            print(self.__class__.__name__)
-            print('percentage of trials performed: ' +
-                  str(100*self.num_tr_perf/self.num_tr_exp))
-            print('mean performance: ' + str(self.perf))
-
         self.perf = 0
         self.num_tr_perf = 0
         self.num_tr = 1
