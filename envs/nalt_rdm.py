@@ -1,11 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Oct  9 13:55:24 2019
+Created on Tue Nov 12 17:39:17 2019
 
-@author: martafradera
+@author: molano
+
+
+Perceptual decision-making task, based on
+
+  Bounded integration in parietal cortex underlies decisions even when viewing
+  duration is dictated by the environment.
+  R Kiani, TD Hanks, & MN Shadlen, JNS 2008.
+
+  http://dx.doi.org/10.1523/JNEUROSCI.4761-07.2008
+
+  But allowing for more than 2 choices.
+
 """
-
 from __future__ import division
 
 import numpy as np
@@ -15,52 +26,50 @@ from neurogym.envs import ngym
 import matplotlib.pyplot as plt
 
 
-class DR(ngym.ngym):
-    def __init__(self, dt=100, timing=[],
+class N_AltRDM(ngym.ngym):
+    def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500), n=3,
                  stimEv=1., **kwargs):
         super().__init__(dt=dt)
+        self.n = n
         # Actions (fixate, left, right)
-        self.actions = [0, -1, 1]
+        self.actions = np.arange(n+1)
         # trial conditions (left, right)
-        self.choices = [-1, 1]
+        self.choices = np.arange(1, n+1)
         # cohs specifies the amount of evidence (which is modulated by stimEv)
-        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
+        self.cohs = np.array([6.4, 12.8, 25.6, 51.2])*10
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
+        # Durations (stimulus duration will be drawn from an exponential)
         self.fixation = timing[0]
         self.stimulus_min = timing[1]
         self.stimulus_mean = timing[2]
         self.stimulus_max = timing[3]
         self.decision = timing[4]
-        self.delays = [1000, 5000, 10000]
         self.mean_trial_duration = self.fixation + self.stimulus_mean +\
-            np.mean(self.delays) + self.decision
+            self.decision
         if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
             print('XXXXXXXXXXXXXXXXXXXXXX')
             print('the duration of all periods must be larger than 0')
             print('XXXXXXXXXXXXXXXXXXXXXX')
         print('XXXXXXXXXXXXXXXXXXXXXX')
-        print('Tiffanys Task')
+        print('Random Dots Motion Task')
         print('Fixation: ' + str(self.fixation))
         print('Min Stimulus Duration: ' + str(self.stimulus_min))
         print('Mean Stimulus Duration: ' + str(self.stimulus_mean))
         print('Max Stimulus Duration: ' + str(self.stimulus_max))
-        print('Delay: ' + str(self.delays))
         print('Decision: ' + str(self.decision))
         print('(time step: ' + str(self.dt) + ')')
-        print('Mean Trial Duration: ' + str(self.mean_trial_duration))
         print('XXXXXXXXXXXXXXXXXXXXXX')
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
-        self.R_FAIL = -1.
+        self.R_FAIL = 0.
         self.R_MISS = 0.
         self.abort = False
-        self.firstcounts = True
         # action and observation spaces
         self.stimulus_min = np.max([self.stimulus_min, dt])
-        self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
+        self.action_space = spaces.Discrete(n+1)
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(n+1,),
                                             dtype=np.float32)
         # seeding
         self.seed()
@@ -80,7 +89,6 @@ class DR(ngym.ngym):
             coh: stimulus coherence (evidence) for the trial
 
         """
-
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
@@ -88,19 +96,13 @@ class DR(ngym.ngym):
                                                    self.stimulus_mean,
                                                    xmin=self.stimulus_min,
                                                    xmax=self.stimulus_max)
-
-        self.delay = self.rng.choice(self.delays)
-
         # maximum length of current trial
-        self.tmax = self.fixation + stimulus + self.delay + self.decision
+        self.tmax = self.fixation + stimulus + self.decision
         durations = {
             'fixation': (0, self.fixation),
             'stimulus': (self.fixation, self.fixation + stimulus),
-            'delay': (self.fixation + stimulus,
-                      self.fixation + stimulus + self.delay),
-            'decision': (self.fixation + stimulus + self.delay,
-                         self.fixation + stimulus + self.delay +
-                         self.decision),
+            'decision': (self.fixation + stimulus,
+                         self.fixation + stimulus + self.decision),
             }
 
         # ---------------------------------------------------------------------
@@ -115,7 +117,7 @@ class DR(ngym.ngym):
             'coh': coh
             }
 
-        # Input scaling
+    # Input scaling
     def scale(self, coh):
         return (1 + coh/100)/2
 
@@ -134,48 +136,37 @@ class DR(ngym.ngym):
         # ---------------------------------------------------------------------
         trial = self.trial
         info = {'new_trial': False}
-        info['gt'] = np.zeros((3,))
+        info['gt'] = np.zeros((self.n+1,))
         # rewards
         reward = 0
         # observations
-        obs = np.zeros((3,))
+        obs = np.zeros((self.n+1,))
         if self.in_epoch(self.t, 'fixation'):
             info['gt'][0] = 1
             obs[0] = 1
             if self.actions[action] != 0:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
-
-        elif self.in_epoch(self.t, 'delay'):
-            info['gt'][0] = 1
-            if self.actions[action] != 0:
-                reward = self.R_ABORTED
-                info['new_trial'] = self.abort
-
         elif self.in_epoch(self.t, 'decision'):
-            info['gt'][int((trial['ground_truth']/2+1.5))] = 1
-            gt_sign = np.sign(trial['ground_truth'])
-            action_sign = np.sign(self.actions[action])
-            if gt_sign == action_sign:
+            info['gt'][trial['ground_truth']] = 1
+            if self.actions[action] == trial['ground_truth']:
                 reward = self.R_CORRECT
-                info['new_trial'] = True
-            elif gt_sign == -action_sign:
+            elif self.actions[action] != 0:
                 reward = self.R_FAIL
-                info['new_trial'] = self.firstcounts
-
-
+            info['new_trial'] = self.actions[action] != 0
         else:
             info['gt'][0] = 1
 
         # this is an 'if' to allow the stimulus and fixation periods to overlap
         if self.in_epoch(self.t, 'stimulus'):
             obs[0] = 1
-            high = (trial['ground_truth'] > 0) + 1
-            low = (trial['ground_truth'] < 0) + 1
-            obs[high] = self.scale(trial['coh']) +\
-                self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
-            obs[low] = self.scale(-trial['coh']) +\
-                self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
+            for ind_obs in range(1, self.n+1):
+                if ind_obs == trial['ground_truth']:
+                    coh = trial['coh']
+                else:
+                    coh = -trial['coh']
+                obs[ind_obs] = self.scale(coh) +\
+                    self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
 
         # ---------------------------------------------------------------------
         # new trial?
@@ -188,7 +179,6 @@ class DR(ngym.ngym):
             self.num_tr += 1
         else:
             self.t += self.dt
-            print(self.t)
 
         done = self.num_tr > self.num_tr_exp
         return obs, reward, done, info
@@ -213,29 +203,21 @@ class DR(ngym.ngym):
 
 
 if __name__ == '__main__':
-    plt.close('all')
-    rows = 3
-    env = DR(timing=[100, 300, 300, 300, 300])
+    env = N_AltRDM(timing=[100, 200, 200, 200, 100])
     observations = []
     rewards = []
     actions = []
     actions_end_of_trial = []
     gt = []
     config_mat = []
-    num_steps_env = 200
+    num_steps_env = 100
     for stp in range(int(num_steps_env)):
         action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
-        print(info['gt'])
-        print(action)
-        print(rew)
-        print(obs)
-        print('')
         if done:
             env.reset()
         observations.append(obs)
         if info['new_trial']:
-            print('XXXXXXXXXXXX')
             actions_end_of_trial.append(action)
         else:
             actions_end_of_trial.append(-1)
@@ -246,19 +228,19 @@ if __name__ == '__main__':
             config_mat.append(info['config'])
         else:
             config_mat.append([0, 0])
-    observations = np.array(observations)
+
+    rows = 3
+    obs = np.array(observations)
     plt.figure()
     plt.subplot(rows, 1, 1)
-    plt.imshow(observations.T, aspect='auto')
+    plt.imshow(obs.T, aspect='auto')
     plt.title('observations')
     plt.subplot(rows, 1, 2)
     plt.plot(actions, marker='+')
-    plt.plot(actions_end_of_trial, '--')
-    gt = np.array(gt)
-    plt.plot(np.argmax(gt, axis=1), 'r')
-    print(np.sum(np.argmax(gt, axis=1) == 2))
-    print(np.sum(np.argmax(gt, axis=1) == 1))
-    # aux = np.argmax(obs, axis=1)
+    #    plt.plot(actions_end_of_trial, '--')
+    #    gt = np.array(gt)
+    #    plt.plot(np.argmax(gt, axis=1), 'r')
+    #    # aux = np.argmax(obs, axis=1)
     # aux[np.sum(obs, axis=1) == 0] = -1
     # plt.plot(aux, '--k')
     plt.title('actions')

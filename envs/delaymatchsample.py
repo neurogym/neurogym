@@ -68,8 +68,8 @@ class DelayedMatchToSample(ngym.ngym):
         # ---------------------------------------------------------------------
 
         # TODO: may need to fix this
-        gt = tasktools.choice(self.rng, [-1, 1])
-        sample = tasktools.choice(self.rng, [0, 1])
+        gt = self.rng.choice([-1, 1])
+        sample = self.rng.choice([0, 1])
         if gt == 1:
             test = sample
         else:
