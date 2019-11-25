@@ -54,10 +54,11 @@ class CatchTrials(Wrapper):
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
         if info['new_trial']:
-            info['catch_trial'] = self.catch_trial
-            if self.task.num_trials > self.start:
+            if self.task.num_tr > self.start:
+                info['catch_trial'] = self.catch_trial
                 _ = self._modify_trial()
-
+            else:
+                info['catch_trial'] = False
         return obs, reward, done, info
 
     def seed(self, seed=None):
