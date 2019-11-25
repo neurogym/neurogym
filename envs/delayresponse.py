@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 
 class DR(ngym.ngym):
-    def __init__(self, dt=100, timing=[], delays=[1000, 5000, 10000],
+    def __init__(self, dt=100, timing=[],
                  stimEv=1., **kwargs):
         super().__init__(dt=dt)
         # Actions (fixate, left, right)
@@ -32,7 +32,7 @@ class DR(ngym.ngym):
         self.stimulus_mean = timing[2]
         self.stimulus_max = timing[3]
         self.decision = timing[4]
-        self.delays = delays
+        self.delays = [1000, 5000, 10000]
         self.mean_trial_duration = self.fixation + self.stimulus_mean +\
             np.mean(self.delays) + self.decision
         if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
@@ -146,6 +146,12 @@ class DR(ngym.ngym):
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
 
+        elif self.in_epoch(self.t, 'delay'):
+            info['gt'][0] = 1
+            if self.actions[action] != 0:
+                reward = self.R_ABORTED
+                info['new_trial'] = self.abort
+
         elif self.in_epoch(self.t, 'decision'):
             info['gt'][int((trial['ground_truth']/2+1.5))] = 1
             gt_sign = np.sign(trial['ground_truth'])
@@ -157,11 +163,6 @@ class DR(ngym.ngym):
                 reward = self.R_FAIL
                 info['new_trial'] = self.firstcounts
 
-        elif self.in_epoch(self.t, 'delay'):
-            info['gt'][0] = 1
-            if self.actions[action] != 0:
-                reward = self.R_ABORTED
-                info['new_trial'] = self.abort
 
         else:
             info['gt'][0] = 1

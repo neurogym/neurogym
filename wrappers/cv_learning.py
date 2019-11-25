@@ -9,13 +9,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 from os.path import expanduser
+from gym.core import Wrapper
+from neurogym.envs import delayresponse as DR
+from copy import copy
 home = expanduser("~")
 sys.path.append(home)
 sys.path.append(home + '/neurogym')
 sys.path.append(home + '/gym')
-from gym.core import Wrapper
-from neurogym.envs import delayresponse as DR
-from copy import copy
 
 
 class CurriculumLearning(Wrapper):
@@ -23,7 +23,7 @@ class CurriculumLearning(Wrapper):
     modfies a given environment by changing the probability of repeating the
     previous correct response
     """
-    def __init__(self, env, perf_w=10, max_num_reps=2, init_ph=0):
+    def __init__(self, env, perf_w=10, max_num_reps=3, init_ph=0):
         Wrapper.__init__(self, env=env)
         self.env = env
         # we get the original task, in case we are composing wrappers
@@ -39,6 +39,7 @@ class CurriculumLearning(Wrapper):
         self.max_num_reps = max_num_reps
         self._set_trial_params()
         self.task.trial = self.task._new_trial()
+        self.rew = 0
 
     def _set_trial_params(self):
         # ---------------------------------------------------------------------
@@ -51,58 +52,66 @@ class CurriculumLearning(Wrapper):
             self.task.stimulus_min = 0
             self.task.stimulus_max = 0
             self.task.decision = 1000000
-            # self.task.delays
-            print(self.ori_task.R_FAIL)
+            self.task.delays = [0]
             self.task.R_FAIL = self.task.R_CORRECT
-            print(self.ori_task.R_FAIL)
+            self.task.sigma = 0
             assert self.ori_task.R_FAIL != self.task.R_CORRECT, 'do a copy'
         elif self.curr_ph == 1:
             # there is stim but first answer is not penalized
             self.task.stimulus_min = self.ori_task.stimulus_min
             self.task.stimulus_mean = self.ori_task.stimulus_mean
             self.task.stimulus_max = self.ori_task.stimulus_max
-            self.task.decision = self.ori_task.decision
+            # self.task.decision = self.ori_task.decision
             self.task.R_FAIL = 0
             self.task.firstcounts = False
             self.task.cohs = np.array([100])
         elif self.curr_ph == 2:
             # first answer counts
-            # TODO: use self.ori_task to recover original values for all
-            # variables modified in phase 1
             self.task.R_FAIL = self.ori_task.R_FAIL
             self.task.firstcounts = True
         elif self.curr_ph == 3:
-            self.task.delays = [1000, 5000, 10000]
+            self.task.delays = self.ori_task.delays
         elif self.curr_ph == 4:
-            self.task.coh = np.array([0, 6.4, 12.8, 25.6, 51.2]) *\
-                self.task.stimEv
+            self.task.coh = self.ori_task.cohs
+            self.task.sigma = self.ori_task.sigma
 
     def count(self, action):
         # analyzes the last three answers during stage 0
-        # self.alternate = False
         new = self.task.actions[action]
         if np.sign(self.counter) == np.sign(new):
             self.counter += new
         else:
             self.counter = new
 
+    def set_phase(self):
+        if self.rew == self.task.R_CORRECT:
+            self.curr_perf += 1
+            if self.curr_perf == self.perf_window:
+                self.curr_ph += 1
+                self.curr_perf = 0
+        else:
+            self.curr_perf = 0
+        print('phase', self.curr_ph)
+
     def reset(self):
         return self.task.reset()
 
     def step(self, action):
         obs, reward, done, info = self.env._step(action)
+        self.rew = reward
         if info['new_trial']:
+            self.set_phase()
             self._set_trial_params()
             self.task.trial = self.task._new_trial()
             if self.curr_ph == 0:
                 self.count(action)
-                if np.abs(self.counter) >= self.max_num_reps:
-                    self.task.trial['ground_truth'] = 1 if action == 2 else 2
-                    self.task.R_FAIL = self.ori_task.R_FAIL
+                if np.abs(self.counter) == self.max_num_reps:
+                    self.task.trial['ground_truth'] = -1 if action == 2 else 1
+                    self.task.R_FAIL = self.ori_task.R_FAIL #or equal 0?
                     self.task.firstcounts = False
                     self.counter = 0
                 elif np.abs(self.counter) == 1:
-                    self.task.R_FAIL = self.task.R_CORRECT
+                    self.task.R_FAIL = self.ori_task.R_CORRECT
                     self.task.firstcounts = True
 
         return obs, reward, done, info
@@ -119,7 +128,7 @@ if __name__ == '__main__':
     actions_end_of_trial = []
     gt = []
     config_mat = []
-    num_steps_env = 200
+    num_steps_env = 100
     for stp in range(int(num_steps_env)):
         action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
@@ -165,4 +174,3 @@ if __name__ == '__main__':
     plt.title('reward')
     plt.xlim([-0.5, len(rewards)+0.5])
     plt.show()
-
