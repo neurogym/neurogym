@@ -35,6 +35,8 @@ class CurriculumLearning(Wrapper):
         self.curr_ph = init_ph
         self.curr_perf = 0
         self.perf_window = perf_w
+        self.goal_perf = 0.8
+        self.mov_window = np.repeat(0, 10)
         self.counter = 0
         self.max_num_reps = max_num_reps
         self._set_trial_params()
@@ -85,13 +87,14 @@ class CurriculumLearning(Wrapper):
 
     def set_phase(self):
         if self.rew == self.task.R_CORRECT:
-            self.curr_perf += 1
-            if self.curr_perf == self.perf_window:
-                self.curr_ph += 1
-                self.curr_perf = 0
+            self.mov_window = np.append(self.mov_window, 1)
+            self.mov_window = np.delete(self.mov_window, 0)
         else:
-            self.curr_perf = 0
-        print('phase', self.curr_ph)
+            self.mov_window = np.append(self.mov_window, 0)
+            self.mov_window = np.delete(self.mov_window, 0)
+        if np.sum(self.mov_window)/self.perf_window >= self.goal_perf:
+            self.curr_ph += 1
+            self.mov_window = np.repeat(0, self.perf_window)
 
     def reset(self):
         return self.task.reset()
@@ -128,7 +131,7 @@ if __name__ == '__main__':
     actions_end_of_trial = []
     gt = []
     config_mat = []
-    num_steps_env = 100
+    num_steps_env = 40
     for stp in range(int(num_steps_env)):
         action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
