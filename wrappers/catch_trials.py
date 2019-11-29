@@ -6,8 +6,10 @@ Created on Thu Oct 17 11:23:36 2019
 @author: molano
 """
 from gym.core import Wrapper
-from neurogym.ops import tasktools
+from neurogym.envs import nalt_rdm
+from neurogym.wrappers import trial_hist_nalt
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class CatchTrials(Wrapper):
@@ -18,7 +20,7 @@ class CatchTrials(Wrapper):
     answer and does not change the ground truth. Thus, the catch trial would
     not be entirely complete for supervised learning.
     """
-    def __init__(self, env, catch_prob=0.01, stim_th=50, start=0):
+    def __init__(self, env, catch_prob=0.1, stim_th=50, start=0):
         Wrapper.__init__(self, env=env)
         self.env = env
         # we get the original task, in case we are composing wrappers
@@ -36,11 +38,11 @@ class CatchTrials(Wrapper):
         # number of trials after which the prob. of catch trials is != 0
         self.start = start
 
-    def _modify_trial(self):
-        trial = self.task.trial
+    def new_trial(self, **kwargs):
         self.task.R_CORRECT = self.R_CORRECT_ORI
+        coh = self.task.rng.choice(self.task.cohs)
         if self.stim_th is not None:
-            if trial['coh'] < self.stim_th:
+            if coh <= self.stim_th:
                 self.catch_trial = self.task.rng.random() < self.catch_prob
             else:
                 self.catch_trial = False
@@ -48,15 +50,18 @@ class CatchTrials(Wrapper):
             self.catch_trial = self.task.rng.random() < self.catch_prob
         if self.catch_trial:
             self.task.R_CORRECT = self.task.R_FAIL
+        kwargs.update({'coh': coh})
+        self.env.new_trial(**kwargs)
 
-        return trial
+    def _step(self, action):
+        return self.env._step(action)
 
     def step(self, action):
-        obs, reward, done, info = self.env.step(action)
+        obs, reward, done, info = self._step(action)
         if info['new_trial']:
             if self.task.num_tr > self.start:
                 info['catch_trial'] = self.catch_trial
-                _ = self._modify_trial()
+                self.new_trial()
             else:
                 info['catch_trial'] = False
         return obs, reward, done, info
@@ -68,18 +73,53 @@ class CatchTrials(Wrapper):
 
 
 if __name__ == '__main__':
-    data = np.load('/home/molano/neurogym/results/example1/' +
-                   'PassReward0_bhvr_data_1000.npz')
-    stim = data['stimulus'][:, 1:3]
-    stim = np.diff(stim, axis=1)
-    inds = np.where(data['catch_trial'] == 1)[0]
-    print(np.mean(np.abs(stim)))
-    print(np.mean(np.abs(stim[inds])))
+    env = nalt_rdm.nalt_RDM(timing=[100, 200, 200, 200, 100], n=10)
+    env = trial_hist_nalt.TrialHistory_NAlt(env)
+    env = CatchTrials(env, catch_prob=0.7, stim_th=100)
+    observations = []
+    rewards = []
+    actions = []
+    actions_end_of_trial = []
+    gt = []
+    config_mat = []
+    num_steps_env = 1000
+    for stp in range(int(num_steps_env)):
+        action = 1  # env.action_space.sample()
+        obs, rew, done, info = env.step(action)
+        if done:
+            env.reset()
+        observations.append(obs)
+        if info['new_trial']:
+            actions_end_of_trial.append(action)
+        else:
+            actions_end_of_trial.append(-1)
+        rewards.append(rew)
+        actions.append(action)
+        gt.append(info['gt'])
+        if 'config' in info.keys():
+            config_mat.append(info['config'])
+        else:
+            config_mat.append([0, 0])
 
-    print(data['reward'][inds])
-    #    ut.get_fig(display_mode=1)
-    #    gt = np.argmax(data['correct_side'], axis=1)
-    #    reps = an.get_repetitions(gt)
-    #    plt.plot(reps)
-    #    plt.plot(np.convolve(reps, np.ones(100,)/100,  mode='same'))
-    
+    rows = 3
+    obs = np.array(observations)
+    plt.figure()
+    plt.subplot(rows, 1, 1)
+    plt.imshow(obs.T, aspect='auto')
+    plt.title('observations')
+    plt.subplot(rows, 1, 2)
+    plt.plot(actions, marker='+')
+    #    plt.plot(actions_end_of_trial, '--')
+    gt = np.array(gt)
+    plt.plot(np.argmax(gt, axis=1), 'r')
+    #    # aux = np.argmax(obs, axis=1)
+    # aux[np.sum(obs, axis=1) == 0] = -1
+    # plt.plot(aux, '--k')
+    plt.title('actions')
+    plt.xlim([-0.5, len(rewards)+0.5])
+    plt.subplot(rows, 1, 3)
+    plt.plot(rewards, 'r')
+    plt.title('reward')
+    plt.xlim([-0.5, len(rewards)+0.5])
+    plt.show()
+    print(np.sum(np.array(rewards) == 1) / np.sum(np.argmax(gt, axis=1) == 1))

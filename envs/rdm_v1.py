@@ -69,12 +69,12 @@ class RDM(ngym.ngym):
         self.viewer = None
 
         # start new trial
-        # self.trial = self._new_trial()
-        self._new_trial()
+        # self.trial = self.new_trial()
+        self.new_trial()
 
-    def _new_trial(self):
+    def new_trial(self, **kwargs):
         """
-        _new_trial() is called when a trial ends to generate the next trial.
+        new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:
             durations, which stores the duration of the different periods (in
             the case of rdm: fixation, stimulus and decision periods)
@@ -194,11 +194,11 @@ class RDM(ngym.ngym):
                 boolean indicating the end of the trial, info['new_trial']
         Note that the main computations are done by the function _step(action),
         and the extra lines are basically checking whether to call the
-        _new_trial() function in order to start a new trial
+        new_trial() function in order to start a new trial
         """
         obs, reward, done, info = self._step(action)
         if info['new_trial']:
-            self._new_trial()
+            self.new_trial()
         return obs, reward, done, info
 
 
