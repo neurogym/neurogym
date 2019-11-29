@@ -141,7 +141,6 @@ class nalt_RDM(ngym.ngym):
         self.ground_truth = ground_truth
         self.coh = coh
         t = np.arange(0, self.tmax, self.dt)
-
         obs = np.zeros((len(t), self.n+1))
 
         fixation_period = np.logical_and(t >= self.fixation_0,
@@ -195,7 +194,6 @@ class nalt_RDM(ngym.ngym):
             new_trial = action != 0
         else:
             gt[0] = 1
-
         obs = self.obs[int(self.t/self.dt), :]
 
         # ---------------------------------------------------------------------
