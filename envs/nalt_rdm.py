@@ -17,29 +17,27 @@ Perceptual decision-making task, based on
   But allowing for more than 2 choices.
 
 """
-from __future__ import division
 
+from neurogym.envs import ngym
+from neurogym.ops import tasktools
 import numpy as np
 from gym import spaces
-from neurogym.ops import tasktools
-from neurogym.envs import ngym
 import matplotlib.pyplot as plt
 
 
-class N_AltRDM(ngym.ngym):
-    def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500), n=3,
-                 stimEv=1., **kwargs):
+class nalt_RDM(ngym.ngym):
+    def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500), p_catch=0.1,
+                 stimEv=1., n=3, **kwargs):
         super().__init__(dt=dt)
         self.n = n
-        # Actions (fixate, left, right)
-        self.actions = np.arange(n+1)
-        # trial conditions (left, right)
-        self.choices = np.arange(1, n+1)
+        self.choices = np.arange(n) + 1
         # cohs specifies the amount of evidence (which is modulated by stimEv)
-        self.cohs = np.array([6.4, 12.8, 25.6, 51.2])*10
+        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
+        self.sigma_dt = self.sigma / np.sqrt(self.dt)
         # Durations (stimulus duration will be drawn from an exponential)
+        # TODO: this is not natural
         self.fixation = timing[0]
         self.stimulus_min = timing[1]
         self.stimulus_mean = timing[2]
@@ -47,13 +45,21 @@ class N_AltRDM(ngym.ngym):
         self.decision = timing[4]
         self.mean_trial_duration = self.fixation + self.stimulus_mean +\
             self.decision
-        if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
+        self.mean_trial_duration = self.fixation + self.stimulus_mean +\
+            self.decision
+        # TODO: How to make this easier?
+        self.max_trial_duration = self.fixation + self.stimulus_max +\
+            self.decision
+        self.max_steps = int(self.max_trial_duration/dt)
+        self.p_catch = p_catch
+        if (self.fixation == 0 or self.decision == 0 or
+           self.stimulus_mean == 0):
             print('XXXXXXXXXXXXXXXXXXXXXX')
             print('the duration of all periods must be larger than 0')
             print('XXXXXXXXXXXXXXXXXXXXXX')
         print('XXXXXXXXXXXXXXXXXXXXXX')
         print('Random Dots Motion Task')
-        print('Fixation: ' + str(self.fixation))
+        print('Mean Fixation: ' + str(self.fixation))
         print('Min Stimulus Duration: ' + str(self.stimulus_min))
         print('Mean Stimulus Duration: ' + str(self.stimulus_mean))
         print('Max Stimulus Duration: ' + str(self.stimulus_max))
@@ -76,52 +82,88 @@ class N_AltRDM(ngym.ngym):
         self.viewer = None
 
         # start new trial
-        self.trial = self._new_trial()
+        # self.trial = self.new_trial()
+        self.new_trial()
 
-    def _new_trial(self):
+    def new_trial(self, **kwargs):
         """
-        _new_trial() is called when a trial ends to get the specifications of
-        the next trial. Such specifications are stored in a dictionary with
-        the following items:
+        new_trial() is called when a trial ends to generate the next trial.
+        The following variables are created:
             durations, which stores the duration of the different periods (in
             the case of rdm: fixation, stimulus and decision periods)
             ground truth: correct response for the trial
             coh: stimulus coherence (evidence) for the trial
-
+            obs: observation
         """
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        stimulus = tasktools.truncated_exponential(self.rng, self.dt,
-                                                   self.stimulus_mean,
-                                                   xmin=self.stimulus_min,
-                                                   xmax=self.stimulus_max)
-        # maximum length of current trial
-        self.tmax = self.fixation + stimulus + self.decision
-        durations = {
-            'fixation': (0, self.fixation),
-            'stimulus': (self.fixation, self.fixation + stimulus),
-            'decision': (self.fixation + stimulus,
-                         self.fixation + stimulus + self.decision),
-            }
+        if 'durs' in kwargs.keys():
+            fixation = kwargs['durs'][0]
+            stimulus = kwargs['durs'][1]
+            decision = kwargs['durs'][2]
+        else:
+            stimulus = tasktools.truncated_exponential(self.rng, self.dt,
+                                                       self.stimulus_mean,
+                                                       xmin=self.stimulus_min,
+                                                       xmax=self.stimulus_max)
+            # fixation = self.rng.uniform(self.fixation_min, self.fixation_max)
+            fixation = self.fixation
+            decision = self.decision
 
+        # maximum length of current trial
+        self.tmax = fixation + stimulus + decision
+        durations = {
+            'fixation': (0, fixation),
+            'stimulus': (fixation, fixation + stimulus),
+            'decision': (fixation + stimulus,
+                         fixation + stimulus + decision),
+            }
+        self.fixation_0 = 0
+        self.fixation_1 = fixation
+        self.stimulus_0 = fixation
+        self.stimulus_1 = fixation + stimulus
+        self.decision_0 = fixation + stimulus
+        self.decision_1 = fixation + stimulus + decision
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-        ground_truth = self.rng.choice(self.choices)
-        coh = self.rng.choice(self.cohs)
+        if 'gt' in kwargs.keys():
+            ground_truth = kwargs['gt']
+        else:
+            ground_truth = self.rng.choice(self.choices)
+        if 'coh' in kwargs.keys():
+            coh = kwargs['coh']
+        else:
+            coh = self.rng.choice(self.cohs)
 
-        return {
-            'durations': durations,
-            'ground_truth': ground_truth,
-            'coh': coh
-            }
+        self.durations = durations
+        self.ground_truth = ground_truth
+        self.coh = coh
+        t = np.arange(0, self.tmax, self.dt)
 
-    # Input scaling
-    def scale(self, coh):
-        return (1 + coh/100)/2
+        obs = np.zeros((len(t), self.n+1))
 
-    def _step(self, action):
+        fixation_period = np.logical_and(t >= self.fixation_0,
+                                         t < self.fixation_1)
+        stimulus_period = np.logical_and(t >= self.stimulus_0,
+                                         t < self.stimulus_1)
+        decision_period = np.logical_and(t >= self.decision_0,
+                                         t < self.decision_1)
+        obs[fixation_period, 0] = 1
+        n_stim = int(stimulus/self.dt)
+        obs[stimulus_period, 0] = 1
+        obs[stimulus_period, 1:] = (1 - coh/100)/2
+        obs[stimulus_period, ground_truth] = (1 + coh/100)/2
+        obs[stimulus_period, 1:] +=\
+            np.random.randn(n_stim, self.n) * self.sigma_dt
+        self.obs = obs
+        self.t = 0
+        self.num_tr += 1
+        self.gt = np.zeros((len(t),), dtype=np.int)
+        self.gt[decision_period] = self.ground_truth
+
+    def _step(self, action, **kwargs):
         """
         _step receives an action and returns:
             a new observation, obs
@@ -134,54 +176,38 @@ class N_AltRDM(ngym.ngym):
         # ---------------------------------------------------------------------
         # Reward and observations
         # ---------------------------------------------------------------------
-        trial = self.trial
-        info = {'new_trial': False}
-        info['gt'] = np.zeros((self.n+1,))
+        new_trial = False
         # rewards
         reward = 0
         # observations
-        obs = np.zeros((self.n+1,))
-        if self.in_epoch(self.t, 'fixation'):
-            info['gt'][0] = 1
-            obs[0] = 1
-            if self.actions[action] != 0:
-                info['new_trial'] = self.abort
+        gt = np.zeros((self.n+1,))
+        if self.fixation_0 <= self.t < self.fixation_1:
+            gt[0] = 1
+            if action != 0:
+                new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch(self.t, 'decision'):
-            info['gt'][trial['ground_truth']] = 1
-            if self.actions[action] == trial['ground_truth']:
+        elif self.decision_0 <= self.t < self.decision_1:
+            gt[self.ground_truth] = 1
+            if self.ground_truth == action:
                 reward = self.R_CORRECT
-            elif self.actions[action] != 0:
+            elif self.ground_truth != 0:  # 3-action is the other act
                 reward = self.R_FAIL
-            info['new_trial'] = self.actions[action] != 0
+            new_trial = action != 0
         else:
-            info['gt'][0] = 1
+            gt[0] = 1
 
-        # this is an 'if' to allow the stimulus and fixation periods to overlap
-        if self.in_epoch(self.t, 'stimulus'):
-            obs[0] = 1
-            for ind_obs in range(1, self.n+1):
-                if ind_obs == trial['ground_truth']:
-                    coh = trial['coh']
-                else:
-                    coh = -trial['coh']
-                obs[ind_obs] = self.scale(coh) +\
-                    self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
+        obs = self.obs[int(self.t/self.dt), :]
 
         # ---------------------------------------------------------------------
         # new trial?
-        reward, info['new_trial'] = tasktools.new_trial(self.t, self.tmax,
-                                                        self.dt,
-                                                        info['new_trial'],
-                                                        self.R_MISS, reward)
-        if info['new_trial']:
-            self.t = 0
-            self.num_tr += 1
-        else:
-            self.t += self.dt
+        reward, new_trial = tasktools.new_trial(self.t, self.tmax,
+                                                self.dt, new_trial,
+                                                self.R_MISS, reward)
+        self.t += self.dt
 
         done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info
+
+        return obs, reward, done, {'new_trial': new_trial, 'gt': gt}
 
     def step(self, action):
         """
@@ -194,16 +220,16 @@ class N_AltRDM(ngym.ngym):
                 boolean indicating the end of the trial, info['new_trial']
         Note that the main computations are done by the function _step(action),
         and the extra lines are basically checking whether to call the
-        _new_trial() function in order to start a new trial
+        new_trial() function in order to start a new trial
         """
         obs, reward, done, info = self._step(action)
         if info['new_trial']:
-            self.trial = self._new_trial()
+            self.new_trial()
         return obs, reward, done, info
 
 
 if __name__ == '__main__':
-    env = N_AltRDM(timing=[100, 200, 200, 200, 100])
+    env = nalt_RDM(timing=[100, 200, 200, 200, 100])
     observations = []
     rewards = []
     actions = []
@@ -212,7 +238,7 @@ if __name__ == '__main__':
     config_mat = []
     num_steps_env = 100
     for stp in range(int(num_steps_env)):
-        action = env.action_space.sample()
+        action = 1  # env.action_space.sample()
         obs, rew, done, info = env.step(action)
         if done:
             env.reset()
@@ -238,8 +264,8 @@ if __name__ == '__main__':
     plt.subplot(rows, 1, 2)
     plt.plot(actions, marker='+')
     #    plt.plot(actions_end_of_trial, '--')
-    #    gt = np.array(gt)
-    #    plt.plot(np.argmax(gt, axis=1), 'r')
+    gt = np.array(gt)
+    plt.plot(np.argmax(gt, axis=1), 'r')
     #    # aux = np.argmax(obs, axis=1)
     # aux[np.sum(obs, axis=1) == 0] = -1
     # plt.plot(aux, '--k')
