@@ -29,7 +29,10 @@ class PassAction(Wrapper):
         obs = self.env.reset()
         return np.concatenate((obs, np.array([0])))
 
+    def _step(self, action):
+        return self.env._step(action)
+
     def step(self, action):
-        obs, reward, done, info = self.env.step(action)
+        obs, reward, done, info = self._step(action)
         obs = np.concatenate((obs, np.array([action])))
         return obs, reward, done, info
