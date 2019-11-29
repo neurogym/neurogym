@@ -10,24 +10,13 @@ from neurogym.envs import ngym
 from neurogym.ops import tasktools
 import numpy as np
 from gym import spaces
+import matplotlib.pyplot as plt
 
 
 class RDM(ngym.ngym):
-    def __init__(self, dt=100,
-                 fixation_min=300,
-                 fixation_max=700,
-                 stimulus_min=80,
-                 stimulus_mean=330,
-                 stimulus_max=1500,
-                 decision=500,
-                 p_catch=0.1,
-                 stimEv=1.,
-                 **kwargs):
+    def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500), p_catch=0.1,
+                 stimEv=1., **kwargs):
         super().__init__(dt=dt)
-        # Actions (fixate, left, right)
-        # self.actions = [0, -1, 1]
-        # trial conditions (left, right)
-        # self.choices = [-1, 1]
         self.choices = [1, 2]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
@@ -36,28 +25,28 @@ class RDM(ngym.ngym):
         self.sigma_dt = self.sigma / np.sqrt(self.dt)
         # Durations (stimulus duration will be drawn from an exponential)
         # TODO: this is not natural
-        self.fixation_mean = (fixation_max + fixation_min)/2
-        self.fixation_min = fixation_min
-        self.fixation_max = fixation_max
-        self.stimulus_min = stimulus_min
-        self.stimulus_mean = stimulus_mean
-        self.stimulus_max = stimulus_max
-        self.decision = decision
-        self.mean_trial_duration = self.fixation_mean + self.stimulus_mean +\
+        self.fixation = timing[0]
+        self.stimulus_min = timing[1]
+        self.stimulus_mean = timing[2]
+        self.stimulus_max = timing[3]
+        self.decision = timing[4]
+        self.mean_trial_duration = self.fixation + self.stimulus_mean +\
+            self.decision
+        self.mean_trial_duration = self.fixation + self.stimulus_mean +\
             self.decision
         # TODO: How to make this easier?
-        self.max_trial_duration = self.fixation_max + self.stimulus_max +\
+        self.max_trial_duration = self.fixation + self.stimulus_max +\
             self.decision
         self.max_steps = int(self.max_trial_duration/dt)
         self.p_catch = p_catch
-        if (self.fixation_mean == 0 or self.decision == 0 or
+        if (self.fixation == 0 or self.decision == 0 or
            self.stimulus_mean == 0):
             print('XXXXXXXXXXXXXXXXXXXXXX')
             print('the duration of all periods must be larger than 0')
             print('XXXXXXXXXXXXXXXXXXXXXX')
         print('XXXXXXXXXXXXXXXXXXXXXX')
         print('Random Dots Motion Task')
-        print('Mean Fixation: ' + str(self.fixation_mean))
+        print('Mean Fixation: ' + str(self.fixation))
         print('Min Stimulus Duration: ' + str(self.stimulus_min))
         print('Mean Stimulus Duration: ' + str(self.stimulus_mean))
         print('Max Stimulus Duration: ' + str(self.stimulus_max))
@@ -85,13 +74,13 @@ class RDM(ngym.ngym):
 
     def _new_trial(self):
         """
-        _new_trial() is called when a trial ends to get the specifications of
-        the next trial. Such specifications are stored in a dictionary with
-        the following items:
+        _new_trial() is called when a trial ends to generate the next trial.
+        The following variables are created:
             durations, which stores the duration of the different periods (in
             the case of rdm: fixation, stimulus and decision periods)
             ground truth: correct response for the trial
             coh: stimulus coherence (evidence) for the trial
+            obs: observation
         """
         # ---------------------------------------------------------------------
         # Epochs
@@ -100,17 +89,10 @@ class RDM(ngym.ngym):
                                                    self.stimulus_mean,
                                                    xmin=self.stimulus_min,
                                                    xmax=self.stimulus_max)
-        fixation = self.rng.uniform(self.fixation_min, self.fixation_max)
+        # fixation = self.rng.uniform(self.fixation_min, self.fixation_max)
+        fixation = self.fixation
         decision = self.decision
 
-        # Introduce catch trials
-        if self.rng.random() < self.p_catch:
-            fixation = self.max_trial_duration
-            stimulus = 0
-            decision = 0
-            self.catch = True
-        else:
-            self.catch = False
         # maximum length of current trial
         self.tmax = fixation + stimulus + decision
         durations = {
@@ -143,7 +125,6 @@ class RDM(ngym.ngym):
                                          t < self.stimulus_1)
         decision_period = np.logical_and(t >= self.decision_0,
                                          t < self.decision_1)
-
         obs[fixation_period, 0] = 1
         n_stim = int(stimulus/self.dt)
         obs[stimulus_period, 0] = 1
@@ -166,7 +147,6 @@ class RDM(ngym.ngym):
                 ground truth correct response, info['gt']
                 boolean indicating the end of the trial, info['new_trial']
         """
-        # TODO: Try pre-generating stimulus for each trial
         # ---------------------------------------------------------------------
         # Reward and observations
         # ---------------------------------------------------------------------
@@ -188,21 +168,20 @@ class RDM(ngym.ngym):
                 reward = self.R_FAIL
             new_trial = action != 0
         else:
-            pass
+            gt[0] = 1
 
         obs = self.obs[int(self.t/self.dt), :]
 
         # ---------------------------------------------------------------------
         # new trial?
         reward, new_trial = tasktools.new_trial(self.t, self.tmax,
-                                                self.dt,
-                                                new_trial,
+                                                self.dt, new_trial,
                                                 self.R_MISS, reward)
         self.t += self.dt
 
         done = self.num_tr > self.num_tr_exp
 
-        return obs, reward, done, {'new_trial': new_trial}
+        return obs, reward, done, {'new_trial': new_trial, 'gt': gt}
 
     def step(self, action):
         """
@@ -221,3 +200,53 @@ class RDM(ngym.ngym):
         if info['new_trial']:
             self._new_trial()
         return obs, reward, done, info
+
+
+if __name__ == '__main__':
+    env = RDM(timing=[100, 200, 200, 200, 100])
+    observations = []
+    rewards = []
+    actions = []
+    actions_end_of_trial = []
+    gt = []
+    config_mat = []
+    num_steps_env = 100
+    for stp in range(int(num_steps_env)):
+        action = 1  # env.action_space.sample()
+        obs, rew, done, info = env.step(action)
+        if done:
+            env.reset()
+        observations.append(obs)
+        if info['new_trial']:
+            actions_end_of_trial.append(action)
+        else:
+            actions_end_of_trial.append(-1)
+        rewards.append(rew)
+        actions.append(action)
+        gt.append(info['gt'])
+        if 'config' in info.keys():
+            config_mat.append(info['config'])
+        else:
+            config_mat.append([0, 0])
+
+    rows = 3
+    obs = np.array(observations)
+    plt.figure()
+    plt.subplot(rows, 1, 1)
+    plt.imshow(obs.T, aspect='auto')
+    plt.title('observations')
+    plt.subplot(rows, 1, 2)
+    plt.plot(actions, marker='+')
+    #    plt.plot(actions_end_of_trial, '--')
+    gt = np.array(gt)
+    plt.plot(np.argmax(gt, axis=1), 'r')
+    #    # aux = np.argmax(obs, axis=1)
+    # aux[np.sum(obs, axis=1) == 0] = -1
+    # plt.plot(aux, '--k')
+    plt.title('actions')
+    plt.xlim([-0.5, len(rewards)+0.5])
+    plt.subplot(rows, 1, 3)
+    plt.plot(rewards, 'r')
+    plt.title('reward')
+    plt.xlim([-0.5, len(rewards)+0.5])
+    plt.show()
