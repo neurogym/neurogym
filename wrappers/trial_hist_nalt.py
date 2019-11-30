@@ -10,13 +10,6 @@ from gym.core import Wrapper
 import numpy as np
 from neurogym.envs import nalt_rdm
 import matplotlib.pyplot as plt
-n = 10
-main_trans_prob = 0.7
-tr_mat = np.zeros((2, n, n)) + (1-main_trans_prob)/(n-1)
-for ind in range(n-1):
-    tr_mat[0, ind, ind+1] = main_trans_prob
-tr_mat[0, n-1, 0] = main_trans_prob
-tr_mat[1, :, :] = tr_mat[0, :, :].T
 
 
 class TrialHistory_NAlt(Wrapper):
@@ -24,8 +17,8 @@ class TrialHistory_NAlt(Wrapper):
     modfies a given environment by changing the probability of repeating the
     previous correct response
     """
-    def __init__(self, env, trans=tr_mat, block_dur=200,
-                 blk_ch_prob=None, pass_blck_info=False):
+    def __init__(self, env, n=2, tr_prob=0.8, block_dur=200,
+                 blk_ch_prob=None, pass_blck=False):
         Wrapper.__init__(self, env=env)
         self.env = env
         # we get the original task, in case we are composing wrappers
@@ -33,6 +26,13 @@ class TrialHistory_NAlt(Wrapper):
         while env_aux.__class__.__module__.find('wrapper') != -1:
             env_aux = env.env
         self.task = env_aux
+        # buld transition matrix
+        tr_mat = np.zeros((2, n, n)) + (1-tr_prob)/(n-1)
+        for ind in range(n-1):
+            tr_mat[0, ind, ind+1] = tr_prob
+        tr_mat[0, n-1, 0] = tr_prob
+        tr_mat[1, :, :] = tr_mat[0, :, :].T
+
         self.tr_mat = tr_mat
         # keeps track of the repeating prob of the current block
         self.curr_block = self.task.rng.choice([0, 1])
@@ -40,7 +40,7 @@ class TrialHistory_NAlt(Wrapper):
         self.block_dur = block_dur
         self.prev_trial = self.task.ground_truth
         self.blk_ch_prob = blk_ch_prob
-        self.pass_blck_info = pass_blck_info
+        self.pass_blck_info = pass_blck
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------

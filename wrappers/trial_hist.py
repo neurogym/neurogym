@@ -16,7 +16,7 @@ class TrialHistory(Wrapper):
     previous correct response
     """
     def __init__(self, env, rep_prob=(.2, .8), block_dur=200,
-                 blk_ch_prob=None, ae_probs=None, pass_blck_info=False):
+                 blk_ch_prob=None, ae_probs=None, pass_blck=False):
         if ae_probs is None:
             ae_probs = rep_prob
         Wrapper.__init__(self, env=env)
@@ -34,7 +34,7 @@ class TrialHistory(Wrapper):
         self.block_dur = block_dur
         self.prev_trial = self.task.trial['ground_truth']
         self.blk_ch_prob = blk_ch_prob
-        self.pass_blck_info = pass_blck_info
+        self.pass_blck_info = pass_blck
 
     def _modify_trial(self):
         # ---------------------------------------------------------------------
