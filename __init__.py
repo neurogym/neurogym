@@ -27,6 +27,7 @@ all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
              'DawTwoStep-v0': 'neurogym.envs.dawtwostep:DawTwoStep',
              'MatchingPenny-v0': 'neurogym.envs.matchingpenny:MatchingPenny',
              'Bandit-v0': 'neurogym.envs.bandit:Bandit',
-             'DelayedResponse-v0': 'neurogym.envs.delayresponse:DR'}
+             'DelayedResponse-v0': 'neurogym.envs.delayresponse:DR',
+             'NAltRDM-v0': 'neurogym.envs.nalt_rdm:nalt_RDM'}
 for task in all_tasks.keys():
     register_neuroTask(task)

@@ -26,8 +26,8 @@ import matplotlib.pyplot as plt
 
 
 class nalt_RDM(ngym.ngym):
-    def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500), p_catch=0.1,
-                 stimEv=1., n=3, **kwargs):
+    def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500), stimEv=1.,
+                 n=3, **kwargs):
         super().__init__(dt=dt)
         self.n = n
         self.choices = np.arange(n) + 1
@@ -51,7 +51,6 @@ class nalt_RDM(ngym.ngym):
         self.max_trial_duration = self.fixation + self.stimulus_max +\
             self.decision
         self.max_steps = int(self.max_trial_duration/dt)
-        self.p_catch = p_catch
         if (self.fixation == 0 or self.decision == 0 or
            self.stimulus_mean == 0):
             print('XXXXXXXXXXXXXXXXXXXXXX')

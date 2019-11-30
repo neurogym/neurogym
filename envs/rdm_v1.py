@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 
 class RDM(ngym.ngym):
-    def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500), p_catch=0.1,
+    def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500),
                  stimEv=1., **kwargs):
         super().__init__(dt=dt)
         self.choices = [1, 2]
@@ -38,7 +38,6 @@ class RDM(ngym.ngym):
         self.max_trial_duration = self.fixation + self.stimulus_max +\
             self.decision
         self.max_steps = int(self.max_trial_duration/dt)
-        self.p_catch = p_catch
         if (self.fixation == 0 or self.decision == 0 or
            self.stimulus_mean == 0):
             print('XXXXXXXXXXXXXXXXXXXXXX')
