@@ -30,7 +30,7 @@ class nalt_RDM(ngym.ngym):
                  n_ch=3, **kwargs):
         super().__init__(dt=dt)
         self.n = n_ch
-        self.choices = np.arange(n_ch)
+        self.choices = np.arange(n_ch) + 1
         # cohs specifies the amount of evidence (which is modulated by stimEv)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
         # Input noise
