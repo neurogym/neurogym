@@ -27,10 +27,10 @@ import matplotlib.pyplot as plt
 
 class nalt_RDM(ngym.ngym):
     def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500), stimEv=1.,
-                 n=3, **kwargs):
+                 n_ch=3, **kwargs):
         super().__init__(dt=dt)
-        self.n = n
-        self.choices = np.arange(n) + 1
+        self.n = n_ch
+        self.choices = np.arange(n_ch)
         # cohs specifies the amount of evidence (which is modulated by stimEv)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
         # Input noise
@@ -73,8 +73,8 @@ class nalt_RDM(ngym.ngym):
         self.abort = False
         # action and observation spaces
         self.stimulus_min = np.max([self.stimulus_min, dt])
-        self.action_space = spaces.Discrete(n+1)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(n+1,),
+        self.action_space = spaces.Discrete(n_ch+1)
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(n_ch+1,),
                                             dtype=np.float32)
         # seeding
         self.seed()
