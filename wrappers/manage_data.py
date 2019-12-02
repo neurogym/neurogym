@@ -17,7 +17,7 @@ class manage_data(Wrapper):
     previous correct response
     """
     def __init__(self, env, inst=0, plt_tr=True, folder=None,
-                 inst_to_save=[0]):
+                 inst_to_save=[0], num_tr_save=1000):
         Wrapper.__init__(self, env=env)
         self.env = env
         self.do = inst in inst_to_save
@@ -44,7 +44,7 @@ class manage_data(Wrapper):
             self.act_mat = []
             self.gt_mat_render = []
             self.rew_mat = []
-            self.num_tr_save = 100000
+            self.num_tr_save = num_tr_save
             self.max_num_samples = 200
             self.num_subplots = 3
             self.plt_tr = plt_tr and self.do
