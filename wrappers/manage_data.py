@@ -17,7 +17,7 @@ class manage_data(Wrapper):
     previous correct response
     """
     def __init__(self, env, inst=0, plt_tr=True, folder=None,
-                 inst_to_save=[0], num_tr_save=1000):
+                 inst_to_save=[0], num_tr_save=100000):
         Wrapper.__init__(self, env=env)
         self.env = env
         self.do = inst in inst_to_save
