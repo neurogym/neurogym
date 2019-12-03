@@ -83,14 +83,19 @@ class DR(ngym.ngym):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        stimulus = tasktools.truncated_exponential(self.rng, self.dt,
-                                                   self.stimulus_mean,
-                                                   xmin=self.stimulus_min,
-                                                   xmax=self.stimulus_max)
-        delay = self.rng.choice(self.delays)
-        # fixation = self.rng.uniform(self.fixation_min, self.fixation_max)
-        fixation = self.fixation
-        decision = self.decision
+        if 'durs' in kwargs.keys():
+            fixation = kwargs['durs'][0]
+            stimulus = kwargs['durs'][1]
+            delay = kwargs['durs'][2]
+            decision = kwargs['durs'][3]
+        else:
+            stimulus = tasktools.truncated_exponential(self.rng, self.dt,
+                                                       self.stimulus_mean,
+                                                       xmin=self.stimulus_min,
+                                                       xmax=self.stimulus_max)
+            delay = self.rng.choice(self.delays)
+            fixation = self.fixation
+            decision = self.decision
 
         # maximum length of current trial
         self.tmax = fixation + stimulus + delay + decision
