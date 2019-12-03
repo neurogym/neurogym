@@ -17,7 +17,7 @@ class manage_data(Wrapper):
     previous correct response
     """
     def __init__(self, env, inst=0, plt_tr=True, folder=None,
-                 inst_to_save=[0]):
+                 inst_to_save=[0], num_tr_save=100000):
         Wrapper.__init__(self, env=env)
         self.env = env
         self.do = inst in inst_to_save
@@ -35,6 +35,7 @@ class manage_data(Wrapper):
             self.config_mat = []
             # for RDM + trial history
             self.rep_prob_mat = []
+            self.tr_prob_mat = []
             self.stim_mat = []
             self.reward_mat = []
             self.cum_obs = 0
@@ -44,7 +45,7 @@ class manage_data(Wrapper):
             self.act_mat = []
             self.gt_mat_render = []
             self.rew_mat = []
-            self.num_tr_save = 100000
+            self.num_tr_save = num_tr_save
             self.max_num_samples = 200
             self.num_subplots = 3
             self.plt_tr = plt_tr and self.do
@@ -85,6 +86,8 @@ class manage_data(Wrapper):
                     self.gt_mat.append(gt)
                 if 'rep_prob' in info.keys():
                     self.rep_prob_mat.append(info['rep_prob'])
+                if 'tr_prob' in info.keys():
+                    self.tr_prob_mat.append(info['tr_prob'])
                 if 'config' in info.keys():
                     self.config_mat.append(info['config'])
                 if 'catch_trial' in info.keys():
@@ -98,6 +101,8 @@ class manage_data(Wrapper):
                             'reward': self.reward_mat}
                     if len(self.rep_prob_mat) != 0:
                         data['rep_prob'] = self.rep_prob_mat
+                    if len(self.tr_prob_mat) != 0:
+                        data['tr_prob'] = self.tr_prob_mat
                     if len(self.config_mat) != 0:
                         data['config'] = self.config_mat
                     if len(self.catch_tr_mat) != 0:
@@ -112,6 +117,7 @@ class manage_data(Wrapper):
                     self.config_mat = []
                     self.catch_tr_mat = []
                     self.rep_prob_mat = []
+                    self.tr_prob_mat = []
                     self.stim_mat = []
                     self.reward_mat = []
                     # for rendering

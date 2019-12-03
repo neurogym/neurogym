@@ -7,7 +7,7 @@ Created on Fri Mar  1 11:48:59 2019
 """
 
 from gym.core import Wrapper
-from neurogym.ops import tasktools
+import numpy as np
 
 
 class TrialHistory(Wrapper):
@@ -16,7 +16,7 @@ class TrialHistory(Wrapper):
     previous correct response
     """
     def __init__(self, env, rep_prob=(.2, .8), block_dur=200,
-                 blk_ch_prob=None, ae_probs=None):
+                 blk_ch_prob=None, ae_probs=None, pass_blck=False):
         if ae_probs is None:
             ae_probs = rep_prob
         Wrapper.__init__(self, env=env)
@@ -34,6 +34,7 @@ class TrialHistory(Wrapper):
         self.block_dur = block_dur
         self.prev_trial = self.task.trial['ground_truth']
         self.blk_ch_prob = blk_ch_prob
+        self.pass_blck_info = pass_blck
 
     def _modify_trial(self):
         # ---------------------------------------------------------------------
@@ -79,6 +80,8 @@ class TrialHistory(Wrapper):
             info['rep_prob'] = self.rep_prob[self.curr_block]
             self.prev_correct = reward == self.task.R_CORRECT
             self.task.trial = self._modify_trial()
+        if self.pass_blck_info:
+            obs = np.concatenate((obs, np.array([self.curr_block])))
         return obs, reward, done, info
 
     def seed(self, seed=None):

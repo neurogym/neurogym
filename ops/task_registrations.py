@@ -16,6 +16,7 @@ import gym
 all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
              'Romo-v0': 'neurogym.envs.romo:Romo',
              'RDM-v0': 'neurogym.envs.rdm:RDM',
+             'RDM-v1': 'neurogym.envs.rdm_v1:RDM',
              'padoaSch-v0': 'neurogym.envs.padoa_sch:PadoaSch',
              'pdWager-v0': 'neurogym.envs.pd_wager:PDWager',
              'DPA-v0': 'neurogym.envs.dpa:DPA',
@@ -25,7 +26,9 @@ all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
                  'neurogym.envs.delaymatchsample:DelayedMatchToSample',
              'DawTwoStep-v0': 'neurogym.envs.dawtwostep:DawTwoStep',
              'MatchingPenny-v0': 'neurogym.envs.matchingpenny:MatchingPenny',
-             'Bandit-v0': 'neurogym.envs.bandit:Bandit'}
+             'Bandit-v0': 'neurogym.envs.bandit:Bandit',
+             'DelayedResponse-v0': 'neurogym.envs.delayresponse:DR',
+             'NAltRDM-v0': 'neurogym.envs.nalt_rdm:nalt_RDM'}
 
 
 def register_neuroTask(id_task):

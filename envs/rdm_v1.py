@@ -1,21 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Nov 12 17:39:17 2019
+Created on Fri Nov 29 13:55:36 2019
 
 @author: molano
-
-
-Perceptual decision-making task, based on
-
-  Bounded integration in parietal cortex underlies decisions even when viewing
-  duration is dictated by the environment.
-  R Kiani, TD Hanks, & MN Shadlen, JNS 2008.
-
-  http://dx.doi.org/10.1523/JNEUROSCI.4761-07.2008
-
-  But allowing for more than 2 choices.
-
 """
 
 from neurogym.envs import ngym
@@ -25,12 +13,11 @@ from gym import spaces
 import matplotlib.pyplot as plt
 
 
-class nalt_RDM(ngym.ngym):
-    def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500), stimEv=1.,
-                 n_ch=3, **kwargs):
+class RDM(ngym.ngym):
+    def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500),
+                 stimEv=1., **kwargs):
         super().__init__(dt=dt)
-        self.n = n_ch
-        self.choices = np.arange(n_ch) + 1
+        self.choices = [1, 2]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
         # Input noise
@@ -73,8 +60,8 @@ class nalt_RDM(ngym.ngym):
         self.abort = False
         # action and observation spaces
         self.stimulus_min = np.max([self.stimulus_min, dt])
-        self.action_space = spaces.Discrete(n_ch+1)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(n_ch+1,),
+        self.action_space = spaces.Discrete(3)
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
         # seeding
         self.seed()
@@ -97,18 +84,13 @@ class nalt_RDM(ngym.ngym):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        if 'durs' in kwargs.keys():
-            fixation = kwargs['durs'][0]
-            stimulus = kwargs['durs'][1]
-            decision = kwargs['durs'][2]
-        else:
-            stimulus = tasktools.truncated_exponential(self.rng, self.dt,
-                                                       self.stimulus_mean,
-                                                       xmin=self.stimulus_min,
-                                                       xmax=self.stimulus_max)
-            # fixation = self.rng.uniform(self.fixation_min, self.fixation_max)
-            fixation = self.fixation
-            decision = self.decision
+        stimulus = tasktools.truncated_exponential(self.rng, self.dt,
+                                                   self.stimulus_mean,
+                                                   xmin=self.stimulus_min,
+                                                   xmax=self.stimulus_max)
+        # fixation = self.rng.uniform(self.fixation_min, self.fixation_max)
+        fixation = self.fixation
+        decision = self.decision
 
         # maximum length of current trial
         self.tmax = fixation + stimulus + decision
@@ -127,20 +109,14 @@ class nalt_RDM(ngym.ngym):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-        if 'gt' in kwargs.keys():
-            ground_truth = kwargs['gt']
-        else:
-            ground_truth = self.rng.choice(self.choices)
-        if 'coh' in kwargs.keys():
-            coh = kwargs['coh']
-        else:
-            coh = self.rng.choice(self.cohs)
-
+        ground_truth = self.rng.choice(self.choices)
+        coh = self.rng.choice(self.cohs)
         self.durations = durations
         self.ground_truth = ground_truth
         self.coh = coh
         t = np.arange(0, self.tmax, self.dt)
-        obs = np.zeros((len(t), self.n+1))
+
+        obs = np.zeros((len(t), 3))
 
         fixation_period = np.logical_and(t >= self.fixation_0,
                                          t < self.fixation_1)
@@ -151,17 +127,16 @@ class nalt_RDM(ngym.ngym):
         obs[fixation_period, 0] = 1
         n_stim = int(stimulus/self.dt)
         obs[stimulus_period, 0] = 1
-        obs[stimulus_period, 1:] = (1 - coh/100)/2
         obs[stimulus_period, ground_truth] = (1 + coh/100)/2
-        obs[stimulus_period, 1:] +=\
-            np.random.randn(n_stim, self.n) * self.sigma_dt
+        obs[stimulus_period, 3 - ground_truth] = (1 - coh/100)/2
+        obs[stimulus_period] += np.random.randn(n_stim, 3) * self.sigma_dt
         self.obs = obs
         self.t = 0
         self.num_tr += 1
         self.gt = np.zeros((len(t),), dtype=np.int)
         self.gt[decision_period] = self.ground_truth
 
-    def _step(self, action, **kwargs):
+    def _step(self, action):
         """
         _step receives an action and returns:
             a new observation, obs
@@ -178,7 +153,7 @@ class nalt_RDM(ngym.ngym):
         # rewards
         reward = 0
         # observations
-        gt = np.zeros((self.n+1,))
+        gt = np.zeros((3,))
         if self.fixation_0 <= self.t < self.fixation_1:
             gt[0] = 1
             if action != 0:
@@ -188,11 +163,12 @@ class nalt_RDM(ngym.ngym):
             gt[self.ground_truth] = 1
             if self.ground_truth == action:
                 reward = self.R_CORRECT
-            elif self.ground_truth != 0:  # 3-action is the other act
+            elif self.ground_truth == 3 - action:  # 3-action is the other act
                 reward = self.R_FAIL
             new_trial = action != 0
         else:
             gt[0] = 1
+
         obs = self.obs[int(self.t/self.dt), :]
 
         # ---------------------------------------------------------------------
@@ -226,7 +202,7 @@ class nalt_RDM(ngym.ngym):
 
 
 if __name__ == '__main__':
-    env = nalt_RDM(timing=[100, 200, 200, 200, 100])
+    env = RDM(timing=[100, 200, 200, 200, 100])
     observations = []
     rewards = []
     actions = []
