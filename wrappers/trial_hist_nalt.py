@@ -84,7 +84,7 @@ class TrialHistory_NAlt(Wrapper):
 
 
 if __name__ == '__main__':
-    env = nalt_rdm.nalt_RDM(timing=[100, 200, 200, 200, 100], n=n)
+    env = nalt_rdm.nalt_RDM(timing=[100, 200, 200, 200, 100])
     env = TrialHistory_NAlt(env)
     observations = []
     rewards = []

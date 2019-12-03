@@ -43,20 +43,16 @@ class CurriculumLearning(Wrapper):
         self.task.trial = self.task._new_trial()
         self.rew = 0
 
-    def _set_trial_params(self):
+    def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
         if self.curr_ph == 0:
             # no stim, reward is in both left and right
             # agent cannot go N times in a row to the same side
-            self.task.stimulus_mean = 0
-            self.task.stimulus_min = 0
-            self.task.stimulus_max = 0
-            self.task.decision = 1000000
-            self.task.delays = [0]
             self.task.R_FAIL = self.task.R_CORRECT
             self.task.sigma = 0
+            kwargs.update({'durs': [self.ori_task.fixation, 0, 0, 100000]})
             assert self.ori_task.R_FAIL != self.task.R_CORRECT, 'do a copy'
         elif self.curr_ph == 1:
             # there is stim but first answer is not penalized
@@ -72,10 +68,12 @@ class CurriculumLearning(Wrapper):
             self.task.R_FAIL = self.ori_task.R_FAIL
             self.task.firstcounts = True
         elif self.curr_ph == 3:
-            self.task.delays = self.ori_task.delays          
+            self.task.delays = self.ori_task.delays
         elif self.curr_ph == 4:
             self.task.coh = self.ori_task.cohs
             self.task.sigma = self.ori_task.sigma
+        self.env.new_trial(**kwargs)
+
 
     def count(self, action):
         # analyzes the last three answers during stage 0
