@@ -72,7 +72,7 @@ class CurriculumLearning(Wrapper):
             self.task.R_FAIL = self.ori_task.R_FAIL
             self.task.firstcounts = True
         elif self.curr_ph == 3:
-            self.task.delays = self.ori_task.delays
+            self.task.delays = self.ori_task.delays          
         elif self.curr_ph == 4:
             self.task.coh = self.ori_task.cohs
             self.task.sigma = self.ori_task.sigma
@@ -116,8 +116,9 @@ class CurriculumLearning(Wrapper):
                 elif np.abs(self.counter) == 1:
                     self.task.R_FAIL = self.ori_task.R_CORRECT
                     self.task.firstcounts = True
+        g_t = self.task.trial['ground_truth']
 
-        return obs, reward, done, info
+        return obs, reward, done, info, g_t
 
 
 if __name__ == '__main__':
@@ -131,10 +132,13 @@ if __name__ == '__main__':
     actions_end_of_trial = []
     gt = []
     config_mat = []
-    num_steps_env = 40
+    num_steps_env = 300
+    g_t = 0
     for stp in range(int(num_steps_env)):
         action = env.action_space.sample()
-        obs, rew, done, info = env.step(action)
+        action = int(g_t/2+1.5)
+        print('gt', g_t)
+        obs, rew, done, info, g_t = env.step(action)
         print(info['gt'])
         print(action)
         print(rew)
@@ -164,6 +168,8 @@ if __name__ == '__main__':
     plt.plot(actions, marker='+')
     plt.plot(actions_end_of_trial, '--')
     gt = np.array(gt)
+    print(np.argmax(gt[len(gt)-1]))
+    #print(np.argmax(gt[0], axis=1))
     plt.plot(np.argmax(gt, axis=1), 'r')
     print(np.sum(np.argmax(gt, axis=1) == 2))
     print(np.sum(np.argmax(gt, axis=1) == 1))
