@@ -1,54 +1,54 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Oct  9 13:55:24 2019
+Created on Tue Dec  3 15:58:10 2019
 
-@author: martafradera
+@author: molano
 """
-
-from __future__ import division
-
+from neurogym.envs import ngym
+from neurogym.ops import tasktools
 import numpy as np
 from gym import spaces
-from neurogym.ops import tasktools
-from neurogym.envs import ngym
 import matplotlib.pyplot as plt
 
 
 class DR(ngym.ngym):
-    def __init__(self, dt=100, timing=[],
-                 stimEv=1., **kwargs):
+    def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500),
+                 stimEv=1., delays=[1000, 5000, 10000], **kwargs):
         super().__init__(dt=dt)
-        # Actions (fixate, left, right)
-        self.actions = [0, -1, 1]
-        # trial conditions (left, right)
-        self.choices = [-1, 1]
+        self.choices = [1, 2]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
+        self.sigma_dt = self.sigma / np.sqrt(self.dt)
+        # Durations (stimulus duration will be drawn from an exponential)
+        # TODO: this is not natural
         self.fixation = timing[0]
         self.stimulus_min = timing[1]
         self.stimulus_mean = timing[2]
         self.stimulus_max = timing[3]
         self.decision = timing[4]
-        self.delays = [1000, 5000, 10000]
-        self.mean_trial_duration = self.fixation + self.stimulus_mean +\
-            np.mean(self.delays) + self.decision
-        if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
+        self.delays = delays
+        # TODO: How to make this easier?
+        self.max_trial_duration = self.fixation + self.stimulus_max +\
+            np.max(self.delays) + self.decision
+        self.max_steps = int(self.max_trial_duration/dt)
+        if (self.fixation == 0 or self.decision == 0 or
+           self.stimulus_mean == 0):
             print('XXXXXXXXXXXXXXXXXXXXXX')
             print('the duration of all periods must be larger than 0')
             print('XXXXXXXXXXXXXXXXXXXXXX')
         print('XXXXXXXXXXXXXXXXXXXXXX')
-        print('Tiffanys Task')
-        print('Fixation: ' + str(self.fixation))
+        print('Random Dots Motion Task')
+        print('Mean Fixation: ' + str(self.fixation))
         print('Min Stimulus Duration: ' + str(self.stimulus_min))
         print('Mean Stimulus Duration: ' + str(self.stimulus_mean))
         print('Max Stimulus Duration: ' + str(self.stimulus_max))
         print('Delay: ' + str(self.delays))
         print('Decision: ' + str(self.decision))
         print('(time step: ' + str(self.dt) + ')')
-        print('Mean Trial Duration: ' + str(self.mean_trial_duration))
+        print('Mean Trial Duration: ' + str(self.max_trial_duration))
         print('XXXXXXXXXXXXXXXXXXXXXX')
         # Rewards
         self.R_ABORTED = -0.1
@@ -67,20 +67,19 @@ class DR(ngym.ngym):
         self.viewer = None
 
         # start new trial
-        self.trial = self._new_trial()
+        # self.trial = self.new_trial()
+        self.new_trial()
 
-    def _new_trial(self):
+    def new_trial(self, **kwargs):
         """
-        _new_trial() is called when a trial ends to get the specifications of
-        the next trial. Such specifications are stored in a dictionary with
-        the following items:
+        new_trial() is called when a trial ends to generate the next trial.
+        The following variables are created:
             durations, which stores the duration of the different periods (in
             the case of rdm: fixation, stimulus and decision periods)
             ground truth: correct response for the trial
             coh: stimulus coherence (evidence) for the trial
-
+            obs: observation
         """
-
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
@@ -88,36 +87,53 @@ class DR(ngym.ngym):
                                                    self.stimulus_mean,
                                                    xmin=self.stimulus_min,
                                                    xmax=self.stimulus_max)
-
-        self.delay = self.rng.choice(self.delays)
+        delay = self.rng.choice(self.delays)
+        # fixation = self.rng.uniform(self.fixation_min, self.fixation_max)
+        fixation = self.fixation
+        decision = self.decision
 
         # maximum length of current trial
-        self.tmax = self.fixation + stimulus + self.delay + self.decision
-        durations = {
-            'fixation': (0, self.fixation),
-            'stimulus': (self.fixation, self.fixation + stimulus),
-            'delay': (self.fixation + stimulus,
-                      self.fixation + stimulus + self.delay),
-            'decision': (self.fixation + stimulus + self.delay,
-                         self.fixation + stimulus + self.delay +
-                         self.decision),
-            }
-
+        self.tmax = fixation + stimulus + delay + decision
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
         ground_truth = self.rng.choice(self.choices)
         coh = self.rng.choice(self.cohs)
+        self.ground_truth = ground_truth
+        self.coh = coh
+        t = np.arange(0, self.tmax, self.dt)
 
-        return {
-            'durations': durations,
-            'ground_truth': ground_truth,
-            'coh': coh
-            }
-
-        # Input scaling
-    def scale(self, coh):
-        return (1 + coh/100)/2
+        # define periods
+        self.fixation_0 = 0
+        self.fixation_1 = fixation
+        self.stimulus_0 = fixation
+        self.stimulus_1 = fixation + stimulus
+        self.delay_0 = fixation + stimulus
+        self.delay_1 = fixation + stimulus + delay
+        self.decision_0 = fixation + stimulus + delay
+        self.decision_1 = fixation + stimulus + delay + decision
+        fixation_period = np.logical_and(t >= self.fixation_0,
+                                         t < self.fixation_1)
+        stimulus_period = np.logical_and(t >= self.stimulus_0,
+                                         t < self.stimulus_1)
+        delay_period = np.logical_and(t >= self.delay_0,
+                                      t < self.delay_1)
+        decision_period = np.logical_and(t >= self.decision_0,
+                                         t < self.decision_1)
+        # define observations
+        obs = np.zeros((len(t), 3))
+        obs[fixation_period, 0] = 1
+        obs[delay_period, 0] = 1
+        n_stim = int(stimulus/self.dt)
+        obs[stimulus_period, 0] = 1
+        obs[stimulus_period, ground_truth] = (1 + coh/100)/2
+        obs[stimulus_period, 3 - ground_truth] = (1 - coh/100)/2
+        obs[stimulus_period, 1:] += np.random.randn(n_stim, 2) * self.sigma_dt
+        self.obs = obs
+        self.t = 0
+        self.num_tr += 1
+        self.gt = np.zeros((len(t),), dtype=np.int)
+        self.gt[decision_period] = self.ground_truth
 
     def _step(self, action):
         """
@@ -132,66 +148,40 @@ class DR(ngym.ngym):
         # ---------------------------------------------------------------------
         # Reward and observations
         # ---------------------------------------------------------------------
-        trial = self.trial
-        info = {'new_trial': False}
-        info['gt'] = np.zeros((3,))
+        new_trial = False
         # rewards
         reward = 0
         # observations
-        obs = np.zeros((3,))
-        if self.in_epoch(self.t, 'fixation'):
-            info['gt'][0] = 1
-            obs[0] = 1
-            if self.actions[action] != 0:
-                info['new_trial'] = self.abort
+        gt = np.zeros((3,))
+        if ((self.fixation_0 <= self.t < self.fixation_1) or
+           (self.delay_0 <= self.t < self.delay_1)):
+            gt[0] = 1
+            if action != 0:
+                new_trial = self.abort
                 reward = self.R_ABORTED
-
-        elif self.in_epoch(self.t, 'delay'):
-            info['gt'][0] = 1
-            if self.actions[action] != 0:
-                reward = self.R_ABORTED
-                info['new_trial'] = self.abort
-
-        elif self.in_epoch(self.t, 'decision'):
-            info['gt'][int((trial['ground_truth']/2+1.5))] = 1
-            gt_sign = np.sign(trial['ground_truth'])
-            action_sign = np.sign(self.actions[action])
-            if gt_sign == action_sign:
+        elif self.decision_0 <= self.t < self.decision_1:
+            gt[self.ground_truth] = 1
+            if self.ground_truth == action:
                 reward = self.R_CORRECT
-                info['new_trial'] = True
-            elif gt_sign == -action_sign:
+                new_trial = True
+            elif self.ground_truth == 3 - action:  # 3-action is the other act
                 reward = self.R_FAIL
-                info['new_trial'] = self.firstcounts
-
-
+                new_trial = self.firstcounts
         else:
-            info['gt'][0] = 1
+            gt[0] = 1
 
-        # this is an 'if' to allow the stimulus and fixation periods to overlap
-        if self.in_epoch(self.t, 'stimulus'):
-            obs[0] = 1
-            high = (trial['ground_truth'] > 0) + 1
-            low = (trial['ground_truth'] < 0) + 1
-            obs[high] = self.scale(trial['coh']) +\
-                self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
-            obs[low] = self.scale(-trial['coh']) +\
-                self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
+        obs = self.obs[int(self.t/self.dt), :]
 
         # ---------------------------------------------------------------------
         # new trial?
-        reward, info['new_trial'] = tasktools.new_trial(self.t, self.tmax,
-                                                        self.dt,
-                                                        info['new_trial'],
-                                                        self.R_MISS, reward)
-        if info['new_trial']:
-            self.t = 0
-            self.num_tr += 1
-        else:
-            self.t += self.dt
-            print(self.t)
+        reward, new_trial = tasktools.new_trial(self.t, self.tmax,
+                                                self.dt, new_trial,
+                                                self.R_MISS, reward)
+        self.t += self.dt
 
         done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info
+
+        return obs, reward, done, {'new_trial': new_trial, 'gt': gt}
 
     def step(self, action):
         """
@@ -204,38 +194,30 @@ class DR(ngym.ngym):
                 boolean indicating the end of the trial, info['new_trial']
         Note that the main computations are done by the function _step(action),
         and the extra lines are basically checking whether to call the
-        _new_trial() function in order to start a new trial
+        new_trial() function in order to start a new trial
         """
         obs, reward, done, info = self._step(action)
         if info['new_trial']:
-            self.trial = self._new_trial()
+            self.new_trial()
         return obs, reward, done, info
 
 
 if __name__ == '__main__':
-    plt.close('all')
-    rows = 3
-    env = DR(timing=[100, 300, 300, 300, 300])
+    env = DR(timing=[100, 200, 200, 200, 100])
     observations = []
     rewards = []
     actions = []
     actions_end_of_trial = []
     gt = []
     config_mat = []
-    num_steps_env = 200
+    num_steps_env = 100
     for stp in range(int(num_steps_env)):
-        action = env.action_space.sample()
+        action = 1  # env.action_space.sample()
         obs, rew, done, info = env.step(action)
-        print(info['gt'])
-        print(action)
-        print(rew)
-        print(obs)
-        print('')
         if done:
             env.reset()
         observations.append(obs)
         if info['new_trial']:
-            print('XXXXXXXXXXXX')
             actions_end_of_trial.append(action)
         else:
             actions_end_of_trial.append(-1)
@@ -246,19 +228,19 @@ if __name__ == '__main__':
             config_mat.append(info['config'])
         else:
             config_mat.append([0, 0])
-    observations = np.array(observations)
+
+    rows = 3
+    obs = np.array(observations)
     plt.figure()
     plt.subplot(rows, 1, 1)
-    plt.imshow(observations.T, aspect='auto')
+    plt.imshow(obs.T, aspect='auto')
     plt.title('observations')
     plt.subplot(rows, 1, 2)
     plt.plot(actions, marker='+')
-    plt.plot(actions_end_of_trial, '--')
+    #    plt.plot(actions_end_of_trial, '--')
     gt = np.array(gt)
     plt.plot(np.argmax(gt, axis=1), 'r')
-    print(np.sum(np.argmax(gt, axis=1) == 2))
-    print(np.sum(np.argmax(gt, axis=1) == 1))
-    # aux = np.argmax(obs, axis=1)
+    #    # aux = np.argmax(obs, axis=1)
     # aux[np.sum(obs, axis=1) == 0] = -1
     # plt.plot(aux, '--k')
     plt.title('actions')

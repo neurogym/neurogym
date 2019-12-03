@@ -32,8 +32,6 @@ class RDM(ngym.ngym):
         self.decision = timing[4]
         self.mean_trial_duration = self.fixation + self.stimulus_mean +\
             self.decision
-        self.mean_trial_duration = self.fixation + self.stimulus_mean +\
-            self.decision
         # TODO: How to make this easier?
         self.max_trial_duration = self.fixation + self.stimulus_max +\
             self.decision
@@ -94,12 +92,6 @@ class RDM(ngym.ngym):
 
         # maximum length of current trial
         self.tmax = fixation + stimulus + decision
-        durations = {
-            'fixation': (0, fixation),
-            'stimulus': (fixation, fixation + stimulus),
-            'decision': (fixation + stimulus,
-                         fixation + stimulus + decision),
-            }
         self.fixation_0 = 0
         self.fixation_1 = fixation
         self.stimulus_0 = fixation
@@ -111,7 +103,6 @@ class RDM(ngym.ngym):
         # ---------------------------------------------------------------------
         ground_truth = self.rng.choice(self.choices)
         coh = self.rng.choice(self.cohs)
-        self.durations = durations
         self.ground_truth = ground_truth
         self.coh = coh
         t = np.arange(0, self.tmax, self.dt)
