@@ -39,8 +39,8 @@ class CurriculumLearning(Wrapper):
         self.mov_window = np.repeat(0, 10)
         self.counter = 0
         self.max_num_reps = max_num_reps
-        self._set_trial_params()
-        self.task.trial = self.task._new_trial()
+        # self._set_trial_params()
+        self.task.trial = self.new_trial()
         self.rew = 0
 
     def new_trial(self, **kwargs):
@@ -50,38 +50,53 @@ class CurriculumLearning(Wrapper):
         if self.curr_ph == 0:
             # no stim, reward is in both left and right
             # agent cannot go N times in a row to the same side
-            self.task.R_FAIL = self.task.R_CORRECT
             self.task.sigma = 0
-            kwargs.update({'durs': [self.ori_task.fixation, 0, 0, 100000]})
-            assert self.ori_task.R_FAIL != self.task.R_CORRECT, 'do a copy'
+            # self.count(action)
+            if np.abs(self.counter) == self.max_num_reps:
+                ground_truth = 1 if action == 2 else 2
+                kwargs.update({'gt': ground_truth,
+                               'durs': [self.ori_task.fixation, 0, 0, 100000]})
+                self.task.R_FAIL = self.ori_task.R_FAIL  # or equal 0?
+                self.task.firstcounts = False
+                self.counter = 0
+            else:
+                self.task.R_FAIL = self.ori_task.R_CORRECT
+                self.task.firstcounts = True
+                kwargs.update({'durs': [self.ori_task.fixation, 0, 0, 100000]})
         elif self.curr_ph == 1:
-            # there is stim but first answer is not penalized
-            self.task.stimulus_min = self.ori_task.stimulus_min
-            self.task.stimulus_mean = self.ori_task.stimulus_mean
-            self.task.stimulus_max = self.ori_task.stimulus_max
-            # self.task.decision = self.ori_task.decision
+            kwargs.update({'durs': [self.ori_task.fixation,
+                                    self.ori_task.stimulus_mean, 0,
+                                    self.ori_task.decision],
+                           'cohs': np.array([100])})
             self.task.R_FAIL = 0
             self.task.firstcounts = False
-            self.task.cohs = np.array([100])
         elif self.curr_ph == 2:
             # first answer counts
             self.task.R_FAIL = self.ori_task.R_FAIL
             self.task.firstcounts = True
         elif self.curr_ph == 3:
-            self.task.delays = self.ori_task.delays
+            kwargs.update({'durs': [self.ori_task.fixation,
+                                    self.ori_task.stimulus_mean,
+                                    self.ori_task.delays,
+                                    self.ori_task.decision],
+                           'cohs': np.array([100])})
         elif self.curr_ph == 4:
-            self.task.coh = self.ori_task.cohs
+            kwargs.update({'durs': [self.ori_task.fixation,
+                                    self.ori_task.stimulus_mean,
+                                    self.ori_task.delays,
+                                    self.ori_task.decision],
+                           'cohs': self.ori_task.cohs})
             self.task.sigma = self.ori_task.sigma
         self.env.new_trial(**kwargs)
 
-
     def count(self, action):
         # analyzes the last three answers during stage 0
-        new = self.task.actions[action]
+        new = action - 2/action
         if np.sign(self.counter) == np.sign(new):
             self.counter += new
         else:
             self.counter = new
+        print('counter', self.counter)
 
     def set_phase(self):
         if self.rew == self.task.R_CORRECT:
@@ -99,24 +114,14 @@ class CurriculumLearning(Wrapper):
 
     def step(self, action):
         obs, reward, done, info = self.env._step(action)
+        print('stage', self.curr_ph)
         self.rew = reward
         if info['new_trial']:
+            self.count(action)
             self.set_phase()
-            self._set_trial_params()
-            self.task.trial = self.task._new_trial()
-            if self.curr_ph == 0:
-                self.count(action)
-                if np.abs(self.counter) == self.max_num_reps:
-                    self.task.trial['ground_truth'] = -1 if action == 2 else 1
-                    self.task.R_FAIL = self.ori_task.R_FAIL #or equal 0?
-                    self.task.firstcounts = False
-                    self.counter = 0
-                elif np.abs(self.counter) == 1:
-                    self.task.R_FAIL = self.ori_task.R_CORRECT
-                    self.task.firstcounts = True
-        g_t = self.task.trial['ground_truth']
+            self.new_trial()
 
-        return obs, reward, done, info, g_t
+        return obs, reward, done, info
 
 
 if __name__ == '__main__':
@@ -130,13 +135,11 @@ if __name__ == '__main__':
     actions_end_of_trial = []
     gt = []
     config_mat = []
-    num_steps_env = 300
+    num_steps_env = 200
     g_t = 0
     for stp in range(int(num_steps_env)):
-        action = env.action_space.sample()
-        action = int(g_t/2+1.5)
-        print('gt', g_t)
-        obs, rew, done, info, g_t = env.step(action)
+        action = np.random.choice([1, 2])
+        obs, rew, done, info = env.step(action)
         print(info['gt'])
         print(action)
         print(rew)
@@ -167,7 +170,7 @@ if __name__ == '__main__':
     plt.plot(actions_end_of_trial, '--')
     gt = np.array(gt)
     print(np.argmax(gt[len(gt)-1]))
-    #print(np.argmax(gt[0], axis=1))
+    # print(np.argmax(gt[0], axis=1))
     plt.plot(np.argmax(gt, axis=1), 'r')
     print(np.sum(np.argmax(gt, axis=1) == 2))
     print(np.sum(np.argmax(gt, axis=1) == 1))
