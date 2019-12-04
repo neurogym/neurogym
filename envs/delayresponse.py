@@ -40,7 +40,7 @@ class DR(ngym.ngym):
             print('the duration of all periods must be larger than 0')
             print('XXXXXXXXXXXXXXXXXXXXXX')
         print('XXXXXXXXXXXXXXXXXXXXXX')
-        print('Random Dots Motion Task')
+        print('Delay Response Task')
         print('Mean Fixation: ' + str(self.fixation))
         print('Min Stimulus Duration: ' + str(self.stimulus_min))
         print('Mean Stimulus Duration: ' + str(self.stimulus_mean))
@@ -102,8 +102,14 @@ class DR(ngym.ngym):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-        ground_truth = self.rng.choice(self.choices)
-        coh = self.rng.choice(self.cohs)
+        if 'gt' in kwargs.keys():
+            ground_truth = kwargs['gt']
+        else:
+            ground_truth = self.rng.choice(self.choices)
+        if 'cohs' in kwargs.keys():
+            coh = self.rng.choice(kwargs['cohs'])
+        else:
+            coh = self.rng.choice(self.cohs)
         self.ground_truth = ground_truth
         self.coh = coh
         t = np.arange(0, self.tmax, self.dt)
@@ -217,7 +223,7 @@ if __name__ == '__main__':
     config_mat = []
     num_steps_env = 100
     for stp in range(int(num_steps_env)):
-        action = 1  # env.action_space.sample()
+        action = 2  # env.action_space.sample()
         obs, rew, done, info = env.step(action)
         if done:
             env.reset()
