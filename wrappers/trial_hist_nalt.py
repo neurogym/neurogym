@@ -17,8 +17,8 @@ class TrialHistory_NAlt(Wrapper):
     modfies a given environment by changing the probability of repeating the
     previous correct response
     """
-    def __init__(self, env, n=2, tr_prob=0.8, block_dur=200,
-                 blk_ch_prob=None, pass_blck=False):
+    def __init__(self, env, n_ch=2, tr_prob=0.8, block_dur=200,
+                 blk_ch_prob=None, pass_blck=False, trans='CW'):
         Wrapper.__init__(self, env=env)
         self.env = env
         # we get the original task, in case we are composing wrappers
@@ -26,13 +26,19 @@ class TrialHistory_NAlt(Wrapper):
         while env_aux.__class__.__module__.find('wrapper') != -1:
             env_aux = env.env
         self.task = env_aux
-        # buld transition matrix
-        tr_mat = np.zeros((2, n, n)) + (1-tr_prob)/(n-1)
-        for ind in range(n-1):
-            tr_mat[0, ind, ind+1] = tr_prob
-        tr_mat[0, n-1, 0] = tr_prob
-        tr_mat[1, :, :] = tr_mat[0, :, :].T
-
+        # build transition matrix
+        if trans == 'CW':
+            tr_mat = np.zeros((2, n_ch, n_ch)) + (1-tr_prob)/(n_ch-1)
+            for ind in range(n_ch-1):
+                tr_mat[0, ind, ind+1] = tr_prob
+            tr_mat[0, n_ch-1, 0] = tr_prob
+            tr_mat[1, :, :] = tr_mat[0, :, :].T
+        elif trans == 'RepAlt':
+            tr_mat = np.zeros((2, n_ch, n_ch)) + (1-tr_prob)/(n_ch-1)
+            for ind in range(n_ch-1):
+                tr_mat[0, ind, ind+1] = tr_prob
+            tr_mat[0, n_ch-1, 0] = tr_prob
+            np.fill_diagonal(tr_mat[1, :, :], tr_prob)
         self.tr_mat = tr_mat
         # keeps track of the repeating prob of the current block
         self.curr_block = self.task.rng.choice([0, 1])
@@ -84,8 +90,9 @@ class TrialHistory_NAlt(Wrapper):
 
 
 if __name__ == '__main__':
-    env = nalt_rdm.nalt_RDM(timing=[100, 200, 200, 200, 100])
-    env = TrialHistory_NAlt(env)
+    n_ch = 3
+    env = nalt_rdm.nalt_RDM(timing=[100, 200, 200, 200, 100], n_ch=n_ch)
+    env = TrialHistory_NAlt(env, n_ch=n_ch, tr_prob=0.9, trans='RepAlt')
     observations = []
     rewards = []
     actions = []
@@ -114,7 +121,10 @@ if __name__ == '__main__':
     rows = 3
     obs = np.array(observations)
     plt.figure()
-    plt.imshow(tr_mat[0, :, :], aspect='auto')
+    plt.subplot(1, 2, 1)
+    plt.imshow(env.tr_mat[0, :, :], aspect='auto')
+    plt.subplot(1, 2, 2)
+    plt.imshow(env.tr_mat[1, :, :], aspect='auto')
     plt.figure()
     plt.subplot(rows, 1, 1)
     plt.imshow(obs.T, aspect='auto')
