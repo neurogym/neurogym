@@ -36,11 +36,10 @@ class TrialHistory(Wrapper):
         self.blk_ch_prob = blk_ch_prob
         self.pass_blck_info = pass_blck
 
-    def _modify_trial(self):
+    def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        trial = self.task.trial
         # change rep. prob. every self.block_dur trials
         if self.blk_ch_prob is None:
             if self.task.num_tr % self.block_dur == 0:
@@ -65,21 +64,24 @@ class TrialHistory(Wrapper):
                 probs = (1-self.ae_probs[self.curr_block],
                          self.ae_probs[self.curr_block])
 
-        trial['ground_truth'] = self.task.rng.choices(self.task.choices,
-                                                      weights=probs)[0]
-        self.prev_trial = trial['ground_truth']
-
-        return trial
+        ground_truth = self.task.rng.choices(self.task.choices,
+                                             weights=probs)[0]
+        self.prev_trial = ground_truth
+        kwargs.update({'gt': ground_truth})
+        self.env.new_trial(**kwargs)
 
     def reset(self):
         return self.task.reset()
 
+    def _step(self, action):
+        return self.env._step(action)
+
     def step(self, action):
-        obs, reward, done, info = self.env.step(action)
+        obs, reward, done, info = self._step(action)
         if info['new_trial']:
             info['rep_prob'] = self.rep_prob[self.curr_block]
             self.prev_correct = reward == self.task.R_CORRECT
-            self.task.trial = self._modify_trial()
+            self.new_trial()
         if self.pass_blck_info:
             obs = np.concatenate((obs, np.array([self.curr_block])))
         return obs, reward, done, info
