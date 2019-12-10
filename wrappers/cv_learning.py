@@ -35,62 +35,60 @@ class CurriculumLearning(Wrapper):
         self.curr_ph = init_ph
         self.curr_perf = 0
         self.perf_window = perf_w
-        self.goal_perf = 0.8
-        self.mov_window = np.repeat(0, 10)
+        self.goal_perf = [0.8, 0.8, 0.8, 0.8]
+        self.mov_window = [0]*self.perf_window
         self.counter = 0
         self.max_num_reps = max_num_reps
-        # self._set_trial_params()
-        self.task.trial = self.new_trial()
         self.rew = 0
+        self.new_trial()
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
+        self.first_trial_rew = None
+        self.set_phase()
         if self.curr_ph == 0:
             # no stim, reward is in both left and right
             # agent cannot go N times in a row to the same side
-            self.task.sigma = 0
             # self.count(action)
-            if np.abs(self.counter) == self.max_num_reps:
-                ground_truth = 1 if action == 2 else 2
-                kwargs.update({'gt': ground_truth,
-                               'durs': [self.ori_task.fixation, 0, 0, 100000]})
-                self.task.R_FAIL = self.ori_task.R_FAIL  # or equal 0?
-                self.task.firstcounts = False
-                self.counter = 0
+            if np.abs(self.counter) >= self.max_num_reps:
+                ground_truth = 1 if self.action == 2 else 2
+                kwargs.update({'gt': ground_truth})
+                self.task.R_FAIL = 0
             else:
                 self.task.R_FAIL = self.ori_task.R_CORRECT
-                self.task.firstcounts = True
-                kwargs.update({'durs': [self.ori_task.fixation, 0, 0, 100000]})
+            kwargs.update({'durs': [self.ori_task.fixation, 0, 0, 100000],
+                           'sigma': 0})
         elif self.curr_ph == 1:
+            # TODO: write explanation of phase
             kwargs.update({'durs': [self.ori_task.fixation,
                                     self.ori_task.stimulus_mean, 0,
                                     self.ori_task.decision],
-                           'cohs': np.array([100])})
+                           'cohs': np.array([100]), 'sigma': 0})
             self.task.R_FAIL = 0
             self.task.firstcounts = False
         elif self.curr_ph == 2:
-            # first answer counts
+            # TODO: write explanation of phase
+            # first answer counts]
+            self.first_trial_rew = None
             self.task.R_FAIL = self.ori_task.R_FAIL
             self.task.firstcounts = True
+            kwargs.update({'durs': [self.ori_task.fixation,
+                                    self.ori_task.stimulus_mean, 0,
+                                    self.ori_task.decision],
+                          'cohs': np.array([100]), 'sigma': 0})
         elif self.curr_ph == 3:
-            kwargs.update({'durs': [self.ori_task.fixation,
-                                    self.ori_task.stimulus_mean,
-                                    self.ori_task.delays,
-                                    self.ori_task.decision],
-                           'cohs': np.array([100])})
-        elif self.curr_ph == 4:
-            kwargs.update({'durs': [self.ori_task.fixation,
-                                    self.ori_task.stimulus_mean,
-                                    self.ori_task.delays,
-                                    self.ori_task.decision],
-                           'cohs': self.ori_task.cohs})
-            self.task.sigma = self.ori_task.sigma
+            # TODO: write explanation of phase
+            kwargs.update({'cohs': np.array([100]), 'sigma': 0})
+        # TODO: write explanation of phase 4
         self.env.new_trial(**kwargs)
 
     def count(self, action):
-        # analyzes the last three answers during stage 0
+        '''
+        check the last three answers during stage 0 so the network has to
+        alternate between left and right
+        '''
         new = action - 2/action
         if np.sign(self.counter) == np.sign(new):
             self.counter += new
@@ -99,26 +97,28 @@ class CurriculumLearning(Wrapper):
         print('counter', self.counter)
 
     def set_phase(self):
-        if self.rew == self.task.R_CORRECT:
-            self.mov_window = np.append(self.mov_window, 1)
-            self.mov_window = np.delete(self.mov_window, 0)
-        else:
-            self.mov_window = np.append(self.mov_window, 0)
-            self.mov_window = np.delete(self.mov_window, 0)
-        if np.sum(self.mov_window)/self.perf_window >= self.goal_perf:
+        self.mov_window.append(1*(self.rew == self.task.R_CORRECT))
+        self.mov_window.pop(0)  # remove first value
+        if self.curr_ph < 4 and np.sum(self.mov_window)/self.perf_window >=\
+           self.goal_perf[self.curr_ph]:
             self.curr_ph += 1
-            self.mov_window = np.repeat(0, self.perf_window)
+            self.mov_window = [0]*self.perf_window
 
     def reset(self):
         return self.task.reset()
 
-    def step(self, action):
+    def _step(self, action):
         obs, reward, done, info = self.env._step(action)
-        print('stage', self.curr_ph)
-        self.rew = reward
+        if ~self.env.firstcounts and ~np.isnan(info['first_trial']):
+            self.first_trial_rew = reward
+        self.rew = self.first_trial_rew or reward
+        self.action = action
+        return obs, reward, done, info
+
+    def step(self, action):
+        obs, reward, done, info = self._step(action)
         if info['new_trial']:
             self.count(action)
-            self.set_phase()
             self.new_trial()
 
         return obs, reward, done, info
@@ -135,10 +135,10 @@ if __name__ == '__main__':
     actions_end_of_trial = []
     gt = []
     config_mat = []
-    num_steps_env = 200
+    num_steps_env = 20000
     g_t = 0
     for stp in range(int(num_steps_env)):
-        action = np.random.choice([1, 2])
+        action = env.ground_truth
         obs, rew, done, info = env.step(action)
         print(info['gt'])
         print(action)

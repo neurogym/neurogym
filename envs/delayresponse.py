@@ -57,6 +57,7 @@ class DR(ngym.ngym):
         self.R_MISS = 0.
         self.abort = False
         self.firstcounts = True
+        self.first_flag = False
         # action and observation spaces
         self.stimulus_min = np.max([self.stimulus_min, dt])
         self.action_space = spaces.Discrete(3)
@@ -80,6 +81,7 @@ class DR(ngym.ngym):
             coh: stimulus coherence (evidence) for the trial
             obs: observation
         """
+        self.first_flag = False
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
@@ -110,6 +112,11 @@ class DR(ngym.ngym):
             coh = self.rng.choice(kwargs['cohs'])
         else:
             coh = self.rng.choice(self.cohs)
+        if 'sigma' in kwargs.keys():
+            sigma = kwargs['sigma'] / np.sqrt(self.dt)
+        else:
+            sigma = self.sigma_dt
+
         self.ground_truth = ground_truth
         self.coh = coh
         t = np.arange(0, self.tmax, self.dt)
@@ -139,7 +146,7 @@ class DR(ngym.ngym):
         obs[stimulus_period, 0] = 1
         obs[stimulus_period, ground_truth] = (1 + coh/100)/2
         obs[stimulus_period, 3 - ground_truth] = (1 - coh/100)/2
-        obs[stimulus_period, 1:] += np.random.randn(n_stim, 2) * self.sigma_dt
+        obs[stimulus_period, 1:] += np.random.randn(n_stim, 2) * sigma
         self.obs = obs
         self.t = 0
         self.num_tr += 1
@@ -164,6 +171,7 @@ class DR(ngym.ngym):
         reward = 0
         # observations
         gt = np.zeros((3,))
+        first_trial = np.nan
         if ((self.fixation_0 <= self.t < self.fixation_1) or
            (self.delay_0 <= self.t < self.delay_1)):
             gt[0] = 1
@@ -175,9 +183,15 @@ class DR(ngym.ngym):
             if self.ground_truth == action:
                 reward = self.R_CORRECT
                 new_trial = True
+                if ~self.first_flag:
+                    first_trial = True
+                    self.first_flag = True
             elif self.ground_truth == 3 - action:  # 3-action is the other act
                 reward = self.R_FAIL
                 new_trial = self.firstcounts
+                if ~self.first_flag:
+                    first_trial = False
+                    self.first_flag = True
         else:
             gt[0] = 1
 
@@ -192,7 +206,8 @@ class DR(ngym.ngym):
 
         done = self.num_tr > self.num_tr_exp
 
-        return obs, reward, done, {'new_trial': new_trial, 'gt': gt}
+        return obs, reward, done, {'new_trial': new_trial, 'gt': gt,
+                                   'first_trial': first_trial}
 
     def step(self, action):
         """
