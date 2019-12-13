@@ -35,7 +35,7 @@ class manage_data(Wrapper):
             self.config_mat = []
             # for RDM + trial history
             self.rep_prob_mat = []
-            self.tr_prob_mat = []
+            self.tr_mat = []
             self.stim_mat = []
             self.reward_mat = []
             self.cum_obs = 0
@@ -86,8 +86,8 @@ class manage_data(Wrapper):
                     self.gt_mat.append(gt)
                 if 'rep_prob' in info.keys():
                     self.rep_prob_mat.append(info['rep_prob'])
-                if 'tr_prob' in info.keys():
-                    self.tr_prob_mat.append(info['tr_prob'])
+                if 'tr_mat' in info.keys():
+                    self.tr_mat.append(info['tr_mat'])
                 if 'config' in info.keys():
                     self.config_mat.append(info['config'])
                 if 'catch_trial' in info.keys():
@@ -101,8 +101,8 @@ class manage_data(Wrapper):
                             'reward': self.reward_mat}
                     if len(self.rep_prob_mat) != 0:
                         data['rep_prob'] = self.rep_prob_mat
-                    if len(self.tr_prob_mat) != 0:
-                        data['tr_prob'] = self.tr_prob_mat
+                    if len(self.tr_mat) != 0:
+                        data['tr_mat'] = self.tr_mat
                     if len(self.config_mat) != 0:
                         data['config'] = self.config_mat
                     if len(self.catch_tr_mat) != 0:
@@ -117,7 +117,7 @@ class manage_data(Wrapper):
                     self.config_mat = []
                     self.catch_tr_mat = []
                     self.rep_prob_mat = []
-                    self.tr_prob_mat = []
+                    self.tr_mat = []
                     self.stim_mat = []
                     self.reward_mat = []
                     # for rendering
