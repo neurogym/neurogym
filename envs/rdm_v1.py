@@ -78,10 +78,10 @@ class RDM(ngym.ngym):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        stimulus = tasktools.truncated_exponential(self.rng, self.dt,
-                                                   self.stimulus_mean,
-                                                   xmin=self.stimulus_min,
-                                                   xmax=self.stimulus_max)
+        stimulus = tasktools.trunc_exp(self.rng, self.dt,
+                                       self.stimulus_mean,
+                                       xmin=self.stimulus_min,
+                                       xmax=self.stimulus_max)
         # fixation = self.rng.uniform(self.fixation_min, self.fixation_max)
         fixation = self.fixation
         decision = self.decision
@@ -102,7 +102,6 @@ class RDM(ngym.ngym):
         self.ground_truth = ground_truth
         self.coh = coh
         t = np.arange(0, self.tmax, self.dt)
-
         obs = np.zeros((len(t), 3))
 
         fixation_period = np.logical_and(t >= self.fixation_0,
