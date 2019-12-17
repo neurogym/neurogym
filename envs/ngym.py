@@ -39,7 +39,7 @@ class ngym(gym.Env):
         """
         self.perf = 0
         self.num_tr_perf = 0
-        self.num_tr = 1
+        self.num_tr = 0
         self.t = 0
 
         self.trial = self._new_trial()

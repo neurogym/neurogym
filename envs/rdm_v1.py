@@ -132,6 +132,9 @@ class RDM(ngym.ngym):
                 ground truth correct response, info['gt']
                 boolean indicating the end of the trial, info['new_trial']
         """
+        if self.num_tr == 0:
+            # start first trial
+            self.new_trial()
         # ---------------------------------------------------------------------
         # Reward and observations
         # ---------------------------------------------------------------------
@@ -181,10 +184,6 @@ class RDM(ngym.ngym):
         and the extra lines are basically checking whether to call the
         new_trial() function in order to start a new trial
         """
-        if self.num_tr == 0:
-            # start first trial
-            self.new_trial()
-
         obs, reward, done, info = self._step(action)
         if info['new_trial']:
             self.new_trial()

@@ -50,8 +50,10 @@ class PassAction(Wrapper):
 
 
 if __name__ == '__main__':
-    env = nalt_rdm.nalt_RDM(timing=[100, 200, 200, 200, 100], n=10)
-    env = trial_hist_nalt.TrialHistory_NAlt(env)
+    n_ch = 3
+    env = nalt_rdm.nalt_RDM(timing=[100, 200, 200, 200, 100], n_ch=n_ch)
+    env = trial_hist_nalt.TrialHistory_NAlt(env, n_ch=n_ch, tr_prob=0.9,
+                                            trans='RepAlt')
     env = catch_trials.CatchTrials(env, catch_prob=0.7, stim_th=100)
     env = pass_reward.PassReward(env)
     env = PassAction(env)
@@ -61,7 +63,7 @@ if __name__ == '__main__':
     actions_end_of_trial = []
     gt = []
     config_mat = []
-    num_steps_env = 1000
+    num_steps_env = 200
     for stp in range(int(num_steps_env)):
         action = 1  # env.action_space.sample()
         obs, rew, done, info = env.step(action)

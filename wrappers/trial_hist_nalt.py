@@ -44,7 +44,10 @@ class TrialHistory_NAlt(Wrapper):
         self.curr_block = self.task.rng.choice([0, 1])
         # duration of block (in number oif trials)
         self.block_dur = block_dur
-        self.prev_trial = self.task.ground_truth
+        if hasattr(self.task, 'property'):
+            self.prev_trial = self.task.ground_truth
+        else:
+            self.prev_trial = self.task.rng.choice(self.task.choices)
         self.blk_ch_prob = blk_ch_prob
         self.pass_blck_info = pass_blck
 
