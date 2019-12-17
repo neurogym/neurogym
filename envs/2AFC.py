@@ -22,7 +22,7 @@ TIMING = {'fixation': [500, 200, 800], 'stimulus': [500, 200, 800],
 
 class TwoAFC(ngym.ngym):
     def __init__(self, dt=100, timing=None, stimEv=1., noise=0.01,
-                 simultaneous_stim=False, **kwargs):
+                 simultaneous_stim=False, plot_trial=False, **kwargs):
         super().__init__(dt=dt)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
@@ -76,6 +76,7 @@ class TwoAFC(ngym.ngym):
         # seeding
         self.seed()
         self.viewer = None
+        self.plot_trial = plot_trial
 
     def new_trial(self, **kwargs):
         """
@@ -115,17 +116,18 @@ class TwoAFC(ngym.ngym):
             durs['delay_btw_stim'] = 0
         # trial duration
         self.tmax = np.sum([durs[key] for key in durs.keys()])
+        if not self.sim_stim:
+            self.tmax += durs['stimulus']
+
         self.pers = {}
-        per_times = {'fixation': None, 'stim_1': None, 'stim_2': None,
-                     'delay_btw_stim': None, 'delay_aft_stim': None,
-                     'decision': None}
+        per_times = {'fixation': None, 'stim_1': None, 'delay_btw_stim': None,
+                     'stim_2': None, 'delay_aft_stim': None, 'decision': None}
         t = np.arange(0, self.tmax, self.dt)
         cum = 0
-        plt.figure()
-        counter = 0
+        if self.plot_trial and self.num_tr == 0:
+            plt.figure()
+            counter = 0
         for key in per_times.keys():
-            counter += 1
-            print(cum)
             if key == 'decision' or key == 'fixation':
                 self.pers[key] = [cum, cum + durs[key]]
             if key == 'stim_1':
@@ -141,10 +143,13 @@ class TwoAFC(ngym.ngym):
                 per_times[key] =\
                     np.logical_and(t >= cum, t < cum + durs[key])
                 cum += durs[key]
-            plt.plot(per_times[key]+counter, label=key, lw=2)
+            if self.plot_trial and self.num_tr == 0:
+                plt.plot(per_times[key]+counter, label=key, lw=2)
+                counter += 1
         n_stim = int(durs['stimulus']/self.dt)
-        plt.legend()
-        
+        if self.plot_trial and self.num_tr == 0:
+            plt.legend()
+
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
@@ -159,13 +164,14 @@ class TwoAFC(ngym.ngym):
         # correct stimulus
         obs[per_times['stim_' + str(ground_truth)],
             ground_truth] = (1 + coh/100)/2
-        obs[per_times['stim_' + str(ground_truth)],
-            ground_truth] += np.random.randn(n_stim) * self.sigma_dt
+        obs[per_times['stim_' + str(ground_truth)], ground_truth] +=\
+            np.random.randn(n_stim) * self.sigma_dt
         # incorrect stimulus
         obs[per_times['stim_' + str(3 - ground_truth)],
             3 - ground_truth] = (1 - coh/100)/2
         obs[per_times['stim_' + str(3 - ground_truth)],
             3 - ground_truth] += np.random.randn(n_stim) * self.sigma_dt
+
         self.obs = obs
         # ground truth
         self.gt = np.zeros((len(t),), dtype=np.int)
@@ -243,55 +249,29 @@ class TwoAFC(ngym.ngym):
 
 
 if __name__ == '__main__':
+    plt.close('all')
     # RDM
-    timing = {'fixation': [500, 200, 800], 'stimulus': [500, 200, 800],
-              'delay_btw_stim': [0, 0, 0],
-              'delay_aft_stim': [0, 0, 0], 'decision': [500, 200, 800]}
-
-    env = TwoAFC(timing=timing)
-    observations = []
-    rewards = []
-    actions = []
-    actions_end_of_trial = []
-    gt = []
-    config_mat = []
-    num_steps_env = 100
-    for stp in range(int(num_steps_env)):
-        action = 1  # env.action_space.sample()
-        obs, rew, done, info = env.step(action)
-        if done:
-            env.reset()
-        observations.append(obs)
-        if info['new_trial']:
-            actions_end_of_trial.append(action)
-        else:
-            actions_end_of_trial.append(-1)
-        rewards.append(rew)
-        actions.append(action)
-        gt.append(info['gt'])
-        if 'config' in info.keys():
-            config_mat.append(info['config'])
-        else:
-            config_mat.append([0, 0])
-
-    rows = 3
-    obs = np.array(observations)
-    plt.figure()
-    plt.subplot(rows, 1, 1)
-    plt.imshow(obs.T, aspect='auto')
-    plt.title('observations')
-    plt.subplot(rows, 1, 2)
-    plt.plot(actions, marker='+')
-    #    plt.plot(actions_end_of_trial, '--')
-    gt = np.array(gt)
-    plt.plot(np.argmax(gt, axis=1), 'r')
-    #    # aux = np.argmax(obs, axis=1)
-    # aux[np.sum(obs, axis=1) == 0] = -1
-    # plt.plot(aux, '--k')
-    plt.title('actions')
-    plt.xlim([-0.5, len(rewards)+0.5])
-    plt.subplot(rows, 1, 3)
-    plt.plot(rewards, 'r')
-    plt.title('reward')
-    plt.xlim([-0.5, len(rewards)+0.5])
-    plt.show()
+    timing = {'fixation': [500, 500, 500], 'stimulus': [500, 200, 800],
+              'delay_aft_stim': [0, 0, 0], 'decision': [100, 100, 100]}
+    simultaneous_stim = True
+    env = TwoAFC(timing=timing, simultaneous_stim=simultaneous_stim,
+                 plot_trial=True)
+    tasktools.plot_struct(env)
+    plt.title('RDM')
+    # ROMO
+    timing = {'fixation': [500, 500, 500], 'stimulus': [500, 200, 800],
+              'delay_btw_stim': [500, 200, 800],
+              'delay_aft_stim': [0, 0, 0], 'decision': [100, 100, 100]}
+    simultaneous_stim = False
+    env = TwoAFC(timing=timing, simultaneous_stim=simultaneous_stim,
+                 plot_trial=True)
+    tasktools.plot_struct(env)
+    plt.title('ROMO')
+    # DELAY RESPONSE
+    timing = {'fixation': [500, 500, 500], 'stimulus': [500, 200, 800],
+              'delay_aft_stim': [500, 200, 800], 'decision': [100, 100, 100]}
+    simultaneous_stim = True
+    env = TwoAFC(timing=timing, simultaneous_stim=simultaneous_stim,
+                 plot_trial=True)
+    tasktools.plot_struct(env)
+    plt.title('DELAY RESPONSE')

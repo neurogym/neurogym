@@ -96,10 +96,10 @@ class nalt_RDM(ngym.ngym):
             stimulus = kwargs['durs'][1]
             decision = kwargs['durs'][2]
         else:
-            stimulus = tasktools.truncated_exponential(self.rng, self.dt,
-                                                       self.stimulus_mean,
-                                                       xmin=self.stimulus_min,
-                                                       xmax=self.stimulus_max)
+            stimulus = tasktools.trunc_exp(self.rng, self.dt,
+                                           self.stimulus_mean,
+                                           xmin=self.stimulus_min,
+                                           xmax=self.stimulus_max)
             # fixation = self.rng.uniform(self.fixation_min, self.fixation_max)
             fixation = self.fixation
             decision = self.decision

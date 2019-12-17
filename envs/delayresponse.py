@@ -87,10 +87,10 @@ class DR(ngym.ngym):
             delay = kwargs['durs'][2]
             decision = kwargs['durs'][3]
         else:
-            stimulus = tasktools.truncated_exponential(self.rng, self.dt,
-                                                       self.stimulus_mean,
-                                                       xmin=self.stimulus_min,
-                                                       xmax=self.stimulus_max)
+            stimulus = tasktools.trunc_exp(self.rng, self.dt,
+                                           self.stimulus_mean,
+                                           xmin=self.stimulus_min,
+                                           xmax=self.stimulus_max)
             delay = self.rng.choice(self.delays)
             fixation = self.fixation
             decision = self.decision

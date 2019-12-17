@@ -1,7 +1,7 @@
 from __future__ import division
 
 from collections import OrderedDict
-
+import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -94,3 +94,50 @@ def compute_perf(perf, reward, num_tr_perf, tr_perf):
         perf += (reward - perf)/num_tr_perf
 
     return perf, num_tr_perf
+
+
+def plot_struct(env, num_steps_env=100, def_act=None):
+    observations = []
+    rewards = []
+    actions = []
+    actions_end_of_trial = []
+    gt = []
+    config_mat = []
+    for stp in range(int(num_steps_env)):
+        if def_act is None:
+            action = env.action_space.sample()
+        else:
+            action = def_act
+        obs, rew, done, info = env.step(action)
+        if done:
+            env.reset()
+        observations.append(obs)
+        if info['new_trial']:
+            actions_end_of_trial.append(action)
+        else:
+            actions_end_of_trial.append(-1)
+        rewards.append(rew)
+        actions.append(action)
+        gt.append(info['gt'])
+        if 'config' in info.keys():
+            config_mat.append(info['config'])
+        else:
+            config_mat.append([0, 0])
+
+    rows = 3
+    obs = np.array(observations)
+    plt.figure()
+    plt.subplot(rows, 1, 1)
+    plt.imshow(obs.T, aspect='auto')
+    plt.title('observations')
+    plt.subplot(rows, 1, 2)
+    plt.plot(actions, marker='+')
+    gt = np.array(gt)
+    plt.plot(np.argmax(gt, axis=1), 'r')
+    plt.title('actions')
+    plt.xlim([-0.5, len(rewards)+0.5])
+    plt.subplot(rows, 1, 3)
+    plt.plot(rewards, 'r')
+    plt.title('reward')
+    plt.xlim([-0.5, len(rewards)+0.5])
+    plt.show()
