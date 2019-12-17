@@ -42,7 +42,7 @@ def uniform(rng, dt, xmin, xmax):
         return (rng.uniform(xmin, xmax)//dt)*dt
 
 
-def truncated_exponential(rng, dt, mean, xmin=0, xmax=np.inf):
+def trunc_exp(rng, dt, mean, xmin=0, xmax=np.inf):
     """
     function for generating epoch durations that are multiples of the time step
     """
