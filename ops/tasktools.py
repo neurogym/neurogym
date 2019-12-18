@@ -96,19 +96,29 @@ def compute_perf(perf, reward, num_tr_perf, tr_perf):
     return perf, num_tr_perf
 
 
-def plot_struct(env, num_steps_env=100, def_act=None):
+def plot_struct(env, num_steps_env=100, def_act=None, model=None):
     observations = []
     rewards = []
     actions = []
     actions_end_of_trial = []
     gt = []
     config_mat = []
+    if model is not None:
+        obs = env.reset()
     for stp in range(int(num_steps_env)):
-        if def_act is None:
-            action = env.action_space.sample()
-        else:
+        if model is not None:
+            action, _states = model.predict(obs)
+        elif def_act is not None:
             action = def_act
+        else:
+            action = env.action_space.sample()
+        print(action)
         obs, rew, done, info = env.step(action)
+        if isinstance(info, list):
+            info = info[0]
+            obs = obs[0]
+            rew = rew[0]
+            done = done[0]
         if done:
             env.reset()
         observations.append(obs)
