@@ -96,13 +96,14 @@ def compute_perf(perf, reward, num_tr_perf, tr_perf):
     return perf, num_tr_perf
 
 
-def plot_struct(env, num_steps_env=100, def_act=None, model=None):
+def plot_struct(env, num_steps_env=100, def_act=None, model=None, name=''):
     observations = []
     rewards = []
     actions = []
     actions_end_of_trial = []
     gt = []
     config_mat = []
+    perf = []
     if model is not None:
         obs = env.reset()
     for stp in range(int(num_steps_env)):
@@ -112,8 +113,7 @@ def plot_struct(env, num_steps_env=100, def_act=None, model=None):
             action = def_act
         else:
             action = env.action_space.sample()
-        print(action)
-        obs, rew, done, info = env.step(action)
+        obs, rew, done, info = env.step([action])
         if isinstance(info, list):
             info = info[0]
             obs = obs[0]
@@ -124,6 +124,7 @@ def plot_struct(env, num_steps_env=100, def_act=None, model=None):
         observations.append(obs)
         if info['new_trial']:
             actions_end_of_trial.append(action)
+            perf.append(rew)
         else:
             actions_end_of_trial.append(-1)
         rewards.append(rew)
@@ -150,4 +151,6 @@ def plot_struct(env, num_steps_env=100, def_act=None, model=None):
     plt.plot(rewards, 'r')
     plt.title('reward')
     plt.xlim([-0.5, len(rewards)+0.5])
+    plt.title(name + '  ' + str(np.mean(perf)))
     plt.show()
+    return np.mean(perf)

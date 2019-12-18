@@ -21,6 +21,7 @@ class ngym(gym.Env):
         self.num_tr = 0
         self.perf = 0
         self.num_tr_perf = 0
+        # TODO: make this a parameter
         self.num_tr_exp = 10000000  # num trials after which done = True
         self.seed()
 
