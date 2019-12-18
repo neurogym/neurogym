@@ -19,8 +19,6 @@ The toolkit also includes various modifier functions that greatly expand the spa
 
 You can perform a minimal install of ``neurogym`` with:
 
-..code:: shell
-
     git clone https://github.com/gyyang/neurogym.git
     cd neurogym
     pip install -e .
