@@ -22,7 +22,7 @@ TIMING = {'fixation': [500, 200, 800], 'stimulus': [500, 200, 800],
 
 class TwoAFC(ngym.ngym):
     def __init__(self, dt=100, timing=None, stimEv=1., noise=0.01,
-                 simultaneous_stim=False, plot_trial=False, **kwargs):
+                 simultaneous_stim=False, **kwargs):
         super().__init__(dt=dt)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
@@ -76,7 +76,6 @@ class TwoAFC(ngym.ngym):
         # seeding
         self.seed()
         self.viewer = None
-        self.plot_trial = plot_trial
 
     def new_trial(self, **kwargs):
         """
@@ -118,37 +117,32 @@ class TwoAFC(ngym.ngym):
         self.tmax = np.sum([durs[key] for key in durs.keys()])
         if not self.sim_stim:
             self.tmax += durs['stimulus']
-
         self.pers = {}
-        per_times = {'fixation': None, 'stim_1': None, 'delay_btw_stim': None,
-                     'stim_2': None, 'delay_aft_stim': None, 'decision': None}
+        per_times = {}
+        periods = ['fixation', 'stim_1', 'delay_btw_stim', 'stim_2',
+                   'delay_aft_stim', 'decision']
         t = np.arange(0, self.tmax, self.dt)
         cum = 0
-        if self.plot_trial and self.num_tr == 0:
-            plt.figure()
-            counter = 0
-        for key in per_times.keys():
-            if key == 'decision' or key == 'fixation':
+        for key in periods:
+            cum_aux = 0
+            if key != 'stim_1' and key != 'stim_2':
+                cum_aux = durs[key]
+            if key == 'fixation':
                 self.pers[key] = [cum, cum + durs[key]]
-            if key == 'stim_1':
-                per_times[key] =\
-                    np.logical_and(t >= cum, t < cum + durs['stimulus'])
+            elif key == 'stim_1':
+                per_times[key] = np.logical_and(t >= cum,
+                                                t < cum + durs['stimulus'])
                 if not self.sim_stim:
-                    cum += durs['stimulus']
+                    cum_aux = durs['stimulus']
             elif key == 'stim_2':
-                per_times[key] =\
-                    np.logical_and(t >= cum, t < cum + durs['stimulus'])
-                cum += durs['stimulus']
-            else:
-                per_times[key] =\
-                    np.logical_and(t >= cum, t < cum + durs[key])
-                cum += durs[key]
-            if self.plot_trial and self.num_tr == 0:
-                plt.plot(per_times[key]+counter, label=key, lw=2)
-                counter += 1
+                cum_aux = durs['stimulus']
+                per_times[key] = np.logical_and(t >= cum, t < cum + cum_aux)
+            elif key == 'decision':
+                self.pers[key] = [cum, cum + durs[key]]
+                per_times[key] = np.logical_and(t >= cum, t < cum + cum_aux)
+            cum += cum_aux
+
         n_stim = int(durs['stimulus']/self.dt)
-        if self.plot_trial and self.num_tr == 0:
-            plt.legend()
 
         # ---------------------------------------------------------------------
         # Trial
@@ -156,11 +150,7 @@ class TwoAFC(ngym.ngym):
         # observations
         obs = np.zeros((len(t), 3))
         # fixation cue is always on except in decision period
-        obs[per_times['fixation'], 0] = 1
-        obs[per_times['stim_1'], 0] = 1
-        obs[per_times['delay_btw_stim'], 0] = 1
-        obs[per_times['stim_2'], 0] = 1
-        obs[per_times['delay_aft_stim'], 0] = 1
+        obs[~per_times['decision'], 0] = 1
         # correct stimulus
         obs[per_times['stim_' + str(ground_truth)],
             ground_truth] = (1 + coh/100)/2
@@ -173,9 +163,6 @@ class TwoAFC(ngym.ngym):
             3 - ground_truth] += np.random.randn(n_stim) * self.sigma_dt
 
         self.obs = obs
-        # ground truth
-        self.gt = np.zeros((len(t),), dtype=np.int)
-        self.gt[per_times['decision']] = self.ground_truth
 
         self.t = 0
         self.num_tr += 1
@@ -254,8 +241,7 @@ if __name__ == '__main__':
     timing = {'fixation': [500, 500, 500], 'stimulus': [500, 200, 800],
               'delay_aft_stim': [0, 0, 0], 'decision': [100, 100, 100]}
     simultaneous_stim = True
-    env = TwoAFC(timing=timing, simultaneous_stim=simultaneous_stim,
-                 plot_trial=True)
+    env = TwoAFC(timing=timing, simultaneous_stim=simultaneous_stim)
     tasktools.plot_struct(env)
     plt.title('RDM')
     # ROMO
@@ -263,15 +249,13 @@ if __name__ == '__main__':
               'delay_btw_stim': [500, 200, 800],
               'delay_aft_stim': [0, 0, 0], 'decision': [100, 100, 100]}
     simultaneous_stim = False
-    env = TwoAFC(timing=timing, simultaneous_stim=simultaneous_stim,
-                 plot_trial=True)
+    env = TwoAFC(timing=timing, simultaneous_stim=simultaneous_stim)
     tasktools.plot_struct(env)
     plt.title('ROMO')
     # DELAY RESPONSE
     timing = {'fixation': [500, 500, 500], 'stimulus': [500, 200, 800],
               'delay_aft_stim': [500, 200, 800], 'decision': [100, 100, 100]}
     simultaneous_stim = True
-    env = TwoAFC(timing=timing, simultaneous_stim=simultaneous_stim,
-                 plot_trial=True)
+    env = TwoAFC(timing=timing, simultaneous_stim=simultaneous_stim)
     tasktools.plot_struct(env)
     plt.title('DELAY RESPONSE')
