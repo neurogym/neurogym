@@ -91,18 +91,19 @@ class CurriculumLearning(Wrapper):
         check the last three answers during stage 0 so the network has to
         alternate between left and right
         '''
-        new = action - 2/action
-        if np.sign(self.counter) == np.sign(new):
-            self.counter += new
-        else:
-            self.counter = new
-        print('counter', self.counter)
+        if action != 0:
+            new = action - 2/action
+            if np.sign(self.counter) == np.sign(new):
+                self.counter += new
+            else:
+                self.counter = new
+            print('counter', self.counter)
 
     def set_phase(self):
         self.mov_window.append(1*(self.rew == self.task.R_CORRECT))
         self.mov_window.pop(0)  # remove first value
-        if self.curr_ph < 4 and np.sum(self.mov_window)/self.perf_window >=\
-           self.goal_perf[self.curr_ph]:
+        self.curr_perf = np.sum(self.mov_window)/self.perf_window
+        if self.curr_ph < 4 and self.curr_perf >= self.goal_perf[self.curr_ph]:
             self.curr_ph += 1
             self.mov_window = [0]*self.perf_window
 
@@ -139,11 +140,13 @@ if __name__ == '__main__':
     actions_end_of_trial = []
     gt = []
     config_mat = []
-    num_steps_env = 20
+    perf = []
+    num_steps_env = 2000
     g_t = 0
+    next_ph = 1
     for stp in range(int(num_steps_env)):
-        # action = env.ground_truth
-        action = env.action_space.sample()
+        action = env.ground_truth
+        # action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
         print(info['gt'])
         print(action)
@@ -157,6 +160,14 @@ if __name__ == '__main__':
             print('XXXXXXXXXXXX')
             print('Current phase: ', info['curr_ph'])
             actions_end_of_trial.append(action)
+            perf.append(env.curr_perf)
+            if info['curr_ph'] == next_ph:
+                plt.figure()
+                plt.plot(perf)
+                plt.title('Performance along phase ' + str(next_ph-1))
+                plt.show()
+                next_ph += 1
+                perf = []
         else:
             actions_end_of_trial.append(-1)
         rewards.append(rew)
