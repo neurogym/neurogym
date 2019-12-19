@@ -10,7 +10,7 @@ import numpy as np
 import sys
 from os.path import expanduser
 from gym.core import Wrapper
-from neurogym.envs import delayresponse as DR
+from neurogym.neurogym.envs import delayresponse as DR
 from copy import copy
 home = expanduser("~")
 sys.path.append(home)
@@ -47,11 +47,10 @@ class CurriculumLearning(Wrapper):
         # Epochs
         # ---------------------------------------------------------------------
         self.first_trial_rew = None
-        self.set_phase()
+        # self.set_phase()
         if self.curr_ph == 0:
             # no stim, reward is in both left and right
             # agent cannot go N times in a row to the same side
-            # self.count(action)
             if np.abs(self.counter) >= self.max_num_reps:
                 ground_truth = 1 if self.action == 2 else 2
                 kwargs.update({'gt': ground_truth})
@@ -61,7 +60,9 @@ class CurriculumLearning(Wrapper):
             kwargs.update({'durs': [self.ori_task.fixation, 0, 0, 100000],
                            'sigma': 0})
         elif self.curr_ph == 1:
-            # TODO: write explanation of phase
+            # stim introduced with no ambiguity
+            # wrong answer is not penalized
+            # agent can keep exploring until finding the right answer
             kwargs.update({'durs': [self.ori_task.fixation,
                                     self.ori_task.stimulus_mean, 0,
                                     self.ori_task.decision],
@@ -69,8 +70,8 @@ class CurriculumLearning(Wrapper):
             self.task.R_FAIL = 0
             self.task.firstcounts = False
         elif self.curr_ph == 2:
-            # TODO: write explanation of phase
-            # first answer counts]
+            # first answer counts
+            # wrong answer is penalized
             self.first_trial_rew = None
             self.task.R_FAIL = self.ori_task.R_FAIL
             self.task.firstcounts = True
@@ -79,9 +80,10 @@ class CurriculumLearning(Wrapper):
                                     self.ori_task.decision],
                           'cohs': np.array([100]), 'sigma': 0})
         elif self.curr_ph == 3:
-            # TODO: write explanation of phase
+            # delay component is introduced
             kwargs.update({'cohs': np.array([100]), 'sigma': 0})
-        # TODO: write explanation of phase 4
+
+        # phase 4: ambiguity component is introduced
         self.env.new_trial(**kwargs)
 
     def count(self, action):
@@ -118,6 +120,8 @@ class CurriculumLearning(Wrapper):
     def step(self, action):
         obs, reward, done, info = self._step(action)
         if info['new_trial']:
+            self.set_phase()
+            info.update({'curr_ph': self.curr_ph})
             self.count(action)
             self.new_trial()
 
@@ -135,10 +139,11 @@ if __name__ == '__main__':
     actions_end_of_trial = []
     gt = []
     config_mat = []
-    num_steps_env = 20000
+    num_steps_env = 20
     g_t = 0
     for stp in range(int(num_steps_env)):
-        action = env.ground_truth
+        # action = env.ground_truth
+        action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
         print(info['gt'])
         print(action)
@@ -150,6 +155,7 @@ if __name__ == '__main__':
         observations.append(obs)
         if info['new_trial']:
             print('XXXXXXXXXXXX')
+            print('Current phase: ', info['curr_ph'])
             actions_end_of_trial.append(action)
         else:
             actions_end_of_trial.append(-1)
