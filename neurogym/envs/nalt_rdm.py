@@ -133,8 +133,6 @@ class nalt_RDM(ngym.ngym):
                                          t < self.fixation_1)
         stimulus_period = np.logical_and(t >= self.stimulus_0,
                                          t < self.stimulus_1)
-        decision_period = np.logical_and(t >= self.decision_0,
-                                         t < self.decision_1)
         obs[fixation_period, 0] = 1
         n_stim = int(stimulus/self.dt)
         obs[stimulus_period, 0] = 1
@@ -145,8 +143,6 @@ class nalt_RDM(ngym.ngym):
         self.obs = obs
         self.t = 0
         self.num_tr += 1
-        self.gt = np.zeros((len(t),), dtype=np.int)
-        self.gt[decision_period] = self.ground_truth
 
     def _step(self, action, **kwargs):
         """

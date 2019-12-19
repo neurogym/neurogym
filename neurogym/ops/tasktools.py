@@ -109,11 +109,12 @@ def plot_struct(env, num_steps_env=100, def_act=None, model=None, name=''):
     for stp in range(int(num_steps_env)):
         if model is not None:
             action, _states = model.predict(obs)
+            action = [action]
         elif def_act is not None:
             action = def_act
         else:
             action = env.action_space.sample()
-        obs, rew, done, info = env.step([action])
+        obs, rew, done, info = env.step(action)
         if isinstance(info, list):
             info = info[0]
             obs = obs[0]
