@@ -112,6 +112,16 @@ class GenTask(ngym.ngym):
                                                 self.timing[key][0],
                                                 self.timing[key][1],
                                                 self.timing[key][2])
+        else:
+            durs_temp = dict.fromkeys(TIMING.keys())
+            for key in durs_temp.keys():
+                if key in durs.keys():
+                    durs_temp[key] = durs[key]
+                else:
+                    durs[key] = tasktools.trunc_exp(self.rng, self.dt,
+                                                    self.timing[key][0],
+                                                    self.timing[key][1],
+                                                    self.timing[key][2])
         if self.sim_stim:
             durs['delay_btw_stim'] = 0
         # trial duration
@@ -178,6 +188,9 @@ class GenTask(ngym.ngym):
                 ground truth correct response, info['gt']
                 boolean indicating the end of the trial, info['new_trial']
         """
+        if self.num_tr == 0:
+            # start first trial
+            self.new_trial()
         # ---------------------------------------------------------------------
         # Reward and observations
         # ---------------------------------------------------------------------
@@ -227,10 +240,6 @@ class GenTask(ngym.ngym):
         and the extra lines are basically checking whether to call the
         new_trial() function in order to start a new trial
         """
-        if self.num_tr == 0:
-            # start first trial
-            self.new_trial()
-
         obs, reward, done, info = self._step(action)
         if info['new_trial']:
             self.new_trial()
@@ -246,14 +255,14 @@ if __name__ == '__main__':
               'delay_aft_stim': [200, 100, 300],
               'decision': [200, 200, 200]}
     simultaneous_stim = True
-    env = TwoAFC(timing=timing, simultaneous_stim=simultaneous_stim, gng=True)
+    env = GenTask(timing=timing, simultaneous_stim=simultaneous_stim, gng=True)
     tasktools.plot_struct(env, def_act=1)
     plt.title('GNG')
     # RDM
     timing = {'fixation': [500, 500, 500], 'stimulus': [500, 200, 800],
               'delay_aft_stim': [0, 0, 0], 'decision': [100, 100, 100]}
     simultaneous_stim = True
-    env = TwoAFC(timing=timing, simultaneous_stim=simultaneous_stim)
+    env = GenTask(timing=timing, simultaneous_stim=simultaneous_stim)
     tasktools.plot_struct(env)
     plt.title('RDM')
     # ROMO
@@ -261,13 +270,13 @@ if __name__ == '__main__':
               'delay_btw_stim': [500, 200, 800],
               'delay_aft_stim': [0, 0, 0], 'decision': [100, 100, 100]}
     simultaneous_stim = False
-    env = TwoAFC(timing=timing, simultaneous_stim=simultaneous_stim)
+    env = GenTask(timing=timing, simultaneous_stim=simultaneous_stim)
     tasktools.plot_struct(env)
     plt.title('ROMO')
     # DELAY RESPONSE
     timing = {'fixation': [500, 500, 500], 'stimulus': [500, 200, 800],
               'delay_aft_stim': [500, 200, 800], 'decision': [100, 100, 100]}
     simultaneous_stim = True
-    env = TwoAFC(timing=timing, simultaneous_stim=simultaneous_stim)
+    env = GenTask(timing=timing, simultaneous_stim=simultaneous_stim)
     tasktools.plot_struct(env)
     plt.title('DELAY RESPONSE')
