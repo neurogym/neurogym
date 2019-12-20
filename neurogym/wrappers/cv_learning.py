@@ -57,16 +57,15 @@ class CurriculumLearning(Wrapper):
                 self.task.R_FAIL = 0
             else:
                 self.task.R_FAIL = self.ori_task.R_CORRECT
-            kwargs.update({'durs': [self.ori_task.fixation, 0, 0, 100000],
-                           'sigma': 0})
+            kwargs.update({'durs': {'stimulus': [0, 0, 0],
+                                    'delay_aft_stim': [0, 0, 0]},
+                                    'sigma': 0})
         elif self.curr_ph == 1:
             # stim introduced with no ambiguity
             # wrong answer is not penalized
             # agent can keep exploring until finding the right answer
-            kwargs.update({'durs': [self.ori_task.fixation,
-                                    self.ori_task.stimulus_mean, 0,
-                                    self.ori_task.decision],
-                           'cohs': np.array([100]), 'sigma': 0})
+            kwargs.update({'durs': {'delay_aft_stim': [0, 0, 0]},
+                                    'cohs': np.array([100]), 'sigma': 0})
             self.task.R_FAIL = 0
             self.task.firstcounts = False
         elif self.curr_ph == 2:
@@ -75,10 +74,8 @@ class CurriculumLearning(Wrapper):
             self.first_trial_rew = None
             self.task.R_FAIL = self.ori_task.R_FAIL
             self.task.firstcounts = True
-            kwargs.update({'durs': [self.ori_task.fixation,
-                                    self.ori_task.stimulus_mean, 0,
-                                    self.ori_task.decision],
-                          'cohs': np.array([100]), 'sigma': 0})
+            kwargs.update({'durs': {'delay_aft_stim': [0, 0, 0]},
+                                    'cohs': np.array([100]), 'sigma': 0})
         elif self.curr_ph == 3:
             # delay component is introduced
             kwargs.update({'cohs': np.array([100]), 'sigma': 0})

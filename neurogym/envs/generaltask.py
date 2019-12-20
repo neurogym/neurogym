@@ -70,6 +70,8 @@ class GenTask(ngym.ngym):
         self.R_FAIL = 0.
         self.R_MISS = 0.
         self.abort = False
+        self.firstcounts = True
+        self.first_flag = False
         # action and observation spaces
         self.gng = gng*1
         self.action_space = spaces.Discrete(3-self.gng)
@@ -100,6 +102,11 @@ class GenTask(ngym.ngym):
             coh = kwargs['coh']
         else:
             coh = self.rng.choice(self.cohs)
+
+        if 'sigma' in kwargs.keys():
+            self.sigma_dt = kwargs['sigma'] / np.sqrt(self.dt)
+        else:
+            self.sigma_dt = self.sigma / np.sqrt(self.dt)
 
         # ---------------------------------------------------------------------
         # Epochs
@@ -209,9 +216,16 @@ class GenTask(ngym.ngym):
             if action != 0:
                 if action == self.gt:
                     reward = self.R_CORRECT
+                    new_trial = True
+                    if ~self.first_flag:
+                        first_trial = True
+                        self.first_flag = True
                 else:
                     reward = self.R_FAIL
-                new_trial = True
+                    new_trial = self.firstcounts
+                    if ~self.first_flag:
+                        first_trial = False
+                        self.first_flag = True
         else:
             gt[0] = 1
         obs = self.obs[int(self.t/self.dt), :]
