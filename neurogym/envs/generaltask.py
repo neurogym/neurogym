@@ -20,7 +20,7 @@ TIMING = {'fixation': [500, 200, 800], 'stimulus': [500, 200, 800],
           'delay_aft_stim': [500, 200, 800], 'decision': [500, 200, 800]}
 
 
-class TwoAFC(ngym.ngym):
+class GenTask(ngym.ngym):
     def __init__(self, dt=100, timing=None, stimEv=1., noise=0.01,
                  simultaneous_stim=False, cohs=[0, 6.4, 12.8, 25.6, 51.2],
                  gng=False, **kwargs):
