@@ -98,8 +98,8 @@ class GenTask(ngym.ngym):
             gt = self.rng.choice(self.choices)
         self.gt = gt
 
-        if 'coh' in kwargs.keys():
-            coh = kwargs['coh']
+        if 'cohs' in kwargs.keys():
+            coh = kwargs['cohs']
         else:
             coh = self.rng.choice(self.cohs)
 

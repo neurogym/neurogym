@@ -23,7 +23,7 @@ class CurriculumLearning(Wrapper):
     modfies a given environment by changing the probability of repeating the
     previous correct response
     """
-    def __init__(self, env, perf_w=10, max_num_reps=3, init_ph=0):
+    def __init__(self, env, perf_w=1000, max_num_reps=3, init_ph=0, th=0.8):
         Wrapper.__init__(self, env=env)
         self.env = env
         # we get the original task, in case we are composing wrappers
@@ -35,8 +35,8 @@ class CurriculumLearning(Wrapper):
         self.curr_ph = init_ph
         self.curr_perf = 0
         self.perf_window = perf_w
-        self.goal_perf = [0.8, 0.8, 0.8, 0.8]
-        self.mov_window = [0]*self.perf_window
+        self.goal_perf = [th]*4
+        self.mov_window = []
         self.counter = 0
         self.max_num_reps = max_num_reps
         self.rew = 0
@@ -97,12 +97,16 @@ class CurriculumLearning(Wrapper):
             # print('counter', self.counter)
 
     def set_phase(self):
-        self.mov_window.append(1*(self.rew == self.task.R_CORRECT))
-        self.mov_window.pop(0)  # remove first value
-        self.curr_perf = np.sum(self.mov_window)/self.perf_window
-        if self.curr_ph < 4 and self.curr_perf >= self.goal_perf[self.curr_ph]:
-            self.curr_ph += 1
-            self.mov_window = [0]*self.perf_window
+        if self.curr_ph < 4:
+            if len(self.mov_window) >= self.perf_window:
+                self.mov_window.append(1*(self.rew == self.task.R_CORRECT))
+                self.mov_window.pop(0)  # remove first value
+                self.curr_perf = np.sum(self.mov_window)/self.perf_window
+                if self.curr_perf >= self.goal_perf[self.curr_ph]:
+                    self.curr_ph += 1
+                    self.mov_window = []
+            else:
+                self.mov_window.append(1*(self.rew == self.task.R_CORRECT))
 
     def reset(self):
         return self.task.reset()
@@ -119,7 +123,7 @@ class CurriculumLearning(Wrapper):
         obs, reward, done, info = self._step(action)
         if info['new_trial']:
             self.set_phase()
-            info.update({'curr_ph': self.curr_ph})
+            info.update({'curr_ph': self.curr_ph, 'first_rew': self.rew})
             self.count(action)
             self.new_trial()
 

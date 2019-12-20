@@ -31,6 +31,10 @@ class manage_data(Wrapper):
             self.gt_mat = []
             # for catch trials
             self.catch_tr_mat = []
+            # current phase mat for cv-learning
+            self.curr_ph_mat = []
+            # first reward, in case re-trying is allowed
+            self.first_rew_mat = []
             # for dual-task
             self.config_mat = []
             # for RDM + trial history
@@ -92,6 +96,10 @@ class manage_data(Wrapper):
                     self.config_mat.append(info['config'])
                 if 'catch_trial' in info.keys():
                     self.catch_tr_mat.append(info['catch_trial'])
+                if 'curr_ph' in info.keys():
+                    self.curr_ph_mat.append(info['curr_ph'])
+                if 'first_rew' in info.keys():
+                    self.first_rew_mat.append(info['first_rew'])
 
                 # save data
                 if self.num_tr % self.num_tr_save == 0:
@@ -107,6 +115,11 @@ class manage_data(Wrapper):
                         data['config'] = self.config_mat
                     if len(self.catch_tr_mat) != 0:
                         data['catch_trial'] = self.catch_tr_mat
+                    if len(self.curr_ph_mat) != 0:
+                        data['curr_ph'] = self.curr_ph_mat
+                    if len(self.first_rew_mat) != 0:
+                        data['first_rew'] = self.first_rew_mat
+
                     np.savez(self.saving_name + '_bhvr_data_' +
                              str(self.num_tr) + '.npz', **data)
                     if self.plt_tr:
@@ -116,6 +129,8 @@ class manage_data(Wrapper):
                     self.gt_mat = []
                     self.config_mat = []
                     self.catch_tr_mat = []
+                    self.curr_ph_mat = []
+                    self.first_rew_mat = []
                     self.rep_prob_mat = []
                     self.tr_mat = []
                     self.stim_mat = []
