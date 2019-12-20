@@ -96,7 +96,7 @@ def compute_perf(perf, reward, num_tr_perf, tr_perf):
     return perf, num_tr_perf
 
 
-def plot_struct(env, num_steps_env=100, n_stps_plt=200,
+def plot_struct(env, num_steps_env=200, n_stps_plt=200,
                 def_act=None, model=None, name=''):
     observations = []
     rewards = []

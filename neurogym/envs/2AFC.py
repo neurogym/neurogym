@@ -100,7 +100,6 @@ class TwoAFC(ngym.ngym):
             coh = kwargs['coh']
         else:
             coh = self.rng.choice(self.cohs)
-        self.coh = coh
 
         # ---------------------------------------------------------------------
         # Epochs
@@ -199,7 +198,7 @@ class TwoAFC(ngym.ngym):
             if action != self.gng:
                 if action == self.ground_truth:
                     reward = self.R_CORRECT
-                else:  # 3-action is the other act
+                else:
                     reward = self.R_FAIL
                 new_trial = True
         else:
