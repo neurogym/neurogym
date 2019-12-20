@@ -31,6 +31,6 @@ all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
              'Bandit-v0': 'neurogym.envs.bandit:Bandit',
              'DelayedResponse-v0': 'neurogym.envs.delayresponse:DR',
              'NAltRDM-v0': 'neurogym.envs.nalt_rdm:nalt_RDM',
-             '2AFC-v0': 'neurogym.envs.2AFC:TwoAFC'}
+             'GenTask-v0': 'neurogym.envs.generaltask:GenTask'}
 for task in all_tasks.keys():
     register_neuroTask(task)
