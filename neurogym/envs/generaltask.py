@@ -104,9 +104,9 @@ class GenTask(ngym.ngym):
             coh = self.rng.choice(self.cohs)
 
         if 'sigma' in kwargs.keys():
-            self.sigma_dt = kwargs['sigma'] / np.sqrt(self.dt)
+            sigma_dt = kwargs['sigma']
         else:
-            self.sigma_dt = self.sigma / np.sqrt(self.dt)
+            sigma_dt = self.sigma_dt
 
         # ---------------------------------------------------------------------
         # Epochs
@@ -120,6 +120,7 @@ class GenTask(ngym.ngym):
                                                 self.timing[key][1],
                                                 self.timing[key][2])
         else:
+            durs = kwargs['durs']
             durs_temp = dict.fromkeys(TIMING.keys())
             for key in durs_temp.keys():
                 if key in durs.keys():
@@ -173,17 +174,18 @@ class GenTask(ngym.ngym):
         obs[per_times['stim_' + str((gt+self.gng))],
             (gt+self.gng)] = (1 + coh/100)/2
         obs[per_times['stim_' + str((gt+self.gng))],
-            (gt+self.gng)] += np.random.randn(n_stim) * self.sigma_dt
+            (gt+self.gng)] += np.random.randn(n_stim) * sigma_dt
         # incorrect stimulus
         obs[per_times['stim_' + str(3-(gt+self.gng))],
             3-(gt+self.gng)] = (1 - coh/100)/2
         obs[per_times['stim_' + str(3-(gt+self.gng))],
-            3-(gt+self.gng)] += np.random.randn(n_stim) * self.sigma_dt
+            3-(gt+self.gng)] += np.random.randn(n_stim) * sigma_dt
 
         self.obs = obs
 
         self.t = 0
         self.num_tr += 1
+        self.first_flag = False
 
     def _step(self, action, **kwargs):
         """
@@ -206,6 +208,7 @@ class GenTask(ngym.ngym):
         reward = 0
         # observations
         gt = np.zeros((3-self.gng,))
+        first_trial = np.nan
         if self.pers['fixation'][0] <= self.t < self.pers['fixation'][1]:
             gt[0] = 1
             if action != 0:
@@ -217,15 +220,12 @@ class GenTask(ngym.ngym):
                 if action == self.gt:
                     reward = self.R_CORRECT
                     new_trial = True
-                    if ~self.first_flag:
-                        first_trial = True
-                        self.first_flag = True
                 else:
                     reward = self.R_FAIL
                     new_trial = self.firstcounts
-                    if ~self.first_flag:
-                        first_trial = False
-                        self.first_flag = True
+                if ~self.first_flag:
+                    first_trial = 1
+                    self.first_flag = True
         else:
             gt[0] = 1
         obs = self.obs[int(self.t/self.dt), :]
@@ -239,7 +239,8 @@ class GenTask(ngym.ngym):
 
         done = self.num_tr > self.num_tr_exp
 
-        return obs, reward, done, {'new_trial': new_trial, 'gt': gt}
+        return obs, reward, done, {'new_trial': new_trial, 'gt': gt,
+                                   'first_trial': first_trial}
 
     def step(self, action):
         """
