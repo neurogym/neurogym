@@ -22,11 +22,12 @@ TIMING = {'fixation': [500, 200, 800], 'stimulus': [500, 200, 800],
 
 class TwoAFC(ngym.ngym):
     def __init__(self, dt=100, timing=None, stimEv=1., noise=0.01,
-                 simultaneous_stim=False, **kwargs):
+                 simultaneous_stim=False, cohs=[0, 6.4, 12.8, 25.6, 51.2],
+                 gng=False, **kwargs):
         super().__init__(dt=dt)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
-        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
+        self.cohs = np.array(cohs)*stimEv
         # Input noise
         self.sigma = np.sqrt(2*100*noise)
         self.sigma_dt = self.sigma / np.sqrt(self.dt)
@@ -70,7 +71,8 @@ class TwoAFC(ngym.ngym):
         self.R_MISS = 0.
         self.abort = False
         # action and observation spaces
-        self.action_space = spaces.Discrete(3)
+        self.gng = gng*1
+        self.action_space = spaces.Discrete(3-self.gng)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
         # seeding
@@ -180,23 +182,26 @@ class TwoAFC(ngym.ngym):
         # ---------------------------------------------------------------------
         # Reward and observations
         # ---------------------------------------------------------------------
+        action += self.gng
         new_trial = False
         # rewards
         reward = 0
         # observations
-        gt = np.zeros((3,))
+        gt = np.zeros((3-self.gng,))
         if self.pers['fixation'][0] <= self.t < self.pers['fixation'][1]:
             gt[0] = 1
-            if action != 0:
+            # self.gng works here as default behavior  (= 0 if 2afc, 1 if gng)
+            if action != self.gng:
                 new_trial = self.abort
                 reward = self.R_ABORTED
         elif self.pers['decision'][0] <= self.t < self.pers['decision'][1]:
-            gt[self.ground_truth] = 1
-            if self.ground_truth == action:
-                reward = self.R_CORRECT
-            elif self.ground_truth != 0:  # 3-action is the other act
-                reward = self.R_FAIL
-            new_trial = action != 0
+            gt[self.ground_truth-self.gng] = 1
+            if action != self.gng:
+                if action == self.ground_truth:
+                    reward = self.R_CORRECT
+                else:  # 3-action is the other act
+                    reward = self.R_FAIL
+                new_trial = True
         else:
             gt[0] = 1
         obs = self.obs[int(self.t/self.dt), :]
@@ -237,6 +242,16 @@ class TwoAFC(ngym.ngym):
 
 if __name__ == '__main__':
     plt.close('all')
+    # GNG
+    timing = {'fixation': [100, 100, 100],
+              'stimulus': [500, 200, 800],
+              'delay_btw_stim': [0, 0, 0],
+              'delay_aft_stim': [200, 100, 300],
+              'decision': [200, 200, 200]}
+    simultaneous_stim = True
+    env = TwoAFC(timing=timing, simultaneous_stim=simultaneous_stim, gng=True)
+    tasktools.plot_struct(env, def_act=2)
+    plt.title('GNG')
     # RDM
     timing = {'fixation': [500, 500, 500], 'stimulus': [500, 200, 800],
               'delay_aft_stim': [0, 0, 0], 'decision': [100, 100, 100]}

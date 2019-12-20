@@ -96,7 +96,8 @@ def compute_perf(perf, reward, num_tr_perf, tr_perf):
     return perf, num_tr_perf
 
 
-def plot_struct(env, num_steps_env=100, def_act=None, model=None, name=''):
+def plot_struct(env, num_steps_env=100, n_stps_plt=200,
+                def_act=None, model=None, name=''):
     observations = []
     rewards = []
     actions = []
@@ -140,18 +141,18 @@ def plot_struct(env, num_steps_env=100, def_act=None, model=None, name=''):
     obs = np.array(observations)
     plt.figure()
     plt.subplot(rows, 1, 1)
-    plt.imshow(obs.T, aspect='auto')
+    plt.imshow(obs[:n_stps_plt, :].T, aspect='auto')
     plt.title('observations')
     plt.subplot(rows, 1, 2)
-    plt.plot(actions, marker='+')
+    plt.plot(actions[:n_stps_plt], marker='+')
     gt = np.array(gt)
-    plt.plot(np.argmax(gt, axis=1), 'r')
+    plt.plot(np.argmax(gt[:n_stps_plt], axis=1), 'r')
     plt.title('actions')
-    plt.xlim([-0.5, len(rewards)+0.5])
+    plt.xlim([-0.5, n_stps_plt+0.5])
     plt.subplot(rows, 1, 3)
-    plt.plot(rewards, 'r')
+    plt.plot(rewards[:n_stps_plt], 'r')
     plt.title('reward')
-    plt.xlim([-0.5, len(rewards)+0.5])
+    plt.xlim([-0.5, n_stps_plt+0.5])
     plt.title(name + '  ' + str(np.mean(perf)))
     plt.show()
     return np.mean(perf)
