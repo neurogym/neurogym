@@ -10,7 +10,7 @@ import numpy as np
 import sys
 from os.path import expanduser
 from gym.core import Wrapper
-from neurogym.neurogym.envs import delayresponse as DR
+from neurogym.envs import generaltask as GT
 from copy import copy
 home = expanduser("~")
 sys.path.append(home)
@@ -57,15 +57,15 @@ class CurriculumLearning(Wrapper):
                 self.task.R_FAIL = 0
             else:
                 self.task.R_FAIL = self.ori_task.R_CORRECT
-            kwargs.update({'durs': {'stimulus': [0, 0, 0],
-                                    'delay_aft_stim': [0, 0, 0]},
-                                    'sigma': 0})
+            kwargs.update({'durs': {'stimulus': 0,
+                                    'delay_aft_stim': 0},
+                           'sigma': 0})
         elif self.curr_ph == 1:
             # stim introduced with no ambiguity
             # wrong answer is not penalized
             # agent can keep exploring until finding the right answer
-            kwargs.update({'durs': {'delay_aft_stim': [0, 0, 0]},
-                                    'cohs': np.array([100]), 'sigma': 0})
+            kwargs.update({'durs': {'delay_aft_stim': 0},
+                           'cohs': np.array([100]), 'sigma': 0})
             self.task.R_FAIL = 0
             self.task.firstcounts = False
         elif self.curr_ph == 2:
@@ -74,8 +74,8 @@ class CurriculumLearning(Wrapper):
             self.first_trial_rew = None
             self.task.R_FAIL = self.ori_task.R_FAIL
             self.task.firstcounts = True
-            kwargs.update({'durs': {'delay_aft_stim': [0, 0, 0]},
-                                    'cohs': np.array([100]), 'sigma': 0})
+            kwargs.update({'durs': {'delay_aft_stim': 0},
+                           'cohs': np.array([100]), 'sigma': 0})
         elif self.curr_ph == 3:
             # delay component is introduced
             kwargs.update({'cohs': np.array([100]), 'sigma': 0})
@@ -94,7 +94,7 @@ class CurriculumLearning(Wrapper):
                 self.counter += new
             else:
                 self.counter = new
-            print('counter', self.counter)
+            # print('counter', self.counter)
 
     def set_phase(self):
         self.mov_window.append(1*(self.rew == self.task.R_CORRECT))
@@ -129,7 +129,11 @@ class CurriculumLearning(Wrapper):
 if __name__ == '__main__':
     plt.close('all')
     rows = 3
-    env = DR.DR(timing=[100, 300, 300, 300, 300])
+    timing = {'fixation': [200, 200, 200], 'stimulus': [200, 100, 300],
+              'delay_btw_stim': [0, 0, 0],
+              'delay_aft_stim': [500, 200, 800], 'decision': [200, 200, 200]}
+    simultaneous_stim = True
+    env = GT.GenTask(timing=timing, simultaneous_stim=simultaneous_stim)
     env = CurriculumLearning(env)
     observations = []
     rewards = []
@@ -142,7 +146,7 @@ if __name__ == '__main__':
     g_t = 0
     next_ph = 1
     for stp in range(int(num_steps_env)):
-        action = env.ground_truth
+        action = env.gt
         # action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
         print(info['gt'])
