@@ -51,7 +51,7 @@ class combine():
         # start trials
         self.env1_on = True
         self.env2_on = True
-        self._new_trial()
+        self.new_trial()
         self.reward_range = (np.min([self.env1.reward_range[0],
                                      self.env2.reward_range[0]]),
                              np.max([self.env1.reward_range[1],
@@ -60,26 +60,26 @@ class combine():
         self.metadata.update(self.env2.metadata)
         self.spec = None
 
-    def _new_trial(self):
+    def new_trial(self):
         task_type = np.random.choice([0, 1, 2], p=self.mix)
         if task_type == 0:
-            self.env1.trial = self.env1._new_trial()
+            self.env1.trial = self.env1.new_trial()
             self.env1_on = True
             self.env2_on = False
         elif task_type == 1:
-            self.env2.trial = self.env2._new_trial()
+            self.env2.trial = self.env2.new_trial()
             self.env1_on = False
             self.env2_on = True
         else:
-            self.env1.trial = self.env1._new_trial()
-            self.env2.trial = self.env2._new_trial()
+            self.env1.trial = self.env1.new_trial()
+            self.env2.trial = self.env2.new_trial()
             self.env1_on = True
             self.env2_on = True
 
     def reset(self):
         return np.concatenate((self.env1.reset(), self.env2.reset()), axis=0)
 
-    def step(self, action):
+    def _step(self, action):
         info = {}
         action1, action2 = self.action_split[action]
         if self.env1_on:
@@ -100,7 +100,7 @@ class combine():
 
         if not self.env1_on and not self.env2_on:
             self.t = 0
-            self._new_trial()
+            self.new_trial()
             info['new_trial'] = True
             info['config'] = [self.env1_on, self.env2_on]
         else:
@@ -127,6 +127,12 @@ class combine():
         else:
             info['gt'] = np.concatenate((info2['gt'], info2['gt']))
 
+        return obs, reward, done, info
+
+    def step(self, action):
+        obs, reward, done, info = self._step(action)
+        if info['new_trial']:
+            self.new_trial()
         return obs, reward, done, info
 
     def standby_step(self, env):

@@ -52,9 +52,6 @@ class TrialHistory_NAlt(Wrapper):
         self.pass_blck_info = pass_blck
 
     def new_trial(self, **kwargs):
-        # ---------------------------------------------------------------------
-        # Epochs
-        # ---------------------------------------------------------------------
         # change rep. prob. every self.block_dur trials
         if self.blk_ch_prob is None:
             if self.task.num_tr % self.block_dur == 0:
