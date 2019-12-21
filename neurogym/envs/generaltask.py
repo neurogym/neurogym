@@ -263,35 +263,34 @@ class GenTask(ngym.ngym):
 
 if __name__ == '__main__':
     plt.close('all')
-    # GNG
-    timing = {'fixation': [100, 100, 100],
-              'stimulus': [500, 200, 800],
-              'delay_btw_stim': [0, 0, 0],
-              'delay_aft_stim': [200, 100, 300],
-              'decision': [200, 200, 200]}
-    simultaneous_stim = True
-    env = GenTask(timing=timing, simultaneous_stim=simultaneous_stim, gng=True)
-    tasktools.plot_struct(env, def_act=1)
-    plt.title('GNG')
-    # RDM
-    timing = {'fixation': [500, 500, 500], 'stimulus': [500, 200, 800],
-              'delay_aft_stim': [0, 0, 0], 'decision': [100, 100, 100]}
-    simultaneous_stim = True
-    env = GenTask(timing=timing, simultaneous_stim=simultaneous_stim)
-    tasktools.plot_struct(env)
-    plt.title('RDM')
-    # ROMO
-    timing = {'fixation': [500, 500, 500], 'stimulus': [500, 200, 800],
-              'delay_btw_stim': [500, 200, 800],
-              'delay_aft_stim': [0, 0, 0], 'decision': [100, 100, 100]}
-    simultaneous_stim = False
-    env = GenTask(timing=timing, simultaneous_stim=simultaneous_stim)
-    tasktools.plot_struct(env)
-    plt.title('ROMO')
-    # DELAY RESPONSE
+#    # GNG
+#    timing = {'fixation': [100, 100, 100],
+#              'stimulus': [500, 200, 800],
+#              'delay_btw_stim': [0, 0, 0],
+#              'delay_aft_stim': [200, 100, 300],
+#              'decision': [200, 200, 200]}
+#    simultaneous_stim = True
+#   env = GenTask(timing=timing, simultaneous_stim=simultaneous_stim, gng=True)
+#    tasktools.plot_struct(env, def_act=1)
+#    plt.title('GNG')
+#    # RDM
+#    timing = {'fixation': [500, 500, 500], 'stimulus': [500, 200, 800],
+#              'delay_aft_stim': [0, 0, 0], 'decision': [100, 100, 100]}
+#    simultaneous_stim = True
+#    env = GenTask(timing=timing, simultaneous_stim=simultaneous_stim)
+#    tasktools.plot_struct(env)
+#    plt.title('RDM')
+#    # ROMO
+#    timing = {'fixation': [500, 500, 500], 'stimulus': [500, 200, 800],
+#              'delay_btw_stim': [500, 200, 800],
+#              'delay_aft_stim': [0, 0, 0], 'decision': [100, 100, 100]}
+#    simultaneous_stim = False
+#    env = GenTask(timing=timing, simultaneous_stim=simultaneous_stim)
+#    tasktools.plot_struct(env)
+#    plt.title('ROMO')
+#    # DELAY RESPONSE
     timing = {'fixation': [500, 500, 500], 'stimulus': [500, 200, 800],
               'delay_aft_stim': [500, 200, 800], 'decision': [100, 100, 100]}
     simultaneous_stim = True
     env = GenTask(timing=timing, simultaneous_stim=simultaneous_stim)
-    tasktools.plot_struct(env)
-    plt.title('DELAY RESPONSE')
+    tasktools.plot_struct(env, num_steps_env=50000, name='DELAY RESPONSE')
