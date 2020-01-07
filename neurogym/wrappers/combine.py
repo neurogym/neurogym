@@ -5,18 +5,23 @@ Created on Mon Mar  4 17:49:35 2019
 
 @author: molano
 """
-
+import gym
+from neurogym.envs import ngym
 from gym import spaces
 import numpy as np
 import itertools
 
 
-class combine():
+class combine(ngym.ngym):
     """
     combines two different tasks
     """
-    def __init__(self, env1, env2, delay=800, dt=100, mix=[.3, .3, .4],
-                 share_action_space=True, defaults=[0, 0]):
+    def __init__(self, env_name_1, env_name_2, params_1, params_2, delay=800,
+                 dt=100, mix=[.3, .3, .4], share_action_space=True,
+                 defaults=[0, 0], **kwargs):
+        super().__init__(dt=dt)
+        env1 = gym.make(env_name_1, **params_1)
+        env2 = gym.make(env_name_2, **params_2)
         self.share_action_space = share_action_space
         self.t = 0
         self.dt = dt
