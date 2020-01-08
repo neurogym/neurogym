@@ -18,11 +18,12 @@ class combine(ngym.ngym):
     """
     def __init__(self, env_name_1, env_name_2, params_1, params_2, delay=800,
                  dt=100, mix=[.3, .3, .4], share_action_space=True,
-                 defaults=[0, 0], **kwargs):
+                 defaults=[0, 0], debug=False, **kwargs):
         super().__init__(dt=dt)
         env1 = gym.make(env_name_1, **params_1)
         env2 = gym.make(env_name_2, **params_2)
         self.share_action_space = share_action_space
+        self.debug = debug  # if True the type of trial is provided as a cue
         self.t = 0
         self.dt = dt
         self.delay = delay
@@ -47,11 +48,11 @@ class combine(ngym.ngym):
             self.action_split =\
                 list(itertools.product(np.arange(self.num_act1),
                                        np.arange(self.num_act2)))
-
         self.observation_space = \
             spaces.Box(-np.inf, np.inf,
                        shape=(self.env1.observation_space.shape[0] +
-                              self.env2.observation_space.shape[0], ),
+                              self.env2.observation_space.shape[0] +
+                              1*self.debug, ),
                        dtype=np.float32)
         # start trials
         self.env1_on = True
@@ -66,12 +67,14 @@ class combine(ngym.ngym):
         self.spec = None
 
     def new_trial(self):
-        task_type = np.random.choice([0, 1, 2], p=self.mix)
-        if task_type == 0:
+        self.t = 0
+        self.num_tr += 1
+        self.task_type = np.random.choice([0, 1, 2], p=self.mix)
+        if self.task_type == 0:
             self.env1.trial = self.env1.new_trial()
             self.env1_on = True
             self.env2_on = False
-        elif task_type == 1:
+        elif self.task_type == 1:
             self.env2.trial = self.env2.new_trial()
             self.env1_on = False
             self.env2_on = True
@@ -82,7 +85,10 @@ class combine(ngym.ngym):
             self.env2_on = True
 
     def reset(self):
-        return np.concatenate((self.env1.reset(), self.env2.reset()), axis=0)
+        obs = np.concatenate((self.env1.reset(), self.env2.reset()), axis=0)
+        if self.debug:
+            obs = np.concatenate((np.array([self.task_type]), obs), axis=0)
+        return obs
 
     def _step(self, action):
         info = {}
@@ -114,6 +120,8 @@ class combine(ngym.ngym):
         self.t += self.dt
         obs2 *= 2
         obs = np.concatenate((obs1, obs2), axis=0)
+        if self.debug:
+            obs = np.concatenate((np.array([self.task_type]), obs), axis=0)
         done = done1  # done whenever the task 1 is done
 
         # ground truth
@@ -131,7 +139,6 @@ class combine(ngym.ngym):
                 reward = reward2
         else:
             info['gt'] = np.concatenate((info2['gt'], info2['gt']))
-
         return obs, reward, done, info
 
     def step(self, action):
@@ -151,6 +158,3 @@ class combine(ngym.ngym):
         gt[self.defaults[env-1]] = 1
         info = {'new_trial': False, 'gt': gt}
         return obs, rew, done, info
-
-    def seed(self, seed=None):  # seeding with task 1
-        return self.env1.seed()
