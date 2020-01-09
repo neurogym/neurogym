@@ -169,7 +169,7 @@ class Mante(ngym.ngym):
         # -----------------------------------------------------------------------
 
         delay = self.delay_min +\
-            tasktools.truncated_exponential(self.rng, self.dt, self.delay_mean,
+            tasktools.trunc_exp(self.rng, self.dt, self.delay_mean,
                                             xmax=self.delay_max)
         # maximum duration of current trial
         self.tmax = self.fixation + self.stimulus + delay + self.decision

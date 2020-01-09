@@ -88,7 +88,7 @@ class RDM(ngym.ngym):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        stimulus = tasktools.truncated_exponential(self.rng, self.dt,
+        stimulus = tasktools.trunc_exp(self.rng, self.dt,
                                                    self.stimulus_mean,
                                                    xmin=self.stimulus_min,
                                                    xmax=self.stimulus_max)

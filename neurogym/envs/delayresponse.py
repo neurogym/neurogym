@@ -5,8 +5,8 @@ Created on Tue Dec  3 15:58:10 2019
 
 @author: molano
 """
-from neurogym.neurogym.envs import ngym
-from neurogym.neurogym.ops import tasktools
+from neurogym.envs import ngym
+from neurogym.ops import tasktools
 import numpy as np
 from gym import spaces
 import matplotlib.pyplot as plt

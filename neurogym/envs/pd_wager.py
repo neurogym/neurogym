@@ -94,11 +94,11 @@ class PDWager(ngym.ngym):
         # ---------------------------------------------------------------------
 
         stimulus = self.stimulus_min +\
-            tasktools.truncated_exponential(self.rng, self.dt,
+            tasktools.trunc_exp(self.rng, self.dt,
                                             self.stimulus_mean,
                                             xmax=self.stimulus_max)
 
-        delay = tasktools.truncated_exponential(self.rng, self.dt,
+        delay = tasktools.trunc_exp(self.rng, self.dt,
                                                 self.delay_mean,
                                                 xmin=self.delay_min,
                                                 xmax=self.delay_max)
@@ -106,7 +106,7 @@ class PDWager(ngym.ngym):
         self.tmax = self.fixation + stimulus + delay + self.decision
         if wager:
             sure_onset =\
-                tasktools.truncated_exponential(self.rng, self.dt,
+                tasktools.trunc_exp(self.rng, self.dt,
                                                 self.sure_mean,
                                                 xmin=self.sure_min,
                                                 xmax=self.sure_max)
