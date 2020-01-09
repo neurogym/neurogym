@@ -21,7 +21,6 @@ import numpy as np
 from gym import spaces
 from neurogym.ops import tasktools
 from neurogym.envs import ngym
-import matplotlib.pyplot as plt
 
 
 class RDM(ngym.ngym):
@@ -201,6 +200,7 @@ class RDM(ngym.ngym):
 
 
 if __name__ == '__main__':
+    import matplotlib.pyplot as plt
     env = RDM(timing=[100, 200, 200, 200, 100])
     observations = []
     rewards = []
