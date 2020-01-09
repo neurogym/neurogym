@@ -26,13 +26,20 @@ def test_run(env_name):
 
 def test_run_all():
     from neurogym import all_tasks
+    success_count = 0
+    total_count = 0
     for env_name in all_tasks.keys():
+        total_count += 1
         try:
             test_run(env_name)
             print('Success at running env: {:s}'.format(env_name))
+            success_count += 1
         except BaseException as e:
             print('Failure at running env: {:s}'.format(env_name))
             print(e)
+        print('')
+
+    print('Success {:d}/{:d} tasks'.format(success_count, total_count))
 
 
 def test_plot(env_name):
