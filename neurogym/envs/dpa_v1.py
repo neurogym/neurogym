@@ -44,21 +44,7 @@ class DPA(ngym.ngym):
             self.max_trial_duration += self.timing['stimulus'][2]
 
         self.max_steps = int(self.max_trial_duration/dt)
-        print('XXXXXXXXXXXXXXXXXXXXXX')
-        print('Delay-Paired Association Task')
-        print('Mean Fixation: ' + str(self.timing['fixation'][0]))
-        print('Mean stimulus period: ' + str(self.timing['stimulus'][0]))
-        if not self.sim_stim:
-            print('Mean delay btw stims: ' +
-                  str(self.timing['delay_btw_stim'][0]))
-        else:
-            print('sample and test presented simultaneously')
-        print('Mean delay post-stim: ' + str(self.timing['delay_aft_stim'][0]))
-        print('Mean response window: ' + str(self.timing['decision'][0]))
-        print('Mean trial duration : ' + str(self.mean_trial_duration))
-        print('Max trial duration : ' + str(self.max_trial_duration))
-        print('(time step: ' + str(self.dt) + ')')
-        print('XXXXXXXXXXXXXXXXXXXXXX')
+
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
@@ -72,6 +58,24 @@ class DPA(ngym.ngym):
         # seeding
         self.seed()
         self.viewer = None
+        
+    def __str__(self):
+        string = ''
+        string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+        string += 'Delay-Paired Association Task\n'
+        string += 'Mean Fixation: ' + str(self.timing['fixation'][0]) + '\n'
+        string += 'Mean stimulus period: ' + str(self.timing['stimulus'][0]) + '\n'
+        if not self.sim_stim:
+            string += 'Mean delay btw stims: ' + str(self.timing['delay_btw_stim'][0]) + '\n'
+        else:
+            string += 'sample and test presented simultaneously\n'
+        string += 'Mean delay post-stim: ' + str(self.timing['delay_aft_stim'][0]) + '\n'
+        string += 'Mean response window: ' + str(self.timing['decision'][0]) + '\n'
+        string += 'Mean trial duration : ' + str(self.mean_trial_duration) + '\n'
+        string += 'Max trial duration : ' + str(self.max_trial_duration) + '\n'
+        string += '(time step: ' + str(self.dt) + '\n'
+        string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+        return string
 
     def new_trial(self, **kwargs):
         """

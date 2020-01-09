@@ -36,20 +36,7 @@ class RDM(ngym.ngym):
         self.max_trial_duration = self.fixation + self.stimulus_max +\
             self.decision
         self.max_steps = int(self.max_trial_duration/dt)
-        if (self.fixation == 0 or self.decision == 0 or
-           self.stimulus_mean == 0):
-            print('XXXXXXXXXXXXXXXXXXXXXX')
-            print('the duration of all periods must be larger than 0')
-            print('XXXXXXXXXXXXXXXXXXXXXX')
-        print('XXXXXXXXXXXXXXXXXXXXXX')
-        print('Random Dots Motion Task')
-        print('Mean Fixation: ' + str(self.fixation))
-        print('Min Stimulus Duration: ' + str(self.stimulus_min))
-        print('Mean Stimulus Duration: ' + str(self.stimulus_mean))
-        print('Max Stimulus Duration: ' + str(self.stimulus_max))
-        print('Decision: ' + str(self.decision))
-        print('(time step: ' + str(self.dt) + ')')
-        print('XXXXXXXXXXXXXXXXXXXXXX')
+
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
@@ -64,6 +51,24 @@ class RDM(ngym.ngym):
         # seeding
         self.seed()
         self.viewer = None
+        
+    def __str__(self):
+        string = ''
+        if (self.fixation == 0 or self.decision == 0 or
+           self.stimulus_mean == 0):
+            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+            string += 'the duration of all periods must be larger than 0\n'
+            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+        string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+        string += 'Random Dots Motion Task\n'
+        string += 'Mean Fixation: ' + str(self.fixation) + '\n'
+        string += 'Min Stimulus Duration: ' + str(self.stimulus_min) + '\n'
+        string += 'Mean Stimulus Duration: ' + str(self.stimulus_mean) + '\n'
+        string += 'Max Stimulus Duration: ' + str(self.stimulus_max) + '\n'
+        string += 'Decision: ' + str(self.decision) + '\n'
+        string += '(time step: ' + str(self.dt) + '\n'
+        string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+        return string
 
     def new_trial(self, **kwargs):
         """
