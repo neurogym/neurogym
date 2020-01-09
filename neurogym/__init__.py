@@ -32,6 +32,8 @@ all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
              'DelayedResponse-v0': 'neurogym.envs.delayresponse:DR',
              'NAltRDM-v0': 'neurogym.envs.nalt_rdm:nalt_RDM',
              'GenTask-v0': 'neurogym.envs.generaltask:GenTask',
-             'Combine-v0': 'neurogym.envs.combine:combine'}
+             'Combine-v0': 'neurogym.envs.combine:combine',
+             'IBL-v0': 'neurogym.envs.ibl:IBL'
+             }
 for task in all_tasks.keys():
     register_neuroTask(task)
