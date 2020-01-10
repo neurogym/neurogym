@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 
-import gym
 import random
+import numpy as np
+import gym
 
 
 class Env(gym.Env):
@@ -80,15 +81,48 @@ class Env(gym.Env):
 class EpochEnv(Env):
     """Environment class with trial/epoch structure."""
 
-    def add_epoch(self, name, start, duration):
+    def add_epoch(self, name, duration, start=None, before=None, after=None,
+                  last_epoch=False
+                  ):
         """Add an epoch.
 
         Args:
             name: string, name of the epoch
-            start: start time of the epoch, float or string
-                if string, then start from the end of another epoch
             duration: float, duration of the epoch
+            start: start time of the epoch, float
+            before: (optional) string, name of epoch that this epoch is before
+            after: (optional) string, name of epoch that this epoch is after
+            last_epoch: bool, default False. If True, then this is last epoch
+                will generate self.tmax, self.tind, and self.obs
         """
+        if after is not None:
+            start = getattr(self, after + '_1')
+        elif before is not None:
+            start = getattr(self, before + '_0') - duration
+        else:
+            if start is None:
+                raise ValueError('''start must be provided if
+                before and after are None''')
+
         setattr(self, name + '_0', start)
         setattr(self, name + '_1', start + duration)
 
+        if last_epoch:
+            self.tmax = start + duration
+            self.tind = np.arange(0, self.tmax, self.dt)
+            ob_shape = [len(self.tind)] + list(self.observation_space.shape)
+            self.obs = np.zeros(ob_shape)
+
+    def set_ob(self, name, value):
+        """Add value to observation.
+
+        Args:
+            name: string, must be name of an added epoch
+            value: np array (ob_space.shape, ...)
+        """
+        period = np.logical_and(self.tind >= getattr(self, name + '_0'),
+                                self.tind < getattr(self, name + '_1'))
+        self.obs[period, :] = value
+
+    def in_epoch(self, name, t):
+        return getattr(self, name + '_0') <= t < getattr(self, name + '_1')

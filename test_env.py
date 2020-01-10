@@ -50,7 +50,7 @@ def test_plot(env_name):
 
     env.reset()
     observations = []
-    for stp in range(100):
+    for stp in range(200):
         if np.mod(stp, 2) == 0:
             action = 0
         else:

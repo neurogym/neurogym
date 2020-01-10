@@ -91,8 +91,6 @@ class DelayedMatchCategory(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-
-
         if 'durs' in kwargs.keys():
             fixation = kwargs['durs'][0]
             sample = kwargs['durs'][1]
@@ -100,59 +98,25 @@ class DelayedMatchCategory(ngym.EpochEnv):
             test = kwargs['durs'][3]
             decision = kwargs['durs'][4]
         else:
-            # stimulus = tasktools.trunc_exp(self.rng, self.dt,
-            #                                self.stimulus_mean,
-            #                                xmin=self.stimulus_min,
-            #                                xmax=self.stimulus_max)
             fixation = self.fixation
             sample = self.sample
             delay = self.delay
             test = self.test
             decision = self.decision
 
-        # maximum length of current trial
-        self.tmax = fixation + sample + delay + test + decision
+        self.add_epoch('fixation', duration=fixation, start=0)
+        self.add_epoch('sample', duration=sample, after='fixation')
+        self.add_epoch('delay', duration=delay, after='sample')
+        self.add_epoch('test', duration=test, after='delay')
+        self.add_epoch('decision', duration=decision, after='test', last_epoch=True)
 
-        self.add_epoch('fixation', start=0, duration=fixation)
-        self.add_epoch('sample', start=fixation, duration=sample)
-        self.add_epoch('delay', start=fixation+sample, duration=delay)
-        self.add_epoch('test', start=fixation+sample+delay, duration=test)
-        self.add_epoch('decision', start=fixation+sample+delay+test, duration=decision)
+        self.set_ob('fixation', [1, 0, 0])
+        self.set_ob('sample', [1, np.cos(sample_theta), np.sin(sample_theta)])
+        self.set_ob('delay', [1, 0, 0])
+        self.set_ob('test', [1, np.cos(test_theta), np.sin(test_theta)])
+        self.set_ob('decision', [0, 0, 0])
 
-        # self.fixation_0 = 0
-        # self.fixation_1 = fixation
-        # self.sample_0 = fixation
-        # self.sample_1 = fixation + sample
-        # self.delay_0 = fixation + sample
-        # self.delay_1 = fixation + sample + delay
-        # self.test_0 = fixation + sample + delay
-        # self.test_1 = fixation + sample + delay + test
-        # self.decision_0 = fixation + sample + delay + test
-        # self.decision_1 = fixation + sample + delay + test + decision
-
-        t = np.arange(0, self.tmax, self.dt)
-        obs = np.zeros((len(t), 3))
-
-        fixation_period = np.logical_and(t >= self.fixation_0, t < self.fixation_1)
-        sample_period = np.logical_and(t >= self.sample_0, t < self.sample_1)
-        delay_period = np.logical_and(t >= self.delay_0, t < self.delay_1)
-        test_period = np.logical_and(t >= self.test_0, t < self.test_1)
-        decision_period = np.logical_and(t >= self.decision_0, t < self.decision_1)
-
-        # self.add_ob('sample', value=[0, np.cos(sample_theta), np.sin(sample_theta)])
-
-        obs[:, 0] = 1
-        obs[decision_period, 0] = 0
-
-        obs[sample_period, 1] = np.cos(sample_theta)
-        obs[sample_period, 2] = np.sin(sample_theta)
-
-        obs[test_period, 1] = np.cos(test_theta)
-        obs[test_period, 2] = np.sin(test_theta)
-
-        obs[:, 1:] += np.random.randn(len(t), 2) * self.sigma_dt
-
-        self.obs = obs
+        self.obs[:, 1:] += np.random.randn(*self.obs[:, 1:].shape) * self.sigma_dt
 
         self.t = 0
         self.num_tr += 1
@@ -178,12 +142,12 @@ class DelayedMatchCategory(ngym.EpochEnv):
         reward = 0
         # observations
         gt = np.zeros((3,))
-        if self.fixation_0 <= self.t < self.fixation_1:
+        if self.in_epoch('fixation', self.t):
             gt[0] = 1
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.decision_0 <= self.t < self.decision_1:
+        elif self.in_epoch('decision', self.t):
             gt[self.ground_truth] = 1
             if self.ground_truth == action:
                 reward = self.R_CORRECT
