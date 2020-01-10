@@ -13,7 +13,7 @@ import neurogym as ngym
 from neurogym.ops import tasktools
 
 
-class DelayedMatchCategory(ngym.Env):
+class DelayedMatchCategory(ngym.EpochEnv):
     def __init__(self,
                  dt=100,
                  tmax=3500,
@@ -71,38 +71,6 @@ class DelayedMatchCategory(ngym.Env):
             obs: observation
         """
         # ---------------------------------------------------------------------
-        # Epochs
-        # ---------------------------------------------------------------------
-        if 'durs' in kwargs.keys():
-            fixation = kwargs['durs'][0]
-            sample = kwargs['durs'][1]
-            delay = kwargs['durs'][1]
-            test = kwargs['durs'][1]
-            decision = kwargs['durs'][2]
-        else:
-            # stimulus = tasktools.trunc_exp(self.rng, self.dt,
-            #                                self.stimulus_mean,
-            #                                xmin=self.stimulus_min,
-            #                                xmax=self.stimulus_max)
-            fixation = self.fixation
-            sample = self.sample
-            delay = self.delay
-            test = self.test
-            decision = self.decision
-
-        # maximum length of current trial
-        self.tmax = fixation + sample + delay + test + decision
-        self.fixation_0 = 0
-        self.fixation_1 = fixation
-        self.sample_0 = fixation
-        self.sample_1 = fixation + sample
-        self.delay_0 = fixation + sample
-        self.delay_1 = fixation + sample + delay
-        self.test_0 = fixation + sample + delay
-        self.test_1 = fixation + sample + delay + test
-        self.decision_0 = fixation + sample + delay + test
-        self.decision_1 = fixation + sample + delay + test + decision
-        # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
         if 'gt' in kwargs.keys():
@@ -120,6 +88,48 @@ class DelayedMatchCategory(ngym.Env):
 
         self.ground_truth = ground_truth
 
+        # ---------------------------------------------------------------------
+        # Epochs
+        # ---------------------------------------------------------------------
+
+
+        if 'durs' in kwargs.keys():
+            fixation = kwargs['durs'][0]
+            sample = kwargs['durs'][1]
+            delay = kwargs['durs'][2]
+            test = kwargs['durs'][3]
+            decision = kwargs['durs'][4]
+        else:
+            # stimulus = tasktools.trunc_exp(self.rng, self.dt,
+            #                                self.stimulus_mean,
+            #                                xmin=self.stimulus_min,
+            #                                xmax=self.stimulus_max)
+            fixation = self.fixation
+            sample = self.sample
+            delay = self.delay
+            test = self.test
+            decision = self.decision
+
+        # maximum length of current trial
+        self.tmax = fixation + sample + delay + test + decision
+
+        self.add_epoch('fixation', start=0, duration=fixation)
+        self.add_epoch('sample', start=fixation, duration=sample)
+        self.add_epoch('delay', start=fixation+sample, duration=delay)
+        self.add_epoch('test', start=fixation+sample+delay, duration=test)
+        self.add_epoch('decision', start=fixation+sample+delay+test, duration=decision)
+
+        # self.fixation_0 = 0
+        # self.fixation_1 = fixation
+        # self.sample_0 = fixation
+        # self.sample_1 = fixation + sample
+        # self.delay_0 = fixation + sample
+        # self.delay_1 = fixation + sample + delay
+        # self.test_0 = fixation + sample + delay
+        # self.test_1 = fixation + sample + delay + test
+        # self.decision_0 = fixation + sample + delay + test
+        # self.decision_1 = fixation + sample + delay + test + decision
+
         t = np.arange(0, self.tmax, self.dt)
         obs = np.zeros((len(t), 3))
 
@@ -128,6 +138,8 @@ class DelayedMatchCategory(ngym.Env):
         delay_period = np.logical_and(t >= self.delay_0, t < self.delay_1)
         test_period = np.logical_and(t >= self.test_0, t < self.test_1)
         decision_period = np.logical_and(t >= self.decision_0, t < self.decision_1)
+
+        # self.add_ob('sample', value=[0, np.cos(sample_theta), np.sin(sample_theta)])
 
         obs[:, 0] = 1
         obs[decision_period, 0] = 0
@@ -141,6 +153,7 @@ class DelayedMatchCategory(ngym.Env):
         obs[:, 1:] += np.random.randn(len(t), 2) * self.sigma_dt
 
         self.obs = obs
+
         self.t = 0
         self.num_tr += 1
 
