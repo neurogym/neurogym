@@ -1,10 +1,8 @@
-# import sys
-# from os.path import expanduser
-# home = expanduser("~")
-# sys.path.append(home)
-# sys.path.append(home + '/gym')
 import gym
 from gym.envs.registration import register
+
+from neurogym.core import Env
+from neurogym.core import EpochEnv
 
 
 def register_neuroTask(id_task):
@@ -26,12 +24,17 @@ all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
              'ReadySetGo-v0': 'neurogym.envs.readysetgo:ReadySetGo',
              'DelayedMatchSample-v0':
                  'neurogym.envs.delaymatchsample:DelayedMatchToSample',
+             'DelayedMatchCategory-v0':
+                 'neurogym.envs.delaymatchcategory:DelayedMatchCategory',
              'DawTwoStep-v0': 'neurogym.envs.dawtwostep:DawTwoStep',
              'MatchingPenny-v0': 'neurogym.envs.matchingpenny:MatchingPenny',
              'Bandit-v0': 'neurogym.envs.bandit:Bandit',
              'DelayedResponse-v0': 'neurogym.envs.delayresponse:DR',
              'NAltRDM-v0': 'neurogym.envs.nalt_rdm:nalt_RDM',
              'GenTask-v0': 'neurogym.envs.generaltask:GenTask',
-             'Combine-v0': 'neurogym.envs.combine:combine'}
+             'Combine-v0': 'neurogym.envs.combine:combine',
+             'IBL-v0': 'neurogym.envs.ibl:IBL'
+             }
+
 for task in all_tasks.keys():
     register_neuroTask(task)

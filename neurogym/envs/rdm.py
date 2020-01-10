@@ -20,11 +20,10 @@ from __future__ import division
 import numpy as np
 from gym import spaces
 from neurogym.ops import tasktools
-from neurogym.envs import ngym
-import matplotlib.pyplot as plt
+import neurogym as ngym
 
 
-class RDM(ngym.ngym):
+class RDM(ngym.Env):
     def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500), stimEv=1.,
                  **kwargs):
         super().__init__(dt=dt)
@@ -44,19 +43,7 @@ class RDM(ngym.ngym):
         self.decision = timing[4]
         self.mean_trial_duration = self.fixation + self.stimulus_mean +\
             self.decision
-        if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
-            print('XXXXXXXXXXXXXXXXXXXXXX')
-            print('the duration of all periods must be larger than 0')
-            print('XXXXXXXXXXXXXXXXXXXXXX')
-        print('XXXXXXXXXXXXXXXXXXXXXX')
-        print('Random Dots Motion Task')
-        print('Fixation: ' + str(self.fixation))
-        print('Min Stimulus Duration: ' + str(self.stimulus_min))
-        print('Mean Stimulus Duration: ' + str(self.stimulus_mean))
-        print('Max Stimulus Duration: ' + str(self.stimulus_max))
-        print('Decision: ' + str(self.decision))
-        print('(time step: ' + str(self.dt) + ')')
-        print('XXXXXXXXXXXXXXXXXXXXXX')
+
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
@@ -75,6 +62,23 @@ class RDM(ngym.ngym):
         # start new trial
         self.trial = self._new_trial()
 
+    def __str__(self):
+        string = ''
+        if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
+            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+            string += 'the duration of all periods must be larger than 0\n'
+            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+        string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+        string += 'Random Dots Motion Task\n'
+        string += 'Fixation: ' + str(self.fixation) + '\n'
+        string += 'Min Stimulus Duration: ' + str(self.stimulus_min) + '\n'
+        string += 'Mean Stimulus Duration: ' + str(self.stimulus_mean) + '\n'
+        string += 'Max Stimulus Duration: ' + str(self.stimulus_max) + '\n'
+        string += 'Decision: ' + str(self.decision) + '\n'
+        string += '(time step: ' + str(self.dt) + '\n'
+        string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+        return string
+
     def _new_trial(self):
         """
         _new_trial() is called when a trial ends to get the specifications of
@@ -89,7 +93,7 @@ class RDM(ngym.ngym):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        stimulus = tasktools.truncated_exponential(self.rng, self.dt,
+        stimulus = tasktools.trunc_exp(self.rng, self.dt,
                                                    self.stimulus_mean,
                                                    xmin=self.stimulus_min,
                                                    xmax=self.stimulus_max)
@@ -201,6 +205,7 @@ class RDM(ngym.ngym):
 
 
 if __name__ == '__main__':
+    import matplotlib.pyplot as plt
     env = RDM(timing=[100, 200, 200, 200, 100])
     observations = []
     rewards = []

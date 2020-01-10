@@ -11,10 +11,10 @@ from __future__ import division
 import numpy as np
 from gym import spaces
 from neurogym.ops import tasktools
-from neurogym.envs import ngym
+import neurogym as ngym
 
 
-class Mante(ngym.ngym):
+class Mante(ngym.Env):
     def __init__(self, dt=100, timing=[750, 750, 83, 300, 1200, 500]):
         # call ngm __init__ function
         super().__init__(dt=dt)
@@ -49,9 +49,7 @@ class Mante(ngym.ngym):
         self.decision = timing[5]
         self.mean_trial_duration = self.fixation + self.stimulus +\
             self.delay_mean + self.decision
-        print('mean trial duration: ' + str(self.mean_trial_duration) +
-              ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
-              ')')
+
         # set action and observation space
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(6, ),
@@ -61,6 +59,11 @@ class Mante(ngym.ngym):
         self.viewer = None
 
         self.trial = self._new_trial()
+
+    def __str__(self):
+        string = 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
+        string += ' (max num. steps: ' + str(self.mean_trial_duration / self.dt)
+        return string
 
     def _step(self, action):
         # -----------------------------------------------------------------
@@ -169,7 +172,7 @@ class Mante(ngym.ngym):
         # -----------------------------------------------------------------------
 
         delay = self.delay_min +\
-            tasktools.truncated_exponential(self.rng, self.dt, self.delay_mean,
+            tasktools.trunc_exp(self.rng, self.dt, self.delay_mean,
                                             xmax=self.delay_max)
         # maximum duration of current trial
         self.tmax = self.fixation + self.stimulus + delay + self.decision

@@ -15,10 +15,10 @@ A parametric working memory task, based on
 import numpy as np
 from gym import spaces
 from neurogym.ops import tasktools
-from neurogym.envs import ngym
+import neurogym as ngym
 
 
-class Romo(ngym.ngym):
+class Romo(ngym.Env):
     def __init__(self, dt=100, timing=(750, 500, 2700, 3300, 500, 500)):
         # call ngm __init__ function
         super().__init__(dt=dt)
@@ -43,13 +43,7 @@ class Romo(ngym.ngym):
         self.decision = timing[5]
         self.mean_trial_duration = self.fixation + self.f1 + self.delay_mean +\
             self.f2 + self.decision
-        if self.fixation == 0 or self.decision == 0 or self.delay_mean == 0:
-            print('XXXXXXXXXXXXXXXXXXXXXX')
-            print('the duration of all periods must be larger than 0')
-            print('XXXXXXXXXXXXXXXXXXXXXX')
-        print('mean trial duration: ' + str(self.mean_trial_duration) +
-              ' (max num. steps: ' +
-              str(self.mean_trial_duration/self.dt) + ')')
+
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
@@ -71,6 +65,16 @@ class Romo(ngym.ngym):
         self.viewer = None
 
         self.trial = self._new_trial()
+
+    def __str__(self):
+        string = ''
+        if self.fixation == 0 or self.decision == 0 or self.delay_mean == 0:
+            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+            string += 'the duration of all periods must be larger than 0\n'
+            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+        string += 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
+        string += ' (max num. steps: ' + str(self.mean_trial_duration/self.dt)
+        return string
 
     def _new_trial(self):
         # -------------------------------------------------------------------------

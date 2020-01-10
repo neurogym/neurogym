@@ -16,12 +16,12 @@ Perceptual decision-making with postdecision wagering, based on
 """
 from __future__ import division
 from neurogym.ops import tasktools
-from neurogym.envs import ngym
+import neurogym as ngym
 from gym import spaces
 import numpy as np
 
 
-class PDWager(ngym.ngym):
+class PDWager(ngym.Env):
     def __init__(self, dt=100, timing=(750, 100, 180, 800, 1200, 1350,
                                        1800, 500, 575, 750, 500)):
         # call ngm __init__ function
@@ -53,13 +53,7 @@ class PDWager(ngym.ngym):
         self.decision = timing[10]  # 500
         self.mean_trial_duration = self.fixation + self.stimulus_mean +\
             self.delay_mean + self.decision
-        if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
-            print('XXXXXXXXXXXXXXXXXXXXXX')
-            print('the duration of all periods must be larger than 0')
-            print('XXXXXXXXXXXXXXXXXXXXXX')
-        print('mean trial duration: ' + str(self.mean_trial_duration) +
-              ' (max num. steps: ' +
-              str(self.mean_trial_duration/self.dt) + ')')
+
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
@@ -78,6 +72,16 @@ class PDWager(ngym.ngym):
 
         self.trial = self._new_trial()
 
+    def __str__(self):
+        string = ''
+        if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
+            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+            string += 'the duration of all periods must be larger than 0\n'
+            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+        string += 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
+        string += 'max num. steps: ' + str(self.mean_trial_duration/self.dt)
+        return string
+
     # Input scaling
     def scale(self, coh):
         return (1 + coh/100)/2
@@ -94,11 +98,11 @@ class PDWager(ngym.ngym):
         # ---------------------------------------------------------------------
 
         stimulus = self.stimulus_min +\
-            tasktools.truncated_exponential(self.rng, self.dt,
+            tasktools.trunc_exp(self.rng, self.dt,
                                             self.stimulus_mean,
                                             xmax=self.stimulus_max)
 
-        delay = tasktools.truncated_exponential(self.rng, self.dt,
+        delay = tasktools.trunc_exp(self.rng, self.dt,
                                                 self.delay_mean,
                                                 xmin=self.delay_min,
                                                 xmax=self.delay_max)
@@ -106,7 +110,7 @@ class PDWager(ngym.ngym):
         self.tmax = self.fixation + stimulus + delay + self.decision
         if wager:
             sure_onset =\
-                tasktools.truncated_exponential(self.rng, self.dt,
+                tasktools.trunc_exp(self.rng, self.dt,
                                                 self.sure_mean,
                                                 xmin=self.sure_min,
                                                 xmax=self.sure_max)

@@ -9,10 +9,10 @@ from __future__ import division
 import numpy as np
 from gym import spaces
 from neurogym.ops import tasktools
-from neurogym.envs import ngym
+import neurogym as ngym
 
 
-class DelayedMatchToSample(ngym.ngym):
+class DelayedMatchToSample(ngym.Env):
     def __init__(self, dt=100, timing=(500, 500, 1500, 500, 500)):
         super().__init__(dt=dt)
         # TODO: Code a continuous space version
@@ -29,14 +29,6 @@ class DelayedMatchToSample(ngym.ngym):
         self.decision = timing[4]
         self.tmax = np.sum(timing)
 
-        mean_trial_duration = self.tmax
-        if self.fixation == 0 or self.sample == 0 or self.delay == 0 or\
-           self.test == 0 or self.decision == 0:
-            print('XXXXXXXXXXXXXXXXXXXXXX')
-            print('the duration of all periods must be larger than 0')
-            print('XXXXXXXXXXXXXXXXXXXXXX')
-        print('mean trial duration: ' + str(mean_trial_duration) +
-              ' (max num. steps: ' + str(mean_trial_duration/self.dt) + ')')
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
@@ -52,6 +44,18 @@ class DelayedMatchToSample(ngym.ngym):
         self.viewer = None
 
         self.trial = self._new_trial()
+
+    def __str__(self):
+        mean_trial_duration = self.tmax
+        string = ''
+        if self.fixation == 0 or self.sample == 0 or self.delay == 0 or\
+           self.test == 0 or self.decision == 0:
+            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+            string += 'the duration of all periods must be larger than 0\n'
+            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+        string += 'mean trial duration: ' + str(mean_trial_duration)
+        string += ' (max num. steps: ' + str(mean_trial_duration/self.dt) + '\n'
+        return string
 
     def _new_trial(self):
         # ---------------------------------------------------------------------

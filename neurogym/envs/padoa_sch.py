@@ -17,11 +17,11 @@ from __future__ import division
 
 import numpy as np
 from neurogym.ops import tasktools
-from neurogym.envs import ngym
+import neurogym as ngym
 from gym import spaces
 
 
-class PadoaSch(ngym.ngym):
+class PadoaSch(ngym.Env):
     def __init__(self, dt=100, timing=(750, 1000, 2000, 750)):
         # call ngm __init__ function
         super().__init__(dt=dt)
@@ -50,9 +50,7 @@ class PadoaSch(ngym.ngym):
         self.decision = timing[3]
         self.mean_trial_duration = self.fixation + self.offer_on_mean +\
             self.decision
-        print('mean trial duration: ' + str(self.mean_trial_duration) +
-              ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
-              ')')
+
         # Rewards
         self.R_ABORTED = -0.1
         self.R_MISS = 0.
@@ -71,6 +69,11 @@ class PadoaSch(ngym.ngym):
         self.viewer = None
 
         self.trial = self._new_trial()
+
+    def __str__(self):
+        string = 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
+        string += 'max num. steps: ' + str(self.mean_trial_duration / self.dt)
+        return string
 
     # Input scaling
     def scale(self, x):

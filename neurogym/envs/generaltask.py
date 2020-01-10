@@ -10,7 +10,7 @@ General two-alternative forced choice task, including integratiion and WM tasks
 
 """
 
-from neurogym.envs import ngym
+import neurogym as ngym
 from neurogym.ops import tasktools
 import numpy as np
 from gym import spaces
@@ -20,7 +20,7 @@ TIMING = {'fixation': [500, 200, 800], 'stimulus': [500, 200, 800],
           'delay_aft_stim': [500, 200, 800], 'decision': [500, 200, 800]}
 
 
-class GenTask(ngym.ngym):
+class GenTask(ngym.Env):
     def __init__(self, dt=100, timing=None, stimEv=1., noise=0.01,
                  simultaneous_stim=False, cohs=[0, 6.4, 12.8, 25.6, 51.2],
                  gng=False, **kwargs):
@@ -49,21 +49,7 @@ class GenTask(ngym.ngym):
             self.max_trial_duration += self.timing['stimulus'][2]
 
         self.max_steps = int(self.max_trial_duration/dt)
-        print('XXXXXXXXXXXXXXXXXXXXXX')
-        print('2-Alternative Forced Choice Task')
-        print('Mean Fixation: ' + str(self.timing['fixation'][0]))
-        print('Mean stimulus period: ' + str(self.timing['stimulus'][0]))
-        if not self.sim_stim:
-            print('Mean delay btw stims: ' +
-                  str(self.timing['delay_btw_stim'][0]))
-        else:
-            print('stimuli presented simultaneously')
-        print('Mean delay post-stim: ' + str(self.timing['delay_aft_stim'][0]))
-        print('Mean response window: ' + str(self.timing['decision'][0]))
-        print('Mean trial duration : ' + str(self.mean_trial_duration))
-        print('Max trial duration : ' + str(self.max_trial_duration))
-        print('(time step: ' + str(self.dt) + ')')
-        print('XXXXXXXXXXXXXXXXXXXXXX')
+
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
@@ -80,6 +66,24 @@ class GenTask(ngym.ngym):
         # seeding
         self.seed()
         self.viewer = None
+
+    def __str__(self):
+        string = ''
+        string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+        string += '2-Alternative Forced Choice Task\n'
+        string += 'Mean Fixation: ' + str(self.timing['fixation'][0]) + '\n'
+        string += 'Mean stimulus period: ' + str(self.timing['stimulus'][0]) + '\n'
+        if not self.sim_stim:
+            string += 'Mean delay btw stims: ' + str(self.timing['delay_btw_stim'][0]) + '\n'
+        else:
+            string += 'stimuli presented simultaneously\n'
+        string += 'Mean delay post-stim: ' + str(self.timing['delay_aft_stim'][0]) + '\n'
+        string += 'Mean response window: ' + str(self.timing['decision'][0]) + '\n'
+        string += 'Mean trial duration : ' + str(self.mean_trial_duration) + '\n'
+        string += 'Max trial duration : ' + str(self.max_trial_duration) + '\n'
+        string += '(time step: ' + str(self.dt) + '\n'
+        string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+        return string
 
     def new_trial(self, **kwargs):
         """
