@@ -80,9 +80,6 @@ class Env(gym.Env):
 
 class EpochEnv(Env):
     """Environment class with trial/epoch structure."""
-    def __init__(self, dt=100):
-        super(EpochEnv, self).__init__(dt=dt)
-        self._epochs = list()
 
     def add_epoch(self, epoch, duration, start=None, before=None, after=None,
                   last_epoch=False
@@ -109,26 +106,18 @@ class EpochEnv(Env):
 
         setattr(self, epoch + '_0', start)
         setattr(self, epoch + '_1', start + duration)
-
-        self._epochs.append(epoch)
+        setattr(self, epoch + '_ind0', int(start/self.dt))
+        setattr(self, epoch + '_ind1', int((start + duration)/self.dt))
 
         if last_epoch:
             self._init_trial(start + duration)
 
     def _init_trial(self, tmax):
         """Initialize trial info with tmax, tind, obs"""
-        self.tmax = tmax
-        self.tind = np.arange(0, self.tmax, self.dt)
-        ob_shape = [len(self.tind)] + list(self.observation_space.shape)
+        tmax_ind = int(tmax/self.dt)
+        self.tmax = tmax_ind * self.dt
+        ob_shape = [tmax_ind] + list(self.observation_space.shape)
         self.obs = np.zeros(ob_shape)
-
-        for epoch in self._epochs:
-            epoch_ind = np.logical_and(
-                self.tind >= getattr(self, epoch + '_0'),
-                self.tind < getattr(self, epoch + '_1'))
-            setattr(self, epoch+'_ind', epoch_ind)
-
-        self._epochs = list()
 
     def set_ob(self, epoch, value):
         """Set observation in epoch to value.
@@ -137,7 +126,7 @@ class EpochEnv(Env):
             epoch: string, must be name of an added epoch
             value: np array (ob_space.shape, ...)
         """
-        self.obs[getattr(self, epoch+'_ind'), :] = value
+        self.obs[getattr(self, epoch+'_ind0'):getattr(self, epoch+'_ind1')] = value
 
     def add_ob(self, epoch, value):
         """Add value to observation.
@@ -146,8 +135,8 @@ class EpochEnv(Env):
             epoch: string, must be name of an added epoch
             value: np array (ob_space.shape, ...)
         """
-        self.obs[getattr(self, epoch+'_ind'), :] += value
+        self.obs[getattr(self, epoch+'_ind0'): getattr(self, epoch+'_ind1')] += value
 
     def in_epoch(self, epoch, t):
         """Check if time t is in epoch"""
-        return getattr(self, epoch + '_0') <= t < getattr(self, epoch + '_1')
+        return getattr(self, epoch+'_0') <= t < getattr(self, epoch+'_1')

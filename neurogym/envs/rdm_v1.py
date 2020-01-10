@@ -104,20 +104,14 @@ class RDM(ngym.EpochEnv):
         self.add_epoch('stimulus', duration=stimulus, after='fixation')
         self.add_epoch('decision', duration=decision, after='stimulus', last_epoch=True)
 
-        # t = np.arange(0, self.tmax, self.dt)
-        # obs = np.zeros((len(t), 3))
-
-        # obs[fixation_period, 0] = 1
         self.set_ob('fixation', [1, 0, 0])
-        n_stim = int(stimulus / self.dt)
         if ground_truth == 1:
             self.set_ob('stimulus', [1,  (1 + coh / 100) / 2, (1 - coh / 100) / 2])
         else:
             self.set_ob('stimulus', [1,  (1 - coh / 100) / 2, (1 + coh / 100) / 2])
-        # self.add_ob('stimulus', )
-        # TODO: Add this
-        # obs[stimulus_period] += np.random.randn(n_stim, 3) * self.sigma_dt
-        # self.obs = obs
+
+        self.obs[self.stimulus_ind0:self.stimulus_ind1] += np.random.randn(
+            *self.obs[self.stimulus_ind0:self.stimulus_ind1].shape) * self.sigma_dt
         self.t = 0
         self.num_tr += 1
         # self.gt = np.zeros((len(t),), dtype=np.int)
@@ -144,12 +138,12 @@ class RDM(ngym.EpochEnv):
         reward = 0
         # observations
         gt = np.zeros((3,))
-        if self.fixation_0 <= self.t < self.fixation_1:
+        if self.in_epoch('fixation', self.t):
             gt[0] = 1
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.decision_0 <= self.t < self.decision_1:
+        elif self.in_epoch('decision', self.t):
             gt[self.ground_truth] = 1
             if self.ground_truth == action:
                 reward = self.R_CORRECT
