@@ -81,13 +81,13 @@ class Env(gym.Env):
 class EpochEnv(Env):
     """Environment class with trial/epoch structure."""
 
-    def add_epoch(self, name, duration, start=None, before=None, after=None,
+    def add_epoch(self, epoch, duration, start=None, before=None, after=None,
                   last_epoch=False
                   ):
         """Add an epoch.
 
         Args:
-            name: string, name of the epoch
+            epoch: string, name of the epoch
             duration: float, duration of the epoch
             start: start time of the epoch, float
             before: (optional) string, name of epoch that this epoch is before
@@ -104,8 +104,8 @@ class EpochEnv(Env):
                 raise ValueError('''start must be provided if
                 before and after are None''')
 
-        setattr(self, name + '_0', start)
-        setattr(self, name + '_1', start + duration)
+        setattr(self, epoch + '_0', start)
+        setattr(self, epoch + '_1', start + duration)
 
         if last_epoch:
             self.tmax = start + duration
@@ -113,16 +113,18 @@ class EpochEnv(Env):
             ob_shape = [len(self.tind)] + list(self.observation_space.shape)
             self.obs = np.zeros(ob_shape)
 
-    def set_ob(self, name, value):
+    def set_ob(self, epoch, value):
         """Add value to observation.
 
         Args:
-            name: string, must be name of an added epoch
+            epoch: string, must be name of an added epoch
             value: np array (ob_space.shape, ...)
         """
-        period = np.logical_and(self.tind >= getattr(self, name + '_0'),
-                                self.tind < getattr(self, name + '_1'))
-        self.obs[period, :] = value
+        period_ind = np.logical_and(
+            self.tind >= getattr(self, epoch + '_0'),
+            self.tind < getattr(self, epoch + '_1'))
+        self.obs[period_ind, :] = value
 
-    def in_epoch(self, name, t):
-        return getattr(self, name + '_0') <= t < getattr(self, name + '_1')
+    def in_epoch(self, epoch, t):
+        """Check if time t is in epoch"""
+        return getattr(self, epoch + '_0') <= t < getattr(self, epoch + '_1')
