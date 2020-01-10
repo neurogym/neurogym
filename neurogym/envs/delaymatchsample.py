@@ -29,14 +29,6 @@ class DelayedMatchToSample(ngym.Env):
         self.decision = timing[4]
         self.tmax = np.sum(timing)
 
-        mean_trial_duration = self.tmax
-        if self.fixation == 0 or self.sample == 0 or self.delay == 0 or\
-           self.test == 0 or self.decision == 0:
-            print('XXXXXXXXXXXXXXXXXXXXXX')
-            print('the duration of all periods must be larger than 0')
-            print('XXXXXXXXXXXXXXXXXXXXXX')
-        print('mean trial duration: ' + str(mean_trial_duration) +
-              ' (max num. steps: ' + str(mean_trial_duration/self.dt) + ')')
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
@@ -52,6 +44,18 @@ class DelayedMatchToSample(ngym.Env):
         self.viewer = None
 
         self.trial = self._new_trial()
+
+    def __str__(self):
+        mean_trial_duration = self.tmax
+        string = ''
+        if self.fixation == 0 or self.sample == 0 or self.delay == 0 or\
+           self.test == 0 or self.decision == 0:
+            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+            string += 'the duration of all periods must be larger than 0\n'
+            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+        string += 'mean trial duration: ' + str(mean_trial_duration)
+        string += ' (max num. steps: ' + str(mean_trial_duration/self.dt) + '\n'
+        return string
 
     def _new_trial(self):
         # ---------------------------------------------------------------------

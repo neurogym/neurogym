@@ -53,13 +53,7 @@ class PDWager(ngym.Env):
         self.decision = timing[10]  # 500
         self.mean_trial_duration = self.fixation + self.stimulus_mean +\
             self.delay_mean + self.decision
-        if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
-            print('XXXXXXXXXXXXXXXXXXXXXX')
-            print('the duration of all periods must be larger than 0')
-            print('XXXXXXXXXXXXXXXXXXXXXX')
-        print('mean trial duration: ' + str(self.mean_trial_duration) +
-              ' (max num. steps: ' +
-              str(self.mean_trial_duration/self.dt) + ')')
+
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
@@ -77,6 +71,16 @@ class PDWager(ngym.Env):
         self.viewer = None
 
         self.trial = self._new_trial()
+
+    def __str__(self):
+        string = ''
+        if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
+            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+            string += 'the duration of all periods must be larger than 0\n'
+            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+        string += 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
+        string += 'max num. steps: ' + str(self.mean_trial_duration/self.dt)
+        return string
 
     # Input scaling
     def scale(self, coh):

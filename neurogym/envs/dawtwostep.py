@@ -27,9 +27,7 @@ class DawTwoStep(ngym.Env):
         self.tmax = 3*self.dt
         self.mean_trial_duration = self.tmax
         self.state1_high_reward = self.rng.random() > 0.5
-        print('mean trial duration: ' + str(self.mean_trial_duration) +
-              ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
-              ')')
+
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
 
@@ -46,6 +44,11 @@ class DawTwoStep(ngym.Env):
         self.viewer = None
 
         self.trial = self._new_trial()
+
+    def __str__(self):
+        string = 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
+        string += 'max num. steps: ' + str(self.mean_trial_duration / self.dt)
+        return string
 
     def _new_trial(self):
         # ---------------------------------------------------------------------

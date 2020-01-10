@@ -50,9 +50,7 @@ class PadoaSch(ngym.Env):
         self.decision = timing[3]
         self.mean_trial_duration = self.fixation + self.offer_on_mean +\
             self.decision
-        print('mean trial duration: ' + str(self.mean_trial_duration) +
-              ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
-              ')')
+
         # Rewards
         self.R_ABORTED = -0.1
         self.R_MISS = 0.
@@ -71,6 +69,11 @@ class PadoaSch(ngym.Env):
         self.viewer = None
 
         self.trial = self._new_trial()
+
+    def __str__(self):
+        string = 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
+        string += 'max num. steps: ' + str(self.mean_trial_duration / self.dt)
+        return string
 
     # Input scaling
     def scale(self, x):

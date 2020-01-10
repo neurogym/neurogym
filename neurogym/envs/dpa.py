@@ -37,21 +37,14 @@ class DPA(ngym.Env):
         self.dpa1 = timing[1]
         self.delay_min = timing[2]
         self.delay_max = timing[3]
-        stimulus_mean = (timing[2]+timing[3])/2
+        self.stimulus_mean = (timing[2]+timing[3])/2
         self.dpa2 = timing[4]
         self.resp_delay = timing[5]
         self.decision = timing[6]
         self.delay_mean = (self.delay_min + self.delay_max)/2
         self.mean_trial_duration = self.fixation + self.dpa1 +\
             self.delay_mean + self.dpa2 + self.resp_delay + self.decision
-        if self.fixation == 0 or self.decision == 0 or stimulus_mean == 0:
-            print('XXXXXXXXXXXXXXXXXXXXXX')
-            print('the duration of the fixation, stimulus and decision ' +
-                  'periods must be larger than 0')
-            print('XXXXXXXXXXXXXXXXXXXXXX')
-        print('mean trial duration: ' + str(self.mean_trial_duration) +
-              ' (max num. steps: ' +
-              str(self.mean_trial_duration/self.dt) + ')')
+
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
@@ -68,6 +61,17 @@ class DPA(ngym.Env):
 
         # start new trial
         self.trial = self._new_trial()
+
+    def __str__(self):
+        string = ''
+        if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
+            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+            string += 'the duration of the fixation, stimulus and decision '
+            string += 'periods must be larger than 0\n'
+            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+        string += 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
+        string += 'max num. steps: ' + str(self.mean_trial_duration/self.dt)
+        return string
 
     def _new_trial(self):
         # -------------------------------------------------------------------------

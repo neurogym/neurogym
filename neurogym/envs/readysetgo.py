@@ -42,15 +42,6 @@ class ReadySetGo(ngym.Env):
         self.fixation = timing[0]  # 500
         self.ready = timing[1]  # 83
         self.set = timing[2]  # 83
-        max_trial_duration = self.fixation + np.max(self.measures) +\
-            self.set + 2*gain*self.set
-        if self.fixation == 0 or self.ready == 0 or self.set == 0:
-            print('XXXXXXXXXXXXXXXXXXXXXX')
-            print('the duration of all periods must be larger than 0')
-            print('XXXXXXXXXXXXXXXXXXXXXX')
-        print('mean trial duration: ' + str(max_trial_duration) +
-              ' (max num. steps: ' +
-              str(max_trial_duration/self.dt) + ')')
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -67,6 +58,18 @@ class ReadySetGo(ngym.Env):
         self.viewer = None
 
         self.trial = self._new_trial()
+
+    def __str__(self):
+        max_trial_duration = self.fixation + np.max(self.measures) + \
+                             self.set + 2 * self.gain * self.set
+        string = ''
+        if self.fixation == 0 or self.ready == 0 or self.set == 0:
+            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+            string += 'the duration of all periods must be larger than 0\n'
+            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
+        string += 'mean trial duration: ' + str(max_trial_duration) + '\n'
+        string += ' (max num. steps: ' + str(max_trial_duration/self.dt)
+        return string
 
     def _new_trial(self):
         # ---------------------------------------------------------------------

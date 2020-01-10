@@ -49,9 +49,7 @@ class Mante(ngym.Env):
         self.decision = timing[5]
         self.mean_trial_duration = self.fixation + self.stimulus +\
             self.delay_mean + self.decision
-        print('mean trial duration: ' + str(self.mean_trial_duration) +
-              ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
-              ')')
+
         # set action and observation space
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(6, ),
@@ -61,6 +59,11 @@ class Mante(ngym.Env):
         self.viewer = None
 
         self.trial = self._new_trial()
+
+    def __str__(self):
+        string = 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
+        string += ' (max num. steps: ' + str(self.mean_trial_duration / self.dt)
+        return string
 
     def _step(self, action):
         # -----------------------------------------------------------------
