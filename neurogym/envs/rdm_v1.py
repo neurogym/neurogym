@@ -6,14 +6,14 @@ Created on Fri Nov 29 13:55:36 2019
 @author: molano
 """
 
-from neurogym.envs import ngym
-from neurogym.ops import tasktools
 import numpy as np
 from gym import spaces
-import matplotlib.pyplot as plt
+
+import neurogym as ngym
+from neurogym.ops import tasktools
 
 
-class RDM(ngym.ngym):
+class RDM(ngym.Env):
     def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500),
                  stimEv=1., **kwargs):
         super().__init__(dt=dt)
@@ -196,6 +196,7 @@ class RDM(ngym.ngym):
 
 
 if __name__ == '__main__':
+    import matplotlib.pyplot as plt
     env = RDM(timing=[100, 200, 200, 200, 100])
     observations = []
     rewards = []

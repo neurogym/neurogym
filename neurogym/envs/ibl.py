@@ -1,10 +1,10 @@
 import numpy as np
 import gym
 from gym import spaces
-from neurogym.envs import ngym
+import neurogym as ngym
 
 
-class IBL(ngym.ngym):
+class IBL(ngym.Env):
     def __init__(self, dt=100):
         super(IBL, self).__init__(dt=dt)
         # TODO: Fix to use the default random number generator

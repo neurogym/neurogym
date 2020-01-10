@@ -17,11 +17,11 @@ Delay Pair Association (DPA) task based on:
 """
 import numpy as np
 from neurogym.ops import tasktools
-from neurogym.envs import ngym
+import neurogym as ngym
 from gym import spaces
 
 
-class DPA(ngym.ngym):
+class DPA(ngym.Env):
     def __init__(self, dt=100,
                  timing=(100, 200, 600, 600, 200, 100, 100)):
         # call ngm __init__ function

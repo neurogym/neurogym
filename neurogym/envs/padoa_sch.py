@@ -17,11 +17,11 @@ from __future__ import division
 
 import numpy as np
 from neurogym.ops import tasktools
-from neurogym.envs import ngym
+import neurogym as ngym
 from gym import spaces
 
 
-class PadoaSch(ngym.ngym):
+class PadoaSch(ngym.Env):
     def __init__(self, dt=100, timing=(750, 1000, 2000, 750)):
         # call ngm __init__ function
         super().__init__(dt=dt)

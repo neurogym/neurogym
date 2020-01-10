@@ -6,13 +6,13 @@ Created on Mon Mar  4 17:49:35 2019
 @author: molano
 """
 import gym
-from neurogym.envs import ngym
+import neurogym as ngym
 from gym import spaces
 import numpy as np
 import itertools
 
 
-class combine(ngym.ngym):
+class combine(ngym.Env):
     """
     combines two different tasks
     """

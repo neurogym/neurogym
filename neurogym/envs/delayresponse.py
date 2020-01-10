@@ -5,14 +5,14 @@ Created on Tue Dec  3 15:58:10 2019
 
 @author: molano
 """
-from neurogym.envs import ngym
+import neurogym as ngym
 from neurogym.ops import tasktools
 import numpy as np
 from gym import spaces
 import matplotlib.pyplot as plt
 
 
-class DR(ngym.ngym):
+class DR(ngym.Env):
     def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500),
                  stimEv=1., delays=[1000, 5000, 10000], **kwargs):
         super().__init__(dt=dt)

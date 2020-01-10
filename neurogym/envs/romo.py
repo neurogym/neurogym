@@ -15,10 +15,10 @@ A parametric working memory task, based on
 import numpy as np
 from gym import spaces
 from neurogym.ops import tasktools
-from neurogym.envs import ngym
+import neurogym as ngym
 
 
-class Romo(ngym.ngym):
+class Romo(ngym.Env):
     def __init__(self, dt=100, timing=(750, 500, 2700, 3300, 500, 500)):
         # call ngm __init__ function
         super().__init__(dt=dt)

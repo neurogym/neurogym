@@ -16,12 +16,12 @@ Perceptual decision-making with postdecision wagering, based on
 """
 from __future__ import division
 from neurogym.ops import tasktools
-from neurogym.envs import ngym
+import neurogym as ngym
 from gym import spaces
 import numpy as np
 
 
-class PDWager(ngym.ngym):
+class PDWager(ngym.Env):
     def __init__(self, dt=100, timing=(750, 100, 180, 800, 1200, 1350,
                                        1800, 500, 575, 750, 500)):
         # call ngm __init__ function

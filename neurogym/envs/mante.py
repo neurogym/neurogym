@@ -11,10 +11,10 @@ from __future__ import division
 import numpy as np
 from gym import spaces
 from neurogym.ops import tasktools
-from neurogym.envs import ngym
+import neurogym as ngym
 
 
-class Mante(ngym.ngym):
+class Mante(ngym.Env):
     def __init__(self, dt=100, timing=[750, 750, 83, 300, 1200, 500]):
         # call ngm __init__ function
         super().__init__(dt=dt)

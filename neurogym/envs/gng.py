@@ -19,10 +19,10 @@ from __future__ import division
 import numpy as np
 from gym import spaces
 from neurogym.ops import tasktools
-from neurogym.envs import ngym
+import neurogym as ngym
 
 
-class GNG(ngym.ngym):
+class GNG(ngym.Env):
     def __init__(self, dt=100, timing=(100, 200, 200, 200, 100, 100),
                  **kwargs):
         super().__init__(dt=dt)

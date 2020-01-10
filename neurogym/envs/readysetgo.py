@@ -21,10 +21,10 @@ from __future__ import division
 import numpy as np
 from gym import spaces
 from neurogym.ops import tasktools
-from neurogym.envs import ngym
+import neurogym as ngym
 
 
-class ReadySetGo(ngym.ngym):
+class ReadySetGo(ngym.Env):
     def __init__(self, dt=80, timing=(500, 83, 83), gain=1):
         super().__init__(dt=dt)
         # if dt > 80:

@@ -20,10 +20,10 @@ from __future__ import division
 import numpy as np
 from gym import spaces
 from neurogym.ops import tasktools
-from neurogym.envs import ngym
+import neurogym as ngym
 
 
-class RDM(ngym.ngym):
+class RDM(ngym.Env):
     def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500), stimEv=1.,
                  **kwargs):
         super().__init__(dt=dt)

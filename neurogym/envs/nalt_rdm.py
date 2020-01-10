@@ -18,14 +18,14 @@ Perceptual decision-making task, based on
 
 """
 
-from neurogym.envs import ngym
+import neurogym as ngym
 from neurogym.ops import tasktools
 import numpy as np
 from gym import spaces
 import matplotlib.pyplot as plt
 
 
-class nalt_RDM(ngym.ngym):
+class nalt_RDM(ngym.Env):
     def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500), stimEv=1.,
                  n_ch=3, **kwargs):
         super().__init__(dt=dt)

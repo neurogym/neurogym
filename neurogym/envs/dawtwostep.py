@@ -9,10 +9,10 @@ from __future__ import division
 import numpy as np
 from gym import spaces
 from neurogym.ops import tasktools
-from neurogym.envs import ngym
+import neurogym as ngym
 
 
-class DawTwoStep(ngym.ngym):
+class DawTwoStep(ngym.Env):
     def __init__(self, dt=100, timing=()):
         super().__init__(dt=dt)
         # Actions ('FIXATE', 'ACTION1', 'ACTION2')

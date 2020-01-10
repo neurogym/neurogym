@@ -10,7 +10,7 @@ General two-alternative forced choice task, including integratiion and WM tasks
 
 """
 
-from neurogym.envs import ngym
+import neurogym as ngym
 from neurogym.ops import tasktools
 import numpy as np
 from gym import spaces
@@ -20,7 +20,7 @@ TIMING = {'fixation': [500, 200, 800], 'stimulus': [500, 200, 800],
           'delay_aft_stim': [500, 200, 800], 'decision': [500, 200, 800]}
 
 
-class GenTask(ngym.ngym):
+class GenTask(ngym.Env):
     def __init__(self, dt=100, timing=None, stimEv=1., noise=0.01,
                  simultaneous_stim=False, cohs=[0, 6.4, 12.8, 25.6, 51.2],
                  gng=False, **kwargs):

@@ -8,10 +8,10 @@ from __future__ import division
 
 import numpy as np
 from gym import spaces
-from neurogym.envs import ngym
+import neurogym as ngym
 
 
-class Bandit(ngym.ngym):
+class Bandit(ngym.Env):
     def __init__(self, dt=100, n_arm=2, probs=[.9, .1], timing=[]):
         super().__init__(dt=dt)
         # Rewards

@@ -9,10 +9,10 @@ from __future__ import division
 import numpy as np
 from gym import spaces
 from neurogym.ops import tasktools
-from neurogym.envs import ngym
+import neurogym as ngym
 
 
-class DelayedMatchToSample(ngym.ngym):
+class DelayedMatchToSample(ngym.Env):
     def __init__(self, dt=100, timing=(500, 500, 1500, 500, 500)):
         super().__init__(dt=dt)
         # TODO: Code a continuous space version
