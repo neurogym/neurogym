@@ -27,6 +27,8 @@ all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
              'ReadySetGo-v0': 'neurogym.envs.readysetgo:ReadySetGo',
              'DelayedMatchSample-v0':
                  'neurogym.envs.delaymatchsample:DelayedMatchToSample',
+             'DelayedMatchCategory-v0':
+                 'neurogym.envs.delaymatchcategory:DelayedMatchCategory',
              'DawTwoStep-v0': 'neurogym.envs.dawtwostep:DawTwoStep',
              'MatchingPenny-v0': 'neurogym.envs.matchingpenny:MatchingPenny',
              'Bandit-v0': 'neurogym.envs.bandit:Bandit',

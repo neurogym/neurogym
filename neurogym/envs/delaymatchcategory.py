@@ -8,147 +8,193 @@ from __future__ import division
 
 import numpy as np
 from gym import spaces
-import tasktools
-import ngym
+
+import neurogym as ngym
+from neurogym.ops import tasktools
 
 
-class DelayedMatchToSample(ngym.Env):
-    def __init__(self, dt=100):
+class DelayedMatchCategory(ngym.Env):
+    def __init__(self,
+                 dt=100,
+                 tmax=3500,
+                 fixation=500,
+                 sample=500,
+                 delay=1500,
+                 test=500,
+                 decision=500,
+                 ):
         super().__init__(dt=dt)
-        # Inputs
-        # TODO: Code a continuous space version
-        self.inputs = tasktools.to_map('FIXATION', 'LEFT', 'RIGHT')
-
-        # Actions
-        self.actions = tasktools.to_map('FIXATE', 'MATCH', 'NONMATCH')
+        self.choices = [1, 2]  # match, non-match
 
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
+        self.sigma_dt = self.sigma / np.sqrt(self.dt)
 
         # TODO: Find these info from a paper
-        self.tmax = 3500
-        self.fixation = 500
-        self.sample = 500
-        self.delay = 1500
-        self.test = 500
-        self.decision = 500
+        self.tmax = tmax
+        self.fixation = fixation
+        self.sample = sample
+        self.delay = delay
+        self.test = test
+        self.decision = decision
         self.mean_trial_duration = self.tmax
-        print('mean trial duration: ' + str(self.mean_trial_duration) +
-              ' (max num. steps: ' + str(self.mean_trial_duration/self.dt) +
-              ')')
+
         # Rewards
-        self.R_ABORTED = -1.
+        self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
         self.R_FAIL = 0.
         self.R_MISS = 0.
         self.abort = False
 
+        # Fixation + Match + Non-match
         self.action_space = spaces.Discrete(3)
+        # Fixation + cos(theta) + sin(theta)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
         # seeding
         self.seed()
         self.viewer = None
 
-        self.trial = self._new_trial()
+    def __str__(self):
+        string = 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
+        string += 'max num. steps: ' + str(self.mean_trial_duration / self.dt)
+        return string
 
-    def _new_trial(self):
+    def new_trial(self, **kwargs):
+        """
+        new_trial() is called when a trial ends to generate the next trial.
+        The following variables are created:
+            durations, which stores the duration of the different periods (in
+            the case of rdm: fixation, stimulus and decision periods)
+            ground truth: correct response for the trial
+            coh: stimulus coherence (evidence) for the trial
+            obs: observation
+        """
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
+        if 'durs' in kwargs.keys():
+            fixation = kwargs['durs'][0]
+            sample = kwargs['durs'][1]
+            delay = kwargs['durs'][1]
+            test = kwargs['durs'][1]
+            decision = kwargs['durs'][2]
+        else:
+            # stimulus = tasktools.trunc_exp(self.rng, self.dt,
+            #                                self.stimulus_mean,
+            #                                xmin=self.stimulus_min,
+            #                                xmax=self.stimulus_max)
+            fixation = self.fixation
+            sample = self.sample
+            delay = self.delay
+            test = self.test
+            decision = self.decision
 
-        # TODO: this is a lot of repeated typing
-        dur = {'tmax': self.tmax}
-        dur['fixation'] = (0, self.fixation)
-        dur['fix_grace'] = (0, 100)
-        dur['sample'] = (dur['fixation'][1], dur['fixation'][1] + self.sample)
-        dur['delay'] = (dur['sample'][1], dur['sample'][1] + self.delay)
-        dur['test'] = (dur['delay'][1], dur['delay'][1] + self.test)
-        dur['decision'] = (dur['test'][1], dur['test'][1] + self.decision)
-
+        # maximum length of current trial
+        self.tmax = fixation + sample + delay + test + decision
+        self.fixation_0 = 0
+        self.fixation_1 = fixation
+        self.sample_0 = fixation
+        self.sample_1 = fixation + sample
+        self.delay_0 = fixation + sample
+        self.delay_1 = fixation + sample + delay
+        self.test_0 = fixation + sample + delay
+        self.test_1 = fixation + sample + delay + test
+        self.decision_0 = fixation + sample + delay + test
+        self.decision_1 = fixation + sample + delay + test + decision
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-
-        # TODO: may need to fix this
-        match = tasktools.choice(self.rng, ['MATCH', 'NONMATCH'])
-        sample = tasktools.choice(self.rng, ['LEFT', 'RIGHT'])
-        if match == 'MATCH':
-            test = sample
+        if 'gt' in kwargs.keys():
+            ground_truth = kwargs['gt']
         else:
-            test = 'LEFT' if sample == 'RIGHT' else 'RIGHT'
+            ground_truth = self.rng.choice(self.choices)
 
-        return {
-            'durations': dur,
-            'match': match,
-            'sample': sample,
-            'test': test,
-            }
+        sample_category = self.rng.choice([0, 1])
+        sample_theta = (sample_category + self.rng.random()) * np.pi
 
-    def _step(self, action):
+        test_category = sample_category
+        if ground_truth == 2:
+            test_category = 1 - test_category
+        test_theta = (test_category + self.rng.random()) * np.pi
+
+        self.ground_truth = ground_truth
+
+        t = np.arange(0, self.tmax, self.dt)
+        obs = np.zeros((len(t), 3))
+
+        fixation_period = np.logical_and(t >= self.fixation_0, t < self.fixation_1)
+        sample_period = np.logical_and(t >= self.sample_0, t < self.sample_1)
+        delay_period = np.logical_and(t >= self.delay_0, t < self.delay_1)
+        test_period = np.logical_and(t >= self.test_0, t < self.test_1)
+        decision_period = np.logical_and(t >= self.decision_0, t < self.decision_1)
+
+        obs[:, 0] = 1
+        obs[decision_period, 0] = 0
+
+        obs[sample_period, 1] = np.cos(sample_theta)
+        obs[sample_period, 2] = np.sin(sample_theta)
+
+        obs[test_period, 1] = np.cos(test_theta)
+        obs[test_period, 2] = np.sin(test_theta)
+
+        obs[:, 1:] += np.random.randn(len(t), 2) * self.sigma_dt
+
+        self.obs = obs
+        self.t = 0
+        self.num_tr += 1
+
+    def _step(self, action, **kwargs):
+        """
+        _step receives an action and returns:
+            a new observation, obs
+            reward associated with the action, reward
+            a boolean variable indicating whether the experiment has end, done
+            a dictionary with extra information:
+                ground truth correct response, info['gt']
+                boolean indicating the end of the trial, info['new_trial']
+        """
+        if self.num_tr == 0:
+            # start first trial
+            self.new_trial()
         # ---------------------------------------------------------------------
-        # Reward
+        # Reward and observations
         # ---------------------------------------------------------------------
-        trial = self.trial
-        info = {'continue': True}
+        new_trial = False
+        # rewards
         reward = 0
-        tr_perf = False
-        if not self.in_epoch(self.t, 'decision'):
-            if (action != self.actions['FIXATE'] and
-                    not self.in_epoch(self.t, 'fix_grace')):
-                info['continue'] = not self.abort
+        # observations
+        gt = np.zeros((3,))
+        if self.fixation_0 <= self.t < self.fixation_1:
+            gt[0] = 1
+            if action != 0:
+                new_trial = self.abort
                 reward = self.R_ABORTED
+        elif self.decision_0 <= self.t < self.decision_1:
+            gt[self.ground_truth] = 1
+            if self.ground_truth == action:
+                reward = self.R_CORRECT
+            elif self.ground_truth != 0:  # 3-action is the other act
+                reward = self.R_FAIL
+            new_trial = action != 0
         else:
-            if action != self.actions['FIXATE']:
-                tr_perf = True
-                info['continue'] = False
-                info['choice'] = action
-                info['t_choice'] = self.t
-                info['correct'] = (action == self.actions[trial['match']])
-                if info['correct']:
-                    reward = self.R_CORRECT
-                else:
-                    reward = self.R_FAIL
-
-        # ---------------------------------------------------------------------
-        # Inputs
-        # ---------------------------------------------------------------------
-        obs = np.zeros(len(self.inputs))
-        if not self.in_epoch(self.t, 'decision'):
-            obs[self.inputs['FIXATION']] = 1
-        if self.in_epoch(self.t, 'sample'):
-            obs[self.inputs[trial['sample']]] = 1
-        if self.in_epoch(self.t, 'test'):
-            obs[self.inputs[trial['test']]] = 1
+            gt[0] = 1
+        obs = self.obs[int(self.t/self.dt), :]
 
         # ---------------------------------------------------------------------
         # new trial?
-        reward, new_trial = tasktools.new_trial(self.t, self.tmax, self.dt,
-                                                info['continue'],
+        reward, new_trial = tasktools.new_trial(self.t, self.tmax,
+                                                self.dt, new_trial,
                                                 self.R_MISS, reward)
-
-        if new_trial:
-            info['new_trial'] = True
-            self.t = 0
-            self.num_tr += 1
-            # compute perf
-            self.perf, self.num_tr_perf =\
-                tasktools.compute_perf(self.perf, reward,
-                                       self.num_tr_perf, tr_perf)
-            self.trial = self._new_trial()
-        else:
-            self.t += self.dt
+        self.t += self.dt
 
         done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info, new_trial
+
+        return obs, reward, done, {'new_trial': new_trial, 'gt': gt}
 
     def step(self, action):
-        obs, reward, done, info, new_trial = self._step(action)
-        if new_trial:
-            self.trial = self._new_trial()
+        obs, reward, done, info = self._step(action)
+        if info['new_trial']:
+            self.new_trial()
         return obs, reward, done, info
 
-    def terminate(perf):
-        p_decision, p_correct = tasktools.correct_2AFC(perf)
-
-        return p_decision >= 0.99 and p_correct >= 0.8
