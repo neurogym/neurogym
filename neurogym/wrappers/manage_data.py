@@ -50,7 +50,7 @@ class manage_data(Wrapper):
             self.gt_mat_render = []
             self.rew_mat = []
             self.num_tr_save = num_tr_save
-            self.max_num_samples = 200
+            self.max_num_samples = 100
             self.num_subplots = 3
             self.plt_tr = plt_tr and self.do
             if self.plt_tr:
