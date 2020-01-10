@@ -10,7 +10,7 @@ import gym
 import random
 
 
-class ngym(gym.Env):
+class Env(gym.Env):
     """
     neurogym superclass specifying the basic structure of all tasks
     """

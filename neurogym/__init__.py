@@ -6,6 +6,7 @@
 import gym
 from gym.envs.registration import register
 
+from neurogym.core import Env
 
 def register_neuroTask(id_task):
     for env in gym.envs.registry.all():
