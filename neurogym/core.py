@@ -1,19 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Feb 22 08:52:21 2019
 
-@author: molano
-"""
 
 import gym
 import random
 
 
 class Env(gym.Env):
-    """
-    neurogym superclass specifying the basic structure of all tasks
-    """
+    """The main Neurogym class specifying the basic structure of all tasks"""
+
     def __init__(self, dt=100):
         super().__init__()
         self.dt = dt
@@ -79,3 +74,21 @@ class Env(gym.Env):
         """Check if t is in epoch."""
         dur = self.trial['durations']
         return (dur[epoch][0] <= t < dur[epoch][1])
+
+
+
+class EpochEnv(Env):
+    """Environment class with trial/epoch structure."""
+
+    def add_epoch(self, name, start, duration):
+        """Add an epoch.
+
+        Args:
+            name: string, name of the epoch
+            start: start time of the epoch, float or string
+                if string, then start from the end of another epoch
+            duration: float, duration of the epoch
+        """
+        setattr(self, name + '_0', start)
+        setattr(self, name + '_1', start + duration)
+
