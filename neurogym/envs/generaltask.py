@@ -14,7 +14,7 @@ import neurogym as ngym
 from neurogym.ops import tasktools
 import numpy as np
 from gym import spaces
-import matplotlib.pyplot as plt
+
 TIMING = {'fixation': [500, 200, 800], 'stimulus': [500, 200, 800],
           'delay_btw_stim': [500, 200, 800],
           'delay_aft_stim': [500, 200, 800], 'decision': [500, 200, 800]}
@@ -210,6 +210,7 @@ class GenTask(ngym.EpochEnv):
 
 
 if __name__ == '__main__':
+    import matplotlib.pyplot as plt
     plt.close('all')
 #    # GNG
 #    timing = {'fixation': [100, 100, 100],

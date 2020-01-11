@@ -134,12 +134,12 @@ class RDM(ngym.EpochEnv):
         reward = 0
         # observations
         gt = np.zeros((3,))
-        if self.in_epoch('fixation', self.t):
+        if self.in_epoch('fixation'):
             gt[0] = 1
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('decision', self.t):
+        elif self.in_epoch('decision'):
             gt[self.ground_truth] = 1
             if self.ground_truth == action:
                 reward = self.R_CORRECT
