@@ -39,7 +39,8 @@ class Env(gym.Env):
         self.num_tr = 0
         self.t = 0
 
-        self.trial = self._new_trial()
+        # TODO: Not sure which one to use, _new_trial or new_trials
+        self.trial = self.new_trial()
         obs, _, _, _ = self.step(self.action_space.sample())
         return obs
 
@@ -61,15 +62,15 @@ class Env(gym.Env):
         indicating whether the experiment has ended and a dictionary with
         useful information
         """
-        return None, None, None, None
+        raise NotImplementedError('_step is not defined.')
 
-    def _new_trial(self):
+    def new_trial(self):
         """Starts a new trial within the current experiment.
 
         Returns:
             trial_info: a dictionary of trial information
         """
-        return {}
+        raise NotImplementedError('new_trial is not defined.')
 
     def in_epoch(self, t, epoch):
         """Check if t is in epoch."""
