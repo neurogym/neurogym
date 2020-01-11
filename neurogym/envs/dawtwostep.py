@@ -107,24 +107,4 @@ class DawTwoStep(ngym.Env):
         else:
             raise ValueError('t is not 0 or 1')
 
-        # ---------------------------------------------------------------------
-        # new trial?
-        reward, info['new_trial'] = tasktools.new_trial(self.t, self.tmax,
-                                                        self.dt,
-                                                        info['new_trial'],
-                                                        self.R_MISS, reward)
-        if info['new_trial']:
-            self.t = 0
-            self.num_tr += 1
-        else:
-            self.t += self.dt
-
-        done = self.num_tr > self.num_tr_exp
-
-        return obs, reward, done, info
-
-    def step(self, action):
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.trial = self._new_trial()
-        return obs, reward, done, info
+        return obs, reward, False, info

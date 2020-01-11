@@ -151,12 +151,6 @@ class RDM(ngym.EpochEnv):
 
         obs = self.obs[int(self.t / self.dt), :]
 
-        # ---------------------------------------------------------------------
-        # new trial?
-        reward, new_trial = tasktools.new_trial(self.t, self.tmax,
-                                                self.dt, new_trial,
-                                                self.R_MISS, reward)
-
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 

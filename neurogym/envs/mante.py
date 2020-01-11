@@ -138,12 +138,6 @@ class Mante(ngym.EpochEnv):
                 rng.gauss(mu=0, sigma=self.sigma) / np.sqrt(dt)
             obs[low_c] = self.scale(-trial['coh_c']) +\
                 rng.gauss(mu=0, sigma=self.sigma) / np.sqrt(dt)
-        # ---------------------------------------------------------------------
-        # new trial?
-        reward, info['new_trial'] = tasktools.new_trial(self.t, self.tmax,
-                                                        self.dt,
-                                                        info['new_trial'],
-                                                        self.R_MISS, reward)
 
         return obs, reward, False, info
 

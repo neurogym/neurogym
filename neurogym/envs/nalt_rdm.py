@@ -61,9 +61,6 @@ class nalt_RDM(ngym.EpochEnv):
         self.action_space = spaces.Discrete(n_ch+1)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(n_ch+1,),
                                             dtype=np.float32)
-        # seeding
-        self.seed()
-        self.viewer = None
 
     def __str__(self):
         string = ''
@@ -170,12 +167,6 @@ class nalt_RDM(ngym.EpochEnv):
         else:
             gt[0] = 1
         obs = self.obs[int(self.t/self.dt), :]
-
-        # ---------------------------------------------------------------------
-        # new trial?
-        reward, new_trial = tasktools.new_trial(self.t, self.tmax,
-                                                self.dt, new_trial,
-                                                self.R_MISS, reward)
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 

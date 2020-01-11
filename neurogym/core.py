@@ -33,6 +33,7 @@ class Env(BaseEnv):
         super().__init__()
         self.dt = dt
         self.t = 0
+        self.tmax = 10000  # maximum time steps
         self.num_tr = 0
         self.perf = 0
         self.num_tr_perf = 0
@@ -61,6 +62,9 @@ class Env(BaseEnv):
         obs, reward, done, info = self._step(action)
 
         self.t += self.dt  # increment within trial time count
+
+        if self.t >= self.tmax - self.dt:
+            info['new_trial'] = True
 
         # TODO: Handle the case when new_trial is not provided in info
         if info['new_trial']:

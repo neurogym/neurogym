@@ -203,16 +203,7 @@ class DPA(ngym.Env):
             gt[0] = 1
         obs = self.obs[int(self.t/self.dt), :]
 
-        # ---------------------------------------------------------------------
-        # new trial?
-        reward, new_trial = tasktools.new_trial(self.t, self.tmax,
-                                                self.dt, new_trial,
-                                                self.R_MISS, reward)
-        self.t += self.dt
-
-        done = self.num_tr > self.num_tr_exp
-
-        return obs, reward, done, {'new_trial': new_trial, 'gt': gt}
+        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
     def step(self, action):
         """

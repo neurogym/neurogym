@@ -20,7 +20,7 @@ TIMING = {'fixation': [500, 200, 800], 'stimulus': [500, 200, 800],
           'delay_aft_stim': [500, 200, 800], 'decision': [500, 200, 800]}
 
 
-class GenTask(ngym.Env):
+class GenTask(ngym.EpochEnv):
     def __init__(self, dt=100, timing=None, stimEv=1., noise=0.01,
                  simultaneous_stim=False, cohs=[0, 6.4, 12.8, 25.6, 51.2],
                  gng=False, **kwargs):
@@ -187,8 +187,6 @@ class GenTask(ngym.Env):
 
         self.obs = obs
 
-        self.t = 0
-        self.num_tr += 1
         self.first_flag = False
 
     def _step(self, action, **kwargs):
@@ -201,9 +199,6 @@ class GenTask(ngym.Env):
                 ground truth correct response, info['gt']
                 boolean indicating the end of the trial, info['new_trial']
         """
-        if self.num_tr == 0:
-            # start first trial
-            self.new_trial()
         # ---------------------------------------------------------------------
         # Reward and observations
         # ---------------------------------------------------------------------
@@ -234,35 +229,8 @@ class GenTask(ngym.Env):
             gt[0] = 1
         obs = self.obs[int(self.t/self.dt), :]
 
-        # ---------------------------------------------------------------------
-        # new trial?
-        reward, new_trial = tasktools.new_trial(self.t, self.tmax,
-                                                self.dt, new_trial,
-                                                self.R_MISS, reward)
-        self.t += self.dt
-
-        done = self.num_tr > self.num_tr_exp
-
-        return obs, reward, done, {'new_trial': new_trial, 'gt': gt,
+        return obs, reward, False, {'new_trial': new_trial, 'gt': gt,
                                    'first_trial': first_trial}
-
-    def step(self, action):
-        """
-        step receives an action and returns:
-            a new observation, obs
-            reward associated with the action, reward
-            a boolean variable indicating whether the experiment has end, done
-            a dictionary with extra information:
-                ground truth correct response, info['gt']
-                boolean indicating the end of the trial, info['new_trial']
-        Note that the main computations are done by the function _step(action),
-        and the extra lines are basically checking whether to call the
-        new_trial() function in order to start a new trial
-        """
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.new_trial()
-        return obs, reward, done, info
 
 
 if __name__ == '__main__':

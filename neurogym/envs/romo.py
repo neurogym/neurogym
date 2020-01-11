@@ -147,11 +147,4 @@ class Romo(ngym.EpochEnv):
             obs[1] = self.scale_p(trial['f2']) +\
                 self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
 
-        # ---------------------------------------------------------------------
-        # new trial?
-        reward, info['new_trial'] = tasktools.new_trial(self.t, self.tmax,
-                                                        self.dt,
-                                                        info['new_trial'],
-                                                        self.R_MISS, reward)
-
         return obs, reward, False, info

@@ -39,9 +39,6 @@ class DelayedMatchToSample(ngym.EpochEnv):
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
-        # seeding
-        self.seed()
-        self.viewer = None
 
         self.trial = self._new_trial()
 
@@ -118,24 +115,4 @@ class DelayedMatchToSample(ngym.EpochEnv):
         if self.in_epoch('test'):
             obs[trial['test']+1] = 1
 
-        # ---------------------------------------------------------------------
-        # new trial?
-        reward, info['new_trial'] = tasktools.new_trial(self.t, self.tmax,
-                                                        self.dt,
-                                                        info['new_trial'],
-                                                        self.R_MISS, reward)
-
-        if info['new_trial']:
-            self.t = 0
-            self.num_tr += 1
-        else:
-            self.t += self.dt
-
-        done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info
-
-    def step(self, action):
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.trial = self._new_trial()
-        return obs, reward, done, info
+        return obs, reward, False, info

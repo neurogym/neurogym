@@ -51,9 +51,6 @@ class DelayedMatchCategory(ngym.EpochEnv):
         # Fixation + cos(theta) + sin(theta)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
-        # seeding
-        self.seed()
-        self.viewer = None
 
     def __str__(self):
         string = 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
@@ -118,9 +115,6 @@ class DelayedMatchCategory(ngym.EpochEnv):
 
         self.obs[:, 1:] += np.random.randn(*self.obs[:, 1:].shape) * self.sigma_dt
 
-        self.t = 0
-        self.num_tr += 1
-
     def _step(self, action, **kwargs):
         """
         _step receives an action and returns:
@@ -131,9 +125,6 @@ class DelayedMatchCategory(ngym.EpochEnv):
                 ground truth correct response, info['gt']
                 boolean indicating the end of the trial, info['new_trial']
         """
-        if self.num_tr == 0:
-            # start first trial
-            self.new_trial()
         # ---------------------------------------------------------------------
         # Reward and observations
         # ---------------------------------------------------------------------
@@ -142,12 +133,12 @@ class DelayedMatchCategory(ngym.EpochEnv):
         reward = 0
         # observations
         gt = np.zeros((3,))
-        if self.in_epoch('fixation', self.t):
+        if self.in_epoch('fixation'):
             gt[0] = 1
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('decision', self.t):
+        elif self.in_epoch('decision'):
             gt[self.ground_truth] = 1
             if self.ground_truth == action:
                 reward = self.R_CORRECT
@@ -158,20 +149,5 @@ class DelayedMatchCategory(ngym.EpochEnv):
             gt[0] = 1
         obs = self.obs[int(self.t/self.dt), :]
 
-        # ---------------------------------------------------------------------
-        # new trial?
-        reward, new_trial = tasktools.new_trial(self.t, self.tmax,
-                                                self.dt, new_trial,
-                                                self.R_MISS, reward)
-        self.t += self.dt
-
-        done = self.num_tr > self.num_tr_exp
-
-        return obs, reward, done, {'new_trial': new_trial, 'gt': gt}
-
-    def step(self, action):
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.new_trial()
-        return obs, reward, done, info
+        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 

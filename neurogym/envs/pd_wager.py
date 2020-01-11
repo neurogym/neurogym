@@ -175,11 +175,4 @@ class PDWager(ngym.EpochEnv):
         if trial['wager'] and self.in_epoch('sure'):
             obs[3] = 1
 
-        # ---------------------------------------------------------------------
-        # new trial?
-        reward, info['new_trial'] = tasktools.new_trial(self.t, self.tmax,
-                                                        self.dt,
-                                                        info['new_trial'],
-                                                        self.R_MISS, reward)
-
         return obs, reward, False, info

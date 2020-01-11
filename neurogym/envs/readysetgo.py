@@ -131,11 +131,4 @@ class ReadySetGo(ngym.EpochEnv):
         if self.in_epoch('set'):
             obs[2] = 1
 
-        # ---------------------------------------------------------------------
-        # new trial?
-        reward, info['new_trial'] = tasktools.new_trial(self.t, self.tmax,
-                                                        self.dt,
-                                                        info['new_trial'],
-                                                        self.R_MISS, reward)
-
         return obs, reward, False, info
