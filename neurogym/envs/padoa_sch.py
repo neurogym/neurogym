@@ -21,7 +21,7 @@ import neurogym as ngym
 from gym import spaces
 
 
-class PadoaSch(ngym.Env):
+class PadoaSch(ngym.EpochEnv):
     def __init__(self, dt=100, timing=(750, 1000, 2000, 750)):
         # call ngm __init__ function
         super().__init__(dt=dt)
@@ -68,8 +68,6 @@ class PadoaSch(ngym.Env):
         self.seed()
         self.viewer = None
 
-        self.trial = self._new_trial()
-
     def __str__(self):
         string = 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
         string += 'max num. steps: ' + str(self.mean_trial_duration / self.dt)
@@ -86,18 +84,14 @@ class PadoaSch(ngym.Env):
 
         offer_on = tasktools.uniform(self.rng, self.dt, self.offer_on_min,
                                      self.offer_on_max)
-        # maximum duration of current trial
-        self.tmax = self.fixation + offer_on + self.decision
-        durations = {
-            'fixation':    (0, self.fixation),
-            'offer-on':    (self.fixation, self.fixation + offer_on),
-            'decision':    (self.fixation + offer_on, self.tmax),
-            }
+
+        self.add_epoch('fixation', self.fixation, start=0)
+        self.add_epoch('offer-on', offer_on, after='fixation')
+        self.add_epoch('decision', self.decision, after='offer-on', last_epoch=True)
 
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-
         juice = self.rng.choice(self.juices)
 
         offer = self.rng.choice(self.offers)
@@ -111,7 +105,6 @@ class PadoaSch(ngym.Env):
             nL, nR = nB, nA
 
         return {
-            'durations': durations,
             'juice':     juice,
             'offer':     offer,
             'nL':        nL,
@@ -124,17 +117,15 @@ class PadoaSch(ngym.Env):
         # ---------------------------------------------------------------------
         # Reward
         # ---------------------------------------------------------------------
-
-        # epochs = trial['epochs']
         info = {'new_trial': False}
         info['gt'] = np.zeros((3,))
         reward = 0
-        if (self.in_epoch(self.t, 'fixation') or
-                self.in_epoch(self.t, 'offer-on')):
+        if (self.in_epoch('fixation') or
+                self.in_epoch('offer-on')):
             if (action != self.actions['FIXATE']):
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch(self.t, 'decision'):
+        elif self.in_epoch('decision'):
             if action in [self.actions['CHOOSE-LEFT'],
                           self.actions['CHOOSE-RIGHT']]:
                 info['new_trial'] = True
@@ -159,9 +150,9 @@ class PadoaSch(ngym.Env):
         # Inputs
         # ---------------------------------------------------------------------
         obs = np.zeros(len(self.inputs))
-        if not self.in_epoch(self.t, 'decision'):
+        if not self.in_epoch('decision'):
             obs[self.inputs['FIXATION']] = 1
-        if self.in_epoch(self.t, 'offer-on'):
+        if self.in_epoch('offer-on'):
             juiceL, juiceR = trial['juice']
             obs[self.inputs['L-'+juiceL]] = 1
             obs[self.inputs['R-'+juiceR]] = 1
@@ -178,17 +169,4 @@ class PadoaSch(ngym.Env):
                                                         info['new_trial'],
                                                         self.R_MISS, reward)
 
-        if info['new_trial']:
-            self.t = 0
-            self.num_tr += 1
-        else:
-            self.t += self.dt
-
-        done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info
-
-    def step(self, action):
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.trial = self._new_trial()
-        return obs, reward, done, info
+        return obs, reward, False, info

@@ -30,8 +30,6 @@ class Bandit(ngym.Env):
         self.seed()
         self.viewer = None
 
-        self.trial = self._new_trial()
-
     def _new_trial(self, high_reward_arm=0):
         # ---------------------------------------------------------------------
         # Trial
@@ -58,13 +56,5 @@ class Bandit(ngym.Env):
         # ---------------------------------------------------------------------
         # new trial?
         info['new_trial'] = True
-        self.t = 0
-        self.num_tr += 1
-        done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info
+        return obs, reward, False, info
 
-    def step(self, action):
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.trial = self._new_trial()
-        return obs, reward, done, info

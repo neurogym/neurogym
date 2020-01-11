@@ -24,7 +24,7 @@ from neurogym.ops import tasktools
 import neurogym as ngym
 
 
-class ReadySetGo(ngym.Env):
+class ReadySetGo(ngym.EpochEnv):
     def __init__(self, dt=80, timing=(500, 83, 83), gain=1):
         super().__init__(dt=dt)
         # if dt > 80:
@@ -77,23 +77,17 @@ class ReadySetGo(ngym.Env):
         # ---------------------------------------------------------------------
         measure = self.rng.choice(self.measures)
         production = measure * self.gain
-        self.tmax = self.fixation + measure + self.set + 2*production
 
-        durations = {
-            'fixation':  (0, self.fixation),
-            'ready': (self.fixation, self.fixation + self.ready),
-            'measure': (self.fixation, self.fixation + measure),
-            'set': (self.fixation + measure,
-                    self.fixation + measure + self.set),
-            'production': (self.fixation + measure + self.set,
-                           self.tmax),
-            }
+        self.add_epoch('fixation', self.fixation, start=0)
+        self.add_epoch('ready', self.ready, after='fixation')
+        self.add_epoch('measure', measure, after='fixation')
+        self.add_epoch('set', self.set, after='measure')
+        self.add_epoch('production', 2*production, after='set', last_epoch=True)
 
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
         return {
-            'durations': durations,
             'measure': measure,
             'production': production,
             }
@@ -106,14 +100,14 @@ class ReadySetGo(ngym.Env):
         info = {'new_trial': False, 'gt': np.zeros((2,))}
         reward = 0
         obs = np.zeros((3,))
-        if self.in_epoch(self.t, 'fixation'):
+        if self.in_epoch('fixation'):
             obs[0] = 1
             info['gt'][0] = 1
             if self.actions[action] != -1:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
-        if self.in_epoch(self.t, 'production'):
-            t_prod = self.t - trial['durations']['measure'][1]
+        if self.in_epoch('production'):
+            t_prod = self.t - self.measure_1  # time from end of measure
             eps = abs(t_prod - trial['production'])
             if eps < self.dt/2 + 1:
                 info['gt'][1] = 1
@@ -132,9 +126,9 @@ class ReadySetGo(ngym.Env):
         else:
             info['gt'][0] = 1
 
-        if self.in_epoch(self.t, 'ready'):
+        if self.in_epoch('ready'):
             obs[1] = 1
-        if self.in_epoch(self.t, 'set'):
+        if self.in_epoch('set'):
             obs[2] = 1
 
         # ---------------------------------------------------------------------
@@ -143,17 +137,5 @@ class ReadySetGo(ngym.Env):
                                                         self.dt,
                                                         info['new_trial'],
                                                         self.R_MISS, reward)
-        if info['new_trial']:
-            self.t = 0
-            self.num_tr += 1
-        else:
-            self.t += self.dt
 
-        done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info
-
-    def step(self, action):
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.trial = self._new_trial()
-        return obs, reward, done, info
+        return obs, reward, False, info

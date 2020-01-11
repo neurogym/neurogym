@@ -14,7 +14,7 @@ from neurogym.ops import tasktools
 import neurogym as ngym
 
 
-class Mante(ngym.Env):
+class Mante(ngym.EpochEnv):
     def __init__(self, dt=100, timing=[750, 750, 83, 300, 1200, 500]):
         # call ngm __init__ function
         super().__init__(dt=dt)
@@ -58,8 +58,6 @@ class Mante(ngym.Env):
         self.seed()
         self.viewer = None
 
-        self.trial = self._new_trial()
-
     def __str__(self):
         string = 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
         string += ' (max num. steps: ' + str(self.mean_trial_duration / self.dt)
@@ -77,12 +75,12 @@ class Mante(ngym.Env):
         info = {'new_trial': False}
         info['gt'] = np.zeros((3,))
         reward = 0
-        if self.in_epoch(self.t, 'fixation'):
+        if self.in_epoch('fixation'):
             info['gt'][0] = 1
             if (action != self.actions['FIXATE']):
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch(self.t, 'decision'):
+        elif self.in_epoch('decision'):
             info['gt'][int((trial['ground_truth']/2+1.5))] = 1
             if action == self.actions['left']:
                 info['new_trial'] = True
@@ -127,11 +125,11 @@ class Mante(ngym.Env):
             low_c = self.inputs['c-left']
 
         obs = np.zeros(len(self.inputs))
-        if (self.in_epoch(self.t, 'fixation') or
-            self.in_epoch(self.t, 'stimulus') or
-                self.in_epoch(self.t, 'delay')):
+        if (self.in_epoch('fixation') or
+            self.in_epoch('stimulus') or
+                self.in_epoch('delay')):
             obs[context] = 1
-        if self.in_epoch(self.t, 'stimulus'):
+        if self.in_epoch('stimulus'):
             obs[high_m] = self.scale(+trial['coh_m']) +\
                 rng.gauss(mu=0, sigma=self.sigma) / np.sqrt(dt)
             obs[low_m] = self.scale(-trial['coh_m']) +\
@@ -147,43 +145,19 @@ class Mante(ngym.Env):
                                                         info['new_trial'],
                                                         self.R_MISS, reward)
 
-        if info['new_trial']:
-            self.t = 0
-            self.num_tr += 1
-        else:
-            self.t += self.dt
-
-        done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info
-
-    def step(self, action):
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.trial = self._new_trial()
-        return obs, reward, done, info
-
-    def close(self):
-        if self.viewer:
-            self.viewer.close()
+        return obs, reward, False, info
 
     def _new_trial(self):
         # -----------------------------------------------------------------------
         # Epochs
         # -----------------------------------------------------------------------
-
         delay = self.delay_min +\
             tasktools.trunc_exp(self.rng, self.dt, self.delay_mean,
                                             xmax=self.delay_max)
-        # maximum duration of current trial
-        self.tmax = self.fixation + self.stimulus + delay + self.decision
-        durations = {
-            'fixation':  (0, self.fixation),
-            'stimulus':  (self.fixation, self.fixation + self.stimulus),
-            'delay':     (self.fixation + self.stimulus,
-                          self.fixation + self.stimulus + delay),
-            'decision':  (self.fixation + self.stimulus + delay, self.tmax),
-            }
-
+        self.add_epoch('fixation', self.fixation, start=0)
+        self.add_epoch('stimulus', self.stimulus, after='fixation')
+        self.add_epoch('delay', delay, after='stimulus')
+        self.add_epoch('decision', self.decision, after='delay', last_epoch=True)
         # -------------------------------------------------------------------------
         # Trial
         # -------------------------------------------------------------------------
@@ -204,7 +178,6 @@ class Mante(ngym.Env):
             ground_truth = 2*(left_right_c > 0) - 1
 
         return {
-            'durations':    durations,
             'context':      context_,
             'left_right_m': left_right_m,
             'left_right_c': left_right_c,

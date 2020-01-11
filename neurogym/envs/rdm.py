@@ -23,7 +23,7 @@ from neurogym.ops import tasktools
 import neurogym as ngym
 
 
-class RDM(ngym.Env):
+class RDM(ngym.EpochEnv):
     def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500), stimEv=1.,
                  **kwargs):
         super().__init__(dt=dt)
@@ -58,9 +58,6 @@ class RDM(ngym.Env):
         # seeding
         self.seed()
         self.viewer = None
-
-        # start new trial
-        self.trial = self._new_trial()
 
     def __str__(self):
         string = ''
@@ -97,14 +94,9 @@ class RDM(ngym.Env):
                                                    self.stimulus_mean,
                                                    xmin=self.stimulus_min,
                                                    xmax=self.stimulus_max)
-        # maximum length of current trial
-        self.tmax = self.fixation + stimulus + self.decision
-        durations = {
-            'fixation': (0, self.fixation),
-            'stimulus': (self.fixation, self.fixation + stimulus),
-            'decision': (self.fixation + stimulus,
-                         self.fixation + stimulus + self.decision),
-            }
+        self.add_epoch('fixation', self.fixation, start=0)
+        self.add_epoch('stimulus', stimulus, after='fixation')
+        self.add_epoch('decision', self.decision, after='stimulus', last_epoch=True)
 
         # ---------------------------------------------------------------------
         # Trial
@@ -113,7 +105,6 @@ class RDM(ngym.Env):
         coh = self.rng.choice(self.cohs)
 
         return {
-            'durations': durations,
             'ground_truth': ground_truth,
             'coh': coh
             }
@@ -142,13 +133,13 @@ class RDM(ngym.Env):
         reward = 0
         # observations
         obs = np.zeros((3,))
-        if self.in_epoch(self.t, 'fixation'):
+        if self.in_epoch('fixation'):
             info['gt'][0] = 1
             obs[0] = 1
             if self.actions[action] != 0:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch(self.t, 'decision'):
+        elif self.in_epoch('decision'):
             info['gt'][int((trial['ground_truth']/2+1.5))] = 1
             gt_sign = np.sign(trial['ground_truth'])
             action_sign = np.sign(self.actions[action])
@@ -161,7 +152,7 @@ class RDM(ngym.Env):
             info['gt'][0] = 1
 
         # this is an 'if' to allow the stimulus and fixation periods to overlap
-        if self.in_epoch(self.t, 'stimulus'):
+        if self.in_epoch('stimulus'):
             obs[0] = 1
             high = (trial['ground_truth'] > 0) + 1
             low = (trial['ground_truth'] < 0) + 1
@@ -176,32 +167,8 @@ class RDM(ngym.Env):
                                                         self.dt,
                                                         info['new_trial'],
                                                         self.R_MISS, reward)
-        if info['new_trial']:
-            self.t = 0
-            self.num_tr += 1
-        else:
-            self.t += self.dt
 
-        done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info
-
-    def step(self, action):
-        """
-        step receives an action and returns:
-            a new observation, obs
-            reward associated with the action, reward
-            a boolean variable indicating whether the experiment has end, done
-            a dictionary with extra information:
-                ground truth correct response, info['gt']
-                boolean indicating the end of the trial, info['new_trial']
-        Note that the main computations are done by the function _step(action),
-        and the extra lines are basically checking whether to call the
-        _new_trial() function in order to start a new trial
-        """
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.trial = self._new_trial()
-        return obs, reward, done, info
+        return obs, reward, False, info
 
 
 if __name__ == '__main__':

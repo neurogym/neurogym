@@ -12,7 +12,7 @@ from neurogym.ops import tasktools
 import neurogym as ngym
 
 
-class DelayedMatchToSample(ngym.Env):
+class DelayedMatchToSample(ngym.EpochEnv):
     def __init__(self, dt=100, timing=(500, 500, 1500, 500, 500)):
         super().__init__(dt=dt)
         # TODO: Code a continuous space version
@@ -61,16 +61,14 @@ class DelayedMatchToSample(ngym.Env):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        dur = {'tmax': self.tmax}
-        dur['fixation'] = (0, self.fixation)
-        dur['sample'] = (dur['fixation'][1], dur['fixation'][1] + self.sample)
-        dur['delay'] = (dur['sample'][1], dur['sample'][1] + self.delay)
-        dur['test'] = (dur['delay'][1], dur['delay'][1] + self.test)
-        dur['decision'] = (dur['test'][1], dur['test'][1] + self.decision)
+        self.add_epoch('fixation', self.fixation, start=0)
+        self.add_epoch('sample', self.sample, after='fixation')
+        self.add_epoch('delay', self.delay, after='sample')
+        self.add_epoch('test', self.test, after='delay')
+        self.add_epoch('decision', self.decision, after='test', last_epoch=True)
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-
         # TODO: may need to fix this
         gt = self.rng.choice([-1, 1])
         sample = self.rng.choice([0, 1])
@@ -80,7 +78,6 @@ class DelayedMatchToSample(ngym.Env):
             test = 1*(not sample)
 
         return {
-            'durations': dur,
             'ground_truth': gt,
             'sample': sample,
             'test': test,
@@ -95,13 +92,13 @@ class DelayedMatchToSample(ngym.Env):
         reward = 0
         obs = np.zeros((3,))
 
-        if self.in_epoch(self.t, 'fixation'):
+        if self.in_epoch('fixation'):
             info['gt'][0] = 1
             obs[0] = 1
             if self.actions[action] != 0:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch(self.t, 'decision'):
+        elif self.in_epoch('decision'):
             info['gt'][int((trial['ground_truth']/2+1.5))] = 1
             gt_sign = np.sign(trial['ground_truth'])
             action_sign = np.sign(self.actions[action])
@@ -116,9 +113,9 @@ class DelayedMatchToSample(ngym.Env):
         # ---------------------------------------------------------------------
         # Inputs
         # ---------------------------------------------------------------------
-        if self.in_epoch(self.t, 'sample'):
+        if self.in_epoch('sample'):
             obs[trial['sample']+1] = 1
-        if self.in_epoch(self.t, 'test'):
+        if self.in_epoch('test'):
             obs[trial['test']+1] = 1
 
         # ---------------------------------------------------------------------

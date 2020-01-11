@@ -71,7 +71,7 @@ class Env(BaseEnv):
         """Public interface for starting a new trial."""
         self.t = 0  # Reset within trial time count
         self.num_tr += 1  # Increment trial count
-        self._new_trial()  # Run user defined _new_trial method
+        return self._new_trial()  # Run user defined _new_trial method
 
     def reset(self):
         """
@@ -153,6 +153,8 @@ class EpochEnv(Env):
         """
         self.obs[getattr(self, epoch+'_ind0'): getattr(self, epoch+'_ind1')] += value
 
-    def in_epoch(self, epoch, t):
+    def in_epoch(self, epoch, t=None):
         """Check if time t is in epoch"""
+        if t is None:
+            t = self.t  # For backward compatibility
         return getattr(self, epoch+'_0') <= t < getattr(self, epoch+'_1')

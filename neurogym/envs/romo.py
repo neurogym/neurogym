@@ -18,7 +18,7 @@ from neurogym.ops import tasktools
 import neurogym as ngym
 
 
-class Romo(ngym.Env):
+class Romo(ngym.EpochEnv):
     def __init__(self, dt=100, timing=(750, 500, 2700, 3300, 500, 500)):
         # call ngm __init__ function
         super().__init__(dt=dt)
@@ -83,17 +83,12 @@ class Romo(ngym.Env):
 
         delay = tasktools.uniform(self.rng, self.dt, self.delay_min,
                                   self.delay_max)
-        self.tmax = self.fixation + self.f1 + delay + self.f2 + self.decision
-        durations = {
-            'fixation':   (0, self.fixation),
-            'f1':         (self.fixation, self.fixation + self.f1),
-            'delay':      (self.fixation + self.f1,
-                           self.fixation + self.f1 + delay),
-            'f2':         (self.fixation + self.f1 + delay,
-                           self.fixation + self.f1 + delay + self.f2),
-            'decision':   (self.fixation + self.f1 + delay + self.f2,
-                           self.tmax),
-            }
+
+        self.add_epoch('fixation', self.fixation, start=0)
+        self.add_epoch('f1', self.f1, after='fixation')
+        self.add_epoch('delay', delay, after='f1')
+        self.add_epoch('f2', self.f2, after='delay')
+        self.add_epoch('decision', self.decision, after='f2', last_epoch=True)
 
         ground_truth = self.rng.choice(self.choices)
         fpair = self.rng.choice(self.fpairs)
@@ -102,7 +97,6 @@ class Romo(ngym.Env):
         else:
             f2, f1 = fpair
         return {
-            'durations': durations,
             'ground_truth': ground_truth,
             'f1': f1,
             'f2': f2
@@ -128,13 +122,13 @@ class Romo(ngym.Env):
         # observations
         obs = np.zeros((2,))
         info['gt'] = np.zeros((3,))
-        if self.in_epoch(self.t, 'fixation'):
+        if self.in_epoch('fixation'):
             info['gt'][0] = 1
             obs[0] = 1
             if self.actions[action] != 0:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch(self.t, 'decision'):
+        elif self.in_epoch('decision'):
             info['gt'][int((trial['ground_truth']/2+1.5))] = 1
             gt_sign = np.sign(trial['ground_truth'])
             action_sign = np.sign(self.actions[action])
@@ -146,10 +140,10 @@ class Romo(ngym.Env):
         else:
             info['gt'][0] = 1
 
-        if self.in_epoch(self.t, 'f1'):
+        if self.in_epoch('f1'):
             obs[1] = self.scale_p(trial['f1']) +\
                 self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
-        elif self.in_epoch(self.t, 'f2'):
+        elif self.in_epoch('f2'):
             obs[1] = self.scale_p(trial['f2']) +\
                 self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
 
@@ -159,17 +153,5 @@ class Romo(ngym.Env):
                                                         self.dt,
                                                         info['new_trial'],
                                                         self.R_MISS, reward)
-        if info['new_trial']:
-            self.t = 0
-            self.num_tr += 1
-        else:
-            self.t += self.dt
 
-        done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info
-
-    def step(self, action):
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.trial = self._new_trial()
-        return obs, reward, done, info
+        return obs, reward, False, info

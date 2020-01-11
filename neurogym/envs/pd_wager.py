@@ -23,7 +23,7 @@ from neurogym.ops import tasktools
 import neurogym as ngym
 
 
-class PDWager(ngym.Env):
+class PDWager(ngym.EpochEnv):
     def __init__(self, dt=100, timing=(750, 100, 180, 800, 1200, 1350,
                                        1800, 500, 575, 750, 500)):
         # call ngm __init__ function
@@ -70,11 +70,6 @@ class PDWager(ngym.Env):
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(4, ),
                                             dtype=np.float32)
 
-        self.seed()
-        self.viewer = None
-
-        self.trial = self._new_trial()
-
     def __str__(self):
         string = ''
         if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
@@ -93,13 +88,10 @@ class PDWager(ngym.Env):
         # ---------------------------------------------------------------------
         # Wager or no wager?
         # ---------------------------------------------------------------------
-
         wager = self.rng.choice(self.wagers)
-
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-
         stimulus = self.stimulus_min +\
             tasktools.trunc_exp(self.rng, self.dt,
                                             self.stimulus_mean,
@@ -109,26 +101,20 @@ class PDWager(ngym.Env):
                                                 self.delay_mean,
                                                 xmin=self.delay_min,
                                                 xmax=self.delay_max)
-        # maximum duration of current trial
-        self.tmax = self.fixation + stimulus + delay + self.decision
-        if wager:
-            sure_onset =\
-                tasktools.trunc_exp(self.rng, self.dt,
-                                                self.sure_mean,
-                                                xmin=self.sure_min,
-                                                xmax=self.sure_max)
 
-        durations = {
-            'fixation':  (0, self.fixation),
-            'stimulus':  (self.fixation, self.fixation + stimulus),
-            'delay':     (self.fixation + stimulus,
-                          self.fixation + stimulus + delay),
-            'decision':  (self.fixation + stimulus + delay,
-                          self.tmax),
-            }
+        self.add_epoch('fixation', self.fixation, start=0)
+        self.add_epoch('stimulus', stimulus, after='fixation')
+        self.add_epoch('delay', delay, after='stimulus')
+        self.add_epoch('decision', self.decision, after='delay', last_epoch=True)
+
         if wager:
-            durations['sure'] = (self.fixation + stimulus + sure_onset,
-                                 self.tmax)
+            sure_onset = \
+                tasktools.trunc_exp(self.rng, self.dt,
+                                    self.sure_mean,
+                                    xmin=self.sure_min,
+                                    xmax=self.sure_max)
+            self.add_epoch('pre_sure', duration=sure_onset, after='stimulus')
+            self.add_epoch('sure', duration=10000, after='pre_sure')
 
         # ---------------------------------------------------------------------
         # Trial
@@ -139,7 +125,6 @@ class PDWager(ngym.Env):
         coh = self.rng.choice(self.cohs)
 
         return {
-            'durations':  durations,
             'wager':      wager,
             'ground_truth': ground_truth,
             'coh':        coh
@@ -158,12 +143,12 @@ class PDWager(ngym.Env):
         reward = 0
         # observations
         obs = np.zeros((4,))
-        if self.in_epoch(self.t, 'fixation'):
+        if self.in_epoch('fixation'):
             obs[0] = 1
             if self.actions[action] != 0:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch(self.t, 'decision'):
+        elif self.in_epoch('decision'):
             if self.actions[action] == 2:
                 if trial['wager']:
                     reward = self.R_SURE
@@ -178,16 +163,16 @@ class PDWager(ngym.Env):
                     reward = self.R_FAIL
             info['new_trial'] = self.actions[action] != 0
 
-        if self.in_epoch(self.t, 'delay'):
+        if self.in_epoch('delay'):
             obs[0] = 1
-        elif self.in_epoch(self.t, 'stimulus'):
+        elif self.in_epoch('stimulus'):
             high = (trial['ground_truth'] > 0) + 1
             low = (trial['ground_truth'] < 0) + 1
             obs[high] = self.scale(+trial['coh']) +\
                 self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
             obs[low] = self.scale(-trial['coh']) +\
                 self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
-        if trial['wager'] and self.in_epoch(self.t, 'sure'):
+        if trial['wager'] and self.in_epoch('sure'):
             obs[3] = 1
 
         # ---------------------------------------------------------------------
@@ -197,17 +182,4 @@ class PDWager(ngym.Env):
                                                         info['new_trial'],
                                                         self.R_MISS, reward)
 
-        if info['new_trial']:
-            self.t = 0
-            self.num_tr += 1
-        else:
-            self.t += self.dt
-
-        done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info
-
-    def step(self, action):
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.trial = self._new_trial()
-        return obs, reward, done, info
+        return obs, reward, False, info

@@ -21,7 +21,7 @@ import neurogym as ngym
 from gym import spaces
 
 
-class DPA(ngym.Env):
+class DPA(ngym.EpochEnv):
     def __init__(self, dt=100,
                  timing=(100, 200, 600, 600, 200, 100, 100)):
         # call ngm __init__ function
@@ -59,9 +59,6 @@ class DPA(ngym.Env):
         self.seed()
         self.viewer = None
 
-        # start new trial
-        self.trial = self._new_trial()
-
     def __str__(self):
         string = ''
         if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
@@ -80,23 +77,13 @@ class DPA(ngym.Env):
 
         delay = tasktools.uniform(self.rng, self.dt, self.delay_min,
                                   self.delay_max)
-        # maximum duration of current trial
-        self.tmax = self.fixation + self.dpa1 + delay + self.dpa2 +\
-            self.resp_delay + self.decision
 
-        durations = {
-            'fixation':   (0, self.fixation),
-            'dpa1':         (self.fixation, self.fixation + self.dpa1),
-            'delay':      (self.fixation + self.dpa1,
-                           self.fixation + self.dpa1 + delay),
-            'dpa2':         (self.fixation + self.dpa1 + delay,
-                             self.fixation + self.dpa1 + delay + self.dpa2),
-            'resp_delay': (self.fixation + self.dpa1 + delay + self.dpa2,
-                           self.fixation + self.dpa1 + delay + self.dpa2 +
-                           self.resp_delay),
-            'decision':   (self.fixation + self.dpa1 + delay + self.dpa2 +
-                           self.resp_delay, self.tmax),
-            }
+        self.add_epoch('fixation', duration=self.fixation, start=0)
+        self.add_epoch('dpa1', duration=self.dpa1, after='fixation')
+        self.add_epoch('delay', duration=delay, after='dpa1')
+        self.add_epoch('dpa2', duration=self.dpa1, after='delay')
+        self.add_epoch('resp_delay', duration=self.resp_delay, after='dpa2')
+        self.add_epoch('decision', duration=self.decision, after='resp_delay', last_epoch=True)
 
         pair = self.rng.choice(self.dpa_pairs)
 
@@ -106,14 +93,12 @@ class DPA(ngym.Env):
             ground_truth = -1
 
         return {
-            'durations': durations,
             'ground_truth':     ground_truth,
             'pair':     pair
             }
 
     def _step(self, action):
         trial = self.trial
-
         # ---------------------------------------------------------------------
         # Reward and inputs
         # ---------------------------------------------------------------------
@@ -122,13 +107,13 @@ class DPA(ngym.Env):
         info['gt'] = np.zeros((2,))
         reward = 0
         obs = np.zeros((5,))
-        if self.in_epoch(self.t, 'fixation'):
+        if self.in_epoch('fixation'):
             info['gt'][0] = 1
             obs[0] = 1  # TODO: fixation cue only during fixation period?
             if self.actions[action] != -1:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch(self.t, 'decision'):
+        elif self.in_epoch('decision'):
             info['gt'][int((trial['ground_truth']/2+.5))] = 1
             gt_sign = np.sign(trial['ground_truth'])
             action_sign = np.sign(self.actions[action])
@@ -141,10 +126,10 @@ class DPA(ngym.Env):
         else:
             info['gt'][0] = 1
 
-        if self.in_epoch(self.t, 'dpa1'):
+        if self.in_epoch('dpa1'):
             dpa1, _ = trial['pair']
             obs[dpa1] = 1
-        if self.in_epoch(self.t, 'dpa2'):
+        if self.in_epoch('dpa2'):
             _, dpa2 = trial['pair']
             obs[dpa2] = 1
         # ---------------------------------------------------------------------

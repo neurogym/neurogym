@@ -22,7 +22,7 @@ from neurogym.ops import tasktools
 import neurogym as ngym
 
 
-class GNG(ngym.Env):
+class GNG(ngym.EpochEnv):
     def __init__(self, dt=100, timing=(100, 200, 200, 200, 100, 100),
                  **kwargs):
         super().__init__(dt=dt)
@@ -56,7 +56,6 @@ class GNG(ngym.Env):
         # seeding
         self.seed()
         self.viewer = None
-        self.trial = self._new_trial()
 
     def __str__(self):
         string = ''
@@ -73,29 +72,20 @@ class GNG(ngym.Env):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-
         stimulus = tasktools.trunc_exp(self.rng, self.dt,
                                                    self.stimulus_mean,
                                                    xmin=self.stimulus_min,
                                                    xmax=self.stimulus_max)
-        # maximum duration of current trial
-        self.tmax = self.fixation + stimulus + self.resp_delay + self.decision
-        durations = {
-            'fixation':  (0, self.fixation),
-            'stimulus':  (self.fixation, self.fixation + stimulus),
-            'resp_delay':  (self.fixation + stimulus,
-                            self.fixation + stimulus + self.resp_delay),
-            'decision':  (self.fixation + stimulus + self.resp_delay,
-                          self.tmax),
-            }
-
+        self.add_epoch('fixation', self.fixation, start=0)
+        self.add_epoch('stimulus', stimulus, after='fixation')
+        self.add_epoch('resp_delay', self.resp_delay, after='stimulus')
+        self.add_epoch('decision', self.decision, after='resp_delay', last_epoch=True)
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
         ground_truth = self.rng.choice(self.choices)
 
         return {
-            'durations':   durations,
             'ground_truth':  ground_truth,
             }
 
@@ -112,13 +102,13 @@ class GNG(ngym.Env):
         info['gt'] = np.zeros((2,))
         reward = 0
         obs = np.zeros((3,))
-        if self.in_epoch(self.t, 'fixation'):
+        if self.in_epoch('fixation'):
             info['gt'][0] = 1
             obs[0] = 1  # fixation cue only during fixation period
             if self.actions[action] != -1:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch(self.t, 'decision'):
+        elif self.in_epoch('decision'):
             info['gt'][int((trial['ground_truth']/2+.5))] = 1
             gt_sign = np.sign(trial['ground_truth'])
             action_sign = np.sign(self.actions[action])
@@ -131,7 +121,7 @@ class GNG(ngym.Env):
         else:
             info['gt'][0] = 1
 
-        if self.in_epoch(self.t, 'stimulus'):
+        if self.in_epoch('stimulus'):
             # observation
             stim = (trial['ground_truth'] > 0) + 1
             obs[stim] = 1
@@ -142,17 +132,5 @@ class GNG(ngym.Env):
                                                         self.dt,
                                                         info['new_trial'],
                                                         self.R_MISS, reward)
-        if info['new_trial']:
-            self.t = 0
-            self.num_tr += 1
-        else:
-            self.t += self.dt
 
-        done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info
-
-    def step(self, action):
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.trial = self._new_trial()
-        return obs, reward, done, info
+        return obs, reward, False, info
