@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Mar  7 11:46:43 2019
+"""Test environments"""
 
-@author: gryang
-"""
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -22,6 +20,26 @@ def test_run(env_name):
         state, rew, done, info = env.step(action)  # env.action_space.sample())
         if done:
             env.reset()
+    return env
+
+
+def test_speed(env_name):
+    """Test if all one environment can at least be run."""
+    n_steps = 100000
+    kwargs = {'dt': 100}
+
+    total_time = 0
+    env = gym.make(env_name, **kwargs)
+    env.reset()
+    for stp in range(n_steps):
+        action = env.action_space.sample()
+        start_time = time.time()
+        state, rew, done, info = env.step(action)  # env.action_space.sample())
+        total_time += time.time() - start_time
+        if done:
+            env.reset()
+
+    print('Time per step {:0.3f}us'.format(total_time/n_steps*1e6))
     return env
 
 
@@ -45,29 +63,31 @@ def test_run_all():
 
 
 def test_plot(env_name):
-    kwargs = {'dt': 100}
+    kwargs = {'dt': 13}
     env = gym.make(env_name, **kwargs)
 
     env.reset()
     observations = []
     for stp in range(200):
-        if np.mod(stp, 2) == 0:
-            action = 0
-        else:
-            action = 0
-        state, rew, done, info = env.step(action)  # env.action_space.sample())
-        observations.append(state)
+        action = env.action_space.sample()
+        obs, rew, done, info = env.step(action)
+        print(obs.shape)
+        observations.append(obs)
 
         # print(state)
         # print(info)
         # print(rew)
         # print(info)
-    obs = np.array(observations)
+    observations = np.array(observations)
     plt.figure()
-    plt.imshow(obs.T, aspect='auto')
+    plt.imshow(observations.T, aspect='auto')
     plt.show()
 
 
 if __name__ == '__main__':
     # test_run_all()
-    test_plot('DelayedMatchCategory-v0')
+    # env_name = 'RDM-v1'
+    # env_name = 'DelayedMatchCategory-v0'
+    env_name = 'MemoryRecall-v0'
+    test_plot(env_name)
+    # test_speed(env_name)
