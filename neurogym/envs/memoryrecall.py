@@ -90,7 +90,7 @@ class MemoryRecall(ngym.Env):
             string += name +' : ' + str(getattr(self, key)) + '\n'
         return string
 
-    def new_trial(self):
+    def _new_trial(self):
         stim_dim = self.stim_dim
 
         T = self.generate_T()
@@ -143,8 +143,6 @@ class MemoryRecall(ngym.Env):
         # Reward and observations
         # ---------------------------------------------------------------------
         ind = int(self.t / self.dt)
-        print(self.tmax)
-        print(self.t)
         obs = self.obs[ind, :]
         gt = self.gt[ind]
         reward = np.mean(abs(gt - action)) * self.mask[ind]
@@ -152,14 +150,6 @@ class MemoryRecall(ngym.Env):
         # new trial?
         new_trial = self.t >= self.tmax - self.dt
 
-        self.t += self.dt
-
         done = False
 
         return obs, reward, done, {'new_trial': new_trial, 'gt': gt}
-
-    def step(self, action):
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.new_trial()
-        return obs, reward, done, info

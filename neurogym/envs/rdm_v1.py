@@ -70,7 +70,7 @@ class RDM(ngym.EpochEnv):
         string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
         return string
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         """
         new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:
@@ -112,8 +112,7 @@ class RDM(ngym.EpochEnv):
 
         self.obs[self.stimulus_ind0:self.stimulus_ind1] += np.random.randn(
             *self.obs[self.stimulus_ind0:self.stimulus_ind1].shape) * self.sigma_dt
-        self.t = 0
-        self.num_tr += 1
+
         # self.gt = np.zeros((len(t),), dtype=np.int)
         # self.gt[decision_period] = self.ground_truth
 
@@ -127,9 +126,6 @@ class RDM(ngym.EpochEnv):
                 ground truth correct response, info['gt']
                 boolean indicating the end of the trial, info['new_trial']
         """
-        if self.num_tr == 0:
-            # start first trial
-            self.new_trial()
         # ---------------------------------------------------------------------
         # Reward and observations
         # ---------------------------------------------------------------------
@@ -160,29 +156,9 @@ class RDM(ngym.EpochEnv):
         reward, new_trial = tasktools.new_trial(self.t, self.tmax,
                                                 self.dt, new_trial,
                                                 self.R_MISS, reward)
-        self.t += self.dt
 
-        done = self.num_tr > self.num_tr_exp
+        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
-        return obs, reward, done, {'new_trial': new_trial, 'gt': gt}
-
-    def step(self, action):
-        """
-        step receives an action and returns:
-            a new observation, obs
-            reward associated with the action, reward
-            a boolean variable indicating whether the experiment has end, done
-            a dictionary with extra information:
-                ground truth correct response, info['gt']
-                boolean indicating the end of the trial, info['new_trial']
-        Note that the main computations are done by the function _step(action),
-        and the extra lines are basically checking whether to call the
-        new_trial() function in order to start a new trial
-        """
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.new_trial()
-        return obs, reward, done, info
 
 
 if __name__ == '__main__':
