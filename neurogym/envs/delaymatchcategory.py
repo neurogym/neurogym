@@ -57,7 +57,7 @@ class DelayedMatchCategory(ngym.EpochEnv):
         string += 'max num. steps: ' + str(self.mean_trial_duration / self.dt)
         return string
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         """
         new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:

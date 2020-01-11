@@ -63,9 +63,6 @@ class GenTask(ngym.EpochEnv):
         self.action_space = spaces.Discrete(3-self.gng)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
-        # seeding
-        self.seed()
-        self.viewer = None
 
     def __str__(self):
         string = ''
@@ -85,7 +82,7 @@ class GenTask(ngym.EpochEnv):
         string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
         return string
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         """
         new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:
@@ -136,56 +133,35 @@ class GenTask(ngym.EpochEnv):
                                                     self.timing[key][2])
         if self.sim_stim:
             durs['delay_btw_stim'] = 0
-        # trial duration
-        self.tmax = np.sum([durs[key] for key in durs.keys()])
-        if not self.sim_stim:
-            self.tmax += durs['stimulus']
-        self.pers = {}
-        per_times = {}
-        periods = ['fixation', 'stim_1', 'delay_btw_stim', 'stim_2',
-                   'delay_aft_stim', 'decision']
-        t = np.arange(0, self.tmax, self.dt)
-        cum = 0
-        for key in periods:
-            cum_aux = 0
-            if key != 'stim_1' and key != 'stim_2':
-                cum_aux = durs[key]
-            if key == 'fixation':
-                self.pers[key] = [cum, cum + durs[key]]
-            elif key == 'stim_1':
-                per_times[key] = np.logical_and(t >= cum,
-                                                t < cum + durs['stimulus'])
-                if not self.sim_stim:
-                    cum_aux = durs['stimulus']
-            elif key == 'stim_2':
-                cum_aux = durs['stimulus']
-                per_times[key] = np.logical_and(t >= cum, t < cum + cum_aux)
-            elif key == 'decision':
-                self.pers[key] = [cum, cum + durs[key]]
-                per_times[key] = np.logical_and(t >= cum, t < cum + cum_aux)
-            cum += cum_aux
 
-        n_stim = int(durs['stimulus']/self.dt)
+        self.add_epoch('fixation', durs['fixation'], start=0)
+        self.add_epoch('stim1', durs['stimulus'], after='fixation')
+        self.add_epoch('delay_btw_stim', durs['delay_btw_stim'], after='stim1')
+        self.add_epoch('stim2', durs['stimulus'], after='delay_btw_stim')
+        self.add_epoch('delay_aft_stim', durs['delay_aft_stim'], after='stim2')
+        self.add_epoch('decision', durs['decision'], after='delay_aft_stim', last_epoch=True)
 
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-        # observations
-        obs = np.zeros((len(t), 3))
-        # fixation cue is always on except in decision period
-        obs[~per_times['decision'], 0] = 1
-        # correct stimulus
-        obs[per_times['stim_' + str((gt+self.gng))],
-            (gt+self.gng)] = (1 + coh/100)/2
-        obs[per_times['stim_' + str((gt+self.gng))],
-            (gt+self.gng)] += np.random.randn(n_stim) * sigma_dt
-        # incorrect stimulus
-        obs[per_times['stim_' + str(3-(gt+self.gng))],
-            3-(gt+self.gng)] = (1 - coh/100)/2
-        obs[per_times['stim_' + str(3-(gt+self.gng))],
-            3-(gt+self.gng)] += np.random.randn(n_stim) * sigma_dt
+        # TODO: This is converted from previous code, but it doesn't look right
+        self.set_ob('fixation', [1, 0, 0])
+        high, low = gt+self.gng, 3-(gt+self.gng)
+        tmp = [1, 0, 0]
+        tmp[high] = (1 + coh/100)/2
+        self.set_ob('stim' + str(high), tmp)
+        tmp = [1, 0, 0]
+        tmp[low] = (1 - coh/100)/2
+        self.set_ob('stim' + str(low), tmp)
+        self.set_ob('delay_btw_stim', [1, 0, 0])
+        self.set_ob('delay_aft_stim', [1, 0, 0])
+        self.set_ob('decision', [0, 0, 0])
 
-        self.obs = obs
+        # TODO: Not happy about having to do this ugly thing
+        self.obs[self.stim1_ind0:self.stim1_ind1, 1:] += np.random.randn(
+            self.stim1_ind1-self.stim1_ind0, 2) * sigma_dt
+        self.obs[self.stim2_ind0:self.stim2_ind1, 1:] += np.random.randn(
+            self.stim2_ind1 - self.stim2_ind0, 2) * sigma_dt
 
         self.first_flag = False
 
@@ -208,12 +184,12 @@ class GenTask(ngym.EpochEnv):
         # observations
         gt = np.zeros((3-self.gng,))
         first_trial = np.nan
-        if self.pers['fixation'][0] <= self.t < self.pers['fixation'][1]:
+        if self.in_epoch('fixation'):
             gt[0] = 1
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.pers['decision'][0] <= self.t < self.pers['decision'][1]:
+        elif self.in_epoch('decision'):
             gt[self.gt] = 1
             if action != 0:
                 if action == self.gt:
