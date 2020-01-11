@@ -25,7 +25,7 @@ from gym import spaces
 import matplotlib.pyplot as plt
 
 
-class nalt_RDM(ngym.Env):
+class nalt_RDM(ngym.EpochEnv):
     def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500), stimEv=1.,
                  n_ch=3, **kwargs):
         super().__init__(dt=dt)
@@ -83,7 +83,7 @@ class nalt_RDM(ngym.Env):
         string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
         return string
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         """
         new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:
@@ -110,13 +110,9 @@ class nalt_RDM(ngym.Env):
             decision = self.decision
 
         # maximum length of current trial
-        self.tmax = fixation + stimulus + decision
-        self.fixation_0 = 0
-        self.fixation_1 = fixation
-        self.stimulus_0 = fixation
-        self.stimulus_1 = fixation + stimulus
-        self.decision_0 = fixation + stimulus
-        self.decision_1 = fixation + stimulus + decision
+        self.add_epoch('fixation', duration=fixation, start=0)
+        self.add_epoch('stimulus', duration=stimulus, after='fixation')
+        self.add_epoch('decision', duration=decision, after='stimulus', last_epoch=True)
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
@@ -131,23 +127,15 @@ class nalt_RDM(ngym.Env):
 
         self.ground_truth = ground_truth
         self.coh = coh
-        t = np.arange(0, self.tmax, self.dt)
-        obs = np.zeros((len(t), self.n+1))
 
-        fixation_period = np.logical_and(t >= self.fixation_0,
-                                         t < self.fixation_1)
-        stimulus_period = np.logical_and(t >= self.stimulus_0,
-                                         t < self.stimulus_1)
-        obs[fixation_period, 0] = 1
-        n_stim = int(stimulus/self.dt)
-        obs[stimulus_period, 0] = 1
-        obs[stimulus_period, 1:] = (1 - coh/100)/2
-        obs[stimulus_period, ground_truth] = (1 + coh/100)/2
-        obs[stimulus_period, 1:] +=\
-            np.random.randn(n_stim, self.n) * self.sigma_dt
-        self.obs = obs
-        self.t = 0
-        self.num_tr += 1
+        self.set_ob('fixation', [1] + [0]*self.n)
+        stimulus_value = np.zeros(self.n+1)
+        stimulus_value[0] = 1
+        stimulus_value[1:] = (1 - coh/100)/2
+        stimulus_value[ground_truth] = (1 + coh/100)/2
+        self.set_ob('stimulus', stimulus_value)
+        self.obs[self.stimulus_ind0:self.stimulus_ind1, 1:] +=\
+            np.random.randn(self.stimulus_ind1-self.stimulus_ind0, self.n) * self.sigma_dt
 
     def _step(self, action, **kwargs):
         """
@@ -159,9 +147,6 @@ class nalt_RDM(ngym.Env):
                 ground truth correct response, info['gt']
                 boolean indicating the end of the trial, info['new_trial']
         """
-        if self.num_tr == 0:
-            # start first trial
-            self.new_trial()
         # ---------------------------------------------------------------------
         # Reward and observations
         # ---------------------------------------------------------------------
@@ -170,12 +155,12 @@ class nalt_RDM(ngym.Env):
         reward = 0
         # observations
         gt = np.zeros((self.n+1,))
-        if self.fixation_0 <= self.t < self.fixation_1:
+        if self.in_epoch('fixation', self.t):
             gt[0] = 1
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.decision_0 <= self.t < self.decision_1:
+        elif self.in_epoch('decision', self.t):
             gt[self.ground_truth] = 1
             if self.ground_truth == action:
                 reward = self.R_CORRECT
@@ -191,29 +176,9 @@ class nalt_RDM(ngym.Env):
         reward, new_trial = tasktools.new_trial(self.t, self.tmax,
                                                 self.dt, new_trial,
                                                 self.R_MISS, reward)
-        self.t += self.dt
 
-        done = self.num_tr > self.num_tr_exp
+        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
-        return obs, reward, done, {'new_trial': new_trial, 'gt': gt}
-
-    def step(self, action):
-        """
-        step receives an action and returns:
-            a new observation, obs
-            reward associated with the action, reward
-            a boolean variable indicating whether the experiment has end, done
-            a dictionary with extra information:
-                ground truth correct response, info['gt']
-                boolean indicating the end of the trial, info['new_trial']
-        Note that the main computations are done by the function _step(action),
-        and the extra lines are basically checking whether to call the
-        new_trial() function in order to start a new trial
-        """
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.new_trial()
-        return obs, reward, done, info
 
 
 if __name__ == '__main__':
