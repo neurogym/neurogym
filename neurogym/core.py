@@ -32,11 +32,9 @@ class Env(BaseEnv):
     def __init__(self, dt=100, num_trials_before_reset=10000000):
         super().__init__()
         self.dt = dt
-        self.t = 0
+        self.t = self.t_ind = 0
         self.tmax = 10000  # maximum time steps
         self.num_tr = 0
-        self.perf = 0
-        self.num_tr_perf = 0
         self.num_tr_exp = num_trials_before_reset
         self.seed()
 
@@ -62,6 +60,7 @@ class Env(BaseEnv):
         obs, reward, done, info = self._step(action)
 
         self.t += self.dt  # increment within trial time count
+        self.t_ind += 1
 
         if self.t >= self.tmax - self.dt:
             info['new_trial'] = True
@@ -73,7 +72,7 @@ class Env(BaseEnv):
 
     def new_trial(self):
         """Public interface for starting a new trial."""
-        self.t = 0  # Reset within trial time count
+        self.t = self.t_ind = 0  # Reset within trial time count
         self.num_tr += 1  # Increment trial count
         return self._new_trial()  # Run user defined _new_trial method
 
@@ -81,12 +80,10 @@ class Env(BaseEnv):
         """
         restarts the experiment with the same parameters
         """
-        self.perf = 0
-        self.num_tr_perf = 0
         self.num_tr = 0
-        self.t = 0
+        self.t = self.t_ind = 0
 
-        # TODO: Not sure which one to use, _new_trial or new_trials
+        # TODO: Check this works with wrapper
         self.trial = self.new_trial()
         obs, _, _, _ = self.step(self.action_space.sample())
         return obs
