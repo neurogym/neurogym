@@ -7,28 +7,71 @@ import numpy as np
 import gym
 
 
-class Env(gym.Env):
-    """The main Neurogym class specifying the basic structure of all tasks"""
+class BaseEnv(gym.Env):
+    """The base Neurogym class to include dt"""
 
     def __init__(self, dt=100):
+        super(BaseEnv, self).__init__()
+        self.dt = dt
+        self.seed()
+
+    # Auxiliary functions
+    def seed(self, seed=None):
+        self.rng = random
+        self.rng.seed(seed)
+        return [seed]
+
+    def reset(self):
+        """Do nothing. Run one step"""
+        return self.step(self.action_space.sample())
+
+
+class Env(BaseEnv):
+    """The main Neurogym class for trial-based tasks."""
+
+    def __init__(self, dt=100, num_trials_before_reset=10000000):
         super().__init__()
         self.dt = dt
         self.t = 0
         self.num_tr = 0
         self.perf = 0
         self.num_tr_perf = 0
-        # TODO: make this a parameter
-        self.num_tr_exp = 10000000  # num trials after which done = True
+        self.num_tr_exp = num_trials_before_reset
         self.seed()
 
-    def step(self, action):
-        """
-        receives an action and returns a new state, a reward, a flag variable
+    def _step(self, action):
+        """Private interface for the environment.
+
+        Receives an action and returns a new state, a reward, a flag variable
         indicating whether the experiment has ended and a dictionary with
-        useful information (info). Aditionally, if the current trial is done
-        (info['new_trial']==True) it calls the function _new_trial.
+        useful information
         """
-        return None, None, None, None
+        raise NotImplementedError('_step is not defined by user.')
+
+    def _new_trial(self):
+        """Private interface for starting a new trial.
+
+        Returns:
+            trial_info: a dictionary of trial information
+        """
+        raise NotImplementedError('_new_trial is not defined by user.')
+
+    def step(self, action):
+        """Public interface for the environment."""
+        obs, reward, done, info = self._step(action)
+
+        self.t += self.dt  # increment within trial time count
+
+        # TODO: Handle the case when new_trial is not provided in info
+        if info['new_trial']:
+            self.new_trial()
+        return obs, reward, done, info
+
+    def new_trial(self):
+        """Public interface for starting a new trial."""
+        self.t = 0  # Reset within trial time count
+        self.num_tr += 1  # Increment trial count
+        self._new_trial()  # Run user defined _new_trial method
 
     def reset(self):
         """
@@ -49,34 +92,6 @@ class Env(gym.Env):
         plots relevant variables/parameters
         """
         pass
-
-    # Auxiliary functions
-    def seed(self, seed=None):
-        self.rng = random
-        self.rng.seed(seed)
-        return [seed]
-
-    def _step(self, action):
-        """
-        receives an action and returns a new state, a reward, a flag variable
-        indicating whether the experiment has ended and a dictionary with
-        useful information
-        """
-        raise NotImplementedError('_step is not defined.')
-
-    def new_trial(self):
-        """Starts a new trial within the current experiment.
-
-        Returns:
-            trial_info: a dictionary of trial information
-        """
-        raise NotImplementedError('new_trial is not defined.')
-
-    def in_epoch(self, t, epoch):
-        """Check if t is in epoch."""
-        dur = self.trial['durations']
-        return (dur[epoch][0] <= t < dur[epoch][1])
-
 
 
 class EpochEnv(Env):
