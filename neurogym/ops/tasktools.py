@@ -85,6 +85,8 @@ def new_trial(t, tmax, dt, new_trial, miss, reward):
         reward = miss
         new_trial = True
 
+    print('Warning: this function is obsolete and should not be used')
+
     return reward, new_trial
 
 
