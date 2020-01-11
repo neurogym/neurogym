@@ -18,11 +18,10 @@ Perceptual decision-making task, based on
 
 """
 
-import neurogym as ngym
-from neurogym.ops import tasktools
 import numpy as np
 from gym import spaces
-import matplotlib.pyplot as plt
+import neurogym as ngym
+from neurogym.ops import tasktools
 
 
 class nalt_RDM(ngym.EpochEnv):
@@ -102,7 +101,6 @@ class nalt_RDM(ngym.EpochEnv):
                                            self.stimulus_mean,
                                            xmin=self.stimulus_min,
                                            xmax=self.stimulus_max)
-            # fixation = self.rng.uniform(self.fixation_min, self.fixation_max)
             fixation = self.fixation
             decision = self.decision
 
@@ -126,9 +124,7 @@ class nalt_RDM(ngym.EpochEnv):
         self.coh = coh
 
         self.set_ob('fixation', [1] + [0]*self.n)
-        stimulus_value = np.zeros(self.n+1)
-        stimulus_value[0] = 1
-        stimulus_value[1:] = (1 - coh/100)/2
+        stimulus_value = [1] + [(1 - coh/100)/2] * self.n
         stimulus_value[ground_truth] = (1 + coh/100)/2
         self.set_ob('stimulus', stimulus_value)
         self.obs[self.stimulus_ind0:self.stimulus_ind1, 1:] +=\
@@ -166,13 +162,14 @@ class nalt_RDM(ngym.EpochEnv):
             new_trial = action != 0
         else:
             gt[0] = 1
-        obs = self.obs[int(self.t/self.dt), :]
+        obs = self.obs[self.t_ind, :]
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
 
 if __name__ == '__main__':
+    import matplotlib.pyplot as plt
     env = nalt_RDM(timing=[100, 200, 200, 200, 100])
     observations = []
     rewards = []

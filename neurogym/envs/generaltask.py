@@ -203,7 +203,7 @@ class GenTask(ngym.EpochEnv):
                     self.first_flag = True
         else:
             gt[0] = 1
-        obs = self.obs[int(self.t/self.dt), :]
+        obs = self.obs[self.t_ind, :]
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt,
                                    'first_trial': first_trial}
