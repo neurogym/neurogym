@@ -139,7 +139,7 @@ class RDM(ngym.EpochEnv):
                 new_trial = self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch('decision'):
-            if action !== 0:
+            if action != 0:
                 new_trial = True
                 if action == gt:
                     reward = self.R_CORRECT

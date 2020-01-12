@@ -101,16 +101,18 @@ class PadoaSch(ngym.EpochEnv):
                                      self.offer_on_max)
 
         self.add_epoch('fixation', self.fixation, start=0)
-        self.add_epoch('offer-on', offer_on, after='fixation')
-        self.add_epoch('decision', self.decision, after='offer-on', last_epoch=True)
+        self.add_epoch('offer_on', offer_on, after='fixation')
+        self.add_epoch('decision', self.decision, after='offer_on', last_epoch=True)
 
         # ---------------------------------------------------------------------
         # Inputs
         # ---------------------------------------------------------------------
         self.set_ob('fixation', [1]+[0]*6)
         tmp = [1]+[0]*6
-        tmp[[self.inputs['L-'+juiceL], self.inputs['R-'+juiceR]]] = 1
-        tmp[[self.inputs['N-L'], self.inputs['N-R']]] = [self.scale(nL), self.scale(nR)]
+        tmp[self.inputs['L-'+juiceL]] = 1
+        tmp[self.inputs['R-'+juiceR]] = 1
+        tmp[self.inputs['N-L']] = self.scale(nL)
+        tmp[self.inputs['N-R']] = self.scale(nR)
         self.set_ob('offer_on', tmp)
         self.obs[self.offer_on_ind0:self.offer_on_ind1, [self.inputs['N-L'], self.inputs['N-R']]] += \
         np.random.randn(self.offer_on_ind1-self.offer_on_ind0, 2) * (self.sigma/np.sqrt(self.dt))
@@ -130,7 +132,7 @@ class PadoaSch(ngym.EpochEnv):
         obs = self.obs[self.t_ind]
 
         reward = 0
-        if self.in_epoch('fixation') or self.in_epoch('offer-on'):
+        if self.in_epoch('fixation') or self.in_epoch('offer_on'):
             if action != self.actions['FIXATE']:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED

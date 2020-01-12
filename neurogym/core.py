@@ -143,7 +143,7 @@ class EpochEnv(Env):
         self.obs = np.zeros(ob_shape)
 
         # TODO: Allow ground truth to be category or full action
-        self.gt = np.zeros(tmax_ind)  # ground truth action
+        self.gt = np.zeros(tmax_ind, dtype=np.int)  # ground truth action, default 0
 
     def set_ob(self, epoch, value):
         """Set observation in epoch to value.
