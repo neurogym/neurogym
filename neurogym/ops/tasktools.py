@@ -3,6 +3,7 @@ from __future__ import division
 from collections import OrderedDict
 import matplotlib.pyplot as plt
 import numpy as np
+import random
 
 
 def to_map(*args):
@@ -54,6 +55,30 @@ def trunc_exp(rng, dt, mean, xmin=0, xmax=np.inf):
             if xmin <= x < xmax:
                 return (x//dt)*dt
 
+def trunc_exp_new(mean, xmin=0, xmax=np.inf):
+    """
+    function for generating epoch durations that are multiples of the time step
+    """
+    if xmin >= xmax:  # the > is to avoid issues when making xmin as big as dt
+        return xmax
+    else:
+        while True:
+            x = random.expovariate(1/mean)
+            if xmin <= x < xmax:
+                return x
+
+
+def random_number_fn(dist, *args):
+    """Return a random number generating function from a distribution."""
+    if dist == 'uniform':
+        return lambda : np.random.uniform(*args)
+    elif dist == 'choice':
+        return lambda : np.random.choice(*args)
+    elif dist == 'truncated_exponential':
+        return lambda : trunc_exp_new(*args)
+    else:
+        raise ValueError('Unknown dist:', str(dist))
+
 
 def divide(x, y):
     try:
@@ -100,6 +125,7 @@ def compute_perf(perf, reward, num_tr_perf, tr_perf):
 
 def plot_struct(env, num_steps_env=200, n_stps_plt=200,
                 def_act=None, model=None, name=''):
+    # TODO: Move this somewhere else. Shouldn't be in tasktools
     observations = []
     rewards = []
     actions = []

@@ -22,11 +22,13 @@ TIMING = {'fixation': [500, 200, 800], 'stimulus': [500, 200, 800],
 
 class GenTask(ngym.EpochEnv):
     def __init__(self, dt=100, timing=None, stimEv=1., noise=0.01,
-                 simultaneous_stim=False, cohs=[0, 6.4, 12.8, 25.6, 51.2],
+                 simultaneous_stim=False, cohs=None,
                  gng=False, **kwargs):
         super().__init__(dt=dt)
         self.choices = np.array([1, 2]) - gng
         # cohs specifies the amount of evidence (which is modulated by stimEv)
+        if cohs is None:
+            cohs = [0, 6.4, 12.8, 25.6, 51.2]
         self.cohs = np.array(cohs)*stimEv
         # Input noise
         self.sigma = np.sqrt(2*100*noise)
@@ -38,6 +40,11 @@ class GenTask(ngym.EpochEnv):
                 assert key in TIMING.keys()
                 TIMING[key] = timing[key]
         self.timing = TIMING
+
+        self.timing_fn_dict = dict()
+        for key, val in TIMING.items():
+            self.timing_fn_dict[key] = tasktools.random_number_fn('truncated_exponential', *val)
+
         self.mean_trial_duration = 0
         self.max_trial_duration = 0
         for key in self.timing.keys():
@@ -111,14 +118,14 @@ class GenTask(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-
         if 'durs' not in kwargs.keys():
             durs = dict.fromkeys(TIMING.keys())
             for key in durs.keys():
-                durs[key] = tasktools.trunc_exp(self.rng, self.dt,
-                                                self.timing[key][0],
-                                                self.timing[key][1],
-                                                self.timing[key][2])
+                # durs[key] = tasktools.trunc_exp(self.rng, self.dt,
+                #                                 self.timing[key][0],
+                #                                 self.timing[key][1],
+                #                                 self.timing[key][2])
+                durs[key] = self.timing_fn_dict[key]()
         else:
             durs = kwargs['durs']
             durs_temp = dict.fromkeys(TIMING.keys())
@@ -126,10 +133,8 @@ class GenTask(ngym.EpochEnv):
                 if key in durs.keys():
                     durs_temp[key] = durs[key]
                 else:
-                    durs[key] = tasktools.trunc_exp(self.rng, self.dt,
-                                                    self.timing[key][0],
-                                                    self.timing[key][1],
-                                                    self.timing[key][2])
+                    durs[key] = self.timing_fn_dict[key]()
+
         if self.sim_stim:
             durs['delay_btw_stim'] = 0
 
