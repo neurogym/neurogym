@@ -21,9 +21,14 @@ import neurogym as ngym
 from gym import spaces
 
 
+def get_default_timing():
+    return {'fixation': ('constant', (750,)),
+            'offer_on': ('truncated_exponential', [1500, 1000, 2000]),
+            'decision': ('constant', (750,))}
+
+
 class PadoaSch(ngym.EpochEnv):
-    def __init__(self, dt=100, timing=(750, 1000, 2000, 750)):
-        # call ngm __init__ function
+    def __init__(self, dt=100, timing=None):
         super().__init__(dt=dt)
         # Inputs
         self.inputs = tasktools.to_map('FIXATION', 'L-A', 'L-B', 'R-A',
@@ -42,14 +47,10 @@ class PadoaSch(ngym.EpochEnv):
         # Input noise
         self.sigma = np.sqrt(2*100*0.001)
 
-        # Durations
-        self.fixation = timing[0]
-        self.offer_on_min = timing[1]
-        self.offer_on_max = timing[2]
-        self.offer_on_mean = (self.offer_on_min + self.offer_on_max) / 2
-        self.decision = timing[3]
-        self.mean_trial_duration = self.fixation + self.offer_on_mean +\
-            self.decision
+        default_timing = get_default_timing()
+        if timing is not None:
+            default_timing.update(timing)
+        self.set_epochtiming(default_timing)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -64,14 +65,6 @@ class PadoaSch(ngym.EpochEnv):
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(7, ),
                                             dtype=np.float32)
-
-        self.seed()
-        self.viewer = None
-
-    def __str__(self):
-        string = 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
-        string += 'max num. steps: ' + str(self.mean_trial_duration / self.dt)
-        return string
 
     # Input scaling
     def scale(self, x):
@@ -96,13 +89,9 @@ class PadoaSch(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-
-        offer_on = tasktools.uniform(self.rng, self.dt, self.offer_on_min,
-                                     self.offer_on_max)
-
-        self.add_epoch('fixation', self.fixation, after=0)
-        self.add_epoch('offer_on', offer_on, after='fixation')
-        self.add_epoch('decision', self.decision, after='offer_on', last_epoch=True)
+        self.add_epoch('fixation', after=0)
+        self.add_epoch('offer_on', after='fixation')
+        self.add_epoch('decision', after='offer_on', last_epoch=True)
 
         # ---------------------------------------------------------------------
         # Inputs
@@ -118,10 +107,10 @@ class PadoaSch(ngym.EpochEnv):
         np.random.randn(self.offer_on_ind1-self.offer_on_ind0, 2) * (self.sigma/np.sqrt(self.dt))
 
         return {
-            'juice':     juice,
-            'offer':     offer,
-            'nL':        nL,
-            'nR':        nR
+            'juice': juice,
+            'offer': offer,
+            'nL': nL,
+            'nR': nR
             }
 
     def _step(self, action):

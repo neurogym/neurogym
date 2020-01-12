@@ -23,10 +23,16 @@ from neurogym.ops import tasktools
 import neurogym as ngym
 
 
+def get_default_timing():
+    return {'fixation': ('constant', (750,)),
+            'stimulus': ('truncated_exponential', [180, 100, 800]),
+            'delay': ('truncated_exponential', [1350, 1200, 1800]),
+            'pre_sure': ('truncated_exponential', [575, 500, 750]),
+            'decision': ('constant', (500,))}
+
+
 class PDWager(ngym.EpochEnv):
-    def __init__(self, dt=100, timing=(750, 100, 180, 800, 1200, 1350,
-                                       1800, 500, 575, 750, 500)):
-        # call ngm __init__ function
+    def __init__(self, dt=100, timing=None):
         super().__init__(dt=dt)
 #        # Actions
 #        self.actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT',
@@ -41,21 +47,10 @@ class PDWager(ngym.EpochEnv):
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
 
-        # TODO: this is terrible looking, need change
-        # Durations
-        self.fixation = timing[0]  # 750
-        self.stimulus_min = timing[1]  # 100
-        self.stimulus_mean = timing[2]  # 180
-        self.stimulus_max = timing[3]  # 800
-        self.delay_min = timing[4]  # 1200
-        self.delay_mean = timing[5]  # 1350
-        self.delay_max = timing[6]  # 1800
-        self.sure_min = timing[7]  # 500
-        self.sure_mean = timing[8]  # 575
-        self.sure_max = timing[9]  # 750
-        self.decision = timing[10]  # 500
-        self.mean_trial_duration = self.fixation + self.stimulus_mean +\
-            self.delay_mean + self.decision
+        default_timing = get_default_timing()
+        if timing is not None:
+            default_timing.update(timing)
+        self.set_epochtiming(default_timing)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -70,16 +65,6 @@ class PDWager(ngym.EpochEnv):
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(4, ),
                                             dtype=np.float32)
 
-    def __str__(self):
-        string = ''
-        if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
-            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
-            string += 'the duration of all periods must be larger than 0\n'
-            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
-        string += 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
-        string += 'max num. steps: ' + str(self.mean_trial_duration/self.dt)
-        return string
-
     # Input scaling
     def scale(self, coh):
         return (1 + coh/100)/2
@@ -89,40 +74,19 @@ class PDWager(ngym.EpochEnv):
         # Wager or no wager?
         # ---------------------------------------------------------------------
         wager = self.rng.choice(self.wagers)
+        ground_truth = self.rng.choice(self.choices)
+        coh = self.rng.choice(self.cohs)
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        stimulus = self.stimulus_min +\
-            tasktools.trunc_exp(self.rng, self.dt,
-                                            self.stimulus_mean,
-                                            xmax=self.stimulus_max)
-
-        delay = tasktools.trunc_exp(self.rng, self.dt,
-                                                self.delay_mean,
-                                                xmin=self.delay_min,
-                                                xmax=self.delay_max)
-
-        self.add_epoch('fixation', self.fixation, after=0)
-        self.add_epoch('stimulus', stimulus, after='fixation')
-        self.add_epoch('delay', delay, after='stimulus')
-        self.add_epoch('decision', self.decision, after='delay', last_epoch=True)
+        self.add_epoch('fixation', after=0)
+        self.add_epoch('stimulus', after='fixation')
+        self.add_epoch('delay', after='stimulus')
+        self.add_epoch('decision', after='delay', last_epoch=True)
 
         if wager:
-            sure_onset = \
-                tasktools.trunc_exp(self.rng, self.dt,
-                                    self.sure_mean,
-                                    xmin=self.sure_min,
-                                    xmax=self.sure_max)
-            self.add_epoch('pre_sure', duration=sure_onset, after='stimulus')
+            self.add_epoch('pre_sure', after='stimulus')
             self.add_epoch('sure', duration=10000, after='pre_sure')
-
-        # ---------------------------------------------------------------------
-        # Trial
-        # ---------------------------------------------------------------------
-
-        ground_truth = self.rng.choice(self.choices)
-
-        coh = self.rng.choice(self.cohs)
 
         return {
             'wager':      wager,
