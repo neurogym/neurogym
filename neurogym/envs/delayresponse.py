@@ -117,7 +117,7 @@ class DR(ngym.EpochEnv):
         self.ground_truth = ground_truth
         self.coh = coh
 
-        self.add_epoch('fixation', fixation, start=0)
+        self.add_epoch('fixation', fixation, after=0)
         self.add_epoch('stimulus', stimulus, after='fixation')
         self.add_epoch('delay', delay, after='stimulus')
         self.add_epoch('decision', decision, after='delay', last_epoch=True)

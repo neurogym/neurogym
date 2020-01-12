@@ -104,28 +104,28 @@ class EpochEnv(Env):
 
         self.gt = None
 
-    def add_epoch(self, epoch, duration, start=None, before=None, after=None,
-                  last_epoch=False
-                  ):
+    def add_epoch(self, epoch, duration, before=None, after=None,
+                  last_epoch=False):
         """Add an epoch.
 
         Args:
             epoch: string, name of the epoch
             duration: float, duration of the epoch
-            start: start time of the epoch, float
             before: (optional) string, name of epoch that this epoch is before
             after: (optional) string, name of epoch that this epoch is after
+                or float, time of epoch start
             last_epoch: bool, default False. If True, then this is last epoch
                 will generate self.tmax, self.tind, and self.obs
         """
         if after is not None:
-            start = getattr(self, after + '_1')
+            if isinstance(after, str):
+                start = getattr(self, after + '_1')
+            else:
+                start = after
         elif before is not None:
             start = getattr(self, before + '_0') - duration
         else:
-            if start is None:
-                raise ValueError('''start must be provided if
-                before and after are None''')
+            raise ValueError('''before or start can not be both None''')
 
         setattr(self, epoch + '_0', start)
         setattr(self, epoch + '_1', start + duration)

@@ -73,7 +73,7 @@ class GNG(ngym.EpochEnv):
                                                    self.stimulus_mean,
                                                    xmin=self.stimulus_min,
                                                    xmax=self.stimulus_max)
-        self.add_epoch('fixation', self.fixation, start=0)
+        self.add_epoch('fixation', self.fixation, after=0)
         self.add_epoch('stimulus', stimulus, after='fixation')
         self.add_epoch('resp_delay', self.resp_delay, after='stimulus')
         self.add_epoch('decision', self.decision, after='resp_delay', last_epoch=True)

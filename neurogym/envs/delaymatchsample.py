@@ -67,7 +67,7 @@ class DelayedMatchToSample(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        self.add_epoch('fixation', self.fixation, start=0)
+        self.add_epoch('fixation', self.fixation, after=0)
         self.add_epoch('sample', self.sample, after='fixation')
         self.add_epoch('delay', self.delay, after='sample')
         self.add_epoch('test', self.test, after='delay')

@@ -101,7 +101,7 @@ class DelayedMatchCategory(ngym.EpochEnv):
             test = self.test
             decision = self.decision
 
-        self.add_epoch('fixation', duration=fixation, start=0)
+        self.add_epoch('fixation', duration=fixation, after=0)
         self.add_epoch('sample', duration=sample, after='fixation')
         self.add_epoch('delay', duration=delay, after='sample')
         self.add_epoch('test', duration=test, after='delay')

@@ -68,7 +68,7 @@ class Mante(ngym.EpochEnv):
         delay = self.delay_min +\
             tasktools.trunc_exp(self.rng, self.dt, self.delay_mean,
                                             xmax=self.delay_max)
-        self.add_epoch('fixation', self.fixation, start=0)
+        self.add_epoch('fixation', self.fixation, after=0)
         self.add_epoch('stimulus', self.stimulus, after='fixation')
         self.add_epoch('delay', delay, after='stimulus')
         self.add_epoch('decision', self.decision, after='delay', last_epoch=True)

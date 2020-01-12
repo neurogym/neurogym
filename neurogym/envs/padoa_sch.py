@@ -100,7 +100,7 @@ class PadoaSch(ngym.EpochEnv):
         offer_on = tasktools.uniform(self.rng, self.dt, self.offer_on_min,
                                      self.offer_on_max)
 
-        self.add_epoch('fixation', self.fixation, start=0)
+        self.add_epoch('fixation', self.fixation, after=0)
         self.add_epoch('offer_on', offer_on, after='fixation')
         self.add_epoch('decision', self.decision, after='offer_on', last_epoch=True)
 

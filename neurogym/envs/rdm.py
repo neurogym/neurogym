@@ -94,7 +94,7 @@ class RDM(ngym.EpochEnv):
                                                    self.stimulus_mean,
                                                    xmin=self.stimulus_min,
                                                    xmax=self.stimulus_max)
-        self.add_epoch('fixation', self.fixation, start=0)
+        self.add_epoch('fixation', self.fixation, after=0)
         self.add_epoch('stimulus', stimulus, after='fixation')
         self.add_epoch('decision', self.decision, after='stimulus', last_epoch=True)
 

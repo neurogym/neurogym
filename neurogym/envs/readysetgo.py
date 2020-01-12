@@ -78,7 +78,7 @@ class ReadySetGo(ngym.EpochEnv):
         measure = self.rng.choice(self.measures)
         production = measure * self.gain
 
-        self.add_epoch('fixation', self.fixation, start=0)
+        self.add_epoch('fixation', self.fixation, after=0)
         self.add_epoch('ready', self.ready, after='fixation')
         self.add_epoch('measure', measure, after='fixation')
         self.add_epoch('set', self.set, after='measure')

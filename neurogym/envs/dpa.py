@@ -78,7 +78,7 @@ class DPA(ngym.EpochEnv):
         delay = tasktools.uniform(self.rng, self.dt, self.delay_min,
                                   self.delay_max)
 
-        self.add_epoch('fixation', duration=self.fixation, start=0)
+        self.add_epoch('fixation', duration=self.fixation, after=0)
         self.add_epoch('dpa1', duration=self.dpa1, after='fixation')
         self.add_epoch('delay', duration=delay, after='dpa1')
         self.add_epoch('dpa2', duration=self.dpa1, after='delay')

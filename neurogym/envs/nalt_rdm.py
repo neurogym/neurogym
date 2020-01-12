@@ -105,7 +105,7 @@ class nalt_RDM(ngym.EpochEnv):
             decision = self.decision
 
         # maximum length of current trial
-        self.add_epoch('fixation', duration=fixation, start=0)
+        self.add_epoch('fixation', duration=fixation, after=0)
         self.add_epoch('stimulus', duration=stimulus, after='fixation')
         self.add_epoch('decision', duration=decision, after='stimulus', last_epoch=True)
         # ---------------------------------------------------------------------

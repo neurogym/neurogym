@@ -133,7 +133,7 @@ class GenTask(ngym.EpochEnv):
         if self.sim_stim:
             durs['delay_btw_stim'] = 0
 
-        self.add_epoch('fixation', durs['fixation'], start=0)
+        self.add_epoch('fixation', durs['fixation'], after=0)
         self.add_epoch('stim1', durs['stimulus'], after='fixation')
         self.add_epoch('delay_btw_stim', durs['delay_btw_stim'], after='stim1')
         self.add_epoch('stim2', durs['stimulus'], after='delay_btw_stim')

@@ -84,7 +84,7 @@ class Romo(ngym.EpochEnv):
         delay = tasktools.uniform(self.rng, self.dt, self.delay_min,
                                   self.delay_max)
 
-        self.add_epoch('fixation', self.fixation, start=0)
+        self.add_epoch('fixation', self.fixation, after=0)
         self.add_epoch('f1', self.f1, after='fixation')
         self.add_epoch('delay', delay, after='f1')
         self.add_epoch('f2', self.f2, after='delay')
