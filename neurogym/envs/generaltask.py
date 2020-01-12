@@ -231,8 +231,8 @@ if __name__ == '__main__':
 #    tasktools.plot_struct(env)
 #    plt.title('ROMO')
 #    # DELAY RESPONSE
-    timing = {'fixation': [500, 500, 500], 'stimulus': [500, 200, 800],
-              'delay_aft_stim': [500, 200, 800], 'decision': [100, 100, 100]}
+    timing = get_default_timing()
+    timing['fixation'] = ('choice', ([200, 300, 400],))
     simultaneous_stim = True
     env = GenTask(timing=timing, simultaneous_stim=simultaneous_stim)
     tasktools.plot_struct(env, num_steps_env=50000, name='DELAY RESPONSE')

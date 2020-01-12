@@ -55,6 +55,7 @@ def trunc_exp(rng, dt, mean, xmin=0, xmax=np.inf):
             if xmin <= x < xmax:
                 return (x//dt)*dt
 
+
 def trunc_exp_new(mean, xmin=0, xmax=np.inf):
     """
     function for generating epoch durations that are multiples of the time step
@@ -70,12 +71,15 @@ def trunc_exp_new(mean, xmin=0, xmax=np.inf):
 
 def random_number_fn(dist, *args):
     """Return a random number generating function from a distribution."""
+    # TODO: right now this is not friendly to functions that take a single argument
     if dist == 'uniform':
         return lambda : np.random.uniform(*args)
     elif dist == 'choice':
         return lambda : np.random.choice(*args)
     elif dist == 'truncated_exponential':
         return lambda : trunc_exp_new(*args)
+    elif dist == 'constant':
+        return lambda : args[0]  # TODO: This is pretty terrible right now
     else:
         raise ValueError('Unknown dist:', str(dist))
 
@@ -133,8 +137,7 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
     gt = []
     config_mat = []
     perf = []
-    if model is not None:
-        obs = env.reset()
+    obs = env.reset()
     for stp in range(int(num_steps_env)):
         if model is not None:
             action, _states = model.predict(obs)
@@ -174,7 +177,9 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
     plt.subplot(rows, 1, 2)
     plt.plot(actions[:n_stps_plt], marker='+')
     gt = np.array(gt)
-    plt.plot(np.argmax(gt[:n_stps_plt], axis=1), 'r')
+    if len(gt.shape) == 2:
+        gt = np.argmax(gt, axis=1)
+    plt.plot(gt[:n_stps_plt], 'r')
     plt.title('actions')
     plt.xlim([-0.5, n_stps_plt+0.5])
     plt.subplot(rows, 1, 3)

@@ -135,7 +135,7 @@ class EpochEnv(Env):
                 will generate self.tmax, self.tind, and self.obs
         """
         if duration is None:
-            duration = self.timing_fn[epoch]()
+            duration = (self.timing_fn[epoch]() // self.dt) * self.dt
 
         if after is not None:
             if isinstance(after, str):
