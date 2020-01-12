@@ -164,10 +164,11 @@ class EpochEnv(Env):
         self.obs[getattr(self, epoch+'_ind0'): getattr(self, epoch+'_ind1')] += value
 
     def set_groundtruth(self, epoch, value):
+        """Set groundtruth value."""
         self.gt[getattr(self, epoch + '_ind0'): getattr(self, epoch + '_ind1')] = value
 
     def in_epoch(self, epoch, t=None):
-        """Check if time t is in epoch"""
+        """Check if current time or time t is in epoch"""
         if t is None:
-            t = self.t  # For backward compatibility
+            t = self.t  # Default
         return getattr(self, epoch+'_0') <= t < getattr(self, epoch+'_1')
