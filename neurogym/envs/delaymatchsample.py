@@ -56,6 +56,15 @@ class DelayedMatchToSample(ngym.EpochEnv):
 
     def _new_trial(self):
         # ---------------------------------------------------------------------
+        # Trial
+        # ---------------------------------------------------------------------
+        ground_truth = self.rng.choice([1, 2])
+        sample = self.rng.choice([1, 2])
+        if ground_truth == 1:
+            test = sample
+        else:
+            test = 3 - sample
+        # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
         self.add_epoch('fixation', self.fixation, start=0)
@@ -63,56 +72,47 @@ class DelayedMatchToSample(ngym.EpochEnv):
         self.add_epoch('delay', self.delay, after='sample')
         self.add_epoch('test', self.test, after='delay')
         self.add_epoch('decision', self.decision, after='test', last_epoch=True)
-        # ---------------------------------------------------------------------
-        # Trial
-        # ---------------------------------------------------------------------
-        # TODO: may need to fix this
-        gt = self.rng.choice([-1, 1])
-        sample = self.rng.choice([0, 1])
-        if gt == 1:
-            test = sample
-        else:
-            test = 1*(not sample)
+
+        self.set_ob('fixation', [1, 0, 0])
+        tmp = [1, 0, 0]
+        tmp[sample] = 1
+        self.set_ob('sample', tmp)
+        tmp = [1, 0, 0]
+        tmp[test] = 1
+        self.set_ob('delay', [1, 0, 0])
+        self.set_ob('test', tmp)
+
+        self.obs[self.sample_ind0:self.sample_ind1, 1:] += np.random.randn(
+            self.sample_ind1-self.sample_ind0, 2) * (self.sigma/np.sqrt(self.dt))
+
+        self.obs[self.test_ind0:self.test_ind1, 1:] += np.random.randn(
+            self.test_ind1-self.test_ind0, 2) * (self.sigma/np.sqrt(self.dt))
+
+        self.set_groundtruth('decision', ground_truth)
 
         return {
-            'ground_truth': gt,
+            'ground_truth': ground_truth,
             'sample': sample,
             'test': test,
             }
 
     def _step(self, action):
-        # ---------------------------------------------------------------------
-        # Reward
-        # ---------------------------------------------------------------------
-        trial = self.trial
-        info = {'new_trial': False, 'gt': np.zeros((3,))}
+        info = {'new_trial': False}
         reward = 0
-        obs = np.zeros((3,))
+
+        obs = self.obs[self.t_ind]
+        gt = self.gt[self.t_ind]
 
         if self.in_epoch('fixation'):
-            info['gt'][0] = 1
-            obs[0] = 1
             if self.actions[action] != 0:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch('decision'):
-            info['gt'][int((trial['ground_truth']/2+1.5))] = 1
-            gt_sign = np.sign(trial['ground_truth'])
-            action_sign = np.sign(self.actions[action])
-            if gt_sign == action_sign:
-                reward = self.R_CORRECT
-            elif gt_sign == -action_sign:
-                reward = self.R_FAIL
-            info['new_trial'] = self.actions[action] != 0
-        else:
-            info['gt'][0] = 1
-
-        # ---------------------------------------------------------------------
-        # Inputs
-        # ---------------------------------------------------------------------
-        if self.in_epoch('sample'):
-            obs[trial['sample']+1] = 1
-        if self.in_epoch('test'):
-            obs[trial['test']+1] = 1
+            if action != 0:
+                info['new_trial'] = True
+                if action == gt:
+                    reward = self.R_CORRECT
+                else:
+                    reward = self.R_FAIL
 
         return obs, reward, False, info

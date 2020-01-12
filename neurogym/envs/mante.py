@@ -106,9 +106,6 @@ class Mante(ngym.EpochEnv):
             }
 
     def _step(self, action):
-        # -----------------------------------------------------------------
-        # Reward
-        # -----------------------------------------------------------------
         obs = self.obs[self.t_ind]
         gt = self.gt[self.t_ind]
 

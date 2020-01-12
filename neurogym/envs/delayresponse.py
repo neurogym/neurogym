@@ -131,8 +131,7 @@ class DR(ngym.EpochEnv):
         self.obs[self.stimulus_ind0:self.stimulus_ind1, 1:] += np.random.randn(
             self.stimulus_ind1-self.stimulus_ind0, 2) * sigma
 
-        # self.gt = np.zeros((len(t),), dtype=np.int)
-        # self.gt[decision_period] = self.ground_truth
+        self.set_groundtruth('decision', ground_truth)
 
     def _step(self, action):
         """
@@ -151,15 +150,15 @@ class DR(ngym.EpochEnv):
         # rewards
         reward = 0
         # observations
-        gt = np.zeros((3,))
+        obs = self.obs[self.t_ind, :]
+        gt = self.gt[self.t_ind]
+
         first_trial = np.nan
         if self.in_epoch('fixation') or self.in_epoch('delay'):
-            gt[0] = 1
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch('decision'):
-            gt[self.ground_truth] = 1
             if self.ground_truth == action:
                 reward = self.R_CORRECT
                 new_trial = True
@@ -172,10 +171,6 @@ class DR(ngym.EpochEnv):
                 if ~self.first_flag:
                     first_trial = False
                     self.first_flag = True
-        else:
-            gt[0] = 1
-
-        obs = self.obs[self.t_ind, :]
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt,
                                    'first_trial': first_trial}

@@ -115,6 +115,8 @@ class DelayedMatchCategory(ngym.EpochEnv):
 
         self.obs[:, 1:] += np.random.randn(*self.obs[:, 1:].shape) * self.sigma_dt
 
+        self.set_groundtruth('decision', ground_truth)
+
     def _step(self, action, **kwargs):
         """
         _step receives an action and returns:
@@ -129,25 +131,22 @@ class DelayedMatchCategory(ngym.EpochEnv):
         # Reward and observations
         # ---------------------------------------------------------------------
         new_trial = False
-        # rewards
+
+        obs = self.obs[self.t_ind]
+        gt = self.gt[self.t_ind]
+
         reward = 0
-        # observations
-        gt = np.zeros((3,))
         if self.in_epoch('fixation'):
-            gt[0] = 1
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch('decision'):
-            gt[self.ground_truth] = 1
-            if self.ground_truth == action:
-                reward = self.R_CORRECT
-            elif self.ground_truth != 0:  # 3-action is the other act
-                reward = self.R_FAIL
-            new_trial = action != 0
-        else:
-            gt[0] = 1
-        obs = self.obs[self.t_ind, :]
+            if action != 0:
+                new_trial = True
+                if action == gt:
+                    reward = self.R_CORRECT
+                else:
+                    reward = self.R_FAIL
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 

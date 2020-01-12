@@ -55,9 +55,6 @@ class DPA(ngym.EpochEnv):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-1., 1, shape=(5, ),
                                             dtype=np.float32)
-        # seeding
-        self.seed()
-        self.viewer = None
 
     def __str__(self):
         string = ''
@@ -71,9 +68,12 @@ class DPA(ngym.EpochEnv):
         return string
 
     def _new_trial(self):
-        # -------------------------------------------------------------------------
-        # Epochs
-        # --------------------------------------------------------------------------
+        pair = self.rng.choice(self.dpa_pairs)
+
+        if np.diff(pair)[0] == 2:
+            ground_truth = 0
+        else:
+            ground_truth = 1
 
         delay = tasktools.uniform(self.rng, self.dt, self.delay_min,
                                   self.delay_max)
@@ -85,12 +85,15 @@ class DPA(ngym.EpochEnv):
         self.add_epoch('resp_delay', duration=self.resp_delay, after='dpa2')
         self.add_epoch('decision', duration=self.decision, after='resp_delay', last_epoch=True)
 
-        pair = self.rng.choice(self.dpa_pairs)
+        dpa1, dpa2 = pair
+        tmp = [0] * 5
+        tmp[dpa1] = 1
+        self.set_ob('dpa1', tmp)
+        tmp = [0] * 5
+        tmp[dpa2] = 1
+        self.set_ob('dpa2', tmp)
 
-        if np.diff(pair)[0] == 2:
-            ground_truth = 1
-        else:
-            ground_truth = -1
+        self.set_groundtruth('decision', ground_truth)
 
         return {
             'ground_truth':     ground_truth,
@@ -98,39 +101,20 @@ class DPA(ngym.EpochEnv):
             }
 
     def _step(self, action):
-        trial = self.trial
-        # ---------------------------------------------------------------------
-        # Reward and inputs
-        # ---------------------------------------------------------------------
-        # epochs = trial['epochs']
         info = {'new_trial': False}
-        info['gt'] = np.zeros((2,))
         reward = 0
-        obs = np.zeros((5,))
+        obs = self.obs[self.t_ind]
+        gt = self.gt[self.t_ind]
         if self.in_epoch('fixation'):
-            info['gt'][0] = 1
-            obs[0] = 1  # TODO: fixation cue only during fixation period?
-            if self.actions[action] != -1:
+            if self.actions[action] != 0:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch('decision'):
-            info['gt'][int((trial['ground_truth']/2+.5))] = 1
-            gt_sign = np.sign(trial['ground_truth'])
-            action_sign = np.sign(self.actions[action])
-            if (action_sign > 0):
+            if action == 1:
                 info['new_trial'] = True
-                if (gt_sign > 0):
+                if gt == 1:
                     reward = self.R_CORRECT
                 else:
                     reward = self.R_INCORRECT
-        else:
-            info['gt'][0] = 1
-
-        if self.in_epoch('dpa1'):
-            dpa1, _ = trial['pair']
-            obs[dpa1] = 1
-        if self.in_epoch('dpa2'):
-            _, dpa2 = trial['pair']
-            obs[dpa2] = 1
 
         return obs, reward, False, info
