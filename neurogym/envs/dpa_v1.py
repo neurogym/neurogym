@@ -1,21 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Dec 20 10:53:58 2019
+Delayed paired association
 
-@author: molano
+TODO: Add paper
 """
-import neurogym as ngym
-from neurogym.ops import tasktools
+
 import numpy as np
 from gym import spaces
-import matplotlib.pyplot as plt
-TIMING = {'fixation': [500, 200, 800], 'stimulus': [500, 200, 800],
-          'delay_btw_stim': [500, 200, 800],
-          'delay_aft_stim': [500, 200, 800], 'decision': [500, 200, 800]}
+
+import neurogym as ngym
+from neurogym.ops import tasktools
 
 
-class DPA(ngym.Env):
+def get_default_timing():
+    return {'fixation': ('truncated_exponential', [500, 200, 800]),
+            'stim1': ('truncated_exponential', [500, 200, 800]),
+            'delay_btw_stim': ('truncated_exponential', [500, 200, 800]),
+            'stim2': ('truncated_exponential', [500, 200, 800]),
+            'delay_aft_stim': ('truncated_exponential', [500, 200, 800]),
+            'decision': ('truncated_exponential', [500, 200, 800])}
+
+
+class DPA(ngym.EpochEnv):
     def __init__(self, dt=100, timing=None, noise=0.01,
                  simultaneous_stim=False, **kwargs):
         super().__init__(dt=dt)
@@ -28,22 +35,11 @@ class DPA(ngym.Env):
         self.sigma_dt = self.sigma / np.sqrt(self.dt)
         # Durations (stimulus duration will be drawn from an exponential)
         self.sim_stim = simultaneous_stim
-        if timing is not None:
-            for key in timing.keys():
-                assert key in TIMING.keys()
-                TIMING[key] = timing[key]
-        self.timing = TIMING
-        self.mean_trial_duration = 0
-        self.max_trial_duration = 0
-        for key in self.timing.keys():
-            self.mean_trial_duration += self.timing[key][0]
-            self.max_trial_duration += self.timing[key][2]
-            self.timing[key][1] = max(self.timing[key][1], self.dt)
-        if not self.sim_stim:
-            self.mean_trial_duration += self.timing['stimulus'][0]
-            self.max_trial_duration += self.timing['stimulus'][2]
 
-        self.max_steps = int(self.max_trial_duration/dt)
+        default_timing = get_default_timing()
+        if timing is not None:
+            default_timing.update(timing)
+        self.set_epochtiming(default_timing)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -55,29 +51,8 @@ class DPA(ngym.Env):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(5,),
                                             dtype=np.float32)
-        # seeding
-        self.seed()
-        self.viewer = None
-        
-    def __str__(self):
-        string = ''
-        string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
-        string += 'Delay-Paired Association Task\n'
-        string += 'Mean Fixation: ' + str(self.timing['fixation'][0]) + '\n'
-        string += 'Mean stimulus period: ' + str(self.timing['stimulus'][0]) + '\n'
-        if not self.sim_stim:
-            string += 'Mean delay btw stims: ' + str(self.timing['delay_btw_stim'][0]) + '\n'
-        else:
-            string += 'sample and test presented simultaneously\n'
-        string += 'Mean delay post-stim: ' + str(self.timing['delay_aft_stim'][0]) + '\n'
-        string += 'Mean response window: ' + str(self.timing['decision'][0]) + '\n'
-        string += 'Mean trial duration : ' + str(self.mean_trial_duration) + '\n'
-        string += 'Max trial duration : ' + str(self.max_trial_duration) + '\n'
-        string += '(time step: ' + str(self.dt) + '\n'
-        string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
-        return string
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         """
         new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:
@@ -103,67 +78,32 @@ class DPA(ngym.Env):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-
-        if 'durs' not in kwargs.keys():
-            durs = dict.fromkeys(TIMING.keys())
-            for key in durs.keys():
-                durs[key] = tasktools.trunc_exp(self.rng, self.dt,
-                                                self.timing[key][0],
-                                                self.timing[key][1],
-                                                self.timing[key][2])
-        if self.sim_stim:
-            durs['delay_btw_stim'] = 0
-        # trial duration
-        self.tmax = np.sum([durs[key] for key in durs.keys()])
-        if not self.sim_stim:
-            self.tmax += durs['stimulus']
-        self.pers = {}
-        per_times = {}
-        periods = ['fixation', 'stim_1', 'delay_btw_stim', 'stim_2',
-                   'delay_aft_stim', 'decision']
-        t = np.arange(0, self.tmax, self.dt)
-        cum = 0
-        for key in periods:
-            cum_aux = 0
-            if key != 'stim_1' and key != 'stim_2':
-                cum_aux = durs[key]
-            if key == 'fixation':
-                self.pers[key] = [cum, cum + durs[key]]
-            elif key == 'stim_1':
-                per_times[key] = np.logical_and(t >= cum,
-                                                t < cum + durs['stimulus'])
-                if not self.sim_stim:
-                    cum_aux = durs['stimulus']
-            elif key == 'stim_2':
-                cum_aux = durs['stimulus']
-                per_times[key] = np.logical_and(t >= cum, t < cum + cum_aux)
-            elif key == 'decision':
-                self.pers[key] = [cum, cum + durs[key]]
-                per_times[key] = np.logical_and(t >= cum, t < cum + cum_aux)
-            cum += cum_aux
-
-        n_stim = int(durs['stimulus']/self.dt)
-
+        self.add_epoch('fixation', after=0)
+        self.add_epoch('stim1', after='fixation')
+        self.add_epoch('delay_btw_stim', after='stim1')
+        self.add_epoch('stim2', after='delay_btw_stim')
+        self.add_epoch('delay_aft_stim', after='stim2')
+        self.add_epoch('decision', after='delay_aft_stim', last_epoch=True)
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-        # observations
-        obs = np.zeros((len(t), 5))
-        # fixation cue is always on except in decision period
-        obs[~per_times['decision'], 0] = 1
-        # first stimulus
-        obs[per_times['stim_1'], self.pair[0]] = 1
-        obs[per_times['stim_1'], self.pair[0]] +=\
-            np.random.randn(n_stim) * self.sigma_dt
-        # second stimulus
-        obs[per_times['stim_2'], self.pair[1]] = 1
-        obs[per_times['stim_2'], self.pair[1]] +=\
-            np.random.randn(n_stim) * self.sigma_dt
+        self.set_ob('fixation', [1, 0, 0, 0, 0])
+        tmp = np.array([1, 0, 0, 0, 0])
+        tmp[self.pair[0]] = 1
+        self.set_ob('stim1', tmp)
+        tmp = np.array([1, 0, 0, 0, 0])
+        tmp[self.pair[1]] = 1
+        self.set_ob('stim2', tmp)
+        self.set_ob('delay_btw_stim', [1, 0, 0, 0, 0])
+        self.set_ob('delay_aft_stim', [1, 0, 0, 0, 0])
 
-        self.obs = obs
+        # TODO: Not happy about having to do this ugly thing
+        self.obs[self.stim1_ind0:self.stim1_ind1, self.pair[0]] += np.random.randn(
+            self.stim1_ind1 - self.stim1_ind0) * self.sigma_dt
+        self.obs[self.stim2_ind0:self.stim2_ind1, self.pair[1]] += np.random.randn(
+            self.stim2_ind1 - self.stim2_ind0) * self.sigma_dt
 
-        self.t = 0
-        self.num_tr += 1
+        self.set_groundtruth('decision', ground_truth)
 
     def _step(self, action, **kwargs):
         """
@@ -175,63 +115,30 @@ class DPA(ngym.Env):
                 ground truth correct response, info['gt']
                 boolean indicating the end of the trial, info['new_trial']
         """
-        if self.num_tr == 0:
-            # start first trial
-            self.new_trial()
         # ---------------------------------------------------------------------
         # Reward and observations
         # ---------------------------------------------------------------------
         new_trial = False
         # rewards
         reward = 0
+        obs = self.obs[self.t_ind]
+        gt = self.gt[self.t_ind]
         # observations
-        gt = np.zeros((2,))
-        if self.pers['fixation'][0] <= self.t < self.pers['fixation'][1]:
-            gt[0] = 1
+        if self.in_epoch('fixation'):
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.pers['decision'][0] <= self.t < self.pers['decision'][1]:
-            gt[self.ground_truth] = 1
+        elif self.in_epoch('decision'):
             if action != 0:
-                if action == self.ground_truth:
+                if action == gt:
                     reward = self.R_CORRECT
                 else:
                     reward = self.R_FAIL
                 new_trial = True
-        else:
-            gt[0] = 1
-        obs = self.obs[self.t_ind, :]
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
-    def step(self, action):
-        """
-        step receives an action and returns:
-            a new observation, obs
-            reward associated with the action, reward
-            a boolean variable indicating whether the experiment has end, done
-            a dictionary with extra information:
-                ground truth correct response, info['gt']
-                boolean indicating the end of the trial, info['new_trial']
-        Note that the main computations are done by the function _step(action),
-        and the extra lines are basically checking whether to call the
-        new_trial() function in order to start a new trial
-        """
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.new_trial()
-        return obs, reward, done, info
-
 
 if __name__ == '__main__':
-    plt.close('all')
-    timing = {'fixation': [100, 100, 100],
-              'stimulus': [200, 100, 300],
-              'delay_btw_stim': [300, 100, 500],
-              'delay_aft_stim': [200, 100, 300],
-              'decision': [200, 200, 200]}
-    simultaneous_stim = False
-    env = DPA(timing=timing, num_steps_env=1000000,
-              simultaneous_stim=simultaneous_stim)
+    env = DPA()
     tasktools.plot_struct(env)
