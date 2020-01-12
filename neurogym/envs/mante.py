@@ -27,8 +27,8 @@ class Mante(ngym.EpochEnv):
         self.actions = tasktools.to_map('FIXATE', 'left', 'right')
 
         # trial conditions
-        self.contexts = ['m', 'c']
-        self.choices = [-1, 1]
+        self.contexts = [0, 1]  # index for context inputs
+        self.choices = [1, 2]  # left, right choice
         self.cohs = [5, 15, 50]
 
         # Input noise
@@ -52,96 +52,26 @@ class Mante(ngym.EpochEnv):
 
         # set action and observation space
         self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(6, ),
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(6,),
                                             dtype=np.float32)
-        # seeding
-        self.seed()
-        self.viewer = None
 
     def __str__(self):
         string = 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
         string += ' (max num. steps: ' + str(self.mean_trial_duration / self.dt)
         return string
 
-    def _step(self, action):
-        # -----------------------------------------------------------------
-        # Reward
-        # -----------------------------------------------------------------
-        trial = self.trial
-        dt = self.dt
-        rng = self.rng
-
-        # epochs = trial['epochs']
-        info = {'new_trial': False}
-        info['gt'] = np.zeros((3,))
-        reward = 0
-        if self.in_epoch('fixation'):
-            info['gt'][0] = 1
-            if (action != self.actions['FIXATE']):
-                info['new_trial'] = self.abort
-                reward = self.R_ABORTED
-        elif self.in_epoch('decision'):
-            info['gt'][int((trial['ground_truth']/2+1.5))] = 1
-            if action == self.actions['left']:
-                info['new_trial'] = True
-                if trial['context'] == 'm':
-                    correct = (trial['left_right_m'] < 0)
-                else:
-                    correct = (trial['left_right_c'] < 0)
-                if correct:
-                    reward = self.R_CORRECT
-            elif action == self.actions['right']:
-                info['new_trial'] = True
-                if trial['context'] == 'm':
-                    correct = (trial['left_right_m'] > 0)
-                else:
-                    correct = (trial['left_right_c'] > 0)
-                if correct:
-                    reward = self.R_CORRECT
-        else:
-            info['gt'][0] = 1
-
-        # -------------------------------------------------------------------------------------
-        # Inputs
-        # -------------------------------------------------------------------------------------
-
-        if trial['context'] == 'm':
-            context = self.inputs['motion']
-        else:
-            context = self.inputs['color']
-
-        if trial['left_right_m'] < 0:
-            high_m = self.inputs['m-left']
-            low_m = self.inputs['m-right']
-        else:
-            high_m = self.inputs['m-right']
-            low_m = self.inputs['m-left']
-
-        if trial['left_right_c'] < 0:
-            high_c = self.inputs['c-left']
-            low_c = self.inputs['c-right']
-        else:
-            high_c = self.inputs['c-right']
-            low_c = self.inputs['c-left']
-
-        obs = np.zeros(len(self.inputs))
-        if (self.in_epoch('fixation') or
-            self.in_epoch('stimulus') or
-                self.in_epoch('delay')):
-            obs[context] = 1
-        if self.in_epoch('stimulus'):
-            obs[high_m] = self.scale(+trial['coh_m']) +\
-                rng.gauss(mu=0, sigma=self.sigma) / np.sqrt(dt)
-            obs[low_m] = self.scale(-trial['coh_m']) +\
-                rng.gauss(mu=0, sigma=self.sigma) / np.sqrt(dt)
-            obs[high_c] = self.scale(+trial['coh_c']) +\
-                rng.gauss(mu=0, sigma=self.sigma) / np.sqrt(dt)
-            obs[low_c] = self.scale(-trial['coh_c']) +\
-                rng.gauss(mu=0, sigma=self.sigma) / np.sqrt(dt)
-
-        return obs, reward, False, info
-
     def _new_trial(self):
+        # -------------------------------------------------------------------------
+        # Trial
+        # -------------------------------------------------------------------------
+        context = self.rng.choice(self.contexts)
+        choice_m = self.rng.choice(self.choices)
+        choice_c = self.rng.choice(self.choices)
+        coh_m = self.rng.choice(self.cohs)
+        coh_c = self.rng.choice(self.cohs)
+
+        ground_truth = choice_m if context == 0 else choice_c
+
         # -----------------------------------------------------------------------
         # Epochs
         # -----------------------------------------------------------------------
@@ -152,36 +82,58 @@ class Mante(ngym.EpochEnv):
         self.add_epoch('stimulus', self.stimulus, after='fixation')
         self.add_epoch('delay', delay, after='stimulus')
         self.add_epoch('decision', self.decision, after='delay', last_epoch=True)
-        # -------------------------------------------------------------------------
-        # Trial
-        # -------------------------------------------------------------------------
 
-        context_ = self.rng.choice(self.contexts)
-
-        left_right_m = self.rng.choice(self.choices)
-
-        left_right_c = self.rng.choice(self.choices)
-
-        coh_m = self.rng.choice(self.cohs)
-
-        coh_c = self.rng.choice(self.cohs)
-
-        if context_ == 'm':
-            ground_truth = 2*(left_right_m > 0) - 1
+        if choice_m == 1:
+            high_m, low_m = 2, 3
         else:
-            ground_truth = 2*(left_right_c > 0) - 1
+            high_m, low_m = 3, 2
+
+        if choice_c == 1:
+            high_c, low_c = 4, 5
+        else:
+            high_c, low_c = 5, 4
+
+        tmp = np.zeros(6)
+        tmp[[high_m, low_m, high_c, low_c]] = (1 + np.array([coh_m, -coh_m, coh_c, -coh_c])/100)/2
+        self.set_ob('stimulus', tmp)
+        self.obs[:, context] = 1
+        self.set_ob('decision', np.zeros(6))
+        self.obs[self.stimulus_ind0:self.stimulus_ind1, 2:] += np.random.randn(
+            self.stimulus_ind1-self.stimulus_ind0, 4) * (self.sigma/np.sqrt(self.dt))
 
         return {
-            'context':      context_,
-            'left_right_m': left_right_m,
-            'left_right_c': left_right_c,
-            'coh_m':        coh_m,
-            'coh_c':        coh_c,
+            'context': context,
+            'choice_m': choice_m,
+            'choice_c': choice_c,
+            'coh_m': coh_m,
+            'coh_c': coh_c,
             'ground_truth': ground_truth
             }
 
-    def scale(self, coh):
-        """
-        Input scaling
-        """
-        return (1 + coh/100)/2
+    def _step(self, action):
+        # -----------------------------------------------------------------
+        # Reward
+        # -----------------------------------------------------------------
+        trial = self.trial
+
+        info = {'new_trial': False}
+        info['gt'] = np.zeros((3,))
+        reward = 0
+        if self.in_epoch('fixation'):
+            info['gt'][0] = 1
+            if (action != self.actions['FIXATE']):
+                info['new_trial'] = self.abort
+                reward = self.R_ABORTED
+        elif self.in_epoch('decision'):
+            info['gt'][trial['ground_truth']] = 1
+            if action in [1, 2]:  # action taken
+                info['new_trial'] = True
+                if action == trial['ground_truth']:
+                    reward = self.R_CORRECT
+        else:
+            info['gt'][0] = 1
+
+        obs = self.obs[self.t_ind]
+
+        return obs, reward, False, info
+
