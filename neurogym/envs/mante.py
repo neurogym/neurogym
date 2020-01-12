@@ -4,7 +4,6 @@ Context-dependent integration task, based on
   V Mante, D Sussillo, KV Shinoy, & WT Newsome, Nature 2013.
   http://dx.doi.org/10.1038/nature12742
 
-Code adapted from github.com/frsong/pyrl
 """
 from __future__ import division
 
@@ -16,15 +15,7 @@ import neurogym as ngym
 
 class Mante(ngym.EpochEnv):
     def __init__(self, dt=100, timing=[750, 750, 83, 300, 1200, 500]):
-        # call ngm __init__ function
-        super().__init__(dt=dt)
-
-        # Inputs
-        self.inputs = tasktools.to_map('motion', 'color',
-                                       'm-left', 'm-right',
-                                       'c-left', 'c-right')
-        # Actions
-        self.actions = tasktools.to_map('FIXATE', 'left', 'right')
+        super(Mante, self).__init__(dt=dt)
 
         # trial conditions
         self.contexts = [0, 1]  # index for context inputs
@@ -69,7 +60,6 @@ class Mante(ngym.EpochEnv):
         choice_c = self.rng.choice(self.choices)
         coh_m = self.rng.choice(self.cohs)
         coh_c = self.rng.choice(self.cohs)
-
         ground_truth = choice_m if context == 0 else choice_c
 
         # -----------------------------------------------------------------------
@@ -101,6 +91,11 @@ class Mante(ngym.EpochEnv):
         self.obs[self.stimulus_ind0:self.stimulus_ind1, 2:] += np.random.randn(
             self.stimulus_ind1-self.stimulus_ind0, 4) * (self.sigma/np.sqrt(self.dt))
 
+        self.set_groundtruth('fixation', 0)
+        self.set_groundtruth('stimulus', 0)
+        self.set_groundtruth('delay', 0)
+        self.set_groundtruth('decision', ground_truth)
+
         return {
             'context': context,
             'choice_m': choice_m,
@@ -114,26 +109,20 @@ class Mante(ngym.EpochEnv):
         # -----------------------------------------------------------------
         # Reward
         # -----------------------------------------------------------------
-        trial = self.trial
+        obs = self.obs[self.t_ind]
+        gt = self.gt[self.t_ind]
 
         info = {'new_trial': False}
-        info['gt'] = np.zeros((3,))
         reward = 0
         if self.in_epoch('fixation'):
-            info['gt'][0] = 1
-            if (action != self.actions['FIXATE']):
+            if action != gt:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch('decision'):
-            info['gt'][trial['ground_truth']] = 1
-            if action in [1, 2]:  # action taken
+            if action != 0:  # broke fixation
                 info['new_trial'] = True
-                if action == trial['ground_truth']:
+                if action == gt:
                     reward = self.R_CORRECT
-        else:
-            info['gt'][0] = 1
-
-        obs = self.obs[self.t_ind]
 
         return obs, reward, False, info
 

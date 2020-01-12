@@ -30,7 +30,7 @@ class Env(BaseEnv):
     """The main Neurogym class for trial-based tasks."""
 
     def __init__(self, dt=100, num_trials_before_reset=10000000):
-        super().__init__()
+        super(Env, self).__init__(dt=dt)
         self.dt = dt
         self.t = self.t_ind = 0
         self.tmax = 10000  # maximum time steps
@@ -98,6 +98,12 @@ class Env(BaseEnv):
 class EpochEnv(Env):
     """Environment class with trial/epoch structure."""
 
+    def __init__(self, dt=100, num_trials_before_reset=10000000):
+        super(EpochEnv, self).__init__(
+            dt=dt, num_trials_before_reset=num_trials_before_reset)
+
+        self.gt = None
+
     def add_epoch(self, epoch, duration, start=None, before=None, after=None,
                   last_epoch=False
                   ):
@@ -136,6 +142,9 @@ class EpochEnv(Env):
         ob_shape = [tmax_ind] + list(self.observation_space.shape)
         self.obs = np.zeros(ob_shape)
 
+        # TODO: Allow ground truth to be category or full action
+        self.gt = np.zeros(tmax_ind)  # ground truth action
+
     def set_ob(self, epoch, value):
         """Set observation in epoch to value.
 
@@ -153,6 +162,9 @@ class EpochEnv(Env):
             value: np array (ob_space.shape, ...)
         """
         self.obs[getattr(self, epoch+'_ind0'): getattr(self, epoch+'_ind1')] += value
+
+    def set_groundtruth(self, epoch, value):
+        self.gt[getattr(self, epoch + '_ind0'): getattr(self, epoch + '_ind1')] = value
 
     def in_epoch(self, epoch, t=None):
         """Check if time t is in epoch"""
