@@ -79,17 +79,6 @@ class PadoaSch(ngym.EpochEnv):
 
     def _new_trial(self):
         # ---------------------------------------------------------------------
-        # Epochs
-        # ---------------------------------------------------------------------
-
-        offer_on = tasktools.uniform(self.rng, self.dt, self.offer_on_min,
-                                     self.offer_on_max)
-
-        self.add_epoch('fixation', self.fixation, start=0)
-        self.add_epoch('offer-on', offer_on, after='fixation')
-        self.add_epoch('decision', self.decision, after='offer-on', last_epoch=True)
-
-        # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
         juice = self.rng.choice(self.juices)
@@ -104,6 +93,28 @@ class PadoaSch(ngym.EpochEnv):
         else:
             nL, nR = nB, nA
 
+        # ---------------------------------------------------------------------
+        # Epochs
+        # ---------------------------------------------------------------------
+
+        offer_on = tasktools.uniform(self.rng, self.dt, self.offer_on_min,
+                                     self.offer_on_max)
+
+        self.add_epoch('fixation', self.fixation, start=0)
+        self.add_epoch('offer-on', offer_on, after='fixation')
+        self.add_epoch('decision', self.decision, after='offer-on', last_epoch=True)
+
+        # ---------------------------------------------------------------------
+        # Inputs
+        # ---------------------------------------------------------------------
+        self.set_ob('fixation', [1]+[0]*6)
+        tmp = [1]+[0]*6
+        tmp[[self.inputs['L-'+juiceL], self.inputs['R-'+juiceR]]] = 1
+        tmp[[self.inputs['N-L'], self.inputs['N-R']]] = [self.scale(nL), self.scale(nR)]
+        self.set_ob('offer_on', tmp)
+        self.obs[self.offer_on_ind0:self.offer_on_ind1, [self.inputs['N-L'], self.inputs['N-R']]] += \
+        np.random.randn(self.offer_on_ind1-self.offer_on_ind0, 2) * (self.sigma/np.sqrt(self.dt))
+
         return {
             'juice':     juice,
             'offer':     offer,
@@ -114,15 +125,13 @@ class PadoaSch(ngym.EpochEnv):
     def _step(self, action):
         trial = self.trial
 
-        # ---------------------------------------------------------------------
-        # Reward
-        # ---------------------------------------------------------------------
         info = {'new_trial': False}
-        info['gt'] = np.zeros((3,))
+
+        obs = self.obs[self.t_ind]
+
         reward = 0
-        if (self.in_epoch('fixation') or
-                self.in_epoch('offer-on')):
-            if (action != self.actions['FIXATE']):
+        if self.in_epoch('fixation') or self.in_epoch('offer-on'):
+            if action != self.actions['FIXATE']:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch('decision'):
@@ -145,21 +154,5 @@ class PadoaSch(ngym.EpochEnv):
                     reward = rL
                 elif action == self.actions['CHOOSE-RIGHT']:
                     reward = rR
-
-        # ---------------------------------------------------------------------
-        # Inputs
-        # ---------------------------------------------------------------------
-        obs = np.zeros(len(self.inputs))
-        if not self.in_epoch('decision'):
-            obs[self.inputs['FIXATION']] = 1
-        if self.in_epoch('offer-on'):
-            juiceL, juiceR = trial['juice']
-            obs[self.inputs['L-'+juiceL]] = 1
-            obs[self.inputs['R-'+juiceR]] = 1
-
-            obs[self.inputs['N-L']] = self.scale(trial['nL']) +\
-                self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
-            obs[self.inputs['N-R']] = self.scale(trial['nR']) +\
-                self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
 
         return obs, reward, False, info

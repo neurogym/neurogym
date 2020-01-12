@@ -97,7 +97,6 @@ class GenTask(ngym.EpochEnv):
             gt = kwargs['gt']
         else:
             gt = self.rng.choice(self.choices)
-        self.gt = gt
 
         if 'cohs' in kwargs.keys():
             coh = kwargs['cohs']
@@ -163,6 +162,8 @@ class GenTask(ngym.EpochEnv):
         self.obs[self.stim2_ind0:self.stim2_ind1, 1:] += np.random.randn(
             self.stim2_ind1 - self.stim2_ind0, 2) * sigma_dt
 
+        self.set_groundtruth('decision', gt)
+
         self.first_flag = False
 
     def _step(self, action, **kwargs):
@@ -175,24 +176,19 @@ class GenTask(ngym.EpochEnv):
                 ground truth correct response, info['gt']
                 boolean indicating the end of the trial, info['new_trial']
         """
-        # ---------------------------------------------------------------------
-        # Reward and observations
-        # ---------------------------------------------------------------------
         new_trial = False
+        obs = self.obs[self.t_ind]
+        gt = self.gt[self.t_ind]
         # rewards
         reward = 0
-        # observations
-        gt = np.zeros((3-self.gng,))
         first_trial = np.nan
         if self.in_epoch('fixation'):
-            gt[0] = 1
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch('decision'):
-            gt[self.gt] = 1
             if action != 0:
-                if action == self.gt:
+                if action == gt:
                     reward = self.R_CORRECT
                     new_trial = True
                 else:
@@ -201,9 +197,6 @@ class GenTask(ngym.EpochEnv):
                 if ~self.first_flag:
                     first_trial = 1
                     self.first_flag = True
-        else:
-            gt[0] = 1
-        obs = self.obs[self.t_ind, :]
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt,
                                    'first_trial': first_trial}
