@@ -104,8 +104,19 @@ class EpochEnv(Env):
             dt=dt, num_trials_before_reset=num_trials_before_reset)
 
         self.gt = None
-        self.timing = None
+        self.timing = {}
         self.timing_fn = None
+
+    def __str__(self):
+        """Information about task."""
+        string = ''
+        for key, val in self.timing.items():
+            dist, args = val
+            string += 'Epoch ' + key + '\n'
+            string += '    Distribution ' + dist + '\n'
+            string += '    Parameters ' + str(args) + '\n'
+        string += 'Time step {:0.2f}ms\n'.format(self.dt)
+        return string
 
     def set_epochtiming(self, epochtiming):
         """Set epoch timing.

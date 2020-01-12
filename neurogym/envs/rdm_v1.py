@@ -51,24 +51,6 @@ class RDM(ngym.EpochEnv):
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
 
-    def __str__(self):
-        string = ''
-        if (self.fixation == 0 or self.decision == 0 or
-                self.stimulus_mean == 0):
-            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
-            string += 'the duration of all periods must be larger than 0\n'
-            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
-        string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
-        string += 'Random Dots Motion Task\n'
-        string += 'Mean Fixation: ' + str(self.fixation) + '\n'
-        string += 'Min Stimulus Duration: ' + str(self.stimulus_min) + '\n'
-        string += 'Mean Stimulus Duration: ' + str(self.stimulus_mean) + '\n'
-        string += 'Max Stimulus Duration: ' + str(self.stimulus_max) + '\n'
-        string += 'Decision: ' + str(self.decision) + '\n'
-        string += '(time step: ' + str(self.dt) + '\n'
-        string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
-        return string
-
     def _new_trial(self, **kwargs):
         """
         new_trial() is called when a trial ends to generate the next trial.
