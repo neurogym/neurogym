@@ -18,29 +18,33 @@ from __future__ import division
 
 import numpy as np
 from gym import spaces
+
 from neurogym.ops import tasktools
 import neurogym as ngym
 
 
+def get_default_timing():
+    return {'fixation': ('constant', (100,)),
+            'stimulus': ('constant', (200,)),
+            'resp_delay': ('constant', (100,)),
+            'decision': ('constant', (100,))}
+
+
 class GNG(ngym.EpochEnv):
-    def __init__(self, dt=100, timing=(100, 200, 200, 200, 100, 100),
-                 **kwargs):
+    """Go-no-go task."""
+    def __init__(self, dt=100, timing=None, **kwargs):
         super().__init__(dt=dt)
         # Actions (fixate, go)
-        self.actions = [-1, 1]
+        self.actions = [0, 1]
         # trial conditions
-        self.choices = [-1, 1]
+        self.choices = [0, 1]
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
         # Durations
-        self.fixation = timing[0]
-        self.stimulus_min = timing[1]
-        self.stimulus_mean = timing[2]
-        self.stimulus_max = timing[3]
-        self.resp_delay = timing[4]
-        self.decision = timing[5]
-        self.mean_trial_duration = self.fixation + self.stimulus_mean +\
-            self.resp_delay + self.decision
+        default_timing = get_default_timing()
+        if timing is not None:
+            default_timing.update(timing)
+        self.set_epochtiming(default_timing)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -49,78 +53,47 @@ class GNG(ngym.EpochEnv):
         self.R_MISS = 0.
         self.abort = False
         # set action and observation spaces
-        self.stimulus_min = np.max([self.stimulus_min, dt])
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3, ),
                                             dtype=np.float32)
 
-    def __str__(self):
-        string = ''
-        if self.fixation == 0 or self.decision == 0 or self.stimulus_mean == 0:
-            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
-            string += 'the duration of the fixation, stimulus and decision '
-            string += 'periods must be larger than 0\n'
-            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
-        string += 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
-        string += 'max num. steps: ' + str(self.mean_trial_duration/self.dt) + '\n'
-        return string
-
     def _new_trial(self):
-        # ---------------------------------------------------------------------
-        # Epochs
-        # ---------------------------------------------------------------------
-        stimulus = tasktools.trunc_exp(self.rng, self.dt,
-                                                   self.stimulus_mean,
-                                                   xmin=self.stimulus_min,
-                                                   xmax=self.stimulus_max)
-        self.add_epoch('fixation', self.fixation, after=0)
-        self.add_epoch('stimulus', stimulus, after='fixation')
-        self.add_epoch('resp_delay', self.resp_delay, after='stimulus')
-        self.add_epoch('decision', self.decision, after='resp_delay', last_epoch=True)
-        # ---------------------------------------------------------------------
-        # Trial
-        # ---------------------------------------------------------------------
+        # Trial info
         ground_truth = self.rng.choice(self.choices)
+
+        # Epoch info
+        self.add_epoch('fixation', after=0)
+        self.add_epoch('stimulus', after='fixation')
+        self.add_epoch('resp_delay', after='stimulus')
+        self.add_epoch('decision', after='resp_delay', last_epoch=True)
+
+        self.set_ob('fixation', [1, 0, 0])
+        tmp =  [1, 0, 0]
+        tmp[ground_truth] = 1
+        self.set_ob('stimulus', tmp)
+        self.set_ob('resp_delay', [1, 0, 0])
+
+        self.set_groundtruth('decision', ground_truth)
 
         return {
             'ground_truth':  ground_truth,
             }
 
-    # Input scaling
-    def scale(self, coh):
-        return (1 + coh/100)/2
-
     def _step(self, action):
-        # ---------------------------------------------------------------------
-        # Reward and inputs
-        # ---------------------------------------------------------------------
-        trial = self.trial
         info = {'new_trial': False}
-        info['gt'] = np.zeros((2,))
         reward = 0
-        obs = np.zeros((3,))
+        obs = self.obs[self.t_ind]
+        gt = self.gt[self.t_ind]
         if self.in_epoch('fixation'):
-            info['gt'][0] = 1
-            obs[0] = 1  # fixation cue only during fixation period
-            if self.actions[action] != -1:
+            if action != 0:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch('decision'):
-            info['gt'][int((trial['ground_truth']/2+.5))] = 1
-            gt_sign = np.sign(trial['ground_truth'])
-            action_sign = np.sign(self.actions[action])
-            if (action_sign > 0):
+            if action != 0:
                 info['new_trial'] = True
-                if (gt_sign > 0):
+                if gt != 0:
                     reward = self.R_CORRECT
                 else:
                     reward = self.R_INCORRECT
-        else:
-            info['gt'][0] = 1
-
-        if self.in_epoch('stimulus'):
-            # observation
-            stim = (trial['ground_truth'] > 0) + 1
-            obs[stim] = 1
 
         return obs, reward, False, info
