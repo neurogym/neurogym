@@ -15,9 +15,14 @@ from neurogym.ops import tasktools
 import numpy as np
 from gym import spaces
 
-TIMING = {'fixation': [500, 200, 800], 'stimulus': [500, 200, 800],
-          'delay_btw_stim': [500, 200, 800],
-          'delay_aft_stim': [500, 200, 800], 'decision': [500, 200, 800]}
+
+def get_default_timing():
+    return {'fixation': ('truncated_exponential', [500, 200, 800]),
+            'stim1': ('truncated_exponential', [500, 200, 800]),
+            'delay_btw_stim': ('truncated_exponential', [500, 200, 800]),
+            'stim2': ('truncated_exponential', [500, 200, 800]),
+            'delay_aft_stim': ('truncated_exponential', [500, 200, 800]),
+            'decision': ('truncated_exponential', [500, 200, 800])}
 
 
 class GenTask(ngym.EpochEnv):
@@ -35,27 +40,24 @@ class GenTask(ngym.EpochEnv):
         self.sigma_dt = self.sigma / np.sqrt(self.dt)
         # Durations (stimulus duration will be drawn from an exponential)
         self.sim_stim = simultaneous_stim
+
+        default_timing = get_default_timing()
         if timing is not None:
-            for key in timing.keys():
-                assert key in TIMING.keys()
-                TIMING[key] = timing[key]
-        self.timing = TIMING
+            default_timing.update(timing)
+        self.set_epochtiming(default_timing)
 
-        self.timing_fn_dict = dict()
-        for key, val in TIMING.items():
-            self.timing_fn_dict[key] = tasktools.random_number_fn('truncated_exponential', *val)
+        # TODO Fix this
+        # self.mean_trial_duration = 0
+        # self.max_trial_duration = 0
+        # for key in self.timing.keys():
+        #     self.mean_trial_duration += self.timing[key][0]
+        #     self.max_trial_duration += self.timing[key][2]
+        #     self.timing[key][1] = max(self.timing[key][1], self.dt)
+        # if not self.sim_stim:
+        #     self.mean_trial_duration += self.timing['stimulus'][0]
+        #     self.max_trial_duration += self.timing['stimulus'][2]
 
-        self.mean_trial_duration = 0
-        self.max_trial_duration = 0
-        for key in self.timing.keys():
-            self.mean_trial_duration += self.timing[key][0]
-            self.max_trial_duration += self.timing[key][2]
-            self.timing[key][1] = max(self.timing[key][1], self.dt)
-        if not self.sim_stim:
-            self.mean_trial_duration += self.timing['stimulus'][0]
-            self.max_trial_duration += self.timing['stimulus'][2]
-
-        self.max_steps = int(self.max_trial_duration/dt)
+        # self.max_steps = int(self.max_trial_duration/dt)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -118,32 +120,25 @@ class GenTask(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        if 'durs' not in kwargs.keys():
-            durs = dict.fromkeys(TIMING.keys())
-            for key in durs.keys():
-                # durs[key] = tasktools.trunc_exp(self.rng, self.dt,
-                #                                 self.timing[key][0],
-                #                                 self.timing[key][1],
-                #                                 self.timing[key][2])
-                durs[key] = self.timing_fn_dict[key]()
-        else:
-            durs = kwargs['durs']
-            durs_temp = dict.fromkeys(TIMING.keys())
-            for key in durs_temp.keys():
-                if key in durs.keys():
-                    durs_temp[key] = durs[key]
-                else:
-                    durs[key] = self.timing_fn_dict[key]()
+        # TODO: Code up the situation of overwriting duration
+        # if 'durs' in kwargs.keys():
+        #     durs = kwargs['durs']
+        #     durs_temp = dict.fromkeys(TIMING.keys())
+        #     for key in durs_temp.keys():
+        #         if key in durs.keys():
+        #             durs_temp[key] = durs[key]
+        #         else:
+        #             durs[key] = self.timing_fn_dict[key]()
 
-        if self.sim_stim:
-            durs['delay_btw_stim'] = 0
+        # if self.sim_stim:
+        #     durs['delay_btw_stim'] = 0
 
-        self.add_epoch('fixation', durs['fixation'], after=0)
-        self.add_epoch('stim1', durs['stimulus'], after='fixation')
-        self.add_epoch('delay_btw_stim', durs['delay_btw_stim'], after='stim1')
-        self.add_epoch('stim2', durs['stimulus'], after='delay_btw_stim')
-        self.add_epoch('delay_aft_stim', durs['delay_aft_stim'], after='stim2')
-        self.add_epoch('decision', durs['decision'], after='delay_aft_stim', last_epoch=True)
+        self.add_epoch('fixation', after=0)
+        self.add_epoch('stim1', after='fixation')
+        self.add_epoch('delay_btw_stim', after='stim1')
+        self.add_epoch('stim2', after='delay_btw_stim')
+        self.add_epoch('delay_aft_stim', after='stim2')
+        self.add_epoch('decision', after='delay_aft_stim', last_epoch=True)
 
         # ---------------------------------------------------------------------
         # Trial

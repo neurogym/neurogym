@@ -6,6 +6,7 @@ import random
 import numpy as np
 import gym
 
+from neurogym.ops.tasktools import random_number_fn
 
 class BaseEnv(gym.Env):
     """The base Neurogym class to include dt"""
@@ -103,20 +104,39 @@ class EpochEnv(Env):
             dt=dt, num_trials_before_reset=num_trials_before_reset)
 
         self.gt = None
+        self.timing = None
+        self.timing_fn = None
 
-    def add_epoch(self, epoch, duration, before=None, after=None,
+    def set_epochtiming(self, epochtiming):
+        """Set epoch timing.
+
+        Args:
+            epochtiming: dict of tuple. The tuple is (dist, args).
+                dist for distribution type, args for distribution arguments
+        """
+        self.timing = epochtiming
+        self.timing_fn = dict()
+        for key, val in epochtiming.items():
+            dist, args = val
+            self.timing_fn[key] = random_number_fn(dist, *args)
+
+    def add_epoch(self, epoch, duration=None, before=None, after=None,
                   last_epoch=False):
         """Add an epoch.
 
         Args:
             epoch: string, name of the epoch
-            duration: float, duration of the epoch
+            duration: float or None, duration of the epoch
+                if None, inferred from timing_fn
             before: (optional) string, name of epoch that this epoch is before
             after: (optional) string, name of epoch that this epoch is after
                 or float, time of epoch start
             last_epoch: bool, default False. If True, then this is last epoch
                 will generate self.tmax, self.tind, and self.obs
         """
+        if duration is None:
+            duration = self.timing_fn[epoch]()
+
         if after is not None:
             if isinstance(after, str):
                 start = getattr(self, after + '_1')
