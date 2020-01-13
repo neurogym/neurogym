@@ -40,6 +40,20 @@ class TrialEnv(BaseEnv):
         self.num_tr_exp = num_trials_before_reset
         self.seed()
 
+    def _new_trial(self):
+        """Private interface for starting a new trial.
+
+        Returns:
+            trial_info: a dictionary of trial information
+        """
+        raise NotImplementedError('_new_trial is not defined by user.')
+
+    def new_trial(self):
+        """Public interface for starting a new trial."""
+        self.t = self.t_ind = 0  # Reset within trial time count
+        self.num_tr += 1  # Increment trial count
+        return self._new_trial()  # Run user defined _new_trial method
+
     def _step(self, action):
         """Private interface for the environment.
 
@@ -48,14 +62,6 @@ class TrialEnv(BaseEnv):
         useful information
         """
         raise NotImplementedError('_step is not defined by user.')
-
-    def _new_trial(self):
-        """Private interface for starting a new trial.
-
-        Returns:
-            trial_info: a dictionary of trial information
-        """
-        raise NotImplementedError('_new_trial is not defined by user.')
 
     def step(self, action):
         """Public interface for the environment."""
@@ -72,11 +78,7 @@ class TrialEnv(BaseEnv):
             self.new_trial()
         return obs, reward, done, info
 
-    def new_trial(self):
-        """Public interface for starting a new trial."""
-        self.t = self.t_ind = 0  # Reset within trial time count
-        self.num_tr += 1  # Increment trial count
-        return self._new_trial()  # Run user defined _new_trial method
+
 
     def reset(self):
         """
