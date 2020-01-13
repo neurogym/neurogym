@@ -84,6 +84,20 @@ def random_number_fn(dist, *args):
         raise ValueError('Unknown dist:', str(dist))
 
 
+def minmax_number(dist, *args):
+    """Given input to the random_number_fn function, return min and max."""
+    if dist == 'uniform':
+        return args[0], args[1]
+    elif dist == 'choice':
+        return np.min(args[0]), np.max(args[0])
+    elif dist == 'truncated_exponential':
+        return args[1], args[2]
+    elif dist == 'constant':
+        return args[0], args[0]
+    else:
+        raise ValueError('Unknown dist:', str(dist))
+
+
 def divide(x, y):
     try:
         z = x/y

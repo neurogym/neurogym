@@ -27,6 +27,7 @@ import neurogym as ngym
 def get_default_timing():
     return {'fixation': ('constant', (500,)),
             'ready': ('constant', (83,)),
+            'measure': ('choice', ([500, 580, 660, 760, 840, 920, 1000],)),
             'set': ('constant', (83,))}
 
 
@@ -39,8 +40,6 @@ class ReadySetGo(ngym.EpochEnv):
         self.actions = [-1, 1]
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
-        # possible durations
-        self.measures = [500, 580, 660, 760, 840, 920, 1000]
         # gain
         self.gain = gain
 
@@ -61,13 +60,12 @@ class ReadySetGo(ngym.EpochEnv):
                                             dtype=np.float32)
 
     def _new_trial(self):
-        measure = self.rng.choice(self.measures)
-        production = measure * self.gain
-
         self.add_epoch('fixation', after=0)
         self.add_epoch('ready', after='fixation')
-        self.add_epoch('measure', duration=measure, after='fixation')
+        self.add_epoch('measure', after='fixation')
         self.add_epoch('set', after='measure')
+        measure = self.measure_1 - self.measure_0
+        production = measure * self.gain
         self.add_epoch('production', duration=2*production, after='set', last_epoch=True)
 
         self.set_ob('fixation', [1, 0, 0])

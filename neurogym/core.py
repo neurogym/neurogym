@@ -6,7 +6,8 @@ import random
 import numpy as np
 import gym
 
-from neurogym.ops.tasktools import random_number_fn
+from neurogym.ops import tasktools
+
 
 class BaseEnv(gym.Env):
     """The base Neurogym class to include dt"""
@@ -109,13 +110,21 @@ class EpochEnv(Env):
 
     def __str__(self):
         """Information about task."""
+        total_min, total_max = 0, 0  # min and max time length of trial
         string = ''
         for key, val in self.timing.items():
             dist, args = val
             string += 'Epoch ' + key + '\n'
             string += '    Distribution ' + dist + '\n'
             string += '    Parameters ' + str(args) + '\n'
+
+            min_tmp, max_tmp = tasktools.minmax_number(dist, *args)
+            total_min += min_tmp
+            total_max += max_tmp
+
         string += 'Time step {:0.2f}ms\n'.format(self.dt)
+        string += 'Estimate time per trial assuming sequential epoch\n'
+        string += 'Min/Max: {:0.2f}/{:0.2f}\n'.format(total_min, total_max)
         return string
 
     def set_epochtiming(self, epochtiming):
@@ -129,7 +138,7 @@ class EpochEnv(Env):
         self.timing_fn = dict()
         for key, val in epochtiming.items():
             dist, args = val
-            self.timing_fn[key] = random_number_fn(dist, *args)
+            self.timing_fn[key] = tasktools.random_number_fn(dist, *args)
 
     def add_epoch(self, epoch, duration=None, before=None, after=None,
                   last_epoch=False):
