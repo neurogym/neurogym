@@ -12,8 +12,16 @@ from neurogym.ops import tasktools
 import neurogym as ngym
 
 
+def get_default_timing():
+    return {'fixation': ('constant', (500,)),
+            'sample': ('constant', (500,)),
+            'delay': ('constant', (1500,)),
+            'test': ('constant', (500,)),
+            'decision': ('constant', (500,))}
+
+
 class DelayedMatchToSample(ngym.EpochEnv):
-    def __init__(self, dt=100, timing=(500, 500, 1500, 500, 500)):
+    def __init__(self, dt=100, timing=None):
         super().__init__(dt=dt)
         # TODO: Code a continuous space version
         # Actions ('FIXATE', 'MATCH', 'NONMATCH')
@@ -21,13 +29,10 @@ class DelayedMatchToSample(ngym.EpochEnv):
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
 
-        # TODO: Find these info from a paper
-        self.fixation = timing[0]
-        self.sample = timing[1]
-        self.delay = timing[2]
-        self.test = timing[3]
-        self.decision = timing[4]
-        self.tmax = np.sum(timing)
+        default_timing = get_default_timing()
+        if timing is not None:
+            default_timing.update(timing)
+        self.set_epochtiming(default_timing)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -39,20 +44,6 @@ class DelayedMatchToSample(ngym.EpochEnv):
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
-
-        self.trial = self._new_trial()
-
-    def __str__(self):
-        mean_trial_duration = self.tmax
-        string = ''
-        if self.fixation == 0 or self.sample == 0 or self.delay == 0 or\
-           self.test == 0 or self.decision == 0:
-            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
-            string += 'the duration of all periods must be larger than 0\n'
-            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
-        string += 'mean trial duration: ' + str(mean_trial_duration)
-        string += ' (max num. steps: ' + str(mean_trial_duration/self.dt) + '\n'
-        return string
 
     def _new_trial(self):
         # ---------------------------------------------------------------------
@@ -67,11 +58,11 @@ class DelayedMatchToSample(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        self.add_epoch('fixation', self.fixation, after=0)
-        self.add_epoch('sample', self.sample, after='fixation')
-        self.add_epoch('delay', self.delay, after='sample')
-        self.add_epoch('test', self.test, after='delay')
-        self.add_epoch('decision', self.decision, after='test', last_epoch=True)
+        self.add_epoch('fixation', after=0)
+        self.add_epoch('sample', after='fixation')
+        self.add_epoch('delay', after='sample')
+        self.add_epoch('test', after='delay')
+        self.add_epoch('decision', after='test', last_epoch=True)
 
         self.set_ob('fixation', [1, 0, 0])
         tmp = [1, 0, 0]

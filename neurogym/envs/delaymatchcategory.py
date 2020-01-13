@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Delay Match to sample
+Delay Match to category
 
 """
 from __future__ import division
@@ -13,16 +13,16 @@ import neurogym as ngym
 from neurogym.ops import tasktools
 
 
+def get_default_timing():
+    return {'fixation': ('constant', (500,)),
+            'sample': ('constant', (500,)),
+            'delay': ('constant', (1500,)),
+            'test': ('constant', (500,)),
+            'decision': ('constant', (500,))}
+
+
 class DelayedMatchCategory(ngym.EpochEnv):
-    def __init__(self,
-                 dt=100,
-                 tmax=3500,
-                 fixation=500,
-                 sample=500,
-                 delay=1500,
-                 test=500,
-                 decision=500,
-                 ):
+    def __init__(self, dt=100, timing=None):
         super().__init__(dt=dt)
         self.choices = [1, 2]  # match, non-match
 
@@ -31,13 +31,10 @@ class DelayedMatchCategory(ngym.EpochEnv):
         self.sigma_dt = self.sigma / np.sqrt(self.dt)
 
         # TODO: Find these info from a paper
-        self.tmax = tmax
-        self.fixation = fixation
-        self.sample = sample
-        self.delay = delay
-        self.test = test
-        self.decision = decision
-        self.mean_trial_duration = self.tmax
+        default_timing = get_default_timing()
+        if timing is not None:
+            default_timing.update(timing)
+        self.set_epochtiming(default_timing)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -51,11 +48,6 @@ class DelayedMatchCategory(ngym.EpochEnv):
         # Fixation + cos(theta) + sin(theta)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
-
-    def __str__(self):
-        string = 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
-        string += 'max num. steps: ' + str(self.mean_trial_duration / self.dt)
-        return string
 
     def _new_trial(self, **kwargs):
         """
@@ -88,24 +80,11 @@ class DelayedMatchCategory(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        if 'durs' in kwargs.keys():
-            fixation = kwargs['durs'][0]
-            sample = kwargs['durs'][1]
-            delay = kwargs['durs'][2]
-            test = kwargs['durs'][3]
-            decision = kwargs['durs'][4]
-        else:
-            fixation = self.fixation
-            sample = self.sample
-            delay = self.delay
-            test = self.test
-            decision = self.decision
-
-        self.add_epoch('fixation', duration=fixation, after=0)
-        self.add_epoch('sample', duration=sample, after='fixation')
-        self.add_epoch('delay', duration=delay, after='sample')
-        self.add_epoch('test', duration=test, after='delay')
-        self.add_epoch('decision', duration=decision, after='test', last_epoch=True)
+        self.add_epoch('fixation', after=0)
+        self.add_epoch('sample', after='fixation')
+        self.add_epoch('delay', after='sample')
+        self.add_epoch('test', after='delay')
+        self.add_epoch('decision', after='test', last_epoch=True)
 
         self.set_ob('fixation', [1, 0, 0])
         self.set_ob('sample', [1, np.cos(sample_theta), np.sin(sample_theta)])

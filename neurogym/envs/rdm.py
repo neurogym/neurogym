@@ -23,6 +23,7 @@ from neurogym.ops import tasktools
 import neurogym as ngym
 
 
+# TODO: Delete this file
 class RDM(ngym.EpochEnv):
     def __init__(self, dt=100, timing=(500, 80, 330, 1500, 500), stimEv=1.,
                  **kwargs):

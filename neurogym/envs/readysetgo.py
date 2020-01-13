@@ -24,8 +24,14 @@ from neurogym.ops import tasktools
 import neurogym as ngym
 
 
+def get_default_timing():
+    return {'fixation': ('constant', (500,)),
+            'ready': ('constant', (83,)),
+            'set': ('constant', (83,))}
+
+
 class ReadySetGo(ngym.EpochEnv):
-    def __init__(self, dt=80, timing=(500, 83, 83), gain=1):
+    def __init__(self, dt=80, timing=None, gain=1):
         super().__init__(dt=dt)
         # if dt > 80:
         # raise ValueError('dt {:0.2f} too large for this task.'.format(dt))
@@ -38,10 +44,10 @@ class ReadySetGo(ngym.EpochEnv):
         # gain
         self.gain = gain
 
-        # Durations
-        self.fixation = timing[0]  # 500
-        self.ready = timing[1]  # 83
-        self.set = timing[2]  # 83
+        default_timing = get_default_timing()
+        if timing is not None:
+            default_timing.update(timing)
+        self.set_epochtiming(default_timing)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -53,40 +59,21 @@ class ReadySetGo(ngym.EpochEnv):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
-        # seeding
-        self.seed()
-        self.viewer = None
-
-        self.trial = self._new_trial()
-
-    def __str__(self):
-        max_trial_duration = self.fixation + np.max(self.measures) + \
-                             self.set + 2 * self.gain * self.set
-        string = ''
-        if self.fixation == 0 or self.ready == 0 or self.set == 0:
-            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
-            string += 'the duration of all periods must be larger than 0\n'
-            string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
-        string += 'mean trial duration: ' + str(max_trial_duration) + '\n'
-        string += ' (max num. steps: ' + str(max_trial_duration/self.dt)
-        return string
 
     def _new_trial(self):
-        # ---------------------------------------------------------------------
-        # Epochs
-        # ---------------------------------------------------------------------
         measure = self.rng.choice(self.measures)
         production = measure * self.gain
 
-        self.add_epoch('fixation', self.fixation, after=0)
-        self.add_epoch('ready', self.ready, after='fixation')
-        self.add_epoch('measure', measure, after='fixation')
-        self.add_epoch('set', self.set, after='measure')
-        self.add_epoch('production', 2*production, after='set', last_epoch=True)
+        self.add_epoch('fixation', after=0)
+        self.add_epoch('ready', after='fixation')
+        self.add_epoch('measure', duration=measure, after='fixation')
+        self.add_epoch('set', after='measure')
+        self.add_epoch('production', duration=2*production, after='set', last_epoch=True)
 
-        # ---------------------------------------------------------------------
-        # Trial
-        # ---------------------------------------------------------------------
+        self.set_ob('fixation', [1, 0, 0])
+        self.set_ob('ready', [0, 1, 0])
+        self.set_ob('set', [0, 0, 1])
+
         return {
             'measure': measure,
             'production': production,
@@ -99,9 +86,8 @@ class ReadySetGo(ngym.EpochEnv):
         trial = self.trial
         info = {'new_trial': False, 'gt': np.zeros((2,))}
         reward = 0
-        obs = np.zeros((3,))
+        obs = self.obs[self.t_ind]
         if self.in_epoch('fixation'):
-            obs[0] = 1
             info['gt'][0] = 1
             if self.actions[action] != -1:
                 info['new_trial'] = self.abort
@@ -125,10 +111,5 @@ class ReadySetGo(ngym.EpochEnv):
                     reward *= self.R_CORRECT
         else:
             info['gt'][0] = 1
-
-        if self.in_epoch('ready'):
-            obs[1] = 1
-        if self.in_epoch('set'):
-            obs[2] = 1
 
         return obs, reward, False, info

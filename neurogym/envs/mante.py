@@ -13,8 +13,15 @@ from neurogym.ops import tasktools
 import neurogym as ngym
 
 
+def get_default_timing():
+    return {'fixation': ('constant', (750,)),
+            'stimulus': ('constant', (750,)),
+            'delay': ('truncated_exponential', [300, 83, 1200]),
+            'decision': ('constant', (500,))}
+
+
 class Mante(ngym.EpochEnv):
-    def __init__(self, dt=100, timing=[750, 750, 83, 300, 1200, 500]):
+    def __init__(self, dt=100, timing=None):
         super(Mante, self).__init__(dt=dt)
 
         # trial conditions
@@ -31,25 +38,15 @@ class Mante(ngym.EpochEnv):
         self.R_MISS = 0.
         self.abort = False
 
-        # Epoch durations
-        self.fixation = timing[0]
-        self.stimulus = timing[1]
-        self.delay_min = timing[2]
-        self.delay_mean = timing[3]
-        self.delay_max = timing[4]
-        self.decision = timing[5]
-        self.mean_trial_duration = self.fixation + self.stimulus +\
-            self.delay_mean + self.decision
+        default_timing = get_default_timing()
+        if timing is not None:
+            default_timing.update(timing)
+        self.set_epochtiming(default_timing)
 
         # set action and observation space
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(6,),
                                             dtype=np.float32)
-
-    def __str__(self):
-        string = 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
-        string += ' (max num. steps: ' + str(self.mean_trial_duration / self.dt)
-        return string
 
     def _new_trial(self):
         # -------------------------------------------------------------------------
@@ -65,13 +62,10 @@ class Mante(ngym.EpochEnv):
         # -----------------------------------------------------------------------
         # Epochs
         # -----------------------------------------------------------------------
-        delay = self.delay_min +\
-            tasktools.trunc_exp(self.rng, self.dt, self.delay_mean,
-                                            xmax=self.delay_max)
-        self.add_epoch('fixation', self.fixation, after=0)
-        self.add_epoch('stimulus', self.stimulus, after='fixation')
-        self.add_epoch('delay', delay, after='stimulus')
-        self.add_epoch('decision', self.decision, after='delay', last_epoch=True)
+        self.add_epoch('fixation', after=0)
+        self.add_epoch('stimulus', after='fixation')
+        self.add_epoch('delay', after='stimulus')
+        self.add_epoch('decision', after='delay', last_epoch=True)
 
         if choice_m == 1:
             high_m, low_m = 2, 3

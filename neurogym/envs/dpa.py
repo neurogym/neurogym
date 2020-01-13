@@ -21,6 +21,7 @@ import neurogym as ngym
 from gym import spaces
 
 
+# TODO: This task is obsolete
 class DPA(ngym.EpochEnv):
     def __init__(self, dt=100,
                  timing=(100, 200, 600, 600, 200, 100, 100)):
