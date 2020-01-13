@@ -46,19 +46,6 @@ class GenTask(ngym.EpochEnv):
             default_timing.update(timing)
         self.set_epochtiming(default_timing)
 
-        # TODO Fix this
-        # self.mean_trial_duration = 0
-        # self.max_trial_duration = 0
-        # for key in self.timing.keys():
-        #     self.mean_trial_duration += self.timing[key][0]
-        #     self.max_trial_duration += self.timing[key][2]
-        #     self.timing[key][1] = max(self.timing[key][1], self.dt)
-        # if not self.sim_stim:
-        #     self.mean_trial_duration += self.timing['stimulus'][0]
-        #     self.max_trial_duration += self.timing['stimulus'][2]
-
-        # self.max_steps = int(self.max_trial_duration/dt)
-
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
@@ -67,6 +54,7 @@ class GenTask(ngym.EpochEnv):
         self.abort = False
         self.firstcounts = True
         self.first_flag = False
+
         # action and observation spaces
         self.gng = gng*1
         self.action_space = spaces.Discrete(3-self.gng)

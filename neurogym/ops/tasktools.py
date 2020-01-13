@@ -69,31 +69,31 @@ def trunc_exp_new(mean, xmin=0, xmax=np.inf):
                 return x
 
 
-def random_number_fn(dist, *args):
+def random_number_fn(dist, args):
     """Return a random number generating function from a distribution."""
     # TODO: right now this is not friendly to functions that take a single argument
     if dist == 'uniform':
         return lambda : np.random.uniform(*args)
     elif dist == 'choice':
-        return lambda : np.random.choice(*args)
+        return lambda : np.random.choice(args)
     elif dist == 'truncated_exponential':
         return lambda : trunc_exp_new(*args)
     elif dist == 'constant':
-        return lambda : args[0]  # TODO: This is pretty terrible right now
+        return lambda : args  # TODO: This is pretty terrible right now
     else:
         raise ValueError('Unknown dist:', str(dist))
 
 
-def minmax_number(dist, *args):
+def minmax_number(dist, args):
     """Given input to the random_number_fn function, return min and max."""
     if dist == 'uniform':
         return args[0], args[1]
     elif dist == 'choice':
-        return np.min(args[0]), np.max(args[0])
+        return np.min(args), np.max(args)
     elif dist == 'truncated_exponential':
         return args[1], args[2]
     elif dist == 'constant':
-        return args[0], args[0]
+        return args, args
     else:
         raise ValueError('Unknown dist:', str(dist))
 

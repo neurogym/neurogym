@@ -115,10 +115,9 @@ class EpochEnv(Env):
         for key, val in self.timing.items():
             dist, args = val
             string += 'Epoch ' + key + '\n'
-            string += '    Distribution ' + dist + '\n'
-            string += '    Parameters ' + str(args) + '\n'
+            string += '    ' + dist + ' ' + str(args) + '\n'
 
-            min_tmp, max_tmp = tasktools.minmax_number(dist, *args)
+            min_tmp, max_tmp = tasktools.minmax_number(dist, args)
             total_min += min_tmp
             total_max += max_tmp
 
@@ -138,7 +137,7 @@ class EpochEnv(Env):
         self.timing_fn = dict()
         for key, val in epochtiming.items():
             dist, args = val
-            self.timing_fn[key] = tasktools.random_number_fn(dist, *args)
+            self.timing_fn[key] = tasktools.random_number_fn(dist, args)
 
     def add_epoch(self, epoch, duration=None, before=None, after=None,
                   last_epoch=False):
