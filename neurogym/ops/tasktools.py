@@ -201,5 +201,6 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
     plt.title('reward')
     plt.xlim([-0.5, n_stps_plt+0.5])
     plt.title(name + '  ' + str(np.mean(perf)))
+    plt.tight_layout()
     plt.show()
     return np.mean(perf)

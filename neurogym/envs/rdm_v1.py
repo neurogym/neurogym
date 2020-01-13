@@ -33,13 +33,6 @@ class RDM(ngym.EpochEnv):
             default_timing.update(timing)
         self.set_epochtiming(default_timing)
 
-        # self.mean_trial_duration = self.fixation + self.stimulus_mean + \
-        #                            self.decision
-        # # TODO: How to make this easier?
-        # self.max_trial_duration = self.fixation + self.stimulus_max + \
-        #                           self.decision
-        # self.max_steps = int(self.max_trial_duration / dt)
-
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
@@ -66,9 +59,6 @@ class RDM(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         ground_truth = self.rng.choice(self.choices)
         coh = self.rng.choice(self.cohs)
-        self.ground_truth = ground_truth
-        self.coh = coh
-
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
@@ -78,9 +68,10 @@ class RDM(ngym.EpochEnv):
 
         self.set_ob('fixation', [1, 0, 0])
         if ground_truth == 1:
-            self.set_ob('stimulus', [1,  (1 + coh / 100) / 2, (1 - coh / 100) / 2])
+            stimulus = [1,  (1 + coh / 100) / 2, (1 - coh / 100) / 2]
         else:
-            self.set_ob('stimulus', [1,  (1 - coh / 100) / 2, (1 + coh / 100) / 2])
+            stimulus = [1,  (1 - coh / 100) / 2, (1 + coh / 100) / 2]
+        self.set_ob('stimulus', stimulus)
 
         self.obs[self.stimulus_ind0:self.stimulus_ind1] += np.random.randn(
             *self.obs[self.stimulus_ind0:self.stimulus_ind1].shape) * self.sigma_dt
@@ -97,9 +88,6 @@ class RDM(ngym.EpochEnv):
                 ground truth correct response, info['gt']
                 boolean indicating the end of the trial, info['new_trial']
         """
-        # ---------------------------------------------------------------------
-        # Reward and observations
-        # ---------------------------------------------------------------------
         new_trial = False
         # rewards
         reward = 0
