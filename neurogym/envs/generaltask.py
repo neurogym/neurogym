@@ -73,24 +73,6 @@ class GenTask(ngym.EpochEnv):
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
 
-    def __str__(self):
-        string = ''
-        string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
-        string += '2-Alternative Forced Choice Task\n'
-        string += 'Mean Fixation: ' + str(self.timing['fixation'][0]) + '\n'
-        string += 'Mean stimulus period: ' + str(self.timing['stimulus'][0]) + '\n'
-        if not self.sim_stim:
-            string += 'Mean delay btw stims: ' + str(self.timing['delay_btw_stim'][0]) + '\n'
-        else:
-            string += 'stimuli presented simultaneously\n'
-        string += 'Mean delay post-stim: ' + str(self.timing['delay_aft_stim'][0]) + '\n'
-        string += 'Mean response window: ' + str(self.timing['decision'][0]) + '\n'
-        string += 'Mean trial duration : ' + str(self.mean_trial_duration) + '\n'
-        string += 'Max trial duration : ' + str(self.max_trial_duration) + '\n'
-        string += '(time step: ' + str(self.dt) + '\n'
-        string += 'XXXXXXXXXXXXXXXXXXXXXX\n'
-        return string
-
     def _new_trial(self, **kwargs):
         """
         new_trial() is called when a trial ends to generate the next trial.
@@ -121,15 +103,6 @@ class GenTask(ngym.EpochEnv):
         # Epochs
         # ---------------------------------------------------------------------
         # TODO: Code up the situation of overwriting duration
-        # if 'durs' in kwargs.keys():
-        #     durs = kwargs['durs']
-        #     durs_temp = dict.fromkeys(TIMING.keys())
-        #     for key in durs_temp.keys():
-        #         if key in durs.keys():
-        #             durs_temp[key] = durs[key]
-        #         else:
-        #             durs[key] = self.timing_fn_dict[key]()
-
         # if self.sim_stim:
         #     durs['delay_btw_stim'] = 0
 
