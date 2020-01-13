@@ -12,7 +12,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class MatchingPenny(ngym.Env):
+class MatchingPenny(ngym.TrialEnv):
     def __init__(self, dt=100, opponent_type=None, timing=()):
         super().__init__(dt=dt)
         # TODO: remain to be carefully tested

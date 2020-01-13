@@ -12,7 +12,7 @@ from neurogym.ops import tasktools
 import neurogym as ngym
 
 
-class DawTwoStep(ngym.Env):
+class DawTwoStep(ngym.TrialEnv):
     def __init__(self, dt=100, timing=()):
         super().__init__(dt=dt)
         # Actions ('FIXATE', 'ACTION1', 'ACTION2')

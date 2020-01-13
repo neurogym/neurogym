@@ -11,7 +11,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class Bandit(ngym.Env):
+class Bandit(ngym.TrialEnv):
     def __init__(self, dt=100, n_arm=2, probs=[.9, .1], timing=[]):
         super().__init__(dt=dt)
         # Rewards

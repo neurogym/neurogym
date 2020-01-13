@@ -28,11 +28,11 @@ class BaseEnv(gym.Env):
         return self.step(self.action_space.sample())
 
 
-class Env(BaseEnv):
+class TrialEnv(BaseEnv):
     """The main Neurogym class for trial-based tasks."""
 
     def __init__(self, dt=100, num_trials_before_reset=10000000):
-        super(Env, self).__init__(dt=dt)
+        super(TrialEnv, self).__init__(dt=dt)
         self.dt = dt
         self.t = self.t_ind = 0
         self.tmax = 10000  # maximum time steps
@@ -97,7 +97,7 @@ class Env(BaseEnv):
         pass
 
 
-class EpochEnv(Env):
+class EpochEnv(TrialEnv):
     """Environment class with trial/epoch structure."""
 
     def __init__(self, dt=100, num_trials_before_reset=10000000):

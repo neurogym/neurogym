@@ -8,7 +8,7 @@ import neurogym as ngym
 from neurogym.ops import tasktools
 
 
-class MemoryRecall(ngym.Env):
+class MemoryRecall(ngym.TrialEnv):
     # TODO: Need to be made more general by passing the memories
     def __init__(
             self,

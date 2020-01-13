@@ -109,7 +109,6 @@ class RDM(ngym.EpochEnv):
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
-
 if __name__ == '__main__':
     env = RDM()
     tasktools.plot_struct(env, num_steps_env=50000)
