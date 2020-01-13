@@ -43,7 +43,7 @@ class IBL(ngym.TrialEnv):
         obs += self._rng.randn(*obs.shape) * self.sigma
         self.obs = obs
 
-    def _new_trial(self):
+    def _new_trial(self, **kwargs):
         """
         _new_trial() is called when a trial ends to get the specifications of
         the next trial. Such specifications are stored in a dictionary with
@@ -97,7 +97,7 @@ class IBL_Block(IBL):
         self.block = 0
         self.block_size = 200
 
-    def _new_trial(self):
+    def _new_trial(self, **kwargs):
         """
         _new_trial() is called when a trial ends to get the specifications of
         the next trial. Such specifications are stored in a dictionary with

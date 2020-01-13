@@ -50,7 +50,7 @@ class DawTwoStep(ngym.TrialEnv):
         string += 'max num. steps: ' + str(self.mean_trial_duration / self.dt)
         return string
 
-    def _new_trial(self):
+    def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------

@@ -31,7 +31,7 @@ class MatchingPenny(ngym.TrialEnv):
 
         self.trial = self._new_trial()
 
-    def _new_trial(self):
+    def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial (trials are one step long)
         # ---------------------------------------------------------------------

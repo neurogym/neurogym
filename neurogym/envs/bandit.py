@@ -30,7 +30,7 @@ class Bandit(ngym.TrialEnv):
         self.seed()
         self.viewer = None
 
-    def _new_trial(self, high_reward_arm=0):
+    def _new_trial(self, high_reward_arm=0, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
