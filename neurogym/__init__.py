@@ -16,11 +16,9 @@ def register_neuroTask(id_task):
 all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
              'Romo-v0': 'neurogym.envs.romo:Romo',
              'RDM-v0': 'neurogym.envs.rdm:RDM',
-             'RDM-v1': 'neurogym.envs.rdm_v1:RDM',
              'padoaSch-v0': 'neurogym.envs.padoa_sch:PadoaSch',
              'pdWager-v0': 'neurogym.envs.pd_wager:PDWager',
              'DPA-v0': 'neurogym.envs.dpa:DPA',
-             'DPA-v1': 'neurogym.envs.dpa_v1:DPA',
              'GNG-v0': 'neurogym.envs.gng:GNG',
              'ReadySetGo-v0': 'neurogym.envs.readysetgo:ReadySetGo',
              'DelayedMatchSample-v0':
