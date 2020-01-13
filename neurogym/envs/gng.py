@@ -24,10 +24,10 @@ import neurogym as ngym
 
 
 def get_default_timing():
-    return {'fixation': ('constant', (100,)),
-            'stimulus': ('constant', (200,)),
-            'resp_delay': ('constant', (100,)),
-            'decision': ('constant', (100,))}
+    return {'fixation': ('constant', 100),
+            'stimulus': ('constant', 200),
+            'resp_delay': ('constant', 100),
+            'decision': ('constant', 100)}
 
 
 class GNG(ngym.EpochEnv):

@@ -25,10 +25,10 @@ import neurogym as ngym
 
 
 def get_default_timing():
-    return {'fixation': ('constant', (500,)),
-            'ready': ('constant', (83,)),
-            'measure': ('choice', ([500, 580, 660, 760, 840, 920, 1000],)),
-            'set': ('constant', (83,))}
+    return {'fixation': ('constant', 500),
+            'ready': ('constant', 83),
+            'measure': ('choice', [500, 580, 660, 760, 840, 920, 1000]),
+            'set': ('constant', 83)}
 
 
 class ReadySetGo(ngym.EpochEnv):

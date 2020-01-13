@@ -14,10 +14,10 @@ import neurogym as ngym
 
 
 def get_default_timing():
-    return {'fixation': ('constant', (750,)),
-            'stimulus': ('constant', (750,)),
+    return {'fixation': ('constant', 750),
+            'stimulus': ('constant', 750),
             'delay': ('truncated_exponential', [300, 83, 1200]),
-            'decision': ('constant', (500,))}
+            'decision': ('constant', 500)}
 
 
 class Mante(ngym.EpochEnv):
@@ -103,17 +103,17 @@ class Mante(ngym.EpochEnv):
         obs = self.obs[self.t_ind]
         gt = self.gt[self.t_ind]
 
-        info = {'new_trial': False}
+        new_trial = False
         reward = 0
         if self.in_epoch('fixation'):
-            if action != gt:
-                info['new_trial'] = self.abort
+            if action != 0:
+                new_trial = self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch('decision'):
             if action != 0:  # broke fixation
-                info['new_trial'] = True
+                new_trial = True
                 if action == gt:
                     reward = self.R_CORRECT
 
-        return obs, reward, False, info
+        return obs, reward, False, {'new_trial': new_trial}
 

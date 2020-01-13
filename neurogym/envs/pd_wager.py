@@ -24,11 +24,11 @@ import neurogym as ngym
 
 
 def get_default_timing():
-    return {'fixation': ('constant', (750,)),
+    return {'fixation': ('constant', 750),
             'stimulus': ('truncated_exponential', [180, 100, 800]),
             'delay': ('truncated_exponential', [1350, 1200, 1800]),
             'pre_sure': ('truncated_exponential', [575, 500, 750]),
-            'decision': ('constant', (500,))}
+            'decision': ('constant', 500)}
 
 
 class PDWager(ngym.EpochEnv):

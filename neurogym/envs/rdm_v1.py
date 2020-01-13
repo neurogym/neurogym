@@ -13,9 +13,9 @@ from neurogym.ops import tasktools
 
 
 def get_default_timing():
-    return {'fixation': ('constant', (500,)),
+    return {'fixation': ('constant', 500),
             'stimulus': ('truncated_exponential', [330, 80, 1500]),
-            'decision': ('constant', (500,))}
+            'decision': ('constant', 500)}
 
 
 class RDM(ngym.EpochEnv):

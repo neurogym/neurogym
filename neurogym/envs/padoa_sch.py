@@ -22,9 +22,9 @@ from gym import spaces
 
 
 def get_default_timing():
-    return {'fixation': ('constant', (750,)),
+    return {'fixation': ('constant', 750),
             'offer_on': ('truncated_exponential', [1500, 1000, 2000]),
-            'decision': ('constant', (750,))}
+            'decision': ('constant', 750)}
 
 
 class PadoaSch(ngym.EpochEnv):

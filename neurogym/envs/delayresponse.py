@@ -14,10 +14,10 @@ from neurogym.ops import tasktools
 
 
 def get_default_timing():
-    return {'fixation': ('constant', (500,)),
+    return {'fixation': ('constant', 500),
             'stimulus': ('truncated_exponential', [330, 80, 1500]),
-            'delay': ('choice', ([1000, 5000, 10000],)),
-            'decision': ('constant', (500,))}
+            'delay': ('choice', [1000, 5000, 10000]),
+            'decision': ('constant', 500)}
 
 
 class DR(ngym.EpochEnv):

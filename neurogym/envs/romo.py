@@ -19,11 +19,11 @@ import neurogym as ngym
 
 
 def get_default_timing():
-    return {'fixation': ('constant', (750,)),
-            'f1': ('constant', (500,)),
+    return {'fixation': ('constant', 750),
+            'f1': ('constant', 500),
             'delay': ('truncated_exponential', [3000, 2700, 3300]),
-            'f2': ('constant', (500,)),
-            'decision': ('constant', (500,))}
+            'f2': ('constant', 500),
+            'decision': ('constant', 500)}
 
 class Romo(ngym.EpochEnv):
     def __init__(self, dt=100, timing=None):

@@ -13,11 +13,11 @@ import neurogym as ngym
 
 
 def get_default_timing():
-    return {'fixation': ('constant', (500,)),
-            'sample': ('constant', (500,)),
-            'delay': ('constant', (1500,)),
-            'test': ('constant', (500,)),
-            'decision': ('constant', (500,))}
+    return {'fixation': ('constant', 500),
+            'sample': ('constant', 500),
+            'delay': ('constant', 1500),
+            'test': ('constant', 500),
+            'decision': ('constant', 500)}
 
 
 class DelayedMatchToSample(ngym.EpochEnv):
