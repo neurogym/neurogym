@@ -95,7 +95,7 @@ class DelayedMatchToSample(ngym.EpochEnv):
         gt = self.gt[self.t_ind]
 
         if self.in_epoch('fixation'):
-            if self.actions[action] != 0:
+            if action != 0:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch('decision'):
