@@ -2,7 +2,7 @@ import gym
 from gym.envs.registration import register
 
 from neurogym.core import BaseEnv
-from neurogym.core import Env
+from neurogym.core import TrialEnv
 from neurogym.core import EpochEnv
 
 
