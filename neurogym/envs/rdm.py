@@ -60,7 +60,6 @@ class RDM(ngym.EpochEnv):
         for key in info.keys():
             if key in kwargs:
                 info[key] = kwargs[key]
-        print('Ground truth', info['ground_truth'])
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------

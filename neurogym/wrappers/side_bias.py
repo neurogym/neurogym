@@ -44,7 +44,6 @@ class SideBias(ngym.TrialWrapper):
             while curr_block == self.curr_block:
                 curr_block = self.task.rng.choice(range(self.n_block))
             self.curr_block = curr_block
-        print('Block', self.curr_block)
         probs = self.choice_prob[self.curr_block]
 
         kwargs = dict()
