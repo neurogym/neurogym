@@ -63,7 +63,7 @@ class ReadySetGo(ngym.EpochEnv):
         self.add_epoch('ready', after='fixation')
         self.add_epoch('measure', after='fixation')
         self.add_epoch('set', after='measure')
-        measure = self.measure_1 - self.measure_0
+        measure = self.measure_1 - self.measure_0  # TODO: Not great
         production = measure * self.gain
         self.add_epoch('production', duration=2*production, after='set', last_epoch=True)
 
@@ -71,10 +71,9 @@ class ReadySetGo(ngym.EpochEnv):
         self.set_ob('ready', [0, 1, 0])
         self.set_ob('set', [0, 0, 1])
 
-        return {
-            'measure': measure,
+        self.trial = {
             'production': production,
-            }
+        }
 
     def _step(self, action):
         # ---------------------------------------------------------------------

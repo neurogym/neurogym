@@ -134,5 +134,5 @@ if __name__ == '__main__':
     # env_name = 'DelayedMatchCategory-v0'
     # env_name = 'MemoryRecall-v0'
     env_name = 'Bandit-v0'
-    test_plot(env_name)
+    # test_plot(env_name)
     # test_speed(env_name)

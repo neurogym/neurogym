@@ -17,7 +17,7 @@ class Bandit(ngym.TrialEnv):
         'paper_name': None,
     }
 
-    def __init__(self, dt=100, n_arm=2, probs=[.9, .1], timing=[]):
+    def __init__(self, dt=100, n_arm=2, probs=(.9, .1)):
         super().__init__(dt=dt)
         # Rewards
         self.R_CORRECT = +1.
@@ -32,21 +32,19 @@ class Bandit(ngym.TrialEnv):
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(1,),
                                             dtype=np.float32)
 
-        self.seed()
-        self.viewer = None
-
-    def new_trial(self, high_reward_arm=0, **kwargs):
+    def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
         rew_high_reward_arm = (self.rng.random() <
                                self.p_high) * self.R_CORRECT
         rew_low_reward_arm = (self.rng.random() < self.p_low) * self.R_CORRECT
-        return {
+        self.trial = {
             'rew_high_reward_arm': rew_high_reward_arm,
             'rew_low_reward_arm': rew_low_reward_arm,
-            'high_reward_arm': high_reward_arm,
+            'high_reward_arm': 0,
             }
+        self.trial.update(kwargs)
 
     def _step(self, action):
         trial = self.trial
@@ -58,7 +56,6 @@ class Bandit(ngym.TrialEnv):
         else:
             reward = trial['rew_low_reward_arm']
 
-        # ---------------------------------------------------------------------
         # new trial?
         info['new_trial'] = True
         return obs, reward, False, info

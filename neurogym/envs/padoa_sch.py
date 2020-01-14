@@ -72,12 +72,14 @@ class PadoaSch(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-        juice = self.rng.choice(self.juices)
+        self.trial = {
+            'juice': self.rng.choice(self.juices),
+            'offer': self.rng.choice(self.offers),
+        }
+        self.trial.update(kwargs)
 
-        offer = self.rng.choice(self.offers)
-
-        juiceL, juiceR = juice
-        nB, nA = offer
+        juiceL, juiceR = self.trial['juice']
+        nB, nA = self.trial['offer']
 
         if juiceL == 'A':
             nL, nR = nA, nB
@@ -103,13 +105,6 @@ class PadoaSch(ngym.EpochEnv):
         self.set_ob('offer_on', tmp)
         self.obs[self.offer_on_ind0:self.offer_on_ind1, [self.inputs['N-L'], self.inputs['N-R']]] += \
         np.random.randn(self.offer_on_ind1-self.offer_on_ind0, 2) * (self.sigma/np.sqrt(self.dt))
-
-        return {
-            'juice': juice,
-            'offer': offer,
-            'nL': nL,
-            'nR': nR
-            }
 
     def _step(self, action):
         trial = self.trial

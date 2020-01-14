@@ -38,11 +38,14 @@ class TrialEnv(BaseEnv):
         self.tmax = 10000  # maximum time steps
         self.num_tr = 0
         self.num_tr_exp = num_trials_before_reset
+        self.trial = None
         self.seed()
 
     def new_trial(self, **kwargs):
         """Public interface for starting a new trial.
 
+        This function can optionally update the self.trial
+        dictionary that contains information about current trial
         TODO: Need to clearly define the expected behavior
         """
         raise NotImplementedError('new_trial is not defined by user.')
@@ -82,7 +85,7 @@ class TrialEnv(BaseEnv):
         self.t = self.t_ind = 0
 
         # TODO: Check this works with wrapper
-        self.trial = self.new_trial()
+        self.new_trial()
         obs, _, _, _ = self.step(self.action_space.sample())
         return obs
 
