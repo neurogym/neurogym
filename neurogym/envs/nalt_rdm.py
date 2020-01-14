@@ -24,15 +24,18 @@ import neurogym as ngym
 from neurogym.ops import tasktools
 
 
-def get_default_timing():
-    return {'fixation': ('constant', 500),
-            'stimulus': ('truncated_exponential', [330, 80, 1500]),
-            'decision': ('constant', 500)}
-
-
 class nalt_RDM(ngym.EpochEnv):
+    metadata = {
+        'paper_link': None,
+        'paper_name': None,
+        'default_timing': {
+            'fixation': ('constant', 500),
+            'stimulus': ('truncated_exponential', [330, 80, 1500]),
+            'decision': ('constant', 500)},
+    }
+
     def __init__(self, dt=100, timing=None, stimEv=1., n_ch=3, **kwargs):
-        super().__init__(dt=dt)
+        super().__init__(dt=dt, timing=timing)
         self.n = n_ch
         self.choices = np.arange(n_ch) + 1
         # cohs specifies the amount of evidence (which is modulated by stimEv)
@@ -40,11 +43,6 @@ class nalt_RDM(ngym.EpochEnv):
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
         self.sigma_dt = self.sigma / np.sqrt(self.dt)
-
-        default_timing = get_default_timing()
-        if timing is not None:
-            default_timing.update(timing)
-        self.set_epochtiming(default_timing)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -114,8 +112,8 @@ class nalt_RDM(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         new_trial = False
 
-        obs = self.obs[self.t_ind]
-        gt = self.gt[self.t_ind]
+        obs = self.obs_now
+        gt = self.gt_now
 
         reward = 0
         if self.in_epoch('fixation'):

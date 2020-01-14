@@ -24,16 +24,20 @@ from neurogym.ops import tasktools
 import neurogym as ngym
 
 
-def get_default_timing():
-    return {'fixation': ('constant', 500),
+class ReadySetGo(ngym.EpochEnv):
+    metadata = {
+        'paper_link': 'https://www.sciencedirect.com/science/article/pii/S0896627318304185',
+        'paper_name': '''Flexible Sensorimotor Computations through Rapid
+        Reconfiguration of Cortical Dynamics''',
+        'default_timing': {
+            'fixation': ('constant', 500),
             'ready': ('constant', 83),
             'measure': ('choice', [500, 580, 660, 760, 840, 920, 1000]),
-            'set': ('constant', 83)}
+            'set': ('constant', 83)},
+    }
 
-
-class ReadySetGo(ngym.EpochEnv):
     def __init__(self, dt=80, timing=None, gain=1):
-        super().__init__(dt=dt)
+        super().__init__(dt=dt, timing=timing)
         # if dt > 80:
         # raise ValueError('dt {:0.2f} too large for this task.'.format(dt))
         # Actions (fixate, go)
@@ -42,11 +46,6 @@ class ReadySetGo(ngym.EpochEnv):
         self.sigma = np.sqrt(2*100*0.01)
         # gain
         self.gain = gain
-
-        default_timing = get_default_timing()
-        if timing is not None:
-            default_timing.update(timing)
-        self.set_epochtiming(default_timing)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -84,7 +83,7 @@ class ReadySetGo(ngym.EpochEnv):
         trial = self.trial
         info = {'new_trial': False, 'gt': np.zeros((2,))}
         reward = 0
-        obs = self.obs[self.t_ind]
+        obs = self.obs_now
         if self.in_epoch('fixation'):
             info['gt'][0] = 1
             if self.actions[action] != -1:

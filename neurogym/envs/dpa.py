@@ -13,19 +13,22 @@ import neurogym as ngym
 from neurogym.ops import tasktools
 
 
-def get_default_timing():
-    return {'fixation': ('truncated_exponential', [500, 200, 800]),
+class DPA(ngym.EpochEnv):
+    metadata = {
+        'paper_link': 'https://elifesciences.org/articles/43191',
+        'paper_name': '''Active information maintenance in working memory by a sensory cortex''',
+        'default_timing': {
+            'fixation': ('truncated_exponential', [500, 200, 800]),
             'stim1': ('truncated_exponential', [500, 200, 800]),
             'delay_btw_stim': ('truncated_exponential', [500, 200, 800]),
             'stim2': ('truncated_exponential', [500, 200, 800]),
             'delay_aft_stim': ('truncated_exponential', [500, 200, 800]),
-            'decision': ('truncated_exponential', [500, 200, 800])}
+            'decision': ('truncated_exponential', [500, 200, 800])},
+    }
 
-
-class DPA(ngym.EpochEnv):
     def __init__(self, dt=100, timing=None, noise=0.01,
                  simultaneous_stim=False, **kwargs):
-        super().__init__(dt=dt)
+        super().__init__(dt=dt, timing=timing)
         self.choices = [0, 1]
         # trial conditions
         self.dpa_pairs = [(1, 3), (1, 4), (2, 3), (2, 4)]
@@ -35,11 +38,6 @@ class DPA(ngym.EpochEnv):
         self.sigma_dt = self.sigma / np.sqrt(self.dt)
         # Durations (stimulus duration will be drawn from an exponential)
         self.sim_stim = simultaneous_stim
-
-        default_timing = get_default_timing()
-        if timing is not None:
-            default_timing.update(timing)
-        self.set_epochtiming(default_timing)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -121,8 +119,8 @@ class DPA(ngym.EpochEnv):
         new_trial = False
         # rewards
         reward = 0
-        obs = self.obs[self.t_ind]
-        gt = self.gt[self.t_ind]
+        obs = self.obs_now
+        gt = self.gt_now
         # observations
         if self.in_epoch('fixation'):
             if action != 0:

@@ -15,10 +15,39 @@ Created on Fri Mar  1 11:48:59 2019
 """
 
 from gym.core import Wrapper
+import neurogym as ngym
 from neurogym.ops import tasktools
 
 
-class SideBias(Wrapper):
+# TODO: Need proper testing
+class SideBias(ngym.TrialWrapper):
+    """
+    modifies a given environment by changing the probability of repeating the
+    previous correct response
+    """
+    def __init__(self, env, prob=(.2, .8), block_dur=200):
+        super().__init__(env)
+        self.prob = prob
+        # keeps track of the repeating prob of the current block
+        self.curr_block = self.task.rng.choices([0, 1])
+        # duration of block (in number oif trials)
+        self.block_dur = block_dur
+        self.prev_trial = self.env.trial['ground_truth']
+
+    def new_trial(self, **kwargs):
+        # change rep. prob. every self.block_dur trials
+        if self.task.num_tr % self.block_dur == 0:
+            self.curr_block = int(not self.curr_block)
+
+        probs = (1-self.prob[self.curr_block], self.prob[self.curr_block])
+
+        kwargs = dict()
+        kwargs['ground_truth'] = self.task.rng.choices(
+            self.task.choices, weights=probs)[0]
+        return self.env.new_trial(**kwargs)
+
+
+class SideBiasObsolete(Wrapper):
     """
     modfies a given environment by changing the probability of repeating the
     previous correct response
@@ -33,7 +62,7 @@ class SideBias(Wrapper):
         self.block_dur = block_dur
         self.prev_trial = self.env.trial['ground_truth']
 
-    def _new_trial(self):
+    def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------

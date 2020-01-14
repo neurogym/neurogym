@@ -7,6 +7,11 @@ import neurogym as ngym
 
 
 class IBL(ngym.TrialEnv):
+    metadata = {
+        'paper_link': 'https://www.sciencedirect.com/science/article/pii/S0896627317311364',
+        'paper_name': '''An International Laboratory for Systems and Computational Neuroscience''',
+    }
+
     def __init__(self, dt=100):
         super(IBL, self).__init__(dt=dt)
         # TODO: Fix to use the default random number generator

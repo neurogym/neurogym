@@ -12,27 +12,26 @@ from neurogym.ops import tasktools
 import neurogym as ngym
 
 
-def get_default_timing():
-    return {'fixation': ('constant', 500),
+class DelayedMatchToSample(ngym.EpochEnv):
+    metadata = {
+        'paper_link': 'https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf',
+        'paper_name': '''Neural Mechanisms of Visual Working Memory 
+        in Prefrontal Cortex of the Macaque''',
+        'default_timing': {
+            'fixation': ('constant', 500),
             'sample': ('constant', 500),
             'delay': ('constant', 1500),
             'test': ('constant', 500),
-            'decision': ('constant', 500)}
+            'decision': ('constant', 500)},
+    }
 
-
-class DelayedMatchToSample(ngym.EpochEnv):
     def __init__(self, dt=100, timing=None):
-        super().__init__(dt=dt)
+        super().__init__(dt=dt, timing=timing)
         # TODO: Code a continuous space version
         # Actions ('FIXATE', 'MATCH', 'NONMATCH')
         self.actions = [0, -1, 1]
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
-
-        default_timing = get_default_timing()
-        if timing is not None:
-            default_timing.update(timing)
-        self.set_epochtiming(default_timing)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -91,8 +90,8 @@ class DelayedMatchToSample(ngym.EpochEnv):
         new_trial = False
         reward = 0
 
-        obs = self.obs[self.t_ind]
-        gt = self.gt[self.t_ind]
+        obs = self.obs_now
+        gt = self.gt_now
 
         if self.in_epoch('fixation'):
             if action != 0:

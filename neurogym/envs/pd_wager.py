@@ -23,17 +23,21 @@ from neurogym.ops import tasktools
 import neurogym as ngym
 
 
-def get_default_timing():
-    return {'fixation': ('constant', 750),
+class PDWager(ngym.EpochEnv):
+    metadata = {
+        'paper_link': 'https://science.sciencemag.org/content/324/5928/759.long',
+        'paper_name': '''Representation of Confidence Associated with a
+         Decision by Neurons in the Parietal Cortex''',
+        'default_timing': {
+            'fixation': ('constant', 750),
             'stimulus': ('truncated_exponential', [180, 100, 800]),
             'delay': ('truncated_exponential', [1350, 1200, 1800]),
             'pre_sure': ('truncated_exponential', [575, 500, 750]),
-            'decision': ('constant', 500)}
+            'decision': ('constant', 500)},
+    }
 
-
-class PDWager(ngym.EpochEnv):
     def __init__(self, dt=100, timing=None):
-        super().__init__(dt=dt)
+        super().__init__(dt=dt, timing=timing)
 #        # Actions
 #        self.actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT',
 #                                        'CHOOSE-RIGHT', 'CHOOSE-SURE')
@@ -46,11 +50,6 @@ class PDWager(ngym.EpochEnv):
 
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
-
-        default_timing = get_default_timing()
-        if timing is not None:
-            default_timing.update(timing)
-        self.set_epochtiming(default_timing)
 
         # Rewards
         self.R_ABORTED = -0.1

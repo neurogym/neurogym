@@ -18,17 +18,21 @@ from neurogym.ops import tasktools
 import neurogym as ngym
 
 
-def get_default_timing():
-    return {'fixation': ('constant', 750),
+class Romo(ngym.EpochEnv):
+    metadata = {
+        'paper_link': 'https://www.jneurosci.org/content/30/28/9424',
+        'paper_name': '''Neuronal Population Coding of Parametric Working Memory''',
+        'default_timing': {
+            'fixation': ('constant', 750),
             'f1': ('constant', 500),
             'delay': ('truncated_exponential', [3000, 2700, 3300]),
             'f2': ('constant', 500),
-            'decision': ('constant', 500)}
+            'decision': ('constant', 500)},
+    }
 
-class Romo(ngym.EpochEnv):
     def __init__(self, dt=100, timing=None):
         # call ngm __init__ function
-        super().__init__(dt=dt)
+        super().__init__(dt=dt, timing=timing)
 
         # Actions (fixate, left, right)
         self.actions = [0, -1, 1]
@@ -40,11 +44,6 @@ class Romo(ngym.EpochEnv):
         # Input noise
         self.sigma = np.sqrt(2*100*0.001)
         self.sigma_dt = self.sigma / np.sqrt(self.dt)
-
-        default_timing = get_default_timing()
-        if timing is not None:
-            default_timing.update(timing)
-        self.set_epochtiming(default_timing)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -112,8 +111,8 @@ class Romo(ngym.EpochEnv):
         # Reward and inputs
         # ---------------------------------------------------------------------
         new_trial = False
-        gt = self.gt[self.t_ind]
-        obs = self.obs[self.t_ind]
+        gt = self.gt_now
+        obs = self.obs_now
         # rewards
         reward = 0
         if self.in_epoch('fixation'):

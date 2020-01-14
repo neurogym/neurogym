@@ -13,28 +13,26 @@ import neurogym as ngym
 from neurogym.ops import tasktools
 
 
-def get_default_timing():
-    return {'fixation': ('constant', 500),
+class DelayedMatchCategory(ngym.EpochEnv):
+    metadata = {
+        'paper_link': 'https://www.nature.com/articles/nature05078',
+        'paper_name': '''Experience-dependent representation
+        of visual categories in parietal cortex''',
+        'default_timing': {
+            'fixation': ('constant', 500),
             'sample': ('constant', 500),
             'delay': ('constant', 1500),
             'test': ('constant', 500),
-            'decision': ('constant', 500)}
+            'decision': ('constant', 500)},
+    }
 
-
-class DelayedMatchCategory(ngym.EpochEnv):
     def __init__(self, dt=100, timing=None):
-        super().__init__(dt=dt)
+        super().__init__(dt=dt, timing=timing)
         self.choices = [1, 2]  # match, non-match
 
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
         self.sigma_dt = self.sigma / np.sqrt(self.dt)
-
-        # TODO: Find these info from a paper
-        default_timing = get_default_timing()
-        if timing is not None:
-            default_timing.update(timing)
-        self.set_epochtiming(default_timing)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -111,8 +109,8 @@ class DelayedMatchCategory(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         new_trial = False
 
-        obs = self.obs[self.t_ind]
-        gt = self.gt[self.t_ind]
+        obs = self.obs_now
+        gt = self.gt_now
 
         reward = 0
         if self.in_epoch('fixation'):

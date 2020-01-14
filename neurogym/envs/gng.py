@@ -23,28 +23,26 @@ from neurogym.ops import tasktools
 import neurogym as ngym
 
 
-def get_default_timing():
-    return {'fixation': ('constant', 100),
+class GNG(ngym.EpochEnv):
+    # TODO: Find the original go-no-go paper
+    metadata = {
+        'paper_link': 'https://elifesciences.org/articles/43191',
+        'paper_name': '''Active information maintenance in working memory by a sensory cortex''',
+        'default_timing': {
+            'fixation': ('constant', 100),
             'stimulus': ('constant', 200),
             'resp_delay': ('constant', 100),
-            'decision': ('constant', 100)}
+            'decision': ('constant', 100)},
+    }
 
-
-class GNG(ngym.EpochEnv):
-    """Go-no-go task."""
     def __init__(self, dt=100, timing=None, **kwargs):
-        super().__init__(dt=dt)
+        super().__init__(dt=dt, timing=timing)
         # Actions (fixate, go)
         self.actions = [0, 1]
         # trial conditions
         self.choices = [0, 1]
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
-        # Durations
-        default_timing = get_default_timing()
-        if timing is not None:
-            default_timing.update(timing)
-        self.set_epochtiming(default_timing)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -82,8 +80,8 @@ class GNG(ngym.EpochEnv):
     def _step(self, action):
         new_trial = False
         reward = 0
-        obs = self.obs[self.t_ind]
-        gt = self.gt[self.t_ind]
+        obs = self.obs_now
+        gt = self.gt_now
         if self.in_epoch('fixation'):
             if action != 0:
                 new_trial = self.abort

@@ -16,20 +16,23 @@ import numpy as np
 from gym import spaces
 
 
-def get_default_timing():
-    return {'fixation': ('truncated_exponential', [500, 200, 800]),
+class GenTask(ngym.EpochEnv):
+    metadata = {
+        'paper_link': None,
+        'paper_name': None,
+        'default_timing': {
+            'fixation': ('truncated_exponential', [500, 200, 800]),
             'stim1': ('truncated_exponential', [500, 200, 800]),
             'delay_btw_stim': ('truncated_exponential', [500, 200, 800]),
             'stim2': ('truncated_exponential', [500, 200, 800]),
             'delay_aft_stim': ('truncated_exponential', [500, 200, 800]),
-            'decision': ('truncated_exponential', [500, 200, 800])}
+            'decision': ('truncated_exponential', [500, 200, 800])},
+    }
 
-
-class GenTask(ngym.EpochEnv):
     def __init__(self, dt=100, timing=None, stimEv=1., noise=0.01,
                  simultaneous_stim=False, cohs=None,
                  gng=False, **kwargs):
-        super().__init__(dt=dt)
+        super().__init__(dt=dt, timing=timing)
         self.choices = np.array([1, 2]) - gng
         # cohs specifies the amount of evidence (which is modulated by stimEv)
         if cohs is None:
@@ -40,11 +43,6 @@ class GenTask(ngym.EpochEnv):
         self.sigma_dt = self.sigma / np.sqrt(self.dt)
         # Durations (stimulus duration will be drawn from an exponential)
         self.sim_stim = simultaneous_stim
-
-        default_timing = get_default_timing()
-        if timing is not None:
-            default_timing.update(timing)
-        self.set_epochtiming(default_timing)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -138,8 +136,8 @@ class GenTask(ngym.EpochEnv):
                 boolean indicating the end of the trial, info['new_trial']
         """
         new_trial = False
-        obs = self.obs[self.t_ind]
-        gt = self.gt[self.t_ind]
+        obs = self.obs_now
+        gt = self.gt_now
         # rewards
         reward = 0
         first_trial = np.nan
