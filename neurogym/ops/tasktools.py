@@ -1,7 +1,6 @@
 from __future__ import division
 
 from collections import OrderedDict
-import matplotlib.pyplot as plt
 import numpy as np
 import random
 
@@ -143,6 +142,7 @@ def compute_perf(perf, reward, num_tr_perf, tr_perf):
 
 def plot_struct(env, num_steps_env=200, n_stps_plt=200,
                 def_act=None, model=None, name=''):
+    import matplotlib.pyplot as plt
     # TODO: Move this somewhere else. Shouldn't be in tasktools
     observations = []
     rewards = []
