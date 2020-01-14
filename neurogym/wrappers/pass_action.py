@@ -16,7 +16,7 @@ from gym import spaces
 class PassAction(Wrapper):
     """Modifies a given observation by adding the previous action"""
     def __init__(self, env):
-        Wrapper.__init__(self, env=env)
+        super().__init__(env)
         self.env = env
         # TODO: This is not adding one-hot
         env_oss = env.observation_space.shape[0]

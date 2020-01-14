@@ -17,6 +17,7 @@ class ReactionTime(Wrapper):
     def __init__(self, env):
         Wrapper.__init__(self, env=env)
         self.env = env
+        raise ValueError('Broken right now')
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
