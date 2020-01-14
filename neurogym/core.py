@@ -96,13 +96,18 @@ class TrialEnv(BaseEnv):
 class EpochEnv(TrialEnv):
     """Environment class with trial/epoch structure."""
 
-    def __init__(self, dt=100, num_trials_before_reset=10000000):
+    def __init__(self, dt=100, timing=None, num_trials_before_reset=10000000):
         super(EpochEnv, self).__init__(
             dt=dt, num_trials_before_reset=num_trials_before_reset)
 
         self.gt = None
         self.timing = {}
         self.timing_fn = None
+
+        default_timing = self.metadata['default_timing'].copy()
+        if timing is not None:
+            default_timing.update(timing)
+        self._set_epochtiming(default_timing)
 
     def __str__(self):
         """Information about task."""
@@ -122,7 +127,7 @@ class EpochEnv(TrialEnv):
         string += 'Min/Max: {:0.2f}/{:0.2f}\n'.format(total_min, total_max)
         return string
 
-    def set_epochtiming(self, epochtiming):
+    def _set_epochtiming(self, epochtiming):
         """Set epoch timing.
 
         Args:
