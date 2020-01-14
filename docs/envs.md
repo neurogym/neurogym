@@ -1,4 +1,8 @@
-### Bandit
+### List of environments implemented
+
+* Under development, details subject to change
+
+#### Bandit
 
 Original paper: 
 
@@ -6,7 +10,7 @@ Missing paper name
 
 Missing paper link
 
-### DPA
+#### DPA
 
 Original paper: 
 
@@ -26,14 +30,14 @@ delay_aft_stim : truncated_exponential [500, 200, 800]
 
 decision : truncated_exponential [500, 200, 800]
 
-### DawTwoStep
+#### DawTwoStep
 
 Original paper: 
 
 [Model-Based Influences on Humans' 
         Choices and Striatal Prediction Errors](https://www.sciencedirect.com/science/article/pii/S0896627311001255)
 
-### DelayedMatchCategory
+#### DelayedMatchCategory
 
 Original paper: 
 
@@ -52,7 +56,7 @@ test : constant 500
 
 decision : constant 500
 
-### DelayedMatchToSample
+#### DelayedMatchToSample
 
 Original paper: 
 
@@ -71,7 +75,7 @@ test : constant 500
 
 decision : constant 500
 
-### DR
+#### DR
 
 Original paper: 
 
@@ -89,7 +93,7 @@ delay : choice [1000, 5000, 10000]
 
 decision : constant 500
 
-### GNG
+#### GNG
 
 Original paper: 
 
@@ -105,7 +109,7 @@ resp_delay : constant 100
 
 decision : constant 100
 
-### GenTask
+#### GenTask
 
 Original paper: 
 
@@ -127,13 +131,13 @@ delay_aft_stim : truncated_exponential [500, 200, 800]
 
 decision : truncated_exponential [500, 200, 800]
 
-### IBL
+#### IBL
 
 Original paper: 
 
 [An International Laboratory for Systems and Computational Neuroscience](https://www.sciencedirect.com/science/article/pii/S0896627317311364)
 
-### Mante
+#### Mante
 
 Original paper: 
 
@@ -150,13 +154,13 @@ delay : truncated_exponential [300, 83, 1200]
 
 decision : constant 500
 
-### MatchingPenny
+#### MatchingPenny
 
 Original paper: 
 
 [Prefrontal cortex and decision making in a mixed-strategy game](https://www.nature.com/articles/nn1209)
 
-### MemoryRecall
+#### MemoryRecall
 
 Original paper: 
 
@@ -164,7 +168,7 @@ Missing paper name
 
 Missing paper link
 
-### nalt_RDM
+#### nalt_RDM
 
 Original paper: 
 
@@ -180,7 +184,7 @@ stimulus : truncated_exponential [330, 80, 1500]
 
 decision : constant 500
 
-### RDM
+#### RDM
 
 Original paper: 
 
@@ -195,7 +199,7 @@ stimulus : truncated_exponential [330, 80, 1500]
 
 decision : constant 500
 
-### ReadySetGo
+#### ReadySetGo
 
 Original paper: 
 
@@ -212,7 +216,7 @@ measure : choice [500, 580, 660, 760, 840, 920, 1000]
 
 set : constant 83
 
-### Romo
+#### Romo
 
 Original paper: 
 
@@ -230,7 +234,7 @@ f2 : constant 500
 
 decision : constant 500
 
-### PadoaSch
+#### PadoaSch
 
 Original paper: 
 
@@ -244,7 +248,7 @@ offer_on : truncated_exponential [1500, 1000, 2000]
 
 decision : constant 750
 
-### PDWager
+#### PDWager
 
 Original paper: 
 

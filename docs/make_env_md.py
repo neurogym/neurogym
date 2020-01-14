@@ -12,12 +12,14 @@ def main():
     md_file = 'envs.md'
 
     with open(md_file, 'w') as f:
+        f.write('### List of environments implemented\n\n')
+        f.write('* Under development, details subject to change\n\n')
         for env_name in sorted(all_tasks.keys()):
             try:
                 env = gym.make(env_name)
                 metadata = env.metadata
 
-                f.write("### {:s}\n\n".format(type(env).__name__))
+                f.write("#### {:s}\n\n".format(type(env).__name__))
 
                 paper_name = metadata.get('paper_name', None) or 'Missing paper name'
                 paper_link = metadata.get('paper_link', None)
