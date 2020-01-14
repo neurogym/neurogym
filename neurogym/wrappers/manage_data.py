@@ -157,8 +157,11 @@ class manage_data(Wrapper):
         self.ax[1].set_ylabel('action (gt)')
         self.ax[1].set_xlim([0, self.max_num_samples+0.5])
         gt = np.array(self.gt_mat_render)
-        self.ax[1].plot(np.arange(1, len(self.act_mat)+1)+0.5,
-                        np.argmax(gt, axis=1), '--')
+        if len(gt.shape) == 1:
+            self.ax[1].plot(np.arange(1, len(self.act_mat)+1)+0.5, gt, '--')
+        else:
+            self.ax[1].plot(np.arange(1, len(self.act_mat)+1)+0.5,
+                            np.argmax(gt, axis=1), '--')
         self.ax[1].set_xlim([0, self.max_num_samples+0.5])
         self.ax[1].set_xticks([])
         self.ax[1].set_yticks([])

@@ -116,7 +116,7 @@ class EpochEnv(TrialEnv):
 
             min_tmp, max_tmp = tasktools.minmax_number(dist, args)
             total_min += min_tmp
-            total_max += max_tmp
+            total_max += max_tmp  # XXX: is there a fn that provides total_max?
 
         string += 'Time step {:0.2f}ms\n'.format(self.dt)
         string += 'Estimate time per trial assuming sequential epoch\n'

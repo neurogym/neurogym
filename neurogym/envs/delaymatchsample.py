@@ -88,7 +88,7 @@ class DelayedMatchToSample(ngym.EpochEnv):
             }
 
     def _step(self, action):
-        info = {'new_trial': False}
+        new_trial = False
         reward = 0
 
         obs = self.obs[self.t_ind]
@@ -96,14 +96,14 @@ class DelayedMatchToSample(ngym.EpochEnv):
 
         if self.in_epoch('fixation'):
             if action != 0:
-                info['new_trial'] = self.abort
+                new_trial = self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch('decision'):
             if action != 0:
-                info['new_trial'] = True
+                new_trial = True
                 if action == gt:
                     reward = self.R_CORRECT
                 else:
                     reward = self.R_FAIL
 
-        return obs, reward, False, info
+        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}

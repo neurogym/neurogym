@@ -111,21 +111,21 @@ class Romo(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Reward and inputs
         # ---------------------------------------------------------------------
-        info = {'new_trial': False}
+        new_trial = False
         gt = self.gt[self.t_ind]
         obs = self.obs[self.t_ind]
         # rewards
         reward = 0
         if self.in_epoch('fixation'):
             if action != 0:
-                info['new_trial'] = self.abort
+                new_trial = self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch('decision'):
             if action != 0:
-                info['new_trial'] = True
+                new_trial = True
                 if action == gt:
                     reward = self.R_CORRECT
                 else:
                     reward = self.R_FAIL
 
-        return obs, reward, False, info
+        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
