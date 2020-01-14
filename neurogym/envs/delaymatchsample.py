@@ -30,6 +30,7 @@ class DelayedMatchToSample(ngym.EpochEnv):
         # TODO: Code a continuous space version
         # Actions ('FIXATE', 'MATCH', 'NONMATCH')
         self.actions = [0, -1, 1]
+        self.choices = [1, 2]
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
 
@@ -49,7 +50,7 @@ class DelayedMatchToSample(ngym.EpochEnv):
         # Trial
         # ---------------------------------------------------------------------
         self.trial = {
-            'ground_truth': self.rng.choice([1, 2]),
+            'ground_truth': self.rng.choice(self.choices),
             'sample': self.rng.choice([1, 2]),
         }
         self.trial.update(kwargs)
