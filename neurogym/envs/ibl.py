@@ -3,6 +3,8 @@ import gym
 from gym import spaces
 import neurogym as ngym
 
+# XXX: are trials counted correctly in this task?
+
 
 class IBL(ngym.TrialEnv):
     metadata = {
