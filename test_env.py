@@ -25,7 +25,7 @@ def test_run(env_name):
 
 
 def test_speed(env_name):
-    """Test if all one environment can at least be run."""
+    """Test speed of an environment."""
     n_steps = 100000
     warmup_steps = 10000
     kwargs = {'dt': 20}
@@ -78,6 +78,7 @@ def test_print_all():
             print('Failure')
             print(e)
 
+
 def test_run_all():
     """Test if all environments can at least be run."""
     success_count = 0
@@ -88,10 +89,9 @@ def test_run_all():
         total_count += 1
 
         print('Running env: {:s}'.format(env_name))
-        env = test_run(env_name)
-
+        # env = test_run(env_name)
         try:
-            env = test_run(env_name)
+            test_run(env_name)
             print('Success')
             # print(env)
             success_count += 1
@@ -129,10 +129,10 @@ if __name__ == '__main__':
     # test_print_all()
     # env_name = 'GenTask-v0'
     # env_name = 'RDM-v1'
-    env_name = 'DPA-v1'
+    # env_name = 'DPA-v1'
     # env_name = 'NAltRDM-v0'
     # env_name = 'DelayedMatchCategory-v0'
     # env_name = 'MemoryRecall-v0'
-    # env_name = 'Mante-v0'
-    # test_plot(env_name)
+    env_name = 'Bandit-v0'
+    test_plot(env_name)
     # test_speed(env_name)
