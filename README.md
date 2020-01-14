@@ -25,6 +25,9 @@ You can perform a minimal install of ``neurogym`` with:
     cd neurogym
     pip install -e .
 
+### Implemented tasks
+Currently implemented tasks can be found [here](https://github.com/gyyang/neurogym/blob/master/docs/envs.md).
+
 ### Example
 
 The following example will run the Random Dots Motion task for 200 steps with random actions.
