@@ -240,6 +240,10 @@ class TrialWrapper(gym.Wrapper):
         obs, reward, done, info = self.task._step(action)
         self.task.t += self.task.dt  # increment within trial time count
         self.task.t_ind += 1
+
+        if self.t >= self.tmax - self.dt:
+            info['new_trial'] = True
+
         if info['new_trial']:
             self.task.t = self.task.t_ind = 0  # Reset within trial time count
             self.task.num_tr += 1  # Increment trial count
