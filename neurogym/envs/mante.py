@@ -35,6 +35,7 @@ class Mante(ngym.EpochEnv):
 
         # Input noise
         self.sigma = np.sqrt(2*100*0.02)
+        self.sigma_dt = self.sigma/np.sqrt(self.dt)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -89,7 +90,7 @@ class Mante(ngym.EpochEnv):
         self.obs[:, self.trial['context']] = 1
         self.set_ob('decision', np.zeros(6))
         self.obs[self.stimulus_ind0:self.stimulus_ind1, 2:] += np.random.randn(
-            self.stimulus_ind1-self.stimulus_ind0, 4) * (self.sigma/np.sqrt(self.dt))
+            self.stimulus_ind1-self.stimulus_ind0, 4) * self.sigma_dt
 
         self.set_groundtruth('fixation', 0)
         self.set_groundtruth('stimulus', 0)
