@@ -11,7 +11,7 @@ from neurogym.wrappers.side_bias import SideBias
 from neurogym import all_tasks
 
 
-def test_sidebias(env_name):
+def test_sidebias(env_name, verbose=False):
     env = gym.make(env_name)
     env = SideBias(env, prob=[(0, 1), (1, 0)], block_dur=10)
     env.reset()
@@ -19,9 +19,9 @@ def test_sidebias(env_name):
         action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
         if info['new_trial']:
-            pass
-            # print('Block', env.curr_block)
-            # print('Ground truth', info['gt'])
+            if verbose:
+                print('Block', env.curr_block)
+                print('Ground truth', info['gt'])
         # print(env.env.t)
         # print('')
         # print('Trial', env.unwrapped.num_tr)
