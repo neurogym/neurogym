@@ -4,17 +4,15 @@ Original paper:
 
 Missing paper name
 
-Link: Missing paper link
+Missing paper link
 
 ### DPA
 
 Original paper: 
 
-Active information maintenance in working memory by a sensory cortex
+[Active information maintenance in working memory by a sensory cortex](https://elifesciences.org/articles/43191)
 
-Link: https://elifesciences.org/articles/43191
-
-Epochs 
+Default Epoch timing 
 
 fixation : truncated_exponential [500, 200, 800]
 
@@ -32,21 +30,17 @@ decision : truncated_exponential [500, 200, 800]
 
 Original paper: 
 
-Model-Based Influences on Humans' 
-        Choices and Striatal Prediction Errors
-
-Link: https://www.sciencedirect.com/science/article/pii/S0896627311001255
+[Model-Based Influences on Humans' 
+        Choices and Striatal Prediction Errors](https://www.sciencedirect.com/science/article/pii/S0896627311001255)
 
 ### DelayedMatchCategory
 
 Original paper: 
 
-Experience-dependent representation
-        of visual categories in parietal cortex
+[Experience-dependent representation
+        of visual categories in parietal cortex](https://www.nature.com/articles/nature05078)
 
-Link: https://www.nature.com/articles/nature05078
-
-Epochs 
+Default Epoch timing 
 
 fixation : constant 500
 
@@ -62,12 +56,10 @@ decision : constant 500
 
 Original paper: 
 
-Neural Mechanisms of Visual Working Memory 
-        in Prefrontal Cortex of the Macaque
+[Neural Mechanisms of Visual Working Memory 
+        in Prefrontal Cortex of the Macaque](https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf)
 
-Link: https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf
-
-Epochs 
+Default Epoch timing 
 
 fixation : constant 500
 
@@ -85,9 +77,9 @@ Original paper:
 
 Missing paper name
 
-Link: Missing paper link
+Missing paper link
 
-Epochs 
+Default Epoch timing 
 
 fixation : constant 500
 
@@ -101,11 +93,9 @@ decision : constant 500
 
 Original paper: 
 
-Active information maintenance in working memory by a sensory cortex
+[Active information maintenance in working memory by a sensory cortex](https://elifesciences.org/articles/43191)
 
-Link: https://elifesciences.org/articles/43191
-
-Epochs 
+Default Epoch timing 
 
 fixation : constant 100
 
@@ -121,9 +111,9 @@ Original paper:
 
 Missing paper name
 
-Link: Missing paper link
+Missing paper link
 
-Epochs 
+Default Epoch timing 
 
 fixation : truncated_exponential [500, 200, 800]
 
@@ -141,20 +131,16 @@ decision : truncated_exponential [500, 200, 800]
 
 Original paper: 
 
-An International Laboratory for Systems and Computational Neuroscience
-
-Link: https://www.sciencedirect.com/science/article/pii/S0896627317311364
+[An International Laboratory for Systems and Computational Neuroscience](https://www.sciencedirect.com/science/article/pii/S0896627317311364)
 
 ### Mante
 
 Original paper: 
 
-Context-dependent computation by recurrent 
-        dynamics in prefrontal cortex
+[Context-dependent computation by recurrent 
+        dynamics in prefrontal cortex](https://www.nature.com/articles/nature12742)
 
-Link: https://www.nature.com/articles/nature12742
-
-Epochs 
+Default Epoch timing 
 
 fixation : constant 750
 
@@ -168,9 +154,7 @@ decision : constant 500
 
 Original paper: 
 
-Prefrontal cortex and decision making in a mixed-strategy game
-
-Link: https://www.nature.com/articles/nn1209
+[Prefrontal cortex and decision making in a mixed-strategy game](https://www.nature.com/articles/nn1209)
 
 ### MemoryRecall
 
@@ -178,7 +162,7 @@ Original paper:
 
 Missing paper name
 
-Link: Missing paper link
+Missing paper link
 
 ### nalt_RDM
 
@@ -186,9 +170,9 @@ Original paper:
 
 Missing paper name
 
-Link: Missing paper link
+Missing paper link
 
-Epochs 
+Default Epoch timing 
 
 fixation : constant 500
 
@@ -200,12 +184,10 @@ decision : constant 500
 
 Original paper: 
 
-Bounded Integration in Parietal Cortex Underlies
-        Decisions Even When Viewing Duration Is Dictated by the Environment
+[Bounded Integration in Parietal Cortex Underlies
+        Decisions Even When Viewing Duration Is Dictated by the Environment](http://www.jneurosci.org/content/28/12/3017)
 
-Link: http://www.jneurosci.org/content/28/12/3017
-
-Epochs 
+Default Epoch timing 
 
 fixation : constant 500
 
@@ -217,12 +199,10 @@ decision : constant 500
 
 Original paper: 
 
-Flexible Sensorimotor Computations through Rapid
-        Reconfiguration of Cortical Dynamics
+[Flexible Sensorimotor Computations through Rapid
+        Reconfiguration of Cortical Dynamics](https://www.sciencedirect.com/science/article/pii/S0896627318304185)
 
-Link: https://www.sciencedirect.com/science/article/pii/S0896627318304185
-
-Epochs 
+Default Epoch timing 
 
 fixation : constant 500
 
@@ -236,11 +216,9 @@ set : constant 83
 
 Original paper: 
 
-Neuronal Population Coding of Parametric Working Memory
+[Neuronal Population Coding of Parametric Working Memory](https://www.jneurosci.org/content/30/28/9424)
 
-Link: https://www.jneurosci.org/content/30/28/9424
-
-Epochs 
+Default Epoch timing 
 
 fixation : constant 750
 
@@ -256,11 +234,9 @@ decision : constant 500
 
 Original paper: 
 
-Neurons in the orbitofrontal cortex encode economic value
+[Neurons in the orbitofrontal cortex encode economic value](https://www.nature.com/articles/nature04676)
 
-Link: https://www.nature.com/articles/nature04676
-
-Epochs 
+Default Epoch timing 
 
 fixation : constant 750
 
@@ -272,12 +248,10 @@ decision : constant 750
 
 Original paper: 
 
-Representation of Confidence Associated with a
-         Decision by Neurons in the Parietal Cortex
+[Representation of Confidence Associated with a
+         Decision by Neurons in the Parietal Cortex](https://science.sciencemag.org/content/324/5928/759.long)
 
-Link: https://science.sciencemag.org/content/324/5928/759.long
-
-Epochs 
+Default Epoch timing 
 
 fixation : constant 750
 

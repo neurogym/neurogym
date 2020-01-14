@@ -20,14 +20,19 @@ def main():
                 f.write("### {:s}\n\n".format(type(env).__name__))
 
                 paper_name = metadata.get('paper_name', None) or 'Missing paper name'
-                f.write("Original paper: \n\n{:s}\n\n".format(paper_name))
+                paper_link = metadata.get('paper_link', None)
+                f.write("Original paper: \n\n")
 
-                paper_link = metadata.get('paper_link', None) or 'Missing paper link'
-                f.write("Link: {:s}\n\n".format(paper_link))
+                if paper_link is None:
+                    f.write("{:s}\n\n".format(paper_name))
+                    f.write('Missing paper link\n\n')
+                else:
+                    f.write("[{:s}]({:s})\n\n".format(paper_name, paper_link))
+                    # f.write("Link: {:s}\n\n".format(paper_link))
 
                 if isinstance(env, ngym.EpochEnv):
                     timing = metadata['default_timing']
-                    string = 'Epochs \n\n'
+                    string = 'Default Epoch timing \n\n'
                     for key, val in timing.items():
                         dist, args = val
                         string += key + ' : ' + dist + ' ' + str(args) + '\n\n'
