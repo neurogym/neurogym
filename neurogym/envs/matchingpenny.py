@@ -26,12 +26,7 @@ class MatchingPenny(ngym.TrialEnv):
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,),
                                             dtype=np.float32)
 
-        self.seed()
-        self.viewer = None
-
-        self.trial = self._new_trial()
-
-    def _new_trial(self, **kwargs):
+    def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial (trials are one step long)
         # ---------------------------------------------------------------------
@@ -56,13 +51,5 @@ class MatchingPenny(ngym.TrialEnv):
         else:
             reward = self.R_FAIL
 
-        # ---------------------------------------------------------------------
         info = {'new_trial': True, 'gt': obs}
-        self.num_tr += 1
-        done = self.num_tr > self.num_tr_exp
-        return obs, reward, done, info
-
-    def step(self, action):
-        obs, reward, done, info = self._step(action)
-        self.trial = self._new_trial()
-        return obs, reward, done, info
+        return obs, reward, False, info

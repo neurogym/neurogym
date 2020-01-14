@@ -69,7 +69,7 @@ class PDWager(ngym.EpochEnv):
     def scale(self, coh):
         return (1 + coh/100)/2
 
-    def _new_trial(self, **kwargs):
+    def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Wager or no wager?
         # ---------------------------------------------------------------------

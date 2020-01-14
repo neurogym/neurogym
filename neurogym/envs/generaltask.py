@@ -61,7 +61,7 @@ class GenTask(ngym.EpochEnv):
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
 
-    def _new_trial(self, **kwargs):
+    def new_trial(self, **kwargs):
         """
         new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:

@@ -40,19 +40,13 @@ class TrialEnv(BaseEnv):
         self.num_tr_exp = num_trials_before_reset
         self.seed()
 
-    def _new_trial(self):
-        """Private interface for starting a new trial.
+    def new_trial(self, **kwargs):
+        """Public interface for starting a new trial.
 
         Returns:
             trial_info: a dictionary of trial information
         """
-        raise NotImplementedError('_new_trial is not defined by user.')
-
-    def new_trial(self):
-        """Public interface for starting a new trial."""
-        self.t = self.t_ind = 0  # Reset within trial time count
-        self.num_tr += 1  # Increment trial count
-        return self._new_trial()  # Run user defined _new_trial method
+        raise NotImplementedError('new_trial is not defined by user.')
 
     def _step(self, action):
         """Private interface for the environment.
@@ -74,11 +68,12 @@ class TrialEnv(BaseEnv):
             info['new_trial'] = True
 
         # TODO: Handle the case when new_trial is not provided in info
+        # TODO: new_trial happens after step, so trial index precedes obs change
         if info['new_trial']:
-            self.new_trial()
+            self.t = self.t_ind = 0  # Reset within trial time count
+            self.num_tr += 1  # Increment trial count
+            self.new_trial(info=info)
         return obs, reward, done, info
-
-
 
     def reset(self):
         """
@@ -213,3 +208,27 @@ class EpochEnv(TrialEnv):
         if t is None:
             t = self.t  # Default
         return getattr(self, epoch+'_0') <= t < getattr(self, epoch+'_1')
+
+
+# TODO: How to prevent the repeated typing here?
+class TrialWrapper(gym.Wrapper):
+    """Base class for wrapping TrialEnv"""
+    def __init__(self, env):
+        super().__init__(env)
+        self.env = env
+        self.task = self.unwrapped
+
+    def new_trial(self, **kwargs):
+        raise NotImplementedError('_new_trial need to be implemented')
+
+    def _step(self, action):
+        return self.env._step(action)
+
+    def step(self, action):
+        """Public interface for the environment."""
+        obs, reward, done, info = self._step(action)
+        self.task.t += self.task.dt  # increment within trial time count
+        self.task.t_ind += 1
+        if info['new_trial']:
+            self.new_trial(info=info)  # new_trial from wrapper
+        return obs, reward, done, info

@@ -63,7 +63,7 @@ class Romo(ngym.EpochEnv):
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2, ),
                                             dtype=np.float32)
 
-    def _new_trial(self, **kwargs):
+    def new_trial(self, **kwargs):
         ground_truth = self.rng.choice(self.choices)
         fpair = self.rng.choice(self.fpairs)
         if ground_truth == 1:

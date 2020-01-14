@@ -27,9 +27,6 @@ class IBL(ngym.TrialEnv):
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,),
                                             dtype=np.float32)
 
-        self.seed()
-        self.viewer = None
-
     def new_block(self, n_trial, probs=None):
         self.ground_truth = self._rng.choice(self.choices, size=(n_trial,), p=probs)
         self.coh = self._rng.choice(self.cohs, size=(n_trial,))
@@ -43,7 +40,7 @@ class IBL(ngym.TrialEnv):
         obs += self._rng.randn(*obs.shape) * self.sigma
         self.obs = obs
 
-    def _new_trial(self, **kwargs):
+    def new_trial(self, **kwargs):
         """
         _new_trial() is called when a trial ends to get the specifications of
         the next trial. Such specifications are stored in a dictionary with
@@ -77,17 +74,6 @@ class IBL(ngym.TrialEnv):
         done = False
         return obs, reward, done, info
 
-    def step(self, action):
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.trial = self._new_trial()
-        return obs, reward, done, info
-
-    def reset(self):
-        self.trial = self._new_trial()
-        obs, reward, done, info = self._step(action=0)
-        return obs, reward, done, info
-
 
 class IBL_Block(IBL):
     # pass
@@ -97,7 +83,7 @@ class IBL_Block(IBL):
         self.block = 0
         self.block_size = 200
 
-    def _new_trial(self, **kwargs):
+    def new_trial(self, **kwargs):
         """
         _new_trial() is called when a trial ends to get the specifications of
         the next trial. Such specifications are stored in a dictionary with

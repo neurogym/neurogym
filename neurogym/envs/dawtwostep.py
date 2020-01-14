@@ -40,17 +40,7 @@ class DawTwoStep(ngym.TrialEnv):
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
 
-        self.seed()
-        self.viewer = None
-
-        self.trial = self._new_trial()
-
-    def __str__(self):
-        string = 'mean trial duration: ' + str(self.mean_trial_duration) + '\n'
-        string += 'max num. steps: ' + str(self.mean_trial_duration / self.dt)
-        return string
-
-    def _new_trial(self, **kwargs):
+    def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------

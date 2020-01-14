@@ -59,7 +59,7 @@ class ReadySetGo(ngym.EpochEnv):
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
 
-    def _new_trial(self, **kwargs):
+    def new_trial(self, **kwargs):
         self.add_epoch('fixation', after=0)
         self.add_epoch('ready', after='fixation')
         self.add_epoch('measure', after='fixation')

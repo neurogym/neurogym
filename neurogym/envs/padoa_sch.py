@@ -70,7 +70,7 @@ class PadoaSch(ngym.EpochEnv):
     def scale(self, x):
         return x/5
 
-    def _new_trial(self, **kwargs):
+    def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
