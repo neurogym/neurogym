@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Random dot motion task.
-
-TODO: Add paper
-"""
+"""Random dot motion task."""
 
 import numpy as np
 from gym import spaces
@@ -56,8 +53,14 @@ class RDM(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-        ground_truth = self.rng.choice(self.choices)
-        coh = self.rng.choice(self.cohs)
+        info = {
+            'ground_truth': self.rng.choice(self.choices),
+            'coh': self.rng.choice(self.cohs),
+        }
+        for key in info.keys():
+            if key in kwargs:
+                info[key] = kwargs[key]
+        print('Ground truth', info['ground_truth'])
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
@@ -66,7 +69,8 @@ class RDM(ngym.EpochEnv):
         self.add_epoch('decision', after='stimulus', last_epoch=True)
 
         self.set_ob('fixation', [1, 0, 0])
-        if ground_truth == 1:
+        coh = info['coh']
+        if info['ground_truth'] == 1:
             stimulus = [1,  (1 + coh / 100) / 2, (1 - coh / 100) / 2]
         else:
             stimulus = [1,  (1 - coh / 100) / 2, (1 + coh / 100) / 2]
@@ -75,7 +79,7 @@ class RDM(ngym.EpochEnv):
         self.obs[self.stimulus_ind0:self.stimulus_ind1] += np.random.randn(
             *self.obs[self.stimulus_ind0:self.stimulus_ind1].shape) * self.sigma_dt
 
-        self.set_groundtruth('decision', ground_truth)
+        self.set_groundtruth('decision', info['ground_truth'])
 
     def _step(self, action):
         """
