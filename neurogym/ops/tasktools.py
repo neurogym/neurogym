@@ -70,7 +70,6 @@ def trunc_exp_new(mean, xmin=0, xmax=np.inf):
 
 def random_number_fn(dist, args):
     """Return a random number generating function from a distribution."""
-    # TODO: right now this is not friendly to functions that take a single argument
     if dist == 'uniform':
         return lambda : np.random.uniform(*args)
     elif dist == 'choice':
@@ -78,7 +77,7 @@ def random_number_fn(dist, args):
     elif dist == 'truncated_exponential':
         return lambda : trunc_exp_new(*args)
     elif dist == 'constant':
-        return lambda : args  # TODO: This is pretty terrible right now
+        return lambda : args
     else:
         raise ValueError('Unknown dist:', str(dist))
 
