@@ -13,27 +13,26 @@ import neurogym as ngym
 from neurogym.ops import tasktools
 
 
-def get_default_timing():
-    return {'fixation': ('constant', 500),
+class DR(ngym.EpochEnv):
+    # TODO: Add paper link
+    metadata = {
+        'paper_link': None,
+        'paper_name': None,
+        'default_timing': {
+            'fixation': ('constant', 500),
             'stimulus': ('truncated_exponential', [330, 80, 1500]),
             'delay': ('choice', [1000, 5000, 10000]),
-            'decision': ('constant', 500)}
+            'decision': ('constant', 500)},
+    }
 
-
-class DR(ngym.EpochEnv):
     def __init__(self, dt=100, timing=None, stimEv=1., **kwargs):
-        super().__init__(dt=dt)
+        super().__init__(dt=dt, timing=timing)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
         self.sigma_dt = self.sigma / np.sqrt(self.dt)
-
-        default_timing = get_default_timing()
-        if timing is not None:
-            default_timing.update(timing)
-        self.set_epochtiming(default_timing)
 
         # Rewards
         self.R_ABORTED = -0.1

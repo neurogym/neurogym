@@ -12,6 +12,11 @@ import neurogym as ngym
 
 
 class Bandit(ngym.TrialEnv):
+    metadata = {
+        'paper_link': None,
+        'paper_name': None,
+    }
+
     def __init__(self, dt=100, n_arm=2, probs=[.9, .1], timing=[]):
         super().__init__(dt=dt)
         # Rewards

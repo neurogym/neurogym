@@ -21,15 +21,18 @@ import neurogym as ngym
 from gym import spaces
 
 
-def get_default_timing():
-    return {'fixation': ('constant', 750),
-            'offer_on': ('truncated_exponential', [1500, 1000, 2000]),
-            'decision': ('constant', 750)}
-
-
 class PadoaSch(ngym.EpochEnv):
+    metadata = {
+        'paper_link': 'https://www.nature.com/articles/nature04676',
+        'paper_name': '''Neurons in the orbitofrontal cortex encode economic value''',
+        'default_timing': {
+            'fixation': ('constant', 750),
+            'offer_on': ('truncated_exponential', [1500, 1000, 2000]),
+            'decision': ('constant', 750)},
+    }
+
     def __init__(self, dt=100, timing=None):
-        super().__init__(dt=dt)
+        super().__init__(dt=dt, timing=timing)
         # Inputs
         self.inputs = tasktools.to_map('FIXATION', 'L-A', 'L-B', 'R-A',
                                        'R-B', 'N-L', 'N-R')
@@ -46,11 +49,6 @@ class PadoaSch(ngym.EpochEnv):
 
         # Input noise
         self.sigma = np.sqrt(2*100*0.001)
-
-        default_timing = get_default_timing()
-        if timing is not None:
-            default_timing.update(timing)
-        self.set_epochtiming(default_timing)
 
         # Rewards
         self.R_ABORTED = -0.1

@@ -13,6 +13,11 @@ import neurogym as ngym
 
 
 class MatchingPenny(ngym.TrialEnv):
+    metadata = {
+        'paper_link': 'https://www.nature.com/articles/nn1209',
+        'paper_name': '''Prefrontal cortex and decision making in a mixed-strategy game''',
+    }
+
     def __init__(self, dt=100, opponent_type=None, timing=()):
         super().__init__(dt=dt)
         # TODO: remain to be carefully tested

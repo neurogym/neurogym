@@ -13,16 +13,20 @@ from neurogym.ops import tasktools
 import neurogym as ngym
 
 
-def get_default_timing():
-    return {'fixation': ('constant', 750),
+class Mante(ngym.EpochEnv):
+    metadata = {
+        'paper_link': 'https://www.nature.com/articles/nature12742',
+        'paper_name': '''Context-dependent computation by recurrent 
+        dynamics in prefrontal cortex''',
+        'default_timing': {
+            'fixation': ('constant', 750),
             'stimulus': ('constant', 750),
             'delay': ('truncated_exponential', [300, 83, 1200]),
-            'decision': ('constant', 500)}
+            'decision': ('constant', 500)},
+    }
 
-
-class Mante(ngym.EpochEnv):
     def __init__(self, dt=100, timing=None):
-        super(Mante, self).__init__(dt=dt)
+        super(Mante, self).__init__(dt=dt, timing=timing)
 
         # trial conditions
         self.contexts = [0, 1]  # index for context inputs
@@ -37,11 +41,6 @@ class Mante(ngym.EpochEnv):
         self.R_CORRECT = +1.
         self.R_MISS = 0.
         self.abort = False
-
-        default_timing = get_default_timing()
-        if timing is not None:
-            default_timing.update(timing)
-        self.set_epochtiming(default_timing)
 
         # set action and observation space
         self.action_space = spaces.Discrete(3)

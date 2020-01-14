@@ -13,7 +13,13 @@ import neurogym as ngym
 
 
 class DawTwoStep(ngym.TrialEnv):
-    def __init__(self, dt=100, timing=()):
+    metadata = {
+        'paper_link': 'https://www.sciencedirect.com/science/article/pii/S0896627311001255',
+        'paper_name': """Model-Based Influences on Humans' 
+        Choices and Striatal Prediction Errors""",
+    }
+
+    def __init__(self, dt=100):
         super().__init__(dt=dt)
         # Actions ('FIXATE', 'ACTION1', 'ACTION2')
         self.actions = [0, 1, 2]
