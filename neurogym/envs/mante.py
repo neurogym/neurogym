@@ -78,7 +78,8 @@ class Mante(ngym.EpochEnv):
             high_c, low_c = 5, 4
 
         tmp = np.zeros(6)
-        tmp[[high_m, low_m, high_c, low_c]] = (1 + np.array([coh_m, -coh_m, coh_c, -coh_c])/100)/2
+        tmp[[high_m, low_m, high_c, low_c]] =\
+            (1 + np.array([coh_m, -coh_m, coh_c, -coh_c])/100)/2
         self.set_ob('stimulus', tmp)
         self.obs[:, context] = 1
         self.set_ob('decision', np.zeros(6))
@@ -115,5 +116,4 @@ class Mante(ngym.EpochEnv):
                 if action == gt:
                     reward = self.R_CORRECT
 
-        return obs, reward, False, {'new_trial': new_trial}
-
+        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}

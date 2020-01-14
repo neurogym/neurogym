@@ -63,7 +63,7 @@ class MemoryRecall(ngym.TrialEnv):
         # Environment specific
         self.action_space = spaces.Box(-np.inf, np.inf, shape=(stim_dim,),
                                        dtype=np.float32)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(stim_dim,),
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(stim_dim+1,),
                                        dtype=np.float32)
 
     def __str__(self):
@@ -129,7 +129,6 @@ class MemoryRecall(ngym.TrialEnv):
                         1 - X_stim_recall) * flip_matrix
 
         X = np.concatenate((X_stim, X_store_signal), axis=1)
-
         self.obs = X
         self.gt = Y
         self.mask = M
@@ -151,5 +150,4 @@ class MemoryRecall(ngym.TrialEnv):
         new_trial = self.t >= self.tmax - self.dt
 
         done = False
-
         return obs, reward, done, {'new_trial': new_trial, 'gt': gt}
