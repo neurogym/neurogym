@@ -12,15 +12,14 @@ import neurogym as ngym
 from neurogym.ops import tasktools
 
 
-# TODO: Need proper testing
 class SideBias(ngym.TrialWrapper):
     """Changing the probability of ground truth"""
-    def __init__(self, env, prob, block_dur=200):
+    def __init__(self, env, prob, block_dur):
         """
         Args:
             prob: numpy array (n_block, n_choices)
                 within each block, the probability should sum up to 1
-            block_dur: number of trials per block
+            block_dur: int, number of trials per block
         """
         super().__init__(env)
         try:
@@ -31,7 +30,8 @@ class SideBias(ngym.TrialWrapper):
 
         self.choice_prob = np.array(prob)
         assert self.choice_prob.shape[1] == len(self.choices),\
-            'choice_prob must have shape (n_block, n_choice)'
+            'The number of choices {:d} inferred from prob mismatchs {:d} inferred from choices'.format(
+                self.choice_prob.shape[1],len(self.choices))
 
         self.n_block = self.choice_prob.shape[0]
         self.curr_block = self.task.rng.choice(range(self.n_block))
