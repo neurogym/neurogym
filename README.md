@@ -91,7 +91,7 @@ class ngym(gym.Env):
         """
         return obs, rew, done, info
 
-    def _new_trial(self):
+    def new_trial(self, **kwargs):
         """Starts a new trial within the current experiment.
         Returns trial_info: a dictionary of trial information
         """

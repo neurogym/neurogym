@@ -10,7 +10,7 @@ from gym.core import Wrapper
 import os
 import numpy as np
 
-
+# TODO: This needs to be fixed
 class manage_data(Wrapper):
     """
     modfies a given environment by changing the probability of repeating the

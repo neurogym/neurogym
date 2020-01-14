@@ -18,7 +18,7 @@ class ReactionTime(Wrapper):
         Wrapper.__init__(self, env=env)
         self.env = env
 
-    def _new_trial(self):
+    def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
