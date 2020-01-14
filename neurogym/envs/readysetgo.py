@@ -84,7 +84,7 @@ class ReadySetGo(ngym.EpochEnv):
         trial = self.trial
         info = {'new_trial': False, 'gt': np.zeros((2,))}
         reward = 0
-        obs = self.obs[self.t_ind]
+        obs = self.obs_now
         if self.in_epoch('fixation'):
             info['gt'][0] = 1
             if self.actions[action] != -1:

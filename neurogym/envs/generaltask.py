@@ -138,8 +138,8 @@ class GenTask(ngym.EpochEnv):
                 boolean indicating the end of the trial, info['new_trial']
         """
         new_trial = False
-        obs = self.obs[self.t_ind]
-        gt = self.gt[self.t_ind]
+        obs = self.obs_now
+        gt = self.gt_now
         # rewards
         reward = 0
         first_trial = np.nan

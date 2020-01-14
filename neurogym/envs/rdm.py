@@ -19,6 +19,11 @@ def get_default_timing():
 
 
 class RDM(ngym.EpochEnv):
+    metadata = {
+        'paper_link': 'http://www.jneurosci.org/content/28/12/3017',
+        'paper_name': '''Bounded Integration in Parietal Cortex Underlies
+        Decisions Even When Viewing Duration Is Dictated by the Environment''',
+    }
     def __init__(self, dt=100, timing=None, stimEv=1., **kwargs):
         super().__init__(dt=dt)
         self.choices = [1, 2]
@@ -91,8 +96,7 @@ class RDM(ngym.EpochEnv):
         new_trial = False
         # rewards
         reward = 0
-        obs = self.obs[self.t_ind]
-        gt = self.gt[self.t_ind]
+        gt = self.gt_now
         # observations
         if self.in_epoch('fixation'):
             if action != 0:
@@ -106,7 +110,7 @@ class RDM(ngym.EpochEnv):
                 else:
                     reward = self.R_FAIL
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
 if __name__ == '__main__':

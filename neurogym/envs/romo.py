@@ -112,8 +112,8 @@ class Romo(ngym.EpochEnv):
         # Reward and inputs
         # ---------------------------------------------------------------------
         info = {'new_trial': False}
-        gt = self.gt[self.t_ind]
-        obs = self.obs[self.t_ind]
+        gt = self.gt_now
+        obs = self.obs_now
         # rewards
         reward = 0
         if self.in_epoch('fixation'):

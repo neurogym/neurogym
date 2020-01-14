@@ -118,7 +118,7 @@ class PadoaSch(ngym.EpochEnv):
 
         info = {'new_trial': False}
 
-        obs = self.obs[self.t_ind]
+        obs = self.obs_now
 
         reward = 0
         if self.in_epoch('fixation') or self.in_epoch('offer_on'):

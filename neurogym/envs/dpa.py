@@ -121,8 +121,8 @@ class DPA(ngym.EpochEnv):
         new_trial = False
         # rewards
         reward = 0
-        obs = self.obs[self.t_ind]
-        gt = self.gt[self.t_ind]
+        obs = self.obs_now
+        gt = self.gt_now
         # observations
         if self.in_epoch('fixation'):
             if action != 0:

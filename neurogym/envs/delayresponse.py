@@ -116,7 +116,7 @@ class DR(ngym.EpochEnv):
         reward = 0
         # observations
         obs = self.obs[self.t_ind, :]
-        gt = self.gt[self.t_ind]
+        gt = self.gt_now
 
         first_trial = np.nan
         if self.in_epoch('fixation') or self.in_epoch('delay'):

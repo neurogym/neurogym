@@ -43,8 +43,7 @@ class TrialEnv(BaseEnv):
     def new_trial(self, **kwargs):
         """Public interface for starting a new trial.
 
-        Returns:
-            trial_info: a dictionary of trial information
+        TODO: Need to clearly define the expected behavior
         """
         raise NotImplementedError('new_trial is not defined by user.')
 
@@ -209,6 +208,14 @@ class EpochEnv(TrialEnv):
             t = self.t  # Default
         return getattr(self, epoch+'_0') <= t < getattr(self, epoch+'_1')
 
+    @property
+    def obs_now(self):
+        return self.obs[self.t_ind]
+
+    @property
+    def gt_now(self):
+        return self.gt[self.t_ind]
+
 
 # TODO: How to prevent the repeated typing here?
 class TrialWrapper(gym.Wrapper):
@@ -221,14 +228,15 @@ class TrialWrapper(gym.Wrapper):
     def new_trial(self, **kwargs):
         raise NotImplementedError('_new_trial need to be implemented')
 
-    def _step(self, action):
-        return self.env._step(action)
-
     def step(self, action):
         """Public interface for the environment."""
-        obs, reward, done, info = self._step(action)
+        # TODO: Relying on private interface will break some gym behavior
+        # TODO: Manually updating task.t here is bad shouldn't allow other things to change it
+        obs, reward, done, info = self.task._step(action)
         self.task.t += self.task.dt  # increment within trial time count
         self.task.t_ind += 1
         if info['new_trial']:
+            self.task.t = self.task.t_ind = 0  # Reset within trial time count
+            self.task.num_tr += 1  # Increment trial count
             self.new_trial(info=info)  # new_trial from wrapper
         return obs, reward, done, info

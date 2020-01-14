@@ -82,8 +82,8 @@ class GNG(ngym.EpochEnv):
     def _step(self, action):
         info = {'new_trial': False}
         reward = 0
-        obs = self.obs[self.t_ind]
-        gt = self.gt[self.t_ind]
+        obs = self.obs_now
+        gt = self.gt_now
         if self.in_epoch('fixation'):
             if action != 0:
                 info['new_trial'] = self.abort

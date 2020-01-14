@@ -111,8 +111,8 @@ class DelayedMatchCategory(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         new_trial = False
 
-        obs = self.obs[self.t_ind]
-        gt = self.gt[self.t_ind]
+        obs = self.obs_now
+        gt = self.gt_now
 
         reward = 0
         if self.in_epoch('fixation'):

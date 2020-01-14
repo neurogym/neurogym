@@ -100,8 +100,8 @@ class Mante(ngym.EpochEnv):
             }
 
     def _step(self, action):
-        obs = self.obs[self.t_ind]
-        gt = self.gt[self.t_ind]
+        obs = self.obs_now
+        gt = self.gt_now
 
         new_trial = False
         reward = 0
