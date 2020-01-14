@@ -155,9 +155,9 @@ def test_plot(env_name):
 
 
 if __name__ == '__main__':
-    # test_run_all()
+    test_run_all()
     # test_speed_all()
-    test_trialenv_all()
+    # test_trialenv_all()
     # test_print_all()
     # env_name = 'GenTask-v0'
     # env_name = 'RDM-v1'

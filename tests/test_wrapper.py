@@ -8,6 +8,7 @@ from gym.core import Wrapper
 import neurogym as ngym
 from neurogym.wrappers.trial_hist import TrialHistory
 from neurogym.wrappers.side_bias import SideBias
+from neurogym.wrappers.pass_action import PassAction
 from neurogym import all_tasks
 
 
@@ -31,7 +32,18 @@ def test_sidebias(env_name, verbose=False):
             env.reset()
 
 
-def test_sidebias_all():
+def test_passaction(env_name, verbose=False):
+    env = gym.make(env_name)
+    env = PassAction(env)
+    env.reset()
+    for stp in range(10000):
+        action = env.action_space.sample()
+        obs, rew, done, info = env.step(action)
+        if done:
+            env.reset()
+
+
+def test_all(test_fn):
     """Test speed of all experiments."""
     success_count = 0
     total_count = 0
@@ -39,7 +51,7 @@ def test_sidebias_all():
         total_count += 1
         print('Running env: {:s} Wrapped with SideBias'.format(env_name))
         try:
-            test_sidebias(env_name)
+            test_fn(env_name)
             print('Success')
             success_count += 1
         except BaseException as e:
@@ -51,4 +63,5 @@ def test_sidebias_all():
 
 
 if __name__ == '__main__':
-    test_sidebias_all()
+    # test_all(test_sidebias)
+    test_all(test_passaction)
