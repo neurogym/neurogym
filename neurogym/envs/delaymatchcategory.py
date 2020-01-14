@@ -60,20 +60,21 @@ class DelayedMatchCategory(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-        if 'gt' in kwargs.keys():
-            ground_truth = kwargs['gt']
-        else:
-            ground_truth = self.rng.choice(self.choices)
+        self.trial = {
+            'ground_truth': self.rng.choice(self.choices),
+            'sample_category': self.rng.choice([0, 1]),
+        }
+        self.trial.update(**kwargs)
 
-        sample_category = self.rng.choice([0, 1])
+        ground_truth = self.trial['ground_truth']
+        sample_category = self.trial['sample_category']
+
         sample_theta = (sample_category + self.rng.random()) * np.pi
 
         test_category = sample_category
         if ground_truth == 2:
             test_category = 1 - test_category
         test_theta = (test_category + self.rng.random()) * np.pi
-
-        self.ground_truth = ground_truth
 
         # ---------------------------------------------------------------------
         # Epochs

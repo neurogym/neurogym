@@ -133,7 +133,6 @@ class MemoryRecall(ngym.TrialEnv):
         self.gt = Y
         self.mask = M
         self.tmax = T * self.dt
-        self.t = 0
 
         return X, Y, M
 
@@ -141,13 +140,8 @@ class MemoryRecall(ngym.TrialEnv):
         # ---------------------------------------------------------------------
         # Reward and observations
         # ---------------------------------------------------------------------
-        ind = int(self.t / self.dt)
-        obs = self.obs[ind, :]
-        gt = self.gt[ind]
-        reward = np.mean(abs(gt - action)) * self.mask[ind]
-        # ---------------------------------------------------------------------
-        # new trial?
-        new_trial = self.t >= self.tmax - self.dt
-
+        obs = self.obs[self.t_ind]
+        gt = self.gt[self.t_ind]
+        reward = np.mean(abs(gt - action)) * self.mask[self.t_ind]
         done = False
-        return obs, reward, done, {'new_trial': new_trial, 'gt': gt}
+        return obs, reward, done, {'new_trial': False, 'gt': gt}

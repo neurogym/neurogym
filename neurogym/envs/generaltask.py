@@ -69,22 +69,13 @@ class GenTask(ngym.EpochEnv):
             coh: stimulus coherence (evidence) for the trial
             obs: observation
         """
-
-        if 'gt' in kwargs.keys():
-            gt = kwargs['gt']
-        else:
-            gt = self.rng.choice(self.choices)
-
-        if 'cohs' in kwargs.keys():
-            coh = kwargs['cohs']
-        else:
-            coh = self.rng.choice(self.cohs)
-
-        if 'sigma' in kwargs.keys():
-            sigma_dt = kwargs['sigma']
-        else:
-            sigma_dt = self.sigma_dt
-
+        self.trial = {
+            'ground_truth': self.rng.choice(self.choices),
+            'coh': self.rng.choice(self.cohs),
+            'sigma_dt': self.sigma_dt,
+        }
+        self.trial.update(kwargs)
+        ground_truth = self.trial['ground_truth']
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
@@ -104,12 +95,12 @@ class GenTask(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # TODO: This is converted from previous code, but it doesn't look right
         self.set_ob('fixation', [1, 0, 0])
-        high, low = gt+self.gng, 3-(gt+self.gng)
+        high, low = ground_truth+self.gng, 3-(ground_truth+self.gng)
         tmp = [1, 0, 0]
-        tmp[high] = (1 + coh/100)/2
+        tmp[high] = (1 + self.trial['coh']/100)/2
         self.set_ob('stim' + str(high), tmp)
         tmp = [1, 0, 0]
-        tmp[low] = (1 - coh/100)/2
+        tmp[low] = (1 - self.trial['coh']/100)/2
         self.set_ob('stim' + str(low), tmp)
         self.set_ob('delay_btw_stim', [1, 0, 0])
         self.set_ob('delay_aft_stim', [1, 0, 0])
@@ -117,11 +108,11 @@ class GenTask(ngym.EpochEnv):
 
         # TODO: Not happy about having to do this ugly thing
         self.obs[self.stim1_ind0:self.stim1_ind1, 1:] += np.random.randn(
-            self.stim1_ind1-self.stim1_ind0, 2) * sigma_dt
+            self.stim1_ind1-self.stim1_ind0, 2) * self.trial['sigma_dt']
         self.obs[self.stim2_ind0:self.stim2_ind1, 1:] += np.random.randn(
-            self.stim2_ind1 - self.stim2_ind0, 2) * sigma_dt
+            self.stim2_ind1 - self.stim2_ind0, 2) * self.trial['sigma_dt']
 
-        self.set_groundtruth('decision', gt)
+        self.set_groundtruth('decision', ground_truth)
 
         self.first_flag = False
 

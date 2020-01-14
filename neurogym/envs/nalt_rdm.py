@@ -66,36 +66,30 @@ class nalt_RDM(ngym.EpochEnv):
             obs: observation
         """
         # ---------------------------------------------------------------------
+        # Trial
+        # ---------------------------------------------------------------------
+        self.trial = {
+            'ground_truth': self.rng.choice(self.choices),
+            'coh': self.rng.choice(self.cohs),
+        }
+        self.trial.update(kwargs)
+        # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
         self.add_epoch('fixation', after=0)
         self.add_epoch('stimulus', after='fixation')
         self.add_epoch('decision', after='stimulus', last_epoch=True)
-        # ---------------------------------------------------------------------
-        # Trial
-        # ---------------------------------------------------------------------
-        if 'gt' in kwargs.keys():
-            ground_truth = kwargs['gt']
-        else:
-            ground_truth = self.rng.choice(self.choices)
-        if 'coh' in kwargs.keys():
-            coh = kwargs['coh']
-        else:
-            coh = self.rng.choice(self.cohs)
-
-        self.ground_truth = ground_truth
-        self.coh = coh
 
         self.set_ob('fixation', [1] + [0]*self.n)
-        stimulus_value = [1] + [(1 - coh/100)/2] * self.n
-        stimulus_value[ground_truth] = (1 + coh/100)/2
+        stimulus_value = [1] + [(1 - self.trial['coh']/100)/2] * self.n
+        stimulus_value[self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
         self.set_ob('stimulus', stimulus_value)
         self.obs[self.stimulus_ind0:self.stimulus_ind1, 1:] +=\
             np.random.randn(self.stimulus_ind1-self.stimulus_ind0, self.n) * self.sigma_dt
 
         self.set_groundtruth('fixation', 0)
         self.set_groundtruth('stimulus', 0)
-        self.set_groundtruth('decision', ground_truth)
+        self.set_groundtruth('decision', self.trial['ground_truth'])
 
     def _step(self, action, **kwargs):
         """

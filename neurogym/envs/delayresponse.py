@@ -62,25 +62,16 @@ class DR(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-        if 'gt' in kwargs.keys():
-            ground_truth = kwargs['gt']
-        else:
-            ground_truth = self.rng.choice(self.choices)
-        if 'cohs' in kwargs.keys():
-            coh = self.rng.choice(kwargs['cohs'])
-        else:
-            coh = self.rng.choice(self.cohs)
-        if 'sigma' in kwargs.keys():
-            sigma = kwargs['sigma'] / np.sqrt(self.dt)
-        else:
-            sigma = self.sigma_dt
+        self.trial = {
+            'ground_truth': self.rng.choice(self.choices),
+            'coh': self.rng.choice(self.cohs),
+            'sigma_dt': self.sigma_dt,
+        }
+        self.trial.update(kwargs)
 
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        self.ground_truth = ground_truth
-        self.coh = coh
-
         self.add_epoch('fixation', after=0)
         self.add_epoch('stimulus', after='fixation')
         self.add_epoch('delay', after='stimulus')
@@ -88,14 +79,14 @@ class DR(ngym.EpochEnv):
 
         # define observations
         self.set_ob('fixation', [1, 0, 0])
-        stimulus_value = [1] + [(1 - coh/100)/2] * 2
-        stimulus_value[ground_truth] = (1 + coh/100)/2
+        stimulus_value = [1] + [(1 - self.trial['coh']/100)/2] * 2
+        stimulus_value[self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
         self.set_ob('stimulus', stimulus_value)
         self.set_ob('delay', [1, 0, 0])
         self.obs[self.stimulus_ind0:self.stimulus_ind1, 1:] += np.random.randn(
-            self.stimulus_ind1-self.stimulus_ind0, 2) * sigma
+            self.stimulus_ind1-self.stimulus_ind0, 2) * self.trial['sigma_dt']
 
-        self.set_groundtruth('decision', ground_truth)
+        self.set_groundtruth('decision', self.trial['ground_truth'])
 
     def _step(self, action):
         """
@@ -114,7 +105,6 @@ class DR(ngym.EpochEnv):
         # rewards
         reward = 0
         # observations
-        obs = self.obs[self.t_ind, :]
         gt = self.gt_now
 
         first_trial = np.nan
@@ -123,21 +113,23 @@ class DR(ngym.EpochEnv):
                 new_trial = self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch('decision'):
-            if self.ground_truth == action:
+            if action == gt:
                 reward = self.R_CORRECT
                 new_trial = True
                 if ~self.first_flag:
                     first_trial = True
                     self.first_flag = True
-            elif self.ground_truth == 3 - action:  # 3-action is the other act
+            elif action == 3 - gt:  # 3-action is the other act
                 reward = self.R_FAIL
                 new_trial = self.firstcounts
                 if ~self.first_flag:
                     first_trial = False
                     self.first_flag = True
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt,
-                                   'first_trial': first_trial}
+        info = {'new_trial': new_trial,
+                'gt': gt,
+                'first_trial': first_trial}
+        return self.obs_now, reward, False, info
 
 
 if __name__ == '__main__':

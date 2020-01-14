@@ -57,7 +57,10 @@ class GNG(ngym.EpochEnv):
 
     def new_trial(self, **kwargs):
         # Trial info
-        ground_truth = self.rng.choice(self.choices)
+        self.trial = {
+            'ground_truth': self.rng.choice(self.choices)
+        }
+        self.trial.update(kwargs)
 
         # Epoch info
         self.add_epoch('fixation', after=0)
@@ -67,15 +70,11 @@ class GNG(ngym.EpochEnv):
 
         self.set_ob('fixation', [1, 0, 0])
         tmp =  [1, 0, 0]
-        tmp[ground_truth] = 1
+        tmp[self.trial['ground_truth']] = 1
         self.set_ob('stimulus', tmp)
         self.set_ob('resp_delay', [1, 0, 0])
 
-        self.set_groundtruth('decision', ground_truth)
-
-        return {
-            'ground_truth':  ground_truth,
-            }
+        self.set_groundtruth('decision', self.trial['ground_truth'])
 
     def _step(self, action):
         new_trial = False

@@ -63,12 +63,14 @@ class Romo(ngym.EpochEnv):
                                             dtype=np.float32)
 
     def new_trial(self, **kwargs):
-        ground_truth = self.rng.choice(self.choices)
-        fpair = self.rng.choice(self.fpairs)
-        if ground_truth == 1:
-            f1, f2 = fpair
-        else:
-            f2, f1 = fpair
+        self.trial = {
+            'ground_truth': self.rng.choice(self.choices),
+            'fpair': self.rng.choice(self.fpairs)
+        }
+        self.trial.update(kwargs)
+        f1, f2 = self.trial['fpair']
+        if self.trial['ground_truth'] == 2:
+            f1, f2 = f2, f1
         # -------------------------------------------------------------------------
         # Epochs
         # --------------------------------------------------------------------------
@@ -89,13 +91,7 @@ class Romo(ngym.EpochEnv):
         self.obs[self.f2_ind0:self.f2_ind1, 1] += np.random.randn(
             self.f2_ind1 - self.f2_ind0) * self.sigma_dt
 
-        self.set_groundtruth('decision', ground_truth)
-
-        return {
-            'ground_truth': ground_truth,
-            'f1': f1,
-            'f2': f2
-            }
+        self.set_groundtruth('decision', self.trial['ground_truth'])
 
     def scale(self, f):
         return (f - self.fmin)/(self.fmax - self.fmin)

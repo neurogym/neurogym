@@ -60,19 +60,13 @@ class DPA(ngym.EpochEnv):
             coh: stimulus coherence (evidence) for the trial
             obs: observation
         """
-
-        if 'pair' in kwargs.keys():
-            self.pair = kwargs['pair']
-        else:
-            self.pair = self.rng.choice(self.dpa_pairs)
-
-        if np.diff(self.pair)[0] % 2 == self.association:
-            ground_truth = 1
-        else:
-            ground_truth = 0
-
-        self.ground_truth = ground_truth
-
+        pair = self.rng.choice(self.dpa_pairs)
+        self.trial = {
+            'pair': pair,
+            'ground_truth': int(np.diff(pair)[0] % 2 == self.association),
+        }
+        self.trial.update(kwargs)
+        pair = self.trial['pair']
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
@@ -87,21 +81,21 @@ class DPA(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         self.set_ob('fixation', [1, 0, 0, 0, 0])
         tmp = np.array([1, 0, 0, 0, 0])
-        tmp[self.pair[0]] = 1
+        tmp[pair[0]] = 1
         self.set_ob('stim1', tmp)
         tmp = np.array([1, 0, 0, 0, 0])
-        tmp[self.pair[1]] = 1
+        tmp[pair[1]] = 1
         self.set_ob('stim2', tmp)
         self.set_ob('delay_btw_stim', [1, 0, 0, 0, 0])
         self.set_ob('delay_aft_stim', [1, 0, 0, 0, 0])
 
         # TODO: Not happy about having to do this ugly thing
-        self.obs[self.stim1_ind0:self.stim1_ind1, self.pair[0]] += np.random.randn(
+        self.obs[self.stim1_ind0:self.stim1_ind1, pair[0]] += np.random.randn(
             self.stim1_ind1 - self.stim1_ind0) * self.sigma_dt
-        self.obs[self.stim2_ind0:self.stim2_ind1, self.pair[1]] += np.random.randn(
+        self.obs[self.stim2_ind0:self.stim2_ind1, pair[1]] += np.random.randn(
             self.stim2_ind1 - self.stim2_ind0) * self.sigma_dt
 
-        self.set_groundtruth('decision', ground_truth)
+        self.set_groundtruth('decision', self.trial['ground_truth'])
 
     def _step(self, action, **kwargs):
         """

@@ -48,12 +48,17 @@ class DelayedMatchToSample(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-        ground_truth = self.rng.choice([1, 2])
-        sample = self.rng.choice([1, 2])
-        if ground_truth == 1:
-            test = sample
-        else:
-            test = 3 - sample
+        self.trial = {
+            'ground_truth': self.rng.choice([1, 2]),
+            'sample': self.rng.choice([1, 2]),
+        }
+        self.trial.update(kwargs)
+
+        ground_truth = self.trial['ground_truth']
+        sample = self.trial['sample']
+
+        test = sample if ground_truth == 1 else 3 - sample
+        self.trial['test'] = test
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
@@ -79,12 +84,6 @@ class DelayedMatchToSample(ngym.EpochEnv):
             self.test_ind1-self.test_ind0, 2) * (self.sigma/np.sqrt(self.dt))
 
         self.set_groundtruth('decision', ground_truth)
-
-        return {
-            'ground_truth': ground_truth,
-            'sample': sample,
-            'test': test,
-            }
 
     def _step(self, action):
         new_trial = False

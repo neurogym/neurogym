@@ -44,7 +44,7 @@ class TrialEnv(BaseEnv):
     def new_trial(self, **kwargs):
         """Public interface for starting a new trial.
 
-        This function can optionally update the self.trial
+        This function can typically update the self.trial
         dictionary that contains information about current trial
         TODO: Need to clearly define the expected behavior
         """

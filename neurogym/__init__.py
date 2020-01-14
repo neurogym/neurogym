@@ -33,7 +33,7 @@ all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
              'NAltRDM-v0': 'neurogym.envs.nalt_rdm:nalt_RDM',
              'GenTask-v0': 'neurogym.envs.generaltask:GenTask',
              'Combine-v0': 'neurogym.envs.combine:combine',
-             'IBL-v0': 'neurogym.envs.ibl:IBL',
+             # 'IBL-v0': 'neurogym.envs.ibl:IBL',
              'MemoryRecall-v0': 'neurogym.envs.memoryrecall:MemoryRecall',
              }
 

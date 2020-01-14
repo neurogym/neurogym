@@ -51,13 +51,19 @@ class Mante(ngym.EpochEnv):
         # -------------------------------------------------------------------------
         # Trial
         # -------------------------------------------------------------------------
-        context = self.rng.choice(self.contexts)
-        choice_m = self.rng.choice(self.choices)
-        choice_c = self.rng.choice(self.choices)
-        coh_m = self.rng.choice(self.cohs)
-        coh_c = self.rng.choice(self.cohs)
-        ground_truth = choice_m if context == 0 else choice_c
+        self.trial = {
+            'ground_truth': self.rng.choice(self.choices),
+            'other_choice': self.rng.choice(self.choices),
+            'context': self.rng.choice(self.contexts),
+            'coh_m': self.rng.choice(self.cohs),
+            'coh_c': self.rng.choice(self.cohs),
+        }
+        self.trial.update(kwargs)
 
+        choice_m, choice_c = self.trial['ground_truth'], self.trial['other_choice']
+        if self.trial['context'] == 1:
+            choice_m, choice_c = choice_c, choice_m
+        coh_m, coh_c = self.trial['coh_m'], self.trial['coh_c']
         # -----------------------------------------------------------------------
         # Epochs
         # -----------------------------------------------------------------------
@@ -80,7 +86,7 @@ class Mante(ngym.EpochEnv):
         tmp[[high_m, low_m, high_c, low_c]] =\
             (1 + np.array([coh_m, -coh_m, coh_c, -coh_c])/100)/2
         self.set_ob('stimulus', tmp)
-        self.obs[:, context] = 1
+        self.obs[:, self.trial['context']] = 1
         self.set_ob('decision', np.zeros(6))
         self.obs[self.stimulus_ind0:self.stimulus_ind1, 2:] += np.random.randn(
             self.stimulus_ind1-self.stimulus_ind0, 4) * (self.sigma/np.sqrt(self.dt))
@@ -88,16 +94,7 @@ class Mante(ngym.EpochEnv):
         self.set_groundtruth('fixation', 0)
         self.set_groundtruth('stimulus', 0)
         self.set_groundtruth('delay', 0)
-        self.set_groundtruth('decision', ground_truth)
-
-        return {
-            'context': context,
-            'choice_m': choice_m,
-            'choice_c': choice_c,
-            'coh_m': coh_m,
-            'coh_c': coh_c,
-            'ground_truth': ground_truth
-            }
+        self.set_groundtruth('decision', self.trial['ground_truth'])
 
     def _step(self, action):
         obs = self.obs_now

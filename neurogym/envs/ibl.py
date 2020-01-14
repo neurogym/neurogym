@@ -5,7 +5,7 @@ import neurogym as ngym
 
 # XXX: are trials counted correctly in this task?
 
-
+# TODO: No longer maintained, use existing task to build this task
 class IBL(ngym.TrialEnv):
     metadata = {
         'paper_link': 'https://www.sciencedirect.com/science/article/pii/S0896627317311364',
