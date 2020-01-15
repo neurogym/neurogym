@@ -19,16 +19,6 @@ class Reaching1D(ngym.EpochEnv):
 
     def __init__(self, dt=100, timing=None):
         super().__init__(dt=dt, timing=timing)
-        # Input noise
-        self.sigma = np.sqrt(2 * 100 * 0.01)
-        self.sigma_dt = self.sigma / np.sqrt(self.dt)
-
-        # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
-        self.R_FAIL = 0.
-        self.R_MISS = 0.
-        self.abort = False
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(32,),
@@ -95,16 +85,7 @@ class Reaching1DWithSelfDistraction(ngym.EpochEnv):
 
     def __init__(self, dt=100, timing=None):
         super().__init__(dt=dt, timing=timing)
-        # Input noise
-        self.sigma = np.sqrt(2 * 100 * 0.01)
-        self.sigma_dt = self.sigma / np.sqrt(self.dt)
 
-        # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
-        self.R_FAIL = 0.
-        self.R_MISS = 0.
-        self.abort = False
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(32,),
@@ -152,7 +133,7 @@ class Reaching1DWithSelfDistraction(ngym.EpochEnv):
 
 
 if __name__ == '__main__':
-    from neurogym.tests.test_env import test_run
+    from neurogym.tests import test_run
     # env = Reaching1D()
     env = Reaching1DWithSelfDistraction()
     test_run(env)
