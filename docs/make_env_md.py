@@ -34,7 +34,7 @@ def main():
 
                 if isinstance(env, ngym.EpochEnv):
                     timing = metadata['default_timing']
-                    string = 'Default Epoch timing \n\n'
+                    string = 'Default Epoch timing (ms) \n\n'
                     for key, val in timing.items():
                         dist, args = val
                         string += key + ' : ' + dist + ' ' + str(args) + '\n\n'

@@ -14,7 +14,7 @@ Original paper:
 
 [Active information maintenance in working memory by a sensory cortex](https://elifesciences.org/articles/43191)
 
-Default Epoch timing 
+Default Epoch timing (ms) 
 
 fixation : constant 0
 
@@ -42,7 +42,7 @@ Original paper:
 [Experience-dependent representation
         of visual categories in parietal cortex](https://www.nature.com/articles/nature05078)
 
-Default Epoch timing 
+Default Epoch timing (ms) 
 
 fixation : constant 500
 
@@ -63,7 +63,7 @@ Original paper:
 [Neural Mechanisms of Visual Working Memory 
         in Prefrontal Cortex of the Macaque](https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf)
 
-Default Epoch timing 
+Default Epoch timing (ms) 
 
 fixation : constant 300
 
@@ -83,7 +83,7 @@ Missing paper name
 
 Missing paper link
 
-Default Epoch timing 
+Default Epoch timing (ms) 
 
 fixation : constant 500
 
@@ -99,7 +99,7 @@ Original paper:
 
 [Active information maintenance in working memory by a sensory cortex](https://elifesciences.org/articles/43191)
 
-Default Epoch timing 
+Default Epoch timing (ms) 
 
 fixation : constant 0
 
@@ -117,7 +117,7 @@ Missing paper name
 
 Missing paper link
 
-Default Epoch timing 
+Default Epoch timing (ms) 
 
 fixation : truncated_exponential [500, 200, 800]
 
@@ -138,7 +138,7 @@ Original paper:
 [Context-dependent computation by recurrent 
         dynamics in prefrontal cortex](https://www.nature.com/articles/nature12742)
 
-Default Epoch timing 
+Default Epoch timing (ms) 
 
 fixation : constant 300
 
@@ -170,7 +170,7 @@ Original paper:
 
 [Flexible timing by temporal scaling of cortical responses](https://www.nature.com/articles/s41593-017-0028-6)
 
-Default Epoch timing 
+Default Epoch timing (ms) 
 
 fixation : constant 500
 
@@ -186,7 +186,7 @@ Missing paper name
 
 Missing paper link
 
-Default Epoch timing 
+Default Epoch timing (ms) 
 
 fixation : constant 500
 
@@ -201,7 +201,7 @@ Original paper:
 [The analysis of visual motion: a comparison of
         neuronal and psychophysical performance](https://www.jneurosci.org/content/12/12/4745)
 
-Default Epoch timing 
+Default Epoch timing (ms) 
 
 fixation : constant 100
 
@@ -216,7 +216,7 @@ Original paper:
 [Flexible Sensorimotor Computations through Rapid
         Reconfiguration of Cortical Dynamics](https://www.sciencedirect.com/science/article/pii/S0896627318304185)
 
-Default Epoch timing 
+Default Epoch timing (ms) 
 
 fixation : constant 100
 
@@ -232,7 +232,7 @@ Original paper:
 
 [Neuronal Population Coding of Parametric Working Memory](https://www.jneurosci.org/content/30/28/9424)
 
-Default Epoch timing 
+Default Epoch timing (ms) 
 
 fixation : constant 750
 
@@ -250,7 +250,7 @@ Original paper:
 
 [Neurons in the orbitofrontal cortex encode economic value](https://www.nature.com/articles/nature04676)
 
-Default Epoch timing 
+Default Epoch timing (ms) 
 
 fixation : constant 750
 
@@ -265,7 +265,7 @@ Original paper:
 [Representation of Confidence Associated with a
          Decision by Neurons in the Parietal Cortex](https://science.sciencemag.org/content/324/5928/759.long)
 
-Default Epoch timing 
+Default Epoch timing (ms) 
 
 fixation : constant 750
 
