@@ -12,21 +12,36 @@ from neurogym import all_tasks
 import neurogym.ops.tasktools as tasktools
 
 
-def test_run(env_name):
-    """Test if all one environment can at least be run."""
-    if isinstance(env_name, str):
+def test_run(env):
+    """Main function for testing if an environment is healthy."""
+    if isinstance(env, str):
+        print('Testing Environment:', env)
         kwargs = {'dt': 20}
-        env = gym.make(env_name, **kwargs)
-    elif isinstance(env_name, gym.Env):
-        env = env_name
+        env = gym.make(env, **kwargs)
     else:
-        raise ValueError
+        if not isinstance(env, gym.Env):
+            raise ValueError('env must be a string or a gym.Env')
+    _test_run(env)
+    print(env)
+    return env
+
+
+def _test_run(env):
+    """Test if all one environment can at least be run."""
+    if isinstance(env, str):
+        kwargs = {'dt': 20}
+        env = gym.make(env, **kwargs)
+    else:
+        if not isinstance(env, gym.Env):
+            raise ValueError('env must be a string or a gym.Env')
+
     env.reset()
     for stp in range(100):
         action = env.action_space.sample()
         state, rew, done, info = env.step(action)  # env.action_space.sample())
         if done:
             env.reset()
+
     return env
 
 
@@ -161,10 +176,10 @@ def test_plot(env_name):
 
 
 if __name__ == '__main__':
-    # test_run_all()
+    test_run_all()
     # test_speed_all()
     # test_trialenv_all()
-    test_print_all()
+    # test_print_all()
     env_name = 'MotorTiming-v0'
     # env_name = 'RDM-v0'
     # env_name = 'Mante-v0'
