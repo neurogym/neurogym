@@ -14,8 +14,13 @@ import neurogym.ops.tasktools as tasktools
 
 def test_run(env_name):
     """Test if all one environment can at least be run."""
-    kwargs = {'dt': 20}
-    env = gym.make(env_name, **kwargs)
+    if isinstance(env_name, str):
+        kwargs = {'dt': 20}
+        env = gym.make(env_name, **kwargs)
+    elif isinstance(env_name, gym.Env):
+        env = env_name
+    else:
+        raise ValueError
     env.reset()
     for stp in range(100):
         action = env.action_space.sample()
@@ -156,10 +161,10 @@ def test_plot(env_name):
 
 
 if __name__ == '__main__':
-    test_run_all()
+    # test_run_all()
     # test_speed_all()
     # test_trialenv_all()
-    # test_print_all()
+    test_print_all()
     env_name = 'MotorTiming-v0'
     # env_name = 'RDM-v0'
     # env_name = 'Mante-v0'
