@@ -100,7 +100,7 @@ class MotorTiming(ngym.EpochEnv):
         'paper_name': '''Flexible timing by temporal scaling of cortical responses''',
         'default_timing': {
             'fixation': ('constant', 500),  # XXX: not specified
-            'cue': ('uniform', [2000, 1000, 3000]),
+            'cue': ('uniform', [1000, 3000]),
             'set': ('constant', 50)}
     }
 
