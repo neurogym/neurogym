@@ -16,9 +16,9 @@ class ReadySetGo(ngym.EpochEnv):
         'paper_name': '''Flexible Sensorimotor Computations through Rapid
         Reconfiguration of Cortical Dynamics''',
         'default_timing': {
-            'fixation': ('constant', 500),
+            'fixation': ('constant', 100),
             'ready': ('constant', 83),
-            'measure': ('choice', [500, 580, 660, 760, 840, 920, 1000]),
+            'measure': ('choice', [800, 1500]),
             'set': ('constant', 83)},
     }
 
@@ -99,8 +99,8 @@ class MotorTiming(ngym.EpochEnv):
         'paper_link': 'https://www.nature.com/articles/s41593-017-0028-6',
         'paper_name': '''Flexible timing by temporal scaling of cortical responses''',
         'default_timing': {
-            'fixation': ('constant', 500),
-            'cue': ('truncated_exponential', [1000, 500, 1500]),
+            'fixation': ('constant', 500),  # XXX: not specified
+            'cue': ('uniform', [2000, 1000, 3000]),
             'set': ('constant', 50)}
     }
 

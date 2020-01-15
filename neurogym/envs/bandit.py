@@ -13,8 +13,8 @@ import neurogym as ngym
 
 class Bandit(ngym.TrialEnv):
     metadata = {
-        'paper_link': None,
-        'paper_name': None,
+        'paper_link': 'https://www.nature.com/articles/s41593-018-0147-8',
+        'paper_name': 'Prefrontal cortex as a meta-reinforcement learning system',
     }
 
     def __init__(self, dt=100, n_arm=2, probs=(.9, .1)):

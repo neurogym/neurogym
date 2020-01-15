@@ -29,10 +29,10 @@ class GNG(ngym.EpochEnv):
         'paper_link': 'https://elifesciences.org/articles/43191',
         'paper_name': '''Active information maintenance in working memory by a sensory cortex''',
         'default_timing': {
-            'fixation': ('constant', 100),
-            'stimulus': ('constant', 200),
-            'resp_delay': ('constant', 100),
-            'decision': ('constant', 100)},
+            'fixation': ('constant', 0),
+            'stimulus': ('constant', 500),
+            'resp_delay': ('constant', 500),
+            'decision': ('constant', 500)},
     }
 
     def __init__(self, dt=100, timing=None, **kwargs):

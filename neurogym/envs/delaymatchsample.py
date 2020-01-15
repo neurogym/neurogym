@@ -18,11 +18,11 @@ class DelayedMatchToSample(ngym.EpochEnv):
         'paper_name': '''Neural Mechanisms of Visual Working Memory 
         in Prefrontal Cortex of the Macaque''',
         'default_timing': {
-            'fixation': ('constant', 500),
+            'fixation': ('constant', 300),
             'sample': ('constant', 500),
-            'delay': ('constant', 1500),
+            'delay': ('constant', 1000),
             'test': ('constant', 500),
-            'decision': ('constant', 500)},
+            'decision': ('constant', 900)},
     }
 
     def __init__(self, dt=100, timing=None):
