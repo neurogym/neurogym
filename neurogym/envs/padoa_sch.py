@@ -26,8 +26,8 @@ class PadoaSch(ngym.EpochEnv):
         'paper_link': 'https://www.nature.com/articles/nature04676',
         'paper_name': '''Neurons in the orbitofrontal cortex encode economic value''',
         'default_timing': {
-            'fixation': ('constant', 750),
-            'offer_on': ('truncated_exponential', [1500, 1000, 2000]),
+            'fixation': ('constant', 1500),
+            'offer_on': ('uniform', [1000, 2000]),
             'decision': ('constant', 750)},
     }
 

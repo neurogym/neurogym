@@ -29,11 +29,12 @@ class PDWager(ngym.EpochEnv):
         'paper_name': '''Representation of Confidence Associated with a
          Decision by Neurons in the Parietal Cortex''',
         'default_timing': {
-            'fixation': ('constant', 750),
-            'stimulus': ('truncated_exponential', [180, 100, 800]),
+            'fixation': ('constant', 100),  # XXX: not specified
+            'target':  ('constant', 0),  # XXX: not implemented, not specified
+            'stimulus': ('truncated_exponential', [180, 100, 900]),
             'delay': ('truncated_exponential', [1350, 1200, 1800]),
-            'pre_sure': ('truncated_exponential', [575, 500, 750]),
-            'decision': ('constant', 500)},
+            'pre_sure': ('uniform', [500, 750]),
+            'decision': ('constant', 100)},  # XXX: not specified
     }
 
     def __init__(self, dt=100, timing=None):
