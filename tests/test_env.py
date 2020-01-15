@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import gym
 import neurogym as ngym
 from neurogym import all_tasks
+import neurogym.ops.tasktools as tasktools
 
 
 def test_run(env_name):
@@ -155,16 +156,17 @@ def test_plot(env_name):
 
 
 if __name__ == '__main__':
-    test_run_all()
-    # test_speed_all()
+    # test_run_all()
+    test_speed_all()
     # test_trialenv_all()
     # test_print_all()
-    # env_name = 'GenTask-v0'
-    # env_name = 'RDM-v1'
-    # env_name = 'DPA-v1'
+    env_name = 'GenTask-v0'
+    # env_name = 'RDM-v0'
+    # env_name = 'Mante-v0'
     # env_name = 'NAltRDM-v0'
     # env_name = 'DelayedMatchCategory-v0'
     # env_name = 'MemoryRecall-v0'
-    env_name = 'Bandit-v0'
+    # env_name = 'Bandit-v0'
     # test_plot(env_name)
     # test_speed(env_name)
+    # tasktools.plot_struct(env_name)

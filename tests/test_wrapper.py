@@ -6,9 +6,9 @@ from gym import spaces
 from gym.core import Wrapper
 
 import neurogym as ngym
-from neurogym.wrappers.trial_hist import TrialHistory
-from neurogym.wrappers.side_bias import SideBias
-from neurogym.wrappers.pass_action import PassAction
+from neurogym.wrappers import TrialHistory
+from neurogym.wrappers import SideBias
+from neurogym.wrappers import PassAction
 from neurogym import all_tasks
 
 
