@@ -186,6 +186,32 @@ class EpochEnv(TrialEnv):
         # TODO: Allow ground truth to be category or full action
         self.gt = np.zeros(tmax_ind, dtype=np.int)  # ground truth action, default 0
 
+    def add_input(self, input, loc=None, epoch=None):
+        """Add an input to current observation."""
+        if isinstance(epoch, str):
+            self._add_input(input, loc, epoch)
+        else:
+            for e in epoch:
+                self._add_input(input, loc, e)
+
+    def _add_input(self, input, loc=None, epoch=None):
+        """Add an input to current observation."""
+        if epoch is None:
+            ob = self.obs
+        else:
+            ob = self.view_ob(epoch)
+
+        if loc is None:
+            try:
+                ob[:, :] += input()
+            except TypeError:
+                ob[:, :] += input
+        else:
+            try:
+                ob[:, loc] += input()
+            except TypeError:
+                ob[:, loc] += input
+
     def set_ob(self, epoch, value):
         """Set observation in epoch to value.
 
