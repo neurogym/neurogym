@@ -79,19 +79,19 @@ decision : constant 900
 
 Original paper: 
 
-Missing paper name
-
-Missing paper link
+[Discrete attractor dynamics underlies persistent activity in the frontal cortex](https://www.nature.com/articles/s41586-019-0919-7)
 
 Default Epoch timing (ms) 
 
-fixation : constant 500
+fixation : constant 0
 
-stimulus : truncated_exponential [330, 80, 1500]
+stimulus : constant 1150
 
-delay : choice [1000, 5000, 10000]
+delay : choice [300, 500, 700, 900, 1200, 2000, 3200, 4000]
 
-decision : constant 500
+go_cue : constant 100
+
+decision : constant 1500
 
 #### GNG
 
@@ -174,7 +174,7 @@ Default Epoch timing (ms)
 
 fixation : constant 500
 
-cue : uniform [2000, 1000, 3000]
+cue : uniform [1000, 3000]
 
 set : constant 50
 
@@ -230,19 +230,20 @@ set : constant 83
 
 Original paper: 
 
-[Neuronal Population Coding of Parametric Working Memory](https://www.jneurosci.org/content/30/28/9424)
+[Neuronal Population Coding of Parametric
+        Working Memory](https://www.jneurosci.org/content/30/28/9424)
 
 Default Epoch timing (ms) 
 
-fixation : constant 750
+fixation : uniform (1500, 3000)
 
 f1 : constant 500
 
-delay : truncated_exponential [3000, 2700, 3300]
+delay : constant 3000
 
 f2 : constant 500
 
-decision : constant 500
+decision : constant 100
 
 #### PadoaSch
 
@@ -252,9 +253,9 @@ Original paper:
 
 Default Epoch timing (ms) 
 
-fixation : constant 750
+fixation : constant 1500
 
-offer_on : truncated_exponential [1500, 1000, 2000]
+offer_on : uniform [1000, 2000]
 
 decision : constant 750
 
@@ -267,13 +268,15 @@ Original paper:
 
 Default Epoch timing (ms) 
 
-fixation : constant 750
+fixation : constant 100
 
-stimulus : truncated_exponential [180, 100, 800]
+target : constant 0
+
+stimulus : truncated_exponential [180, 100, 900]
 
 delay : truncated_exponential [1350, 1200, 1800]
 
-pre_sure : truncated_exponential [575, 500, 750]
+pre_sure : uniform [500, 750]
 
-decision : constant 500
+decision : constant 100
 
