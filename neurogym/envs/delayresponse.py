@@ -12,17 +12,18 @@ from gym import spaces
 import neurogym as ngym
 from neurogym.ops import tasktools
 
-
+#  TODO: there is a timeout of 1000ms for incorrect trials
 class DR(ngym.EpochEnv):
-    # TODO: Add paper link
     metadata = {
-        'paper_link': None,
-        'paper_name': None,
+        'paper_link': 'https://www.nature.com/articles/s41586-019-0919-7',
+        'paper_name': 'Discrete attractor dynamics underlies persistent activity in the frontal cortex',
         'default_timing': {
-            'fixation': ('constant', 500),
-            'stimulus': ('truncated_exponential', [330, 80, 1500]),
-            'delay': ('choice', [1000, 5000, 10000]),
-            'decision': ('constant', 500)},
+            'fixation': ('constant', 0),
+            'stimulus': ('constant', 1150),
+            #  TODO: sampling of delays follows exponential
+            'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
+            'go_cue': ('constant', 100),
+            'decision': ('constant', 1500)},
     }
 
     def __init__(self, dt=100, timing=None, stimEv=1., **kwargs):

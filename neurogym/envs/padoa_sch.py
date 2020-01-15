@@ -26,8 +26,8 @@ class PadoaSch(ngym.EpochEnv):
         'paper_link': 'https://www.nature.com/articles/nature04676',
         'paper_name': '''Neurons in the orbitofrontal cortex encode economic value''',
         'default_timing': {
-            'fixation': ('constant', 750),
-            'offer_on': ('truncated_exponential', [1500, 1000, 2000]),
+            'fixation': ('constant', 1500),
+            'offer_on': ('uniform', [1000, 2000]),
             'decision': ('constant', 750)},
     }
 
@@ -110,19 +110,19 @@ class PadoaSch(ngym.EpochEnv):
     def _step(self, action):
         trial = self.trial
 
-        info = {'new_trial': False}
+        new_trial = False
 
         obs = self.obs_now
 
         reward = 0
         if self.in_epoch('fixation') or self.in_epoch('offer_on'):
             if action != self.actions['FIXATE']:
-                info['new_trial'] = self.abort
+                new_trial = self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch('decision'):
             if action in [self.actions['CHOOSE-LEFT'],
                           self.actions['CHOOSE-RIGHT']]:
-                info['new_trial'] = True
+                new_trial = True
 
                 juiceL, juiceR = trial['juice']
 
@@ -140,4 +140,4 @@ class PadoaSch(ngym.EpochEnv):
                 elif action == self.actions['CHOOSE-RIGHT']:
                     reward = rR
 
-        return obs, reward, False, info
+        return obs, reward, False, {'new_trial': new_trial, 'gt': 0}

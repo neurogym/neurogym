@@ -21,13 +21,14 @@ import neurogym as ngym
 class Romo(ngym.EpochEnv):
     metadata = {
         'paper_link': 'https://www.jneurosci.org/content/30/28/9424',
-        'paper_name': '''Neuronal Population Coding of Parametric Working Memory''',
+        'paper_name': '''Neuronal Population Coding of Parametric
+        Working Memory''',
         'default_timing': {
-            'fixation': ('constant', 750),
+            'fixation': ('uniform', (1500, 3000)),
             'f1': ('constant', 500),
-            'delay': ('truncated_exponential', [3000, 2700, 3300]),
+            'delay': ('constant', 3000),
             'f2': ('constant', 500),
-            'decision': ('constant', 500)},
+            'decision': ('constant', 100)},  # XXX: not specified
     }
 
     def __init__(self, dt=100, timing=None):
