@@ -14,7 +14,7 @@ import neurogym.ops.tasktools as tasktools
 
 def test_run(env_name):
     """Test if all one environment can at least be run."""
-    kwargs = {'dt': 100}
+    kwargs = {'dt': 20}
     env = gym.make(env_name, **kwargs)
     env.reset()
     for stp in range(100):
@@ -156,7 +156,7 @@ def test_plot(env_name):
 
 
 if __name__ == '__main__':
-    # test_run_all()
+    test_run_all()
     # test_speed_all()
     # test_trialenv_all()
     # test_print_all()
@@ -167,6 +167,7 @@ if __name__ == '__main__':
     # env_name = 'DelayedMatchCategory-v0'
     # env_name = 'MemoryRecall-v0'
     # env_name = 'Bandit-v0'
+    # test_run(env_name)
     # test_plot(env_name)
     # test_speed(env_name)
-    tasktools.plot_struct(env_name)
+    # tasktools.plot_struct(env_name)

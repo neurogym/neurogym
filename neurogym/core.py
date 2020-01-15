@@ -113,6 +113,10 @@ class EpochEnv(TrialEnv):
         for key, val in self._timing.items():
             dist, args = val
             self.timing_fn[key] = tasktools.random_number_fn(dist, args)
+            min_tmp, max_tmp = tasktools.minmax_number(dist, args)
+            if min_tmp < self.dt:
+                print('Warning: Minimum time for epoch {:s} {:f} smaller than dt {:f}'.format(
+                    key, min_tmp, self.dt))
 
         self._start_t = dict()
         self._end_t = dict()
