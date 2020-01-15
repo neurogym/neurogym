@@ -131,12 +131,6 @@ delay_aft_stim : truncated_exponential [500, 200, 800]
 
 decision : truncated_exponential [500, 200, 800]
 
-#### IBL
-
-Original paper: 
-
-[An International Laboratory for Systems and Computational Neuroscience](https://www.sciencedirect.com/science/article/pii/S0896627317311364)
-
 #### Mante
 
 Original paper: 
@@ -167,6 +161,20 @@ Original paper:
 Missing paper name
 
 Missing paper link
+
+#### MotorTiming
+
+Original paper: 
+
+[Flexible timing by temporal scaling of cortical responses](https://www.nature.com/articles/s41593-017-0028-6)
+
+Default Epoch timing 
+
+fixation : constant 500
+
+cue : truncated_exponential [1000, 500, 1500]
+
+set : constant 50
 
 #### nalt_RDM
 
