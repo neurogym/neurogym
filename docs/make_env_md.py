@@ -23,7 +23,7 @@ def main():
 
                 paper_name = metadata.get('paper_name', None) or 'Missing paper name'
                 paper_link = metadata.get('paper_link', None)
-                f.write("Original paper: \n\n")
+                f.write("Reference paper: \n\n")
 
                 if paper_link is None:
                     f.write("{:s}\n\n".format(paper_name))
