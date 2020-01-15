@@ -68,15 +68,11 @@ class RDM(ngym.EpochEnv):
         self.add_epoch('decision', after='stimulus', last_epoch=True)
 
         self.set_ob('fixation', [1, 0, 0])
-
-        if ground_truth == 1:
-            stimulus = [1,  (1 + coh / 100) / 2, (1 - coh / 100) / 2]
-        else:
-            stimulus = [1,  (1 - coh / 100) / 2, (1 + coh / 100) / 2]
-        self.set_ob('stimulus', stimulus)
-
-        self.obs[self.stimulus_ind0:self.stimulus_ind1] += np.random.randn(
-            *self.obs[self.stimulus_ind0:self.stimulus_ind1].shape) * self.sigma_dt
+        stimulus = self.view_ob('stimulus')
+        stimulus[:, 0] = 1
+        stimulus[:, 1:] = (1 - coh / 100) / 2
+        stimulus[:, ground_truth] = (1 + coh / 100) / 2
+        stimulus[:, 1:] += np.random.randn(stimulus.shape[0], 2) * self.sigma_dt
 
         self.set_groundtruth('decision', ground_truth)
 

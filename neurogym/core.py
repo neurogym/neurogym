@@ -112,6 +112,11 @@ class EpochEnv(TrialEnv):
             default_timing.update(timing)
         self._set_epochtiming(default_timing)
 
+        self._start_t = dict()
+        self._end_t = dict()
+        self._start_ind = dict()
+        self._end_ind = dict()
+
     def __str__(self):
         """Information about task."""
         total_min, total_max = 0, 0  # min and max time length of trial
@@ -162,18 +167,18 @@ class EpochEnv(TrialEnv):
 
         if after is not None:
             if isinstance(after, str):
-                start = getattr(self, after + '_1')
+                start = self._end_t[after]
             else:
                 start = after
         elif before is not None:
-            start = getattr(self, before + '_0') - duration
+            start = self._start_t[before] - duration
         else:
             raise ValueError('''before or start can not be both None''')
 
-        setattr(self, epoch + '_0', start)
-        setattr(self, epoch + '_1', start + duration)
-        setattr(self, epoch + '_ind0', int(start/self.dt))
-        setattr(self, epoch + '_ind1', int((start + duration)/self.dt))
+        self._start_t[epoch] = start
+        self._end_t[epoch] = start + duration
+        self._start_ind[epoch] = int(start/self.dt)
+        self._end_ind[epoch] = int((start + duration)/self.dt)
 
         if last_epoch:
             self._init_trial(start + duration)
@@ -195,7 +200,11 @@ class EpochEnv(TrialEnv):
             epoch: string, must be name of an added epoch
             value: np array (ob_space.shape, ...)
         """
-        self.obs[getattr(self, epoch+'_ind0'):getattr(self, epoch+'_ind1')] = value
+        self.obs[self._start_ind[epoch]:self._end_ind[epoch]] = value
+
+    def view_ob(self, epoch):
+        """View observation of an epoch."""
+        return self.obs[self._start_ind[epoch]:self._end_ind[epoch]]
 
     def add_ob(self, epoch, value):
         """Add value to observation.
@@ -204,17 +213,18 @@ class EpochEnv(TrialEnv):
             epoch: string, must be name of an added epoch
             value: np array (ob_space.shape, ...)
         """
-        self.obs[getattr(self, epoch+'_ind0'): getattr(self, epoch+'_ind1')] += value
+        ob = self.view_ob(epoch)
+        ob += value  # in-place
 
     def set_groundtruth(self, epoch, value):
         """Set groundtruth value."""
-        self.gt[getattr(self, epoch + '_ind0'): getattr(self, epoch + '_ind1')] = value
+        self.gt[self._start_ind[epoch]: self._end_ind[epoch]] = value
 
     def in_epoch(self, epoch, t=None):
         """Check if current time or time t is in epoch"""
         if t is None:
             t = self.t  # Default
-        return getattr(self, epoch+'_0') <= t < getattr(self, epoch+'_1')
+        return self._start_t[epoch] <= t < self._end_t[epoch]
 
     @property
     def obs_now(self):
