@@ -36,6 +36,8 @@ all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
              'Combine-v0': 'neurogym.envs.combine:combine',
              # 'IBL-v0': 'neurogym.envs.ibl:IBL',
              'MemoryRecall-v0': 'neurogym.envs.memoryrecall:MemoryRecall',
+             'Reaching1D-v0': 'neurogym.envs.reaching:Reaching1D',
+             'Reaching1DWithSelfDistraction-v0': 'neurogym.envs.reaching:Reaching1DWithSelfDistraction',
              }
 
 for task in all_tasks.keys():

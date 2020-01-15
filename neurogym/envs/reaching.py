@@ -10,8 +10,8 @@ from neurogym.ops import tasktools
 # TODO: Ground truth and action have different space, making it difficult for SL and RL to work together
 class Reaching1D(ngym.EpochEnv):
     metadata = {
-        'paper_link': None,
-        'paper_name': None,
+        'paper_link': 'https://science.sciencemag.org/content/233/4771/1416',
+        'paper_name': 'Neuronal population coding of movement direction',
         'default_timing': {
             'fixation': ('constant', 500),
             'reach': ('constant', 500)},
@@ -76,7 +76,7 @@ class Reaching1D(ngym.EpochEnv):
         return self.obs_now, reward, False, {'new_trial': False, 'gt': gt}
 
 
-class ReachingWithSelfDistraction(ngym.EpochEnv):
+class Reaching1DWithSelfDistraction(ngym.EpochEnv):
     """Reaching with self distraction.
 
     In this task, the reaching state itself generates strong inputs that overshadows
@@ -154,6 +154,6 @@ class ReachingWithSelfDistraction(ngym.EpochEnv):
 if __name__ == '__main__':
     from neurogym.tests.test_env import test_run
     # env = Reaching1D()
-    env = ReachingWithSelfDistraction()
+    env = Reaching1DWithSelfDistraction()
     test_run(env)
     tasktools.plot_struct(env)
