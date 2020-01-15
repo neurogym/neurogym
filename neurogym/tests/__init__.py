@@ -1,1 +1,1 @@
-from neurogym.tests.envs import test_run
+from neurogym.tests.test_envs import test_run
