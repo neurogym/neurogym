@@ -1,21 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Sun Feb 24 13:48:19 2019
+"""Ready-set-go task."""
 
-@author: molano
-
-
-Ready-Set-Go task and Contextual Ready-Set-Go task, based on
-
-  Flexible Sensorimotor Computations through Rapid
-  Reconfiguration of Cortical Dynamics
-  Evan D. Remington, Devika Narain,
-  Eghbal A. Hosseini, Mehrdad Jazayeri, Neuron 2018.
-
-  https://www.cell.com/neuron/pdf/S0896-6273(18)30418-5.pdf
-
-"""
 from __future__ import division
 
 import numpy as np
@@ -38,13 +24,8 @@ class ReadySetGo(ngym.EpochEnv):
 
     def __init__(self, dt=80, timing=None, gain=1):
         super().__init__(dt=dt, timing=timing)
-        # if dt > 80:
-        # raise ValueError('dt {:0.2f} too large for this task.'.format(dt))
-        # Actions (fixate, go)
-        self.actions = [-1, 1]
-        # Input noise
+
         self.sigma = np.sqrt(2*100*0.01)
-        # gain
         self.gain = gain
 
         # Rewards
@@ -54,7 +35,7 @@ class ReadySetGo(ngym.EpochEnv):
         self.R_MISS = 0.
         self.abort = False
         # set action and observation space
-        self.action_space = spaces.Discrete(2)
+        self.action_space = spaces.Discrete(2)  # (fixate, go)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
 
@@ -84,23 +65,23 @@ class ReadySetGo(ngym.EpochEnv):
         # Reward and inputs
         # ---------------------------------------------------------------------
         trial = self.trial
-        info = {'new_trial': False, 'gt': np.zeros((2,))}
         reward = 0
         obs = self.obs_now
+        gt = np.zeros((2,))
+        gt[0] = 1
+        new_trial = False
         if self.in_epoch('fixation'):
-            info['gt'][0] = 1
-            if self.actions[action] != -1:
-                info['new_trial'] = self.abort
+            if action != 0:
+                new_trial = self.abort
                 reward = self.R_ABORTED
         if self.in_epoch('production'):
             t_prod = self.t - self._end_t['measure']  # time from end of measure
             eps = abs(t_prod - trial['production'])
             if eps < self.dt/2 + 1:
-                info['gt'][1] = 1
-            else:
-                info['gt'][0] = 1
+                gt[1] = 1
+
             if action == 1:
-                info['new_trial'] = True  # terminate
+                new_trial = True  # terminate
                 # actual production time
                 eps_threshold = 0.2*trial['production']+25
                 if eps > eps_threshold:
@@ -109,7 +90,5 @@ class ReadySetGo(ngym.EpochEnv):
                     reward = (1. - eps/eps_threshold)**1.5
                     reward = min(reward, 0.1)
                     reward *= self.R_CORRECT
-        else:
-            info['gt'][0] = 1
 
-        return obs, reward, False, info
+        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
