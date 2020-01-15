@@ -104,13 +104,15 @@ class EpochEnv(TrialEnv):
             dt=dt, num_trials_before_reset=num_trials_before_reset)
 
         self.gt = None
-        self.timing = {}
-        self.timing_fn = None
 
         default_timing = self.metadata['default_timing'].copy()
         if timing is not None:
             default_timing.update(timing)
-        self._set_epochtiming(default_timing)
+        self._timing = default_timing
+        self.timing_fn = dict()
+        for key, val in self._timing.items():
+            dist, args = val
+            self.timing_fn[key] = tasktools.random_number_fn(dist, args)
 
         self._start_t = dict()
         self._end_t = dict()
@@ -121,7 +123,7 @@ class EpochEnv(TrialEnv):
         """Information about task."""
         total_min, total_max = 0, 0  # min and max time length of trial
         string = ''
-        for key, val in self.timing.items():
+        for key, val in self._timing.items():
             dist, args = val
             string += 'Epoch ' + key + '\n'
             string += '    ' + dist + ' ' + str(args) + '\n'
@@ -134,19 +136,6 @@ class EpochEnv(TrialEnv):
         string += 'Estimate time per trial assuming sequential epoch\n'
         string += 'Min/Max: {:0.2f}/{:0.2f}\n'.format(total_min, total_max)
         return string
-
-    def _set_epochtiming(self, epochtiming):
-        """Set epoch timing.
-
-        Args:
-            epochtiming: dict of tuple. The tuple is (dist, args).
-                dist for distribution type, args for distribution arguments
-        """
-        self.timing = epochtiming
-        self.timing_fn = dict()
-        for key, val in epochtiming.items():
-            dist, args = val
-            self.timing_fn[key] = tasktools.random_number_fn(dist, args)
 
     def add_epoch(self, epoch, duration=None, before=None, after=None,
                   last_epoch=False):
