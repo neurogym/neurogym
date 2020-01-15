@@ -19,10 +19,11 @@ class Mante(ngym.EpochEnv):
         'paper_name': '''Context-dependent computation by recurrent 
         dynamics in prefrontal cortex''',
         'default_timing': {
-            'fixation': ('constant', 750),
+            'fixation': ('constant', 300),
+            'target': ('constant', 350),  # TODO: not implemented
             'stimulus': ('constant', 750),
-            'delay': ('truncated_exponential', [300, 83, 1200]),
-            'decision': ('constant', 500)},
+            'delay': ('truncated_exponential', [600, 300, 3000]),
+            'decision': ('constant', 100)}, # XXX: not specified
     }
 
     def __init__(self, dt=100, timing=None):

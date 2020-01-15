@@ -11,13 +11,13 @@ from neurogym.ops import tasktools
 
 class RDM(ngym.EpochEnv):
     metadata = {
-        'paper_link': 'http://www.jneurosci.org/content/28/12/3017',
-        'paper_name': '''Bounded Integration in Parietal Cortex Underlies
-        Decisions Even When Viewing Duration Is Dictated by the Environment''',
+        'paper_link': 'https://www.jneurosci.org/content/12/12/4745',
+        'paper_name': '''The analysis of visual motion: a comparison of
+        neuronal and psychophysical performance''',
         'default_timing': {
-            'fixation': ('constant', 500),
-            'stimulus': ('truncated_exponential', [330, 80, 1500]),
-            'decision': ('constant', 500)},
+            'fixation': ('constant', 100),  # TODO: depends on subject
+            'stimulus': ('constant', 2000),
+            'decision': ('constant', 100)}, # XXX: not specified
     }
 
     def __init__(self, dt=100, timing=None, stimEv=1., **kwargs):

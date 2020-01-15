@@ -18,12 +18,12 @@ class DPA(ngym.EpochEnv):
         'paper_link': 'https://elifesciences.org/articles/43191',
         'paper_name': '''Active information maintenance in working memory by a sensory cortex''',
         'default_timing': {
-            'fixation': ('truncated_exponential', [500, 200, 800]),
-            'stim1': ('truncated_exponential', [500, 200, 800]),
-            'delay_btw_stim': ('truncated_exponential', [500, 200, 800]),
-            'stim2': ('truncated_exponential', [500, 200, 800]),
-            'delay_aft_stim': ('truncated_exponential', [500, 200, 800]),
-            'decision': ('truncated_exponential', [500, 200, 800])},
+            'fixation': ('constant', 0),
+            'stim1': ('constant', 1000),
+            'delay_btw_stim': ('constant', 13000),
+            'stim2': ('constant', 1000),
+            'delay_aft_stim': ('constant', 1000),
+            'decision': ('constant', 500)},
     }
 
     def __init__(self, dt=100, timing=None, noise=0.01,
