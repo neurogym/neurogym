@@ -6,9 +6,7 @@
 
 Original paper: 
 
-Missing paper name
-
-Missing paper link
+[Prefrontal cortex as a meta-reinforcement learning system](https://www.nature.com/articles/s41593-018-0147-8)
 
 #### DPA
 
@@ -18,17 +16,17 @@ Original paper:
 
 Default Epoch timing 
 
-fixation : truncated_exponential [500, 200, 800]
+fixation : constant 0
 
-stim1 : truncated_exponential [500, 200, 800]
+stim1 : constant 1000
 
-delay_btw_stim : truncated_exponential [500, 200, 800]
+delay_btw_stim : constant 13000
 
-stim2 : truncated_exponential [500, 200, 800]
+stim2 : constant 1000
 
-delay_aft_stim : truncated_exponential [500, 200, 800]
+delay_aft_stim : constant 1000
 
-decision : truncated_exponential [500, 200, 800]
+decision : constant 500
 
 #### DawTwoStep
 
@@ -48,13 +46,15 @@ Default Epoch timing
 
 fixation : constant 500
 
-sample : constant 500
+sample : constant 650
 
-delay : constant 1500
+first_delay : constant 1000
 
-test : constant 500
+test : constant 650
 
-decision : constant 500
+second_delay : constant 250
+
+decision : constant 650
 
 #### DelayedMatchToSample
 
@@ -65,15 +65,15 @@ Original paper:
 
 Default Epoch timing 
 
-fixation : constant 500
+fixation : constant 300
 
 sample : constant 500
 
-delay : constant 1500
+delay : constant 1000
 
 test : constant 500
 
-decision : constant 500
+decision : constant 900
 
 #### DR
 
@@ -101,13 +101,13 @@ Original paper:
 
 Default Epoch timing 
 
-fixation : constant 100
+fixation : constant 0
 
-stimulus : constant 200
+stimulus : constant 500
 
-resp_delay : constant 100
+resp_delay : constant 500
 
-decision : constant 100
+decision : constant 500
 
 #### GenTask
 
@@ -140,13 +140,15 @@ Original paper:
 
 Default Epoch timing 
 
-fixation : constant 750
+fixation : constant 300
+
+target : constant 350
 
 stimulus : constant 750
 
-delay : truncated_exponential [300, 83, 1200]
+delay : truncated_exponential [600, 300, 3000]
 
-decision : constant 500
+decision : constant 100
 
 #### MatchingPenny
 
@@ -172,7 +174,7 @@ Default Epoch timing
 
 fixation : constant 500
 
-cue : truncated_exponential [1000, 500, 1500]
+cue : uniform [2000, 1000, 3000]
 
 set : constant 50
 
@@ -196,16 +198,16 @@ decision : constant 500
 
 Original paper: 
 
-[Bounded Integration in Parietal Cortex Underlies
-        Decisions Even When Viewing Duration Is Dictated by the Environment](http://www.jneurosci.org/content/28/12/3017)
+[The analysis of visual motion: a comparison of
+        neuronal and psychophysical performance](https://www.jneurosci.org/content/12/12/4745)
 
 Default Epoch timing 
 
-fixation : constant 500
+fixation : constant 100
 
-stimulus : truncated_exponential [330, 80, 1500]
+stimulus : constant 2000
 
-decision : constant 500
+decision : constant 100
 
 #### ReadySetGo
 
@@ -216,11 +218,11 @@ Original paper:
 
 Default Epoch timing 
 
-fixation : constant 500
+fixation : constant 100
 
 ready : constant 83
 
-measure : choice [500, 580, 660, 760, 840, 920, 1000]
+measure : choice [800, 1500]
 
 set : constant 83
 
