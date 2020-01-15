@@ -63,7 +63,7 @@ class Reaching1D(ngym.EpochEnv):
         else:
             reward = np.max((1 - np.abs(self.state - gt), -0.1))
 
-        return self.obs_now, reward, False, {'new_trial': False, 'gt': gt}
+        return ob, reward, False, {'new_trial': False, 'gt': gt}
 
 
 class Reaching1DWithSelfDistraction(ngym.EpochEnv):
