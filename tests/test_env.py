@@ -7,13 +7,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import gym
-import neurogym
+import neurogym as ngym
 from neurogym import all_tasks
+import neurogym.ops.tasktools as tasktools
 
 
 def test_run(env_name):
     """Test if all one environment can at least be run."""
-    kwargs = {'dt': 100}
+    kwargs = {'dt': 20}
     env = gym.make(env_name, **kwargs)
     env.reset()
     for stp in range(100):
@@ -102,6 +103,37 @@ def test_run_all():
     print('Success {:d}/{:d} tasks'.format(success_count, total_count))
 
 
+def test_trialenv_all():
+    """Test if all environments can at least be run."""
+    success_count = 0
+    total_count = 0
+    hastrial_count = 0
+    for env_name in sorted(all_tasks.keys()):
+        if env_name in ['Combine-v0']:
+            continue
+        env = gym.make(env_name)
+        if not isinstance(env, ngym.TrialEnv):
+            continue
+        total_count += 1
+
+        print('Running env: {:s}'.format(env_name))
+        try:
+            env.new_trial()
+            if env.trial is None:
+                print('No self.trial is available after new_trial()')
+            else:
+                print('Success')
+                hastrial_count += 1
+            # print(env)
+            success_count += 1
+        except BaseException as e:
+            print('Failure at running env: {:s}'.format(env_name))
+            print(e)
+
+    print('Success {:d}/{:d} tasks'.format(success_count, total_count))
+    print('{:d}/{:d} tasks have self.trial after new_trial'.format(hastrial_count, success_count))
+
+
 def test_plot(env_name):
     kwargs = {'dt': 13}
     env = gym.make(env_name, **kwargs)
@@ -126,13 +158,16 @@ def test_plot(env_name):
 if __name__ == '__main__':
     test_run_all()
     # test_speed_all()
+    # test_trialenv_all()
     # test_print_all()
-    # env_name = 'GenTask-v0'
-    # env_name = 'RDM-v1'
-    # env_name = 'DPA-v1'
+    env_name = 'MotorTiming-v0'
+    # env_name = 'RDM-v0'
+    # env_name = 'Mante-v0'
     # env_name = 'NAltRDM-v0'
     # env_name = 'DelayedMatchCategory-v0'
     # env_name = 'MemoryRecall-v0'
-    env_name = 'Bandit-v0'
-    test_plot(env_name)
+    # env_name = 'Bandit-v0'
+    # test_run(env_name)
+    # test_plot(env_name)
     # test_speed(env_name)
+    # tasktools.plot_struct(env_name)

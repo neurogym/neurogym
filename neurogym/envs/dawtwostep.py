@@ -50,7 +50,6 @@ class DawTwoStep(ngym.TrialEnv):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-
         # determine the transitions
         transition = np.empty((3,))
         st1 = 1
@@ -76,7 +75,7 @@ class DawTwoStep(ngym.TrialEnv):
         reward[low_state] = (self.rng.random() <
                              self.low_reward_p) * self.R_CORRECT
 
-        return {
+        self.trial = {
             'transition':  transition,
             'reward': reward
             }

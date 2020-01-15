@@ -1,7 +1,6 @@
 from __future__ import division
 
 from collections import OrderedDict
-import matplotlib.pyplot as plt
 import numpy as np
 import random
 
@@ -71,7 +70,6 @@ def trunc_exp_new(mean, xmin=0, xmax=np.inf):
 
 def random_number_fn(dist, args):
     """Return a random number generating function from a distribution."""
-    # TODO: right now this is not friendly to functions that take a single argument
     if dist == 'uniform':
         return lambda : np.random.uniform(*args)
     elif dist == 'choice':
@@ -79,7 +77,7 @@ def random_number_fn(dist, args):
     elif dist == 'truncated_exponential':
         return lambda : trunc_exp_new(*args)
     elif dist == 'constant':
-        return lambda : args  # TODO: This is pretty terrible right now
+        return lambda : args
     else:
         raise ValueError('Unknown dist:', str(dist))
 
@@ -143,6 +141,10 @@ def compute_perf(perf, reward, num_tr_perf, tr_perf):
 
 def plot_struct(env, num_steps_env=200, n_stps_plt=200,
                 def_act=None, model=None, name=''):
+    import matplotlib.pyplot as plt
+    import gym
+    if isinstance(env, str):
+        env = gym.make(env)
     # TODO: Move this somewhere else. Shouldn't be in tasktools
     observations = []
     rewards = []

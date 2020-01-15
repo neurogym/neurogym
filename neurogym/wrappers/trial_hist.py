@@ -14,10 +14,7 @@ import neurogym as ngym
 
 # TODO: Remain to be finished
 class TrialHistory(ngym.TrialWrapper):
-    """
-    modifies a given environment by changing the probability of repeating the
-    previous correct response
-    """
+    """Change ground truth probability based on outcome."""
     def __init__(self, env, rep_prob=(.2, .8), block_dur=200,
                  blk_ch_prob=None, ae_probs=None, pass_blck=False):
         super().__init__(env)
@@ -66,7 +63,7 @@ class TrialHistory(ngym.TrialWrapper):
         ground_truth = self.task.rng.choices(self.task.choices,
                                              weights=probs)[0]
         self.prev_trial = ground_truth
-        kwargs.update({'gt': ground_truth})
+        kwargs.update({'groundtruth': ground_truth})
         self.env.new_trial(**kwargs)
 
 

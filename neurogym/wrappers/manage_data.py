@@ -11,7 +11,7 @@ import os
 import numpy as np
 
 # TODO: This needs to be fixed
-class manage_data(Wrapper):
+class ManageData(Wrapper):
     """
     modfies a given environment by changing the probability of repeating the
     previous correct response

@@ -18,12 +18,12 @@ class DPA(ngym.EpochEnv):
         'paper_link': 'https://elifesciences.org/articles/43191',
         'paper_name': '''Active information maintenance in working memory by a sensory cortex''',
         'default_timing': {
-            'fixation': ('truncated_exponential', [500, 200, 800]),
-            'stim1': ('truncated_exponential', [500, 200, 800]),
-            'delay_btw_stim': ('truncated_exponential', [500, 200, 800]),
-            'stim2': ('truncated_exponential', [500, 200, 800]),
-            'delay_aft_stim': ('truncated_exponential', [500, 200, 800]),
-            'decision': ('truncated_exponential', [500, 200, 800])},
+            'fixation': ('constant', 0),
+            'stim1': ('constant', 1000),
+            'delay_btw_stim': ('constant', 13000),
+            'stim2': ('constant', 1000),
+            'delay_aft_stim': ('constant', 1000),
+            'decision': ('constant', 500)},
     }
 
     def __init__(self, dt=100, timing=None, noise=0.01,
@@ -60,19 +60,13 @@ class DPA(ngym.EpochEnv):
             coh: stimulus coherence (evidence) for the trial
             obs: observation
         """
-
-        if 'pair' in kwargs.keys():
-            self.pair = kwargs['pair']
-        else:
-            self.pair = self.rng.choice(self.dpa_pairs)
-
-        if np.diff(self.pair)[0] % 2 == self.association:
-            ground_truth = 1
-        else:
-            ground_truth = 0
-
-        self.ground_truth = ground_truth
-
+        pair = self.rng.choice(self.dpa_pairs)
+        self.trial = {
+            'pair': pair,
+            'ground_truth': int(np.diff(pair)[0] % 2 == self.association),
+        }
+        self.trial.update(kwargs)
+        pair = self.trial['pair']
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
@@ -86,22 +80,19 @@ class DPA(ngym.EpochEnv):
         # Trial
         # ---------------------------------------------------------------------
         self.set_ob('fixation', [1, 0, 0, 0, 0])
-        tmp = np.array([1, 0, 0, 0, 0])
-        tmp[self.pair[0]] = 1
-        self.set_ob('stim1', tmp)
-        tmp = np.array([1, 0, 0, 0, 0])
-        tmp[self.pair[1]] = 1
-        self.set_ob('stim2', tmp)
+
+        ob = self.view_ob('stim1')
+        ob[:, 0] = 1
+        ob[:, pair[0]] = 1 + np.random.randn(ob.shape[0]) * self.sigma_dt
+
+        ob = self.view_ob('stim2')
+        ob[:, 0] = 1
+        ob[:, pair[1]] = 1 + np.random.randn(ob.shape[0]) * self.sigma_dt
+
         self.set_ob('delay_btw_stim', [1, 0, 0, 0, 0])
         self.set_ob('delay_aft_stim', [1, 0, 0, 0, 0])
 
-        # TODO: Not happy about having to do this ugly thing
-        self.obs[self.stim1_ind0:self.stim1_ind1, self.pair[0]] += np.random.randn(
-            self.stim1_ind1 - self.stim1_ind0) * self.sigma_dt
-        self.obs[self.stim2_ind0:self.stim2_ind1, self.pair[1]] += np.random.randn(
-            self.stim2_ind1 - self.stim2_ind0) * self.sigma_dt
-
-        self.set_groundtruth('decision', ground_truth)
+        self.set_groundtruth('decision', self.trial['ground_truth'])
 
     def _step(self, action, **kwargs):
         """

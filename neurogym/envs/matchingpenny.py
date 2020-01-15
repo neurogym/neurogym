@@ -18,7 +18,7 @@ class MatchingPenny(ngym.TrialEnv):
         'paper_name': '''Prefrontal cortex and decision making in a mixed-strategy game''',
     }
 
-    def __init__(self, dt=100, opponent_type=None, timing=()):
+    def __init__(self, dt=100, opponent_type=None):
         super().__init__(dt=dt)
         # TODO: remain to be carefully tested
         # Opponent Type
@@ -40,10 +40,9 @@ class MatchingPenny(ngym.TrialEnv):
         if self.opponent_type is None:
             opponent_action = int(self.rng.random() > 0.5)
         else:
-            raise NotImplementedError('Opponent type {:s} not implemented'.
-                                      format(self.opponent_type))
+            raise ValueError('Unknown opponent type {:s}'.format(self.opponent_type))
 
-        return {
+        self.trial = {
             'opponent_action': opponent_action,
             }
 

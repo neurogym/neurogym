@@ -29,10 +29,10 @@ class GNG(ngym.EpochEnv):
         'paper_link': 'https://elifesciences.org/articles/43191',
         'paper_name': '''Active information maintenance in working memory by a sensory cortex''',
         'default_timing': {
-            'fixation': ('constant', 100),
-            'stimulus': ('constant', 200),
-            'resp_delay': ('constant', 100),
-            'decision': ('constant', 100)},
+            'fixation': ('constant', 0),
+            'stimulus': ('constant', 500),
+            'resp_delay': ('constant', 500),
+            'decision': ('constant', 500)},
     }
 
     def __init__(self, dt=100, timing=None, **kwargs):
@@ -57,7 +57,10 @@ class GNG(ngym.EpochEnv):
 
     def new_trial(self, **kwargs):
         # Trial info
-        ground_truth = self.rng.choice(self.choices)
+        self.trial = {
+            'ground_truth': self.rng.choice(self.choices)
+        }
+        self.trial.update(kwargs)
 
         # Epoch info
         self.add_epoch('fixation', after=0)
@@ -66,16 +69,12 @@ class GNG(ngym.EpochEnv):
         self.add_epoch('decision', after='resp_delay', last_epoch=True)
 
         self.set_ob('fixation', [1, 0, 0])
-        tmp =  [1, 0, 0]
-        tmp[ground_truth] = 1
-        self.set_ob('stimulus', tmp)
+        ob = self.view_ob('stimulus')
+        ob[:, 0] = 1
+        ob[:, self.trial['ground_truth']] = 1
         self.set_ob('resp_delay', [1, 0, 0])
 
-        self.set_groundtruth('decision', ground_truth)
-
-        return {
-            'ground_truth':  ground_truth,
-            }
+        self.set_groundtruth('decision', self.trial['ground_truth'])
 
     def _step(self, action):
         new_trial = False

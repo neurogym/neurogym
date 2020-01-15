@@ -72,9 +72,12 @@ class PDWager(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Wager or no wager?
         # ---------------------------------------------------------------------
-        wager = self.rng.choice(self.wagers)
-        ground_truth = self.rng.choice(self.choices)
-        coh = self.rng.choice(self.cohs)
+        self.trial = {
+            'wager': self.rng.choice(self.wagers),
+            'ground_truth': self.rng.choice(self.choices),
+            'coh': self.rng.choice(self.cohs),
+        }
+        self.trial.update(kwargs)
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
@@ -83,18 +86,11 @@ class PDWager(ngym.EpochEnv):
         self.add_epoch('delay', after='stimulus')
         self.add_epoch('decision', after='delay', last_epoch=True)
 
-        if wager:
+        if self.trial['wager']:
             self.add_epoch('pre_sure', after='stimulus')
             self.add_epoch('sure', duration=10000, after='pre_sure')
 
-        return {
-            'wager':      wager,
-            'ground_truth': ground_truth,
-            'coh':        coh
-            }
-
     def _step(self, action):
-        trial = self.trial
         # ---------------------------------------------------------------------
         # Reward and inputs
         # ---------------------------------------------------------------------

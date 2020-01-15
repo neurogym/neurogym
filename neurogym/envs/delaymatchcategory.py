@@ -10,7 +10,7 @@ import numpy as np
 from gym import spaces
 
 import neurogym as ngym
-from neurogym.ops import tasktools
+from neurogym.ops import tasktools  # XXX: is this needed?
 
 
 class DelayedMatchCategory(ngym.EpochEnv):
@@ -20,10 +20,11 @@ class DelayedMatchCategory(ngym.EpochEnv):
         of visual categories in parietal cortex''',
         'default_timing': {
             'fixation': ('constant', 500),
-            'sample': ('constant', 500),
-            'delay': ('constant', 1500),
-            'test': ('constant', 500),
-            'decision': ('constant', 500)},
+            'sample': ('constant', 650),
+            'first_delay': ('constant', 1000),
+            'test': ('constant', 650),
+            'second_delay': ('constant', 250),  # TODO: not implemented
+            'decision': ('constant', 650)},  # TODO: not implemented
     }
 
     def __init__(self, dt=100, timing=None):
@@ -60,12 +61,15 @@ class DelayedMatchCategory(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-        if 'gt' in kwargs.keys():
-            ground_truth = kwargs['gt']
-        else:
-            ground_truth = self.rng.choice(self.choices)
+        self.trial = {
+            'ground_truth': self.rng.choice(self.choices),
+            'sample_category': self.rng.choice([0, 1]),
+        }
+        self.trial.update(**kwargs)
 
-        sample_category = self.rng.choice([0, 1])
+        ground_truth = self.trial['ground_truth']
+        sample_category = self.trial['sample_category']
+
         sample_theta = (sample_category + self.rng.random()) * np.pi
 
         test_category = sample_category
@@ -73,24 +77,28 @@ class DelayedMatchCategory(ngym.EpochEnv):
             test_category = 1 - test_category
         test_theta = (test_category + self.rng.random()) * np.pi
 
-        self.ground_truth = ground_truth
-
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
         self.add_epoch('fixation', after=0)
         self.add_epoch('sample', after='fixation')
-        self.add_epoch('delay', after='sample')
-        self.add_epoch('test', after='delay')
+        self.add_epoch('first_delay', after='sample')
+        self.add_epoch('test', after='first_delay')
         self.add_epoch('decision', after='test', last_epoch=True)
 
         self.set_ob('fixation', [1, 0, 0])
-        self.set_ob('sample', [1, np.cos(sample_theta), np.sin(sample_theta)])
-        self.set_ob('delay', [1, 0, 0])
-        self.set_ob('test', [1, np.cos(test_theta), np.sin(test_theta)])
-        self.set_ob('decision', [0, 0, 0])
 
-        self.obs[:, 1:] += np.random.randn(*self.obs[:, 1:].shape) * self.sigma_dt
+        ob = self.view_ob('sample')
+        ob[:, :] += np.array([1, np.cos(sample_theta), np.sin(sample_theta)])
+        ob[:, 1:] += np.random.randn(ob.shape[0], 2) * self.sigma_dt
+
+        self.set_ob('first_delay', [1, 0, 0])
+
+        ob = self.view_ob('test')
+        ob[:, :] += np.array([1, np.cos(test_theta), np.sin(test_theta)])
+        ob[:, 1:] += np.random.randn(ob.shape[0], 2) * self.sigma_dt
+
+        self.set_ob('decision', [0, 0, 0])
 
         self.set_groundtruth('decision', ground_truth)
 

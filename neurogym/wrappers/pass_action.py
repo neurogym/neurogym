@@ -8,23 +8,17 @@ Created on Tue Mar 26 08:53:05 2019
 @author: molano
 """
 
-from gym.core import Wrapper
 import numpy as np
+from gym.core import Wrapper
 from gym import spaces
-from neurogym.envs import nalt_rdm
-from neurogym.wrappers import trial_hist_nalt
-from neurogym.wrappers import catch_trials
-from neurogym.wrappers import pass_reward
-import matplotlib.pyplot as plt
 
 
 class PassAction(Wrapper):
-    """
-    modfies a given observation by adding the previous action
-    """
+    """Modifies a given observation by adding the previous action"""
     def __init__(self, env):
-        Wrapper.__init__(self, env=env)
+        super().__init__(env)
         self.env = env
+        # TODO: This is not adding one-hot
         env_oss = env.observation_space.shape[0]
         self.observation_space = spaces.Box(-np.inf, np.inf,
                                             shape=(env_oss+1,),
@@ -34,22 +28,19 @@ class PassAction(Wrapper):
         obs = self.env.reset()
         return np.concatenate((obs, np.array([0])))
 
-    def new_trial(self, **kwargs):
-        self.env.new_trial(**kwargs)
-
-    def _step(self, action):
-        obs, reward, done, info = self.env._step(action)
-        obs = np.concatenate((obs, np.array([action])))
-        return obs, reward, done, info
-
     def step(self, action):
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.new_trial()
+        # TODO: Need to turn action into one-hot
+        obs, reward, done, info = self.env.step(action)
+        obs = np.concatenate((obs, np.array([action])))
         return obs, reward, done, info
 
 
 if __name__ == '__main__':
+    import matplotlib.pyplot as plt
+    from neurogym.envs import nalt_rdm
+    from neurogym.wrappers import trial_hist_nalt
+    from neurogym.wrappers import catch_trials
+    from neurogym.wrappers import pass_reward
     n_ch = 3
     env = nalt_rdm.nalt_RDM(timing=[100, 200, 200, 200, 100], n_ch=n_ch)
     env = trial_hist_nalt.TrialHistory_NAlt(env, n_ch=n_ch, tr_prob=0.9,

@@ -19,22 +19,24 @@ class Mante(ngym.EpochEnv):
         'paper_name': '''Context-dependent computation by recurrent 
         dynamics in prefrontal cortex''',
         'default_timing': {
-            'fixation': ('constant', 750),
+            'fixation': ('constant', 300),
+            'target': ('constant', 350),  # TODO: not implemented
             'stimulus': ('constant', 750),
-            'delay': ('truncated_exponential', [300, 83, 1200]),
-            'decision': ('constant', 500)},
+            'delay': ('truncated_exponential', [600, 300, 3000]),
+            'decision': ('constant', 100)}, # XXX: not specified
     }
 
     def __init__(self, dt=100, timing=None):
         super(Mante, self).__init__(dt=dt, timing=timing)
 
         # trial conditions
-        self.contexts = [0, 1]  # index for context inputs
+        self.contexts = [1, 2]  # index for context inputs
         self.choices = [1, 2]  # left, right choice
         self.cohs = [5, 15, 50]
 
         # Input noise
         self.sigma = np.sqrt(2*100*0.02)
+        self.sigma_dt = self.sigma/np.sqrt(self.dt)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -44,20 +46,26 @@ class Mante(ngym.EpochEnv):
 
         # set action and observation space
         self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(6,),
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(7,),
                                             dtype=np.float32)
 
     def new_trial(self, **kwargs):
         # -------------------------------------------------------------------------
         # Trial
         # -------------------------------------------------------------------------
-        context = self.rng.choice(self.contexts)
-        choice_m = self.rng.choice(self.choices)
-        choice_c = self.rng.choice(self.choices)
-        coh_m = self.rng.choice(self.cohs)
-        coh_c = self.rng.choice(self.cohs)
-        ground_truth = choice_m if context == 0 else choice_c
+        self.trial = {
+            'ground_truth': self.rng.choice(self.choices),
+            'other_choice': self.rng.choice(self.choices),
+            'context': self.rng.choice(self.contexts),
+            'coh_0': self.rng.choice(self.cohs),
+            'coh_1': self.rng.choice(self.cohs),
+        }
+        self.trial.update(kwargs)
 
+        choice_0, choice_1 = self.trial['ground_truth'], self.trial['other_choice']
+        if self.trial['context'] == 1:
+            choice_1, choice_0 = choice_0, choice_1
+        coh_0, coh_1 = self.trial['coh_0'], self.trial['coh_1']
         # -----------------------------------------------------------------------
         # Epochs
         # -----------------------------------------------------------------------
@@ -66,38 +74,17 @@ class Mante(ngym.EpochEnv):
         self.add_epoch('delay', after='stimulus')
         self.add_epoch('decision', after='delay', last_epoch=True)
 
-        if choice_m == 1:
-            high_m, low_m = 2, 3
-        else:
-            high_m, low_m = 3, 2
+        high_0, low_0 = (3, 4) if choice_0 == 1 else (4, 3)
+        high_1, low_1 = (5, 6) if choice_1 == 1 else (6, 5)
 
-        if choice_c == 1:
-            high_c, low_c = 4, 5
-        else:
-            high_c, low_c = 5, 4
+        self.obs[:, 0] = 1
+        ob = self.view_ob('stimulus')
+        ob[:, [high_0, low_0, high_1, low_1]] = (1 + np.array([coh_0, -coh_0, coh_1, -coh_1])/100)/2
+        ob[:, 3:] += np.random.randn(ob.shape[0], 4) * self.sigma_dt
+        self.set_ob('decision', np.zeros(7))
+        self.obs[:, self.trial['context']] = 1
 
-        tmp = np.zeros(6)
-        tmp[[high_m, low_m, high_c, low_c]] =\
-            (1 + np.array([coh_m, -coh_m, coh_c, -coh_c])/100)/2
-        self.set_ob('stimulus', tmp)
-        self.obs[:, context] = 1
-        self.set_ob('decision', np.zeros(6))
-        self.obs[self.stimulus_ind0:self.stimulus_ind1, 2:] += np.random.randn(
-            self.stimulus_ind1-self.stimulus_ind0, 4) * (self.sigma/np.sqrt(self.dt))
-
-        self.set_groundtruth('fixation', 0)
-        self.set_groundtruth('stimulus', 0)
-        self.set_groundtruth('delay', 0)
-        self.set_groundtruth('decision', ground_truth)
-
-        return {
-            'context': context,
-            'choice_m': choice_m,
-            'choice_c': choice_c,
-            'coh_m': coh_m,
-            'coh_c': coh_c,
-            'ground_truth': ground_truth
-            }
+        self.set_groundtruth('decision', self.trial['ground_truth'])
 
     def _step(self, action):
         obs = self.obs_now

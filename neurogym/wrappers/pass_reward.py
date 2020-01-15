@@ -8,22 +8,15 @@ Created on Wed Mar 20 14:25:12 2019
 @author: molano
 """
 
+import numpy as np
 from gym.core import Wrapper
 from gym import spaces
-from neurogym.envs import nalt_rdm
-from neurogym.wrappers import trial_hist_nalt
-from neurogym.wrappers import catch_trials
-import numpy as np
-import matplotlib.pyplot as plt
 
 
 class PassReward(Wrapper):
-    """
-    modfies a given observation by adding the reward corresponding to
-    the previous action
-    """
+    """Modifies a given observation by adding the reward."""
     def __init__(self, env):
-        Wrapper.__init__(self, env=env)
+        super().__init__(env)
         self.env = env
         env_oss = env.observation_space.shape[0]
         self.observation_space = spaces.Box(-np.inf, np.inf,
@@ -34,22 +27,18 @@ class PassReward(Wrapper):
         obs = self.env.reset()
         return np.concatenate((obs, np.array([0])))
 
-    def new_trial(self, **kwargs):
-        self.env.new_trial(**kwargs)
-
-    def _step(self, action):
-        obs, reward, done, info = self.env._step(action)
-        obs = np.concatenate((obs, np.array([reward])))
-        return obs, reward, done, info
-
     def step(self, action):
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.new_trial()
+        obs, reward, done, info = self.env.step(action)
+        obs = np.concatenate((obs, np.array([reward])))
         return obs, reward, done, info
 
 
 if __name__ == '__main__':
+    from neurogym.envs import nalt_rdm
+    from neurogym.wrappers import trial_hist_nalt
+    from neurogym.wrappers import catch_trials
+    import matplotlib.pyplot as plt
+
     env = nalt_rdm.nalt_RDM(timing=[100, 200, 200, 200, 100], n=10)
     env = trial_hist_nalt.TrialHistory_NAlt(env)
     env = catch_trials.CatchTrials(env, catch_prob=0.7, stim_th=100)

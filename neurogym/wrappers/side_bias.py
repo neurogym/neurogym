@@ -6,44 +6,48 @@ Created on Tue Jul 30 17:41:50 2019
 @author: molano
 """
 
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Mar  1 11:48:59 2019
-
-@author: molano
-"""
-
+import numpy as np
 from gym.core import Wrapper
 import neurogym as ngym
 from neurogym.ops import tasktools
 
 
-# TODO: Need proper testing
 class SideBias(ngym.TrialWrapper):
-    """
-    modifies a given environment by changing the probability of repeating the
-    previous correct response
-    """
-    def __init__(self, env, prob=(.2, .8), block_dur=200):
+    """Changing the probability of ground truth"""
+    def __init__(self, env, prob, block_dur):
+        """
+        Args:
+            prob: numpy array (n_block, n_choices)
+                within each block, the probability should sum up to 1
+            block_dur: int, number of trials per block
+        """
         super().__init__(env)
-        self.prob = prob
-        # keeps track of the repeating prob of the current block
-        self.curr_block = self.task.rng.choices([0, 1])
-        # duration of block (in number oif trials)
+        try:
+            self.choices = self.task.choices
+        except AttributeError:
+            raise AttributeError('SideBias requires task to have attribute choices')
+        assert isinstance(self.task, ngym.TrialEnv), 'Task has to be a TrialEnv'
+
+        self.choice_prob = np.array(prob)
+        assert self.choice_prob.shape[1] == len(self.choices),\
+            'The number of choices {:d} inferred from prob mismatchs {:d} inferred from choices'.format(
+                self.choice_prob.shape[1],len(self.choices))
+
+        self.n_block = self.choice_prob.shape[0]
+        self.curr_block = self.task.rng.choice(range(self.n_block))
         self.block_dur = block_dur
-        self.prev_trial = self.env.trial['ground_truth']
 
     def new_trial(self, **kwargs):
         # change rep. prob. every self.block_dur trials
         if self.task.num_tr % self.block_dur == 0:
-            self.curr_block = int(not self.curr_block)
-
-        probs = (1-self.prob[self.curr_block], self.prob[self.curr_block])
+            curr_block = self.curr_block
+            while curr_block == self.curr_block:
+                curr_block = self.task.rng.choice(range(self.n_block))
+            self.curr_block = curr_block
+        probs = self.choice_prob[self.curr_block]
 
         kwargs = dict()
-        kwargs['ground_truth'] = self.task.rng.choices(
-            self.task.choices, weights=probs)[0]
+        kwargs['ground_truth'] = self.task.rng.choices(self.choices, weights=probs)[0]
         return self.env.new_trial(**kwargs)
 
 
