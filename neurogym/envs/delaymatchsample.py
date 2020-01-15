@@ -33,6 +33,7 @@ class DelayedMatchToSample(ngym.EpochEnv):
         self.choices = [1, 2]
         # Input noise
         self.sigma = np.sqrt(2*100*0.01)
+        self.sigma_dt = self.sigma/np.sqrt(self.dt)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -70,19 +71,17 @@ class DelayedMatchToSample(ngym.EpochEnv):
         self.add_epoch('decision', after='test', last_epoch=True)
 
         self.set_ob('fixation', [1, 0, 0])
-        tmp = [1, 0, 0]
-        tmp[sample] = 1
-        self.set_ob('sample', tmp)
-        tmp = [1, 0, 0]
-        tmp[test] = 1
+        ob = self.view_ob('sample')
+        ob[:, 0] = 1
+        ob[:, sample] = 1
+        ob[:, 1:] += np.random.randn(ob.shape[0], 2) * self.sigma_dt
+
+        ob = self.view_ob('test')
+        ob[:, 0] = 1
+        ob[:, test] = 1
+        ob[:, 1:] += np.random.randn(ob.shape[0], 2) * self.sigma_dt
+
         self.set_ob('delay', [1, 0, 0])
-        self.set_ob('test', tmp)
-
-        self.obs[self.sample_ind0:self.sample_ind1, 1:] += np.random.randn(
-            self.sample_ind1-self.sample_ind0, 2) * (self.sigma/np.sqrt(self.dt))
-
-        self.obs[self.test_ind0:self.test_ind1, 1:] += np.random.randn(
-            self.test_ind1-self.test_ind0, 2) * (self.sigma/np.sqrt(self.dt))
 
         self.set_groundtruth('decision', ground_truth)
 

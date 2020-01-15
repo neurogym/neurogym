@@ -86,12 +86,18 @@ class DelayedMatchCategory(ngym.EpochEnv):
         self.add_epoch('decision', after='test', last_epoch=True)
 
         self.set_ob('fixation', [1, 0, 0])
-        self.set_ob('sample', [1, np.cos(sample_theta), np.sin(sample_theta)])
-        self.set_ob('delay', [1, 0, 0])
-        self.set_ob('test', [1, np.cos(test_theta), np.sin(test_theta)])
-        self.set_ob('decision', [0, 0, 0])
 
-        self.obs[:, 1:] += np.random.randn(*self.obs[:, 1:].shape) * self.sigma_dt
+        ob = self.view_ob('sample')
+        ob[:, :] += np.array([1, np.cos(sample_theta), np.sin(sample_theta)])
+        ob[:, 1:] += np.random.randn(ob.shape[0], 2) * self.sigma_dt
+
+        self.set_ob('delay', [1, 0, 0])
+
+        ob = self.view_ob('test')
+        ob[:, :] += np.array([1, np.cos(test_theta), np.sin(test_theta)])
+        ob[:, 1:] += np.random.randn(ob.shape[0], 2) * self.sigma_dt
+
+        self.set_ob('decision', [0, 0, 0])
 
         self.set_groundtruth('decision', ground_truth)
 

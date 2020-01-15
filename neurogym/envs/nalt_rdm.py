@@ -81,11 +81,11 @@ class nalt_RDM(ngym.EpochEnv):
         self.add_epoch('decision', after='stimulus', last_epoch=True)
 
         self.set_ob('fixation', [1] + [0]*self.n)
-        stimulus_value = [1] + [(1 - self.trial['coh']/100)/2] * self.n
-        stimulus_value[self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
-        self.set_ob('stimulus', stimulus_value)
-        self.obs[self.stimulus_ind0:self.stimulus_ind1, 1:] +=\
-            np.random.randn(self.stimulus_ind1-self.stimulus_ind0, self.n) * self.sigma_dt
+        ob = self.view_ob('stimulus')
+        ob[:, 0] = 1
+        ob[:, 1:] = (1 - self.trial['coh']/100)/2
+        ob[:, self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
+        ob[:, 1:] += np.random.randn(ob.shape[0], self.n) * self.sigma_dt
 
         self.set_groundtruth('fixation', 0)
         self.set_groundtruth('stimulus', 0)

@@ -79,12 +79,13 @@ class DR(ngym.EpochEnv):
 
         # define observations
         self.set_ob('fixation', [1, 0, 0])
-        stimulus_value = [1] + [(1 - self.trial['coh']/100)/2] * 2
-        stimulus_value[self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
-        self.set_ob('stimulus', stimulus_value)
+        stim = self.view_ob('stimulus')
+        stim[:, 0] = 1
+        stim[:, 1:] = (1 - self.trial['coh']/100)/2
+        stim[:, self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
+        stim[:, 1:] += np.random.randn(stim.shape[0], 2) * self.trial['sigma_dt']
+
         self.set_ob('delay', [1, 0, 0])
-        self.obs[self.stimulus_ind0:self.stimulus_ind1, 1:] += np.random.randn(
-            self.stimulus_ind1-self.stimulus_ind0, 2) * self.trial['sigma_dt']
 
         self.set_groundtruth('decision', self.trial['ground_truth'])
 

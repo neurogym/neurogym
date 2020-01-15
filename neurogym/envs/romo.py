@@ -85,11 +85,10 @@ class Romo(ngym.EpochEnv):
         self.set_ob('delay', [1, 0])
         self.set_ob('f2', [1, self.scale_p(f2)])
         self.set_ob('decision', [0, 0])
-
-        self.obs[self.f1_ind0:self.f1_ind1, 1] += np.random.randn(
-            self.f1_ind1-self.f1_ind0) * self.sigma_dt
-        self.obs[self.f2_ind0:self.f2_ind1, 1] += np.random.randn(
-            self.f2_ind1 - self.f2_ind0) * self.sigma_dt
+        ob = self.view_ob('f1')
+        ob[:, 1] += np.random.randn(ob.shape[0]) * self.sigma_dt
+        ob = self.view_ob('f2')
+        ob[:, 1] += np.random.randn(ob.shape[0]) * self.sigma_dt
 
         self.set_groundtruth('decision', self.trial['ground_truth'])
 

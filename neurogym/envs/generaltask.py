@@ -96,21 +96,20 @@ class GenTask(ngym.EpochEnv):
         # TODO: This is converted from previous code, but it doesn't look right
         self.set_ob('fixation', [1, 0, 0])
         high, low = ground_truth+self.gng, 3-(ground_truth+self.gng)
-        tmp = [1, 0, 0]
-        tmp[high] = (1 + self.trial['coh']/100)/2
-        self.set_ob('stim' + str(high), tmp)
-        tmp = [1, 0, 0]
-        tmp[low] = (1 - self.trial['coh']/100)/2
-        self.set_ob('stim' + str(low), tmp)
+
+        stim = self.view_ob('stim' + str(high))
+        stim[:, 0] = 1
+        stim[:, high] = (1 + self.trial['coh']/100)/2
+        stim[:, 1:] += np.random.randn(stim.shape[0], 2) * self.trial['sigma_dt']
+
+        stim = self.view_ob('stim' + str(low))
+        stim[:, 0] = 1
+        stim[:, low] = (1 - self.trial['coh']/100)/2
+        stim[:, 1:] += np.random.randn(stim.shape[0], 2) * self.trial['sigma_dt']
+
         self.set_ob('delay_btw_stim', [1, 0, 0])
         self.set_ob('delay_aft_stim', [1, 0, 0])
         self.set_ob('decision', [0, 0, 0])
-
-        # TODO: Not happy about having to do this ugly thing
-        self.obs[self.stim1_ind0:self.stim1_ind1, 1:] += np.random.randn(
-            self.stim1_ind1-self.stim1_ind0, 2) * self.trial['sigma_dt']
-        self.obs[self.stim2_ind0:self.stim2_ind1, 1:] += np.random.randn(
-            self.stim2_ind1 - self.stim2_ind0, 2) * self.trial['sigma_dt']
 
         self.set_groundtruth('decision', ground_truth)
 

@@ -49,6 +49,7 @@ class PadoaSch(ngym.EpochEnv):
 
         # Input noise
         self.sigma = np.sqrt(2*100*0.001)
+        self.sigma_dt = self.sigma/np.sqrt(self.dt)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -97,14 +98,14 @@ class PadoaSch(ngym.EpochEnv):
         # Inputs
         # ---------------------------------------------------------------------
         self.set_ob('fixation', [1]+[0]*6)
-        tmp = [1]+[0]*6
-        tmp[self.inputs['L-'+juiceL]] = 1
-        tmp[self.inputs['R-'+juiceR]] = 1
-        tmp[self.inputs['N-L']] = self.scale(nL)
-        tmp[self.inputs['N-R']] = self.scale(nR)
-        self.set_ob('offer_on', tmp)
-        self.obs[self.offer_on_ind0:self.offer_on_ind1, [self.inputs['N-L'], self.inputs['N-R']]] += \
-        np.random.randn(self.offer_on_ind1-self.offer_on_ind0, 2) * (self.sigma/np.sqrt(self.dt))
+        ob = self.view_ob('offer_on')
+        ob[:, 0] = 1
+        ob[:, self.inputs['L-'+juiceL]] = 1
+        ob[:, self.inputs['R-'+juiceR]] = 1
+        ob[:, self.inputs['N-L']] = self.scale(nL)
+        ob[:, self.inputs['N-R']] = self.scale(nR)
+        ob[:, [self.inputs['N-L'], self.inputs['N-R']]] += \
+            np.random.randn(ob.shape[0], 2) * self.sigma_dt
 
     def _step(self, action):
         trial = self.trial

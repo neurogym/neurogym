@@ -29,7 +29,7 @@ class Mante(ngym.EpochEnv):
         super(Mante, self).__init__(dt=dt, timing=timing)
 
         # trial conditions
-        self.contexts = [0, 1]  # index for context inputs
+        self.contexts = [1, 2]  # index for context inputs
         self.choices = [1, 2]  # left, right choice
         self.cohs = [5, 15, 50]
 
@@ -45,7 +45,7 @@ class Mante(ngym.EpochEnv):
 
         # set action and observation space
         self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(6,),
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(7,),
                                             dtype=np.float32)
 
     def new_trial(self, **kwargs):
@@ -56,15 +56,15 @@ class Mante(ngym.EpochEnv):
             'ground_truth': self.rng.choice(self.choices),
             'other_choice': self.rng.choice(self.choices),
             'context': self.rng.choice(self.contexts),
-            'coh_m': self.rng.choice(self.cohs),
-            'coh_c': self.rng.choice(self.cohs),
+            'coh_0': self.rng.choice(self.cohs),
+            'coh_1': self.rng.choice(self.cohs),
         }
         self.trial.update(kwargs)
 
-        choice_m, choice_c = self.trial['ground_truth'], self.trial['other_choice']
+        choice_0, choice_1 = self.trial['ground_truth'], self.trial['other_choice']
         if self.trial['context'] == 1:
-            choice_m, choice_c = choice_c, choice_m
-        coh_m, coh_c = self.trial['coh_m'], self.trial['coh_c']
+            choice_1, choice_0 = choice_0, choice_1
+        coh_0, coh_1 = self.trial['coh_0'], self.trial['coh_1']
         # -----------------------------------------------------------------------
         # Epochs
         # -----------------------------------------------------------------------
@@ -73,28 +73,16 @@ class Mante(ngym.EpochEnv):
         self.add_epoch('delay', after='stimulus')
         self.add_epoch('decision', after='delay', last_epoch=True)
 
-        if choice_m == 1:
-            high_m, low_m = 2, 3
-        else:
-            high_m, low_m = 3, 2
+        high_0, low_0 = (3, 4) if choice_0 == 1 else (4, 3)
+        high_1, low_1 = (5, 6) if choice_1 == 1 else (6, 5)
 
-        if choice_c == 1:
-            high_c, low_c = 4, 5
-        else:
-            high_c, low_c = 5, 4
-
-        tmp = np.zeros(6)
-        tmp[[high_m, low_m, high_c, low_c]] =\
-            (1 + np.array([coh_m, -coh_m, coh_c, -coh_c])/100)/2
-        self.set_ob('stimulus', tmp)
+        self.obs[:, 0] = 1
+        ob = self.view_ob('stimulus')
+        ob[:, [high_0, low_0, high_1, low_1]] = (1 + np.array([coh_0, -coh_0, coh_1, -coh_1])/100)/2
+        ob[:, 3:] += np.random.randn(ob.shape[0], 4) * self.sigma_dt
+        self.set_ob('decision', np.zeros(7))
         self.obs[:, self.trial['context']] = 1
-        self.set_ob('decision', np.zeros(6))
-        self.obs[self.stimulus_ind0:self.stimulus_ind1, 2:] += np.random.randn(
-            self.stimulus_ind1-self.stimulus_ind0, 4) * self.sigma_dt
 
-        self.set_groundtruth('fixation', 0)
-        self.set_groundtruth('stimulus', 0)
-        self.set_groundtruth('delay', 0)
         self.set_groundtruth('decision', self.trial['ground_truth'])
 
     def _step(self, action):

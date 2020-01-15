@@ -59,21 +59,25 @@ class ReadySetGo(ngym.EpochEnv):
                                             dtype=np.float32)
 
     def new_trial(self, **kwargs):
+        measure = (self.timing_fn['measure']() // self.dt) * self.dt
+        self.trial = {
+            'measure': measure,
+            'gain': self.gain
+        }
+        self.trial.update(kwargs)
+
+        self.trial['production'] = measure * self.trial['gain']
+
         self.add_epoch('fixation', after=0)
         self.add_epoch('ready', after='fixation')
-        self.add_epoch('measure', after='fixation')
+        self.add_epoch('measure', duration=measure, after='fixation')
         self.add_epoch('set', after='measure')
-        measure = self.measure_1 - self.measure_0  # TODO: Not great
-        production = measure * self.gain
-        self.add_epoch('production', duration=2*production, after='set', last_epoch=True)
+        self.add_epoch('production', duration=2*self.trial['production'],
+                       after='set', last_epoch=True)
 
         self.set_ob('fixation', [1, 0, 0])
         self.set_ob('ready', [0, 1, 0])
         self.set_ob('set', [0, 0, 1])
-
-        self.trial = {
-            'production': production,
-        }
 
     def _step(self, action):
         # ---------------------------------------------------------------------
@@ -89,7 +93,7 @@ class ReadySetGo(ngym.EpochEnv):
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         if self.in_epoch('production'):
-            t_prod = self.t - self.measure_1  # time from end of measure
+            t_prod = self.t - self._end_t['measure']  # time from end of measure
             eps = abs(t_prod - trial['production'])
             if eps < self.dt/2 + 1:
                 info['gt'][1] = 1
