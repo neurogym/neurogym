@@ -2,6 +2,29 @@
 
 * Under development, details subject to change
 
+#### AngleReproduction
+
+Reference paper: 
+
+[Visual perception as retrospective Bayesian 
+        decoding from high- to low-level features](https://www.pnas.org/content/114/43/E9115.short)
+
+Default Epoch timing (ms) 
+
+fixation : constant 500
+
+stim1 : constant 500
+
+delay1 : constant 500
+
+stim2 : constant 500
+
+delay2 : constant 500
+
+go1 : constant 500
+
+go2 : constant 500
+
 #### AntiReach1D
 
 Reference paper: 
@@ -168,6 +191,27 @@ stim2 : truncated_exponential [500, 200, 800]
 delay_aft_stim : truncated_exponential [500, 200, 800]
 
 decision : truncated_exponential [500, 200, 800]
+
+#### IntervalDiscrimination
+
+Reference paper: 
+
+[Feature- and Order-Based Timing Representations 
+        in the Frontal Cortex](https://www.sciencedirect.com/science/article/pii/S0896627309004887)
+
+Default Epoch timing (ms) 
+
+fixation : constant 300
+
+stim1 : uniform (300, 600)
+
+delay1 : choice [800, 1500]
+
+stim2 : uniform (300, 600)
+
+delay2 : constant 500
+
+decision : constant 300
 
 #### Mante
 
