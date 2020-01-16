@@ -2,6 +2,19 @@
 
 * Under development, details subject to change
 
+#### AntiReach1D
+
+Reference paper: 
+
+[Look away: the anti-saccade task and 
+        the voluntary control of eye movement](https://www.nature.com/articles/nrn1345)
+
+Default Epoch timing (ms) 
+
+fixation : constant 500
+
+reach : constant 500
+
 #### Bandit
 
 Reference paper: 
@@ -74,6 +87,31 @@ delay : constant 1000
 test : constant 500
 
 decision : constant 900
+
+#### DelayedMatchToSampleDistractor1D
+
+Reference paper: 
+
+[Neural Mechanisms of Visual Working Memory 
+        in Prefrontal Cortex of the Macaque](https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf)
+
+Default Epoch timing (ms) 
+
+fixation : constant 300
+
+sample : constant 500
+
+delay1 : constant 1000
+
+test1 : constant 500
+
+delay2 : constant 1000
+
+test2 : constant 500
+
+delay3 : constant 1000
+
+test3 : constant 500
 
 #### DR
 
@@ -208,6 +246,32 @@ fixation : constant 100
 stimulus : constant 2000
 
 decision : constant 100
+
+#### Reaching1D
+
+Reference paper: 
+
+[Neuronal population coding of movement direction](https://science.sciencemag.org/content/233/4771/1416)
+
+Default Epoch timing (ms) 
+
+fixation : constant 500
+
+reach : constant 500
+
+#### Reaching1DWithSelfDistraction
+
+Reference paper: 
+
+Missing paper name
+
+Missing paper link
+
+Default Epoch timing (ms) 
+
+fixation : constant 500
+
+reach : constant 500
 
 #### ReadySetGo
 
