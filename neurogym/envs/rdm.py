@@ -64,6 +64,7 @@ class RDM(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
+        # TODO: Add comment to template that talks about how this should agree with default
         self.add_epoch('fixation', after=0)
         self.add_epoch('stimulus', after='fixation')
         self.add_epoch('decision', after='stimulus', last_epoch=True)

@@ -55,6 +55,7 @@ class Reaching1D(ngym.EpochEnv):
             self.state += 0.05
         elif action == 2:
             self.state -= 0.05
+
         self.state = np.mod(self.state, 2*np.pi)
 
         gt = self.gt_now
@@ -134,7 +135,7 @@ class Reaching1DWithSelfDistraction(ngym.EpochEnv):
 
 if __name__ == '__main__':
     from neurogym.tests import test_run
-    # env = Reaching1D()
-    env = Reaching1DWithSelfDistraction()
+    env = Reaching1D()
+    # env = Reaching1DWithSelfDistraction()
     test_run(env)
     tasktools.plot_struct(env)
