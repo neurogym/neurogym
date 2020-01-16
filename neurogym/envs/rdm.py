@@ -17,12 +17,12 @@ class RDM(ngym.EpochEnv):
         'default_timing': {
             'fixation': ('constant', 100),  # TODO: depends on subject
             'stimulus': ('constant', 2000),
-            'decision': ('constant', 100)}, # XXX: not specified
+            'decision': ('constant', 100)},  # XXX: not specified
     }
 
     def __init__(self, dt=100, timing=None, stimEv=1., **kwargs):
         super().__init__(dt=dt, timing=timing)
-        self.choices = [1, 2]
+        self.choices = [1, 2]  # [left, right]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stimEv
         # Input noise
@@ -37,6 +37,7 @@ class RDM(ngym.EpochEnv):
         self.abort = False
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
+        # observation space: [fixation cue, left stim, right stim]
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
 
@@ -68,11 +69,14 @@ class RDM(ngym.EpochEnv):
         self.add_epoch('decision', after='stimulus', last_epoch=True)
 
         self.set_ob('fixation', [1, 0, 0])
-        stimulus = self.view_ob('stimulus')
-        stimulus[:, 0] = 1
+        stimulus = self.view_ob('stimulus')  # stimulus shape = time x obs-dim
+        # setting fixation cue to 1
+        # setting coherences
         stimulus[:, 1:] = (1 - coh / 100) / 2
-        stimulus[:, ground_truth] = (1 + coh / 100) / 2
-        stimulus[:, 1:] += np.random.randn(stimulus.shape[0], 2) * self.sigma_dt
+        stimulus[:, ground_truth] = (1 + coh / 100) / 2  # coh for correct side
+        # adding gaussian noise to stimulus with std = self.sigma_dt
+        stimulus[:, 1:] +=\
+            np.random.randn(stimulus.shape[0], 2) * self.sigma_dt
 
         self.set_groundtruth('decision', ground_truth)
 
