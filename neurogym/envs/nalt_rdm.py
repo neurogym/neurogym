@@ -26,6 +26,7 @@ from neurogym.ops import tasktools
 
 class nalt_RDM(ngym.EpochEnv):
     metadata = {
+        'description': 'N-alternative forced choice task in which the subject has to integrate N stimuli to decide which one is higher on average'
         'paper_link': None,
         'paper_name': None,
         'default_timing': {
