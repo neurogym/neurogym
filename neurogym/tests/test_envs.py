@@ -27,7 +27,7 @@ def test_run(env):
 
 
 def _test_run(env):
-    """Test if all one environment can at least be run."""
+    """Test if one environment can at least be run."""
     if isinstance(env, str):
         kwargs = {'dt': 20}
         env = gym.make(env, **kwargs)
