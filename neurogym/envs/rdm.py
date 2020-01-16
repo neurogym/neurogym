@@ -70,10 +70,11 @@ class RDM(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Observations
         # ---------------------------------------------------------------------
-        # stimulus shape = time x obs-dim
-        # setting fixation cue to 1
+        # all observation values are 0 by default
+        # FIXATION: setting fixation cue to 1 during fixation period
         self.set_ob('fixation', [1, 0, 0])
-        stimulus = self.view_ob('stimulus')
+        # STIMULUS
+        stimulus = self.view_ob('stimulus')  # stimulus shape = time x obs-dim
         # setting coherences
         stimulus[:, 1:] = (1 - coh / 100) / 2
         stimulus[:, ground_truth] = (1 + coh / 100) / 2  # coh for correct side
@@ -101,7 +102,7 @@ class RDM(ngym.EpochEnv):
         gt = self.gt_now
         # observations
         if self.in_epoch('fixation'):
-            if action != 0:
+            if action != 0:  # action = 0 means fixating
                 new_trial = self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch('decision'):
