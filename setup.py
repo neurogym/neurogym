@@ -20,6 +20,7 @@ setup(name='neurogym',
                 if package.startswith('neurogym')],
       install_requires=[
           'gym',
+          'matplotlib',
       ],
       extras_require=extras,
       description='NeuroGym: Gym-style cognitive neuroscience tasks',
