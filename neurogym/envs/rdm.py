@@ -67,17 +67,22 @@ class RDM(ngym.EpochEnv):
         self.add_epoch('fixation', after=0)
         self.add_epoch('stimulus', after='fixation')
         self.add_epoch('decision', after='stimulus', last_epoch=True)
-
-        self.set_ob('fixation', [1, 0, 0])
-        stimulus = self.view_ob('stimulus')  # stimulus shape = time x obs-dim
+        # ---------------------------------------------------------------------
+        # Observations
+        # ---------------------------------------------------------------------
+        # stimulus shape = time x obs-dim
         # setting fixation cue to 1
+        self.set_ob('fixation', [1, 0, 0])
+        stimulus = self.view_ob('stimulus')
         # setting coherences
         stimulus[:, 1:] = (1 - coh / 100) / 2
         stimulus[:, ground_truth] = (1 + coh / 100) / 2  # coh for correct side
         # adding gaussian noise to stimulus with std = self.sigma_dt
         stimulus[:, 1:] +=\
             np.random.randn(stimulus.shape[0], 2) * self.sigma_dt
-
+        # ---------------------------------------------------------------------
+        # Ground truth
+        # ---------------------------------------------------------------------
         self.set_groundtruth('decision', ground_truth)
 
     def _step(self, action):

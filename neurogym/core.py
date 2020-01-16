@@ -66,7 +66,7 @@ class TrialEnv(BaseEnv):
         self.t += self.dt  # increment within trial time count
         self.t_ind += 1
 
-        if self.t >= self.tmax - self.dt:
+        if self.t > self.tmax - self.dt:
             info['new_trial'] = True
 
         # TODO: Handle the case when new_trial is not provided in info
@@ -268,12 +268,13 @@ class TrialWrapper(gym.Wrapper):
     def step(self, action):
         """Public interface for the environment."""
         # TODO: Relying on private interface will break some gym behavior
-        # TODO: Manually updating task.t here is bad shouldn't allow other things to change it
+        # TODO: Manually updating task.t here is bad shouldn't allow other
+        # things to change it
         obs, reward, done, info = self.task._step(action)
         self.task.t += self.task.dt  # increment within trial time count
         self.task.t_ind += 1
 
-        if self.t >= self.tmax - self.dt:
+        if self.t > self.tmax - self.dt:
             info['new_trial'] = True
 
         if info['new_trial']:
