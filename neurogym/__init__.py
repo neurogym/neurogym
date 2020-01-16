@@ -39,6 +39,7 @@ all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
              'Reaching1D-v0': 'neurogym.envs.reaching:Reaching1D',
              'Reaching1DWithSelfDistraction-v0': 'neurogym.envs.reaching:Reaching1DWithSelfDistraction',
              'AntiReach-v0': 'neurogym.envs.antireach:AntiReach1D',
+             'DelayedMatchToSampleDistractor1D-v0': 'neurogym.envs.delaymatchsample:DelayedMatchToSampleDistractor1D',
              }
 
 for task in all_tasks.keys():
