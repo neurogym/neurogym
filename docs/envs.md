@@ -1,8 +1,12 @@
 ### List of environments implemented
 
+* 24 tasks implemented so far.
+
 * Under development, details subject to change
 
 #### AngleReproduction
+
+Missing description
 
 Reference paper: 
 
@@ -27,6 +31,8 @@ go2 : constant 500
 
 #### AntiReach1D
 
+Missing description
+
 Reference paper: 
 
 [Look away: the anti-saccade task and 
@@ -40,11 +46,15 @@ reach : constant 500
 
 #### Bandit
 
+Missing description
+
 Reference paper: 
 
 [Prefrontal cortex as a meta-reinforcement learning system](https://www.nature.com/articles/s41593-018-0147-8)
 
 #### DPA
+
+Missing description
 
 Reference paper: 
 
@@ -66,12 +76,16 @@ decision : constant 500
 
 #### DawTwoStep
 
+Missing description
+
 Reference paper: 
 
 [Model-Based Influences on Humans' 
         Choices and Striatal Prediction Errors](https://www.sciencedirect.com/science/article/pii/S0896627311001255)
 
 #### DelayedMatchCategory
+
+Missing description
 
 Reference paper: 
 
@@ -94,6 +108,8 @@ decision : constant 650
 
 #### DelayedMatchToSample
 
+Missing description
+
 Reference paper: 
 
 [Neural Mechanisms of Visual Working Memory 
@@ -112,6 +128,8 @@ test : constant 500
 decision : constant 900
 
 #### DelayedMatchToSampleDistractor1D
+
+Missing description
 
 Reference paper: 
 
@@ -138,6 +156,8 @@ test3 : constant 500
 
 #### DR
 
+Missing description
+
 Reference paper: 
 
 [Discrete attractor dynamics underlies persistent activity in the frontal cortex](https://www.nature.com/articles/s41586-019-0919-7)
@@ -156,6 +176,8 @@ decision : constant 1500
 
 #### GNG
 
+Go/No-Go task in which the subject has either Go (e.g. lick) or not Go depending on which one of two stimuli is presented with
+
 Reference paper: 
 
 [Active information maintenance in working memory by a sensory cortex](https://elifesciences.org/articles/43191)
@@ -171,6 +193,8 @@ resp_delay : constant 500
 decision : constant 500
 
 #### GenTask
+
+Missing description
 
 Reference paper: 
 
@@ -194,6 +218,8 @@ decision : truncated_exponential [500, 200, 800]
 
 #### IntervalDiscrimination
 
+Missing description
+
 Reference paper: 
 
 [Feature- and Order-Based Timing Representations 
@@ -215,6 +241,8 @@ decision : constant 300
 
 #### Mante
 
+Missing description
+
 Reference paper: 
 
 [Context-dependent computation by recurrent 
@@ -234,11 +262,15 @@ decision : constant 100
 
 #### MatchingPenny
 
+Missing description
+
 Reference paper: 
 
 [Prefrontal cortex and decision making in a mixed-strategy game](https://www.nature.com/articles/nn1209)
 
 #### MemoryRecall
+
+Missing description
 
 Reference paper: 
 
@@ -247,6 +279,8 @@ Missing paper name
 Missing paper link
 
 #### MotorTiming
+
+Missing description
 
 Reference paper: 
 
@@ -261,6 +295,8 @@ cue : uniform [1000, 3000]
 set : constant 50
 
 #### nalt_RDM
+
+N-alternative forced choice task in which the subject has to integrate N stimuli to decide which one is higher on average
 
 Reference paper: 
 
@@ -278,6 +314,8 @@ decision : constant 500
 
 #### RDM
 
+Random dot motion task. Two-alternative forced choice task in which the subject has to integrate two stimuli to decide which one is higher on average
+
 Reference paper: 
 
 [The analysis of visual motion: a comparison of
@@ -293,6 +331,8 @@ decision : constant 100
 
 #### Reaching1D
 
+Missing description
+
 Reference paper: 
 
 [Neuronal population coding of movement direction](https://science.sciencemag.org/content/233/4771/1416)
@@ -304,6 +344,8 @@ fixation : constant 500
 reach : constant 500
 
 #### Reaching1DWithSelfDistraction
+
+Missing description
 
 Reference paper: 
 
@@ -318,6 +360,8 @@ fixation : constant 500
 reach : constant 500
 
 #### ReadySetGo
+
+Missing description
 
 Reference paper: 
 
@@ -335,6 +379,8 @@ measure : choice [800, 1500]
 set : constant 83
 
 #### Romo
+
+Missing description
 
 Reference paper: 
 
@@ -355,6 +401,8 @@ decision : constant 100
 
 #### PadoaSch
 
+Missing description
+
 Reference paper: 
 
 [Neurons in the orbitofrontal cortex encode economic value](https://www.nature.com/articles/nature04676)
@@ -368,6 +416,8 @@ offer_on : uniform [1000, 2000]
 decision : constant 750
 
 #### PDWager
+
+Missing description
 
 Reference paper: 
 
