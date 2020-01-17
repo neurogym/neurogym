@@ -96,6 +96,11 @@ def minmax_number(dist, args):
         raise ValueError('Unknown dist:', str(dist))
 
 
+def circular_dist(original_dist):
+    '''Get the distance in periodic boundary conditions.'''
+    return np.minimum(abs(original_dist), 2 * np.pi - abs(original_dist))
+
+
 def divide(x, y):
     try:
         z = x/y
