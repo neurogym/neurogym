@@ -31,7 +31,7 @@ class AngleReproduction(ngym.EpochEnv):
         # 0-31 is angle, 32 go1, 33 go2
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(34,),
                                             dtype=np.float32)
-        self.theta = np.arange(0, 2*np.pi, 2*np.pi/32)
+        self.theta = np.arange(0, 2*np.pi, 2*np.pi/16)
         self.state = np.pi
 
     def new_trial(self, **kwargs):
@@ -53,9 +53,9 @@ class AngleReproduction(ngym.EpochEnv):
             self.add_epoch(epochs[i], after=epochs[i - 1], last_epoch=i == len(epochs) - 1)
 
         ob = self.view_ob('stim1')
-        ob[:, :32] = np.cos(self.theta - self.trial['ground_truth1'])
+        ob[:, :16] = np.cos(self.theta - self.trial['ground_truth1'])
         ob = self.view_ob('stim2')
-        ob[:, :32] = np.cos(self.theta - self.trial['ground_truth2'])
+        ob[:, :16] = np.cos(self.theta - self.trial['ground_truth2'])
         ob = self.view_ob('go1')
         ob[:, 32] = 1
         ob = self.view_ob('go2')
@@ -66,6 +66,7 @@ class AngleReproduction(ngym.EpochEnv):
 
     def _step(self, action):
         ob = self.obs_now
+        ob[16:32] = np.cos(self.theta - self.state)
         if action == 1:
             self.state += 0.05
         elif action == 2:
