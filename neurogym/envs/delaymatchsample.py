@@ -14,6 +14,7 @@ import neurogym as ngym
 
 class DelayedMatchToSample(ngym.EpochEnv):
     metadata = {
+        'description': 'A sample stimulus is followed by a delay and test. Agents are required to indicate if the sample and test are the same stimulus.',
         'paper_link': 'https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf',
         'paper_name': '''Neural Mechanisms of Visual Working Memory 
         in Prefrontal Cortex of the Macaque''',

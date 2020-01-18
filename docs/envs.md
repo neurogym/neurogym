@@ -46,7 +46,7 @@ reach : constant 500
 
 #### Bandit
 
-Missing description
+requires the agent to select between N actions with different reward probabilities.
 
 Reference paper: 
 
@@ -54,7 +54,7 @@ Reference paper:
 
 #### DPA
 
-Missing description
+A sample is followed by a delay and a test. Agents have to report if the pair sample-test is a rewarded pair or not.
 
 Reference paper: 
 
@@ -85,7 +85,7 @@ Reference paper:
 
 #### DelayedMatchCategory
 
-Missing description
+A sample stimulus is followed by a delay and test. Agents are required to indicate if the sample and test are in the same category.
 
 Reference paper: 
 
@@ -108,7 +108,7 @@ decision : constant 650
 
 #### DelayedMatchToSample
 
-Missing description
+A sample stimulus is followed by a delay and test. Agents are required to indicate if the sample and test are the same stimulus.
 
 Reference paper: 
 
@@ -156,7 +156,7 @@ test3 : constant 500
 
 #### DR
 
-Missing description
+Agents have to integrate two stimuli and report which one is larger on average after a delay.
 
 Reference paper: 
 
@@ -218,7 +218,7 @@ decision : truncated_exponential [500, 200, 800]
 
 #### IntervalDiscrimination
 
-Missing description
+Agents have to report which of two stimuli presented sequentially is longer.
 
 Reference paper: 
 

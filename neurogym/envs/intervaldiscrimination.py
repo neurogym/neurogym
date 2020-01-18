@@ -10,6 +10,7 @@ import neurogym as ngym
 # TODO: Getting duration is not intuitive, not clear to people
 class IntervalDiscrimination(ngym.EpochEnv):
     metadata = {
+        'description': 'Agents have to report which of two stimuli presented sequentially is longer.',
         'paper_link': 'https://www.sciencedirect.com/science/article/pii/S0896627309004887',
         'paper_name': """Feature- and Order-Based Timing Representations 
         in the Frontal Cortex""",

@@ -15,6 +15,7 @@ from neurogym.ops import tasktools
 #  TODO: there is a timeout of 1000ms for incorrect trials
 class DR(ngym.EpochEnv):
     metadata = {
+        'description': 'Agents have to integrate two stimuli and report which one is larger on average after a delay.',
         'paper_link': 'https://www.nature.com/articles/s41586-019-0919-7',
         'paper_name': 'Discrete attractor dynamics underlies persistent activity in the frontal cortex',
         'default_timing': {
