@@ -12,6 +12,7 @@ import neurogym as ngym
 
 class ReadySetGo(ngym.EpochEnv):
     metadata = {
+        'description': 'Agents have to measure and produce different time intervals',
         'paper_link': 'https://www.sciencedirect.com/science/article/pii/S0896627318304185',
         'paper_name': '''Flexible Sensorimotor Computations through Rapid
         Reconfiguration of Cortical Dynamics''',
@@ -96,6 +97,7 @@ class ReadySetGo(ngym.EpochEnv):
 
 class MotorTiming(ngym.EpochEnv):
     metadata = {
+        'description': 'Agents have to produce different time intervals using different effectors (actions)',  #  TODO: different actions not implemented
         'paper_link': 'https://www.nature.com/articles/s41593-017-0028-6',
         'paper_name': '''Flexible timing by temporal scaling of cortical responses''',
         'default_timing': {

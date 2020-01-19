@@ -241,7 +241,7 @@ decision : constant 300
 
 #### Mante
 
-Missing description
+Agent has to perform one of two different perceptual discriminations. On every trial, a contextual cue indicates which one to perform.
 
 Reference paper: 
 
@@ -262,7 +262,7 @@ decision : constant 100
 
 #### MatchingPenny
 
-Missing description
+The agent is rewarded when it selects the same target as the computer,
 
 Reference paper: 
 
@@ -280,7 +280,7 @@ Missing paper link
 
 #### MotorTiming
 
-Missing description
+Agents have to produce different time intervals using different effectors (actions)
 
 Reference paper: 
 
@@ -361,7 +361,7 @@ reach : constant 500
 
 #### ReadySetGo
 
-Missing description
+Agents have to measure and produce different time intervals
 
 Reference paper: 
 
@@ -401,7 +401,7 @@ decision : constant 100
 
 #### PadoaSch
 
-Missing description
+Agents choose between two stimuli (A and B; where A is preferred) offered in different amounts.
 
 Reference paper: 
 
@@ -417,7 +417,7 @@ decision : constant 750
 
 #### PDWager
 
-Missing description
+Agents do a discrimination task (see RDM). On a random half of the trials, the agent is given the option to abort the direction discrimination and to choose instead a small but certain reward associated with a action.
 
 Reference paper: 
 
