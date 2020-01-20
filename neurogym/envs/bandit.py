@@ -13,6 +13,7 @@ import neurogym as ngym
 
 class Bandit(ngym.TrialEnv):
     metadata = {
+        'description': 'requires the agent to select between N actions with different reward probabilities.',
         'paper_link': 'https://www.nature.com/articles/s41593-018-0147-8',
         'paper_name': 'Prefrontal cortex as a meta-reinforcement learning system',
     }

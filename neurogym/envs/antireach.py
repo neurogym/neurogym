@@ -67,7 +67,7 @@ class AntiReach1D(ngym.EpochEnv):
         if self.in_epoch('fixation'):
             reward = 0
         else:
-            reward = np.max((1 - np.abs(self.state - gt), -0.1))
+            reward = np.max((1 - tasktools.circular_dist(self.state - gt), -0.1))
 
         return ob, reward, False, {'new_trial': False, 'gt': gt}
 

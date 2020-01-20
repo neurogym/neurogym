@@ -25,6 +25,7 @@ import neurogym as ngym
 
 class PDWager(ngym.EpochEnv):
     metadata = {
+        'description': 'Agents do a discrimination task (see RDM). On a random half of the trials, the agent is given the option to abort the direction discrimination and to choose instead a small but certain reward associated with a action.',
         'paper_link': 'https://science.sciencemag.org/content/324/5928/759.long',
         'paper_name': '''Representation of Confidence Associated with a
          Decision by Neurons in the Parietal Cortex''',

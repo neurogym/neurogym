@@ -20,6 +20,9 @@ import neurogym as ngym
 
 class Romo(ngym.EpochEnv):
     metadata = {
+        'Description': """Two-alternative forced choice task in which 
+        the subject has to compare two stimuli separated by a delay 
+        to decide which one has a higher frequency""",
         'paper_link': 'https://www.jneurosci.org/content/30/28/9424',
         'paper_name': '''Neuronal Population Coding of Parametric
         Working Memory''',
@@ -34,9 +37,6 @@ class Romo(ngym.EpochEnv):
     def __init__(self, dt=100, timing=None):
         # call ngm __init__ function
         super().__init__(dt=dt, timing=timing)
-
-        # Actions (fixate, left, right)
-        self.actions = [0, -1, 1]
 
         # trial conditions
         self.choices = [1, 2]

@@ -14,6 +14,7 @@ import neurogym as ngym
 
 class MatchingPenny(ngym.TrialEnv):
     metadata = {
+        'description': 'The agent is rewarded when it selects the same target as the computer,',
         'paper_link': 'https://www.nature.com/articles/nn1209',
         'paper_name': '''Prefrontal cortex and decision making in a mixed-strategy game''',
     }

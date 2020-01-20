@@ -55,13 +55,14 @@ class Reaching1D(ngym.EpochEnv):
             self.state += 0.05
         elif action == 2:
             self.state -= 0.05
+
         self.state = np.mod(self.state, 2*np.pi)
 
         gt = self.gt_now
         if self.in_epoch('fixation'):
             reward = 0
         else:
-            reward = np.max((1 - np.abs(self.state - gt), -0.1))
+            reward = np.max((1 - tasktools.circular_dist(self.state - gt), -0.1))
 
         return ob, reward, False, {'new_trial': False, 'gt': gt}
 
@@ -127,7 +128,7 @@ class Reaching1DWithSelfDistraction(ngym.EpochEnv):
         if self.in_epoch('fixation'):
             reward = 0
         else:
-            reward = np.max((1 - np.abs(self.state - gt), -0.1))
+            reward = np.max((1 - tasktools.circular_dist(self.state - gt), -0.1))
 
         return ob, reward, False, {'new_trial': False, 'gt': gt}
 
