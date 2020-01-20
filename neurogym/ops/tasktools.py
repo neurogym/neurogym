@@ -71,13 +71,13 @@ def trunc_exp_new(mean, xmin=0, xmax=np.inf):
 def random_number_fn(dist, args):
     """Return a random number generating function from a distribution."""
     if dist == 'uniform':
-        return lambda : np.random.uniform(*args)
+        return lambda: np.random.uniform(*args)
     elif dist == 'choice':
-        return lambda : np.random.choice(args)
+        return lambda: np.random.choice(args)
     elif dist == 'truncated_exponential':
-        return lambda : trunc_exp_new(*args)
+        return lambda: trunc_exp_new(*args)
     elif dist == 'constant':
-        return lambda : args
+        return lambda: args
     else:
         raise ValueError('Unknown dist:', str(dist))
 

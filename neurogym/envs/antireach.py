@@ -10,7 +10,7 @@ from neurogym.ops import tasktools
 class AntiReach1D(ngym.EpochEnv):
     metadata = {
         'paper_link': 'https://www.nature.com/articles/nrn1345',
-        'paper_name': """Look away: the anti-saccade task and 
+        'paper_name': """Look away: the anti-saccade task and
         the voluntary control of eye movement""",
         'default_timing': {
             'fixation': ('constant', 500),
