@@ -35,7 +35,7 @@ Missing description
 
 Reference paper: 
 
-[Look away: the anti-saccade task and 
+[Look away: the anti-saccade task and
         the voluntary control of eye movement](https://www.nature.com/articles/nrn1345)
 
 Default Epoch timing (ms) 

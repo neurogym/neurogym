@@ -1,11 +1,9 @@
 """Script to make environment md"""
 
 
-import json
 import gym
 import neurogym as ngym
 from neurogym import all_tasks
-from neurogym.ops import tasktools
 
 
 def main():
@@ -20,11 +18,12 @@ def main():
 
             string += "#### {:s}\n\n".format(type(env).__name__)
 
-            paper_name = metadata.get('paper_name', None) or 'Missing paper name'
+            paper_name = metadata.get('paper_name',
+                                      None) or 'Missing paper name'
             paper_link = metadata.get('paper_link', None)
-            task_description = metadata.get('description', None) or 'Missing description'
-            print(task_description)
-            string += "{:s}\n\n".format(task_description)                
+            task_description = metadata.get('description',
+                                            None) or 'Missing description'
+            string += "{:s}\n\n".format(task_description)
             string += "Reference paper: \n\n"
             if paper_link is None:
                 string += "{:s}\n\n".format(paper_name)
@@ -48,7 +47,6 @@ def main():
         f.write("* {0} tasks implemented so far.\n\n".format(counter))
         f.write('* Under development, details subject to change\n\n')
         f.write(string)
-
 
 
 if __name__ == '__main__':

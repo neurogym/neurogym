@@ -14,7 +14,14 @@ import neurogym as ngym
 
 # TODO: Remain to be finished
 class TrialHistory(ngym.TrialWrapper):
-    """Change ground truth probability based on outcome."""
+    metadata = {
+        'description': 'Change ground truth probability ' +
+        'based on previous outcome.',
+        'paper_link': 'https://www.biorxiv.org/content/10.1101/433409v3',
+        'paper_name': '''Response outcomes gate the impact of expectations ' +
+        'on perceptual decisions''',
+    }
+
     def __init__(self, env, rep_prob=(.2, .8), block_dur=200,
                  blk_ch_prob=None, ae_probs=None, pass_blck=False):
         super().__init__(env)
