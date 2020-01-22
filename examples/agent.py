@@ -139,10 +139,6 @@ class Worker():
         num_tr_update = 1000
         total_steps = 0
         print("Starting worker " + str(self.number))
-        # create performance figure
-        if self.number == 0:
-            fig_perf = plt.figure(figsize=(8, 8), dpi=100)
-            perf_mat = []
         # get first state
         s = self.env.reset()
         s = np.reshape(s, [1, s.shape[0], 1])
@@ -196,12 +192,6 @@ class Worker():
                 if len(eps_buffer) != 0 and train:
                     v_l, p_l, e_l, g_n, v_n = \
                         self.train(eps_buffer, sess, gamma, 0.0)
-                    if self.number == 0:
-                        mean_perf = np.mean(outcome)
-                        perf_mat.append(mean_perf)
-                        fig_perf.plot((np.arange(len(mean_perf))+1)*num_tr_update, perf_mat)
-                        fig_perf.canvas.draw()
-                        plt.title('average performance: ' + str(mean_perf))
 
                 if self.name == 'worker_0':
                     sess.run(self.increment)
