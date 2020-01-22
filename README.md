@@ -30,23 +30,12 @@ Currently implemented tasks can be found [here](https://github.com/gyyang/neurog
 
 ### Example
 
-The following example will run the Random Dots Motion task for 200 steps with random actions.
+In the folder examples we provide two scripts that show how to use Neurogym:
 
-```
-python /path-to-neurogym-toolbox/neurogym/ops/test_new.py --task1=RDM-v0  --n_steps=200 
-```
+In the *a2c_example.ipynb* file we provide an example that installs the necessary toolboxes and trains the A3C algorithm [Mnih et al. 2016](https://arxiv.org/abs/1602.01783) on the Random Dots Motion algorithm.
 
-In the *neuroGym_colab.ipynb* file we provide a more elaborate example that installs the necessary toolboxes and trains the A3C algorithm [Mnih et al. 2016](https://arxiv.org/abs/1602.01783) on the Random Dots Motion algorithm.
+Further, NeuroGym can also be used together with the openAi toolbox [Stable Baselines](https://github.com/hill-a/stable-baselines) (a set of implementations of reinforcement learning algorithms). The example below uses the A2C algorithm to learn Random Dots Motion task.
 
-Further, NeuroGym can also be used together with the openAi toolbox [Baselines](https://github.com/openai/baselines) (a set of implementations of reinforcement learning algorithms). The example below uses the A2C algorithm to learn Random Dots Motion task:
-
-```
-python /path-to-baselines-toolbox/baselines/run.py --alg=a2c --env=RDM-v0 --network=lstm --nsteps=20 --nlstm=64 --stimEv=0.5 --pass_reward=True --pass_action=True --timing 200 200 300 400 200
-```
-
-**alg**: algorithm; **env**: task; **network**: type of network; **nsteps**: batch size; **nlstm**: number of units; **stimEv**: controls the difficulty of the experiment; **pass_reward**: if true, the task passes the previous reward as a part of the observation;  **pass_action**: if true, the task passes the previous action as a part of the observation; **timing**: duration of the different periods in a trial.
-
-(Note that a few small modifications on the [run.py](https://github.com/openai/baselines/blob/master/baselines/run.py) and the [cmd_util.py](https://github.com/openai/baselines/blob/master/baselines/common/cmd_util.py) files have been applied so as to import NeuroGym and to pass the parameters to the RDM task)
 
 ### Contributing
 
