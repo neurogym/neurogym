@@ -10,7 +10,6 @@ import network as net
 import tensorflow.contrib.slim as slim
 import utils as ut
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 class AC_Network():
