@@ -77,14 +77,18 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
             action = def_act
         else:
             action = env.action_space.sample()
+
         obs, rew, done, info = env.step(action)
+
         if isinstance(info, list):
             info = info[0]
             obs_aux = obs[0]
             rew = rew[0]
             done = done[0]
+            actions = actions[0]
         else:
             obs_aux = obs
+
         if done:
             env.reset()
         observations.append(obs_aux)
