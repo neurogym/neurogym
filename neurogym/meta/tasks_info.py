@@ -51,7 +51,7 @@ def info(task=None, n_stps_plt=100):
                     string += key + ' : ' + dist + ' ' + str(args) + '\n\n'
             plot_struct(env, n_stps_plt=n_stps_plt)
         except BaseException as e:
-            print('Failure in ', env_name)
+            print('Failure in ', type(env).__name__)
             print(e)
         print(string)
 
@@ -83,6 +83,8 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
             obs_aux = obs[0]
             rew = rew[0]
             done = done[0]
+        else:
+            obs_aux = obs
         if done:
             env.reset()
         observations.append(obs_aux)
