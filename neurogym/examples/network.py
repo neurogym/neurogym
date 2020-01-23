@@ -11,7 +11,8 @@ Update-Gate RNN (Collins et al. 2017).
 import numpy as np
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
-import utils as ut
+from neurogym.examples import utils as ut
+
 
 def RNN_UGRU(inputs, prev_rewards, a_size, num_units):
 

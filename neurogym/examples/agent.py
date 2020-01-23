@@ -6,7 +6,7 @@ Created on Wed Jan 22 07:29:40 2020
 @author: manuel
 """
 import tensorflow as tf
-import network as net
+from neurogym.examples import network as net
 import tensorflow.contrib.slim as slim
 import utils as ut
 import numpy as np
