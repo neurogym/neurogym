@@ -30,71 +30,11 @@ Currently implemented tasks can be found [here](https://github.com/gyyang/neurog
 
 ### Example
 
-In the folder examples we provide two scripts that show how to use Neurogym:
-
-In the *a2c_example.ipynb* file we provide an example that installs the necessary toolboxes and trains the A3C algorithm [Mnih et al. 2016](https://arxiv.org/abs/1602.01783) on the Random Dots Motion algorithm.
-
-Further, NeuroGym can also be used together with the openAi toolbox [Stable Baselines](https://github.com/hill-a/stable-baselines) (a set of implementations of reinforcement learning algorithms). The example below uses the A2C algorithm to learn Random Dots Motion task.
+NeuroGym can be used together with the openAi toolbox [Stable Baselines](https://github.com/hill-a/stable-baselines) (a set of implementations of reinforcement learning algorithms). [Here](https://github.com/gyyang/neurogym/blob/master/neurogym/examples/example_NeuroGym_stable_baselines.ipynb) you will find an example of how to do it.
 
 
 ### Contributing
 
-Contributing new tasks is easy. You can see a template of how a task should look like in the *superclass* ngym, which is thought to contain all functions that are common to all tasks:
-```
-class ngym(gym.Env):
-    def __init__(self, dt=100):
-        """
-	initializes relevant variables (e.g. different periods durations)
-	"""
-
-    def step(self, action):
-        """
-        receives an action and returns a new observation, a reward, a flag variable
-        indicating whether the experiment has ended and a dictionary with
-        useful information (info). Note that a great part of this, is done by 
-	_step(action) (see below). step() aditionally calls the function _new_trial
-	if the current trial is done info['new_trial']==True).
-        """
-        return obs, rew, done, info
-
-    def reset(self):
-        """
-        resets the experiment
-        """
-        return obs
-
-    def render(self, mode='human'):
-        """
-        plots relevant variables/parameters (so far not used)
-        """
-        pass
-
-    # Auxiliary functions
-    def seed(self, seed=None):
-        self.rng = random
-        self.rng.seed(seed)
-        return [seed]
-
-    def _step(self, action):
-        """
-        receives an action and returns a new state, a reward, a flag variable
-        indicating whether the experiment has ended and a dictionary with
-        useful information
-        """
-        return obs, rew, done, info
-
-    def new_trial(self, **kwargs):
-        """Starts a new trial within the current experiment.
-        Returns trial_info: a dictionary of trial information
-        """
-        return trial_info
-
-    def in_epoch(self, t, epoch):
-        """Check if t is in epoch."""
-
-```
-
-All tasks call ngym as their superclass and so they inherite all above functions. However you will likely want to modify some of them in your task. If you want to see how this is done in an actual task, the Random Dots Motion task (RDM) is probably the one containing more comments.
 
 ### Wrappers
 
