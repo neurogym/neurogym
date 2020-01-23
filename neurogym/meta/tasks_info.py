@@ -71,7 +71,8 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
     obs = env.reset()
     for stp in range(int(num_steps_env)):
         if model is not None:
-            action, _states = model.predict([obs])
+            print(obs)
+            action, _states = model.predict(obs)
             action = [action]
         elif def_act is not None:
             action = def_act
