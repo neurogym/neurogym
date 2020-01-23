@@ -105,7 +105,7 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
         else:
             config_mat.append([0, 0])
 
-    rows = 3
+    rows = 3 if model is None else 4
     obs = np.array(observations)
     plt.figure()
     plt.subplot(rows, 1, 1)
