@@ -62,6 +62,7 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
         env = gym.make(env)
     # TODO: Move this somewhere else. Shouldn't be in tasktools
     observations = []
+    state_mat = []
     rewards = []
     actions = []
     actions_end_of_trial = []
@@ -73,6 +74,7 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
         if model is not None:
             action, _states = model.predict(obs)
             action = [action]
+            state_mat.append(_states)
         elif def_act is not None:
             action = def_act
         else:
@@ -105,9 +107,15 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
         else:
             config_mat.append([0, 0])
 
-    rows = 3 if model is None else 4
+    if model is not None:
+        rows = 4
+        states = np.array(state_mat)
+        states = states[:, 0, :]
+    else:
+        rows = 3
+
     obs = np.array(observations)
-    plt.figure()
+    plt.figure(figsize=(8, 8))
     plt.subplot(rows, 1, 1)
     plt.imshow(obs[:n_stps_plt, :].T, aspect='auto')
     plt.title('observations')
@@ -125,6 +133,10 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
     plt.xlim([-0.5, n_stps_plt+0.5])
     plt.title(name + '  ' + str(np.mean(perf)))
     plt.tight_layout()
+    if model is not None:
+        plt.subplot(rows, 1, 4)
+        plt.imshow(states[:n_stps_plt, int(states.shape[1]/2):].T,
+                   aspect='auto')
     plt.show()
     return np.mean(perf)
 
