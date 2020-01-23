@@ -60,16 +60,17 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
                 def_act=None, model=None, name=''):
     if isinstance(env, str):
         env = gym.make(env)
-    # TODO: Move this somewhere else. Shouldn't be in tasktools
     observations = []
+    obs_cum = []
     state_mat = []
     rewards = []
     actions = []
     actions_end_of_trial = []
     gt = []
-    config_mat = []
     perf = []
+
     obs = env.reset()
+    obs_cum_temp = obs
     for stp in range(int(num_steps_env)):
         if model is not None:
             action, _states = model.predict(obs)
@@ -81,7 +82,8 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
             action = env.action_space.sample()
 
         obs, rew, done, info = env.step(action)
-
+        obs_cum_temp += obs
+        obs_cum.append(obs_cum_temp.copy())
         if isinstance(info, list):
             info = info[0]
             obs_aux = obs[0]
@@ -97,15 +99,12 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
         if info['new_trial']:
             actions_end_of_trial.append(action)
             perf.append(rew)
+            obs_cum_temp = np.zeros_like(obs_cum_temp)
         else:
             actions_end_of_trial.append(-1)
         rewards.append(rew)
         actions.append(action)
         gt.append(info['gt'])
-        if 'config' in info.keys():
-            config_mat.append(info['config'])
-        else:
-            config_mat.append([0, 0])
 
     if model is not None:
         rows = 4
@@ -113,8 +112,10 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
         states = states[:, 0, :]
     else:
         rows = 3
-
+        states = None
     obs = np.array(observations)
+    obs_cum = np.array(obs_cum)
+    obs_cum = obs_cum[:, 1] - obs_cum[:, 2]
     plt.figure(figsize=(8, 8))
     plt.subplot(rows, 1, 1)
     plt.imshow(obs[:n_stps_plt, :].T, aspect='auto')
@@ -129,16 +130,20 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
     plt.xlim([-0.5, n_stps_plt+0.5])
     plt.subplot(rows, 1, 3)
     plt.plot(rewards[:n_stps_plt], 'r')
-    plt.title('reward')
     plt.xlim([-0.5, n_stps_plt+0.5])
-    plt.title(name + '  ' + str(np.mean(perf)))
+    plt.title('reward. ' + name + '  ' + str(np.mean(perf)))
     plt.tight_layout()
     if model is not None:
         plt.subplot(rows, 1, 4)
         plt.imshow(states[:n_stps_plt, int(states.shape[1]/2):].T,
                    aspect='auto')
     plt.show()
-    return np.mean(perf)
+
+    data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
+            'actions': actions, 'perf': perf,
+            'actions_end_of_trial': actions_end_of_trial, 'gt': gt,
+            'states': states}
+    return data
 
 
 if __name__ == '__main__':
