@@ -14,11 +14,12 @@ from neurogym import all_tasks
 def info(task=None):
     """Script to get tasks info"""
     if task is None:
+        tasks = all_tasks.keys()
         string = ''
-        for env_name in sorted(all_tasks.keys()):
-            string += env_name
+        for env_name in sorted(tasks):
+            string += env_name + '\n'
         print('### List of environments implemented\n\n')
-        print("* {0} tasks implemented so far.\n\n".format(len(all_tasks.keys())))
+        print("* {0} tasks implemented so far.\n\n".format(len(tasks)))
         print('* Under development, details subject to change\n\n')
         print(string)
     else:
@@ -49,6 +50,8 @@ def info(task=None):
         except BaseException as e:
             print('Failure in ', env_name)
             print(e)
+        print(string)
+
 
 
 if __name__ == '__main__':
