@@ -71,7 +71,6 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
     obs = env.reset()
     for stp in range(int(num_steps_env)):
         if model is not None:
-            print(obs)
             action, _states = model.predict(obs)
             action = [action]
         elif def_act is not None:
@@ -81,12 +80,12 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
         obs, rew, done, info = env.step(action)
         if isinstance(info, list):
             info = info[0]
-            obs = obs[0]
+            obs_aux = obs[0]
             rew = rew[0]
             done = done[0]
         if done:
             env.reset()
-        observations.append(obs)
+        observations.append(obs_aux)
         if info['new_trial']:
             actions_end_of_trial.append(action)
             perf.append(rew)
