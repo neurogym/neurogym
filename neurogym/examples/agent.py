@@ -72,7 +72,7 @@ class AC_Network():
 
 class Worker():
     def __init__(self, game, name, a_size, state_size, trainer,
-                 global_epss, num_units):
+                 global_epss, num_units, verbose=0):
         self.name = "worker_" + str(name)
         self.number = name
         self.trainer = trainer
@@ -80,6 +80,7 @@ class Worker():
         self.increment = self.global_epss.assign_add(1)
         self.eps_rewards = []
         self.eps_mean_values = []
+        self.verbose = verbose
 
         # Create the local copy of the network and the tensorflow op
         # to copy global parameters to local network
@@ -137,7 +138,8 @@ class Worker():
         num_epss_end = 100000
         num_tr_update = 1000
         total_steps = 0
-        print("Starting worker " + str(self.number))
+        if self.verbose:
+            print("Starting worker " + str(self.number))
         # get first state
         s = self.env.reset()
         s = np.reshape(s, [1, s.shape[0], 1])
@@ -191,6 +193,8 @@ class Worker():
                 if len(eps_buffer) != 0 and train:
                     v_l, p_l, e_l, g_n, v_n = \
                         self.train(eps_buffer, sess, gamma, 0.0)
+                if self.verbose:
+                    print('Mean performance: ', np.round(np.mean(outcome), 3))
 
                 if self.name == 'worker_0':
                     sess.run(self.increment)
