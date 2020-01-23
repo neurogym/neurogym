@@ -133,9 +133,8 @@ class Worker():
         aux = len(rollout)
         return v_l / aux, p_l / aux, e_l / aux, g_n, v_n
 
-    def work(self, gamma, sess, coord, saver, train):
+    def work(self, gamma, sess, coord, saver, train, num_epss_end=20000):
         eps_count = sess.run(self.global_epss)
-        num_epss_end = 100000
         num_tr_update = 1000
         total_steps = 0
         if self.verbose:
