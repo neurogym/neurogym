@@ -85,7 +85,7 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
             obs_aux = obs[0]
             rew = rew[0]
             done = done[0]
-            actions = actions[0]
+            action = action[0]
         else:
             obs_aux = obs
 
