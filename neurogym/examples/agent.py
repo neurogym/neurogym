@@ -7,8 +7,8 @@ Created on Wed Jan 22 07:29:40 2020
 """
 import tensorflow as tf
 from neurogym.examples import network as net
+from neurogym.examples import utils as ut
 import tensorflow.contrib.slim as slim
-import utils as ut
 import numpy as np
 
 
