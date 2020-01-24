@@ -30,10 +30,61 @@ Currently implemented tasks can be found [here](https://github.com/gyyang/neurog
 
 ### Example
 
-NeuroGym can be used together with the openAi toolbox [Stable Baselines](https://github.com/hill-a/stable-baselines) (a set of implementations of reinforcement learning algorithms). [Here](https://github.com/gyyang/neurogym/blob/master/neurogym/examples/example_NeuroGym_stable_baselines.ipynb) you will find an example of how to do it.
+NeuroGym can be used together with the openAi toolbox [Stable Baselines](https://github.com/hill-a/stable-baselines) (a set of implementations of reinforcement learning algorithms). [The notebook example_NeuroGym_stable_baselines.ipynb](https://github.com/gyyang/neurogym/blob/master/neurogym/examples/example_NeuroGym_stable_baselines.ipynb) shows how to do it.
 
 
 ### Contributing
+Contributing new tasks is easy. The script [template](https://github.com/gyyang/neurogym/blob/master/neurogym/meta/template.py) in the *meta* folder provides the basic structure that any new task should have:
+
+```
+from gym import spaces
+import neurogym as ngym
+
+class TASKNAME(ngym.EpochEnv):
+    metadata = {}
+
+    def __init__(self, dt=100, timing=None, extra_input_param=None):
+        super().__init__(dt=dt, timing=timing)
+       
+
+    def new_trial(self, **kwargs):
+        """
+        new_trial() is called when a trial ends to generate the next trial.
+        Here you have to set (at least):
+        1. The ground truth: the correct answer for the created trial.
+        2. The trial periods: fixation, stimulus...
+            """
+        # ---------------------------------------------------------------------
+        # Trial
+        # ---------------------------------------------------------------------
+     
+        # ---------------------------------------------------------------------
+        # Epochs
+        # ---------------------------------------------------------------------
+      
+        # ---------------------------------------------------------------------
+        # Observations
+        # ---------------------------------------------------------------------
+     
+        # ---------------------------------------------------------------------
+        # Ground truth
+        # ---------------------------------------------------------------------
+  
+    def _step(self, action):
+        """
+        _step receives an action and returns:
+            a new observation, obs
+            reward associated with the action, reward
+            a boolean variable indicating whether the experiment has end, done
+            a dictionary with extra information:
+                ground truth correct response, info['gt']
+                boolean indicating the end of the trial, info['new_trial']
+        """
+
+        return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
+
+```
+
 
 
 ### Wrappers
