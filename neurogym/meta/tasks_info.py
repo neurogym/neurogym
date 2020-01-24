@@ -75,9 +75,11 @@ def info(task=None, show_code=False, n_stps_plt=200):
 
 
 def plot_struct(env, num_steps_env=200, n_stps_plt=200,
-                def_act=None, model=None):
+                def_act=None, model=None, name=None):
     if isinstance(env, str):
         env = gym.make(env)
+    if name is None:
+        name = type(env).__name__
     observations = []
     obs_cum = []
     state_mat = []
@@ -137,7 +139,7 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
     # obs
     plt.subplot(rows, 1, 1)
     plt.imshow(obs[:n_stps_plt, :].T, aspect='auto')
-    plt.title('observations ' + type(env).__name__ + ' task')
+    plt.title('observations ' + name + ' task')
     ax = plt.gca()
     ax.set_xticks([])
     ax.set_yticks([])
@@ -148,7 +150,7 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
     if len(gt.shape) == 2:
         gt = np.argmax(gt, axis=1)
     plt.plot(gt[:n_stps_plt], 'r', label='ground truth')
-    plt.title('actions')
+    plt.ylabel('actions')
     plt.xlim([-0.5, n_stps_plt+0.5])
     plt.legend()
     ax = plt.gca()
@@ -157,7 +159,7 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
     plt.subplot(rows, 1, 3)
     plt.plot(rewards[:n_stps_plt], 'r')
     plt.xlim([-0.5, n_stps_plt+0.5])
-    plt.title('reward ' + ' (' + str(np.round(np.mean(perf), 3)) + ')')
+    plt.ylabel('reward ' + ' (' + str(np.round(np.mean(perf), 2)) + ')')
     if model is not None:
         ax = plt.gca()
         ax.set_xticks([])
@@ -165,6 +167,7 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
         plt.imshow(states[:n_stps_plt, int(states.shape[1]/2):].T,
                    aspect='auto')
         plt.title('network activity')
+        plt.ylabel('neurons')
         ax = plt.gca()
         ax.set_xticks([])
 
