@@ -113,6 +113,8 @@ class DelayedMatchToSampleDistractor1D(ngym.EpochEnv):
     Delay Match to sample with multiple, potentially repeating distractors
     """
     metadata = {
+        'description': '''Delay Match to sample with multiple,
+         potentially repeating distractors.''',
         'paper_link': 'https://www.jneurosci.org/content/jneuro/16/16/' +
         '5154.full.pdf',
         'paper_name': '''Neural Mechanisms of Visual Working Memory

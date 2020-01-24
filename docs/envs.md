@@ -1,6 +1,6 @@
 ### List of environments implemented
 
-* 23 tasks implemented so far.
+* 22 tasks implemented so far.
 
 * Under development, details subject to change
 
@@ -130,7 +130,8 @@ decision : constant 900
 
 #### DelayedMatchToSampleDistractor1D
 
-Missing description
+Delay Match to sample with multiple,
+         potentially repeating distractors.
 
 Reference paper: 
 
@@ -216,27 +217,6 @@ stim2 : uniform (300, 600)
 delay2 : constant 500
 
 decision : constant 300
-
-#### Mante
-
-Agent has to perform one of two different perceptual discriminations. On every trial, a contextual cue indicates which one to perform.
-
-Reference paper: 
-
-[Context-dependent computation by recurrent
-         dynamics in prefrontal cortex](https://www.nature.com/articles/nature12742)
-
-Default Epoch timing (ms) 
-
-fixation : constant 300
-
-target : constant 350
-
-stimulus : constant 750
-
-delay : truncated_exponential [600, 300, 3000]
-
-decision : constant 100
 
 #### MatchingPenny
 
@@ -371,7 +351,9 @@ set : constant 83
 
 #### Romo
 
-Missing description
+Two-alternative forced choice task in which
+         the subject has to compare two stimuli separated by a delay
+         to decide which one has a higher frequency
 
 Reference paper: 
 

@@ -19,7 +19,7 @@ import neurogym as ngym
 
 class Romo(ngym.EpochEnv):
     metadata = {
-        'Description': """Two-alternative forced choice task in which
+        'description': """Two-alternative forced choice task in which
          the subject has to compare two stimuli separated by a delay
          to decide which one has a higher frequency""",
         'paper_link': 'https://www.jneurosci.org/content/30/28/9424',
