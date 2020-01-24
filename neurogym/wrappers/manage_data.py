@@ -39,7 +39,7 @@ class ManageData(Wrapper):
             os.mkdir(self.folder)
         # seeding
         self.saving_name = self.folder +\
-            self.env.__class__.__name__ + str(self.inst)
+            self.env.__class__.__name__
 
     def step(self, action):
         obs, rew, done, info = self.env.step(action)
