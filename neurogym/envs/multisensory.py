@@ -3,7 +3,6 @@ from __future__ import division
 
 import numpy as np
 from gym import spaces
-from neurogym.ops import tasktools
 import neurogym as ngym
 
 
@@ -11,12 +10,12 @@ class MultiSensoryIntegration(ngym.EpochEnv):
     metadata = {
         'paper_link': None,
         'paper_name': None,
-        'default_timing': {
+        'timing': {
             'fixation': ('constant', 300),
             'target': ('constant', 350),  # TODO: not implemented
             'stimulus': ('constant', 750),
             'delay': ('truncated_exponential', [600, 300, 3000]),
-            'decision': ('constant', 100)}, # XXX: not specified
+            'decision': ('constant', 100)},  # XXX: not specified
     }
 
     def __init__(self, dt=100, timing=None):
@@ -55,7 +54,8 @@ class MultiSensoryIntegration(ngym.EpochEnv):
         }
         self.trial.update(kwargs)
 
-        choice_0, choice_1 = self.trial['ground_truth'], self.trial['other_choice']
+        choice_0, choice_1 =\
+            self.trial['ground_truth'], self.trial['other_choice']
         if self.trial['context'] == 1:
             choice_1, choice_0 = choice_0, choice_1
         coh_0, coh_1 = self.trial['coh_0'], self.trial['coh_1']
@@ -72,7 +72,8 @@ class MultiSensoryIntegration(ngym.EpochEnv):
 
         self.obs[:, 0] = 1
         ob = self.view_ob('stimulus')
-        ob[:, [high_0, low_0, high_1, low_1]] = (1 + np.array([coh_0, -coh_0, coh_1, -coh_1])/100)/2
+        ob[:, [high_0, low_0, high_1, low_1]] =\
+            (1 + np.array([coh_0, -coh_0, coh_1, -coh_1])/100)/2
         ob[:, 3:] += np.random.randn(ob.shape[0], 4) * self.sigma_dt
         self.set_ob('decision', np.zeros(7))
         self.obs[:, self.trial['context']] = 1

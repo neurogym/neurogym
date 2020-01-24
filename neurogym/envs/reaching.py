@@ -4,15 +4,19 @@ import numpy as np
 from gym import spaces
 
 import neurogym as ngym
+from neurogym.meta import tasks_info
 from neurogym.ops import tasktools
 
 
-# TODO: Ground truth and action have different space, making it difficult for SL and RL to work together
+# TODO: Ground truth and action have different space,
+# making it difficult for SL and RL to work together
 class Reaching1D(ngym.EpochEnv):
     metadata = {
+        'description': '''The agent has to reproduce the angle indicated
+         by the observation''',
         'paper_link': 'https://science.sciencemag.org/content/233/4771/1416',
         'paper_name': 'Neuronal population coding of movement direction',
-        'default_timing': {
+        'timing': {
             'fixation': ('constant', 500),
             'reach': ('constant', 500)},
     }
@@ -62,24 +66,28 @@ class Reaching1D(ngym.EpochEnv):
         if self.in_epoch('fixation'):
             reward = 0
         else:
-            reward = np.max((1 - tasktools.circular_dist(self.state - gt), -0.1))
+            reward =\
+                np.max((1 - tasktools.circular_dist(self.state - gt), -0.1))
 
         return ob, reward, False, {'new_trial': False, 'gt': gt}
 
 
 class Reaching1DWithSelfDistraction(ngym.EpochEnv):
-    """Reaching with self distraction.
-
-    In this task, the reaching state itself generates strong inputs that overshadows
-    the actual target input. This task is inspired by behavior in electric fish
-    where the electric sensing organ is distracted by discharges from
-    its own electric organ for active sensing
+    """
+    Reaching with self distraction.
+    In this task, the reaching state itself generates strong inputs that
+    overshadows the actual target input. This task is inspired by behavior
+    in electric fish where the electric sensing organ is distracted by
+    discharges from its own electric organ for active sensing.
     Similar phenomena in bats.
     """
     metadata = {
+        'description': '''The agent has to reproduce the angle indicated
+         by the observation. Furthermore, the reaching state itself
+         generates strong inputs that overshadows the actual target input''',
         'paper_link': None,
         'paper_name': None,
-        'default_timing': {
+        'timing': {
             'fixation': ('constant', 500),
             'reach': ('constant', 500)},
     }
@@ -128,7 +136,8 @@ class Reaching1DWithSelfDistraction(ngym.EpochEnv):
         if self.in_epoch('fixation'):
             reward = 0
         else:
-            reward = np.max((1 - tasktools.circular_dist(self.state - gt), -0.1))
+            reward =\
+                np.max((1 - tasktools.circular_dist(self.state - gt), -0.1))
 
         return ob, reward, False, {'new_trial': False, 'gt': gt}
 
@@ -138,4 +147,4 @@ if __name__ == '__main__':
     # env = Reaching1D()
     env = Reaching1DWithSelfDistraction()
     test_run(env)
-    tasktools.plot_struct(env)
+    tasks_info.plot_struct(env)

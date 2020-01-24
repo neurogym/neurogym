@@ -19,17 +19,20 @@ from __future__ import division
 import numpy as np
 from gym import spaces
 
-from neurogym.ops import tasktools
 import neurogym as ngym
 
 
 class PDWager(ngym.EpochEnv):
     metadata = {
-        'description': 'Agents do a discrimination task (see RDM). On a random half of the trials, the agent is given the option to abort the direction discrimination and to choose instead a small but certain reward associated with a action.',
-        'paper_link': 'https://science.sciencemag.org/content/324/5928/759.long',
+        'description': '''Agents do a discrimination task (see RDM). On a
+         random half of the trials, the agent is given the option to abort
+         the direction discrimination and to choose instead a small but
+         certain reward associated with a action.''',
+        'paper_link': '''https://science.sciencemag.org/content/324/5928/
+        759.long''',
         'paper_name': '''Representation of Confidence Associated with a
          Decision by Neurons in the Parietal Cortex''',
-        'default_timing': {
+        'timing': {
             'fixation': ('constant', 100),  # XXX: not specified
             'target':  ('constant', 0),  # XXX: not implemented, not specified
             'stimulus': ('truncated_exponential', [180, 100, 900]),

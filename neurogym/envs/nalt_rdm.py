@@ -21,21 +21,25 @@ Perceptual decision-making task, based on
 import numpy as np
 from gym import spaces
 import neurogym as ngym
-from neurogym.ops import tasktools
+from neurogym.meta import tasks_info
 
 
 class nalt_RDM(ngym.EpochEnv):
     metadata = {
-        'description': 'N-alternative forced choice task in which the subject has to integrate N stimuli to decide which one is higher on average',
+        'description': '''N-alternative forced choice task in which the subject
+         has to integrate N stimuli to decide which one is higher
+          on average''',
         'paper_link': None,
         'paper_name': None,
-        'default_timing': {
+        'timing': {
             'fixation': ('constant', 500),
             'stimulus': ('truncated_exponential', [330, 80, 1500]),
             'decision': ('constant', 500)},
+        'stimEv': 1.,
+        'n_ch': 3,
     }
 
-    def __init__(self, dt=100, timing=None, stimEv=1., n_ch=3, **kwargs):
+    def __init__(self, dt=100, timing=None, stimEv=1., n_ch=3):
         super().__init__(dt=dt, timing=timing)
         self.n = n_ch
         self.choices = np.arange(n_ch) + 1
@@ -126,7 +130,6 @@ class nalt_RDM(ngym.EpochEnv):
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
-
 if __name__ == '__main__':
     env = nalt_RDM()
-    tasktools.plot_struct(env)
+    tasks_info.plot_struct(env)

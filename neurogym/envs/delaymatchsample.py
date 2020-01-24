@@ -8,17 +8,19 @@ from __future__ import division
 
 import numpy as np
 from gym import spaces
-from neurogym.ops import tasktools
 import neurogym as ngym
 
 
 class DelayedMatchToSample(ngym.EpochEnv):
     metadata = {
-        'description': 'A sample stimulus is followed by a delay and test. Agents are required to indicate if the sample and test are the same stimulus.',
-        'paper_link': 'https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf',
-        'paper_name': '''Neural Mechanisms of Visual Working Memory 
+        'description': 'A sample stimulus is followed by a delay and test.' +
+        ' Agents are required to indicate if the sample and test are the' +
+        ' same stimulus.',
+        'paper_link': 'https://www.jneurosci.org/content/jneuro/16/16/' +
+        '5154.full.pdf',
+        'paper_name': '''Neural Mechanisms of Visual Working Memory
         in Prefrontal Cortex of the Macaque''',
-        'default_timing': {
+        'timing': {
             'fixation': ('constant', 300),
             'sample': ('constant', 500),
             'delay': ('constant', 1000),
@@ -107,12 +109,15 @@ class DelayedMatchToSample(ngym.EpochEnv):
 
 
 class DelayedMatchToSampleDistractor1D(ngym.EpochEnv):
-    """Delay Match to sample with multiple, potentially repeating distractors"""
+    """
+    Delay Match to sample with multiple, potentially repeating distractors
+    """
     metadata = {
-        'paper_link': 'https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf',
-        'paper_name': '''Neural Mechanisms of Visual Working Memory 
+        'paper_link': 'https://www.jneurosci.org/content/jneuro/16/16/' +
+        '5154.full.pdf',
+        'paper_name': '''Neural Mechanisms of Visual Working Memory
         in Prefrontal Cortex of the Macaque''',
-        'default_timing': {
+        'timing': {
             'fixation': ('constant', 300),
             'sample': ('constant', 500),
             'delay1': ('constant', 1000),
@@ -162,10 +167,12 @@ class DelayedMatchToSampleDistractor1D(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        epochs = ['fixation', 'sample', 'delay1', 'test1', 'delay2', 'test2', 'delay3', 'test3']
+        epochs = ['fixation', 'sample', 'delay1', 'test1',
+                  'delay2', 'test2', 'delay3', 'test3']
         self.add_epoch(epochs[0], after=0)
         for i in range(1, len(epochs)):
-            self.add_epoch(epochs[i], after=epochs[i-1], last_epoch=i==len(epochs)-1)
+            self.add_epoch(epochs[i], after=epochs[i-1],
+                           last_epoch=i == len(epochs)-1)
 
         ob = self.view_ob('fixation')
         ob[:, 0] = 1
@@ -197,7 +204,7 @@ class DelayedMatchToSampleDistractor1D(ngym.EpochEnv):
 
 if __name__ == '__main__':
     from neurogym.tests import test_run
-    from neurogym.ops.tasktools import plot_struct
+    from neurogym.meta.tasks_info import plot_struct
     env = DelayedMatchToSampleDistractor1D()
     test_run(env)
     plot_struct(env)

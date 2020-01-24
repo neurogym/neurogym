@@ -10,24 +10,29 @@ import numpy as np
 from gym import spaces
 
 import neurogym as ngym
-from neurogym.ops import tasktools
+from neurogym.meta import tasks_info
 
-#  TODO: there is a timeout of 1000ms for incorrect trials
+#  TODO: there should be a timeout of 1000ms for incorrect trials
+
+
 class DR(ngym.EpochEnv):
     metadata = {
-        'description': 'Agents have to integrate two stimuli and report which one is larger on average after a delay.',
+        'description': 'Agents have to integrate two stimuli and report' +
+        ' which one is larger on average after a delay.',
         'paper_link': 'https://www.nature.com/articles/s41586-019-0919-7',
-        'paper_name': 'Discrete attractor dynamics underlies persistent activity in the frontal cortex',
-        'default_timing': {
+        'paper_name': 'Discrete attractor dynamics underlies persistent' +
+        ' activity in the frontal cortex',
+        'timing': {
             'fixation': ('constant', 0),
             'stimulus': ('constant', 1150),
             #  TODO: sampling of delays follows exponential
             'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
             'go_cue': ('constant', 100),
             'decision': ('constant', 1500)},
+        'stimEv': 1.,
     }
 
-    def __init__(self, dt=100, timing=None, stimEv=1., **kwargs):
+    def __init__(self, dt=100, timing=None, stimEv=1.):
         super().__init__(dt=dt, timing=timing)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
@@ -85,7 +90,8 @@ class DR(ngym.EpochEnv):
         stim[:, 0] = 1
         stim[:, 1:] = (1 - self.trial['coh']/100)/2
         stim[:, self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
-        stim[:, 1:] += np.random.randn(stim.shape[0], 2) * self.trial['sigma_dt']
+        stim[:, 1:] +=\
+            np.random.randn(stim.shape[0], 2) * self.trial['sigma_dt']
 
         self.set_ob('delay', [1, 0, 0])
 
@@ -137,4 +143,4 @@ class DR(ngym.EpochEnv):
 
 if __name__ == '__main__':
     env = DR()
-    tasktools.plot_struct(env)
+    tasks_info.plot_struct(env)

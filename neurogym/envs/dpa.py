@@ -10,25 +10,28 @@ import numpy as np
 from gym import spaces
 
 import neurogym as ngym
-from neurogym.ops import tasktools
+from neurogym.meta import tasks_info
 
 
 class DPA(ngym.EpochEnv):
     metadata = {
-        'description': 'A sample is followed by a delay and a test. Agents have to report if the pair sample-test is a rewarded pair or not.',
+        'description': 'A sample is followed by a delay and a test.' +
+        ' Agents have to report if the pair sample-test is a rewarded pair' +
+        ' or not.',
         'paper_link': 'https://elifesciences.org/articles/43191',
-        'paper_name': '''Active information maintenance in working memory by a sensory cortex''',
-        'default_timing': {
+        'paper_name': '''Active information maintenance in working memory' +
+        ' by a sensory cortex''',
+        'timing': {
             'fixation': ('constant', 0),
             'stim1': ('constant', 1000),
             'delay_btw_stim': ('constant', 13000),
             'stim2': ('constant', 1000),
             'delay_aft_stim': ('constant', 1000),
             'decision': ('constant', 500)},
+        'noise': 0.01,
     }
 
-    def __init__(self, dt=100, timing=None, noise=0.01,
-                 simultaneous_stim=False, **kwargs):
+    def __init__(self, dt=100, timing=None, noise=0.01):
         super().__init__(dt=dt, timing=timing)
         self.choices = [0, 1]
         # trial conditions
@@ -38,7 +41,6 @@ class DPA(ngym.EpochEnv):
         self.sigma = np.sqrt(2*100*noise)
         self.sigma_dt = self.sigma / np.sqrt(self.dt)
         # Durations (stimulus duration will be drawn from an exponential)
-        self.sim_stim = simultaneous_stim
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -131,4 +133,4 @@ class DPA(ngym.EpochEnv):
 
 if __name__ == '__main__':
     env = DPA()
-    tasktools.plot_struct(env)
+    tasks_info.plot_struct(env)

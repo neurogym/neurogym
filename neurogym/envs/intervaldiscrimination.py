@@ -3,18 +3,20 @@ from __future__ import division
 
 import numpy as np
 from gym import spaces
-from neurogym.ops import tasktools
+from neurogym.meta import tasks_info
 import neurogym as ngym
 
 
 # TODO: Getting duration is not intuitive, not clear to people
 class IntervalDiscrimination(ngym.EpochEnv):
     metadata = {
-        'description': 'Agents have to report which of two stimuli presented sequentially is longer.',
-        'paper_link': 'https://www.sciencedirect.com/science/article/pii/S0896627309004887',
-        'paper_name': """Feature- and Order-Based Timing Representations 
-        in the Frontal Cortex""",
-        'default_timing': {  # TODO: Timing not from paper yet
+        'description': 'Agents have to report which of two stimuli presented' +
+        ' sequentially is longer.',
+        'paper_link': 'https://www.sciencedirect.com/science/article/pii/' +
+        'S0896627309004887',
+        'paper_name': """Feature- and Order-Based Timing Representations
+         in the Frontal Cortex""",
+        'timing': {  # TODO: Timing not from paper yet
             'fixation': ('constant', 300),
             'stim1': ('uniform', (300, 600)),
             'delay1': ('choice', [800, 1500]),
@@ -46,7 +48,8 @@ class IntervalDiscrimination(ngym.EpochEnv):
         epochs = ['fixation', 'stim1', 'delay1', 'stim2', 'delay2', 'decision']
         self.add_epoch(epochs[0], after=0)
         for i in range(1, len(epochs)):
-            self.add_epoch(epochs[i], after=epochs[i - 1], last_epoch=i == len(epochs) - 1)
+            self.add_epoch(epochs[i], after=epochs[i - 1],
+                           last_epoch=i == len(epochs) - 1)
 
         self.set_ob('fixation', [1, 0, 0])
         self.set_ob('stim1', [1, 1, 0])
@@ -80,8 +83,9 @@ class IntervalDiscrimination(ngym.EpochEnv):
 
         return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 
+
 if __name__ == '__main__':
     from neurogym.tests import test_run
     env = IntervalDiscrimination()
     test_run(env)
-    tasktools.plot_struct(env)
+    tasks_info.plot_struct(env)

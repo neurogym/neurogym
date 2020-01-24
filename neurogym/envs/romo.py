@@ -14,19 +14,18 @@ A parametric working memory task, based on
 """
 import numpy as np
 from gym import spaces
-from neurogym.ops import tasktools
 import neurogym as ngym
 
 
 class Romo(ngym.EpochEnv):
     metadata = {
-        'Description': """Two-alternative forced choice task in which 
-        the subject has to compare two stimuli separated by a delay 
-        to decide which one has a higher frequency""",
+        'Description': """Two-alternative forced choice task in which
+         the subject has to compare two stimuli separated by a delay
+         to decide which one has a higher frequency""",
         'paper_link': 'https://www.jneurosci.org/content/30/28/9424',
         'paper_name': '''Neuronal Population Coding of Parametric
         Working Memory''',
-        'default_timing': {
+        'timing': {
             'fixation': ('uniform', (1500, 3000)),
             'f1': ('constant', 500),
             'delay': ('constant', 3000),

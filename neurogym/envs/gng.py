@@ -19,24 +19,26 @@ from __future__ import division
 import numpy as np
 from gym import spaces
 
-from neurogym.ops import tasktools
 import neurogym as ngym
 
 
 class GNG(ngym.EpochEnv):
     # TODO: Find the original go-no-go paper
     metadata = {
-        'description': 'Go/No-Go task in which the subject has either Go (e.g. lick) or not Go depending on which one of two stimuli is presented with',
+        'description': 'Go/No-Go task in which the subject has either Go' +
+        ' (e.g. lick) or not Go depending on which one of two stimuli is' +
+        ' presented with',
         'paper_link': 'https://elifesciences.org/articles/43191',
-        'paper_name': '''Active information maintenance in working memory by a sensory cortex''',
-        'default_timing': {
+        'paper_name': '''Active information maintenance in working memory' +
+        ' by a sensory cortex''',
+        'timing': {
             'fixation': ('constant', 0),
             'stimulus': ('constant', 500),
             'resp_delay': ('constant', 500),
             'decision': ('constant', 500)},
     }
 
-    def __init__(self, dt=100, timing=None, **kwargs):
+    def __init__(self, dt=100, timing=None):
         super().__init__(dt=dt, timing=timing)
         # Actions (fixate, go)
         self.actions = [0, 1]

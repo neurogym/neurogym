@@ -4,15 +4,18 @@ import numpy as np
 from gym import spaces
 
 import neurogym as ngym
+from neurogym.meta import tasks_info
 from neurogym.ops import tasktools
 
 
 class AntiReach1D(ngym.EpochEnv):
     metadata = {
+        'description': 'The agent has to move in the direction opposite ' +
+        'to the one indicated by the observation',
         'paper_link': 'https://www.nature.com/articles/nrn1345',
         'paper_name': """Look away: the anti-saccade task and
         the voluntary control of eye movement""",
-        'default_timing': {
+        'timing': {
             'fixation': ('constant', 500),
             'reach': ('constant', 500)},
     }
@@ -67,7 +70,8 @@ class AntiReach1D(ngym.EpochEnv):
         if self.in_epoch('fixation'):
             reward = 0
         else:
-            reward = np.max((1 - tasktools.circular_dist(self.state - gt), -0.1))
+            reward =\
+                np.max((1 - tasktools.circular_dist(self.state - gt), -0.1))
 
         return ob, reward, False, {'new_trial': False, 'gt': gt}
 
@@ -76,4 +80,4 @@ if __name__ == '__main__':
     from neurogym.tests import test_run
     env = AntiReach1D()
     test_run(env)
-    tasktools.plot_struct(env)
+    tasks_info.plot_struct(env)

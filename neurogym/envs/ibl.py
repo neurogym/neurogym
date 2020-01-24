@@ -1,15 +1,18 @@
 import numpy as np
-import gym
 from gym import spaces
 import neurogym as ngym
 
 # XXX: are trials counted correctly in this task?
 
 # TODO: No longer maintained, use existing task to build this task
+
+
 class IBL(ngym.TrialEnv):
     metadata = {
-        'paper_link': 'https://www.sciencedirect.com/science/article/pii/S0896627317311364',
-        'paper_name': '''An International Laboratory for Systems and Computational Neuroscience''',
+        'paper_link': 'https://www.sciencedirect.com/science/article/' +
+        'pii/S0896627317311364',
+        'paper_name': '''An International Laboratory for Systems and ' +
+        'Computational Neuroscience''',
     }
 
     def __init__(self, dt=100):
@@ -35,7 +38,8 @@ class IBL(ngym.TrialEnv):
                                             dtype=np.float32)
 
     def new_block(self, n_trial, probs=None):
-        self.ground_truth = self._rng.choice(self.choices, size=(n_trial,), p=probs)
+        self.ground_truth = self._rng.choice(self.choices,
+                                             size=(n_trial,), p=probs)
         self.coh = self._rng.choice(self.cohs, size=(n_trial,))
 
         obs = np.zeros((n_trial, self.observation_space.shape[0]))
@@ -67,7 +71,6 @@ class IBL(ngym.TrialEnv):
         self.num_tr += 1
 
     def _step(self, action):
-        trial = self.trial
         info = {'continue': True, 'gt': self.ground_truth[self.ind],
                 'coh': self.coh[self.ind], 'block': self.block}
         obs = self.obs[self.ind]

@@ -32,7 +32,7 @@ def main():
                 string += "[{:s}]({:s})\n\n".format(paper_name, paper_link)
 
             if isinstance(env, ngym.EpochEnv):
-                timing = metadata['default_timing']
+                timing = metadata['timing']
                 string += 'Default Epoch timing (ms) \n\n'
                 for key, val in timing.items():
                     dist, args = val

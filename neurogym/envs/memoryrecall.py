@@ -5,7 +5,6 @@ import numpy as np
 
 from gym import spaces
 import neurogym as ngym
-from neurogym.ops import tasktools
 
 
 class MemoryRecall(ngym.TrialEnv):
@@ -45,9 +44,11 @@ class MemoryRecall(ngym.TrialEnv):
         assert self.T_max >= self.T_min, 'T_max must be larger than T_min'
         self.T_distribution = T_distribution
         if T_distribution == 'uniform':
-            self.generate_T = lambda : np.random.randint(self.T_min, self.T_max+1)
+            self.generate_T = lambda: np.random.randint(self.T_min,
+                                                        self.T_max+1)
         else:
-            raise ValueError('Not supported T distribution type', str(T_distribution))
+            raise ValueError('Not supported T distribution type',
+                             str(T_distribution))
         self.p_recall = p_recall
         self.balanced = balanced
         self.chance = chance
@@ -63,8 +64,9 @@ class MemoryRecall(ngym.TrialEnv):
         # Environment specific
         self.action_space = spaces.Box(-np.inf, np.inf, shape=(stim_dim,),
                                        dtype=np.float32)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(stim_dim+1,),
-                                       dtype=np.float32)
+        self.observation_space = spaces.Box(-np.inf, np.inf,
+                                            shape=(stim_dim+1,),
+                                            dtype=np.float32)
 
     def __str__(self):
         print('Recall dataset:')
@@ -81,13 +83,14 @@ class MemoryRecall(ngym.TrialEnv):
              ]
         )
         if self.balanced:
-            nicename_dict['p_unknown'] = 'Proportion of unknown elements at recall'
+            nicename_dict['p_unknown'] =\
+                'Proportion of unknown elements at recall'
         else:
             nicename_dict['p_flip'] = 'Proportion of flipping at recall'
 
         string = ''
         for key, name in nicename_dict.items():
-            string += name +' : ' + str(getattr(self, key)) + '\n'
+            string += name + ' : ' + str(getattr(self, key)) + '\n'
         return string
 
     def new_trial(self, **kwargs):
@@ -105,9 +108,11 @@ class MemoryRecall(ngym.TrialEnv):
 
         # Storage phase
         if self.balanced:
-            X_stim[:T_store, :] = (np.random.rand(T_store, stim_dim) > 0.5) * 2.0 - 1.0
+            X_stim[:T_store, :] =\
+                (np.random.rand(T_store, stim_dim) > 0.5) * 2.0 - 1.0
         else:
-            X_stim[:T_store, :] = (np.random.rand(T_store, stim_dim) > 0.5) * 1.0
+            X_stim[:T_store, :] =\
+                (np.random.rand(T_store, stim_dim) > 0.5) * 1.0
 
         store_signal = np.random.choice(np.arange(T_store), T_recall,
                                         replace=False)
@@ -121,7 +126,8 @@ class MemoryRecall(ngym.TrialEnv):
         # Perturb X_stim_recall
         # Flip probability
         if self.balanced:
-            known_matrix = (np.random.rand(T_recall, stim_dim) > self.p_unknown) * 1.0
+            known_matrix =\
+                (np.random.rand(T_recall, stim_dim) > self.p_unknown) * 1.0
             X_stim[T_store:, :stim_dim] = X_stim_recall * known_matrix
         else:
             flip_matrix = np.random.rand(T_recall, stim_dim) < self.p_flip

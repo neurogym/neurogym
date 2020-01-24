@@ -4,15 +4,17 @@ import numpy as np
 from gym import spaces
 
 import neurogym as ngym
-from neurogym.ops import tasktools
+from neurogym.meta import tasks_info
 
 
 class AngleReproduction(ngym.EpochEnv):
     metadata = {
+        'description': 'The agent has to reproduce to two angles ' +
+        'separated by a constant delay.',
         'paper_link': 'https://www.pnas.org/content/114/43/E9115.short',
-        'paper_name': """Visual perception as retrospective Bayesian 
+        'paper_name': """Visual perception as retrospective Bayesian
         decoding from high- to low-level features""",
-        'default_timing': {  # TODO: Timing not from paper yet
+        'timing': {  # TODO: Timing not from paper yet
             'fixation': ('constant', 500),
             'stim1': ('constant', 500),
             'delay1': ('constant', 500),
@@ -47,10 +49,12 @@ class AngleReproduction(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        epochs = ['fixation', 'stim1', 'delay1', 'stim2', 'delay2', 'go1', 'go2']
+        epochs = ['fixation', 'stim1', 'delay1', 'stim2',
+                  'delay2', 'go1', 'go2']
         self.add_epoch(epochs[0], after=0)
         for i in range(1, len(epochs)):
-            self.add_epoch(epochs[i], after=epochs[i - 1], last_epoch=i == len(epochs) - 1)
+            self.add_epoch(epochs[i], after=epochs[i - 1],
+                           last_epoch=i == len(epochs) - 1)
 
         ob = self.view_ob('stim1')
         ob[:, :16] = np.cos(self.theta - self.trial['ground_truth1'])
@@ -86,4 +90,4 @@ if __name__ == '__main__':
     from neurogym.tests import test_run
     env = AngleReproduction()
     test_run(env)
-    tasktools.plot_struct(env)
+    tasks_info.plot_struct(env)

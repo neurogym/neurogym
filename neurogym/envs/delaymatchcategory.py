@@ -10,16 +10,17 @@ import numpy as np
 from gym import spaces
 
 import neurogym as ngym
-from neurogym.ops import tasktools  # XXX: is this needed?
 
 
 class DelayedMatchCategory(ngym.EpochEnv):
     metadata = {
-        'description': 'A sample stimulus is followed by a delay and test. Agents are required to indicate if the sample and test are in the same category.',
+        'description': 'A sample stimulus is followed by a delay and test.' +
+        ' Agents are required to indicate if the sample and test are in the' +
+        ' same category.',
         'paper_link': 'https://www.nature.com/articles/nature05078',
         'paper_name': '''Experience-dependent representation
         of visual categories in parietal cortex''',
-        'default_timing': {
+        'timing': {
             'fixation': ('constant', 500),
             'sample': ('constant', 650),
             'first_delay': ('constant', 1000),
@@ -135,4 +136,3 @@ class DelayedMatchCategory(ngym.EpochEnv):
                     reward = self.R_FAIL
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
-

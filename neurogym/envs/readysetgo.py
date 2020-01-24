@@ -6,21 +6,23 @@ from __future__ import division
 
 import numpy as np
 from gym import spaces
-from neurogym.ops import tasktools
 import neurogym as ngym
 
 
 class ReadySetGo(ngym.EpochEnv):
     metadata = {
-        'description': 'Agents have to measure and produce different time intervals',
-        'paper_link': 'https://www.sciencedirect.com/science/article/pii/S0896627318304185',
+        'description': '''Agents have to measure and produce different time
+         intervals''',
+        'paper_link': '''https://www.sciencedirect.com/science/article/pii/
+        S0896627318304185''',
         'paper_name': '''Flexible Sensorimotor Computations through Rapid
         Reconfiguration of Cortical Dynamics''',
-        'default_timing': {
+        'timing': {
             'fixation': ('constant', 100),
             'ready': ('constant', 83),
             'measure': ('choice', [800, 1500]),
             'set': ('constant', 83)},
+        'gain': 1,
     }
 
     def __init__(self, dt=80, timing=None, gain=1):
@@ -76,7 +78,7 @@ class ReadySetGo(ngym.EpochEnv):
                 new_trial = self.abort
                 reward = self.R_ABORTED
         if self.in_epoch('production'):
-            t_prod = self.t - self._end_t['measure']  # time from end of measure
+            t_prod = self.t - self._end_t['measure']  # time from end of measur
             eps = abs(t_prod - trial['production'])
             if eps < self.dt/2 + 1:
                 gt[1] = 1
@@ -96,14 +98,18 @@ class ReadySetGo(ngym.EpochEnv):
 
 
 class MotorTiming(ngym.EpochEnv):
+    #  TODO: different actions not implemented
     metadata = {
-        'description': 'Agents have to produce different time intervals using different effectors (actions)',  #  TODO: different actions not implemented
+        'description': '''Agents have to produce different time
+         intervals using different effectors (actions)''',
         'paper_link': 'https://www.nature.com/articles/s41593-017-0028-6',
-        'paper_name': '''Flexible timing by temporal scaling of cortical responses''',
-        'default_timing': {
+        'paper_name': '''Flexible timing by temporal scaling of
+         cortical responses''',
+        'timing': {
             'fixation': ('constant', 500),  # XXX: not specified
             'cue': ('uniform', [1000, 3000]),
-            'set': ('constant', 50)}
+            'set': ('constant', 50)},
+        'gain': 1
     }
 
     def __init__(self, dt=80, timing=None, gain=1):
@@ -148,7 +154,6 @@ class MotorTiming(ngym.EpochEnv):
         ob[:, 0] = 1
         ob[:, self.trial['production_ind'] + 1] = 1
         ob[:, 3] = 1
-
 
     def _step(self, action):
         # ---------------------------------------------------------------------

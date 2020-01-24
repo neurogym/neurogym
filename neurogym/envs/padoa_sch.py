@@ -23,10 +23,12 @@ from gym import spaces
 
 class PadoaSch(ngym.EpochEnv):
     metadata = {
-        'description': 'Agents choose between two stimuli (A and B; where A is preferred) offered in different amounts.',
+        'description': '''Agents choose between two stimuli (A and B; where A
+         is preferred) offered in different amounts.''',
         'paper_link': 'https://www.nature.com/articles/nature04676',
-        'paper_name': '''Neurons in the orbitofrontal cortex encode economic value''',
-        'default_timing': {
+        'paper_name': '''Neurons in the orbitofrontal cortex encode
+         economic value''',
+        'timing': {
             'fixation': ('constant', 1500),
             'offer_on': ('uniform', [1000, 2000]),
             'decision': ('constant', 750)},

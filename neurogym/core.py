@@ -105,7 +105,7 @@ class EpochEnv(TrialEnv):
 
         self.gt = None
 
-        default_timing = self.metadata['default_timing'].copy()
+        default_timing = self.metadata['timing'].copy()
         if timing is not None:
             default_timing.update(timing)
         self._timing = default_timing
@@ -184,7 +184,7 @@ class EpochEnv(TrialEnv):
         self.obs = np.zeros(ob_shape)
 
         # TODO: Allow ground truth to be category or full action
-        self.gt = np.zeros(tmax_ind, dtype=np.int)  # ground truth action, default 0
+        self.gt = np.zeros(tmax_ind, dtype=np.int)  # g. truth action, def. 0
 
     def add_input(self, input, loc=None, epoch=None):
         """Add an input to current observation."""

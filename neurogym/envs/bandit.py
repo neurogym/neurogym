@@ -13,9 +13,13 @@ import neurogym as ngym
 
 class Bandit(ngym.TrialEnv):
     metadata = {
-        'description': 'requires the agent to select between N actions with different reward probabilities.',
+        'description': 'The agent has to select between N actions' +
+        ' with different reward probabilities.',
         'paper_link': 'https://www.nature.com/articles/s41593-018-0147-8',
-        'paper_name': 'Prefrontal cortex as a meta-reinforcement learning system',
+        'paper_name': 'Prefrontal cortex as a meta-reinforcement learning' +
+        ' system',
+        'n_arms': 2,
+        'probs': (.9, .1),
     }
 
     def __init__(self, dt=100, n_arm=2, probs=(.9, .1)):
@@ -60,4 +64,3 @@ class Bandit(ngym.TrialEnv):
         # new trial?
         info['new_trial'] = True
         return obs, reward, False, info
-

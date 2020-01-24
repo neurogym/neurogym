@@ -14,9 +14,12 @@ import neurogym as ngym
 
 class MatchingPenny(ngym.TrialEnv):
     metadata = {
-        'description': 'The agent is rewarded when it selects the same target as the computer,',
+        'description': '''The agent is rewarded when it selects the
+         same target as the computer,''',
         'paper_link': 'https://www.nature.com/articles/nn1209',
-        'paper_name': '''Prefrontal cortex and decision making in a mixed-strategy game''',
+        'paper_name': '''Prefrontal cortex and decision making in a
+         mixed-strategy game''',
+        'opponent_type': None,
     }
 
     def __init__(self, dt=100, opponent_type=None):
@@ -41,7 +44,8 @@ class MatchingPenny(ngym.TrialEnv):
         if self.opponent_type is None:
             opponent_action = int(self.rng.random() > 0.5)
         else:
-            raise ValueError('Unknown opponent type {:s}'.format(self.opponent_type))
+            ot = self.opponent_type
+            raise ValueError('Unknown opponent type {:s}'.format(ot))
 
         self.trial = {
             'opponent_action': opponent_action,

@@ -6,22 +6,25 @@ import numpy as np
 from gym import spaces
 
 import neurogym as ngym
-from neurogym.ops import tasktools
+from neurogym.meta import tasks_info
 
 
 class RDM(ngym.EpochEnv):
     metadata = {
-        'description': 'Random dot motion task. Two-alternative forced choice task in which the subject has to integrate two stimuli to decide which one is higher on average',
+        'description': '''Random dot motion task. Two-alternative forced
+         choice task in which the subject has to integrate two stimuli to
+         decide which one is higher on average''',
         'paper_link': 'https://www.jneurosci.org/content/12/12/4745',
         'paper_name': '''The analysis of visual motion: a comparison of
         neuronal and psychophysical performance''',
-        'default_timing': {
+        'timing': {
             'fixation': ('constant', 100),  # TODO: depends on subject
             'stimulus': ('constant', 2000),
             'decision': ('constant', 100)},  # XXX: not specified
+        'stimEv': 1.,
     }
 
-    def __init__(self, dt=100, timing=None, stimEv=1., **kwargs):
+    def __init__(self, dt=100, timing=None, stimEv=1.):
         super().__init__(dt=dt, timing=timing)
         self.choices = [1, 2]  # [left, right]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
@@ -65,7 +68,6 @@ class RDM(ngym.EpochEnv):
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
-        # TODO: Add comment to template that talks about how this should agree with default
         self.add_epoch('fixation', after=0)
         self.add_epoch('stimulus', after='fixation')
         self.add_epoch('decision', after='stimulus', last_epoch=True)
@@ -120,4 +122,4 @@ class RDM(ngym.EpochEnv):
 
 if __name__ == '__main__':
     env = RDM()
-    tasktools.plot_struct(env, num_steps_env=50000)
+    tasks_info.plot_struct(env, num_steps_env=50000)
