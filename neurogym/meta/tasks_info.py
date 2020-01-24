@@ -13,7 +13,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 metadata_basic_info = ['description', 'paper_name', 'paper_link', 'timing']
 
-def info(task=None, show_code=False, n_stps_plt=100):
+
+def info(task=None, show_code=False, n_stps_plt=200):
     """Script to get tasks info"""
     if task is None:
         tasks = all_tasks.keys()
@@ -29,7 +30,7 @@ def info(task=None, show_code=False, n_stps_plt=100):
         try:
             env = gym.make(task)
             metadata = env.metadata
-            string += "#### {:s}\n\n".format(type(env).__name__)
+            string += "#### {:s}\n\n".format(type(env).__name__) + ' task ####'
             paper_name = metadata.get('paper_name',
                                       None) or 'Missing paper name'
             paper_link = metadata.get('paper_link', None)
@@ -54,9 +55,10 @@ def info(task=None, show_code=False, n_stps_plt=100):
             for key in other_info:
                 string += key + ' : ' + str(metadata[key]) + '\n\n'
             # plot basic structure
-            plot_struct(env, n_stps_plt=n_stps_plt)
+            plot_struct(env, n_stps_plt=n_stps_plt, num_steps_env=n_stps_plt)
             # show source code
             if show_code:
+                string += '''\n#### Source code #### \n\n'''
                 import inspect
                 task_ref = all_tasks[task]
                 from_ = task_ref[:task_ref.find(':')]
@@ -146,7 +148,7 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
     plt.subplot(rows, 1, 3)
     plt.plot(rewards[:n_stps_plt], 'r')
     plt.xlim([-0.5, n_stps_plt+0.5])
-    plt.title('reward. ' + name + '  ' + str(np.mean(perf)))
+    plt.title('reward. ' + name + '  ' + str(np.round(np.mean(perf), 3)))
     plt.tight_layout()
     if model is not None:
         plt.subplot(rows, 1, 4)
