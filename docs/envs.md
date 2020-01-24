@@ -1,16 +1,16 @@
 ### List of environments implemented
 
-* 24 tasks implemented so far.
+* 23 tasks implemented so far.
 
 * Under development, details subject to change
 
 #### AngleReproduction
 
-Missing description
+The agent has to reproduce to two angles separated by a constant delay.
 
 Reference paper: 
 
-[Visual perception as retrospective Bayesian 
+[Visual perception as retrospective Bayesian
         decoding from high- to low-level features](https://www.pnas.org/content/114/43/E9115.short)
 
 Default Epoch timing (ms) 
@@ -31,7 +31,7 @@ go2 : constant 500
 
 #### AntiReach1D
 
-Missing description
+The agent has to move in the direction opposite to the one indicated by the observation
 
 Reference paper: 
 
@@ -46,7 +46,7 @@ reach : constant 500
 
 #### Bandit
 
-requires the agent to select between N actions with different reward probabilities.
+The agent has to select between N actions with different reward probabilities.
 
 Reference paper: 
 
@@ -58,7 +58,8 @@ A sample is followed by a delay and a test. Agents have to report if the pair sa
 
 Reference paper: 
 
-[Active information maintenance in working memory by a sensory cortex](https://elifesciences.org/articles/43191)
+[Active information maintenance in working memory' +
+        ' by a sensory cortex](https://elifesciences.org/articles/43191)
 
 Default Epoch timing (ms) 
 
@@ -76,11 +77,11 @@ decision : constant 500
 
 #### DawTwoStep
 
-Missing description
+On each trial, an initial choice between two options lead to either of two, second-stage states. In turn, these both demand another two-option choice, each of which is associated with  a different chance of receiving reward.
 
 Reference paper: 
 
-[Model-Based Influences on Humans' 
+[Model-Based Influences on Humans'
         Choices and Striatal Prediction Errors](https://www.sciencedirect.com/science/article/pii/S0896627311001255)
 
 #### DelayedMatchCategory
@@ -112,7 +113,7 @@ A sample stimulus is followed by a delay and test. Agents are required to indica
 
 Reference paper: 
 
-[Neural Mechanisms of Visual Working Memory 
+[Neural Mechanisms of Visual Working Memory
         in Prefrontal Cortex of the Macaque](https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf)
 
 Default Epoch timing (ms) 
@@ -133,7 +134,7 @@ Missing description
 
 Reference paper: 
 
-[Neural Mechanisms of Visual Working Memory 
+[Neural Mechanisms of Visual Working Memory
         in Prefrontal Cortex of the Macaque](https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf)
 
 Default Epoch timing (ms) 
@@ -180,7 +181,8 @@ Go/No-Go task in which the subject has either Go (e.g. lick) or not Go depending
 
 Reference paper: 
 
-[Active information maintenance in working memory by a sensory cortex](https://elifesciences.org/articles/43191)
+[Active information maintenance in working memory' +
+        ' by a sensory cortex](https://elifesciences.org/articles/43191)
 
 Default Epoch timing (ms) 
 
@@ -192,38 +194,14 @@ resp_delay : constant 500
 
 decision : constant 500
 
-#### GenTask
-
-Missing description
-
-Reference paper: 
-
-Missing paper name
-
-Missing paper link
-
-Default Epoch timing (ms) 
-
-fixation : truncated_exponential [500, 200, 800]
-
-stim1 : truncated_exponential [500, 200, 800]
-
-delay_btw_stim : truncated_exponential [500, 200, 800]
-
-stim2 : truncated_exponential [500, 200, 800]
-
-delay_aft_stim : truncated_exponential [500, 200, 800]
-
-decision : truncated_exponential [500, 200, 800]
-
 #### IntervalDiscrimination
 
 Agents have to report which of two stimuli presented sequentially is longer.
 
 Reference paper: 
 
-[Feature- and Order-Based Timing Representations 
-        in the Frontal Cortex](https://www.sciencedirect.com/science/article/pii/S0896627309004887)
+[Feature- and Order-Based Timing Representations
+         in the Frontal Cortex](https://www.sciencedirect.com/science/article/pii/S0896627309004887)
 
 Default Epoch timing (ms) 
 
@@ -245,8 +223,8 @@ Agent has to perform one of two different perceptual discriminations. On every t
 
 Reference paper: 
 
-[Context-dependent computation by recurrent 
-        dynamics in prefrontal cortex](https://www.nature.com/articles/nature12742)
+[Context-dependent computation by recurrent
+         dynamics in prefrontal cortex](https://www.nature.com/articles/nature12742)
 
 Default Epoch timing (ms) 
 
@@ -262,11 +240,13 @@ decision : constant 100
 
 #### MatchingPenny
 
-The agent is rewarded when it selects the same target as the computer,
+The agent is rewarded when it selects the
+         same target as the computer,
 
 Reference paper: 
 
-[Prefrontal cortex and decision making in a mixed-strategy game](https://www.nature.com/articles/nn1209)
+[Prefrontal cortex and decision making in a
+         mixed-strategy game](https://www.nature.com/articles/nn1209)
 
 #### MemoryRecall
 
@@ -280,11 +260,13 @@ Missing paper link
 
 #### MotorTiming
 
-Agents have to produce different time intervals using different effectors (actions)
+Agents have to produce different time
+         intervals using different effectors (actions)
 
 Reference paper: 
 
-[Flexible timing by temporal scaling of cortical responses](https://www.nature.com/articles/s41593-017-0028-6)
+[Flexible timing by temporal scaling of
+         cortical responses](https://www.nature.com/articles/s41593-017-0028-6)
 
 Default Epoch timing (ms) 
 
@@ -296,7 +278,9 @@ set : constant 50
 
 #### nalt_RDM
 
-N-alternative forced choice task in which the subject has to integrate N stimuli to decide which one is higher on average
+N-alternative forced choice task in which the subject
+         has to integrate N stimuli to decide which one is higher
+          on average
 
 Reference paper: 
 
@@ -314,7 +298,9 @@ decision : constant 500
 
 #### RDM
 
-Random dot motion task. Two-alternative forced choice task in which the subject has to integrate two stimuli to decide which one is higher on average
+Random dot motion task. Two-alternative forced
+         choice task in which the subject has to integrate two stimuli to
+         decide which one is higher on average
 
 Reference paper: 
 
@@ -331,7 +317,8 @@ decision : constant 100
 
 #### Reaching1D
 
-Missing description
+The agent has to reproduce the angle indicated
+         by the observation
 
 Reference paper: 
 
@@ -345,7 +332,9 @@ reach : constant 500
 
 #### Reaching1DWithSelfDistraction
 
-Missing description
+The agent has to reproduce the angle indicated
+         by the observation. Furthermore, the reaching state itself
+         generates strong inputs that overshadows the actual target input
 
 Reference paper: 
 
@@ -361,12 +350,14 @@ reach : constant 500
 
 #### ReadySetGo
 
-Agents have to measure and produce different time intervals
+Agents have to measure and produce different time
+         intervals
 
 Reference paper: 
 
 [Flexible Sensorimotor Computations through Rapid
-        Reconfiguration of Cortical Dynamics](https://www.sciencedirect.com/science/article/pii/S0896627318304185)
+        Reconfiguration of Cortical Dynamics](https://www.sciencedirect.com/science/article/pii/
+        S0896627318304185)
 
 Default Epoch timing (ms) 
 
@@ -401,11 +392,13 @@ decision : constant 100
 
 #### PadoaSch
 
-Agents choose between two stimuli (A and B; where A is preferred) offered in different amounts.
+Agents choose between two stimuli (A and B; where A
+         is preferred) offered in different amounts.
 
 Reference paper: 
 
-[Neurons in the orbitofrontal cortex encode economic value](https://www.nature.com/articles/nature04676)
+[Neurons in the orbitofrontal cortex encode
+         economic value](https://www.nature.com/articles/nature04676)
 
 Default Epoch timing (ms) 
 
@@ -417,12 +410,16 @@ decision : constant 750
 
 #### PDWager
 
-Agents do a discrimination task (see RDM). On a random half of the trials, the agent is given the option to abort the direction discrimination and to choose instead a small but certain reward associated with a action.
+Agents do a discrimination task (see RDM). On a
+         random half of the trials, the agent is given the option to abort
+         the direction discrimination and to choose instead a small but
+         certain reward associated with a action.
 
 Reference paper: 
 
 [Representation of Confidence Associated with a
-         Decision by Neurons in the Parietal Cortex](https://science.sciencemag.org/content/324/5928/759.long)
+         Decision by Neurons in the Parietal Cortex](https://science.sciencemag.org/content/324/5928/
+        759.long)
 
 Default Epoch timing (ms) 
 
