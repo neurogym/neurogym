@@ -103,7 +103,6 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
         obs_cum_temp += obs
         obs_cum.append(obs_cum_temp.copy())
         if isinstance(info, list):
-            print(info)
             info = info[0]
             obs_aux = obs[0]
             rew = rew[0]
@@ -135,12 +134,14 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
     obs = np.array(observations)
     obs_cum = np.array(obs_cum)
     plt.figure(figsize=(8, 8))
+    # obs
     plt.subplot(rows, 1, 1)
     plt.imshow(obs[:n_stps_plt, :].T, aspect='auto')
     plt.title('observations ' + type(env).__name__ + ' task')
     ax = plt.gca()
     ax.set_xticks([])
     ax.set_yticks([])
+    # actions
     plt.subplot(rows, 1, 2)
     plt.plot(actions[:n_stps_plt], marker='+', label='actions')
     gt = np.array(gt)
@@ -152,16 +153,23 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
     plt.legend()
     ax = plt.gca()
     ax.set_xticks([])
+    # rewards
     plt.subplot(rows, 1, 3)
     plt.plot(rewards[:n_stps_plt], 'r')
     plt.xlim([-0.5, n_stps_plt+0.5])
     plt.title('reward ' + ' (' + str(np.round(np.mean(perf), 3)) + ')')
-    plt.xlabel('timesteps')
-    plt.tight_layout()
     if model is not None:
+        ax = plt.gca()
+        ax.set_xticks([])
         plt.subplot(rows, 1, 4)
         plt.imshow(states[:n_stps_plt, int(states.shape[1]/2):].T,
                    aspect='auto')
+        plt.title('network activity')
+        ax = plt.gca()
+        ax.set_xticks([])
+
+    plt.xlabel('timesteps')
+    plt.tight_layout()
     plt.show()
 
     data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
