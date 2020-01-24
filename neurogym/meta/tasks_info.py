@@ -11,7 +11,7 @@ import neurogym as ngym
 from neurogym import all_tasks
 import matplotlib.pyplot as plt
 import numpy as np
-
+metadata_basic_info = ['description', 'paper_name', 'paper_link', 'timing']
 
 def info(task=None, n_stps_plt=100):
     """Script to get tasks info"""
@@ -42,13 +42,18 @@ def info(task=None, n_stps_plt=100):
                 string += 'Missing paper link\n\n'
             else:
                 string += "[{:s}]({:s})\n\n".format(paper_name, paper_link)
-
+            # add timing info
             if isinstance(env, ngym.EpochEnv):
                 timing = metadata['timing']
                 string += 'Default Epoch timing (ms) \n\n'
                 for key, val in timing.items():
                     dist, args = val
                     string += key + ' : ' + dist + ' ' + str(args) + '\n\n'
+            # add extra info
+            other_info = list(set(metadata.keys()) - set(metadata_basic_info))
+            for key in other_info:
+                string += key + ' : ' + metadata[key] + '\n\n'
+            # plot basic structure
             plot_struct(env, n_stps_plt=n_stps_plt)
         except BaseException as e:
             print('Failure in ', type(env).__name__)
