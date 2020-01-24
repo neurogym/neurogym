@@ -31,6 +31,7 @@ class ManageData(Wrapper):
         self.reward_mat = []
         self.cum_obs = 0
         self.cum_rew = 0
+        self.num_tr_save = num_tr_save
         if folder is not None:
             self.folder = folder + '/'
         else:
