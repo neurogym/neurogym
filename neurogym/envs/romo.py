@@ -15,6 +15,7 @@ A parametric working memory task, based on
 import numpy as np
 from gym import spaces
 import neurogym as ngym
+from neurogym.meta import tasks_info
 
 
 class Romo(ngym.EpochEnv):
@@ -123,3 +124,8 @@ class Romo(ngym.EpochEnv):
                     reward = self.R_FAIL
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+
+
+if __name__ == '__main__':
+    env = Romo()
+    tasks_info.plot_struct(env, num_steps_env=50000)

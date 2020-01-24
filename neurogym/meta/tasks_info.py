@@ -133,7 +133,6 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
         states = None
     obs = np.array(observations)
     obs_cum = np.array(obs_cum)
-    obs_cum = obs_cum[:, 1] - obs_cum[:, 2]
     plt.figure(figsize=(8, 8))
     plt.subplot(rows, 1, 1)
     plt.imshow(obs[:n_stps_plt, :].T, aspect='auto')
