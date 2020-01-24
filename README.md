@@ -28,12 +28,16 @@ You can perform a minimal install of ``neurogym`` with:
 ### Implemented tasks
 Currently implemented tasks can be found [here](https://github.com/gyyang/neurogym/blob/master/docs/envs.md).
 
+### Wrappers
+
+Wrappers are short scripts that allow introducing modifications the original tasks. For instance, the Random Dots Motion task can be transformed into a reaction time task by passing it through the *reaction_time* wrapper. Alternatively, the *combine* wrapper allows training an agent in two different tasks simultaneously. 
+
 ### Example
 
 NeuroGym can be used together with the openAi toolbox [Stable Baselines](https://github.com/hill-a/stable-baselines) (a set of implementations of reinforcement learning algorithms). [The notebook example_NeuroGym_stable_baselines.ipynb](https://github.com/gyyang/neurogym/blob/master/neurogym/examples/example_NeuroGym_stable_baselines.ipynb) shows how to do it.
 
 
-### Contributing
+### Contributing new tasks
 Contributing new tasks is easy. The script [template](https://github.com/gyyang/neurogym/blob/master/neurogym/meta/template.py) in the *meta* folder provides the basic structure that any new task should have:
 
 ```
@@ -70,11 +74,6 @@ class TASKNAME(ngym.EpochEnv):
 
 ```
 
-
-
-### Wrappers
-
-Wrappers are short scripts that allow introducing modifications the original tasks. For instance, the Random Dots Motion task can be transformed into a reaction time task by passing it through the *reaction_time* wrapper. Alternatively, the *combine* wrapper allows training an agent in two different tasks simultaneously. 
 
 
 
