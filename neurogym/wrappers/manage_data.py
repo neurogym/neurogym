@@ -66,8 +66,6 @@ class ManageData(Wrapper):
 
                 np.savez(self.saving_name + '_bhvr_data_' +
                          str(self.num_tr) + '.npz', **data)
-                if self.plt_tr:
-                    self.render()
 
                 self.choice_mat = []
                 self.gt_mat = []
