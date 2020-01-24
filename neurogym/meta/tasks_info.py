@@ -103,6 +103,7 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
         obs_cum_temp += obs
         obs_cum.append(obs_cum_temp.copy())
         if isinstance(info, list):
+            print(info)
             info = info[0]
             obs_aux = obs[0]
             rew = rew[0]
