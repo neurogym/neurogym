@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 metadata_basic_info = ['description', 'paper_name', 'paper_link', 'timing']
 
-def info(task=None, n_stps_plt=100):
+def info(task=None, show_code=False, n_stps_plt=100):
     """Script to get tasks info"""
     if task is None:
         tasks = all_tasks.keys()
@@ -52,9 +52,19 @@ def info(task=None, n_stps_plt=100):
             # add extra info
             other_info = list(set(metadata.keys()) - set(metadata_basic_info))
             for key in other_info:
-                string += key + ' : ' + metadata[key] + '\n\n'
+                string += key + ' : ' + str(metadata[key]) + '\n\n'
             # plot basic structure
             plot_struct(env, n_stps_plt=n_stps_plt)
+            # show source code
+            if show_code:
+                import inspect
+                task_ref = all_tasks[task]
+                from_ = task_ref[:task_ref.find(':')]
+                class_ = task_ref[task_ref.find(':')+1:]
+                imported = getattr(__import__(from_, fromlist=[class_]),
+                                   class_)
+                lines = inspect.getsource(imported)
+                string += lines + '\n\n'
         except BaseException as e:
             print('Failure in ', type(env).__name__)
             print(e)
@@ -152,4 +162,4 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
 
 
 if __name__ == '__main__':
-    info('RDM-v0')
+    info('RDM-v0', show_code=True)
