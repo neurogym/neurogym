@@ -30,7 +30,7 @@ def info(task=None, show_code=False, n_stps_plt=200):
         try:
             env = gym.make(task)
             metadata = env.metadata
-            string += "#### {:s}\n\n".format(type(env).__name__) + ' task ####'
+            string += "### {:s} task ###\n\n".format(type(env).__name__)
             paper_name = metadata.get('paper_name',
                                       None) or 'Missing paper name'
             paper_link = metadata.get('paper_link', None)
@@ -55,6 +55,7 @@ def info(task=None, show_code=False, n_stps_plt=200):
             for key in other_info:
                 string += key + ' : ' + str(metadata[key]) + '\n\n'
             # plot basic structure
+            print('#### Example trials ####')
             plot_struct(env, n_stps_plt=n_stps_plt, num_steps_env=n_stps_plt)
             # show source code
             if show_code:
@@ -74,7 +75,7 @@ def info(task=None, show_code=False, n_stps_plt=200):
 
 
 def plot_struct(env, num_steps_env=200, n_stps_plt=200,
-                def_act=None, model=None, name=''):
+                def_act=None, model=None):
     if isinstance(env, str):
         env = gym.make(env)
     observations = []
@@ -136,7 +137,7 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
     plt.figure(figsize=(8, 8))
     plt.subplot(rows, 1, 1)
     plt.imshow(obs[:n_stps_plt, :].T, aspect='auto')
-    plt.title('observations ' + name + ' task')
+    plt.title('observations ' + type(env).__name__ + ' task')
     ax = plt.gca()
     ax.set_xticks([])
     ax.set_yticks([])
