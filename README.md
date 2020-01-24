@@ -54,22 +54,7 @@ class TASKNAME(ngym.EpochEnv):
         1. The ground truth: the correct answer for the created trial.
         2. The trial periods: fixation, stimulus...
             """
-        # ---------------------------------------------------------------------
-        # Trial
-        # ---------------------------------------------------------------------
      
-        # ---------------------------------------------------------------------
-        # Epochs
-        # ---------------------------------------------------------------------
-      
-        # ---------------------------------------------------------------------
-        # Observations
-        # ---------------------------------------------------------------------
-     
-        # ---------------------------------------------------------------------
-        # Ground truth
-        # ---------------------------------------------------------------------
-  
     def _step(self, action):
         """
         _step receives an action and returns:
@@ -81,7 +66,7 @@ class TASKNAME(ngym.EpochEnv):
                 boolean indicating the end of the trial, info['new_trial']
         """
 
-        return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return obs, reward, done, {'new_trial': new_trial, 'gt': gt}
 
 ```
 
