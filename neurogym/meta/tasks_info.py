@@ -15,7 +15,7 @@ import numpy as np
 metadata_basic_info = ['description', 'paper_name', 'paper_link', 'timing']
 
 
-def info(task=None, show_code=False, n_stps_plt=200):
+def info(task=None, show_code=False, show_fig=False, n_stps_plt=200):
     """Script to get tasks info"""
     if task is None:
         tasks = all_tasks.keys()
@@ -36,7 +36,7 @@ def info(task=None, show_code=False, n_stps_plt=200):
             paper_link = metadata.get('paper_link', None)
             task_description = metadata.get('description',
                                             None) or 'Missing description'
-            string += "{:s}\n\n".format(task_description)
+            string += "Logic: {:s}\n\n".format(task_description)
             string += "Reference paper: \n\n"
             if paper_link is None:
                 string += "{:s}\n\n".format(paper_name)
@@ -55,8 +55,10 @@ def info(task=None, show_code=False, n_stps_plt=200):
             for key in other_info:
                 string += key + ' : ' + str(metadata[key]) + '\n\n'
             # plot basic structure
-            print('#### Example trials ####')
-            plot_struct(env, n_stps_plt=n_stps_plt, num_steps_env=n_stps_plt)
+            if show_fig:
+                print('#### Example trials ####')
+                plot_struct(env, n_stps_plt=n_stps_plt,
+                            num_steps_env=n_stps_plt)
             # show source code
             if show_code:
                 string += '''\n#### Source code #### \n\n'''
@@ -98,7 +100,7 @@ def info_wrapper(wrapper=None, show_code=False):
             paper_link = metadata.get('paper_link', None)
             wrapper_description = metadata.get('description',
                                                None) or 'Missing description'
-            string += "{:s}\n\n".format(wrapper_description)
+            string += "Logic: {:s}\n\n".format(wrapper_description)
             if paper_name is not None:
                 string += "Reference paper: \n\n"
                 if paper_link is None:
@@ -107,6 +109,7 @@ def info_wrapper(wrapper=None, show_code=False):
                     string += "[{:s}]({:s})\n\n".format(paper_name,
                                                         paper_link)
             # add extra info
+            string += "Input parameters: \n\n"
             other_info = list(set(metadata.keys()) - set(metadata_basic_info))
             for key in other_info:
                 string += key + ' : ' + str(metadata[key]) + '\n\n'
