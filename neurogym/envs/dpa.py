@@ -20,7 +20,7 @@ class DPA(ngym.EpochEnv):
         ' or not.',
         'paper_link': 'https://elifesciences.org/articles/43191',
         'paper_name': 'Active information maintenance in working memory' +
-        ' by a sensory cortex,
+        ' by a sensory cortex',
         'timing': {
             'fixation': ('constant', 0),
             'stim1': ('constant', 1000),

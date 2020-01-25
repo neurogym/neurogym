@@ -58,8 +58,7 @@ A sample is followed by a delay and a test. Agents have to report if the pair sa
 
 Reference paper: 
 
-[Active information maintenance in working memory' +
-        ' by a sensory cortex](https://elifesciences.org/articles/43191)
+[Active information maintenance in working memory by a sensory cortex](https://elifesciences.org/articles/43191)
 
 Default Epoch timing (ms) 
 
@@ -182,8 +181,7 @@ Go/No-Go task in which the subject has either Go (e.g. lick) or not Go depending
 
 Reference paper: 
 
-[Active information maintenance in working memory' +
-        ' by a sensory cortex](https://elifesciences.org/articles/43191)
+[Active information maintenance in working memory by a sensory cortex](https://elifesciences.org/articles/43191)
 
 Default Epoch timing (ms) 
 
@@ -357,8 +355,7 @@ Agents have to measure and produce different time
 Reference paper: 
 
 [Flexible Sensorimotor Computations through Rapid
-        Reconfiguration of Cortical Dynamics](https://www.sciencedirect.com/science/article/pii/
-        S0896627318304185)
+        Reconfiguration of Cortical Dynamics](https://www.sciencedirect.com/science/article/pii/S0896627318304185)
 
 Default Epoch timing (ms) 
 

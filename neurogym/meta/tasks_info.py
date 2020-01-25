@@ -9,6 +9,7 @@ Created on Thu Jan 23 11:04:58 2020
 import gym
 import neurogym as ngym
 from neurogym import all_tasks
+from neurogym.wrappers import all_wrappers
 import matplotlib.pyplot as plt
 import numpy as np
 metadata_basic_info = ['description', 'paper_name', 'paper_link', 'timing']
@@ -23,7 +24,6 @@ def info(task=None, show_code=False, n_stps_plt=200):
             string += env_name + '\n'
         print('### List of environments implemented\n\n')
         print("* {0} tasks implemented so far.\n\n".format(len(tasks)))
-        print('* Under development, details subject to change\n\n')
         print(string)
     else:
         string = ''
@@ -70,6 +70,55 @@ def info(task=None, show_code=False, n_stps_plt=200):
                 string += lines + '\n\n'
         except BaseException as e:
             print('Failure in ', type(env).__name__)
+            print(e)
+        print(string)
+
+
+def info_wrapper(wrapper=None, show_code=False):
+    """Script to get wrappers info"""
+    if wrapper is None:
+        wrappers = all_wrappers.keys()
+        string = ''
+        for env_name in sorted(wrappers):
+            string += env_name + '\n'
+        print('### List of wrappers implemented\n\n')
+        print("* {0} wrappers implemented so far.\n\n".format(len(wrappers)))
+        print(string)
+    else:
+        string = ''
+        try:
+            wrapp_ref = all_wrappers[wrapper]
+            from_ = wrapp_ref[:wrapp_ref.find(':')]
+            class_ = wrapp_ref[wrapp_ref.find(':')+1:]
+            imported = getattr(__import__(from_, fromlist=[class_]), class_)
+            metadata = imported.metadata
+            string += "### {:s} wrapper ###\n\n".format(wrapper)
+            paper_name = metadata.get('paper_name',
+                                      None)
+            paper_link = metadata.get('paper_link', None)
+            wrapper_description = metadata.get('description',
+                                               None) or 'Missing description'
+            string += "{:s}\n\n".format(wrapper_description)
+            if paper_name is not None:
+                string += "Reference paper: \n\n"
+                if paper_link is None:
+                    string += "{:s}\n\n".format(paper_name)
+                else:
+                    string += "[{:s}]({:s})\n\n".format(paper_name,
+                                                        paper_link)
+            # add extra info
+            other_info = list(set(metadata.keys()) - set(metadata_basic_info))
+            for key in other_info:
+                string += key + ' : ' + str(metadata[key]) + '\n\n'
+
+            # show source code
+            if show_code:
+                string += '''\n#### Source code #### \n\n'''
+                import inspect
+                lines = inspect.getsource(imported)
+                string += lines + '\n\n'
+        except BaseException as e:
+            print('Failure in ', wrapper)
             print(e)
         print(string)
 
@@ -183,4 +232,7 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
 
 
 if __name__ == '__main__':
-    info('RDM-v0', show_code=True)
+    info()
+    # info('RDM-v0', show_code=True)
+    info_wrapper()
+    info_wrapper('ReactionTime-v0', show_code=True)
