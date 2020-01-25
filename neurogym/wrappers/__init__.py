@@ -6,5 +6,14 @@ from neurogym.wrappers.pass_action import PassAction
 from neurogym.wrappers.reaction_time import ReactionTime
 from neurogym.wrappers.side_bias import SideBias
 from neurogym.wrappers.trial_hist import TrialHistory
-from neurogym.wrappers.trial_hist_nalt import TrialHistory_NAlt
-from neurogym.wrappers.trial_hist_reset import TrHReset
+
+all_wrappers = {'CatchTrials-v0': 'neurogym.wrappers.catch_trials:CatchTrials',
+                'Monitor-v0': 'neurogym.wrappers.monitor:Monitor',
+                'Noise-v0': 'neurogym.wrappers.noise:Noise',
+                'PassReward-v0': 'neurogym.wrappers.pass_reward:PassReward',
+                'PassAction-v0': 'neurogym.wrappers.pass_action:PassAction',
+                'ReactionTime-v0':
+                    'neurogym.wrappers.reaction_time:ReactionTime',
+                'SideBias-v0': 'neurogym.wrappers.side_bias:SideBias',
+                'TrialHistory-v0': 'neurogym.wrappers.trial_hist:TrialHistory'
+                }

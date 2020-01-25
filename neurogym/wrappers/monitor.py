@@ -11,7 +11,7 @@ import os
 import numpy as np
 
 
-class ManageData(Wrapper):
+class Monitor(Wrapper):
     metadata = {
         'description': '''saves relevant behavioral information: rewards,
          actions, observations, new trial, ground truth''',
