@@ -1,8 +1,8 @@
+* Under development, details subject to change
+
 ### List of environments implemented
 
 * 23 tasks implemented so far.
-
-* Under development, details subject to change
 
 #### AngleReproduction
 
@@ -437,4 +437,86 @@ delay : truncated_exponential [1350, 1200, 1800]
 pre_sure : uniform [500, 750]
 
 decision : constant 100
+
+* 
+
+
+
+
+### List of wrappers implemented
+
+* 8 wrappers implemented so far.
+
+#### CatchTrials-v0
+
+Introduces catch trials in which the reward for
+         a correct choice is modified (e.g. is set to the reward for an
+         incorrect choice). Note that the wrapper only changes the reward
+         associated to a correct answer and does not change the ground truth.
+         Thus, the catch trial affect a pure supervised learning setting.
+
+Reference paper: 
+
+
+
+#### Monitor-v0
+
+saves relevant behavioral information: rewards,
+         actions, observations, new trial, ground truth
+
+Reference paper: 
+
+
+
+#### Noise-v0
+
+Add Gaussian noise to the observations.
+
+Reference paper: 
+
+
+
+#### PassAction-v0
+
+Modifies observation by adding the previous
+        action.
+
+Reference paper: 
+
+
+
+#### PassReward-v0
+
+Modifies observation by adding the previous
+        reaard.
+
+Reference paper: 
+
+
+
+#### ReactionTime-v0
+
+modfies a given environment by allowing the network
+        to act at any time after the fixation period.
+
+Reference paper: 
+
+
+
+#### SideBias-v0
+
+Changes the probability of ground truth.
+
+Reference paper: 
+
+
+
+#### TrialHistory-v0
+
+Change ground truth probability based on previous outcome.
+
+Reference paper: 
+
+[Response outcomes gate the impact of expectations ' +
+        'on perceptual decisions](https://www.biorxiv.org/content/10.1101/433409v3)
 

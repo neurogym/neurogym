@@ -1,5 +1,5 @@
 from neurogym.wrappers.catch_trials import CatchTrials
-from neurogym.wrappers.manage_data import ManageData
+from neurogym.wrappers.monitor import Monitor
 from neurogym.wrappers.noise import Noise
 from neurogym.wrappers.pass_reward import PassReward
 from neurogym.wrappers.pass_action import PassAction
