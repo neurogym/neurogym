@@ -14,7 +14,13 @@ from gym import spaces
 
 
 class PassReward(Wrapper):
-    """Modifies a given observation by adding the reward."""
+    metadata = {
+        'description': """Modifies observation by adding the previous
+        reaard.""",
+        'paper_link': None,
+        'paper_name': None,
+    }
+
     def __init__(self, env):
         super().__init__(env)
         self.env = env

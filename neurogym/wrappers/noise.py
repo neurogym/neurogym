@@ -10,7 +10,13 @@ import numpy as np
 
 
 class Noise(Wrapper):
-    """Add Gaussian noise to the observations."""
+    metadata = {
+        'description': """Add Gaussian noise to the observations.""",
+        'paper_link': None,
+        'paper_name': None,
+        'std_noise': 'Standard deviation of noise. (def: 0.1)',
+    }
+
     def __init__(self, env, std_noise=.1):
         super().__init__(env)
         self.env = env

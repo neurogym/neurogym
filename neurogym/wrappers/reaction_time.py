@@ -10,10 +10,13 @@ from gym.core import Wrapper
 
 
 class ReactionTime(Wrapper):
-    """
-    modfies a given environment by allowing the network to act at any time
-    after the fixation period
-    """
+    metadata = {
+        'description': """modfies a given environment by allowing the network
+        to act at any time after the fixation period.""",
+        'paper_link': None,
+        'paper_name': None,
+    }
+
     def __init__(self, env):
         Wrapper.__init__(self, env=env)
         self.env = env

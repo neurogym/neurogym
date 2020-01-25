@@ -13,13 +13,22 @@ import matplotlib.pyplot as plt
 
 
 class CatchTrials(Wrapper):
-    """
-    introduces catch trials in which the reward for a correct choice
-    is modified (by default, is equal to reward for an incorrect choice).
-    Note that the wrapper only changes the reward associated to a correct
-    answer and does not change the ground truth. Thus, the catch trial would
-    not be entirely complete for supervised learning.
-    """
+    metadata = {
+        'description': """Introduces catch trials in which the reward for
+         a correct choice is modified (e.g. is set to the reward for an
+         incorrect choice). Note that the wrapper only changes the reward
+         associated to a correct answer and does not change the ground truth.
+         Thus, the catch trial affect a pure supervised learning setting.""",
+        'paper_link': None,
+        'paper_name': None,
+        'catch_prob': 'Catch trial probability. (def: 0.1)',
+        'stim_th': '''Percentile of stimulus distribution below which catch
+        trials are allowed (in some cases, experimenter might decide not
+        to have catch trials when  stimulus is very obvious) (def: 50)''',
+        'start': '''Number of trials after which the catch trials can occur.
+        (def: 0)'''
+    }
+
     def __init__(self, env, catch_prob=0.1, stim_th=50, start=0):
         Wrapper.__init__(self, env=env)
         self.env = env

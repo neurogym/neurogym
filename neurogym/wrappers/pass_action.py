@@ -14,7 +14,13 @@ from gym import spaces
 
 
 class PassAction(Wrapper):
-    """Modifies a given observation by adding the previous action"""
+    metadata = {
+        'description': """Modifies observation by adding the previous
+        action.""",
+        'paper_link': None,
+        'paper_name': None,
+    }
+
     def __init__(self, env):
         super().__init__(env)
         self.env = env

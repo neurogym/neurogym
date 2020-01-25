@@ -17,7 +17,9 @@ class ManageData(Wrapper):
          actions, observations, new trial, ground truth''',
         'paper_link': None,
         'paper_name': None,
-        'folder': None,
+        'folder': 'Folder where the data will be saved. (def: None)',
+        'num_tr_save': '''Data will be saved every num_tr_save trials.
+        (def: 100000)''',
     }
 
     def __init__(self, env, folder=None, num_tr_save=100000):
