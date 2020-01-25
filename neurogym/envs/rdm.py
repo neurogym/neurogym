@@ -21,7 +21,7 @@ class RDM(ngym.EpochEnv):
             'fixation': ('constant', 100),  # TODO: depends on subject
             'stimulus': ('constant', 2000),
             'decision': ('constant', 100)},  # XXX: not specified
-        'stimEv': 1.,
+        'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
     }
 
     def __init__(self, dt=100, timing=None, stimEv=1.):

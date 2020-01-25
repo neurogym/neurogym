@@ -22,7 +22,7 @@ class ReadySetGo(ngym.EpochEnv):
             'ready': ('constant', 83),
             'measure': ('choice', [800, 1500]),
             'set': ('constant', 83)},
-        'gain': 1,
+        'gain': 'Controls the measure that the agent has to produce. (def: 1)',
     }
 
     def __init__(self, dt=80, timing=None, gain=1):
@@ -109,14 +109,12 @@ class MotorTiming(ngym.EpochEnv):
             'fixation': ('constant', 500),  # XXX: not specified
             'cue': ('uniform', [1000, 3000]),
             'set': ('constant', 50)},
-        'gain': 1
     }
 
-    def __init__(self, dt=80, timing=None, gain=1):
+    def __init__(self, dt=80, timing=None):
         super().__init__(dt=dt, timing=timing)
 
         self.sigma = np.sqrt(2*100*0.01)
-        self.gain = gain
         self.production_ind = [0, 1]
         self.intervals = [800, 1500]
 

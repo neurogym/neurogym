@@ -28,7 +28,8 @@ class DPA(ngym.EpochEnv):
             'stim2': ('constant', 1000),
             'delay_aft_stim': ('constant', 1000),
             'decision': ('constant', 500)},
-        'noise': 0.01,
+        'noise': '''Standard deviation of the Gaussian noise added to
+        the stimulus. (def: 0.01)''',
     }
 
     def __init__(self, dt=100, timing=None, noise=0.01):

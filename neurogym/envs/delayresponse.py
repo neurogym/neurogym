@@ -29,7 +29,7 @@ class DR(ngym.EpochEnv):
             'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
             'go_cue': ('constant', 100),
             'decision': ('constant', 1500)},
-        'stimEv': 1.,
+        'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
     }
 
     def __init__(self, dt=100, timing=None, stimEv=1.):

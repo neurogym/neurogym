@@ -18,8 +18,8 @@ class Bandit(ngym.TrialEnv):
         'paper_link': 'https://www.nature.com/articles/s41593-018-0147-8',
         'paper_name': 'Prefrontal cortex as a meta-reinforcement learning' +
         ' system',
-        'n_arms': 2,
-        'probs': (.9, .1),
+        'n_arms': 'Number of arms. (def: 2)',
+        'probs': 'Reward probabilities for each arm. (def: (.9, .1))',
     }
 
     def __init__(self, dt=100, n_arm=2, probs=(.9, .1)):

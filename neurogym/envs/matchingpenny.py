@@ -19,10 +19,10 @@ class MatchingPenny(ngym.TrialEnv):
         'paper_link': 'https://www.nature.com/articles/nn1209',
         'paper_name': '''Prefrontal cortex and decision making in a
          mixed-strategy game''',
-        'opponent_type': None,
+        'opponent_type': '''Type of opponent. (def: 'random')''',
     }
 
-    def __init__(self, dt=100, opponent_type=None):
+    def __init__(self, dt=100, opponent_type='random'):
         super().__init__(dt=dt)
         # TODO: remain to be carefully tested
         # Opponent Type
@@ -41,7 +41,7 @@ class MatchingPenny(ngym.TrialEnv):
         # ---------------------------------------------------------------------
         # TODO: Add more types of opponents
         # determine the transitions
-        if self.opponent_type is None:
+        if self.opponent_type == 'random':
             opponent_action = int(self.rng.random() > 0.5)
         else:
             ot = self.opponent_type

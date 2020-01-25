@@ -35,8 +35,8 @@ class nalt_RDM(ngym.EpochEnv):
             'fixation': ('constant', 500),
             'stimulus': ('truncated_exponential', [330, 80, 1500]),
             'decision': ('constant', 500)},
-        'stimEv': 1.,
-        'n_ch': 3,
+        'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
+        'n_ch': 'Number of choices. (def: 3)',
     }
 
     def __init__(self, dt=100, timing=None, stimEv=1., n_ch=3):
