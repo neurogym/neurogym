@@ -10,7 +10,7 @@ from __future__ import division
 import numpy as np
 from gym import spaces
 import neurogym as ngym
-from neurogym.inputs import GaussianNoise
+from neurogym.ops.inputs import GaussianNoise
 
 
 class Mante(ngym.EpochEnv):
