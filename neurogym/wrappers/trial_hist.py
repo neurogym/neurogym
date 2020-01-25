@@ -14,8 +14,8 @@ class TrialHistory(ngym.TrialWrapper):
         'description': 'Change ground truth probability ' +
         'based on previous outcome.',
         'paper_link': 'https://www.biorxiv.org/content/10.1101/433409v3',
-        'paper_name': '''Response outcomes gate the impact of expectations ' +
-        'on perceptual decisions''',
+        'paper_name': '''Response outcomes gate the impact of expectations
+         on perceptual decisions''',
         'rep_prob': '''Specifies probabilities of repeating for each block.
         (def: (.2, .8))''',
         'block_dur': 'Number of trials per block. (def: 200 (int))',

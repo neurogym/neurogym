@@ -421,8 +421,7 @@ Agents do a discrimination task (see RDM). On a
 Reference paper: 
 
 [Representation of Confidence Associated with a
-         Decision by Neurons in the Parietal Cortex](https://science.sciencemag.org/content/324/5928/
-        759.long)
+         Decision by Neurons in the Parietal Cortex](https://science.sciencemag.org/content/324/5928/759.long)
 
 Default Epoch timing (ms) 
 
@@ -489,6 +488,6 @@ Change ground truth probability based on previous outcome.
 
 Reference paper: 
 
-[Response outcomes gate the impact of expectations ' +
-        'on perceptual decisions](https://www.biorxiv.org/content/10.1101/433409v3)
+[Response outcomes gate the impact of expectations
+         on perceptual decisions](https://www.biorxiv.org/content/10.1101/433409v3)
 
