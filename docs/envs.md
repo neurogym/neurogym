@@ -455,61 +455,33 @@ Introduces catch trials in which the reward for
          associated to a correct answer and does not change the ground truth.
          Thus, the catch trial affect a pure supervised learning setting.
 
-Reference paper: 
-
-
-
 #### Monitor-v0
 
 saves relevant behavioral information: rewards,
          actions, observations, new trial, ground truth
 
-Reference paper: 
-
-
-
 #### Noise-v0
 
 Add Gaussian noise to the observations.
-
-Reference paper: 
-
-
 
 #### PassAction-v0
 
 Modifies observation by adding the previous
         action.
 
-Reference paper: 
-
-
-
 #### PassReward-v0
 
 Modifies observation by adding the previous
         reaard.
-
-Reference paper: 
-
-
 
 #### ReactionTime-v0
 
 modfies a given environment by allowing the network
         to act at any time after the fixation period.
 
-Reference paper: 
-
-
-
 #### SideBias-v0
 
 Changes the probability of ground truth.
-
-Reference paper: 
-
-
 
 #### TrialHistory-v0
 

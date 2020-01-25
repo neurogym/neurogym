@@ -49,31 +49,33 @@ def main():
     string2 = ''
     counter = 0
     for wrapper_name in sorted(all_wrappers.keys()):
-#        try:
-        wrapp_ref = all_wrappers[wrapper_name]
-        from_ = wrapp_ref[:wrapp_ref.find(':')]
-        class_ = wrapp_ref[wrapp_ref.find(':')+1:]
-        imported = getattr(__import__(from_, fromlist=[class_]), class_)
-        metadata = imported.metadata
+        try:
+            wrapp_ref = all_wrappers[wrapper_name]
+            from_ = wrapp_ref[:wrapp_ref.find(':')]
+            class_ = wrapp_ref[wrapp_ref.find(':')+1:]
+            imported = getattr(__import__(from_, fromlist=[class_]), class_)
+            metadata = imported.metadata
 
-        string2 += "#### {:s}\n\n".format(wrapper_name)
+            string2 += "#### {:s}\n\n".format(wrapper_name)
 
-        paper_name = metadata.get('paper_name',
-                                  None) or ''
-        paper_link = metadata.get('paper_link', None)
-        task_description = metadata.get('description',
-                                        None) or 'Missing description'
-        string2 += "{:s}\n\n".format(task_description)
-        string2 += "Reference paper: \n\n"
-        if paper_link is None:
-            string2 += "{:s}\n\n".format(paper_name)
-        else:
-            string2 += "[{:s}]({:s})\n\n".format(paper_name, paper_link)
+            paper_name = metadata.get('paper_name',
+                                      None)
+            paper_link = metadata.get('paper_link', None)
+            task_description = metadata.get('description',
+                                            None) or 'Missing description'
+            string2 += "{:s}\n\n".format(task_description)
+            if paper_name is not None:
+                string2 += "Reference paper: \n\n"
+                if paper_link is None:
+                    string2 += "{:s}\n\n".format(paper_name)
+                else:
+                    string2 += "[{:s}]({:s})\n\n".format(paper_name,
+                                                         paper_link)
 
-        counter += 1
-#        except BaseException as e:
-#            print('Failure in ', wrapper_name)
-#            print(e)
+            counter += 1
+        except BaseException as e:
+            print('Failure in ', wrapper_name)
+            print(e)
 
     str1 = '### List of wrappers implemented\n\n'
     str2 = "* {0} wrappers implemented so far.\n\n".format(counter)
@@ -84,7 +86,6 @@ def main():
         f.write(string1)
         f.write('* \n\n\n\n\n')
         f.write(string2)
-
 
 
 if __name__ == '__main__':
