@@ -29,8 +29,8 @@ class GNG(ngym.EpochEnv):
         ' (e.g. lick) or not Go depending on which one of two stimuli is' +
         ' presented with',
         'paper_link': 'https://elifesciences.org/articles/43191',
-        'paper_name': '''Active information maintenance in working memory' +
-        ' by a sensory cortex''',
+        'paper_name': 'Active information maintenance in working memory' +
+        ' by a sensory cortex',
         'timing': {
             'fixation': ('constant', 0),
             'stimulus': ('constant', 500),

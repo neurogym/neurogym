@@ -19,8 +19,8 @@ class DPA(ngym.EpochEnv):
         ' Agents have to report if the pair sample-test is a rewarded pair' +
         ' or not.',
         'paper_link': 'https://elifesciences.org/articles/43191',
-        'paper_name': '''Active information maintenance in working memory' +
-        ' by a sensory cortex''',
+        'paper_name': 'Active information maintenance in working memory' +
+        ' by a sensory cortex,
         'timing': {
             'fixation': ('constant', 0),
             'stim1': ('constant', 1000),

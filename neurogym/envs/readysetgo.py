@@ -13,8 +13,8 @@ class ReadySetGo(ngym.EpochEnv):
     metadata = {
         'description': '''Agents have to measure and produce different time
          intervals''',
-        'paper_link': '''https://www.sciencedirect.com/science/article/pii/
-        S0896627318304185''',
+        'paper_link': 'https://www.sciencedirect.com/science/article/pii/' +
+        'S0896627318304185',
         'paper_name': '''Flexible Sensorimotor Computations through Rapid
         Reconfiguration of Cortical Dynamics''',
         'timing': {
