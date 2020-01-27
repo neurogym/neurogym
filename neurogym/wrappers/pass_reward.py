@@ -16,14 +16,13 @@ from gym import spaces
 class PassReward(Wrapper):
     metadata = {
         'description': """Modifies observation by adding the previous
-        reaard.""",
+        reward.""",
         'paper_link': None,
         'paper_name': None,
     }
 
     def __init__(self, env):
         super().__init__(env)
-        self.env = env
         env_oss = env.observation_space.shape[0]
         self.observation_space = spaces.Box(-np.inf, np.inf,
                                             shape=(env_oss+1,),
@@ -37,6 +36,25 @@ class PassReward(Wrapper):
         obs, reward, done, info = self.env.step(action)
         obs = np.concatenate((obs, np.array([reward])))
         return obs, reward, done, info
+
+
+class MissTrialReward(Wrapper):
+    metadata = {
+        'description': """Add a negative reward if a trial ends with no action.""",
+        'paper_link': None,
+        'paper_name': None,
+    }
+
+    def __init__(self, env, r_miss=0.):
+        super().__init__(env)
+        self.r_miss = r_miss
+
+    def step(self, action):
+        obs, reward, done, info = self.env.step(action)
+        if info['trial_endwith_tmax']:
+            reward += self.r_miss
+        return obs, reward, done, info
+
 
 
 if __name__ == '__main__':

@@ -2,6 +2,7 @@ from neurogym.wrappers.catch_trials import CatchTrials
 from neurogym.wrappers.monitor import Monitor
 from neurogym.wrappers.noise import Noise
 from neurogym.wrappers.pass_reward import PassReward
+from neurogym.wrappers.pass_reward import MissTrialReward
 from neurogym.wrappers.pass_action import PassAction
 from neurogym.wrappers.reaction_time import ReactionTime
 from neurogym.wrappers.side_bias import SideBias

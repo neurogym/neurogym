@@ -66,8 +66,12 @@ class TrialEnv(BaseEnv):
         self.t += self.dt  # increment within trial time count
         self.t_ind += 1
 
+
         if self.t > self.tmax - self.dt:
             info['new_trial'] = True
+            info['trial_endwith_tmax'] = True
+        else:
+            info['trial_endwith_tmax'] = False
 
         # TODO: Handle the case when new_trial is not provided in info
         # TODO: new_trial happens after step, so trial index precedes obs change
