@@ -61,7 +61,7 @@ def get_dataset_for_SL(env_name, kwargs, rollout, n_tr, n_steps, obs_size,
 
 def train_env_keras_net(env_name, kwargs, rollout, num_tr, folder='',
                         num_h=256, b_size=128, ntr_save=1000,
-                        tr_per_ep=1000, verbose=1):
+                        tr_per_ep=1000, verbose=1, log_int=10):
     # get mean number of steps per trial to compute total number of steps
     nstps_test = 1000
     env = test_env(env_name, kwargs=kwargs, num_steps=nstps_test)
@@ -111,7 +111,7 @@ def train_env_keras_net(env_name, kwargs, rollout, num_tr, folder='',
                                 samples=samples, target=target, folder=folder,
                                 show_fig=(ind_ep == (num_ep-1)), seed=ind_ep)
         perf_training.append(perf)
-        if verbose and ind_ep % 100 == 0:
+        if verbose and ind_ep % log_int == 0:
             print('Accuracy: ', acc)
             print('Performance: ', perf)
             rem_time = (num_ep-ind_ep)*(time.time()-start_time)/3600
@@ -122,7 +122,7 @@ def train_env_keras_net(env_name, kwargs, rollout, num_tr, folder='',
     data = {'acc': acc_training, 'loss': loss_training,
             'perf': perf_training}
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(8,8))
     plt.subplot(1, 3, 1)
     plt.plot(np.arange(len(acc_training))*tr_per_ep, acc_training)
     plt.title('Accuracy')
