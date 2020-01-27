@@ -170,7 +170,7 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
         observations.append(obs_aux)
         if info['new_trial']:
             actions_end_of_trial.append(action)
-            perf.append(rew)
+            perf.append(rew == env.R_CORRECT)
             obs_cum_temp = np.zeros_like(obs_cum_temp)
         else:
             actions_end_of_trial.append(-1)

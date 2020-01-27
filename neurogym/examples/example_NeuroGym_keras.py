@@ -122,7 +122,7 @@ def train_env_keras_net(env_name, kwargs, rollout, num_tr, folder='',
     data = {'acc': acc_training, 'loss': loss_training,
             'perf': perf_training}
 
-    fig = plt.figure(figsize=(8,8))
+    fig = plt.figure(figsize=(8, 8))
     plt.subplot(1, 3, 1)
     plt.plot(np.arange(len(acc_training))*tr_per_ep, acc_training)
     plt.title('Accuracy')
@@ -167,7 +167,7 @@ def eval_net_in_task(model, env_name, kwargs, tr_per_ep, rollout,
         action = np.argmax(action)
         obs, rew, _, info = env.step(action)
         if info['new_trial']:
-            perf.append(rew)
+            perf.append(rew == env.R_CORRECT)
         if show_fig:
             rew_temp.append(rew)
             rewards.append(rew)
