@@ -32,8 +32,11 @@ class TrialHistory(ngym.TrialWrapper):
         self.curr_block = self.task.rng.choice([0, 1])
         # duration of block (in number oif trials)
         self.block_dur = block_dur
-        self.prev_trial = self.task.trial['ground_truth']
+        self.prev_trial = -1
         self.blk_ch_prob = blk_ch_prob
+
+        if len(self.task.choices) != 2:
+            raise ValueError('Currently, this wrapper only works this 2AFC tasks.')
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
@@ -47,16 +50,15 @@ class TrialHistory(ngym.TrialWrapper):
             if self.task.rng.random() < self.blk_ch_prob:
                 self.curr_block = (self.curr_block + 1) % len(self.rep_prob)
 
-        # rep. probs might depend on previous outcome
-        if self.prev_trial == -1:
-            probs = (self.rep_prob[self.curr_block],
-                     1-self.rep_prob[self.curr_block])
+        rep_prob = self.rep_prob[self.curr_block]
+
+        if self.prev_trial == self.task.choices[0]:
+            probs = (rep_prob, 1-rep_prob)
         else:
-            probs = (1-self.rep_prob[self.curr_block],
-                     self.rep_prob[self.curr_block])
+            probs = (1-rep_prob, rep_prob)
 
         ground_truth = self.task.rng.choices(self.task.choices,
                                              weights=probs)[0]
         self.prev_trial = ground_truth
-        kwargs.update({'groundtruth': ground_truth})
+        kwargs.update({'ground_truth': ground_truth})
         self.env.new_trial(**kwargs)
