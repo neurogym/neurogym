@@ -127,7 +127,7 @@ def info_wrapper(wrapper=None, show_code=False):
 
 
 def plot_struct(env, num_steps_env=200, n_stps_plt=200,
-                def_act=None, model=None, name=None):
+                def_act=None, model=None, name=None, legend=True):
     if isinstance(env, str):
         env = gym.make(env)
     if name is None:
@@ -197,20 +197,24 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
     ax.set_yticks([])
     # actions
     plt.subplot(rows, 1, 2)
-    plt.plot(actions[:n_stps_plt], marker='+', label='actions')
+    plt.plot(np.arange(n_stps_plt) + 0.,
+             actions[:n_stps_plt], marker='+', label='actions')
     gt = np.array(gt)
     if len(gt.shape) == 2:
         gt = np.argmax(gt, axis=1)
-    plt.plot(gt[:n_stps_plt], 'r', label='ground truth')
+    plt.plot(np.arange(n_stps_plt) + 0.,
+             gt[:n_stps_plt], 'r', label='ground truth')
     plt.ylabel('actions')
-    plt.xlim([-0.5, n_stps_plt+0.5])
-    plt.legend()
+    if legend:
+        plt.legend()
+    plt.xlim([-0.5, n_stps_plt-0.5])
     ax = plt.gca()
     ax.set_xticks([])
     # rewards
     plt.subplot(rows, 1, 3)
-    plt.plot(rewards[:n_stps_plt], 'r')
-    plt.xlim([-0.5, n_stps_plt+0.5])
+    plt.plot(np.arange(n_stps_plt) + 0.,
+             rewards[:n_stps_plt], 'r')
+    plt.xlim([-0.5, n_stps_plt-0.5])
     plt.ylabel('reward ' + ' (' + str(np.round(np.mean(perf), 2)) + ')')
     if model is not None:
         ax = plt.gca()
