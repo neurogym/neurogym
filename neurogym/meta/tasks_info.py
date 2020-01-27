@@ -225,7 +225,6 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
         plt.title('network activity')
         plt.ylabel('neurons')
         ax = plt.gca()
-        ax.set_xticks([])
 
     plt.xlabel('timesteps')
     plt.tight_layout()
