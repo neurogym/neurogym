@@ -133,8 +133,6 @@ class Detection(ngym.EpochEnv):
             else:
                 if self.trial['ground_truth'] == 1:  # if correct
                     reward = self.R_MISS
-                else:
-                    print('great!')
 
         return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 
