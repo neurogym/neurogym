@@ -21,8 +21,7 @@ class Detection(ngym.EpochEnv):
                     'fixation': ('constant', 500),
                     'stimulus': ('truncated_exponential', [1000, 500, 1500]),
                     'end_of_trial': ('constant', 100)},
-            'noise': 'standard deviation of the added noise (def: 0.01,' +
-            ' with std = 2 * 100 * noise)',
+            'noise': 'standard deviation of background noise (def: 1)',
             'delay': 'If not None indicates the delay, from the moment of' +
             ' the start of the stimulus period when the actual ' +
             'stimulus is presented. Otherwise, the delay is drawn from' +
@@ -30,7 +29,7 @@ class Detection(ngym.EpochEnv):
             'stim_dur': 'Stimulus duration (def: 100, ms)'
             }
 
-    def __init__(self, dt=100, timing=None, noise=0.1, delay=None,
+    def __init__(self, dt=100, timing=None, noise=1., delay=None,
                  stim_dur=100):
         super().__init__(dt=dt, timing=timing)
         # Possible decisions at the end of the trial
@@ -144,6 +143,6 @@ class Detection(ngym.EpochEnv):
 
 
 if __name__ == '__main__':
-    env = Detection(noise=0, timing={'stimulus': ('constant', 200)})
+    env = Detection(noise=1, timing={'stimulus': ('constant', 500)})
     tasks_info.plot_struct(env, num_steps_env=50,
                            n_stps_plt=50, legend=False)  # ,def_act=1)
