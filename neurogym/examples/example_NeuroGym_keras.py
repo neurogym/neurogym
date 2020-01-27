@@ -9,7 +9,6 @@ import numpy as np
 import time
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, LSTM, TimeDistributed, Input
-import matplotlib
 import matplotlib.pyplot as plt
 sys.path.append(os.path.expanduser('~/gym'))
 sys.path.append(os.path.expanduser('~/stable-baselines'))
@@ -30,19 +29,19 @@ def test_env(env, kwargs, num_steps=100):
     return env
 
 
-def get_dataset_for_SL(env_name, kwargs, rollout, n_tr=1000000,
-                       nstps_test=1000, verbose=0,
+def get_dataset_for_SL(env_name, kwargs, rollout, n_tr, n_steps, obs_size,
+                       act_size, nstps_test=1000, verbose=0,
                        seed=None):
     env = gym.make(env_name, **kwargs)
     env.seed(seed)
     env.reset()
     # TODO: this assumes 1-D observations
-    samples = np.empty((TOT_TIMESTEPS, OBS_SIZE))
-    target = np.empty((TOT_TIMESTEPS, ACT_SIZE))
+    samples = np.empty((n_steps, obs_size))
+    target = np.empty((n_steps, act_size))
     if verbose:
         num_steps_per_trial = int(nstps_test/env.num_tr)
         print('Task: ', env_name)
-        print('Producing dataset with {0} steps'.format(TOT_TIMESTEPS) +
+        print('Producing dataset with {0} steps'.format(n_steps) +
               ' and {0} trials'.format(n_tr) +
               ' ({0} steps per trial)'.format(num_steps_per_trial))
     count_stps = 0
@@ -50,27 +49,34 @@ def get_dataset_for_SL(env_name, kwargs, rollout, n_tr=1000000,
         obs = env.obs
         gt = env.gt
         samples[count_stps:count_stps+obs.shape[0], :] = obs
-        target[count_stps:count_stps+gt.shape[0], :] = np.eye(ACT_SIZE)[gt]
+        target[count_stps:count_stps+gt.shape[0], :] = np.eye(act_size)[gt]
         count_stps += obs.shape[0]
         assert obs.shape[0] == gt.shape[0]
         env.new_trial()
 
     samples = samples[:count_stps, :]
     target = target[:count_stps, :]
-    samples = samples.reshape((-1, rollout, OBS_SIZE))
-    target = target.reshape((-1, rollout, ACT_SIZE))
+    samples = samples.reshape((-1, rollout, obs_size))
+    target = target.reshape((-1, rollout, act_size))
     return samples, target, env
 
 
-def train_env_keras_net(env_name, kwargs, folder, rollout, num_h=256,
-                        b_size=128, num_tr=200000, ntr_save=1000,
+def train_env_keras_net(env_name, kwargs, rollout, num_tr, folder='',
+                        num_h=256, b_size=128, ntr_save=1000,
                         tr_per_ep=1000, verbose=1):
-    env = test_env(env_name, kwargs=kwargs, num_steps=1)
+    # get mean number of steps per trial to compute total number of steps
+    nstps_test = 1000
+    env = test_env(env_name, kwargs=kwargs, num_steps=nstps_test)
+    num_stps_per_trial = nstps_test*num_tr/(env.num_tr)
+    steps_per_tr = int(tr_per_ep*num_stps_per_trial)
+    obs_size = env.observation_space.shape[0]
+    act_size = env.action_space.n
+
     # from https://www.tensorflow.org/guide/keras/rnn
-    xin = Input(batch_shape=(None, rollout, env.observation_space.shape[0]),
+    xin = Input(batch_shape=(None, rollout, obs_size),
                 dtype='float32')
     seq = LSTM(num_h, return_sequences=True)(xin)
-    mlp = TimeDistributed(Dense(env.action_space.n, activation='softmax'))(seq)
+    mlp = TimeDistributed(Dense(act_size, activation='softmax'))(seq)
     model = Model(inputs=xin, outputs=mlp)
     model.summary()
     model.compile(optimizer='Adam', loss='categorical_crossentropy',
@@ -85,21 +91,27 @@ def train_env_keras_net(env_name, kwargs, folder, rollout, num_h=256,
         samples, target, _ = get_dataset_for_SL(env_name=env_name,
                                                 kwargs=kwargs,
                                                 rollout=rollout,
-                                                n_tr=tr_per_ep)
+                                                n_tr=tr_per_ep,
+                                                n_steps=steps_per_tr,
+                                                obs_size=obs_size,
+                                                act_size=act_size)
         model.fit(samples, target, epochs=1, verbose=0)
         # test
         samples, target, env = get_dataset_for_SL(env_name=env_name,
                                                   kwargs=kwargs,
                                                   rollout=rollout,
-                                                  n_tr=tr_per_ep, seed=ind_ep)
+                                                  n_tr=tr_per_ep,
+                                                  n_steps=steps_per_tr,
+                                                  obs_size=obs_size,
+                                                  act_size=act_size,
+                                                  seed=ind_ep)
         loss, acc = model.evaluate(samples, target, verbose=0)
         loss_training.append(loss)
         acc_training.append(acc)
         perf = eval_net_in_task(model, env_name=env_name, kwargs=kwargs,
                                 tr_per_ep=ntr_save, rollout=rollout,
                                 samples=samples, target=target, folder=folder,
-                                show_fig=False, seed=ind_ep,
-                                save=True, ntr_save=ntr_save)
+                                show_fig=(ind_ep == (num_ep-1)), seed=ind_ep)
         perf_training.append(perf)
         if verbose and ind_ep % 100 == 0:
             print('Accuracy: ', acc)
@@ -111,7 +123,7 @@ def train_env_keras_net(env_name, kwargs, folder, rollout, num_h=256,
 
     data = {'acc': acc_training, 'loss': loss_training,
             'perf': perf_training}
-    np.savez(folder + 'training.npz', **data)
+
     fig = plt.figure()
     plt.subplot(1, 3, 1)
     plt.plot(acc_training)
@@ -119,27 +131,20 @@ def train_env_keras_net(env_name, kwargs, folder, rollout, num_h=256,
     plt.plot(loss_training)
     plt.subplot(1, 3, 3)
     plt.plot(perf_training)
-
-    fig.savefig(folder + 'performance.png')
-    plt.close(fig)
+    if folder != '':
+        np.savez(folder + 'training.npz', **data)
+        fig.savefig(folder + 'performance.png')
+        plt.close(fig)
     return model
 
 
-def eval_net_in_task(model, env_name, kwargs, tr_per_ep, rollout, sl='SL',
-                     samples=None, target=None, seed=0, show_fig=False,
-                     folder='', save=False, ntr_save=1000):
-    if samples is None:
-        samples, target, _ = get_dataset_for_SL(env_name=env_name,
-                                                kwargs=kwargs,
-                                                rollout=rollout,
-                                                n_tr=tr_per_ep, seed=seed)
-    if sl == 'SL':
-        actions = model.predict(samples)
+def eval_net_in_task(model, env_name, kwargs, tr_per_ep, rollout,
+                     samples, target, seed, show_fig=False,
+                     folder=''):
+
+    actions = model.predict(samples)
     env = gym.make(env_name, **kwargs)
     env.seed(seed=seed)
-    if save:
-        env = manage_data.ManageData(env, folder=folder,
-                                     num_tr_save=ntr_save)
     obs = env.reset()
     perf = []
     actions_plt = []
@@ -153,12 +158,9 @@ def eval_net_in_task(model, env_name, kwargs, tr_per_ep, rollout, sl='SL',
     for ind_act in range(num_steps-1):
         index = ind_act + 1
         observations.append(obs)
-        if sl == 'SL':
-            action = actions[int(np.floor(index/rollout)),
-                             (index % rollout), :]
-            action = np.argmax(action)
-        else:
-            action, _ = model.predict([obs])
+        action = actions[int(np.floor(index/rollout)),
+                         (index % rollout), :]
+        action = np.argmax(action)
         obs, rew, _, info = env.step(action)
         if info['new_trial']:
             perf.append(rew)
@@ -198,43 +200,3 @@ def eval_net_in_task(model, env_name, kwargs, tr_per_ep, rollout, sl='SL',
             plt.close(f)
 
     return np.mean(perf)
-
-
-if __name__ == '__main__':
-    if len(sys.argv) != 6:
-        raise ValueError('usage: bsls_run.py [model] [task]' +
-                         '[seed] [num_trials] [rollout]')
-
-    # ARGS
-    alg = sys.argv[1]  # a2c acer acktr or ppo2
-    task = sys.argv[2]  # ngym task (neurogym.all_tasks.keys())
-    seed = int(sys.argv[3])
-    num_trials = int(sys.argv[4])
-    rollout = int(sys.argv[5])  # use 20 if short periods, else 100
-    ntr_save = 1000
-    dt = 100
-    kwargs = {'dt': dt,
-              'timing': dict(zip(states_list,
-                                 zip(['constant']*len(states_list),
-                                     [100]*len(states_list))))}
-
-    # other relevant vars
-    nstps_test = 1000
-    env = test_env(task, kwargs=kwargs, num_steps=nstps_test)
-    TOT_TIMESTEPS = int(nstps_test*num_trials/(env.num_tr))
-    OBS_SIZE = env.observation_space.shape[0]
-    ACT_SIZE = env.action_space.n
-
-    savpath = os.path.expanduser(f'~/Jan2020/data/{alg}_{task}_{seed}.npz')
-    main_folder = savpath[:-4] + '/'
-    if not os.path.exists(main_folder):
-        os.makedirs(main_folder)
-
-    model = train_env_keras_net(task, kwargs=kwargs, folder=main_folder,
-                                rollout=rollout, num_tr=num_trials,
-                                num_h=256, b_size=128,
-                                tr_per_ep=1000, verbose=1)
-
-    eval_net_in_task(model, task, kwargs=kwargs, tr_per_ep=1000,
-                     rollout=rollout, show_fig=True, sl=alg,
-                     folder=main_folder)
