@@ -43,6 +43,17 @@ def test_passaction(env_name, verbose=False):
             env.reset()
 
 
+def test_trialhist(env_name):
+    env = gym.make(env_name)
+    env = TrialHistory(env, rep_prob=(.1, .9), block_dur=50)
+    env.reset()
+    for stp in range(10000):
+        action = env.action_space.sample()
+        obs, rew, done, info = env.step(action)
+        if done:
+            env.reset()
+
+
 def test_all(test_fn):
     """Test speed of all experiments."""
     success_count = 0
@@ -64,4 +75,5 @@ def test_all(test_fn):
 
 if __name__ == '__main__':
     # test_all(test_sidebias)
-    test_all(test_passaction)
+    # test_all(test_passaction)
+    test_all(test_trialhist)
