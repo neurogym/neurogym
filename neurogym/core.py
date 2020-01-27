@@ -245,6 +245,9 @@ class EpochEnv(TrialEnv):
             t = self.t  # Default
         return self._start_t[epoch] <= t < self._end_t[epoch]
 
+    def ep_times(self, epoch):
+        return (self._start_t[epoch], self._end_t[epoch])
+
     @property
     def obs_now(self):
         return self.obs[self.t_ind]
