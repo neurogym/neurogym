@@ -39,8 +39,8 @@ class DPA(ngym.EpochEnv):
         self.dpa_pairs = [(1, 3), (1, 4), (2, 3), (2, 4)]
         self.association = 0  # GO if np.diff(self.pair)[0]%2==self.association
         # Input noise
-        self.sigma = np.sqrt(2*100*noise)
-        self.sigma_dt = self.sigma / np.sqrt(self.dt)
+        sigma = np.sqrt(2*100*noise)
+        self.sigma_dt = sigma / np.sqrt(self.dt)
         # Durations (stimulus duration will be drawn from an exponential)
 
         # Rewards

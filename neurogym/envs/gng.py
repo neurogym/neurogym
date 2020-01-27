@@ -44,8 +44,6 @@ class GNG(ngym.EpochEnv):
         self.actions = [0, 1]
         # trial conditions
         self.choices = [0, 1]
-        # Input noise
-        self.sigma = np.sqrt(2*100*0.01)
 
         # Rewards
         self.R_ABORTED = -0.1

@@ -38,9 +38,6 @@ class DawTwoStep(ngym.TrialEnv):
         self.mean_trial_duration = self.tmax
         self.state1_high_reward = self.rng.random() > 0.5
 
-        # Input noise
-        self.sigma = np.sqrt(2*100*0.01)
-
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.

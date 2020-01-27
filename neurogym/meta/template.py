@@ -33,8 +33,8 @@ class TASKNAME(ngym.EpochEnv):  # TIP: if task has epochs (alt.: ngym.TrialEnv)
         self.choices = [1, 2]  # e.g. [left, right]
 
         # Noise added to the observations
-        self.sigma = np.sqrt(2 * 100 * 0.01)
-        self.sigma_dt = self.sigma / np.sqrt(self.dt)
+        sigma = np.sqrt(2 * 100 * 0.01)
+        self.sigma_dt = sigma / np.sqrt(self.dt)
 
         # Rewards
         self.R_ABORTED = -0.1  # reward given when break fixation

@@ -27,8 +27,8 @@ class MultiSensoryIntegration(ngym.EpochEnv):
         self.cohs = [5, 15, 50]
 
         # Input noise
-        self.sigma = np.sqrt(2*100*0.02)
-        self.sigma_dt = self.sigma/np.sqrt(self.dt)
+        sigma = np.sqrt(2*100*0.02)
+        self.sigma_dt = sigma/np.sqrt(self.dt)
 
         # Rewards
         self.R_ABORTED = -0.1

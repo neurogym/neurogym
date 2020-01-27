@@ -33,8 +33,8 @@ class DelayedMatchToSample(ngym.EpochEnv):
         # TODO: Code a continuous space version
         self.choices = [1, 2]
         # Input noise
-        self.sigma = np.sqrt(2*100*0.01)
-        self.sigma_dt = self.sigma/np.sqrt(self.dt)
+        sigma = np.sqrt(2*100*0.01)
+        self.sigma_dt = sigma/np.sqrt(self.dt)
 
         # Rewards
         self.R_ABORTED = -0.1
@@ -134,8 +134,8 @@ class DelayedMatchToSampleDistractor1D(ngym.EpochEnv):
         super().__init__(dt=dt, timing=timing)
         self.choices = [1, 2, 3]
         # Input noise
-        self.sigma = np.sqrt(2*100*0.01)
-        self.sigma_dt = self.sigma/np.sqrt(self.dt)
+        sigma = np.sqrt(2*100*0.01)
+        self.sigma_dt = sigma/np.sqrt(self.dt)
 
         # Rewards
         self.R_ABORTED = -0.1

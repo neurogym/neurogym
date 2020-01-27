@@ -30,8 +30,8 @@ class RDM(ngym.EpochEnv):
         # cohs specifies the amount of evidence (which is modulated by stimEv)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stimEv
         # Input noise
-        self.sigma = np.sqrt(2 * 100 * 0.01)
-        self.sigma_dt = self.sigma / np.sqrt(self.dt)
+        sigma = np.sqrt(2 * 100 * 0.01)
+        self.sigma_dt = sigma / np.sqrt(self.dt)
 
         # Rewards
         self.R_ABORTED = -0.1

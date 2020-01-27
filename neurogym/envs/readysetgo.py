@@ -28,7 +28,6 @@ class ReadySetGo(ngym.EpochEnv):
     def __init__(self, dt=80, timing=None, gain=1):
         super().__init__(dt=dt, timing=timing)
 
-        self.sigma = np.sqrt(2*100*0.01)
         self.gain = gain
 
         # Rewards
@@ -114,7 +113,6 @@ class MotorTiming(ngym.EpochEnv):
     def __init__(self, dt=80, timing=None):
         super().__init__(dt=dt, timing=timing)
 
-        self.sigma = np.sqrt(2*100*0.01)
         self.production_ind = [0, 1]
         self.intervals = [800, 1500]
 

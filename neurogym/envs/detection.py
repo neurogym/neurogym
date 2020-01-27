@@ -30,15 +30,14 @@ class Detection(ngym.EpochEnv):
             'stim_dur': 'Stimulus duration (def: 100, ms)'
             }
 
-    def __init__(self, dt=100, timing=None, noise=0.01, delay=None,
+    def __init__(self, dt=100, timing=None, noise=0.1, delay=None,
                  stim_dur=100):
         super().__init__(dt=dt, timing=timing)
         # Possible decisions at the end of the trial
         self.choices = [0, 1]
 
         # Noise added to the observations
-        self.sigma = np.sqrt(2 * 100 * noise)
-        self.sigma_dt = self.sigma / np.sqrt(self.dt)
+        self.sigma_dt = noise / np.sqrt(self.dt)
         self.delay = delay
         self.stim_dur = int(stim_dur/self.dt)
         assert self.stim_dur > 0, 'Stimulus duration shorter than dt'

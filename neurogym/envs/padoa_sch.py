@@ -51,8 +51,8 @@ class PadoaSch(ngym.EpochEnv):
                        (3, 1), (4, 1), (6, 1), (2, 0)]
 
         # Input noise
-        self.sigma = np.sqrt(2*100*0.001)
-        self.sigma_dt = self.sigma/np.sqrt(self.dt)
+        sigma = np.sqrt(2*100*0.001)
+        self.sigma_dt = sigma/np.sqrt(self.dt)
 
         # Rewards
         self.R_ABORTED = -0.1

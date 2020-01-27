@@ -43,8 +43,8 @@ class Romo(ngym.EpochEnv):
         self.fpairs = [(18, 10), (22, 14), (26, 18), (30, 22), (34, 26)]
 
         # Input noise
-        self.sigma = np.sqrt(2*100*0.001)
-        self.sigma_dt = self.sigma / np.sqrt(self.dt)
+        sigma = np.sqrt(2*100*0.001)
+        self.sigma_dt = sigma / np.sqrt(self.dt)
 
         # Rewards
         self.R_ABORTED = -0.1
