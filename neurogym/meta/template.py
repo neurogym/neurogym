@@ -16,6 +16,8 @@ class TASKNAME(ngym.EpochEnv):  # TIP: if task has epochs (alt.: ngym.TrialEnv)
         'description': '',
         'paper_link': '',
         'paper_name': '',
+        # alts.: 'constant', 'uniform', 'truncated_exponential' and 'choice'
+        # (see neurogym/ops/tasktools.random_number_fn)
         'timing': {
             'period 1 (e.g. fixation)': ('constant', 'value'),
             'period 2 (e.g. stimulus)': ('truncated_exponential',
