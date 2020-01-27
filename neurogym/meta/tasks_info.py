@@ -177,17 +177,30 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
         rewards.append(rew)
         actions.append(action)
         gt.append(info['gt'])
-
     if model is not None:
-        rows = 4
         states = np.array(state_mat)
         states = states[:, 0, :]
     else:
-        rows = 3
         states = None
-    obs = np.array(observations)
     obs_cum = np.array(obs_cum)
-    plt.figure(figsize=(8, 8))
+    obs = np.array(observations)
+    fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=legend,
+         model=model, states=states, name=name)
+    data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
+            'actions': actions, 'perf': perf,
+            'actions_end_of_trial': actions_end_of_trial, 'gt': gt,
+            'states': states}
+    return data
+
+
+def fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=True,
+         obs_cum=None, model=None, states=None, name=''):
+    if model is not None:
+        rows = 4
+    else:
+        rows = 3
+
+    f = plt.figure(figsize=(8, 8))
     # obs
     plt.subplot(rows, 1, 1)
     plt.imshow(obs[:n_stps_plt, :].T, aspect='auto')
@@ -229,16 +242,12 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
     plt.xlabel('timesteps')
     plt.tight_layout()
     plt.show()
+    return f
 
-    data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
-            'actions': actions, 'perf': perf,
-            'actions_end_of_trial': actions_end_of_trial, 'gt': gt,
-            'states': states}
-    return data
 
 
 if __name__ == '__main__':
     info()
-    # info('RDM-v0', show_code=True)
-    info_wrapper()
-    info_wrapper('ReactionTime-v0', show_code=True)
+    info('RDM-v0', show_code=True, show_fig=True)
+#    info_wrapper()
+#    info_wrapper('ReactionTime-v0', show_code=True)

@@ -10,11 +10,9 @@ import time
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, LSTM, TimeDistributed, Input
 import matplotlib.pyplot as plt
-sys.path.append(os.path.expanduser('~/gym'))
-sys.path.append(os.path.expanduser('~/stable-baselines'))
-sys.path.append(os.path.expanduser('~/neurogym'))
 import gym
 import neurogym  # need to import it so ngym envs are registered
+from neurogym.meta import tasks_info
 
 
 def test_env(env, kwargs, num_steps=100):
@@ -126,11 +124,17 @@ def train_env_keras_net(env_name, kwargs, rollout, num_tr, folder='',
 
     fig = plt.figure()
     plt.subplot(1, 3, 1)
-    plt.plot(acc_training)
+    plt.plot(np.arange(len(acc_training))*tr_per_ep, acc_training)
+    plt.title('Accuracy')
+    plt.xlabel('Trials')
     plt.subplot(1, 3, 2)
-    plt.plot(loss_training)
+    plt.plot(np.arange(len(acc_training))*tr_per_ep, loss_training)
+    plt.title('Loss')
+    plt.xlabel('Trials')
     plt.subplot(1, 3, 3)
-    plt.plot(perf_training)
+    plt.plot(np.arange(len(acc_training))*tr_per_ep, perf_training)
+    plt.title('performance (accuracy decision period)')
+    plt.xlabel('Trials')
     if folder != '':
         np.savez(folder + 'training.npz', **data)
         fig.savefig(folder + 'performance.png')
@@ -173,30 +177,27 @@ def eval_net_in_task(model, env_name, kwargs, tr_per_ep, rollout,
             actions_plt.append(action)
 
     if show_fig:
-        n_stps_plt = 100
         observations = np.array(observations)
-        f = plt.figure()
-        plt.subplot(3, 1, 1)
-        plt.imshow(observations[:n_stps_plt, :].T, aspect='auto')
-        plt.title('observations')
-        plt.subplot(3, 1, 2)
-        plt.plot(np.arange(n_stps_plt)+1, actions_plt[:n_stps_plt], marker='+')
-        gt = np.array(gt)
-        if len(gt.shape) == 2:
-            gt = np.argmax(gt, axis=1)
-        plt.plot(np.arange(n_stps_plt)+1, gt[:n_stps_plt], 'r')
-        # plt.plot(np.arange(n_stps_plt)+1, target_mat[:n_stps_plt], '--y')
-        plt.title('actions')
-        plt.xlim([-0.5, n_stps_plt+0.5])
-        plt.subplot(3, 1, 3)
-        plt.plot(np.arange(n_stps_plt)+1, rewards[:n_stps_plt], 'r')
-        plt.title('reward')
-        plt.xlim([-0.5, n_stps_plt+0.5])
-        plt.title(str(np.mean(perf)))
-        plt.tight_layout()
-        plt.show()
+        f = tasks_info.fig_(obs=observations, actions=actions_plt, gt=gt,
+                            rewards=rewards, n_stps_plt=100, perf=perf,
+                            legend=True, name='')
         if folder != '':
             f.savefig(folder + 'task_struct.png')
             plt.close(f)
 
     return np.mean(perf)
+
+
+if __name__ == '__main__':
+    # ARGS
+    task = 'RDM-v0'
+    num_trials = 100000
+    rollout = 20
+    dt = 100
+    kwargs = {'dt': 100, 'timing': {'fixation': ('constant', 200),
+                                    'stimulus': ('constant', 200),
+                                    'decision': ('constant', 100)}}
+    model = train_env_keras_net(task, kwargs=kwargs,
+                                rollout=rollout, num_tr=num_trials,
+                                num_h=256, b_size=128,
+                                tr_per_ep=1000, verbose=1)
