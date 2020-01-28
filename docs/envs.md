@@ -2,11 +2,11 @@
 
 ### List of environments implemented
 
-* 23 tasks implemented so far.
+* 24 tasks implemented so far.
 
-#### AngleReproduction
+### AngleReproduction task ###
 
-The agent has to reproduce to two angles separated by a constant delay.
+Logic: The agent has to reproduce to two angles separated by a constant delay.
 
 Reference paper: 
 
@@ -29,9 +29,9 @@ go1 : constant 500
 
 go2 : constant 500
 
-#### AntiReach1D
+### AntiReach1D task ###
 
-The agent has to move in the direction opposite to the one indicated by the observation
+Logic: The agent has to move in the direction opposite to the one indicated by the observation
 
 Reference paper: 
 
@@ -44,17 +44,21 @@ fixation : constant 500
 
 reach : constant 500
 
-#### Bandit
+### Bandit task ###
 
-The agent has to select between N actions with different reward probabilities.
+Logic: The agent has to select between N actions with different reward probabilities.
 
 Reference paper: 
 
 [Prefrontal cortex as a meta-reinforcement learning system](https://www.nature.com/articles/s41593-018-0147-8)
 
-#### DPA
+n_arms : Number of arms. (def: 2)
 
-A sample is followed by a delay and a test. Agents have to report if the pair sample-test is a rewarded pair or not.
+probs : Reward probabilities for each arm. (def: (.9, .1))
+
+### DPA task ###
+
+Logic: A sample is followed by a delay and a test. Agents have to report if the pair sample-test is a rewarded pair or not.
 
 Reference paper: 
 
@@ -74,18 +78,21 @@ delay_aft_stim : constant 1000
 
 decision : constant 500
 
-#### DawTwoStep
+noise : Standard deviation of the Gaussian noise added to
+        the stimulus. (def: 0.01)
 
-On each trial, an initial choice between two options lead to either of two, second-stage states. In turn, these both demand another two-option choice, each of which is associated with  a different chance of receiving reward.
+### DawTwoStep task ###
+
+Logic: On each trial, an initial choice between two options lead to either of two, second-stage states. In turn, these both demand another two-option choice, each of which is associated with  a different chance of receiving reward.
 
 Reference paper: 
 
 [Model-Based Influences on Humans'
         Choices and Striatal Prediction Errors](https://www.sciencedirect.com/science/article/pii/S0896627311001255)
 
-#### DelayedMatchCategory
+### DelayedMatchCategory task ###
 
-A sample stimulus is followed by a delay and test. Agents are required to indicate if the sample and test are in the same category.
+Logic: A sample stimulus is followed by a delay and test. Agents are required to indicate if the sample and test are in the same category.
 
 Reference paper: 
 
@@ -106,9 +113,9 @@ second_delay : constant 250
 
 decision : constant 650
 
-#### DelayedMatchToSample
+### DelayedMatchToSample task ###
 
-A sample stimulus is followed by a delay and test. Agents are required to indicate if the sample and test are the same stimulus.
+Logic: A sample stimulus is followed by a delay and test. Agents are required to indicate if the sample and test are the same stimulus.
 
 Reference paper: 
 
@@ -127,9 +134,9 @@ test : constant 500
 
 decision : constant 900
 
-#### DelayedMatchToSampleDistractor1D
+### DelayedMatchToSampleDistractor1D task ###
 
-Delay Match to sample with multiple,
+Logic: Delay Match to sample with multiple,
          potentially repeating distractors.
 
 Reference paper: 
@@ -155,9 +162,9 @@ delay3 : constant 1000
 
 test3 : constant 500
 
-#### DR
+### DR task ###
 
-Agents have to integrate two stimuli and report which one is larger on average after a delay.
+Logic: Agents have to integrate two stimuli and report which one is larger on average after a delay.
 
 Reference paper: 
 
@@ -175,9 +182,33 @@ go_cue : constant 100
 
 decision : constant 1500
 
-#### GNG
+stimEv : Controls the difficulty of the experiment. (def: 1.)
 
-Go/No-Go task in which the subject has either Go (e.g. lick) or not Go depending on which one of two stimuli is presented with
+### Detection task ###
+
+Logic: The agent has to GO if a stimulus is presented
+
+Reference paper: 
+
+[Missing paper name]()
+
+Default Epoch timing (ms) 
+
+fixation : constant 500
+
+stimulus : truncated_exponential [1000, 500, 1500]
+
+end_of_trial : constant 100
+
+noise : standard deviation of background noise (def: 1)
+
+delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution (def: None)
+
+stim_dur : Stimulus duration (def: 100, ms)
+
+### GNG task ###
+
+Logic: Go/No-Go task in which the subject has either Go (e.g. lick) or not Go depending on which one of two stimuli is presented with
 
 Reference paper: 
 
@@ -193,9 +224,9 @@ resp_delay : constant 500
 
 decision : constant 500
 
-#### IntervalDiscrimination
+### IntervalDiscrimination task ###
 
-Agents have to report which of two stimuli presented sequentially is longer.
+Logic: Agents have to report which of two stimuli presented sequentially is longer.
 
 Reference paper: 
 
@@ -216,9 +247,9 @@ delay2 : constant 500
 
 decision : constant 300
 
-#### Mante
+### Mante task ###
 
-Agent has to perform one of two different perceptual discriminations. On every trial, a contextual cue indicates which one to perform.
+Logic: Agent has to perform one of two different perceptual discriminations. On every trial, a contextual cue indicates which one to perform.
 
 Reference paper: 
 
@@ -237,9 +268,9 @@ delay : truncated_exponential [600, 300, 3000]
 
 decision : constant 100
 
-#### MatchingPenny
+### MatchingPenny task ###
 
-The agent is rewarded when it selects the
+Logic: The agent is rewarded when it selects the
          same target as the computer,
 
 Reference paper: 
@@ -247,9 +278,11 @@ Reference paper:
 [Prefrontal cortex and decision making in a
          mixed-strategy game](https://www.nature.com/articles/nn1209)
 
-#### MemoryRecall
+opponent_type : Type of opponent. (def: 'random')
 
-Missing description
+### MemoryRecall task ###
+
+Logic: Missing description
 
 Reference paper: 
 
@@ -257,9 +290,11 @@ Missing paper name
 
 Missing paper link
 
-#### MotorTiming
+render.modes : []
 
-Agents have to produce different time
+### MotorTiming task ###
+
+Logic: Agents have to produce different time
          intervals using different effectors (actions)
 
 Reference paper: 
@@ -275,9 +310,9 @@ cue : uniform [1000, 3000]
 
 set : constant 50
 
-#### nalt_RDM
+### nalt_RDM task ###
 
-N-alternative forced choice task in which the subject
+Logic: N-alternative forced choice task in which the subject
          has to integrate N stimuli to decide which one is higher
           on average
 
@@ -295,9 +330,13 @@ stimulus : truncated_exponential [330, 80, 1500]
 
 decision : constant 500
 
-#### RDM
+n_ch : Number of choices. (def: 3)
 
-Random dot motion task. Two-alternative forced
+stimEv : Controls the difficulty of the experiment. (def: 1.)
+
+### RDM task ###
+
+Logic: Random dot motion task. Two-alternative forced
          choice task in which the subject has to integrate two stimuli to
          decide which one is higher on average
 
@@ -314,9 +353,11 @@ stimulus : constant 2000
 
 decision : constant 100
 
-#### Reaching1D
+stimEv : Controls the difficulty of the experiment. (def: 1.)
 
-The agent has to reproduce the angle indicated
+### Reaching1D task ###
+
+Logic: The agent has to reproduce the angle indicated
          by the observation
 
 Reference paper: 
@@ -329,9 +370,9 @@ fixation : constant 500
 
 reach : constant 500
 
-#### Reaching1DWithSelfDistraction
+### Reaching1DWithSelfDistraction task ###
 
-The agent has to reproduce the angle indicated
+Logic: The agent has to reproduce the angle indicated
          by the observation. Furthermore, the reaching state itself
          generates strong inputs that overshadows the actual target input
 
@@ -347,9 +388,9 @@ fixation : constant 500
 
 reach : constant 500
 
-#### ReadySetGo
+### ReadySetGo task ###
 
-Agents have to measure and produce different time
+Logic: Agents have to measure and produce different time
          intervals
 
 Reference paper: 
@@ -367,9 +408,11 @@ measure : choice [800, 1500]
 
 set : constant 83
 
-#### Romo
+gain : Controls the measure that the agent has to produce. (def: 1)
 
-Two-alternative forced choice task in which
+### Romo task ###
+
+Logic: Two-alternative forced choice task in which
          the subject has to compare two stimuli separated by a delay
          to decide which one has a higher frequency
 
@@ -390,9 +433,9 @@ f2 : constant 500
 
 decision : constant 100
 
-#### PadoaSch
+### PadoaSch task ###
 
-Agents choose between two stimuli (A and B; where A
+Logic: Agents choose between two stimuli (A and B; where A
          is preferred) offered in different amounts.
 
 Reference paper: 
@@ -408,9 +451,9 @@ offer_on : uniform [1000, 2000]
 
 decision : constant 750
 
-#### PDWager
+### PDWager task ###
 
-Agents do a discrimination task (see RDM). On a
+Logic: Agents do a discrimination task (see RDM). On a
          random half of the trials, the agent is given the option to abort
          the direction discrimination and to choose instead a small but
          certain reward associated with a action.
@@ -441,50 +484,101 @@ decision : constant 100
 
 ### List of wrappers implemented
 
-* 8 wrappers implemented so far.
+* 9 wrappers implemented so far.
 
-#### CatchTrials-v0
+### CatchTrials-v0 wrapper ###
 
-Introduces catch trials in which the reward for
+Logic: Introduces catch trials in which the reward for
          a correct choice is modified (e.g. is set to the reward for an
          incorrect choice). Note that the wrapper only changes the reward
          associated to a correct answer and does not change the ground truth.
          Thus, the catch trial affect a pure supervised learning setting.
 
-#### Monitor-v0
+Input parameters: 
 
-saves relevant behavioral information: rewards,
-         actions, observations, new trial, ground truth
+stim_th : Percentile of stimulus distribution below which catch
+        trials are allowed (in some cases, experimenter might decide not
+        to have catch trials when  stimulus is very obvious) (def: 50)
 
-#### Noise-v0
+start : Number of trials after which the catch trials can occur.
+        (def: 0)
 
-Add Gaussian noise to the observations.
+catch_prob : Catch trial probability. (def: 0.1)
 
-#### PassAction-v0
+### MissTrialReward-v0 wrapper ###
 
-Modifies observation by adding the previous
+Logic: Add a negative reward if a trial ends with no action.
+
+Input parameters: 
+
+### Monitor-v0 wrapper ###
+
+Logic: Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth
+
+Input parameters: 
+
+num_tr_save : Data will be saved every num_tr_save trials.
+        (def: 100000)
+
+folder : Folder where the data will be saved. (def: None)
+
+### Noise-v0 wrapper ###
+
+Logic: Add Gaussian noise to the observations.
+
+Input parameters: 
+
+std_noise : Standard deviation of noise. (def: 0.1)
+
+### PassAction-v0 wrapper ###
+
+Logic: Modifies observation by adding the previous
         action.
 
-#### PassReward-v0
+Input parameters: 
 
-Modifies observation by adding the previous
-        reaard.
+### PassReward-v0 wrapper ###
 
-#### ReactionTime-v0
+Logic: Modifies observation by adding the previous
+        reward.
 
-modfies a given environment by allowing the network
+Input parameters: 
+
+### ReactionTime-v0 wrapper ###
+
+Logic: modfies a given environment by allowing the network
         to act at any time after the fixation period.
 
-#### SideBias-v0
+Input parameters: 
 
-Changes the probability of ground truth.
+### SideBias-v0 wrapper ###
 
-#### TrialHistory-v0
+Logic: Changes the probability of ground truth.
 
-Change ground truth probability based on previous outcome.
+Input parameters: 
+
+block_dur : Number of trials per block. (def: 200 (int))
+
+prob : Specifies probabilities for each choice. Within each block,
+        the probability should sum up to 1.
+        (def: None (Numpy array (n_block, n_choices)))
+
+### TrialHistory-v0 wrapper ###
+
+Logic: Change ground truth probability based on previous outcome.
 
 Reference paper: 
 
 [Response outcomes gate the impact of expectations
          on perceptual decisions](https://www.biorxiv.org/content/10.1101/433409v3)
+
+Input parameters: 
+
+block_dur : Number of trials per block. (def: 200 (int))
+
+rep_prob : Specifies probabilities of repeating for each block.
+        (def: (.2, .8))
+
+blk_ch_prob : If not None, specifies the probability of changing
+        block (randomly). (def: None)
 
