@@ -77,7 +77,7 @@ class ReadySetGo(ngym.EpochEnv):
                 new_trial = self.abort
                 reward = self.R_ABORTED
         if self.in_epoch('production'):
-            t_prod = self.t - self._end_t['measure']  # time from end of measur
+            t_prod = self.t - self.end_t['measure']  # time from end of measur
             eps = abs(t_prod - trial['production'])
             if eps < self.dt/2 + 1:
                 gt[1] = 1
@@ -166,7 +166,7 @@ class MotorTiming(ngym.EpochEnv):
                 new_trial = self.abort
                 reward = self.R_ABORTED
         if self.in_epoch('production'):
-            t_prod = self.t - self._end_t['set']  # time from end of measure
+            t_prod = self.t - self.end_t['set']  # time from end of measure
             eps = abs(t_prod - trial['production'])
             if eps < self.dt/2 + 1:
                 gt[1] = 1
