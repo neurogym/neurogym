@@ -123,8 +123,7 @@ class Detection(ngym.EpochEnv):
             if action != 0:
                 new_trial = True
                 if ((action == self.trial['ground_truth']) and
-                   (self.t >= self.ep_times('fixation')[1] +
-                   self.delay_trial)):
+                   (self.t >= self.end_t('fixation') + self.delay_trial)):
                     reward = self.R_CORRECT
                 else:  # if incorrect
                     reward = self.R_FAIL

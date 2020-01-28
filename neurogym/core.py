@@ -66,7 +66,6 @@ class TrialEnv(BaseEnv):
         self.t += self.dt  # increment within trial time count
         self.t_ind += 1
 
-
         if self.t > self.tmax - self.dt:
             info['new_trial'] = True
             info['trial_endwith_tmax'] = True
@@ -122,10 +121,10 @@ class EpochEnv(TrialEnv):
                 print('Warning: Minimum time for epoch {:s} {:f} smaller than dt {:f}'.format(
                     key, min_tmp, self.dt))
 
-        self._start_t = dict()
-        self._end_t = dict()
-        self._start_ind = dict()
-        self._end_ind = dict()
+        self.start_t = dict()
+        self.end_t = dict()
+        self.start_ind = dict()
+        self.end_ind = dict()
 
     def __str__(self):
         """Information about task."""
@@ -164,18 +163,18 @@ class EpochEnv(TrialEnv):
 
         if after is not None:
             if isinstance(after, str):
-                start = self._end_t[after]
+                start = self.end_t[after]
             else:
                 start = after
         elif before is not None:
-            start = self._start_t[before] - duration
+            start = self.start_t[before] - duration
         else:
             raise ValueError('''before or start can not be both None''')
 
-        self._start_t[epoch] = start
-        self._end_t[epoch] = start + duration
-        self._start_ind[epoch] = int(start/self.dt)
-        self._end_ind[epoch] = int((start + duration)/self.dt)
+        self.start_t[epoch] = start
+        self.end_t[epoch] = start + duration
+        self.start_ind[epoch] = int(start/self.dt)
+        self.end_ind[epoch] = int((start + duration)/self.dt)
 
         if last_epoch:
             self._init_trial(start + duration)
@@ -223,11 +222,11 @@ class EpochEnv(TrialEnv):
             epoch: string, must be name of an added epoch
             value: np array (ob_space.shape, ...)
         """
-        self.obs[self._start_ind[epoch]:self._end_ind[epoch]] = value
+        self.obs[self.start_ind[epoch]:self.end_ind[epoch]] = value
 
     def view_ob(self, epoch):
         """View observation of an epoch."""
-        return self.obs[self._start_ind[epoch]:self._end_ind[epoch]]
+        return self.obs[self.start_ind[epoch]:self.end_ind[epoch]]
 
     def add_ob(self, epoch, value):
         """Add value to observation.
@@ -241,16 +240,13 @@ class EpochEnv(TrialEnv):
 
     def set_groundtruth(self, epoch, value):
         """Set groundtruth value."""
-        self.gt[self._start_ind[epoch]: self._end_ind[epoch]] = value
+        self.gt[self.start_ind[epoch]: self.end_ind[epoch]] = value
 
     def in_epoch(self, epoch, t=None):
         """Check if current time or time t is in epoch"""
         if t is None:
             t = self.t  # Default
-        return self._start_t[epoch] <= t < self._end_t[epoch]
-
-    def ep_times(self, epoch):
-        return (self._start_t[epoch], self._end_t[epoch])
+        return self.start_t[epoch] <= t < self.end_t[epoch]
 
     @property
     def obs_now(self):

@@ -74,6 +74,7 @@ def info(task=None, show_code=False, show_fig=False, n_stps_plt=200):
             print('Failure in ', type(env).__name__)
             print(e)
         print(string)
+    return string
 
 
 def info_wrapper(wrapper=None, show_code=False):
@@ -124,6 +125,7 @@ def info_wrapper(wrapper=None, show_code=False):
             print('Failure in ', wrapper)
             print(e)
         print(string)
+    return string
 
 
 def plot_struct(env, num_steps_env=200, n_stps_plt=200,
@@ -250,6 +252,6 @@ def fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=True,
 
 if __name__ == '__main__':
     info()
-    info('RDM-v0', show_code=True, show_fig=True)
+    # info('RDM-v0', show_code=True, show_fig=True)
 #    info_wrapper()
 #    info_wrapper('ReactionTime-v0', show_code=True)
