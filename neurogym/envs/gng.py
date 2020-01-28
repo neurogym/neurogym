@@ -70,10 +70,10 @@ class GNG(ngym.EpochEnv):
         self.add_epoch('decision', after='resp_delay', last_epoch=True)
 
         self.set_ob('fixation', [1, 0, 0])
-        ob = self.view_ob('stimulus')
-        ob[:, 0] = 1
-        ob[:, self.trial['ground_truth']] = 1
+        self.set_ob('stimulus', [1, 0, 0])
         self.set_ob('resp_delay', [1, 0, 0])
+        ob = self.view_ob('stimulus')
+        ob[:, self.trial['ground_truth']+1] = 1
 
         self.set_groundtruth('decision', self.trial['ground_truth'])
 
