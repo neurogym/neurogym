@@ -31,11 +31,12 @@ class BaseEnv(gym.Env):
 class TrialEnv(BaseEnv):
     """The main Neurogym class for trial-based tasks."""
 
-    def __init__(self, dt=100, num_trials_before_reset=10000000):
+    def __init__(self, dt=100, num_trials_before_reset=10000000, r_tmax=0):
         super(TrialEnv, self).__init__(dt=dt)
         self.dt = dt
         self.t = self.t_ind = 0
         self.tmax = 10000  # maximum time steps
+        self.r_tmax = r_tmax
         self.num_tr = 0
         self.num_tr_exp = num_trials_before_reset
         self.trial = None
@@ -69,6 +70,7 @@ class TrialEnv(BaseEnv):
         if self.t > self.tmax - self.dt:
             info['new_trial'] = True
             info['trial_endwith_tmax'] = True
+            reward += self.r_tmax
         else:
             info['trial_endwith_tmax'] = False
 
