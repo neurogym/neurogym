@@ -22,8 +22,11 @@ class MatchingPenny(ngym.TrialEnv):
         'opponent_type': '''Type of opponent. (def: 'random')''',
     }
 
-    def __init__(self, dt=100, opponent_type='random'):
+    def __init__(self, dt=100, opponent_type='random', timing=None):
         super().__init__(dt=dt)
+        if timing is not None:
+            print('Warning: Matching-Penny task does not require' +
+                  ' timing variable.')
         # TODO: remain to be carefully tested
         # Opponent Type
         self.opponent_type = opponent_type
