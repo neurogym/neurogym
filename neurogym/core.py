@@ -66,7 +66,6 @@ class TrialEnv(BaseEnv):
         self.t += self.dt  # increment within trial time count
         self.t_ind += 1
 
-
         if self.t > self.tmax - self.dt:
             info['new_trial'] = True
             info['trial_endwith_tmax'] = True
