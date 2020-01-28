@@ -19,8 +19,7 @@ class Detection(ngym.EpochEnv):
             'paper_name': '',
             'timing': {
                     'fixation': ('constant', 500),
-                    'stimulus': ('truncated_exponential', [1000, 500, 1500]),
-                    'end_of_trial': ('constant', 100)},
+                    'stimulus': ('truncated_exponential', [1000, 500, 1500])},
             'noise': 'standard deviation of background noise (def: 1)',
             'delay': 'If not None indicates the delay, from the moment of' +
             ' the start of the stimulus period when the actual ' +
@@ -44,7 +43,7 @@ class Detection(ngym.EpochEnv):
         self.R_ABORTED = -0.1  # reward given when break fixation
         self.R_CORRECT = +1.  # reward given when correct
         self.R_FAIL = -1.  # reward given when incorrect
-        self.R_MISS = -0.5  # reward given when not responding
+        self.R_MISS = -0.5  # reward given when missing the stimulus
         # whether to abort (T) or not (F) the trial when breaking fixation:
         self.abort = False
         # action and observation spaces: [fixate, go]
@@ -70,8 +69,7 @@ class Detection(ngym.EpochEnv):
         # Epochs
         # ---------------------------------------------------------------------
         self.add_epoch('fixation', after=0)
-        self.add_epoch('stimulus', after='fixation')
-        self.add_epoch('end_of_trial', after='stimulus', last_epoch=True)
+        self.add_epoch('stimulus', after='fixation', last_epoch=True)
         # ---------------------------------------------------------------------
         # Observations
         # ---------------------------------------------------------------------
@@ -90,15 +88,19 @@ class Detection(ngym.EpochEnv):
             else:
                 delay = self.delay
             stim[delay:delay + self.stim_dur, 1] += 0.5
+            self.r_tmax = self.R_MISS
         else:
             stim[:, 1:] +=\
                 np.random.randn(stim.shape[0], 1) * self.sigma_dt
             delay = 0
+            self.r_tmax = 0
         self.delay_trial = delay*self.dt
         # ---------------------------------------------------------------------
         # Ground truth
         # ---------------------------------------------------------------------
-        self.set_groundtruth('end_of_trial', ground_truth)
+        if ground_truth == 1:
+            dec = self.view_groundtruth('stimulus')
+            dec[delay:] = 1
 
     def _step(self, action):
         """
@@ -123,25 +125,15 @@ class Detection(ngym.EpochEnv):
             if action != 0:
                 new_trial = True
                 if ((action == self.trial['ground_truth']) and
-                   (self.t >= self.end_t('fixation') + self.delay_trial)):
+                   (self.t >= self.end_t['fixation'] + self.delay_trial)):
                     reward = self.R_CORRECT
                 else:  # if incorrect
                     reward = self.R_FAIL
-        elif self.in_epoch('end_of_trial'):  # during decision period
-            new_trial = True
-            if action != 0:
-                if action == self.trial['ground_truth']:  # if correct
-                    reward = self.R_CORRECT
-                else:  # if incorrect
-                    reward = self.R_FAIL
-            else:
-                if self.trial['ground_truth'] == 1:  # if correct
-                    reward = self.R_MISS
 
         return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
 if __name__ == '__main__':
-    env = Detection(noise=1, timing={'stimulus': ('constant', 500)})
+    env = Detection(noise=0, timing={'stimulus': ('constant', 200)})
     tasks_info.plot_struct(env, num_steps_env=50,
                            n_stps_plt=50, legend=False)  # ,def_act=1)
