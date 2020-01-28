@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Jan 23 11:04:58 2020
+"""Formatting information about tasks and wrappers."""
 
-@author: manuel
-"""
+import numpy as np
+import matplotlib.pyplot as plt
 
 import gym
 import neurogym as ngym
 from neurogym import all_tasks
 from neurogym.wrappers import all_wrappers
-import matplotlib.pyplot as plt
-import numpy as np
-metadata_basic_info = ['description', 'paper_name', 'paper_link', 'timing']
+
+
+METADATA_DEFAULT_KEYS = ['description', 'paper_name', 'paper_link', 'timing']
 
 
 def info(task=None, show_code=False, show_fig=False, n_stps_plt=200):
@@ -51,7 +50,7 @@ def info(task=None, show_code=False, show_fig=False, n_stps_plt=200):
                     dist, args = val
                     string += key + ' : ' + dist + ' ' + str(args) + '\n\n'
             # add extra info
-            other_info = list(set(metadata.keys()) - set(metadata_basic_info))
+            other_info = list(set(metadata.keys()) - set(METADATA_DEFAULT_KEYS))
             for key in other_info:
                 string += key + ' : ' + str(metadata[key]) + '\n\n'
             # plot basic structure
@@ -111,7 +110,7 @@ def info_wrapper(wrapper=None, show_code=False):
                                                         paper_link)
             # add extra info
             string += "Input parameters: \n\n"
-            other_info = list(set(metadata.keys()) - set(metadata_basic_info))
+            other_info = list(set(metadata.keys()) - set(METADATA_DEFAULT_KEYS))
             for key in other_info:
                 string += key + ' : ' + str(metadata[key]) + '\n\n'
 
