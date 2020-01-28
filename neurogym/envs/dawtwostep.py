@@ -44,7 +44,6 @@ class DawTwoStep(ngym.TrialEnv):
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
         self.R_FAIL = 0.
-        self.R_MISS = 0.
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)

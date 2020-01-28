@@ -32,7 +32,6 @@ class IntervalDiscrimination(ngym.EpochEnv):
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
         self.R_FAIL = 0.
-        self.R_MISS = 0.
         self.abort = False
         # set action and observation space
         self.action_space = spaces.Discrete(3)  # (fixate, choose 1, choose2)

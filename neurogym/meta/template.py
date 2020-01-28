@@ -40,7 +40,6 @@ class TASKNAME(ngym.EpochEnv):  # TIP: if task has epochs (alt.: ngym.TrialEnv)
         self.R_ABORTED = -0.1  # reward given when break fixation
         self.R_CORRECT = +1.  # reward given when correct
         self.R_FAIL = 0.  # reward given when incorrect
-        self.R_MISS = 0.  # reward given when not responding
         # whether to abort (T) or not (F) the trial when breaking fixation:
         self.abort = False
         # action and observation spaces: [fixate, got left, got right]

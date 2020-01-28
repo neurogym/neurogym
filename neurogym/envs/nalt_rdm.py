@@ -53,7 +53,6 @@ class nalt_RDM(ngym.EpochEnv):
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
         self.R_FAIL = 0.
-        self.R_MISS = 0.
         self.abort = False
         # action and observation spaces
         self.action_space = spaces.Discrete(n_ch+1)

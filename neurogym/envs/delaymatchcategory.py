@@ -41,7 +41,6 @@ class DelayedMatchCategory(ngym.EpochEnv):
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
         self.R_FAIL = 0.
-        self.R_MISS = 0.
         self.abort = False
 
         # Fixation + Match + Non-match

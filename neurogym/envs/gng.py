@@ -48,8 +48,7 @@ class GNG(ngym.EpochEnv):
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
-        self.R_INCORRECT = 0.
-        self.R_MISS = 0.
+        self.R_FAIL = 0.
         self.abort = False
         # set action and observation spaces
         self.action_space = spaces.Discrete(2)
@@ -92,6 +91,6 @@ class GNG(ngym.EpochEnv):
                 if gt != 0:
                     reward = self.R_CORRECT
                 else:
-                    reward = self.R_INCORRECT
+                    reward = self.R_FAIL
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}

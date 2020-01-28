@@ -33,7 +33,6 @@ class MultiSensoryIntegration(ngym.EpochEnv):
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
-        self.R_MISS = 0.
         self.abort = False
 
         # set action and observation space

@@ -59,7 +59,6 @@ class PDWager(ngym.EpochEnv):
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
-        self.R_MISS = 0.
         self.R_FAIL = 0.
         self.abort = False
         self.R_SURE = 0.7*self.R_CORRECT
