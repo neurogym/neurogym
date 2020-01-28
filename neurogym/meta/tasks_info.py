@@ -188,7 +188,7 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
     obs_cum = np.array(obs_cum)
     obs = np.array(observations)
     fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=legend,
-         model=model, states=states, name=name)
+         states=states, name=name)
     data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
             'actions': actions, 'perf': perf,
             'actions_end_of_trial': actions_end_of_trial, 'gt': gt,
@@ -197,8 +197,8 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
 
 
 def fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=True,
-         obs_cum=None, model=None, states=None, name=''):
-    if model is not None:
+         obs_cum=None, states=None, name=''):
+    if states is not None:
         rows = 4
     else:
         rows = 3
@@ -232,7 +232,7 @@ def fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=True,
              rewards[:n_stps_plt], 'r')
     plt.xlim([-0.5, n_stps_plt-0.5])
     plt.ylabel('reward ' + ' (' + str(np.round(np.mean(perf), 2)) + ')')
-    if model is not None:
+    if states is not None:
         ax = plt.gca()
         ax.set_xticks([])
         plt.subplot(rows, 1, 4)
