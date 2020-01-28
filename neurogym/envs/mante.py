@@ -23,7 +23,7 @@ class Mante(ngym.EpochEnv):
          dynamics in prefrontal cortex''',
         'timing': {
             'fixation': ('constant', 300),
-            'target': ('constant', 350),  # TODO: not implemented
+            # 'target': ('constant', 350),  # TODO: not implemented
             'stimulus': ('constant', 750),
             'delay': ('truncated_exponential', [600, 300, 3000]),
             'decision': ('constant', 100)},  # XXX: not specified
@@ -117,7 +117,7 @@ class ManteWithAbstraction(ngym.EpochEnv):
          dynamics in prefrontal cortex''',
         'timing': {
             'fixation': ('constant', 300),
-            'target': ('constant', 350),  # TODO: not implemented
+            # 'target': ('constant', 350),  # TODO: not implemented
             'stimulus': ('constant', 750),
             'delay': ('truncated_exponential', [600, 300, 3000]),
             'decision': ('constant', 100)},  # XXX: not specified

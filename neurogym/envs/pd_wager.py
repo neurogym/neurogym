@@ -34,7 +34,7 @@ class PDWager(ngym.EpochEnv):
          Decision by Neurons in the Parietal Cortex''',
         'timing': {
             'fixation': ('constant', 100),  # XXX: not specified
-            'target':  ('constant', 0),  # XXX: not implemented, not specified
+            # 'target':  ('constant', 0), # XXX: not implemented, not specified
             'stimulus': ('truncated_exponential', [180, 100, 900]),
             'delay': ('truncated_exponential', [1350, 1200, 1800]),
             'pre_sure': ('uniform', [500, 750]),

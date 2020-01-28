@@ -12,7 +12,7 @@ class MultiSensoryIntegration(ngym.EpochEnv):
         'paper_name': None,
         'timing': {
             'fixation': ('constant', 300),
-            'target': ('constant', 350),  # TODO: not implemented
+            # 'target': ('constant', 350),  # TODO: not implemented
             'stimulus': ('constant', 750),
             'delay': ('truncated_exponential', [600, 300, 3000]),
             'decision': ('constant', 100)},  # XXX: not specified

@@ -25,8 +25,8 @@ class DelayedMatchCategory(ngym.EpochEnv):
             'sample': ('constant', 650),
             'first_delay': ('constant', 1000),
             'test': ('constant', 650),
-            'second_delay': ('constant', 250),  # TODO: not implemented
-            'decision': ('constant', 650)},  # TODO: not implemented
+            # 'second_delay': ('constant', 250),  # TODO: not implemented
+            # 'decision': ('constant', 650)},  # TODO: not implemented
     }
 
     def __init__(self, dt=100, timing=None):
