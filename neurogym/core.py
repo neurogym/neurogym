@@ -67,9 +67,9 @@ class TrialEnv(BaseEnv):
         self.t += self.dt  # increment within trial time count
         self.t_ind += 1
 
-        if self.t > self.tmax - self.dt:
+        if self.t > self.tmax - self.dt and not info['new_trial']:
             info['new_trial'] = True
-            info['trial_endwith_tmax'] = True
+            info['trial_endwith_tmax'] = True  # TODO: do whe need this?
             reward += self.r_tmax
         else:
             info['trial_endwith_tmax'] = False
@@ -104,9 +104,11 @@ class TrialEnv(BaseEnv):
 class EpochEnv(TrialEnv):
     """Environment class with trial/epoch structure."""
 
-    def __init__(self, dt=100, timing=None, num_trials_before_reset=10000000):
+    def __init__(self, dt=100, timing=None, num_trials_before_reset=10000000,
+                 r_tmax=0):
         super(EpochEnv, self).__init__(
-            dt=dt, num_trials_before_reset=num_trials_before_reset)
+            dt=dt, num_trials_before_reset=num_trials_before_reset,
+            r_tmax=r_tmax)
 
         self.gt = None
 
@@ -243,6 +245,10 @@ class EpochEnv(TrialEnv):
     def set_groundtruth(self, epoch, value):
         """Set groundtruth value."""
         self.gt[self.start_ind[epoch]: self.end_ind[epoch]] = value
+
+    def view_groundtruth(self, epoch):
+        """View observation of an epoch."""
+        return self.gt[self.start_ind[epoch]:self.end_ind[epoch]]
 
     def in_epoch(self, epoch, t=None):
         """Check if current time or time t is in epoch"""
