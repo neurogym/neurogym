@@ -22,8 +22,10 @@ class Bandit(ngym.TrialEnv):
         'probs': 'Reward probabilities for each arm. (def: (.9, .1))',
     }
 
-    def __init__(self, dt=100, n_arm=2, probs=(.9, .1)):
+    def __init__(self, dt=100, n_arm=2, probs=(.9, .1), timing=None):
         super().__init__(dt=dt)
+        if timing is not None:
+            print('Warning: Bandit task does not require timing variable.')
         # Rewards
         self.R_CORRECT = +1.
         self.R_FAIL = 0.
