@@ -2,7 +2,7 @@
 
 ### List of environments implemented
 
-* 24 tasks implemented so far.
+* 23 tasks implemented so far.
 
 ### AngleReproduction task ###
 
@@ -52,9 +52,9 @@ Reference paper:
 
 [Prefrontal cortex as a meta-reinforcement learning system](https://www.nature.com/articles/s41593-018-0147-8)
 
-n_arms : Number of arms. (def: 2)
-
 probs : Reward probabilities for each arm. (def: (.9, .1))
+
+n_arms : Number of arms. (def: 2)
 
 ### DPA task ###
 
@@ -89,29 +89,6 @@ Reference paper:
 
 [Model-Based Influences on Humans'
         Choices and Striatal Prediction Errors](https://www.sciencedirect.com/science/article/pii/S0896627311001255)
-
-### DelayedMatchCategory task ###
-
-Logic: A sample stimulus is followed by a delay and test. Agents are required to indicate if the sample and test are in the same category.
-
-Reference paper: 
-
-[Experience-dependent representation
-        of visual categories in parietal cortex](https://www.nature.com/articles/nature05078)
-
-Default Epoch timing (ms) 
-
-fixation : constant 500
-
-sample : constant 650
-
-first_delay : constant 1000
-
-test : constant 650
-
-second_delay : constant 250
-
-decision : constant 650
 
 ### DelayedMatchToSample task ###
 
@@ -198,13 +175,11 @@ fixation : constant 500
 
 stimulus : truncated_exponential [1000, 500, 1500]
 
-end_of_trial : constant 100
-
-noise : standard deviation of background noise (def: 1)
+stim_dur : Stimulus duration (def: 100, ms)
 
 delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution (def: None)
 
-stim_dur : Stimulus duration (def: 100, ms)
+noise : standard deviation of background noise (def: 1)
 
 ### GNG task ###
 
@@ -259,8 +234,6 @@ Reference paper:
 Default Epoch timing (ms) 
 
 fixation : constant 300
-
-target : constant 350
 
 stimulus : constant 750
 
@@ -467,8 +440,6 @@ Default Epoch timing (ms)
 
 fixation : constant 100
 
-target : constant 0
-
 stimulus : truncated_exponential [180, 100, 900]
 
 delay : truncated_exponential [1350, 1200, 1800]
@@ -500,10 +471,10 @@ stim_th : Percentile of stimulus distribution below which catch
         trials are allowed (in some cases, experimenter might decide not
         to have catch trials when  stimulus is very obvious) (def: 50)
 
+catch_prob : Catch trial probability. (def: 0.1)
+
 start : Number of trials after which the catch trials can occur.
         (def: 0)
-
-catch_prob : Catch trial probability. (def: 0.1)
 
 ### MissTrialReward-v0 wrapper ###
 
@@ -511,16 +482,18 @@ Logic: Add a negative reward if a trial ends with no action.
 
 Input parameters: 
 
+r_miss : Reward given when a miss trial occurs.(def: 0)
+
 ### Monitor-v0 wrapper ###
 
 Logic: Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth
 
 Input parameters: 
 
+folder : Folder where the data will be saved. (def: None)
+
 num_tr_save : Data will be saved every num_tr_save trials.
         (def: 100000)
-
-folder : Folder where the data will be saved. (def: None)
 
 ### Noise-v0 wrapper ###
 
@@ -557,11 +530,11 @@ Logic: Changes the probability of ground truth.
 
 Input parameters: 
 
-block_dur : Number of trials per block. (def: 200 (int))
-
 prob : Specifies probabilities for each choice. Within each block,
         the probability should sum up to 1.
         (def: None (Numpy array (n_block, n_choices)))
+
+block_dur : Number of trials per block. (def: 200 (int))
 
 ### TrialHistory-v0 wrapper ###
 
@@ -574,11 +547,11 @@ Reference paper:
 
 Input parameters: 
 
-block_dur : Number of trials per block. (def: 200 (int))
+blk_ch_prob : If not None, specifies the probability of changing
+        block (randomly). (def: None)
 
 rep_prob : Specifies probabilities of repeating for each block.
         (def: (.2, .8))
 
-blk_ch_prob : If not None, specifies the probability of changing
-        block (randomly). (def: None)
+block_dur : Number of trials per block. (def: 200 (int))
 
