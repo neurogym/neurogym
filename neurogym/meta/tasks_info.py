@@ -61,6 +61,14 @@ def info(task=None, show_code=False, show_fig=False, n_stps_plt=200, tags=[]):
                 string += "Other parameters: \n\n"
                 for key in other_info:
                     string += key + ' : ' + str(metadata[key]) + '\n\n'
+            # tags
+            tags = metadata['tags']
+            string += 'Tags: '
+            for tag in tags:
+                dist, args = val
+                string += tag + ', '
+            string = string[:-2] + '.\n\n'
+
             # plot basic structure
             if show_fig:
                 print('#### Example trials ####')

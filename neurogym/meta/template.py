@@ -25,6 +25,7 @@ class TASKNAME(ngym.EpochEnv):  # TIP: if task has epochs (alt.: ngym.TrialEnv)
             'period 3 (e.g. decision)': ('uniform', ('min', 'max'))},
         'extra input parameter 1': 'value',
         'extra input parameter 2': 'value',
+        'tags': ['property 1', 'property 2']
     }
 
     def __init__(self, dt=100, timing=None, extra_input_param=None):

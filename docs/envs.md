@@ -2,7 +2,7 @@
 
 ### List of environments implemented
 
-* 24 tasks implemented so far.
+* 25 tasks implemented so far.
 
 ### AngleReproduction task ###
 
@@ -29,6 +29,8 @@ go1 : constant 500
 
 go2 : constant 500
 
+Tags: perceptual, working memory, delayed response, continuous action space, supervised setting.
+
 ### AntiReach1D task ###
 
 Logic: The agent has to move in the direction opposite to the one indicated by the observation.
@@ -44,6 +46,8 @@ fixation : constant 500
 
 reach : constant 500
 
+Tags: perceptual, continuous action space, supervised setting.
+
 ### Bandit task ###
 
 Logic: The agent has to select between N actions with different reward probabilities.
@@ -58,7 +62,9 @@ probs : Reward probabilities for each arm. (def: (.9, .1))
 
 n_arms : Number of arms. (def: 2)
 
-### CVLearning task ###
+gt_arm : High reward arm. (def: 0)
+
+Tags: ### CVLearning task ###
 
 Logic: Implements shaping for the delay-response task, in which agents have to integrate two stimuli and report which one is larger on average after a delay.
 
@@ -79,6 +85,8 @@ decision : constant 1500
 Other parameters: 
 
 stimEv : Controls the difficulty of the experiment. (def: 1.)
+
+Tags: perceptual, delayed response, two-alternative, supervised setting.
 
 ### DPA task ###
 
@@ -107,14 +115,36 @@ Other parameters:
 noise : Standard deviation of the Gaussian noise added to
         the stimulus. (def: 0.01)
 
+Tags: perceptual, working memory, go/no-go, supervised setting.
+
 ### DawTwoStep task ###
 
 Logic: On each trial, an initial choice between two options lead to either of two, second-stage states. In turn, these both demand another two-option choice, each of which is associated with  a different chance of receiving reward.
 
 Reference paper: 
 
-[Model-Based Influences on Humans'
-        Choices and Striatal Prediction Errors](https://www.sciencedirect.com/science/article/pii/S0896627311001255)
+[Model-Based Influences on Humans Choices and Striatal Prediction Errors](https://www.sciencedirect.com/science/article/pii/S0896627311001255)
+
+Tags: ### DelayedMatchCategory task ###
+
+Logic: A sample stimulus is followed by a delay and test. Agents are required to indicate if the sample and test are in the same category.
+
+Reference paper: 
+
+[Experience-dependent representation
+        of visual categories in parietal cortex](https://www.nature.com/articles/nature05078)
+
+Default Epoch timing (ms) 
+
+fixation : constant 500
+
+sample : constant 650
+
+first_delay : constant 1000
+
+test : constant 650
+
+Tags: perceptual, working memory, two-alternative, supervised setting.
 
 ### DelayedMatchToSample task ###
 
@@ -136,6 +166,8 @@ delay : constant 1000
 test : constant 500
 
 decision : constant 900
+
+Tags: perceptual, working memory, two-alternative, supervised setting.
 
 ### DelayedMatchToSampleDistractor1D task ###
 
@@ -165,6 +197,8 @@ delay3 : constant 1000
 
 test3 : constant 500
 
+Tags: perceptual, working memory, two-alternative, supervised setting.
+
 ### DR task ###
 
 Logic: Agents have to integrate two stimuli and report which one is larger on average after a delay.
@@ -186,6 +220,8 @@ decision : constant 1500
 Other parameters: 
 
 stimEv : Controls the difficulty of the experiment. (def: 1.)
+
+Tags: perceptual, delayed response, two-alternative, supervised setting.
 
 ### Detection task ###
 
@@ -211,6 +247,8 @@ delay : If not None indicates the delay, from the moment of the start of the sti
 
 noise : Standard deviation of background noise. (def: 1)
 
+Tags: perceptual, reaction time, go/no-go, supervised setting.
+
 ### GNG task ###
 
 Logic: Go/No-Go task in which the subject has either Go (e.g. lick) or not Go depending on which one of two stimuli is presented with.
@@ -228,6 +266,8 @@ stimulus : constant 500
 resp_delay : constant 500
 
 decision : constant 500
+
+Tags: delayed response, go/no-go, supervised setting.
 
 ### IntervalDiscrimination task ###
 
@@ -252,6 +292,8 @@ delay2 : constant 500
 
 decision : constant 300
 
+Tags: timing, working memory, delayed response, two-alternative, supervised setting.
+
 ### Mante task ###
 
 Logic: Agent has to perform one of two different perceptual discriminations. On every trial, a contextual cue indicates which one to perform.
@@ -271,6 +313,8 @@ delay : truncated_exponential [600, 300, 3000]
 
 decision : constant 100
 
+Tags: perceptual, context dependent, two-alternative, supervised setting.
+
 ### MatchingPenny task ###
 
 Logic: The agent is rewarded when it selects the
@@ -285,10 +329,9 @@ Other parameters:
 
 opponent_type : Type of opponent. (def: 'random')
 
-### MotorTiming task ###
+Tags: ### MotorTiming task ###
 
-Logic: Agents have to produce different time
-         intervals using different effectors (actions).
+Logic: Agents have to produce different time intervals using different effectors (actions). [different actions not implemented]
 
 Reference paper: 
 
@@ -302,6 +345,8 @@ fixation : constant 500
 cue : uniform [1000, 3000]
 
 set : constant 50
+
+Tags: timing, go/no-go, supervised setting.
 
 ### nalt_RDM task ###
 
@@ -329,6 +374,8 @@ n_ch : Number of choices. (def: 3)
 
 stimEv : Controls the difficulty of the experiment. (def: 1.)
 
+Tags: perceptual, n-alternative, supervised setting.
+
 ### RDM task ###
 
 Logic: Random dot motion task. Two-alternative forced
@@ -352,10 +399,11 @@ Other parameters:
 
 stimEv : Controls the difficulty of the experiment. (def: 1.)
 
+Tags: perceptual, 2-alternative, supervised setting.
+
 ### Reaching1D task ###
 
-Logic: The agent has to reproduce the angle indicated
-         by the observation.
+Logic: The agent has to reproduce the angle indicated by the observation.
 
 Reference paper: 
 
@@ -366,6 +414,8 @@ Default Epoch timing (ms)
 fixation : constant 500
 
 reach : constant 500
+
+Tags: motor, continuous action space, supervised setting.
 
 ### Reaching1DWithSelfDistraction task ###
 
@@ -384,6 +434,8 @@ Default Epoch timing (ms)
 fixation : constant 500
 
 reach : constant 500
+
+Tags: motor, continuous action space, supervised setting.
 
 ### ReadySetGo task ###
 
@@ -409,6 +461,8 @@ Other parameters:
 
 gain : Controls the measure that the agent has to produce. (def: 1)
 
+Tags: timing, go/no-go, supervised setting.
+
 ### Romo task ###
 
 Logic: Two-alternative forced choice task in which
@@ -432,9 +486,12 @@ f2 : constant 500
 
 decision : constant 100
 
+Tags: perceptual, working memory, two-alternative, supervised setting.
+
 ### Serrano task ###
 
-Logic: Missing description
+Logic: Working memory visual spatial task  ~ Funahashi et al. 1991 adapted to freely moving mice in a continous choice-space.
+Brief description: while fixating, stimulus is presented in a touchscreen (bright circle). Afterwards (perhaps including an extra delay), doors open allowing the mouse to touch the screen where the stimulus was located.
 
 Reference paper: 
 
@@ -444,11 +501,13 @@ Missing paper link
 
 Default Epoch timing (ms) 
 
-stimulus : constant 100
+stimulus : constant 500
 
-delay : choice [0, 100, 200]
+delay : choice [0, 1000, 2000]
 
-decision : constant 300
+decision : constant 5000
+
+Tags: perceptual, delayed response, continuous action space, multidimensional action space, supervised setting.
 
 ### PadoaSch task ###
 
@@ -467,6 +526,8 @@ fixation : constant 1500
 offer_on : uniform [1000, 2000]
 
 decision : constant 750
+
+Tags: perceptual, value-based.
 
 ### PDWager task ###
 
@@ -491,6 +552,8 @@ delay : truncated_exponential [1350, 1200, 1800]
 pre_sure : uniform [500, 750]
 
 decision : constant 100
+
+Tags: perceptual, delayed response, confidence, supervised setting.
 
 
 
