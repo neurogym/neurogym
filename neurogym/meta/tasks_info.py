@@ -109,10 +109,11 @@ def info_wrapper(wrapper=None, show_code=False):
                     string += "[{:s}]({:s})\n\n".format(paper_name,
                                                         paper_link)
             # add extra info
-            string += "Input parameters: \n\n"
             other_info = list(set(metadata.keys()) - set(METADATA_DEF_KEYS))
-            for key in other_info:
-                string += key + ' : ' + str(metadata[key]) + '\n\n'
+            if len(other_info) > 0:
+                string += "Input parameters: \n\n"
+                for key in other_info:
+                    string += key + ' : ' + str(metadata[key]) + '\n\n'
 
             # show source code
             if show_code:

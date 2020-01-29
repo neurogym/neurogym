@@ -2,7 +2,7 @@
 
 ### List of environments implemented
 
-* 23 tasks implemented so far.
+* 25 tasks implemented so far.
 
 ### AngleReproduction task ###
 
@@ -55,6 +55,26 @@ Reference paper:
 probs : Reward probabilities for each arm. (def: (.9, .1))
 
 n_arms : Number of arms. (def: 2)
+
+### CVLearning task ###
+
+Logic: Implements shaping for the delay-response task, in which agents have to integrate two stimuli and report which one is larger on average after a delay.
+
+Reference paper: 
+
+[Discrete attractor dynamics underlies persistent activity in the frontal cortex](https://www.nature.com/articles/s41586-019-0919-7)
+
+Default Epoch timing (ms) 
+
+fixation : constant 200
+
+stimulus : constant 1150
+
+delay : choice [300, 500, 700, 900, 1200, 2000, 3200, 4000]
+
+decision : constant 1500
+
+stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 ### DPA task ###
 
@@ -154,8 +174,6 @@ fixation : constant 0
 stimulus : constant 1150
 
 delay : choice [300, 500, 700, 900, 1200, 2000, 3200, 4000]
-
-go_cue : constant 100
 
 decision : constant 1500
 
@@ -406,6 +424,24 @@ f2 : constant 500
 
 decision : constant 100
 
+### Serrano task ###
+
+Logic: Missing description
+
+Reference paper: 
+
+Missing paper name
+
+Missing paper link
+
+Default Epoch timing (ms) 
+
+stimulus : constant 100
+
+delay : choice [0, 100, 200]
+
+decision : constant 300
+
 ### PadoaSch task ###
 
 Logic: Agents choose between two stimuli (A and B; where A
@@ -495,6 +531,10 @@ folder : Folder where the data will be saved. (def: None)
 num_tr_save : Data will be saved every num_tr_save trials.
         (def: 100000)
 
+info_keywords : (tuple) extra information to log, from the information return of environment.step
+
+verbose : Whether to print information about average reward and number of trials
+
 ### Noise-v0 wrapper ###
 
 Logic: Add Gaussian noise to the observations.
@@ -508,21 +548,15 @@ std_noise : Standard deviation of noise. (def: 0.1)
 Logic: Modifies observation by adding the previous
         action.
 
-Input parameters: 
-
 ### PassReward-v0 wrapper ###
 
 Logic: Modifies observation by adding the previous
         reward.
 
-Input parameters: 
-
 ### ReactionTime-v0 wrapper ###
 
 Logic: modfies a given environment by allowing the network
         to act at any time after the fixation period.
-
-Input parameters: 
 
 ### SideBias-v0 wrapper ###
 
