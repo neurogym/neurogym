@@ -27,6 +27,8 @@ class CVLearning(ngym.EpochEnv):
             # 'go_cue': ('constant', 100), # TODO: Not implemented
             'decision': ('constant', 1500)},
         'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
+        'tags': ['perceptual', 'delayed response', 'two-alternative',
+                 'supervised setting']
     }
 
     def __init__(self, dt=100, timing=None, stimEv=1., perf_w=1000,

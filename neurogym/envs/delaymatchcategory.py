@@ -24,7 +24,7 @@ class DelayedMatchCategory(ngym.EpochEnv):
             'fixation': ('constant', 500),
             'sample': ('constant', 650),
             'first_delay': ('constant', 1000),
-            'test': ('constant', 650),
+            'test': ('constant', 650)}
             # 'second_delay': ('constant', 250),  # TODO: not implemented
             # 'decision': ('constant', 650)},  # TODO: not implemented
     }
@@ -45,6 +45,7 @@ class DelayedMatchCategory(ngym.EpochEnv):
 
         # Fixation + Match + Non-match
         self.action_space = spaces.Discrete(3)
+
         # Fixation + cos(theta) + sin(theta)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)

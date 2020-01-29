@@ -16,7 +16,9 @@ class Serrano(ngym.EpochEnv):
         'timing': {
             'stimulus': ('constant', 100),
             'delay': ('choice', [0, 100, 200]),
-            'decision': ('constant', 300)}
+            'decision': ('constant', 300)},
+        'tags': ['perceptual', 'delayed response', 'continuous action space',
+                 'multidimensional action space', 'supervised setting']
     }
 
     def __init__(self, dt=100, timing=None, **kwargs):

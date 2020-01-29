@@ -23,6 +23,7 @@ class ReadySetGo(ngym.EpochEnv):
             'measure': ('choice', [800, 1500]),
             'set': ('constant', 83)},
         'gain': 'Controls the measure that the agent has to produce. (def: 1)',
+        'tags': ['timing', 'go/no-go', 'supervised setting']
     }
 
     def __init__(self, dt=80, timing=None, gain=1):
@@ -98,8 +99,9 @@ class ReadySetGo(ngym.EpochEnv):
 class MotorTiming(ngym.EpochEnv):
     #  TODO: different actions not implemented
     metadata = {
-        'description': '''Agents have to produce different time
-         intervals using different effectors (actions).''',
+        'description': 'Agents have to produce different time' +
+        ' intervals using different effectors (actions).' +
+        ' [different actions not implemented]',
         'paper_link': 'https://www.nature.com/articles/s41593-017-0028-6',
         'paper_name': '''Flexible timing by temporal scaling of
          cortical responses''',
@@ -107,6 +109,7 @@ class MotorTiming(ngym.EpochEnv):
             'fixation': ('constant', 500),  # XXX: not specified
             'cue': ('uniform', [1000, 3000]),
             'set': ('constant', 50)},
+        'tags': ['timing', 'go/no-go', 'supervised setting']
     }
 
     def __init__(self, dt=80, timing=None):

@@ -12,13 +12,14 @@ from neurogym.ops import tasktools
 # making it difficult for SL and RL to work together
 class Reaching1D(ngym.EpochEnv):
     metadata = {
-        'description': '''The agent has to reproduce the angle indicated
-         by the observation.''',
+        'description': 'The agent has to reproduce the angle indicated' +
+         ' by the observation.',
         'paper_link': 'https://science.sciencemag.org/content/233/4771/1416',
         'paper_name': 'Neuronal population coding of movement direction',
         'timing': {
             'fixation': ('constant', 500),
             'reach': ('constant', 500)},
+        'tags': []
     }
 
     def __init__(self, dt=100, timing=None):
