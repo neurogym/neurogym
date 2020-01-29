@@ -10,21 +10,23 @@ import neurogym as ngym
 
 class Serrano(ngym.EpochEnv):
     metadata = {
-        'description': '',
+        'description': 'Working memory visual spatial task ~ Funahashi et al. 1991 ' + 
+        'adapted to freely moving mice in a continous choice-space.\n' + 
+        'Brief description: while fixating, stimulus is presented in a ' +
+        'touchscreen (bright circle). Afterwards (perhaps including an extra delay),'+
+        ' doors open allowing the mouse to touch the screen where the stimulus was located.',
         'paper_link': None,
         'paper_name': None,
         'timing': {
-            'stimulus': ('constant', 100),
-            'delay': ('choice', [0, 100, 200]),
-            'decision': ('constant', 300)},
-        'tags': ['perceptual', 'delayed response', 'continuous action space',
-                 'multidimensional action space', 'supervised setting']
+            'stimulus': ('constant', 500),
+            'delay': ('choice', [0, 1000, 2000]),
+            'decision': ('constant', 5000)}
     }
 
-    def __init__(self, dt=100, timing=None, **kwargs):
+    def __init__(self, dt=100, timing=None, lowbound=0., highbound=1.,**kwargs):
         super().__init__(dt=dt, timing=timing)
-        self.lowbound = 0.
-        self.highbound = 1.0
+        self.lowbound = lowbound
+        self.highbound = highbound
         self.sigma = np.sqrt(2 * 100 * 0.01)
         self.sigma_dt = self.sigma / np.sqrt(self.dt)
 
@@ -59,7 +61,7 @@ class Serrano(ngym.EpochEnv):
         stimulus = self.view_ob('stimulus')
         stimulus[:, 1] = ground_truth
         stimulus[:, 1] +=\
-            np.random.rand(stimulus.shape[0])*self.sigma_dt*0.01
+            np.random.rand(stimulus.shape[0])*self.sigma_dt
 
         self.set_ob('delay', [0, -0.5])
         self.set_ob('decision', [1, -0.5])
@@ -71,11 +73,6 @@ class Serrano(ngym.EpochEnv):
         # rewards
         reward = 0
         gt = self.gt_now
-
-        # observations
-        """elif self.in_epoch('delay'):
-            if (action[1] < -1) or (action[1] > 2):
-                reward = self.R_ABORTED*0.2"""
 
         if self.in_epoch('stimulus'):
             if not action[0] < 0:
