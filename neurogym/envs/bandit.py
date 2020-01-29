@@ -20,9 +20,12 @@ class Bandit(ngym.TrialEnv):
         ' system',
         'n_arms': 'Number of arms. (def: 2)',
         'probs': 'Reward probabilities for each arm. (def: (.9, .1))',
+        'gt_arm': 'High reward arm. (def: 0)',
+        'tags': ['n-alternative', 'supervised setting']
     }
 
-    def __init__(self, dt=100, n_arm=2, probs=(.9, .1), timing=None):
+    def __init__(self, dt=100, n_arm=2, probs=(.9, .1), gt_arm=0,
+                 timing=None):
         super().__init__(dt=dt)
         if timing is not None:
             print('Warning: Bandit task does not require timing variable.')
@@ -30,7 +33,7 @@ class Bandit(ngym.TrialEnv):
         self.R_CORRECT = +1.
         self.R_FAIL = 0.
         self.n_arm = n_arm
-
+        self.gt_arm = gt_arm
         # Reward probabilities
         self.p_high = probs[0]
         self.p_low = probs[1]
@@ -49,7 +52,7 @@ class Bandit(ngym.TrialEnv):
         self.trial = {
             'rew_high_reward_arm': rew_high_reward_arm,
             'rew_low_reward_arm': rew_low_reward_arm,
-            'high_reward_arm': 0,
+            'high_reward_arm': self.gt_arm,
             }
         self.trial.update(kwargs)
 
@@ -65,4 +68,5 @@ class Bandit(ngym.TrialEnv):
 
         # new trial?
         info['new_trial'] = True
+        info['gt'][self.gt_arm] = 1
         return obs, reward, False, info

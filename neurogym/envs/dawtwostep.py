@@ -19,8 +19,9 @@ class DawTwoStep(ngym.TrialEnv):
         ' a different chance of receiving reward.',
         'paper_link': 'https://www.sciencedirect.com/science/article/' +
         'pii/S0896627311001255',
-        'paper_name': """Model-Based Influences on Humans'
-        Choices and Striatal Prediction Errors""",
+        'paper_name': 'Model-Based Influences on Humans' +
+        ' Choices and Striatal Prediction Errors',
+        'tags': ['two-alternative', 'supervised setting']
     }
 
     def __init__(self, dt=100, timing=None):
@@ -103,5 +104,5 @@ class DawTwoStep(ngym.TrialEnv):
             info['new_trial'] = True
         else:
             raise ValueError('t is not 0 or 1')
-
+        info['gt'][self.hi_state+1] = 1  # TODO: check!
         return obs, reward, False, info

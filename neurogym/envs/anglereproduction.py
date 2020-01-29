@@ -21,8 +21,9 @@ class AngleReproduction(ngym.EpochEnv):
             'stim2': ('constant', 500),
             'delay2': ('constant', 500),
             'go1': ('constant', 500),
-            'go2': ('constant', 500),
-        },
+            'go2': ('constant', 500)},
+        'tags': ['perceptual', 'working memory', 'delayed response',
+                 'continuous action space', 'supervised setting']
     }
 
     def __init__(self, dt=100, timing=None):
