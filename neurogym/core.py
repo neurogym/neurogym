@@ -191,7 +191,11 @@ class EpochEnv(TrialEnv):
         self.obs = np.zeros(ob_shape)
 
         # TODO: Allow ground truth to be category or full action
-        self.gt = np.zeros(tmax_ind)  # , dtype=np.int) g. truth action, def. 0
+        act_sh = self.action_space.shape
+        if len(act_sh) == 0:
+            self.gt = np.zeros(tmax_ind)  # , dtype=np.int) gt action, def. 0
+        else:
+            self.gt = np.zeros(tmax_ind, act_sh[0])
 
     def add_input(self, input, loc=None, epoch=None):
         """Add an input to current observation."""
