@@ -51,8 +51,10 @@ def info(task=None, show_code=False, show_fig=False, n_stps_plt=200):
                     string += key + ' : ' + dist + ' ' + str(args) + '\n\n'
             # add extra info
             other_info = list(set(metadata.keys()) - set(METADATA_DEF_KEYS))
-            for key in other_info:
-                string += key + ' : ' + str(metadata[key]) + '\n\n'
+            if len(other_info) > 0:
+                string += "Other parameters: \n\n"
+                for key in other_info:
+                    string += key + ' : ' + str(metadata[key]) + '\n\n'
             # plot basic structure
             if show_fig:
                 print('#### Example trials ####')

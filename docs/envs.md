@@ -52,6 +52,8 @@ Reference paper:
 
 [Prefrontal cortex as a meta-reinforcement learning system](https://www.nature.com/articles/s41593-018-0147-8)
 
+Other parameters: 
+
 probs : Reward probabilities for each arm. (def: (.9, .1))
 
 n_arms : Number of arms. (def: 2)
@@ -73,6 +75,8 @@ stimulus : constant 1150
 delay : choice [300, 500, 700, 900, 1200, 2000, 3200, 4000]
 
 decision : constant 1500
+
+Other parameters: 
 
 stimEv : Controls the difficulty of the experiment. (def: 1.)
 
@@ -97,6 +101,8 @@ stim2 : constant 1000
 delay_aft_stim : constant 1000
 
 decision : constant 500
+
+Other parameters: 
 
 noise : Standard deviation of the Gaussian noise added to
         the stimulus. (def: 0.01)
@@ -177,6 +183,8 @@ delay : choice [300, 500, 700, 900, 1200, 2000, 3200, 4000]
 
 decision : constant 1500
 
+Other parameters: 
+
 stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 ### Detection task ###
@@ -194,6 +202,8 @@ Default Epoch timing (ms)
 fixation : constant 500
 
 stimulus : truncated_exponential [1000, 500, 1500]
+
+Other parameters: 
 
 stim_dur : Stimulus duration. (def: 100, ms)
 
@@ -271,6 +281,8 @@ Reference paper:
 [Prefrontal cortex and decision making in a
          mixed-strategy game](https://www.nature.com/articles/nn1209)
 
+Other parameters: 
+
 opponent_type : Type of opponent. (def: 'random')
 
 ### MotorTiming task ###
@@ -311,6 +323,8 @@ stimulus : truncated_exponential [330, 80, 1500]
 
 decision : constant 500
 
+Other parameters: 
+
 n_ch : Number of choices. (def: 3)
 
 stimEv : Controls the difficulty of the experiment. (def: 1.)
@@ -333,6 +347,8 @@ fixation : constant 100
 stimulus : constant 2000
 
 decision : constant 100
+
+Other parameters: 
 
 stimEv : Controls the difficulty of the experiment. (def: 1.)
 
@@ -388,6 +404,8 @@ ready : constant 83
 measure : choice [800, 1500]
 
 set : constant 83
+
+Other parameters: 
 
 gain : Controls the measure that the agent has to produce. (def: 1)
 
