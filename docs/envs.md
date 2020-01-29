@@ -2,7 +2,7 @@
 
 ### List of environments implemented
 
-* 25 tasks implemented so far.
+* 24 tasks implemented so far.
 
 ### AngleReproduction task ###
 
@@ -31,7 +31,7 @@ go2 : constant 500
 
 ### AntiReach1D task ###
 
-Logic: The agent has to move in the direction opposite to the one indicated by the observation
+Logic: The agent has to move in the direction opposite to the one indicated by the observation.
 
 Reference paper: 
 
@@ -181,11 +181,13 @@ stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 ### Detection task ###
 
-Logic: The agent has to GO if a stimulus is presented
+Logic: The agent has to GO if a stimulus is presented.
 
 Reference paper: 
 
-[Missing paper name]()
+Missing paper name
+
+Missing paper link
 
 Default Epoch timing (ms) 
 
@@ -193,15 +195,15 @@ fixation : constant 500
 
 stimulus : truncated_exponential [1000, 500, 1500]
 
-stim_dur : Stimulus duration (def: 100, ms)
+stim_dur : Stimulus duration. (def: 100, ms)
 
-delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution (def: None)
+delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
 
-noise : standard deviation of background noise (def: 1)
+noise : Standard deviation of background noise. (def: 1)
 
 ### GNG task ###
 
-Logic: Go/No-Go task in which the subject has either Go (e.g. lick) or not Go depending on which one of two stimuli is presented with
+Logic: Go/No-Go task in which the subject has either Go (e.g. lick) or not Go depending on which one of two stimuli is presented with.
 
 Reference paper: 
 
@@ -262,7 +264,7 @@ decision : constant 100
 ### MatchingPenny task ###
 
 Logic: The agent is rewarded when it selects the
-         same target as the computer,
+         same target as the computer.
 
 Reference paper: 
 
@@ -271,22 +273,10 @@ Reference paper:
 
 opponent_type : Type of opponent. (def: 'random')
 
-### MemoryRecall task ###
-
-Logic: Missing description
-
-Reference paper: 
-
-Missing paper name
-
-Missing paper link
-
-render.modes : []
-
 ### MotorTiming task ###
 
 Logic: Agents have to produce different time
-         intervals using different effectors (actions)
+         intervals using different effectors (actions).
 
 Reference paper: 
 
@@ -305,7 +295,7 @@ set : constant 50
 
 Logic: N-alternative forced choice task in which the subject
          has to integrate N stimuli to decide which one is higher
-          on average
+          on average.
 
 Reference paper: 
 
@@ -329,7 +319,7 @@ stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Logic: Random dot motion task. Two-alternative forced
          choice task in which the subject has to integrate two stimuli to
-         decide which one is higher on average
+         decide which one is higher on average.
 
 Reference paper: 
 
@@ -349,7 +339,7 @@ stimEv : Controls the difficulty of the experiment. (def: 1.)
 ### Reaching1D task ###
 
 Logic: The agent has to reproduce the angle indicated
-         by the observation
+         by the observation.
 
 Reference paper: 
 
@@ -365,7 +355,7 @@ reach : constant 500
 
 Logic: The agent has to reproduce the angle indicated
          by the observation. Furthermore, the reaching state itself
-         generates strong inputs that overshadows the actual target input
+         generates strong inputs that overshadows the actual target input.
 
 Reference paper: 
 
@@ -382,7 +372,7 @@ reach : constant 500
 ### ReadySetGo task ###
 
 Logic: Agents have to measure and produce different time
-         intervals
+         intervals.
 
 Reference paper: 
 
@@ -405,7 +395,7 @@ gain : Controls the measure that the agent has to produce. (def: 1)
 
 Logic: Two-alternative forced choice task in which
          the subject has to compare two stimuli separated by a delay
-         to decide which one has a higher frequency
+         to decide which one has a higher frequency.
 
 Reference paper: 
 
@@ -484,7 +474,7 @@ pre_sure : uniform [500, 750]
 
 decision : constant 100
 
-* 
+
 
 
 
@@ -505,7 +495,7 @@ Input parameters:
 
 stim_th : Percentile of stimulus distribution below which catch
         trials are allowed (in some cases, experimenter might decide not
-        to have catch trials when  stimulus is very obvious) (def: 50)
+        to have catch trials when  stimulus is very obvious). (def: 50)
 
 catch_prob : Catch trial probability. (def: 0.1)
 
@@ -522,7 +512,7 @@ r_miss : Reward given when a miss trial occurs.(def: 0)
 
 ### Monitor-v0 wrapper ###
 
-Logic: Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth
+Logic: Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth.
 
 Input parameters: 
 
@@ -555,7 +545,7 @@ Logic: Modifies observation by adding the previous
 
 ### ReactionTime-v0 wrapper ###
 
-Logic: modfies a given environment by allowing the network
+Logic: Modfies a given environment by allowing the network
         to act at any time after the fixation period.
 
 ### SideBias-v0 wrapper ###

@@ -38,7 +38,7 @@ def main():
     with open(md_file, 'w') as f:
         f.write('* Under development, details subject to change\n\n')
         f.write(string1)
-        f.write('* \n\n\n\n\n')
+        f.write('\n\n\n\n\n')
         f.write(string2)
 
 
