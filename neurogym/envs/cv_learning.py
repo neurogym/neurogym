@@ -5,33 +5,54 @@ Created on Mon Nov  4 10:45:33 2019
 
 @author: molano
 """
-import matplotlib.pyplot as plt
+
+
 import numpy as np
 import sys
 from os.path import expanduser
-from gym.core import Wrapper
-from neurogym.envs import generaltask as GT
-from copy import copy
+from gym import spaces
+import neurogym as ngym
 home = expanduser("~")
 sys.path.append(home)
 sys.path.append(home + '/neurogym')
 sys.path.append(home + '/gym')
 
 
-class CurriculumLearning(Wrapper):
+class CurriculumLearning(ngym.EpochEnv):
+    metadata = {
+        'description': '',
+        'paper_link': '',
+        'paper_name': '',
+        'timing': {
+            'fixation': ('constant', 200),
+            'stimulus': ('constant', 1150),
+            'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
+            'go_cue': ('constant', 100),
+            'decision': ('constant', 1500)},
+        'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
+    }
+
     """
     modfies a given environment by changing the probability of repeating the
     previous correct response
     """
-    def __init__(self, env, perf_w=1000, max_num_reps=3, init_ph=0, th=0.8):
-        Wrapper.__init__(self, env=env)
-        self.env = env
-        # we get the original task, in case we are composing wrappers
-        env_aux = env
-        while env_aux.__class__.__module__.find('wrapper') != -1:
-            env_aux = env.env
-        self.task = env_aux
-        self.ori_task = copy(env)
+    def __init__(self, dt=100, timing=None, stimEv=1., perf_w=10,
+                 max_num_reps=3, init_ph=4 , th=0.8):
+        super().__init__(dt=dt, timing=timing)
+        self.choices = [1, 2]
+        # cohs specifies the amount of evidence (which is modulated by stimEv)
+        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
+        # Input noise
+        sigma = np.sqrt(2*100*0.01)
+        self.sigma_dt = sigma / np.sqrt(self.dt)
+        # Rewards
+        self.R_ABORTED = -0.1
+        self.R_CORRECT = +1.
+        self.R_FAIL = -1.
+        self.R_MISS = 0.
+        self.abort = False
+        self.firstcounts = True
+        self.first_flag = False
         self.curr_ph = init_ph
         self.curr_perf = 0
         self.perf_window = perf_w
@@ -40,12 +61,33 @@ class CurriculumLearning(Wrapper):
         self.counter = 0
         self.max_num_reps = max_num_reps
         self.rew = 0
-        self.new_trial()
+        # action and observation spaces
+        self.action_space = spaces.Discrete(3)
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
+                                            dtype=np.float32)
 
     def new_trial(self, **kwargs):
-        # ---------------------------------------------------------------------
-        # Epochs
-        # ---------------------------------------------------------------------
+        """
+        new_trial() is called when a trial ends to generate the next trial.
+        The following variables are created:
+            durations, which stores the duration of the different periods (in
+            the case of rdm: fixation, stimulus and decision periods)
+            ground truth: correct response for the trial
+            coh: stimulus coherence (evidence) for the trial
+            obs: observation
+        """
+
+        self.trial = {
+            'ground_truth': self.rng.choice(self.choices),
+            'coh': self.rng.choice(self.cohs),
+            'sigma_dt': self.sigma_dt,
+        }
+
+        self.durs = {}
+        for key in self.metadata['timing'].keys():
+            self.durs.update({key: self.metadata['timing'][key][1]})
+        self.durs.update({'delay': self.rng.choice(self.durs['delay'])})
+
         self.first_trial_rew = None
         # self.set_phase()
         if self.curr_ph == 0:
@@ -53,35 +95,68 @@ class CurriculumLearning(Wrapper):
             # agent cannot go N times in a row to the same side
             if np.abs(self.counter) >= self.max_num_reps:
                 ground_truth = 1 if self.action == 2 else 2
-                kwargs.update({'gt': ground_truth})
-                self.task.R_FAIL = 0
+                self.trial.update({'ground_truth': ground_truth})
+                self.R_FAIL = 0
             else:
-                self.task.R_FAIL = self.ori_task.R_CORRECT
-            kwargs.update({'durs': {'stimulus': 0,
-                                    'delay_aft_stim': 0},
-                           'sigma': 0})
+                self.R_FAIL = self.R_CORRECT
+            self.durs.update({'stimulus': (0),
+                             'delay': (0)})
+            self.trial.update({'sigma_dt': 0})
+
         elif self.curr_ph == 1:
             # stim introduced with no ambiguity
             # wrong answer is not penalized
             # agent can keep exploring until finding the right answer
-            kwargs.update({'durs': {'delay_aft_stim': 0},
-                           'cohs': np.array([100]), 'sigma': 0})
-            self.task.R_FAIL = 0
-            self.task.firstcounts = False
+            self.durs.update({'delay': (0)})
+            self.trial.update({'coh': 100})
+            self.trial.update({'sigma_dt': 0})
+            self.R_FAIL = 0
+            self.firstcounts = False
         elif self.curr_ph == 2:
             # first answer counts
             # wrong answer is penalized
+            self.durs.update({'delay': (0)})
+            self.trial.update({'coh': 100})
+            self.trial.update({'sigma_dt': 0})
             self.first_trial_rew = None
-            self.task.R_FAIL = self.ori_task.R_FAIL
-            self.task.firstcounts = True
-            kwargs.update({'durs': {'delay_aft_stim': 0},
-                           'cohs': np.array([100]), 'sigma': 0})
+            self.R_FAIL = -1
+            self.firstcounts = True
         elif self.curr_ph == 3:
             # delay component is introduced
-            kwargs.update({'cohs': np.array([100]), 'sigma': 0})
-
+            self.trial.update({'coh': 100})
+            self.trial.update({'sigma_dt': 0})
         # phase 4: ambiguity component is introduced
-        self.env.new_trial(**kwargs)
+
+        self.first_flag = False
+
+        # ---------------------------------------------------------------------
+        # Trial
+        # ---------------------------------------------------------------------
+
+        self.trial.update(kwargs)
+
+        # ---------------------------------------------------------------------
+        # Epochs
+        # ---------------------------------------------------------------------
+        self.add_epoch('fixation', after=0)
+        self.add_epoch('stimulus', duration=self.durs['stimulus'],
+                       after='fixation')
+        self.add_epoch('delay', duration=self.durs['delay'],
+                       after='stimulus')
+        self.add_epoch('decision', after='delay', last_epoch=True)
+
+        # define observations
+        self.set_ob('fixation', [1, 0, 0])
+        stim = self.view_ob('stimulus')
+        stim[:, 0] = 1
+        stim[:, 1:] = (1 - self.trial['coh']/100)/2
+        stim[:, self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
+        stim[:, 1:] +=\
+            np.random.randn(stim.shape[0], 2) * self.trial['sigma_dt']
+
+        self.set_ob('delay', [1, 0, 0])
+
+        self.set_groundtruth('decision', self.trial['ground_truth'])
 
     def count(self, action):
         '''
@@ -94,115 +169,189 @@ class CurriculumLearning(Wrapper):
                 self.counter += new
             else:
                 self.counter = new
-            # print('counter', self.counter)
 
     def set_phase(self):
         if self.curr_ph < 4:
             if len(self.mov_window) >= self.perf_window:
-                self.mov_window.append(1*(self.rew == self.task.R_CORRECT))
+                self.mov_window.append(1*(self.rew == self.R_CORRECT))
                 self.mov_window.pop(0)  # remove first value
                 self.curr_perf = np.sum(self.mov_window)/self.perf_window
                 if self.curr_perf >= self.goal_perf[self.curr_ph]:
                     self.curr_ph += 1
                     self.mov_window = []
             else:
-                self.mov_window.append(1*(self.rew == self.task.R_CORRECT))
-
-    def reset(self):
-        return self.task.reset()
+                self.mov_window.append(1*(self.rew == self.R_CORRECT))
 
     def _step(self, action):
-        obs, reward, done, info = self.env._step(action)
-        if ~self.env.firstcounts and ~np.isnan(info['first_trial']):
+        # obs, reward, done, info = self.env._step(action)
+        # ---------------------------------------------------------------------
+        # Reward and observations
+        # ---------------------------------------------------------------------
+        new_trial = False
+        # rewards
+        reward = 0
+        # observations
+        gt = self.gt_now
+
+        first_trial = np.nan
+        if self.in_epoch('fixation') or self.in_epoch('delay'):
+            if action != 0:
+                new_trial = self.abort
+                reward = self.R_ABORTED
+        elif self.in_epoch('decision'):
+            if action == gt:
+                reward = self.R_CORRECT
+                new_trial = True
+                if ~self.first_flag:
+                    first_trial = True
+                    self.first_flag = True
+            elif action == 3 - gt:  # 3-action is the other act
+                reward = self.R_FAIL
+                new_trial = self.firstcounts
+                if ~self.first_flag:
+                    first_trial = False
+                    self.first_flag = True
+
+        info = {'new_trial': new_trial,
+                'gt': gt,
+                'first_trial': first_trial}
+
+        if ~self.firstcounts and ~np.isnan(info['first_trial']):
             self.first_trial_rew = reward
         self.rew = self.first_trial_rew or reward
         self.action = action
-        return obs, reward, done, info
 
-    def step(self, action):
-        obs, reward, done, info = self._step(action)
         if info['new_trial']:
             self.set_phase()
             info.update({'curr_ph': self.curr_ph, 'first_rew': self.rew})
             self.count(action)
-            self.new_trial()
 
-        return obs, reward, done, info
+        return self.obs_now, reward, False, info
 
-
-if __name__ == '__main__':
-    plt.close('all')
-    rows = 3
-    timing = {'fixation': [200, 200, 200], 'stimulus': [200, 100, 300],
-              'delay_btw_stim': [0, 0, 0],
-              'delay_aft_stim': [500, 200, 800], 'decision': [200, 200, 200]}
-    simultaneous_stim = True
-    env = GT.GenTask(timing=timing, simultaneous_stim=simultaneous_stim)
-    env = CurriculumLearning(env)
+def plot_struct(env, num_steps_env=200, n_stps_plt=200,
+                def_act=None, model=None, name=None, legend=True):
+    if isinstance(env, str):
+        env = gym.make(env)
+    if name is None:
+        name = type(env).__name__
     observations = []
+    obs_cum = []
+    state_mat = []
     rewards = []
     actions = []
     actions_end_of_trial = []
     gt = []
-    config_mat = []
     perf = []
-    num_steps_env = 2000
-    g_t = 0
-    next_ph = 1
+
+    obs = env.reset()
+    obs_cum_temp = obs
     for stp in range(int(num_steps_env)):
-        action = env.gt
-        # action = env.action_space.sample()
+        if model is not None:
+            action, _states = model.predict(obs)
+            action = [action]
+            state_mat.append(_states)
+        elif def_act is not None:
+            action = def_act
+        else:
+            action = env.gt_now
         obs, rew, done, info = env.step(action)
-        print(info['gt'])
-        print(action)
-        print(rew)
-        print(obs)
-        print('')
+        obs_cum_temp += obs
+        obs_cum.append(obs_cum_temp.copy())
+        if isinstance(info, list):
+            info = info[0]
+            obs_aux = obs[0]
+            rew = rew[0]
+            done = done[0]
+            action = action[0]
+            rew_correct = env.get_attr('R_CORRECT')
+        else:
+            obs_aux = obs
+            rew_correct = env.R_CORRECT
+
         if done:
             env.reset()
-        observations.append(obs)
+        observations.append(obs_aux)
         if info['new_trial']:
-            print('XXXXXXXXXXXX')
-            print('Current phase: ', info['curr_ph'])
             actions_end_of_trial.append(action)
-            perf.append(env.curr_perf)
-            if info['curr_ph'] == next_ph:
-                plt.figure()
-                plt.plot(perf)
-                plt.title('Performance along phase ' + str(next_ph-1))
-                plt.show()
-                next_ph += 1
-                perf = []
+            perf.append(rew == rew_correct)
+            obs_cum_temp = np.zeros_like(obs_cum_temp)
         else:
             actions_end_of_trial.append(-1)
         rewards.append(rew)
         actions.append(action)
         gt.append(info['gt'])
-        if 'config' in info.keys():
-            config_mat.append(info['config'])
-        else:
-            config_mat.append([0, 0])
-    observations = np.array(observations)
-    plt.figure()
+    if model is not None:
+        states = np.array(state_mat)
+        states = states[:, 0, :]
+    else:
+        states = None
+    obs_cum = np.array(obs_cum)
+    obs = np.array(observations)
+    fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=legend,
+         model=model, states=states, name=name)
+    data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
+            'actions': actions, 'perf': perf,
+            'actions_end_of_trial': actions_end_of_trial, 'gt': gt,
+            'states': states}
+    return data
+
+def fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=True,
+         obs_cum=None, model=None, states=None, name=''):
+    if model is not None:
+        rows = 4
+    else:
+        rows = 3
+
+    f = plt.figure(figsize=(8, 8))
+    # obs
     plt.subplot(rows, 1, 1)
-    plt.imshow(observations.T, aspect='auto')
-    plt.title('observations')
+    plt.imshow(obs[:n_stps_plt, :].T, aspect='auto')
+    plt.title('observations ' + name + ' task')
+    ax = plt.gca()
+    ax.set_xticks([])
+    ax.set_yticks([])
+    # actions
     plt.subplot(rows, 1, 2)
-    plt.plot(actions, marker='+')
-    plt.plot(actions_end_of_trial, '--')
+    plt.plot(np.arange(n_stps_plt) + 0.,
+             actions[:n_stps_plt], marker='+', label='actions')
     gt = np.array(gt)
-    print(np.argmax(gt[len(gt)-1]))
-    # print(np.argmax(gt[0], axis=1))
-    plt.plot(np.argmax(gt, axis=1), 'r')
-    print(np.sum(np.argmax(gt, axis=1) == 2))
-    print(np.sum(np.argmax(gt, axis=1) == 1))
-    # aux = np.argmax(obs, axis=1)
-    # aux[np.sum(obs, axis=1) == 0] = -1
-    # plt.plot(aux, '--k')
-    plt.title('actions')
-    plt.xlim([-0.5, len(rewards)+0.5])
+    if len(gt.shape) == 2:
+        gt = np.argmax(gt, axis=1)
+    plt.plot(np.arange(n_stps_plt) + 0.,
+             gt[:n_stps_plt], 'r', label='ground truth')
+    plt.ylabel('actions')
+    if legend:
+        plt.legend()
+    plt.xlim([-0.5, n_stps_plt-0.5])
+    ax = plt.gca()
+    ax.set_xticks([])
+    # rewards
     plt.subplot(rows, 1, 3)
-    plt.plot(rewards, 'r')
-    plt.title('reward')
-    plt.xlim([-0.5, len(rewards)+0.5])
+    plt.plot(np.arange(n_stps_plt) + 0.,
+             rewards[:n_stps_plt], 'r')
+    plt.xlim([-0.5, n_stps_plt-0.5])
+    plt.ylabel('reward ' + ' (' + str(np.round(np.mean(perf), 2)) + ')')
+    if model is not None:
+        ax = plt.gca()
+        ax.set_xticks([])
+        plt.subplot(rows, 1, 4)
+        plt.imshow(states[:n_stps_plt, int(states.shape[1]/2):].T,
+                   aspect='auto')
+        plt.title('network activity')
+        plt.ylabel('neurons')
+        ax = plt.gca()
+
+    plt.xlabel('timesteps')
+    plt.tight_layout()
     plt.show()
+    return f
+
+from neurogym import all_tasks
+from neurogym.wrappers import all_wrappers
+import matplotlib.pyplot as plt
+import numpy as np
+metadata_basic_info = ['description', 'paper_name', 'paper_link', 'timing']
+
+if __name__ == '__main__':
+    env = CurriculumLearning()
+    plot_struct(env)
