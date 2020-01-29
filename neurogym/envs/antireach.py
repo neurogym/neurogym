@@ -11,7 +11,7 @@ from neurogym.ops import tasktools
 class AntiReach1D(ngym.EpochEnv):
     metadata = {
         'description': 'The agent has to move in the direction opposite ' +
-        'to the one indicated by the observation',
+        'to the one indicated by the observation.',
         'paper_link': 'https://www.nature.com/articles/nrn1345',
         'paper_name': """Look away: the anti-saccade task and
         the voluntary control of eye movement""",

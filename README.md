@@ -1,6 +1,6 @@
 # NeuroGym
 
-#### In Development. Tasks are subject to changes right now
+#### In Development. Tasks are subject to changes right now.
 
 NeuroGym is a comprehensive toolkit that allows training any network model on many established neuroscience tasks using Reinforcement Learning techniques. NeuroGym includes working memory tasks, value-based decision tasks and context-dependent perceptual categorization tasks. 
 

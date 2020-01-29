@@ -13,7 +13,7 @@ class RDM(ngym.EpochEnv):
     metadata = {
         'description': '''Random dot motion task. Two-alternative forced
          choice task in which the subject has to integrate two stimuli to
-         decide which one is higher on average''',
+         decide which one is higher on average.''',
         'paper_link': 'https://www.jneurosci.org/content/12/12/4745',
         'paper_name': '''The analysis of visual motion: a comparison of
         neuronal and psychophysical performance''',
