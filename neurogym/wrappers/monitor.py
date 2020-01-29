@@ -14,7 +14,7 @@ import numpy as np
 class Monitor(Wrapper):
     metadata = {
         'description': 'Saves relevant behavioral information: rewards,' +
-        ' actions, observations, new trial, ground truth',
+        ' actions, observations, new trial, ground truth.',
         'paper_link': None,
         'paper_name': None,
         'folder': 'Folder where the data will be saved. (def: None)',

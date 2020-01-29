@@ -13,7 +13,7 @@ from neurogym.ops import tasktools
 class Reaching1D(ngym.EpochEnv):
     metadata = {
         'description': '''The agent has to reproduce the angle indicated
-         by the observation''',
+         by the observation.''',
         'paper_link': 'https://science.sciencemag.org/content/233/4771/1416',
         'paper_name': 'Neuronal population coding of movement direction',
         'timing': {
@@ -84,7 +84,7 @@ class Reaching1DWithSelfDistraction(ngym.EpochEnv):
     metadata = {
         'description': '''The agent has to reproduce the angle indicated
          by the observation. Furthermore, the reaching state itself
-         generates strong inputs that overshadows the actual target input''',
+         generates strong inputs that overshadows the actual target input.''',
         'paper_link': None,
         'paper_name': None,
         'timing': {

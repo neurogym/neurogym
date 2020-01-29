@@ -14,18 +14,18 @@ from neurogym.meta import tasks_info
 
 class Detection(ngym.EpochEnv):
     metadata = {
-            'description': 'The agent has to GO if a stimulus is presented',
-            'paper_link': '',
-            'paper_name': '',
+            'description': 'The agent has to GO if a stimulus is presented.',
+            'paper_link': None,
+            'paper_name': None,
             'timing': {
                     'fixation': ('constant', 500),
                     'stimulus': ('truncated_exponential', [1000, 500, 1500])},
-            'noise': 'standard deviation of background noise (def: 1)',
+            'noise': 'Standard deviation of background noise. (def: 1)',
             'delay': 'If not None indicates the delay, from the moment of' +
             ' the start of the stimulus period when the actual ' +
             'stimulus is presented. Otherwise, the delay is drawn from' +
-            ' a uniform distribution (def: None)',
-            'stim_dur': 'Stimulus duration (def: 100, ms)'
+            ' a uniform distribution. (def: None)',
+            'stim_dur': 'Stimulus duration. (def: 100, ms)'
             }
 
     def __init__(self, dt=100, timing=None, noise=1., delay=None,

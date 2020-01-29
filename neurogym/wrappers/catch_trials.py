@@ -21,7 +21,7 @@ class CatchTrials(Wrapper):
         'catch_prob': 'Catch trial probability. (def: 0.1)',
         'stim_th': '''Percentile of stimulus distribution below which catch
         trials are allowed (in some cases, experimenter might decide not
-        to have catch trials when  stimulus is very obvious) (def: 50)''',
+        to have catch trials when  stimulus is very obvious). (def: 50)''',
         'start': '''Number of trials after which the catch trials can occur.
         (def: 0)'''
     }
