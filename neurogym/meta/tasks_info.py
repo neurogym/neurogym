@@ -65,7 +65,6 @@ def info(task=None, show_code=False, show_fig=False, n_stps_plt=200, tags=[]):
             tags = metadata['tags']
             string += 'Tags: '
             for tag in tags:
-                dist, args = val
                 string += tag + ', '
             string = string[:-2] + '.\n\n'
 
@@ -286,9 +285,9 @@ def get_all_tags(verbose=0):
 
 
 if __name__ == '__main__':
-    get_all_tags(verbose=1)
-    info(tags=['supervised setting', 'n-alternative'])
-    info()
+    # get_all_tags(verbose=1)
+    # info(tags=['supervised setting', 'n-alternative'])
+    info('Bandit-v0')
     # info('RDM-v0', show_code=True, show_fig=True)
 #    info_wrapper()
 #    info_wrapper('ReactionTime-v0', show_code=True)

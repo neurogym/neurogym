@@ -64,7 +64,9 @@ n_arms : Number of arms. (def: 2)
 
 gt_arm : High reward arm. (def: 0)
 
-Tags: ### CVLearning task ###
+Tags: n-alternative, supervised setting.
+
+### CVLearning task ###
 
 Logic: Implements shaping for the delay-response task, in which agents have to integrate two stimuli and report which one is larger on average after a delay.
 
@@ -125,7 +127,9 @@ Reference paper:
 
 [Model-Based Influences on Humans Choices and Striatal Prediction Errors](https://www.sciencedirect.com/science/article/pii/S0896627311001255)
 
-Tags: ### DelayedMatchCategory task ###
+Tags: two-alternative, supervised setting.
+
+### DelayedMatchCategory task ###
 
 Logic: A sample stimulus is followed by a delay and test. Agents are required to indicate if the sample and test are in the same category.
 
@@ -329,7 +333,9 @@ Other parameters:
 
 opponent_type : Type of opponent. (def: 'random')
 
-Tags: ### MotorTiming task ###
+Tags: two-alternative, supervised setting.
+
+### MotorTiming task ###
 
 Logic: Agents have to produce different time intervals using different effectors (actions). [different actions not implemented]
 
