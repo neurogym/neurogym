@@ -187,15 +187,8 @@ class EpochEnv(TrialEnv):
         """Initialize trial info with tmax, tind, obs"""
         tmax_ind = int(tmax/self.dt)
         self.tmax = tmax_ind * self.dt
-        ob_shape = [tmax_ind] + list(self.observation_space.shape)
-        self.obs = np.zeros(ob_shape)
-
-        # TODO: Allow ground truth to be category or full action
-        act_sh = self.action_space.shape
-        if len(act_sh) == 0:
-            self.gt = np.zeros(tmax_ind)  # , dtype=np.int) gt action, def. 0
-        else:
-            self.gt = np.zeros(tmax_ind, act_sh[0])
+        self.obs = np.zeros([tmax_ind] + list(self.observation_space.shape))
+        self.gt = np.zeros([tmax_ind] + list(self.action_space.shape))
 
     def add_input(self, input, loc=None, epoch=None):
         """Add an input to current observation."""
