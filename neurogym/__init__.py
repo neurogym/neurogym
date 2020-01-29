@@ -50,7 +50,9 @@ all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
              'Detection-v0':
                  'neurogym.envs.detection:Detection',
              'Serrano-v0':
-                 'neurogym.envs.serrano:Serrano'
+                 'neurogym.envs.serrano:Serrano',
+             'CVLearning-v0':
+                 'neurogym.envs.cv_learning:CVLearning'
              }
 
 for task in all_tasks.keys():

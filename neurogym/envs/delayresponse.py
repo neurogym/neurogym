@@ -27,7 +27,7 @@ class DR(ngym.EpochEnv):
             'stimulus': ('constant', 1150),
             #  TODO: sampling of delays follows exponential
             'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
-            'go_cue': ('constant', 100),
+            # 'go_cue': ('constant', 100), # TODO: Not implemented
             'decision': ('constant', 1500)},
         'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
     }

@@ -7,8 +7,11 @@ Created on Mon Nov  4 10:45:33 2019
 """
 
 
+import matplotlib.pyplot as plt
 import numpy as np
+
 import sys
+import gym
 from os.path import expanduser
 from gym import spaces
 import neurogym as ngym
@@ -18,26 +21,25 @@ sys.path.append(home + '/neurogym')
 sys.path.append(home + '/gym')
 
 
-class CurriculumLearning(ngym.EpochEnv):
+class CVLearning(ngym.EpochEnv):
     metadata = {
-        'description': '',
-        'paper_link': '',
-        'paper_name': '',
+        'description': 'Implements shaping for the delay-response task,' +
+        ' in which agents have to integrate two stimuli and report' +
+        ' which one is larger on average after a delay.',
+        'paper_link': 'https://www.nature.com/articles/s41586-019-0919-7',
+        'paper_name': 'Discrete attractor dynamics underlies persistent' +
+        ' activity in the frontal cortex',
         'timing': {
             'fixation': ('constant', 200),
             'stimulus': ('constant', 1150),
             'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
-            'go_cue': ('constant', 100),
+            # 'go_cue': ('constant', 100), # TODO: Not implemented
             'decision': ('constant', 1500)},
         'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
     }
 
-    """
-    modfies a given environment by changing the probability of repeating the
-    previous correct response
-    """
-    def __init__(self, dt=100, timing=None, stimEv=1., perf_w=10,
-                 max_num_reps=3, init_ph=4 , th=0.8):
+    def __init__(self, dt=100, timing=None, stimEv=1., perf_w=1000,
+                 max_num_reps=3, init_ph=0, th=0.8):
         super().__init__(dt=dt, timing=timing)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
@@ -76,19 +78,16 @@ class CurriculumLearning(ngym.EpochEnv):
             coh: stimulus coherence (evidence) for the trial
             obs: observation
         """
-
         self.trial = {
             'ground_truth': self.rng.choice(self.choices),
             'coh': self.rng.choice(self.cohs),
             'sigma_dt': self.sigma_dt,
         }
 
-        self.durs = {}
-        for key in self.metadata['timing'].keys():
-            self.durs.update({key: self.metadata['timing'][key][1]})
-        self.durs.update({'delay': self.rng.choice(self.durs['delay'])})
+        # init durations with None
+        self.durs = {key: None for key in self.metadata['timing']}
 
-        self.first_trial_rew = None
+        self.first_choice_rew = None
         # self.set_phase()
         if self.curr_ph == 0:
             # no stim, reward is in both left and right
@@ -118,7 +117,6 @@ class CurriculumLearning(ngym.EpochEnv):
             self.durs.update({'delay': (0)})
             self.trial.update({'coh': 100})
             self.trial.update({'sigma_dt': 0})
-            self.first_trial_rew = None
             self.R_FAIL = -1
             self.firstcounts = True
         elif self.curr_ph == 3:
@@ -193,7 +191,7 @@ class CurriculumLearning(ngym.EpochEnv):
         # observations
         gt = self.gt_now
 
-        first_trial = np.nan
+        first_choice = False
         if self.in_epoch('fixation') or self.in_epoch('delay'):
             if action != 0:
                 new_trial = self.abort
@@ -203,30 +201,34 @@ class CurriculumLearning(ngym.EpochEnv):
                 reward = self.R_CORRECT
                 new_trial = True
                 if ~self.first_flag:
-                    first_trial = True
+                    first_choice = True
                     self.first_flag = True
             elif action == 3 - gt:  # 3-action is the other act
                 reward = self.R_FAIL
                 new_trial = self.firstcounts
                 if ~self.first_flag:
-                    first_trial = False
+                    first_choice = True
                     self.first_flag = True
 
-        info = {'new_trial': new_trial,
-                'gt': gt,
-                'first_trial': first_trial}
+        info = {'new_trial': new_trial, 'gt': gt,
+                'curr_ph': self.curr_ph, 'first_rew': self.rew}
 
-        if ~self.firstcounts and ~np.isnan(info['first_trial']):
-            self.first_trial_rew = reward
-        self.rew = self.first_trial_rew or reward
-        self.action = action
+        # check if first choice (phase 1)
+        if ~self.firstcounts and first_choice:
+            self.first_choice_rew = reward
+
+        # set reward for all phases
+        self.rew = self.first_choice_rew or reward
 
         if info['new_trial']:
             self.set_phase()
-            info.update({'curr_ph': self.curr_ph, 'first_rew': self.rew})
-            self.count(action)
+            if self.curr_ph == 0:
+                # control that agent does not repeat side more than 3 times
+                self.count(action)
+                self.action = action
 
         return self.obs_now, reward, False, info
+
 
 def plot_struct(env, num_steps_env=200, n_stps_plt=200,
                 def_act=None, model=None, name=None, legend=True):
@@ -295,6 +297,7 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
             'states': states}
     return data
 
+
 def fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=True,
          obs_cum=None, model=None, states=None, name=''):
     if model is not None:
@@ -346,12 +349,7 @@ def fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=True,
     plt.show()
     return f
 
-from neurogym import all_tasks
-from neurogym.wrappers import all_wrappers
-import matplotlib.pyplot as plt
-import numpy as np
-metadata_basic_info = ['description', 'paper_name', 'paper_link', 'timing']
 
 if __name__ == '__main__':
-    env = CurriculumLearning()
-    plot_struct(env)
+    env = CVLearning(init_ph=0)
+    plot_struct(env, num_steps_env=2000, n_stps_plt=2000)
