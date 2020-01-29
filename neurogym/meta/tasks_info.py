@@ -15,15 +15,20 @@ METADATA_DEF_KEYS = ['description', 'paper_name', 'paper_link', 'timing',
                      'tags']
 
 
-def info(task=None, show_code=False, show_fig=False, n_stps_plt=200):
+def info(task=None, show_code=False, show_fig=False, n_stps_plt=200, tags=[]):
     """Script to get tasks info"""
     if task is None:
         tasks = all_tasks.keys()
         string = ''
+        counter = 0
         for env_name in sorted(tasks):
-            string += env_name + '\n'
-        print('### List of environments implemented\n\n')
-        print("* {0} tasks implemented so far.\n\n".format(len(tasks)))
+            env = gym.make(env_name)
+            metadata = env.metadata
+            if len(list(set(tags) - set(metadata['tags']))) == 0:
+                string += env_name + '\n'
+                counter += 1
+        print('\n\n### List of environments implemented\n\n')
+        print("* {0} tasks implemented so far.\n\n".format(counter))
         print(string)
     else:
         string = ''
@@ -252,7 +257,29 @@ def fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=True,
     return f
 
 
+def get_all_tags(verbose=0):
+    """Script to get all tags"""
+    tasks = all_tasks.keys()
+    tags = []
+    for env_name in sorted(tasks):
+        try:
+            env = gym.make(env_name)
+            metadata = env.metadata
+            new_tags = list(set(metadata['tags']) - set(tags))
+            tags += new_tags
+        except BaseException as e:
+            print('Failure in ', env_name)
+            print(e)
+    if verbose:
+        print('\nTAGS:\n')
+        for tag in tags:
+            print(tag)
+    return tags
+
+
 if __name__ == '__main__':
+    get_all_tags(verbose=1)
+    info(tags=['supervised setting', 'n-alternative'])
     info()
     # info('RDM-v0', show_code=True, show_fig=True)
 #    info_wrapper()
