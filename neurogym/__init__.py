@@ -48,7 +48,9 @@ all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
              'AngleReproduction-v0':
                  'neurogym.envs.anglereproduction:AngleReproduction',
              'Detection-v0':
-                 'neurogym.envs.detection:Detection'
+                 'neurogym.envs.detection:Detection',
+             'Serrano-v0':
+                 'neurogym.envs.serrano:Serrano'
              }
 
 for task in all_tasks.keys():
