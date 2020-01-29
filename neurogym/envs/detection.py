@@ -25,7 +25,9 @@ class Detection(ngym.EpochEnv):
             ' the start of the stimulus period when the actual ' +
             'stimulus is presented. Otherwise, the delay is drawn from' +
             ' a uniform distribution. (def: None)',
-            'stim_dur': 'Stimulus duration. (def: 100, ms)'
+            'stim_dur': 'Stimulus duration. (def: 100, ms)',
+            'tags': ['perceptual', 'reaction time', 'go/no-go',
+                     'supervised setting']
             }
 
     def __init__(self, dt=100, timing=None, noise=1., delay=None,

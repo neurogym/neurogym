@@ -39,6 +39,8 @@ class PDWager(ngym.EpochEnv):
             'delay': ('truncated_exponential', [1350, 1200, 1800]),
             'pre_sure': ('uniform', [500, 750]),
             'decision': ('constant', 100)},  # XXX: not specified
+        'tags': ['perceptual', 'delayed response', 'confidence',
+                 'supervised setting']
     }
 
     def __init__(self, dt=100, timing=None):

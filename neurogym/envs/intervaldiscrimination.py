@@ -22,8 +22,9 @@ class IntervalDiscrimination(ngym.EpochEnv):
             'delay1': ('choice', [800, 1500]),
             'stim2': ('uniform', (300, 600)),
             'delay2': ('constant', 500),
-            'decision': ('constant', 300),
-        },
+            'decision': ('constant', 300)},
+        'tags': ['timing', 'working memory', 'delayed response',
+                 'two-alternative', 'supervised setting']
     }
 
     def __init__(self, dt=80, timing=None):

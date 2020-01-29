@@ -30,6 +30,8 @@ class DPA(ngym.EpochEnv):
             'decision': ('constant', 500)},
         'noise': '''Standard deviation of the Gaussian noise added to
         the stimulus. (def: 0.01)''',
+        'tags': ['perceptual', 'working memory', 'go/no-go',
+                 'supervised setting']
     }
 
     def __init__(self, dt=100, timing=None, noise=0.01):

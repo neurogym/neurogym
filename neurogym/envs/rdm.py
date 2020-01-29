@@ -22,6 +22,7 @@ class RDM(ngym.EpochEnv):
             'stimulus': ('constant', 2000),
             'decision': ('constant', 100)},  # XXX: not specified
         'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
+        'tags': ['perceptual', '2-alternative', 'supervised setting']        
     }
 
     def __init__(self, dt=100, timing=None, stimEv=1.):

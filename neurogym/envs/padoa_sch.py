@@ -32,6 +32,7 @@ class PadoaSch(ngym.EpochEnv):
             'fixation': ('constant', 1500),
             'offer_on': ('uniform', [1000, 2000]),
             'decision': ('constant', 750)},
+        'tags': ['perceptual', 'value-based']
     }
 
     def __init__(self, dt=100, timing=None):

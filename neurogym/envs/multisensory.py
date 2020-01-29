@@ -8,14 +8,20 @@ import neurogym as ngym
 
 class MultiSensoryIntegration(ngym.EpochEnv):
     metadata = {
-        'paper_link': None,
-        'paper_name': None,
+        'description': 'Agent has to perform one of two different perceptual' +
+        ' discriminations. On every trial, a contextual cue indicates which' +
+        ' one to perform.',
+        'paper_link': 'https://www.nature.com/articles/nature12742',
+        'paper_name': '''Context-dependent computation by recurrent
+         dynamics in prefrontal cortex''',
         'timing': {
             'fixation': ('constant', 300),
             # 'target': ('constant', 350),  # TODO: not implemented
             'stimulus': ('constant', 750),
             'delay': ('truncated_exponential', [600, 300, 3000]),
             'decision': ('constant', 100)},  # XXX: not specified
+        'tags': ['perceptual', 'context dependent', 'two-alternative',
+                 'supervised setting']
     }
 
     def __init__(self, dt=100, timing=None):

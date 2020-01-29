@@ -37,6 +37,7 @@ class nalt_RDM(ngym.EpochEnv):
             'decision': ('constant', 500)},
         'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
         'n_ch': 'Number of choices. (def: 3)',
+        'tags': ['perceptual', 'n-alternative', 'supervised setting']
     }
 
     def __init__(self, dt=100, timing=None, stimEv=1., n_ch=3):

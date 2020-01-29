@@ -13,13 +13,13 @@ from neurogym.ops import tasktools
 class Reaching1D(ngym.EpochEnv):
     metadata = {
         'description': 'The agent has to reproduce the angle indicated' +
-         ' by the observation.',
+        ' by the observation.',
         'paper_link': 'https://science.sciencemag.org/content/233/4771/1416',
         'paper_name': 'Neuronal population coding of movement direction',
         'timing': {
             'fixation': ('constant', 500),
             'reach': ('constant', 500)},
-        'tags': []
+        'tags': ['motor', 'continuous action space', 'supervised setting']
     }
 
     def __init__(self, dt=100, timing=None):
@@ -91,6 +91,7 @@ class Reaching1DWithSelfDistraction(ngym.EpochEnv):
         'timing': {
             'fixation': ('constant', 500),
             'reach': ('constant', 500)},
+        'tags': ['motor', 'continuous action space', 'supervised setting']
     }
 
     def __init__(self, dt=100, timing=None):
