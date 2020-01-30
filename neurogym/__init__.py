@@ -53,7 +53,7 @@ all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
              'CVLearning-v0':
                  'neurogym.envs.cv_learning:CVLearning',
              'ChangingEnvironment-v0':
-                 'neurogym.envs.changingenvironment:CE'
+                 'neurogym.envs.changingenvironment:ChangingEnvironment'
              }
 
 for task in all_tasks.keys():

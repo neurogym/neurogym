@@ -12,9 +12,10 @@ import neurogym as ngym
 from neurogym.meta import tasks_info
 
 
-class CE(ngym.EpochEnv):
+class ChangingEnvironment(ngym.EpochEnv):
     metadata = {
-        'description': '',
+        'description': 'Random Dots Motion tasks in which the correct action' +
+        ' depends on a randomly changing context',
         'paper_link': 'https://www.pnas.org/content/113/31/E4531',
         'paper_name': '''Hierarchical decision processes that operate over
         distinct timescales underlie choice and changes in strategy''',
@@ -24,18 +25,18 @@ class CE(ngym.EpochEnv):
             'decision': ('constant', 500)},
         'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
         'cxt_ch_prob': 'Probability of changing context.',
-        'rep_prob': '''Specifies probabilities of repeating for each block.
-        (def: (.2, .8))''',
+        'cxt_cue': 'Whether to show context as a cue.',
+        'tags': ['perceptual', '2-alternative', 'supervised setting',
+                 'context dependent']
     }
 
     def __init__(self, dt=100, timing=None, stimEv=1., cxt_ch_prob=0.2,
-                 rep_prob=(.2, .8), cxt_cue=False):
+                 cxt_cue=False):
         super().__init__(dt=dt, timing=timing)
 
         # Possible contexts
         self.cxt_ch_prob = cxt_ch_prob
         self.curr_cxt = 0
-        self.rep_prob = rep_prob
         self.cxt_cue = cxt_cue
 
         # Possible decisions at the end of the trial
@@ -71,7 +72,7 @@ class CE(ngym.EpochEnv):
         # ---------------------------------------------------------------------
 
         if self.rng.random() < self.cxt_ch_prob:
-                self.curr_cxt = (self.curr_cxt + 1) % len(self.rep_prob)
+            self.curr_cxt = 1*(not self.curr_cxt)
 
         side = self.rng.choice(self.choices)
 
@@ -149,4 +150,4 @@ class CE(ngym.EpochEnv):
 
 if __name__ == '__main__':
     env = CE(cxt_cue=True)
-    tasks_info.plot_struct(env)a
+    tasks_info.plot_struct(env)
