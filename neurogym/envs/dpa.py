@@ -66,6 +66,7 @@ class DPA(ngym.EpochEnv):
             obs: observation
         """
         pair = self.rng.choice(self.dpa_pairs)
+        print(pair)
         self.trial = {
             'pair': pair,
             'ground_truth': int(np.diff(pair)[0] % 2 == self.association),
@@ -135,4 +136,4 @@ class DPA(ngym.EpochEnv):
 
 if __name__ == '__main__':
     env = DPA()
-    tasks_info.plot_struct(env)
+    tasks_info.plot_struct(env, num_steps_env=1000, n_stps_plt=1000)

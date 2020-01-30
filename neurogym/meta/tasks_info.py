@@ -157,19 +157,18 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
     actions_end_of_trial = []
     gt = []
     perf = []
-
     obs = env.reset()
     obs_cum_temp = obs
     for stp in range(int(num_steps_env)):
         if model is not None:
             action, _states = model.predict(obs)
-            action = [action]
+            if isinstance(action, float) or isinstance(action, int):
+                action = [action]
             state_mat.append(_states)
         elif def_act is not None:
             action = def_act
         else:
             action = env.action_space.sample()
-
         obs, rew, done, info = env.step(action)
         obs_cum_temp += obs
         obs_cum.append(obs_cum_temp.copy())
@@ -179,17 +178,15 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
             rew = rew[0]
             done = done[0]
             action = action[0]
-            rew_correct = env.get_attr('R_CORRECT')
         else:
             obs_aux = obs
-            rew_correct = env.R_CORRECT
 
         if done:
             env.reset()
         observations.append(obs_aux)
         if info['new_trial']:
             actions_end_of_trial.append(action)
-            perf.append(rew == rew_correct)
+            perf.append(rew)
             obs_cum_temp = np.zeros_like(obs_cum_temp)
         else:
             actions_end_of_trial.append(-1)
@@ -287,7 +284,7 @@ def get_all_tags(verbose=0):
 if __name__ == '__main__':
     # get_all_tags(verbose=1)
     # info(tags=['supervised setting', 'n-alternative'])
-    info('Bandit-v0')
+    info('ChangingEnvironment-v0')
     # info('RDM-v0', show_code=True, show_fig=True)
 #    info_wrapper()
 #    info_wrapper('ReactionTime-v0', show_code=True)

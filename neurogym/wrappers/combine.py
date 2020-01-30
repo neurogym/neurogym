@@ -5,13 +5,15 @@ Created on Mon Mar  4 17:49:35 2019
 
 @author: molano
 """
-import neurogym as ngym
 from gym import spaces
 import numpy as np
 import itertools
+import gym
+from neurogym.meta import tasks_info
+# XXX: implemented without relying on core.trTrialWrapper
 
 
-class combine(ngym.TrialWrapper):
+class Combine():
     metadata = {
         'description': 'Allows to combine two tasks, one of which working as' +
         ' the distractor task.',
@@ -31,7 +33,6 @@ class combine(ngym.TrialWrapper):
     def __init__(self, env, distractor, delay=800,
                  dt=100, mix=(.5, .0, .5), share_action_space=True,
                  defaults=[0, 0], trial_cue=False):
-        super().__init__(dt=dt)
         self.share_action_space = share_action_space
         self.trial_cue = trial_cue
         self.t = 0
@@ -74,30 +75,34 @@ class combine(ngym.TrialWrapper):
                                      self.distractor.reward_range[1]]))
         self.metadata = self.env.metadata
         self.metadata.update(self.distractor.metadata)
-        self.spec = None
 
     def new_trial(self):
         # decide type of trial
-        self.task_type = self.task.rng.choices([0, 1, 2], weights=self.mix)
+        self.task_type = self.env.rng.choices([0, 1, 2], weights=self.mix)
         if self.task_type == 0:
             self.env.trial = self.env.new_trial()
             self.env_on = True
             self.distractor_on = False
+            self.tmax = self.env.tmax
         elif self.task_type == 1:
             self.distractor.trial = self.distractor.new_trial()
             self.env_on = False
             self.distractor_on = True
+            self.tmax = self.distractor.tmax
         else:
             self.env.trial = self.env.new_trial()
             self.distractor.trial = self.distractor.new_trial()
             self.env_on = True
             self.distractor_on = True
+            self.tmax = self.env.tmax + self.distractor.tmax
 
     def reset(self):
-        obs = np.concatenate((self.env.reset(),
-                              self.distractor.reset()), axis=0)
+        obs_env, _, _, _ = self.standby_step(self.env)
+        obs_distractor, _, _, _ = self.standby_step(self.distractor)
+        obs = np.concatenate((obs_env, obs_distractor), axis=0)
         if self.trial_cue:
-            obs = np.concatenate((np.array([self.task_type]), obs), axis=0)
+            cue = np.array(self.task_type)
+            obs = np.concatenate((cue, obs), axis=0)
         return obs
 
     def _step(self, action):
@@ -106,23 +111,27 @@ class combine(ngym.TrialWrapper):
         # get outputs from main task
         if self.env_on:
             obs1, reward1, done1, info1 = self.env._step(action1)
-            self.env_on = not info1['new_trial']
-            info['new_trial1'] = info1['new_trial']
+            new_trial1 = (self.env.t <= self.env.tmax - self.dt)
+            self.env_on = not new_trial1
+            info['new_trial1'] = new_trial1
+            self.env.t += self.env.dt  # increment within trial time count
+            self.env.t_ind += 1
         else:
-            obs1, reward1, done1, info1 = self.standby_step(1)
+            obs1, reward1, done1, info1 = self.standby_step(self.env)
             info['new_trial1'] = False
         # get outputs from distractor task
         if self.t > self.delay and self.distractor_on:
             obs2, reward2, done2, info2 = self.distractor._step(action2)
-            self.distractor_on = not info2['new_trial']
-            info['new_trial2'] = info2['new_trial']
+            new_trial2 = (self.distractor.t <= self.distractor.tmax - self.dt)
+            self.distractor_on = not new_trial2
+            info['new_trial2'] = new_trial2
+            self.distractor.t += self.distractor.dt
+            self.distractor.t_ind += 1
         else:
-            obs2, reward2, done2, info2 = self.standby_step(2)
+            obs2, reward2, done2, info2 = self.standby_step(self.distractor)
             info['new_trial2'] = False
         # new trial?
         if not self.env_on and not self.distractor_on:
-            self.t = 0
-            self.new_trial()
             info['new_trial'] = True
             info['config'] = [self.env_on, self.distractor_on]
         else:
@@ -132,37 +141,77 @@ class combine(ngym.TrialWrapper):
         obs2 *= 2
         obs = np.concatenate((obs1, obs2), axis=0)
         if self.trial_cue:
-            obs = np.concatenate((np.array([self.task_type]), obs), axis=0)
+            cue = np.array(self.task_type)
+            obs = np.concatenate((cue, obs), axis=0)
         done = done1  # done whenever the task 1 is done
 
         # ground truth
         if self.share_action_space:
-            if (info1['gt'] == info2['gt']).all():
+            if info1['gt'] == info2['gt']:
                 info['gt'] = info1['gt']  # task 1 is the default task
                 reward = reward1 + reward2
-            elif (info1['gt'][self.defaults[0]] == 0 and
-                  info2['gt'][self.defaults[1]] == 1):
+            elif (info1['gt'] != self.defaults[0] and
+                  info2['gt'] == self.defaults[1]):
                 info['gt'] = info1['gt']
                 reward = reward1
-            elif (info1['gt'][self.defaults[0]] == 1 and
-                  info2['gt'][self.defaults[1]] == 0):
+            elif (info1['gt'] == self.defaults[0] and
+                  info2['gt'] != self.defaults[1]):
                 info['gt'] = info2['gt']
                 reward = reward2
         else:
             info['gt'] = np.concatenate((info2['gt'], info2['gt']))
         return obs, reward, done, info
 
+    def step(self, action):
+        obs, reward, done, info = self._step(action)
+        self.t += self.dt  # increment within trial time count
+        if self.t > self.tmax - self.dt:
+            info['new_trial'] = True
+
+        if info['new_trial']:
+            self.env.t = self.env.t_ind = 0
+            self.distractor.t = self.distractor.t_ind = 0
+            if self.task_type == 0:
+                self.env.num_tr += 1  # Increment trial count
+            elif self.task_type == 1:
+                self.distractor.num_tr += 1  # Increment trial count
+            else:
+                self.env.num_tr += 1  # Increment trial count
+                self.distractor.num_tr += 1  # Increment trial count
+            self.t = 0
+            self.new_trial()
+
+        return obs, reward, done, info
+
     def standby_step(self, env):
         """
         creates fake outputs when env is not active
         """
-        if env == 1:
-            obs = np.zeros((self.env.observation_space.shape[0], ))
-        else:
-            obs = np.zeros((self.distractor.observation_space.shape[0], ))
+        obs = np.zeros((env.observation_space.shape[0], ))
         rew = 0
         done = False
-        gt = np.zeros((self.num_act,))
-        gt[self.defaults[env-1]] = 1
+        gt = 0
         info = {'new_trial': False, 'gt': gt}
         return obs, rew, done, info
+
+
+if __name__ == '__main__':
+    task = 'DPA-v0'
+    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
+                                    'stim1': ('constant', 100),
+                                    'delay_btw_stim': ('constant', 500),
+                                    'stim2': ('constant', 100),
+                                    'delay_aft_stim': ('constant', 100),
+                                    'decision': ('constant', 200)}}
+    env = gym.make(task, **KWARGS)
+    task = 'GNG-v0'
+    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
+                                    'stimulus': ('constant', 100),
+                                    'resp_delay': ('constant', 100),
+                                    'decision': ('constant', 100)}}
+
+    distractor = gym.make(task, **KWARGS)
+    env = Combine(env, distractor, delay=100, mix=(.5, .0, .5),
+                  share_action_space=True, defaults=[0, 0],
+                  trial_cue=True)
+    tasks_info.plot_struct(env, num_steps_env=100, n_stps_plt=100)
