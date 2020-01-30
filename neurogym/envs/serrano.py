@@ -55,7 +55,7 @@ class Serrano(ngym.EpochEnv):
             'ground_truth': np.random.uniform(self.lowbound, self.highbound)
         }
         self.trial.update(kwargs)
-        ground_truth = self.trial['ground_truth']
+        ground_truth_stim = self.trial['ground_truth']
 
         # Epochs
         self.add_epoch('stimulus', after=0)
@@ -63,30 +63,37 @@ class Serrano(ngym.EpochEnv):
         self.add_epoch('decision', after='delay', last_epoch=True)
 
         stimulus = self.view_ob('stimulus')
-        stimulus[:, 1] = ground_truth
+        stimulus[:, 1] = ground_truth_stim
         stimulus[:, 1] +=\
             np.random.rand(stimulus.shape[0])*self.sigma_dt
 
+        gt = self.view_groundtruth('stimulus')
+        for ep in ['stimulus', 'delay']:
+            gt[:,0] = -1. # fixate
+            gt[:,1] = -0.5 # no stim ~ arbitrary number which can cause issues with regression
+
         self.set_ob('delay', [0, -0.5])
         self.set_ob('decision', [1, -0.5])
-        self.set_groundtruth('decision', ground_truth)
+        decision_gt = self.view_groundtruth('decision')
+        decision_gt[:,0] = 1. # go
+        decision_gt[:,1] = ground_truth_stim # Where to respond
+        #self.set_groundtruth('decision', ground_truth_stim)
 
     def _step(self, action):
         """ not a dictionary anymore"""
         new_trial = False
         # rewards
         reward = 0
-        gt = self.gt_now
+        gt = self.gt_now # 2 dim now
 
         if self.in_epoch('stimulus'):
             if not action[0] < 0:
                 new_trial = self.abort
-                reward = self.R_ABORTED
+                reward = self.R_ABORTED        
         elif self.in_epoch('decision'):
             if action[0] > 0:
                 new_trial = True
-                reward = self.R_CORRECT/((1+abs(action[1]-gt))**2)
-                assert reward <= 1, f'{action}, {gt} {reward}'
+                reward = self.R_CORRECT/((1+abs(action[1]-gt[1]))**2)
 
         return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 
