@@ -5,6 +5,7 @@
 import random
 import numpy as np
 import gym
+import warnings
 
 from neurogym.ops import tasktools
 
@@ -122,7 +123,7 @@ class EpochEnv(TrialEnv):
             self.timing_fn[key] = tasktools.random_number_fn(dist, args)
             min_tmp, max_tmp = tasktools.minmax_number(dist, args)
             if min_tmp < self.dt:
-                print('Warning: Minimum time for epoch {:s} {:f} smaller than dt {:f}'.format(
+                warnings.warn('Warning: Minimum time for epoch {:s} {:f} smaller than dt {:f}'.format(
                     key, min_tmp, self.dt))
 
         self.start_t = dict()
