@@ -38,13 +38,14 @@ NeuroGym can be used together with the openAi toolbox [Stable Baselines](https:/
 
 
 ### Contributing new tasks
-Contributing new tasks is easy. The script [template](https://github.com/gyyang/neurogym/blob/master/neurogym/meta/template.py) in the *meta* folder provides the basic structure that any new task should have:
+Contributing new tasks is easy. You can contribute tasks using the regular OpenAI gym format. If your task has a trial/epoch structure,
+this [template](https://github.com/gyyang/neurogym/blob/master/neurogym/meta/template.py) provides the basic structure that we recommend a task to have:
 
 ```
 from gym import spaces
 import neurogym as ngym
 
-class TASKNAME(ngym.EpochEnv):
+class YourTask(ngym.EpochEnv):
     metadata = {}
 
     def __init__(self, dt=100, timing=None, extra_input_param=None):
@@ -57,7 +58,7 @@ class TASKNAME(ngym.EpochEnv):
         Here you have to set (at least):
         1. The ground truth: the correct answer for the created trial.
         2. The trial periods: fixation, stimulus...
-            """
+        """
      
     def _step(self, action):
         """
