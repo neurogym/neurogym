@@ -11,7 +11,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class TASKNAME(ngym.EpochEnv):  # TIP: if task has epochs (alt.: ngym.TrialEnv)
+class YourTask(ngym.EpochEnv):  # TIP: if task has epochs (alt.: ngym.TrialEnv)
     metadata = {
         'description': '',
         'paper_link': '',

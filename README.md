@@ -34,17 +34,21 @@ Wrappers are short scripts that allow introducing modifications the original tas
 
 ### Example
 
-NeuroGym can be used together with the openAi toolbox [Stable Baselines](https://github.com/hill-a/stable-baselines) (a set of implementations of reinforcement learning algorithms). [The notebook example_NeuroGym_stable_baselines.ipynb](https://github.com/gyyang/neurogym/blob/master/neurogym/examples/example_NeuroGym_stable_baselines.ipynb) shows how to do it.
+NeuroGym is compatible with most packages that use OpenAI gym. 
+In this [example](https://github.com/gyyang/neurogym/blob/master/neurogym/examples/example_NeuroGym_stable_baselines.ipynb) jupyter notebook we show how to train
+a neural network with reinforcement learning algorithms using the 
+[Stable Baselines](https://github.com/hill-a/stable-baselines) toolbox.
 
 
 ### Contributing new tasks
-Contributing new tasks is easy. The script [template](https://github.com/gyyang/neurogym/blob/master/neurogym/meta/template.py) in the *meta* folder provides the basic structure that any new task should have:
+Contributing new tasks is easy. You can contribute tasks using the regular OpenAI gym format. If your task has a trial/epoch structure,
+this [template](https://github.com/gyyang/neurogym/blob/master/neurogym/meta/template.py) provides the basic structure that we recommend a task to have:
 
 ```
 from gym import spaces
 import neurogym as ngym
 
-class TASKNAME(ngym.EpochEnv):
+class YourTask(ngym.EpochEnv):
     metadata = {}
 
     def __init__(self, dt=100, timing=None, extra_input_param=None):
@@ -54,10 +58,11 @@ class TASKNAME(ngym.EpochEnv):
     def new_trial(self, **kwargs):
         """
         new_trial() is called when a trial ends to generate the next trial.
-        Here you have to set (at least):
-        1. The ground truth: the correct answer for the created trial.
-        2. The trial periods: fixation, stimulus...
-            """
+        Here you have to set:
+        The trial periods: fixation, stimulus...
+        Optionally, you can set:
+        The ground truth: the correct answer for the created trial.
+        """
      
     def _step(self, action):
         """
@@ -77,8 +82,8 @@ class TASKNAME(ngym.EpochEnv):
 
 
 
-### Authors
-* [Manuel Molano](https://github.com/manuelmolano).
-* [Guangyu Robert Yang](https://github.com/gyyang).
+### Contact
+* [Manuel Molano](https://github.com/manuelmolano) (manuelmolanomazon@gmail.com).
+* [Guangyu Robert Yang](https://github.com/gyyang) (gyyang.neuro@gmail.com).
 
 
