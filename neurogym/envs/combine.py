@@ -5,37 +5,47 @@ Created on Mon Mar  4 17:49:35 2019
 
 @author: molano
 """
-import gym
 import neurogym as ngym
 from gym import spaces
 import numpy as np
 import itertools
 
 
-class combine(ngym.Env):
-    """
-    combines two different tasks
-    """
-    def __init__(self, env_name_1, env_name_2, params_1, params_2, delay=800,
-                 dt=100, mix=[.3, .3, .4], share_action_space=True,
-                 defaults=[0, 0], debug=False, **kwargs):
+class combine(ngym.TrialWrapper):
+    metadata = {
+        'description': 'Allows to combine two tasks, one of which working as' +
+        ' the distractor task.',
+        'paper_link': 'https://www.biorxiv.org/content/10.1101/433409v3',
+        'paper_name': '''Response outcomes gate the impact of expectations
+         on perceptual decisions''',
+        'distractor': 'Distractor task. (no default value)',
+        'delay': 'Time when the distractor task appears. (def: 800 (ms))',
+        'mix': 'Probabilities for the different trial types' +
+        ' (only main, only distractor, both). (def: (.5, .0, .5))',
+        'share_action_space': 'Whether the two task share the same action' +
+        ' space. (def: True)',
+        'defaults': 'Default actions for each task. (def: [0, 0])',
+        'trial_cue': 'Whether to show the type of trial as a cue'
+    }
+
+    def __init__(self, env, distractor, delay=800,
+                 dt=100, mix=(.5, .0, .5), share_action_space=True,
+                 defaults=[0, 0], trial_cue=False):
         super().__init__(dt=dt)
-        env1 = gym.make(env_name_1, **params_1)
-        env2 = gym.make(env_name_2, **params_2)
         self.share_action_space = share_action_space
-        self.debug = debug  # if True the type of trial is provided as a cue
+        self.trial_cue = trial_cue
         self.t = 0
         self.dt = dt
         self.delay = delay
         self.delay_on = True
-        self.env1 = env1
-        self.env2 = env2
+        self.env = env
+        self.distractor = distractor
         # default behavior
         self.defaults = defaults
         # sub-tasks probabilities
         self.mix = mix
-        num_act1 = self.env1.action_space.n
-        num_act2 = self.env2.action_space.n
+        num_act1 = self.env.action_space.n
+        num_act2 = self.distractor.action_space.n
         if self.share_action_space:
             assert num_act1 == num_act2, "action spaces must be of same size"
             self.num_act = num_act1
@@ -50,77 +60,78 @@ class combine(ngym.Env):
                                        np.arange(self.num_act2)))
         self.observation_space = \
             spaces.Box(-np.inf, np.inf,
-                       shape=(self.env1.observation_space.shape[0] +
-                              self.env2.observation_space.shape[0] +
-                              1*self.debug, ),
+                       shape=(self.env.observation_space.shape[0] +
+                              self.distractor.observation_space.shape[0] +
+                              1*self.trial_cue, ),
                        dtype=np.float32)
         # start trials
-        self.env1_on = True
-        self.env2_on = True
+        self.env_on = True
+        self.distractor_on = True
         self.new_trial()
-        self.reward_range = (np.min([self.env1.reward_range[0],
-                                     self.env2.reward_range[0]]),
-                             np.max([self.env1.reward_range[1],
-                                     self.env2.reward_range[1]]))
-        self.metadata = self.env1.metadata
-        self.metadata.update(self.env2.metadata)
+        self.reward_range = (np.min([self.env.reward_range[0],
+                                     self.distractor.reward_range[0]]),
+                             np.max([self.env.reward_range[1],
+                                     self.distractor.reward_range[1]]))
+        self.metadata = self.env.metadata
+        self.metadata.update(self.distractor.metadata)
         self.spec = None
 
     def new_trial(self):
-        self.t = 0
-        self.num_tr += 1
-        self.task_type = np.random.choice([0, 1, 2], p=self.mix)
+        # decide type of trial
+        self.task_type = self.task.rng.choices([0, 1, 2], weights=self.mix)
         if self.task_type == 0:
-            self.env1.trial = self.env1.new_trial()
-            self.env1_on = True
-            self.env2_on = False
+            self.env.trial = self.env.new_trial()
+            self.env_on = True
+            self.distractor_on = False
         elif self.task_type == 1:
-            self.env2.trial = self.env2.new_trial()
-            self.env1_on = False
-            self.env2_on = True
+            self.distractor.trial = self.distractor.new_trial()
+            self.env_on = False
+            self.distractor_on = True
         else:
-            self.env1.trial = self.env1.new_trial()
-            self.env2.trial = self.env2.new_trial()
-            self.env1_on = True
-            self.env2_on = True
+            self.env.trial = self.env.new_trial()
+            self.distractor.trial = self.distractor.new_trial()
+            self.env_on = True
+            self.distractor_on = True
 
     def reset(self):
-        obs = np.concatenate((self.env1.reset(), self.env2.reset()), axis=0)
-        if self.debug:
+        obs = np.concatenate((self.env.reset(),
+                              self.distractor.reset()), axis=0)
+        if self.trial_cue:
             obs = np.concatenate((np.array([self.task_type]), obs), axis=0)
         return obs
 
     def _step(self, action):
         info = {}
         action1, action2 = self.action_split[action]
-        if self.env1_on:
-            obs1, reward1, done1, info1 = self.env1._step(action1)
-            self.env1_on = not info1['new_trial']
+        # get outputs from main task
+        if self.env_on:
+            obs1, reward1, done1, info1 = self.env._step(action1)
+            self.env_on = not info1['new_trial']
             info['new_trial1'] = info1['new_trial']
         else:
             obs1, reward1, done1, info1 = self.standby_step(1)
             info['new_trial1'] = False
-
-        if self.t > self.delay and self.env2_on:
-            obs2, reward2, done2, info2 = self.env2._step(action2)
-            self.env2_on = not info2['new_trial']
+        # get outputs from distractor task
+        if self.t > self.delay and self.distractor_on:
+            obs2, reward2, done2, info2 = self.distractor._step(action2)
+            self.distractor_on = not info2['new_trial']
             info['new_trial2'] = info2['new_trial']
         else:
             obs2, reward2, done2, info2 = self.standby_step(2)
             info['new_trial2'] = False
-
-        if not self.env1_on and not self.env2_on:
+        # new trial?
+        if not self.env_on and not self.distractor_on:
             self.t = 0
             self.new_trial()
             info['new_trial'] = True
-            info['config'] = [self.env1_on, self.env2_on]
+            info['config'] = [self.env_on, self.distractor_on]
         else:
             info['new_trial'] = False
 
-        self.t += self.dt
+        # build joint observation
         obs2 *= 2
         obs = np.concatenate((obs1, obs2), axis=0)
-        if self.debug:
+        if self.trial_cue:
             obs = np.concatenate((np.array([self.task_type]), obs), axis=0)
         done = done1  # done whenever the task 1 is done
 
@@ -141,17 +152,14 @@ class combine(ngym.Env):
             info['gt'] = np.concatenate((info2['gt'], info2['gt']))
         return obs, reward, done, info
 
-    def step(self, action):
-        obs, reward, done, info = self._step(action)
-        if info['new_trial']:
-            self.new_trial()
-        return obs, reward, done, info
-
     def standby_step(self, env):
+        """
+        creates fake outputs when env is not active
+        """
         if env == 1:
-            obs = np.zeros((self.env1.observation_space.shape[0], ))
+            obs = np.zeros((self.env.observation_space.shape[0], ))
         else:
-            obs = np.zeros((self.env2.observation_space.shape[0], ))
+            obs = np.zeros((self.distractor.observation_space.shape[0], ))
         rew = 0
         done = False
         gt = np.zeros((self.num_act,))
