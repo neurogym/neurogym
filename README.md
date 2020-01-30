@@ -34,7 +34,10 @@ Wrappers are short scripts that allow introducing modifications the original tas
 
 ### Example
 
-NeuroGym can be used together with the openAi toolbox [Stable Baselines](https://github.com/hill-a/stable-baselines) (a set of implementations of reinforcement learning algorithms). [The notebook example_NeuroGym_stable_baselines.ipynb](https://github.com/gyyang/neurogym/blob/master/neurogym/examples/example_NeuroGym_stable_baselines.ipynb) shows how to do it.
+NeuroGym is compatible with most packages that use OpenAI gym. 
+In this [example](https://github.com/gyyang/neurogym/blob/master/neurogym/examples/example_NeuroGym_stable_baselines.ipynb) jupyter notebook we show how to train
+a neural network with reinforcement learning algorithms using the 
+[Stable Baselines](https://github.com/hill-a/stable-baselines) toolbox.
 
 
 ### Contributing new tasks
@@ -55,9 +58,10 @@ class YourTask(ngym.EpochEnv):
     def new_trial(self, **kwargs):
         """
         new_trial() is called when a trial ends to generate the next trial.
-        Here you have to set (at least):
-        1. The ground truth: the correct answer for the created trial.
-        2. The trial periods: fixation, stimulus...
+        Here you have to set:
+        The trial periods: fixation, stimulus...
+        Optionally, you can set:
+        The ground truth: the correct answer for the created trial.
         """
      
     def _step(self, action):
@@ -78,8 +82,8 @@ class YourTask(ngym.EpochEnv):
 
 
 
-### Authors
-* [Manuel Molano](https://github.com/manuelmolano).
-* [Guangyu Robert Yang](https://github.com/gyyang).
+### Contact
+* [Manuel Molano](https://github.com/manuelmolano) (manuelmolanomazon@gmail.com).
+* [Guangyu Robert Yang](https://github.com/gyyang) (gyyang.neuro@gmail.com).
 
 
