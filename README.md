@@ -1,6 +1,6 @@
-# NeuroGym
+**Status:** In Development. All tasks are subject to changes right now.
 
-#### In Development. Tasks are subject to changes right now.
+# NeuroGym
 
 NeuroGym is a curated collection of neuroscience tasks with a common interface.
 The goal is to facilitate training of neural network models on neuroscience tasks. 
