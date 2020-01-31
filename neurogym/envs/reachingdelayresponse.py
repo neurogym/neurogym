@@ -8,7 +8,7 @@ from neurogym.meta import info
 import neurogym as ngym
 
 
-class Serrano(ngym.EpochEnv):
+class ReachingDelayResponse(ngym.EpochEnv):
     metadata = {
         'description': 'Working memory visual spatial task ' +
         ' ~ Funahashi et al. 1991 adapted to freely moving mice in a ' +
