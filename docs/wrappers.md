@@ -4,25 +4,25 @@
 
 * 9 wrappers implemented so far.
 
-CatchTrials-v0
+[CatchTrials-v0](#catchtrials-v0)
 
-MissTrialReward-v0
+[MissTrialReward-v0](#misstrialreward-v0)
 
-Monitor-v0
+[Monitor-v0](#monitor-v0)
 
-Noise-v0
+[Noise-v0](#noise-v0)
 
-PassAction-v0
+[PassAction-v0](#passaction-v0)
 
-PassReward-v0
+[PassReward-v0](#passreward-v0)
 
-ReactionTime-v0
+[ReactionTime-v0](#reactiontime-v0)
 
-SideBias-v0
+[SideBias-v0](#sidebias-v0)
 
-TrialHistory-v0
+[TrialHistory-v0](#trialhistory-v0)
 
-### CatchTrials-v0 wrapper ###
+### CatchTrials-v0
 
 Logic: Introduces catch trials in which the reward for
          a correct choice is modified (e.g. is set to the reward for an
@@ -32,16 +32,16 @@ Logic: Introduces catch trials in which the reward for
 
 Input parameters: 
 
+catch_prob : Catch trial probability. (def: 0.1)
+
 stim_th : Percentile of stimulus distribution below which catch
         trials are allowed (in some cases, experimenter might decide not
         to have catch trials when  stimulus is very obvious). (def: 50)
 
-catch_prob : Catch trial probability. (def: 0.1)
-
 start : Number of trials after which the catch trials can occur.
         (def: 0)
 
-### MissTrialReward-v0 wrapper ###
+### MissTrialReward-v0
 
 Logic: Add a negative reward if a trial ends with no action.
 
@@ -49,22 +49,22 @@ Input parameters:
 
 r_miss : Reward given when a miss trial occurs.(def: 0)
 
-### Monitor-v0 wrapper ###
+### Monitor-v0
 
 Logic: Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth.
 
 Input parameters: 
 
-folder : Folder where the data will be saved. (def: None)
-
 num_tr_save : Data will be saved every num_tr_save trials.
         (def: 100000)
 
-verbose : Whether to print information about average reward and number of trials
-
 info_keywords : (tuple) extra information to log, from the information return of environment.step
 
-### Noise-v0 wrapper ###
+verbose : Whether to print information about average reward and number of trials
+
+folder : Folder where the data will be saved. (def: None)
+
+### Noise-v0
 
 Logic: Add Gaussian noise to the observations.
 
@@ -72,34 +72,34 @@ Input parameters:
 
 std_noise : Standard deviation of noise. (def: 0.1)
 
-### PassAction-v0 wrapper ###
+### PassAction-v0
 
 Logic: Modifies observation by adding the previous
         action.
 
-### PassReward-v0 wrapper ###
+### PassReward-v0
 
 Logic: Modifies observation by adding the previous
         reward.
 
-### ReactionTime-v0 wrapper ###
+### ReactionTime-v0
 
 Logic: Modfies a given environment by allowing the network
         to act at any time after the fixation period.
 
-### SideBias-v0 wrapper ###
+### SideBias-v0
 
 Logic: Changes the probability of ground truth.
 
 Input parameters: 
 
+block_dur : Number of trials per block. (def: 200 (int))
+
 prob : Specifies probabilities for each choice. Within each block,
         the probability should sum up to 1.
         (def: None (Numpy array (n_block, n_choices)))
 
-block_dur : Number of trials per block. (def: 200 (int))
-
-### TrialHistory-v0 wrapper ###
+### TrialHistory-v0
 
 Logic: Change ground truth probability based on previous outcome.
 
@@ -110,11 +110,11 @@ Reference paper:
 
 Input parameters: 
 
+block_dur : Number of trials per block. (def: 200 (int))
+
 rep_prob : Specifies probabilities of repeating for each block.
         (def: (.2, .8))
 
 blk_ch_prob : If not None, specifies the probability of changing
         block (randomly). (def: None)
-
-block_dur : Number of trials per block. (def: 200 (int))
 

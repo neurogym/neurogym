@@ -14,7 +14,10 @@ def write_envs():
     for env_name in sorted(all_tasks.keys()):
         try:
             string += info(env_name)
-            names += '[{:s}](#anglereproduction)\n\n'.format(env_name)
+            env = gym.make(env_name)
+            # Adding automatic tagging using github's mechanism
+            names += '[{:s}](#{:s})\n\n'.format(
+                env_name, type(env).__name__.lower().replace(' ', '-'))
             counter += 1
         except BaseException as e:
             print('Failure in ', env_name)
@@ -35,7 +38,8 @@ def write_wrappers():
     for wrapper_name in sorted(all_wrappers.keys()):
         try:
             string += info_wrapper(wrapper_name)
-            names += wrapper_name + '\n\n'
+            names += '[{:s}](#{:s})\n\n'.format(
+                wrapper_name, wrapper_name.lower().replace(' ', '-'))
             counter += 1
         except BaseException as e:
             print('Failure in ', wrapper_name)

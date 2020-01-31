@@ -109,7 +109,7 @@ def info_wrapper(wrapper=None, show_code=False):
             class_ = wrapp_ref[wrapp_ref.find(':')+1:]
             imported = getattr(__import__(from_, fromlist=[class_]), class_)
             metadata = imported.metadata
-            string += "### {:s} wrapper ###\n\n".format(wrapper)
+            string += "### {:s}\n\n".format(wrapper)
             paper_name = metadata.get('paper_name',
                                       None)
             paper_link = metadata.get('paper_link', None)

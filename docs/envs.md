@@ -6,55 +6,55 @@
 
 [AngleReproduction-v0](#anglereproduction)
 
-[AntiReach-v0](#anglereproduction)
+[AntiReach-v0](#antireach1d)
 
-[Bandit-v0](#anglereproduction)
+[Bandit-v0](#bandit)
 
-[CVLearning-v0](#anglereproduction)
+[CVLearning-v0](#cvlearning)
 
-[ChangingEnvironment-v0](#anglereproduction)
+[ChangingEnvironment-v0](#changingenvironment)
 
-[DawTwoStep-v0](#anglereproduction)
+[DawTwoStep-v0](#dawtwostep)
 
-[DelayPairedAssociation-v0](#anglereproduction)
+[DelayPairedAssociation-v0](#delaypairedassociation)
 
-[DelayedMatchCategory-v0](#anglereproduction)
+[DelayedMatchCategory-v0](#delayedmatchcategory)
 
-[DelayedMatchSample-v0](#anglereproduction)
+[DelayedMatchSample-v0](#delayedmatchtosample)
 
-[DelayedMatchToSampleDistractor1D-v0](#anglereproduction)
+[DelayedMatchToSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
 
-[DelayedResponse-v0](#anglereproduction)
+[DelayedResponse-v0](#dr)
 
-[Detection-v0](#anglereproduction)
+[Detection-v0](#detection)
 
-[GoNogo-v0](#anglereproduction)
+[GoNogo-v0](#gonogo)
 
-[IntervalDiscrimination-v0](#anglereproduction)
+[IntervalDiscrimination-v0](#intervaldiscrimination)
 
-[Mante-v0](#anglereproduction)
+[Mante-v0](#mante)
 
-[MatchingPenny-v0](#anglereproduction)
+[MatchingPenny-v0](#matchingpenny)
 
-[MotorTiming-v0](#anglereproduction)
+[MotorTiming-v0](#motortiming)
 
-[NAltPerceptualDecisionMaking-v0](#anglereproduction)
+[NAltPerceptualDecisionMaking-v0](#nalt_perceptualdecisionmaking)
 
-[PerceptualDecisionMaking-v0](#anglereproduction)
+[PerceptualDecisionMaking-v0](#perceptualdecisionmaking)
 
-[Reaching1D-v0](#anglereproduction)
+[Reaching1D-v0](#reaching1d)
 
-[Reaching1DWithSelfDistraction-v0](#anglereproduction)
+[Reaching1DWithSelfDistraction-v0](#reaching1dwithselfdistraction)
 
-[ReadySetGo-v0](#anglereproduction)
+[ReadySetGo-v0](#readysetgo)
 
-[Romo-v0](#anglereproduction)
+[Romo-v0](#romo)
 
-[Serrano-v0](#anglereproduction)
+[Serrano-v0](#serrano)
 
-[padoaSch-v0](#anglereproduction)
+[padoaSch-v0](#padoasch)
 
-[pdWager-v0](#anglereproduction)
+[pdWager-v0](#pdwager)
 
 ### AngleReproduction
 
@@ -324,11 +324,11 @@ stimulus : truncated_exponential [1000, 500, 1500]
 
 Other parameters: 
 
+stim_dur : Stimulus duration. (def: 100, ms)
+
 delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
 
 noise : Standard deviation of background noise. (def: 1)
-
-stim_dur : Stimulus duration. (def: 100, ms)
 
 Tags: perceptual, reaction time, go/no-go, supervised setting.
 
@@ -455,9 +455,9 @@ decision : constant 500
 
 Other parameters: 
 
-n_ch : Number of choices. (def: 3)
-
 stimEv : Controls the difficulty of the experiment. (def: 1.)
+
+n_ch : Number of choices. (def: 3)
 
 Tags: perceptual, n-alternative, supervised setting.
 
