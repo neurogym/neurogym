@@ -14,6 +14,8 @@
 
 [ChangingEnvironment-v0](#changingenvironment)
 
+[ContextDecisionMaking-v0](#contextdecisionmaking)
+
 [DawTwoStep-v0](#dawtwostep)
 
 [DelayPairedAssociation-v0](#delaypairedassociation)
@@ -33,8 +35,6 @@
 [GoNogo-v0](#gonogo)
 
 [IntervalDiscrimination-v0](#intervaldiscrimination)
-
-[Mante-v0](#mante)
 
 [MatchingPenny-v0](#matchingpenny)
 
@@ -118,9 +118,9 @@ Reference paper:
 
 Other parameters: 
 
-probs : Reward probabilities for each arm. (def: (.9, .1))
-
 gt_arm : High reward arm. (def: 0)
+
+probs : Reward probabilities for each arm. (def: (.9, .1))
 
 n_arms : Number of arms. (def: 2)
 
@@ -176,15 +176,39 @@ decision : constant 500
 
 Other parameters: 
 
+stimEv : Controls the difficulty of the experiment. (def: 1.)
+
 cxt_ch_prob : Probability of changing context.
 
 cxt_cue : Whether to show context as a cue.
 
-stimEv : Controls the difficulty of the experiment. (def: 1.)
-
 Tags: [perceptual](#perceptual), [2-alternative](#2-alternative), [supervised](#supervised), [context dependent](#context-dependent)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/changingenvironment.py)
+
+___
+
+### ContextDecisionMaking
+
+Logic: Agent has to perform one of two different perceptual discriminations. On every trial, a contextual cue indicates which one to perform.
+
+Reference paper: 
+
+[Context-dependent computation by recurrent dynamics in prefrontal cortex](https://www.nature.com/articles/nature12742)
+
+Default Period timing (ms) 
+
+fixation : constant 300
+
+stimulus : constant 750
+
+delay : truncated_exponential [600, 300, 3000]
+
+decision : constant 100
+
+Tags: [perceptual](#perceptual), [context dependent](#context-dependent), [two-alternative](#two-alternative), [supervised](#supervised)
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/contextdecisionmaking.py)
 
 ___
 
@@ -360,9 +384,9 @@ stimulus : truncated_exponential [1000, 500, 1500]
 
 Other parameters: 
 
-noise : Standard deviation of background noise. (def: 1)
-
 delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
+
+noise : Standard deviation of background noise. (def: 1)
 
 stim_dur : Stimulus duration. (def: 100, ms)
 
@@ -443,30 +467,6 @@ decision : constant 300
 Tags: [timing](#timing), [working memory](#working-memory), [delayed response](#delayed-response), [two-alternative](#two-alternative), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/intervaldiscrimination.py)
-
-___
-
-### Mante
-
-Logic: Agent has to perform one of two different perceptual discriminations. On every trial, a contextual cue indicates which one to perform.
-
-Reference paper: 
-
-[Context-dependent computation by recurrent dynamics in prefrontal cortex](https://www.nature.com/articles/nature12742)
-
-Default Period timing (ms) 
-
-fixation : constant 300
-
-stimulus : constant 750
-
-delay : truncated_exponential [600, 300, 3000]
-
-decision : constant 100
-
-Tags: [perceptual](#perceptual), [context dependent](#context-dependent), [two-alternative](#two-alternative), [supervised](#supervised)
-
-[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/mante.py)
 
 ___
 
@@ -728,7 +728,7 @@ ___
 
 ### context dependent 
 
-[Mante-v0](#mante)
+[ContextDecisionMaking-v0](#contextdecisionmaking)
 
 [ChangingEnvironment-v0](#changingenvironment)
 
@@ -782,7 +782,7 @@ ___
 
 ### perceptual 
 
-[Mante-v0](#mante)
+[ContextDecisionMaking-v0](#contextdecisionmaking)
 
 [DelayedComparison-v0](#delayedcomparison)
 
@@ -832,7 +832,7 @@ ___
 
 ### supervised 
 
-[Mante-v0](#mante)
+[ContextDecisionMaking-v0](#contextdecisionmaking)
 
 [DelayedComparison-v0](#delayedcomparison)
 
@@ -882,7 +882,7 @@ ___
 
 ### two-alternative 
 
-[Mante-v0](#mante)
+[ContextDecisionMaking-v0](#contextdecisionmaking)
 
 [DelayedComparison-v0](#delayedcomparison)
 
