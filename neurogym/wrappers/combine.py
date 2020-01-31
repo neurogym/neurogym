@@ -9,7 +9,7 @@ from gym import spaces
 import numpy as np
 import itertools
 import gym
-from neurogym.meta import tasks_info
+from neurogym.meta import info
 # XXX: implemented without relying on core.trTrialWrapper
 
 
@@ -214,4 +214,4 @@ if __name__ == '__main__':
     env = Combine(env, distractor, delay=100, mix=(.5, .0, .5),
                   share_action_space=True, defaults=[0, 0],
                   trial_cue=True)
-    tasks_info.plot_struct(env, num_steps_env=100, n_stps_plt=100)
+    info.plot_struct(env, num_steps_env=100, n_stps_plt=100)

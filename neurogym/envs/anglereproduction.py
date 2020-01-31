@@ -4,7 +4,7 @@ import numpy as np
 from gym import spaces
 
 import neurogym as ngym
-from neurogym.meta import tasks_info
+from neurogym.meta import info
 
 
 class AngleReproduction(ngym.EpochEnv):
@@ -91,4 +91,4 @@ if __name__ == '__main__':
     from neurogym.tests import test_run
     env = AngleReproduction()
     test_run(env)
-    tasks_info.plot_struct(env)
+    info.plot_struct(env)

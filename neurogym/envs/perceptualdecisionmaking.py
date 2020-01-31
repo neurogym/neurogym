@@ -6,7 +6,7 @@ import numpy as np
 from gym import spaces
 
 import neurogym as ngym
-from neurogym.meta import tasks_info
+from neurogym.meta import info
 
 
 class PerceptualDecisionMaking(ngym.EpochEnv):
@@ -122,4 +122,4 @@ class PerceptualDecisionMaking(ngym.EpochEnv):
 
 if __name__ == '__main__':
     env = PerceptualDecisionMaking()
-    tasks_info.plot_struct(env, num_steps_env=50000)
+    info.plot_struct(env, num_steps_env=50000)

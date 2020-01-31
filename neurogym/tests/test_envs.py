@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import gym
 import neurogym as ngym
 from neurogym import all_tasks
-from neurogym.meta.tasks_info import plot_struct
+from neurogym.meta.info import plot_struct
 
 
 def test_run(env, verbose=False):

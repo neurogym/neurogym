@@ -3,7 +3,7 @@
 import gym
 from neurogym import all_tasks
 from neurogym.wrappers import all_wrappers
-from neurogym.meta.tasks_info import info, info_wrapper
+from neurogym.meta.info import info, info_wrapper
 
 
 SOURCE_ROOT = 'https://github.com/gyyang/neurogym/blob/master/'

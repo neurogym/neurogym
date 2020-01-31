@@ -4,7 +4,7 @@ import numpy as np
 from gym import spaces
 
 import neurogym as ngym
-from neurogym.meta import tasks_info
+from neurogym.meta import info
 from neurogym.ops import tasktools
 
 
@@ -81,4 +81,4 @@ if __name__ == '__main__':
     from neurogym.tests import test_run
     env = AntiReach1D()
     test_run(env)
-    tasks_info.plot_struct(env)
+    info.plot_struct(env)

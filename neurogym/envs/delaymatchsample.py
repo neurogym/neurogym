@@ -208,7 +208,7 @@ class DelayedMatchToSampleDistractor1D(ngym.EpochEnv):
 
 if __name__ == '__main__':
     from neurogym.tests import test_run
-    from neurogym.meta.tasks_info import plot_struct
+    from neurogym.meta.info import plot_struct
     env = DelayedMatchToSampleDistractor1D()
     test_run(env)
     plot_struct(env)

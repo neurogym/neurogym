@@ -10,7 +10,7 @@ import numpy as np
 from gym import spaces
 
 import neurogym as ngym
-from neurogym.meta import tasks_info
+from neurogym.meta import info
 
 #  TODO: there should be a timeout of 1000ms for incorrect trials
 
@@ -144,4 +144,4 @@ class DR(ngym.EpochEnv):
 
 if __name__ == '__main__':
     env = DR()
-    tasks_info.plot_struct(env)
+    info.plot_struct(env)

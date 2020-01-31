@@ -12,7 +12,7 @@ from tensorflow.keras.layers import Dense, LSTM, TimeDistributed, Input
 import matplotlib.pyplot as plt
 import gym
 import neurogym  # need to import it so ngym envs are registered
-from neurogym.meta import tasks_info
+from neurogym.meta import info
 
 
 def test_env(env, kwargs, num_steps=100):
@@ -178,7 +178,7 @@ def eval_net_in_task(model, env_name, kwargs, tr_per_ep, rollout,
 
     if show_fig:
         observations = np.array(observations)
-        f = tasks_info.fig_(obs=observations, actions=actions_plt, gt=gt,
+        f = info.fig_(obs=observations, actions=actions_plt, gt=gt,
                             rewards=rewards, n_stps_plt=100, perf=perf,
                             legend=True, name='')
         if folder != '':

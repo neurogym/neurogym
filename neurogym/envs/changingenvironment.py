@@ -9,7 +9,7 @@ Created on Thu Jan 30 13:47:15 2020
 import numpy as np
 from gym import spaces
 import neurogym as ngym
-from neurogym.meta import tasks_info
+from neurogym.meta import info
 
 
 class ChangingEnvironment(ngym.EpochEnv):
@@ -150,4 +150,4 @@ class ChangingEnvironment(ngym.EpochEnv):
 
 if __name__ == '__main__':
     env = CE(cxt_cue=True)
-    tasks_info.plot_struct(env)
+    info.plot_struct(env)

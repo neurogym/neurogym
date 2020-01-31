@@ -3,7 +3,7 @@ from __future__ import division
 
 import numpy as np
 from gym import spaces
-from neurogym.meta import tasks_info
+from neurogym.meta import info
 import neurogym as ngym
 
 
@@ -88,4 +88,4 @@ if __name__ == '__main__':
     from neurogym.tests import test_run
     env = IntervalDiscrimination()
     test_run(env)
-    tasks_info.plot_struct(env)
+    info.plot_struct(env)

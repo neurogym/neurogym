@@ -4,7 +4,7 @@
 from __future__ import division
 import numpy as np
 from gym import spaces
-from neurogym.meta import tasks_info
+from neurogym.meta import info
 import neurogym as ngym
 
 
@@ -100,4 +100,4 @@ class Serrano(ngym.EpochEnv):
 
 if __name__ == '__main__':
     env = Serrano()
-    tasks_info.plot_struct(env, num_steps_env=20, n_stps_plt=20)
+    info.plot_struct(env, num_steps_env=20, n_stps_plt=20)

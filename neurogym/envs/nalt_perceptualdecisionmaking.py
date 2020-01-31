@@ -21,7 +21,7 @@ Perceptual decision-making task, based on
 import numpy as np
 from gym import spaces
 import neurogym as ngym
-from neurogym.meta import tasks_info
+from neurogym.meta import info
 
 
 class nalt_PerceptualDecisionMaking(ngym.EpochEnv):
@@ -132,4 +132,4 @@ class nalt_PerceptualDecisionMaking(ngym.EpochEnv):
 
 if __name__ == '__main__':
     env = nalt_PerceptualDecisionMaking()
-    tasks_info.plot_struct(env)
+    info.plot_struct(env)
