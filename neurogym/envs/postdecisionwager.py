@@ -22,7 +22,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class PDWager(ngym.PeriodEnv):
+class PostDecisionWager(ngym.PeriodEnv):
     metadata = {
         'description': '''Agents do a discrimination task (see PerceptualDecisionMaking). On a
          random half of the trials, the agent is given the option to abort
@@ -110,23 +110,23 @@ class PDWager(ngym.PeriodEnv):
         obs = np.zeros((4,))
         if self.in_period('fixation'):
             obs[0] = 1
-            if self.actions[action] != 0:
+            if self.actions[int(action)] != 0:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
         elif self.in_period('decision'):
-            if self.actions[action] == 2:
+            if self.actions[int(action)] == 2:
                 if trial['wager']:
                     reward = self.R_SURE
                 else:
                     reward = self.R_ABORTED
             else:
                 gt_sign = np.sign(trial['ground_truth'])
-                action_sign = np.sign(self.actions[action])
+                action_sign = np.sign(self.actions[int(action)])
                 if gt_sign == action_sign:
                     reward = self.R_CORRECT
                 elif gt_sign == -action_sign:
                     reward = self.R_FAIL
-            info['new_trial'] = self.actions[action] != 0
+            info['new_trial'] = self.actions[int(action)] != 0
 
         if self.in_period('delay'):
             obs[0] = 1

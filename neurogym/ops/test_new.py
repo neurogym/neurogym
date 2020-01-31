@@ -55,7 +55,7 @@ def neuro_arg_parser():
                         help='whether to make the task a reaction-time task',
                         type=bool, default=False)
     parser.add_argument('--env', help='primary task',
-                        type=str, default='pdWager-v0')
+                        type=str, default='PostDecisionWager-v0')
     parser.add_argument('--env2', help='secondary task (if combine is True)',
                         type=str, default='GoNogo-v0')
     parser.add_argument('--n_steps',

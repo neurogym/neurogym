@@ -9,6 +9,53 @@ import warnings
 
 from neurogym.ops import tasktools
 
+METADATA_DEF_KEYS = ['description', 'paper_name', 'paper_link', 'timing',
+                     'tags']
+
+
+def _clean_string(string):
+    return ' '.join(string.replace('\n', '').split())
+
+
+def env_string(env):
+    string = ''
+    metadata = env.metadata
+    string += "### {:s}\n".format(type(env).__name__)
+    paper_name = metadata.get('paper_name',
+                              None) or 'Missing paper name'
+    paper_name = _clean_string(paper_name)
+    paper_link = metadata.get('paper_link', None)
+    task_description = metadata.get('description',
+                                    None) or 'Missing description'
+    task_description = _clean_string(task_description)
+    string += "Logic: {:s}\n".format(task_description)
+    string += "Reference paper: \n"
+    if paper_link is None:
+        string += "{:s}\n".format(paper_name)
+        string += 'Missing paper link\n'
+    else:
+        string += "[{:s}]({:s})\n".format(paper_name, paper_link)
+    # add timing info
+    if isinstance(env, PeriodEnv):
+        timing = metadata['timing']
+        string += 'Default Period timing (ms) \n'
+        for key, val in timing.items():
+            dist, args = val
+            string += key + ' : ' + dist + ' ' + str(args) + '\n'
+    # add extra info
+    other_info = list(set(metadata.keys()) - set(METADATA_DEF_KEYS))
+    if len(other_info) > 0:
+        string += "Other parameters: \n"
+        for key in other_info:
+            string += key + ' : ' + _clean_string(str(metadata[key])) + '\n'
+    # tags
+    tags = metadata['tags']
+    string += 'Tags: '
+    for tag in tags:
+        string += tag + ', '
+    string = string[:-2] + '.\n'
+    return string
+
 
 class BaseEnv(gym.Env):
     """The base Neurogym class to include dt"""
@@ -133,24 +180,10 @@ class PeriodEnv(TrialEnv):
 
     def __str__(self):
         """Information about task."""
-        total_min, total_max = 0, 0  # min and max time length of trial
-        string = ''
-        for key, val in self._timing.items():
-            dist, args = val
-            string += 'Period ' + key + '\n'
-            string += '    ' + dist + ' ' + str(args) + '\n'
-
-            min_tmp, max_tmp = tasktools.minmax_number(dist, args)
-            total_min += min_tmp
-            total_max += max_tmp  # XXX: is there a fn that provides total_max?
-
-        string += 'Time step {:0.2f}ms\n'.format(self.dt)
-        string += 'Estimate time per trial assuming sequential period\n'
-        string += 'Min/Max: {:0.2f}/{:0.2f}\n'.format(total_min, total_max)
-        return string
+        return env_string(self)
 
     def add_period(self, period, duration=None, before=None, after=None,
-                  last_period=False):
+                   last_period=False):
         """Add an period.
 
         Args:

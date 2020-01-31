@@ -7,12 +7,7 @@ import matplotlib.pyplot as plt
 
 import gym
 import neurogym as ngym
-from neurogym import all_tasks
-from neurogym.wrappers import all_wrappers
-
-
-METADATA_DEF_KEYS = ['description', 'paper_name', 'paper_link', 'timing',
-                     'tags']
+from neurogym.core import env_string, METADATA_DEF_KEYS
 
 
 def info(task=None, show_code=False, show_fig=False, n_stps_plt=200,
@@ -22,7 +17,7 @@ def info(task=None, show_code=False, show_fig=False, n_stps_plt=200,
         tags = list()
 
     if task is None:
-        tasks = all_tasks.keys()
+        tasks = ngym.all_tasks().keys()
         string = ''
         counter = 0
         for env_name in sorted(tasks):
@@ -35,42 +30,10 @@ def info(task=None, show_code=False, show_fig=False, n_stps_plt=200,
         print("* {0} tasks implemented so far.\n\n".format(counter))
         print(string)
     else:
-        string = ''
         try:
             env = gym.make(task)
-            metadata = env.metadata
-            string += "### {:s}\n\n".format(type(env).__name__)
-            paper_name = metadata.get('paper_name',
-                                      None) or 'Missing paper name'
-            paper_link = metadata.get('paper_link', None)
-            task_description = metadata.get('description',
-                                            None) or 'Missing description'
-            string += "Logic: {:s}\n\n".format(task_description)
-            string += "Reference paper: \n\n"
-            if paper_link is None:
-                string += "{:s}\n\n".format(paper_name)
-                string += 'Missing paper link\n\n'
-            else:
-                string += "[{:s}]({:s})\n\n".format(paper_name, paper_link)
-            # add timing info
-            if isinstance(env, ngym.PeriodEnv):
-                timing = metadata['timing']
-                string += 'Default Period timing (ms) \n\n'
-                for key, val in timing.items():
-                    dist, args = val
-                    string += key + ' : ' + dist + ' ' + str(args) + '\n\n'
-            # add extra info
-            other_info = list(set(metadata.keys()) - set(METADATA_DEF_KEYS))
-            if len(other_info) > 0:
-                string += "Other parameters: \n\n"
-                for key in other_info:
-                    string += key + ' : ' + str(metadata[key]) + '\n\n'
-            # tags
-            tags = metadata['tags']
-            string += 'Tags: '
-            for tag in tags:
-                string += tag + ', '
-            string = string[:-2] + '.\n\n'
+            string = env_string(env)
+            string = string.replace('\n', '\n\n') # for markdown
 
             # plot basic structure
             if show_fig:
@@ -81,7 +44,7 @@ def info(task=None, show_code=False, show_fig=False, n_stps_plt=200,
             if show_code:
                 string += '''\n#### Source code #### \n\n'''
                 import inspect
-                task_ref = all_tasks[task]
+                task_ref = ngym.all_tasks()[task]
                 from_ = task_ref[:task_ref.find(':')]
                 class_ = task_ref[task_ref.find(':')+1:]
                 imported = getattr(__import__(from_, fromlist=[class_]),
@@ -98,7 +61,7 @@ def info(task=None, show_code=False, show_fig=False, n_stps_plt=200,
 def info_wrapper(wrapper=None, show_code=False):
     """Script to get wrappers info"""
     if wrapper is None:
-        wrappers = all_wrappers.keys()
+        wrappers = ngym.all_wrappers().keys()
         string = ''
         for env_name in sorted(wrappers):
             string += env_name + '\n'
@@ -108,7 +71,7 @@ def info_wrapper(wrapper=None, show_code=False):
     else:
         string = ''
         try:
-            wrapp_ref = all_wrappers[wrapper]
+            wrapp_ref = ngym.all_wrappers()[wrapper]
             from_ = wrapp_ref[:wrapp_ref.find(':')]
             class_ = wrapp_ref[wrapp_ref.find(':')+1:]
             imported = getattr(__import__(from_, fromlist=[class_]), class_)

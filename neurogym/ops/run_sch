@@ -15,7 +15,7 @@ python -m baselines.run --alg=a2c --env=Mante-v0 --network=lstm --nsteps=$num_st
 
 python -m baselines.run --alg=a2c --env=padoaSch-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm --num_env=12 >> ./results/res.out
 
-python -m baselines.run --alg=a2c --env=pdWager-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm --num_env=12 >> ./results/res.out
+python -m baselines.run --alg=a2c --env=PostDecisionWager-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm --num_env=12 >> ./results/res.out
 
 python -m baselines.run --alg=a2c --env=DelayPairedAssociation-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm --num_env=12 >> ./results/res.out
 

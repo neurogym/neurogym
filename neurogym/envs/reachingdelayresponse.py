@@ -77,10 +77,8 @@ class ReachingDelayResponse(ngym.PeriodEnv):
         decision_gt = self.view_groundtruth('decision')
         decision_gt[:,0] = 1. # go
         decision_gt[:,1] = ground_truth_stim # Where to respond
-        #self.set_groundtruth('decision', ground_truth_stim)
 
     def _step(self, action):
-        """ not a dictionary anymore"""
         new_trial = False
         # rewards
         reward = 0
@@ -99,5 +97,5 @@ class ReachingDelayResponse(ngym.PeriodEnv):
 
 
 if __name__ == '__main__':
-    env = Serrano()
+    env = ReachingDelayResponse()
     info.plot_struct(env, num_steps_env=20, n_stps_plt=20)

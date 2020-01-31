@@ -1,8 +1,7 @@
 """Script to make environment md"""
 
 import gym
-from neurogym import all_tasks
-from neurogym.wrappers import all_wrappers
+import neurogym as ngym
 from neurogym.meta.info import info, info_wrapper
 
 
@@ -11,11 +10,11 @@ SOURCE_ROOT = 'https://github.com/gyyang/neurogym/blob/master/'
 
 def write_doc(write_type):
     if write_type == 'tasks':
-        all_items = all_tasks
+        all_items = ngym.all_tasks()
         info_fn = info
         fname = 'envs.md'
     elif write_type == 'wrappers':
-        all_items = all_wrappers
+        all_items = ngym.all_wrappers()
         info_fn = info_wrapper
         fname = 'wrappers.md'
     else:
@@ -29,6 +28,7 @@ def write_doc(write_type):
         try:
             string += '___\n\n'
             string += info_fn(name)
+            print(string)
 
             # Using github's automatic link to section titles
             if write_type == 'tasks':
