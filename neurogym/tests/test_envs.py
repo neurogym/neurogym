@@ -12,7 +12,7 @@ from neurogym import all_tasks
 from neurogym.meta.tasks_info import plot_struct
 
 
-def test_run(env):
+def test_run(env, verbose=False):
     """Main function for testing if an environment is healthy."""
     if isinstance(env, str):
         print('Testing Environment:', env)
@@ -22,7 +22,8 @@ def test_run(env):
         if not isinstance(env, gym.Env):
             raise ValueError('env must be a string or a gym.Env')
     _test_run(env)
-    print(env)
+    if verbose:
+        print(env)
     return env
 
 
@@ -100,7 +101,7 @@ def test_print_all():
             print(e)
 
 
-def test_run_all():
+def test_run_all(verbose_success=False):
     """Test if all environments can at least be run."""
     success_count = 0
     total_count = 0
@@ -112,7 +113,7 @@ def test_run_all():
         print('Running env: {:s}'.format(env_name))
         # env = test_run(env_name)
         try:
-            test_run(env_name)
+            test_run(env_name, verbose=verbose_success)
             print('Success')
             # print(env)
             success_count += 1
@@ -176,18 +177,18 @@ def test_plot(env_name):
 
 
 if __name__ == '__main__':
-    # test_run_all()
+    test_run_all()
     # test_speed_all()
     # test_trialenv_all()
     # test_print_all()
-    env_name = 'GNG-v0'
-    # env_name = 'RDM-v0'
+    # env_name = 'GoNogo-v0'
+    # env_name = 'PerceptualDecisionMaking-v0'
     # env_name = 'Mante-v0'
-    # env_name = 'NAltRDM-v0'
+    # env_name = 'NAltPerceptualDecisionMaking-v0'
     # env_name = 'DelayedMatchCategory-v0'
     # env_name = 'MemoryRecall-v0'
     # env_name = 'Bandit-v0'
     # test_run(env_name)
     # test_plot(env_name)
     # test_speed(env_name)
-    plot_struct(env_name)
+    # plot_struct(env_name)

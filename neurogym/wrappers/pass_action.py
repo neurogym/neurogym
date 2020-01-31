@@ -43,12 +43,12 @@ class PassAction(Wrapper):
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
-    from neurogym.envs import nalt_rdm
+    from neurogym.envs import nalt_perceptualDecisionMaking
     from neurogym.wrappers import trial_hist_nalt
     from neurogym.wrappers import catch_trials
     from neurogym.wrappers import pass_reward
     n_ch = 3
-    env = nalt_rdm.nalt_RDM(timing=[100, 200, 200, 200, 100], n_ch=n_ch)
+    env = nalt_perceptualDecisionMaking.nalt_PerceptualDecisionMaking(timing=[100, 200, 200, 200, 100], n_ch=n_ch)
     env = trial_hist_nalt.TrialHistory_NAlt(env, n_ch=n_ch, tr_prob=0.9,
                                             trans='RepAlt')
     env = catch_trials.CatchTrials(env, catch_prob=0.7, stim_th=100)

@@ -285,6 +285,6 @@ if __name__ == '__main__':
     # get_all_tags(verbose=1)
     # info(tags=['supervised setting', 'n-alternative'])
     info('ChangingEnvironment-v0')
-    # info('RDM-v0', show_code=True, show_fig=True)
+    # info('PerceptualDecisionMaking-v0', show_code=True, show_fig=True)
 #    info_wrapper()
 #    info_wrapper('ReactionTime-v0', show_code=True)

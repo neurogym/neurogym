@@ -57,7 +57,7 @@ class IBL(ngym.TrialEnv):
         the next trial. Such specifications are stored in a dictionary with
         the following items:
             durations, which stores the duration of the different periods (in
-            the case of rdm: fixation, stimulus and decision periods)
+            the case of perceptualDecisionMaking: fixation, stimulus and decision periods)
             ground truth: correct response for the trial
             coh: stimulus coherence (evidence) for the trial
         """
@@ -99,7 +99,7 @@ class IBL_Block(IBL):
         the next trial. Such specifications are stored in a dictionary with
         the following items:
             durations, which stores the duration of the different periods (in
-            the case of rdm: fixation, stimulus and decision periods)
+            the case of perceptualDecisionMaking: fixation, stimulus and decision periods)
             ground truth: correct response for the trial
             coh: stimulus coherence (evidence) for the trial
         """

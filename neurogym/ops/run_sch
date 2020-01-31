@@ -7,7 +7,7 @@ gamm=0.9
 li=100000
 
 
-python -m baselines.run --alg=a2c --env=RDM-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm --num_env=12 > ./results/res.out
+python -m baselines.run --alg=a2c --env=PerceptualDecisionMaking-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm --num_env=12 > ./results/res.out
 
 python -m baselines.run --alg=a2c --env=Romo-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm --num_env=12 >> ./results/res.out
 
@@ -19,9 +19,9 @@ python -m baselines.run --alg=a2c --env=pdWager-v0 --network=lstm --nsteps=$num_
 
 python -m baselines.run --alg=a2c --env=DelayPairedAssociation-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm --num_env=12 >> ./results/res.out
 
-python -m baselines.run --alg=a2c --env=GNG-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm --num_env=12 >> ./results/res.out
+python -m baselines.run --alg=a2c --env=GoNogo-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm --num_env=12 >> ./results/res.out
 
-python -m baselines.run --alg=a2c --env=RDM_hist-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm --num_env=12 >> ./results/res.out
+python -m baselines.run --alg=a2c --env=PerceptualDecisionMaking_hist-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm --num_env=12 >> ./results/res.out
 
 python -m baselines.run --alg=a2c --env=ReadySetGo-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm --num_env=12 >> ./results/res.out
 

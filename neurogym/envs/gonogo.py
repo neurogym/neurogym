@@ -22,7 +22,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class GNG(ngym.EpochEnv):
+class GoNogo(ngym.EpochEnv):
     # TODO: Find the original go-no-go paper
     metadata = {
         'description': 'Go/No-Go task in which the subject has either Go' +

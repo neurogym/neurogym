@@ -80,7 +80,8 @@ class DawTwoStep(ngym.TrialEnv):
 
         self.trial = {
             'transition':  transition,
-            'reward': reward
+            'reward': reward,
+            'hi_state': hi_state,
             }
 
     def _step(self, action):
@@ -104,5 +105,5 @@ class DawTwoStep(ngym.TrialEnv):
             info['new_trial'] = True
         else:
             raise ValueError('t is not 0 or 1')
-        info['gt'][self.hi_state+1] = 1  # TODO: check!
+        info['gt'][trial['hi_state']+1] = 1  # TODO: check!
         return obs, reward, False, info

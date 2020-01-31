@@ -204,7 +204,7 @@ if __name__ == '__main__':
                                     'delay_aft_stim': ('constant', 100),
                                     'decision': ('constant', 200)}}
     env = gym.make(task, **KWARGS)
-    task = 'GNG-v0'
+    task = 'GoNogo-v0'
     KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
                                     'stimulus': ('constant', 100),
                                     'resp_delay': ('constant', 100),

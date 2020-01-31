@@ -1,37 +1,53 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Random dot motion task."""
+"""
+Created on Tue Nov 12 17:39:17 2019
+
+@author: molano
+
+
+Perceptual decision-making task, based on
+
+  Bounded integration in parietal cortex underlies decisions even when viewing
+  duration is dictated by the environment.
+  R Kiani, TD Hanks, & MN Shadlen, JNS 2008.
+
+  http://dx.doi.org/10.1523/JNEUROSCI.4761-07.2008
+
+  But allowing for more than 2 choices.
+
+"""
 
 import numpy as np
 from gym import spaces
-
 import neurogym as ngym
 from neurogym.meta import tasks_info
 
 
-class RDM(ngym.EpochEnv):
+class nalt_PerceptualDecisionMaking(ngym.EpochEnv):
     metadata = {
-        'description': '''Random dot motion task. Two-alternative forced
-         choice task in which the subject has to integrate two stimuli to
-         decide which one is higher on average.''',
-        'paper_link': 'https://www.jneurosci.org/content/12/12/4745',
-        'paper_name': '''The analysis of visual motion: a comparison of
-        neuronal and psychophysical performance''',
+        'description': '''N-alternative forced choice task in which the subject
+         has to integrate N stimuli to decide which one is higher
+          on average.''',
+        'paper_link': None,
+        'paper_name': None,
         'timing': {
-            'fixation': ('constant', 100),  # TODO: depends on subject
-            'stimulus': ('constant', 2000),
-            'decision': ('constant', 100)},  # XXX: not specified
+            'fixation': ('constant', 500),
+            'stimulus': ('truncated_exponential', [330, 80, 1500]),
+            'decision': ('constant', 500)},
         'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
-        'tags': ['perceptual', '2-alternative', 'supervised setting']        
+        'n_ch': 'Number of choices. (def: 3)',
+        'tags': ['perceptual', 'n-alternative', 'supervised setting']
     }
 
-    def __init__(self, dt=100, timing=None, stimEv=1.):
+    def __init__(self, dt=100, timing=None, stimEv=1., n_ch=3):
         super().__init__(dt=dt, timing=timing)
-        self.choices = [1, 2]  # [left, right]
+        self.n = n_ch
+        self.choices = np.arange(n_ch) + 1
         # cohs specifies the amount of evidence (which is modulated by stimEv)
-        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stimEv
+        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
         # Input noise
-        sigma = np.sqrt(2 * 100 * 0.01)
+        sigma = np.sqrt(2*100*0.01)
         self.sigma_dt = sigma / np.sqrt(self.dt)
 
         # Rewards
@@ -40,9 +56,8 @@ class RDM(ngym.EpochEnv):
         self.R_FAIL = 0.
         self.abort = False
         # action and observation spaces
-        self.action_space = spaces.Discrete(3)
-        # observation space: [fixation cue, left stim, right stim]
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
+        self.action_space = spaces.Discrete(n_ch+1)
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(n_ch+1,),
                                             dtype=np.float32)
 
     def new_trial(self, **kwargs):
@@ -50,7 +65,7 @@ class RDM(ngym.EpochEnv):
         new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:
             durations, which stores the duration of the different periods (in
-            the case of rdm: fixation, stimulus and decision periods)
+            the case of perceptualDecisionMaking: fixation, stimulus and decision periods)
             ground truth: correct response for the trial
             coh: stimulus coherence (evidence) for the trial
             obs: observation
@@ -63,34 +78,25 @@ class RDM(ngym.EpochEnv):
             'coh': self.rng.choice(self.cohs),
         }
         self.trial.update(kwargs)
-        coh = self.trial['coh']
-        ground_truth = self.trial['ground_truth']
         # ---------------------------------------------------------------------
         # Epochs
         # ---------------------------------------------------------------------
         self.add_epoch('fixation', after=0)
         self.add_epoch('stimulus', after='fixation')
         self.add_epoch('decision', after='stimulus', last_epoch=True)
-        # ---------------------------------------------------------------------
-        # Observations
-        # ---------------------------------------------------------------------
-        # all observation values are 0 by default
-        # FIXATION: setting fixation cue to 1 during fixation period
-        self.set_ob('fixation', [1, 0, 0])
-        # STIMULUS
-        stimulus = self.view_ob('stimulus')  # stimulus shape = time x obs-dim
-        # setting coherences
-        stimulus[:, 1:] = (1 - coh / 100) / 2
-        stimulus[:, ground_truth] = (1 + coh / 100) / 2  # coh for correct side
-        # adding gaussian noise to stimulus with std = self.sigma_dt
-        stimulus[:, 1:] +=\
-            np.random.randn(stimulus.shape[0], 2) * self.sigma_dt
-        # ---------------------------------------------------------------------
-        # Ground truth
-        # ---------------------------------------------------------------------
-        self.set_groundtruth('decision', ground_truth)
 
-    def _step(self, action):
+        self.set_ob('fixation', [1] + [0]*self.n)
+        ob = self.view_ob('stimulus')
+        ob[:, 0] = 1
+        ob[:, 1:] = (1 - self.trial['coh']/100)/2
+        ob[:, self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
+        ob[:, 1:] += np.random.randn(ob.shape[0], self.n) * self.sigma_dt
+
+        self.set_groundtruth('fixation', 0)
+        self.set_groundtruth('stimulus', 0)
+        self.set_groundtruth('decision', self.trial['ground_truth'])
+
+    def _step(self, action, **kwargs):
         """
         _step receives an action and returns:
             a new observation, obs
@@ -100,13 +106,17 @@ class RDM(ngym.EpochEnv):
                 ground truth correct response, info['gt']
                 boolean indicating the end of the trial, info['new_trial']
         """
+        # ---------------------------------------------------------------------
+        # Reward and observations
+        # ---------------------------------------------------------------------
         new_trial = False
-        # rewards
-        reward = 0
+
+        obs = self.obs_now
         gt = self.gt_now
-        # observations
+
+        reward = 0
         if self.in_epoch('fixation'):
-            if action != 0:  # action = 0 means fixating
+            if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
         elif self.in_epoch('decision'):
@@ -117,9 +127,9 @@ class RDM(ngym.EpochEnv):
                 else:
                     reward = self.R_FAIL
 
-        return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
 if __name__ == '__main__':
-    env = RDM()
-    tasks_info.plot_struct(env, num_steps_env=50000)
+    env = nalt_PerceptualDecisionMaking()
+    tasks_info.plot_struct(env)

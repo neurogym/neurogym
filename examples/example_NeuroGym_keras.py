@@ -190,7 +190,7 @@ def eval_net_in_task(model, env_name, kwargs, tr_per_ep, rollout,
 
 if __name__ == '__main__':
     # ARGS
-    task = 'RDM-v0'
+    task = 'PerceptualDecisionMaking-v0'
     num_trials = 100000
     rollout = 20
     dt = 100

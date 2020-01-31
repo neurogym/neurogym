@@ -57,7 +57,7 @@ class DelayedMatchCategory(ngym.EpochEnv):
         new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:
             durations, which stores the duration of the different periods (in
-            the case of rdm: fixation, stimulus and decision periods)
+            the case of perceptualDecisionMaking: fixation, stimulus and decision periods)
             ground truth: correct response for the trial
             coh: stimulus coherence (evidence) for the trial
             obs: observation
@@ -87,8 +87,8 @@ class DelayedMatchCategory(ngym.EpochEnv):
         self.add_epoch('fixation', after=0)
         self.add_epoch('sample', after='fixation')
         self.add_epoch('first_delay', after='sample')
-        self.add_epoch('test', after='first_delay')
-        self.add_epoch('decision', after='test', last_epoch=True)
+        self.add_epoch('test', after='first_delay', last_epoch=True)
+        # self.add_epoch('decision', after='test', last_epoch=True)
 
         self.set_ob('fixation', [1, 0, 0])
 
@@ -102,9 +102,9 @@ class DelayedMatchCategory(ngym.EpochEnv):
         ob[:, :] += np.array([1, np.cos(test_theta), np.sin(test_theta)])
         ob[:, 1:] += np.random.randn(ob.shape[0], 2) * self.sigma_dt
 
-        self.set_ob('decision', [0, 0, 0])
+        # self.set_ob('test', [0, 0, 0])
 
-        self.set_groundtruth('decision', ground_truth)
+        self.set_groundtruth('test', ground_truth)
 
     def _step(self, action, **kwargs):
         """
@@ -129,7 +129,7 @@ class DelayedMatchCategory(ngym.EpochEnv):
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('decision'):
+        elif self.in_epoch('test'):
             if action != 0:
                 new_trial = True
                 if action == gt:

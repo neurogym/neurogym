@@ -90,7 +90,7 @@ stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Tags: perceptual, delayed response, two-alternative, supervised setting.
 
-### DPA task ###
+### DelayPairedAssociation task ###
 
 Logic: A sample is followed by a delay and a test. Agents have to report if the pair sample-test is a rewarded pair or not.
 
@@ -253,7 +253,7 @@ noise : Standard deviation of background noise. (def: 1)
 
 Tags: perceptual, reaction time, go/no-go, supervised setting.
 
-### GNG task ###
+### GoNogo task ###
 
 Logic: Go/No-Go task in which the subject has either Go (e.g. lick) or not Go depending on which one of two stimuli is presented with.
 
@@ -354,7 +354,7 @@ set : constant 50
 
 Tags: timing, go/no-go, supervised setting.
 
-### nalt_RDM task ###
+### nalt_PerceptualDecisionMaking task ###
 
 Logic: N-alternative forced choice task in which the subject
          has to integrate N stimuli to decide which one is higher
@@ -382,7 +382,7 @@ stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Tags: perceptual, n-alternative, supervised setting.
 
-### RDM task ###
+### PerceptualDecisionMaking task ###
 
 Logic: Random dot motion task. Two-alternative forced
          choice task in which the subject has to integrate two stimuli to
@@ -537,7 +537,7 @@ Tags: perceptual, value-based.
 
 ### PDWager task ###
 
-Logic: Agents do a discrimination task (see RDM). On a
+Logic: Agents do a discrimination task (see PerceptualDecisionMaking). On a
          random half of the trials, the agent is given the option to abort
          the direction discrimination and to choose instead a small but
          certain reward associated with a action.
