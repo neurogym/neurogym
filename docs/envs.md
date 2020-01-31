@@ -58,6 +58,10 @@
 
 ___
 
+Tags: [confidence](#confidence), [context dependent](#context-dependent), [continuous action space](#continuous-action-space), [delayed response](#delayed-response), [go-no-go](#go-no-go), [motor](#motor), [multidimensional action space](#multidimensional-action-space), [n-alternative](#n-alternative), [perceptual](#perceptual), [reaction time](#reaction-time), [steps action space](#steps-action-space), [supervised](#supervised), [timing](#timing), [two-alternative](#two-alternative), [value-based](#value-based), [working memory](#working-memory)
+
+___
+
 ### AngleReproduction
 
 Logic: The agent has to reproduce to two angles separated by a constant delay.
@@ -118,11 +122,11 @@ Reference paper:
 
 Other parameters: 
 
+n_arms : Number of arms. (def: 2)
+
 gt_arm : High reward arm. (def: 0)
 
 probs : Reward probabilities for each arm. (def: (.9, .1))
-
-n_arms : Number of arms. (def: 2)
 
 Tags: [n-alternative](#n-alternative), [supervised](#supervised)
 
@@ -178,11 +182,11 @@ Other parameters:
 
 stimEv : Controls the difficulty of the experiment. (def: 1.)
 
-cxt_ch_prob : Probability of changing context.
-
 cxt_cue : Whether to show context as a cue.
 
-Tags: [perceptual](#perceptual), [2-alternative](#2-alternative), [supervised](#supervised), [context dependent](#context-dependent)
+cxt_ch_prob : Probability of changing context.
+
+Tags: [perceptual](#perceptual), [two-alternative](#two-alternative), [supervised](#supervised), [context dependent](#context-dependent)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/changingenvironment.py)
 
@@ -384,11 +388,11 @@ stimulus : truncated_exponential [1000, 500, 1500]
 
 Other parameters: 
 
-delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
-
 noise : Standard deviation of background noise. (def: 1)
 
 stim_dur : Stimulus duration. (def: 100, ms)
+
+delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
 
 Tags: [perceptual](#perceptual), [reaction time](#reaction-time), [go-no-go](#go-no-go), [supervised](#supervised)
 
@@ -560,7 +564,7 @@ Other parameters:
 
 stimEv : Controls the difficulty of the experiment. (def: 1.)
 
-Tags: [perceptual](#perceptual), [2-alternative](#2-alternative), [supervised](#supervised)
+Tags: [perceptual](#perceptual), [two-alternative](#two-alternative), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/perceptualdecisionmaking.py)
 
@@ -715,12 +719,6 @@ Tags: [timing](#timing), [go-no-go](#go-no-go), [supervised](#supervised)
 ___
 
 ### Tags ### 
-
-### 2-alternative 
-
-[PerceptualDecisionMaking-v0](#perceptualdecisionmaking)
-
-[ChangingEnvironment-v0](#changingenvironment)
 
 ### confidence 
 
@@ -886,6 +884,8 @@ ___
 
 [DelayedComparison-v0](#delayedcomparison)
 
+[PerceptualDecisionMaking-v0](#perceptualdecisionmaking)
+
 [DelayedMatchSample-v0](#delayedmatchtosample)
 
 [DelayedMatchCategory-v0](#delayedmatchcategory)
@@ -901,6 +901,8 @@ ___
 [IntervalDiscrimination-v0](#intervaldiscrimination)
 
 [CVLearning-v0](#cvlearning)
+
+[ChangingEnvironment-v0](#changingenvironment)
 
 ### value-based 
 

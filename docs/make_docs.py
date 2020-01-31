@@ -81,10 +81,21 @@ def write_doc(write_type):
             print('Failure in ', name)
             print(e)
 
-    str1 = '### List of {:s} implemented\n\n'.format(write_type)
-    str2 = '* {:d} {:s} implemented so far.\n\n'.format(counter, write_type)
+    full_string = '### List of {:s} implemented\n\n'.format(write_type)
+    full_string += '* {:d} {:s} implemented so far.\n\n'.format(counter, write_type)
+    full_string += names
 
-    string = str1 + str2 + names + string
+    if write_type == 'tasks':
+        string_all_tags = '___\n\nTags: '
+        for tag in sorted(all_tags):
+            tag_link = tag.lower().replace(' ', '-')
+            tag_with_link = add_link(tag, tag_link)
+            string_all_tags += tag_with_link + ', '
+        string_all_tags = string_all_tags[:-2] + '\n\n'
+        full_string += string_all_tags
+
+    full_string += string
+
     if write_type == 'tasks':
         string_tag = '___\n\n### Tags ### \n\n'
         for tag in sorted(all_tags):
@@ -92,12 +103,11 @@ def write_doc(write_type):
             for name in tag_dict[tag]:
                 string_tag += add_link(name, link_dict[name])
                 string_tag += '\n\n'
-
-        string = string + string_tag
+        full_string += string_tag
 
     with open(fname, 'w') as f:
         f.write('* Under development, details subject to change\n\n')
-        f.write(string)
+        f.write(full_string)
 
 
 def main():
