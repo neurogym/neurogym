@@ -27,7 +27,7 @@ class Detection(ngym.EpochEnv):
             ' a uniform distribution. (def: None)',
             'stim_dur': 'Stimulus duration. (def: 100, ms)',
             'tags': ['perceptual', 'reaction time', 'go/no-go',
-                     'supervised setting']
+                     'supervised']
             }
 
     def __init__(self, dt=100, timing=None, noise=1., delay=None,

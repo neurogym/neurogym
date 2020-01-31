@@ -28,7 +28,7 @@ class Mante(ngym.EpochEnv):
             'delay': ('truncated_exponential', [600, 300, 3000]),
             'decision': ('constant', 100)},  # XXX: not specified
         'tags': ['perceptual', 'context dependent', 'two-alternative',
-                 'supervised setting']
+                 'supervised']
     }
 
     def __init__(self, dt=100, timing=None):

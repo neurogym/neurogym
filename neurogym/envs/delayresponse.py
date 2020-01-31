@@ -31,7 +31,7 @@ class DR(ngym.EpochEnv):
             'decision': ('constant', 1500)},
         'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
         'tags': ['perceptual', 'delayed response', 'two-alternative',
-                 'supervised setting']
+                 'supervised']
     }
 
     def __init__(self, dt=100, timing=None, stimEv=1.):

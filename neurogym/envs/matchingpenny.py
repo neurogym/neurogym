@@ -20,7 +20,7 @@ class MatchingPenny(ngym.TrialEnv):
         'paper_name': '''Prefrontal cortex and decision making in a
          mixed-strategy game''',
         'opponent_type': '''Type of opponent. (def: 'random')''',
-        'tags': ['two-alternative', 'supervised setting']
+        'tags': ['two-alternative', 'supervised']
     }
 
     def __init__(self, dt=100, opponent_type='random', timing=None):

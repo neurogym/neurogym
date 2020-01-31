@@ -21,7 +21,7 @@ class Bandit(ngym.TrialEnv):
         'n_arms': 'Number of arms. (def: 2)',
         'probs': 'Reward probabilities for each arm. (def: (.9, .1))',
         'gt_arm': 'High reward arm. (def: 0)',
-        'tags': ['n-alternative', 'supervised setting']
+        'tags': ['n-alternative', 'supervised']
     }
 
     def __init__(self, dt=100, n_arm=2, probs=(.9, .1), gt_arm=0,

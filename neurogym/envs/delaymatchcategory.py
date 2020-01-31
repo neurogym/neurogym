@@ -28,7 +28,7 @@ class DelayedMatchCategory(ngym.EpochEnv):
         # 'second_delay': ('constant', 250),  # TODO: not implemented
         # 'decision': ('constant', 650)},  # TODO: not implemented
         'tags': ['perceptual', 'working memory', 'two-alternative',
-                 'supervised setting']
+                 'supervised']
     }
 
     def __init__(self, dt=100, timing=None):

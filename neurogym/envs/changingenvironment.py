@@ -26,7 +26,7 @@ class ChangingEnvironment(ngym.EpochEnv):
         'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
         'cxt_ch_prob': 'Probability of changing context.',
         'cxt_cue': 'Whether to show context as a cue.',
-        'tags': ['perceptual', '2-alternative', 'supervised setting',
+        'tags': ['perceptual', '2-alternative', 'supervised',
                  'context dependent']
     }
 

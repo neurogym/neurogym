@@ -19,7 +19,7 @@ class Reaching1D(ngym.EpochEnv):
         'timing': {
             'fixation': ('constant', 500),
             'reach': ('constant', 500)},
-        'tags': ['motor', 'continuous action space', 'supervised setting']
+        'tags': ['motor', 'continuous action space', 'supervised']
     }
 
     def __init__(self, dt=100, timing=None):
@@ -91,7 +91,7 @@ class Reaching1DWithSelfDistraction(ngym.EpochEnv):
         'timing': {
             'fixation': ('constant', 500),
             'reach': ('constant', 500)},
-        'tags': ['motor', 'continuous action space', 'supervised setting']
+        'tags': ['motor', 'continuous action space', 'supervised']
     }
 
     def __init__(self, dt=100, timing=None):

@@ -27,7 +27,7 @@ class DelayedMatchToSample(ngym.EpochEnv):
             'test': ('constant', 500),
             'decision': ('constant', 900)},
         'tags': ['perceptual', 'working memory', 'two-alternative',
-                 'supervised setting']
+                 'supervised']
     }
 
     def __init__(self, dt=100, timing=None):
@@ -130,7 +130,7 @@ class DelayedMatchToSampleDistractor1D(ngym.EpochEnv):
             'delay3': ('constant', 1000),
             'test3': ('constant', 500)},
         'tags': ['perceptual', 'working memory', 'two-alternative',
-                 'supervised setting']                
+                 'supervised']
     }
 
     def __init__(self, dt=100, timing=None):

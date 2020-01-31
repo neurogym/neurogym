@@ -31,7 +31,7 @@ class DelayPairedAssociation(ngym.EpochEnv):
         'noise': '''Standard deviation of the Gaussian noise added to
         the stimulus. (def: 0.01)''',
         'tags': ['perceptual', 'working memory', 'go/no-go',
-                 'supervised setting']
+                 'supervised']
     }
 
     def __init__(self, dt=100, timing=None, noise=0.01):

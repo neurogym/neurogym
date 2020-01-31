@@ -21,7 +21,7 @@ class DawTwoStep(ngym.TrialEnv):
         'pii/S0896627311001255',
         'paper_name': 'Model-Based Influences on Humans' +
         ' Choices and Striatal Prediction Errors',
-        'tags': ['two-alternative', 'supervised setting']
+        'tags': ['two-alternative', 'supervised']
     }
 
     def __init__(self, dt=100, timing=None):

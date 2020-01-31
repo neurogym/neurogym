@@ -40,7 +40,7 @@ class PDWager(ngym.EpochEnv):
             'pre_sure': ('uniform', [500, 750]),
             'decision': ('constant', 100)},  # XXX: not specified
         'tags': ['perceptual', 'delayed response', 'confidence',
-                 'supervised setting']
+                 'supervised']
     }
 
     def __init__(self, dt=100, timing=None):

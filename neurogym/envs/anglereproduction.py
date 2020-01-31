@@ -23,7 +23,7 @@ class AngleReproduction(ngym.EpochEnv):
             'go1': ('constant', 500),
             'go2': ('constant', 500)},
         'tags': ['perceptual', 'working memory', 'delayed response',
-                 'continuous action space', 'supervised setting']
+                 'continuous action space', 'supervised']
     }
 
     def __init__(self, dt=100, timing=None):

@@ -283,7 +283,7 @@ def get_all_tags(verbose=0):
 
 if __name__ == '__main__':
     # get_all_tags(verbose=1)
-    # info(tags=['supervised setting', 'n-alternative'])
+    # info(tags=['supervised', 'n-alternative'])
     info('ChangingEnvironment-v0')
     # info('PerceptualDecisionMaking-v0', show_code=True, show_fig=True)
 #    info_wrapper()

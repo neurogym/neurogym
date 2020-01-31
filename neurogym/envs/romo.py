@@ -33,7 +33,7 @@ class Romo(ngym.EpochEnv):
             'f2': ('constant', 500),
             'decision': ('constant', 100)},  # XXX: not specified
         'tags': ['perceptual', 'working memory', 'two-alternative',
-                 'supervised setting']
+                 'supervised']
     }
 
     def __init__(self, dt=100, timing=None):

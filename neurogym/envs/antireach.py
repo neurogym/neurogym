@@ -18,7 +18,7 @@ class AntiReach1D(ngym.EpochEnv):
         'timing': {
             'fixation': ('constant', 500),
             'reach': ('constant', 500)},
-        'tags': ['perceptual', 'continuous action space', 'supervised setting']
+        'tags': ['perceptual', 'continuous action space', 'supervised']
     }
 
     def __init__(self, dt=100, timing=None):
