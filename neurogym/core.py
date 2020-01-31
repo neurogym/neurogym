@@ -77,7 +77,7 @@ class BaseEnv(gym.Env):
 
 
 class TrialEnv(BaseEnv):
-    """The main Neurogym class for trial-based tasks."""
+    """The main Neurogym class for trial-based envs."""
 
     def __init__(self, dt=100, num_trials_before_reset=10000000, r_tmax=0):
         super(TrialEnv, self).__init__(dt=dt)

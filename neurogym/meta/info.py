@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Formatting information about tasks and wrappers."""
+"""Formatting information about envs and wrappers."""
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,28 +10,28 @@ import neurogym as ngym
 from neurogym.core import env_string, METADATA_DEF_KEYS
 
 
-def info(task=None, show_code=False, show_fig=False, n_stps_plt=200,
+def info(env=None, show_code=False, show_fig=False, n_stps_plt=200,
          tags=None):
-    """Script to get tasks info"""
+    """Script to get envs info"""
     if tags is None:
         tags = list()
 
     string = ''
-    if task is None:
-        tasks = ngym.all_tasks().keys()
+    if env is None:
+        envs = ngym.all_envs().keys()
         counter = 0
-        for env_name in sorted(tasks):
+        for env_name in sorted(envs):
             env = gym.make(env_name)
             metadata = env.metadata
             if len(list(set(tags) - set(metadata['tags']))) == 0:
                 string += env_name + '\n'
                 counter += 1
         print('\n\n### List of environments implemented\n\n')
-        print("* {0} tasks implemented so far.\n\n".format(counter))
+        print("* {0} envs implemented so far.\n\n".format(counter))
         print(string)
     else:
         try:
-            env = gym.make(task)
+            env = gym.make(env)
             string = env_string(env)
             string = string.replace('\n', '\n\n') # for markdown
 
@@ -44,9 +44,9 @@ def info(task=None, show_code=False, show_fig=False, n_stps_plt=200,
             if show_code:
                 string += '''\n#### Source code #### \n\n'''
                 import inspect
-                task_ref = ngym.all_tasks()[task]
-                from_ = task_ref[:task_ref.find(':')]
-                class_ = task_ref[task_ref.find(':')+1:]
+                env_ref = ngym.all_envs()[env]
+                from_ = env_ref[:env_ref.find(':')]
+                class_ = env_ref[env_ref.find(':')+1:]
                 imported = getattr(__import__(from_, fromlist=[class_]),
                                    class_)
                 lines = inspect.getsource(imported)
@@ -187,7 +187,7 @@ def fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=True,
     # obs
     plt.subplot(rows, 1, 1)
     plt.imshow(obs[:n_stps_plt, :].T, aspect='auto')
-    plt.title('observations ' + name + ' task')
+    plt.title('observations ' + name + ' env')
     ax = plt.gca()
     ax.set_xticks([])
     ax.set_yticks([])
@@ -226,7 +226,7 @@ def fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=True,
     plt.tight_layout()
     plt.show()
     if folder != '':
-        f.savefig(folder + '/task_struct.png')
+        f.savefig(folder + '/env_struct.png')
         plt.close(f)
 
     return f
@@ -234,9 +234,9 @@ def fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=True,
 
 def get_all_tags(verbose=0):
     """Script to get all tags"""
-    tasks = ngym.all_tasks().keys()
+    envs = ngym.all_envs().keys()
     tags = []
-    for env_name in sorted(tasks):
+    for env_name in sorted(envs):
         try:
             env = gym.make(env_name)
             metadata = env.metadata

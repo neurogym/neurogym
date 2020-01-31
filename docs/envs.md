@@ -182,9 +182,9 @@ Other parameters:
 
 stimEv : Controls the difficulty of the experiment. (def: 1.)
 
-cxt_cue : Whether to show context as a cue.
-
 cxt_ch_prob : Probability of changing context.
+
+cxt_cue : Whether to show context as a cue.
 
 Tags: [perceptual](#perceptual), [two-alternative](#two-alternative), [supervised](#supervised), [context dependent](#context-dependent)
 

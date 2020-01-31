@@ -77,7 +77,7 @@ def test_speed(env_name):
 
 def test_speed_all():
     """Test speed of all experiments."""
-    for env_name in sorted(ngym.all_tasks().keys()):
+    for env_name in sorted(ngym.all_envs().keys()):
         try:
             test_speed(env_name)
             print('Success')
@@ -88,7 +88,7 @@ def test_speed_all():
 
 def test_print_all():
     """Test printing of all experiments."""
-    for env_name in sorted(ngym.all_tasks().keys()):
+    for env_name in sorted(ngym.all_envs().keys()):
         print('')
         print('Test printing env: {:s}'.format(env_name))
         try:
@@ -104,7 +104,7 @@ def test_run_all(verbose_success=False):
     """Test if all environments can at least be run."""
     success_count = 0
     total_count = 0
-    for env_name in sorted(ngym.all_tasks().keys()):
+    for env_name in sorted(ngym.all_envs().keys()):
         total_count += 1
 
         print('Running env: {:s}'.format(env_name))
@@ -118,7 +118,7 @@ def test_run_all(verbose_success=False):
             print('Failure at running env: {:s}'.format(env_name))
             print(e)
 
-    print('Success {:d}/{:d} tasks'.format(success_count, total_count))
+    print('Success {:d}/{:d} envs'.format(success_count, total_count))
 
 
 def test_trialenv_all():
@@ -126,7 +126,7 @@ def test_trialenv_all():
     success_count = 0
     total_count = 0
     hastrial_count = 0
-    for env_name in sorted(ngym.all_tasks().keys()):
+    for env_name in sorted(ngym.all_envs().keys()):
         if env_name in ['Combine-v0']:
             continue
         env = gym.make(env_name)
@@ -148,8 +148,8 @@ def test_trialenv_all():
             print('Failure at running env: {:s}'.format(env_name))
             print(e)
 
-    print('Success {:d}/{:d} tasks'.format(success_count, total_count))
-    print('{:d}/{:d} tasks have self.trial after new_trial'.format(hastrial_count, success_count))
+    print('Success {:d}/{:d} envs'.format(success_count, total_count))
+    print('{:d}/{:d} envs have self.trial after new_trial'.format(hastrial_count, success_count))
 
 
 def test_plot(env_name):

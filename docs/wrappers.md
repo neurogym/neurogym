@@ -67,16 +67,16 @@ Logic: Saves relevant behavioral information: rewards, actions, observations, ne
 
 Input parameters: 
 
-folder : Folder where the data will be saved. (def: None)
-
-num_stps_sv_fig : Number of trial steps to include in the figure. (def: 100)
-
 sv_fig : Whether to save a figure of the experiment structure. If True, a figure will be updated every num_tr_save. (def: False)
 
 verbose : Whether to print information about average reward and number of trials
 
 num_tr_save : Data will be saved every num_tr_save trials.
         (def: 100000)
+
+folder : Folder where the data will be saved. (def: None)
+
+num_stps_sv_fig : Number of trial steps to include in the figure. (def: 100)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/wrappers/monitor.py)
 
@@ -160,13 +160,13 @@ Reference paper:
 
 Input parameters: 
 
-rep_prob : Specifies probabilities of repeating for each block.
-        (def: (.2, .8))
-
 blk_ch_prob : If not None, specifies the probability of changing
         block (randomly). (def: None)
 
 block_dur : Number of trials per block. (def: 200 (int))
+
+rep_prob : Specifies probabilities of repeating for each block.
+        (def: (.2, .8))
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/wrappers/trial_hist.py)
 

@@ -36,7 +36,7 @@ class TrialHistory(ngym.TrialWrapper):
         self.blk_ch_prob = blk_ch_prob
 
         if len(self.task.choices) != 2:
-            raise ValueError('Currently, this wrapper only works this 2AFC tasks.')
+            raise ValueError('Currently, this wrapper only works this 2AFC envs.')
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------

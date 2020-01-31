@@ -8,7 +8,7 @@ from neurogym.core import PeriodEnv
 from neurogym.core import TrialWrapper
 
 
-ALL_TASKS = {'ContextDecisionMaking-v0': 'neurogym.envs.contextdecisionmaking:ContextDecisionMaking',
+ALL_ENVS = {'ContextDecisionMaking-v0': 'neurogym.envs.contextdecisionmaking:ContextDecisionMaking',
              'DelayedComparison-v0': 'neurogym.envs.delayedcomparison:DelayedComparison',
              'PerceptualDecisionMaking-v0':
                  'neurogym.envs.perceptualdecisionmaking:PerceptualDecisionMaking',
@@ -70,20 +70,15 @@ ALL_WRAPPERS = {'CatchTrials-v0': 'neurogym.wrappers.catch_trials:CatchTrials',
                 }
 
 
-def all_tasks():
-    return ALL_TASKS.copy()
+def all_envs():
+    return ALL_ENVS.copy()
 
 
 def all_wrappers():
     return ALL_WRAPPERS.copy()
 
 
-def register_task(id_task):
-    for env in gym.envs.registry.all():
-        if env.id == id_task:
-            return
-    register(id=id_task, entry_point=ALL_TASKS[id_task])
-
-
-for task in ALL_TASKS.keys():
-    register_task(task)
+_all_gym_envs = [env.id for env in gym.envs.registry.all()]
+for env_id in ALL_ENVS.keys():
+    if env_id not in _all_gym_envs:
+        register(id=env_id, entry_point=ALL_ENVS[env_id])

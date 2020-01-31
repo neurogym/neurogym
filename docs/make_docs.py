@@ -18,12 +18,12 @@ def add_link(text, link):
 def write_doc(write_type):
     all_tags = []
     if write_type == 'tasks':
-        all_items = ngym.all_tasks()
+        all_items = ngym.all_envs()
         info_fn = info
         fname = 'envs.md'
 
         tag_dict = defaultdict(list)
-        for name in ngym.all_tasks():
+        for name in ngym.all_envs():
             env = gym.make(name)
             tag_list = env.metadata.get('tags', [])
             all_tags += tag_list

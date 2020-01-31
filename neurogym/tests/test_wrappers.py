@@ -57,7 +57,7 @@ def test_all(test_fn):
     """Test speed of all experiments."""
     success_count = 0
     total_count = 0
-    for env_name in sorted(ngym.all_tasks().keys()):
+    for env_name in sorted(ngym.all_envs().keys()):
         total_count += 1
         print('Running env: {:s} Wrapped with SideBias'.format(env_name))
         try:
@@ -69,7 +69,7 @@ def test_all(test_fn):
             print(e)
         print('')
 
-    print('Success {:d}/{:d} tasks'.format(success_count, total_count))
+    print('Success {:d}/{:d} envs'.format(success_count, total_count))
 
 
 if __name__ == '__main__':
