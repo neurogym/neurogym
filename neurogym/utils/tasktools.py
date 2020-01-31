@@ -121,21 +121,6 @@ def correct_2AFC(perf):
     return p_decision, p_correct
 
 
-def new_trial(t, tmax, dt, new_trial, miss, reward):
-    """
-    check whether a new trial should be started
-    """
-    # new trial?
-    # tmax should the current tmax and not the general one
-    if t >= tmax-dt and not new_trial:
-        reward = miss
-        new_trial = True
-
-    print('Warning: this function is obsolete and should not be used')
-
-    return reward, new_trial
-
-
 def compute_perf(perf, reward, num_tr_perf, tr_perf):
     if tr_perf:
         num_tr_perf += 1

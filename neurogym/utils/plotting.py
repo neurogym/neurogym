@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import gym
 
 
-def plot_struct(env, num_steps_env=200, n_stps_plt=200,
+def plot_struct(env, num_steps_env=200, num_steps_plt=200,
                 def_act=None, model=None, name=None, legend=True):
     if isinstance(env, str):
         env = gym.make(env)
@@ -63,7 +63,7 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
         states = None
     obs_cum = np.array(obs_cum)
     obs = np.array(observations)
-    fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=legend,
+    fig_(obs, actions, gt, rewards, num_steps_plt, perf, legend=legend,
          states=states, name=name)
     data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
             'actions': actions, 'perf': perf,
@@ -72,7 +72,7 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
     return data
 
 
-def fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=True,
+def fig_(obs, actions, gt, rewards, num_steps_plt, perf, legend=True,
          obs_cum=None, states=None, name='', folder=''):
     if states is not None:
         rows = 4
@@ -82,37 +82,37 @@ def fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=True,
     f = plt.figure(figsize=(8, 8))
     # obs
     plt.subplot(rows, 1, 1)
-    plt.imshow(obs[:n_stps_plt, :].T, aspect='auto')
+    plt.imshow(obs[:num_steps_plt, :].T, aspect='auto')
     plt.title('observations ' + name + ' env')
     ax = plt.gca()
     ax.set_xticks([])
     ax.set_yticks([])
     # actions
     plt.subplot(rows, 1, 2)
-    plt.plot(np.arange(n_stps_plt) + 0.,
-             actions[:n_stps_plt], marker='+', label='actions')
+    plt.plot(np.arange(num_steps_plt) + 0.,
+             actions[:num_steps_plt], marker='+', label='actions')
     gt = np.array(gt)
     if len(gt.shape) == 2:
         gt = np.argmax(gt, axis=1)
-    plt.plot(np.arange(n_stps_plt) + 0.,
-             gt[:n_stps_plt], 'r', label='ground truth')
+    plt.plot(np.arange(num_steps_plt) + 0.,
+             gt[:num_steps_plt], 'r', label='ground truth')
     plt.ylabel('actions')
     if legend:
         plt.legend()
-    plt.xlim([-0.5, n_stps_plt-0.5])
+    plt.xlim([-0.5, num_steps_plt-0.5])
     ax = plt.gca()
     ax.set_xticks([])
     # rewards
     plt.subplot(rows, 1, 3)
-    plt.plot(np.arange(n_stps_plt) + 0.,
-             rewards[:n_stps_plt], 'r')
-    plt.xlim([-0.5, n_stps_plt-0.5])
+    plt.plot(np.arange(num_steps_plt) + 0.,
+             rewards[:num_steps_plt], 'r')
+    plt.xlim([-0.5, num_steps_plt-0.5])
     plt.ylabel('reward ' + ' (' + str(np.round(np.mean(perf), 2)) + ')')
     if states is not None:
         ax = plt.gca()
         ax.set_xticks([])
         plt.subplot(rows, 1, 4)
-        plt.imshow(states[:n_stps_plt, int(states.shape[1]/2):].T,
+        plt.imshow(states[:num_steps_plt, int(states.shape[1]/2):].T,
                    aspect='auto')
         plt.title('network activity')
         plt.ylabel('neurons')

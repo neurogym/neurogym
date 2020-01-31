@@ -24,6 +24,7 @@ setup(name='neurogym',
       packages=[package for package in find_packages()
                 if package.startswith('neurogym')],
       install_requires=[
+          'numpy',
           'gym',
           'matplotlib',
       ],

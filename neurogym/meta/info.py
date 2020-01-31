@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 """Formatting information about envs and wrappers."""
 
-import numpy as np
-import matplotlib.pyplot as plt
-
 import gym
 from neurogym.core import env_string, METADATA_DEF_KEYS
 from neurogym.envs import all_envs, ALL_ENVS
@@ -12,7 +9,7 @@ from neurogym.wrappers import ALL_WRAPPERS
 from neurogym.utils.plotting import plot_struct
 
 
-def info(env=None, show_code=False, show_fig=False, n_stps_plt=200):
+def info(env=None, show_code=False, show_fig=False, num_steps_plt=200):
     """Script to get envs info"""
     string = ''
     try:
@@ -24,8 +21,8 @@ def info(env=None, show_code=False, show_fig=False, n_stps_plt=200):
         # plot basic structure
         if show_fig:
             print('#### Example trials ####')
-            plot_struct(env, n_stps_plt=n_stps_plt,
-                        num_steps_env=n_stps_plt)
+            plot_struct(env, num_steps_plt=num_steps_plt,
+                        num_steps_env=num_steps_plt)
         # show source code
         if show_code:
             string += '''\n#### Source code #### \n\n'''
@@ -85,8 +82,6 @@ def info_wrapper(wrapper=None, show_code=False):
         print(e)
     print(string)
     return string
-
-
 
 
 def get_all_tags(verbose=0):

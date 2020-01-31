@@ -1,3 +1,7 @@
+# TODO: Remove this file
+
+raise ValueError('Deprecated file')
+
 import matplotlib
 import numpy as np
 import sys
