@@ -18,7 +18,7 @@ class AntiReach1D(ngym.EpochEnv):
         'timing': {
             'fixation': ('constant', 500),
             'reach': ('constant', 500)},
-        'tags': ['perceptual', 'continuous action space', 'supervised']
+        'tags': ['perceptual', 'steps action space']
     }
 
     def __init__(self, dt=100, timing=None):
@@ -74,7 +74,7 @@ class AntiReach1D(ngym.EpochEnv):
             reward =\
                 np.max((1 - tasktools.circular_dist(self.state - gt), -0.1))
 
-        return ob, reward, False, {'new_trial': False, 'gt': gt}
+        return ob, reward, False, {'new_trial': False}
 
 
 if __name__ == '__main__':

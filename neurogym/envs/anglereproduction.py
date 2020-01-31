@@ -23,7 +23,7 @@ class AngleReproduction(ngym.EpochEnv):
             'go1': ('constant', 500),
             'go2': ('constant', 500)},
         'tags': ['perceptual', 'working memory', 'delayed response',
-                 'continuous action space', 'supervised']
+                 'steps action space']
     }
 
     def __init__(self, dt=100, timing=None):
@@ -84,7 +84,7 @@ class AngleReproduction(ngym.EpochEnv):
         if self.in_epoch('go1') or self.in_epoch('go2'):
             reward = np.max((1 - np.abs(self.state - gt), -0.1))
 
-        return ob, reward, False, {'new_trial': False, 'gt': gt}
+        return ob, reward, False, {'new_trial': False}
 
 
 if __name__ == '__main__':

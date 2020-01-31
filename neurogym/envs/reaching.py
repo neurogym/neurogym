@@ -19,7 +19,7 @@ class Reaching1D(ngym.EpochEnv):
         'timing': {
             'fixation': ('constant', 500),
             'reach': ('constant', 500)},
-        'tags': ['motor', 'continuous action space', 'supervised']
+        'tags': ['motor', 'steps action space']
     }
 
     def __init__(self, dt=100, timing=None):
@@ -70,7 +70,7 @@ class Reaching1D(ngym.EpochEnv):
             reward =\
                 np.max((1 - tasktools.circular_dist(self.state - gt), -0.1))
 
-        return ob, reward, False, {'new_trial': False, 'gt': gt}
+        return ob, reward, False, {'new_trial': False}
 
 
 class Reaching1DWithSelfDistraction(ngym.EpochEnv):
@@ -91,7 +91,7 @@ class Reaching1DWithSelfDistraction(ngym.EpochEnv):
         'timing': {
             'fixation': ('constant', 500),
             'reach': ('constant', 500)},
-        'tags': ['motor', 'continuous action space', 'supervised']
+        'tags': ['motor', 'steps action space']
     }
 
     def __init__(self, dt=100, timing=None):
@@ -141,7 +141,7 @@ class Reaching1DWithSelfDistraction(ngym.EpochEnv):
             reward =\
                 np.max((1 - tasktools.circular_dist(self.state - gt), -0.1))
 
-        return ob, reward, False, {'new_trial': False, 'gt': gt}
+        return ob, reward, False, {'new_trial': False}
 
 
 if __name__ == '__main__':
