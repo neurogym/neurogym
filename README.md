@@ -30,7 +30,7 @@ Wrappers are short scripts that allow introducing modifications the original tas
 ### Example
 
 NeuroGym is compatible with most packages that use OpenAI gym. 
-In this [example](https://github.com/gyyang/neurogym/blob/master/neurogym/examples/example_NeuroGym_stable_baselines.ipynb) jupyter notebook we show how to train
+In this [example](https://github.com/gyyang/neurogym/blob/master/examples/example_neurogym_rl.ipynb) jupyter notebook we show how to train
 a neural network with reinforcement learning algorithms using the 
 [Stable Baselines](https://github.com/hill-a/stable-baselines) toolbox.
 
