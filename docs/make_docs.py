@@ -10,6 +10,11 @@ from neurogym.meta.info import info, info_wrapper
 SOURCE_ROOT = 'https://github.com/gyyang/neurogym/blob/master/'
 
 
+def add_link(text, link):
+    # Add link to a within document location
+    return '[{:s}](#{:s})'.format(text, link)
+
+
 def write_doc(write_type):
     all_tags = []
     if write_type == 'tasks':
@@ -53,7 +58,7 @@ def write_doc(write_type):
                 info_string += 'Tags: '
                 for tag in env.metadata.get('tags', []):
                     tag_link = tag.lower().replace(' ', '-')
-                    tag_with_link = '[{:s}](#{:s})'.format(tag, tag_link)
+                    tag_with_link = add_link(tag, tag_link)
                     info_string += tag_with_link + ', '
                 info_string = info_string[:-2] + '\n\n'
             string += info_string
@@ -67,7 +72,7 @@ def write_doc(write_type):
             link = link.lower().replace(' ', '-')
             link_dict[name] = link
 
-            names += '[{:s}](#{:s})\n\n'.format(name, link)
+            names += add_link(name, link) + '\n\n'
             source_link = all_items[name].split(':')[0].replace('.', '/')
             string += '[Source]({:s})\n\n'.format(
                 SOURCE_ROOT + source_link + '.py')
@@ -85,7 +90,7 @@ def write_doc(write_type):
         for tag in sorted(all_tags):
             string_tag += '### {:s} \n\n'.format(tag)
             for name in tag_dict[tag]:
-                string_tag += '[{:s}](#{:s})'.format(name, link_dict[name])
+                string_tag += add_link(name, link_dict[name])
                 string_tag += '\n\n'
 
         string = string + string_tag
