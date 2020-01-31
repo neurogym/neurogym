@@ -187,4 +187,4 @@ if __name__ == '__main__':
     # test_run(env_name)
     # test_plot(env_name)
     # test_speed(env_name)
-    # plot_struct(env_name)
+    # plot_env(env_name)

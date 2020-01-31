@@ -6,8 +6,10 @@ import matplotlib.pyplot as plt
 import gym
 
 
-def plot_struct(env, num_steps_env=200, num_steps_plt=200,
-                def_act=None, model=None, name=None, legend=True):
+def plot_env(env, num_steps_env=200, num_steps_plt=None,
+             def_act=None, model=None, name=None, legend=True):
+    if num_steps_plt is None:
+        num_steps_plt = num_steps_env
     if isinstance(env, str):
         env = gym.make(env)
     if name is None:

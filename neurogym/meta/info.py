@@ -6,7 +6,7 @@ import gym
 from neurogym.core import env_string, METADATA_DEF_KEYS
 from neurogym.envs import all_envs, ALL_ENVS
 from neurogym.wrappers import ALL_WRAPPERS
-from neurogym.utils.plotting import plot_struct
+from neurogym.utils.plotting import plot_env
 
 
 def info(env=None, show_code=False, show_fig=False, num_steps_plt=200):
@@ -16,12 +16,11 @@ def info(env=None, show_code=False, show_fig=False, num_steps_plt=200):
         env_name = env
         env = gym.make(env)
         string = env_string(env)
-        string = string.replace('\n', '\n\n') # for markdown
 
         # plot basic structure
         if show_fig:
             print('#### Example trials ####')
-            plot_struct(env, num_steps_plt=num_steps_plt,
+            plot_env(env, num_steps_plt=num_steps_plt,
                         num_steps_env=num_steps_plt)
         # show source code
         if show_code:

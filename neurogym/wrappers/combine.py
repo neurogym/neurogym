@@ -199,4 +199,4 @@ if __name__ == '__main__':
     env = Combine(env, distractor, delay=300, mix=(.3, .3, .4),
                   share_action_space=True, defaults=[0, 0],
                   trial_cue=True)
-    info.plot_struct(env, num_steps_env=100, num_steps_plt=100)
+    info.plot_env(env, num_steps_env=100, num_steps_plt=100)

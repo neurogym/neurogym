@@ -88,4 +88,4 @@ if __name__ == '__main__':
     from neurogym.tests import test_run
     env = IntervalDiscrimination()
     test_run(env)
-    info.plot_struct(env)
+    info.plot_env(env)

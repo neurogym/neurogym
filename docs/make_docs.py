@@ -48,6 +48,7 @@ def write_doc(write_type):
         try:
             string += '___\n\n'
             info_string = info_fn(name)
+            info_string = info_string.replace('\n', '\n\n')  # for markdown
 
             if write_type == 'tasks':
                 # Tags has to be last
@@ -81,8 +82,7 @@ def write_doc(write_type):
             print('Failure in ', name)
             print(e)
 
-    full_string = '### List of {:s} implemented\n\n'.format(write_type)
-    full_string += '* {:d} {:s} implemented so far.\n\n'.format(counter, write_type)
+    full_string = '### List of {:d} {:s} implemented\n\n'.format(counter, write_type)
     full_string += names
 
     if write_type == 'tasks':

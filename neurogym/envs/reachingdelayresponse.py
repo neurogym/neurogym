@@ -98,4 +98,4 @@ class ReachingDelayResponse(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = ReachingDelayResponse()
-    info.plot_struct(env, num_steps_env=20, num_steps_plt=20)
+    info.plot_env(env, num_steps_env=20, num_steps_plt=20)

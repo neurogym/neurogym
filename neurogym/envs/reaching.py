@@ -149,4 +149,4 @@ if __name__ == '__main__':
     # env = Reaching1D()
     env = Reaching1DWithSelfDistraction()
     test_run(env)
-    info.plot_struct(env)
+    info.plot_env(env)

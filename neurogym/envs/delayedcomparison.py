@@ -129,4 +129,4 @@ class DelayedComparison(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = DelayedComparison()
-    info.plot_struct(env, num_steps_env=50000)
+    info.plot_env(env, num_steps_env=50000)

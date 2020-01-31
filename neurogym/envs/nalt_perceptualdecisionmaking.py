@@ -132,4 +132,4 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = nalt_PerceptualDecisionMaking()
-    info.plot_struct(env)
+    info.plot_env(env)

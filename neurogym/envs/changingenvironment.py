@@ -164,4 +164,4 @@ class ChangingEnvironment(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = ChangingEnvironment(cxt_ch_prob=0.05, stimEv=100, cxt_cue=False)
-    info.plot_struct(env)
+    info.plot_env(env)

@@ -252,4 +252,4 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = PerceptualDecisionMaking()
-    info.plot_struct(env, num_steps_env=50000)
+    info.plot_env(env, num_steps_env=50000)

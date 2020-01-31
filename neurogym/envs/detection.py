@@ -137,5 +137,5 @@ class Detection(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = Detection(noise=0, timing={'stimulus': ('constant', 200)})
-    info.plot_struct(env, num_steps_env=50,
+    info.plot_env(env, num_steps_env=50,
                            num_steps_plt=50, legend=False)  # ,def_act=1)

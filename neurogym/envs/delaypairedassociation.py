@@ -136,4 +136,4 @@ class DelayPairedAssociation(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = DelayPairedAssociation()
-    info.plot_struct(env, num_steps_env=1000, num_steps_plt=1000)
+    info.plot_env(env, num_steps_env=1000, num_steps_plt=1000)
