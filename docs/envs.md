@@ -54,7 +54,7 @@
 
 [padoaSch-v0](#padoasch)
 
-[pdWager-v0](#pdwager)
+[PostDecisionWager-v0](#PostDecisionWager)
 
 ___
 
@@ -688,7 +688,7 @@ Tags: perceptual, value-based.
 
 ___
 
-### PDWager
+### PostDecisionWager
 
 Logic: Agents do a discrimination task (see PerceptualDecisionMaking). On a random half of the trials, the agent is given the option to abort the direction discrimination and to choose instead a small but certain reward associated with a action.
 
@@ -710,5 +710,5 @@ decision : constant 100
 
 Tags: perceptual, delayed response, confidence, supervised.
 
-[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/pd_wager.py)
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/postdecisionwager.py)
 

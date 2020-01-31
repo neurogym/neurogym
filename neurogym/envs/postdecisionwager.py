@@ -22,7 +22,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class PDWager(ngym.PeriodEnv):
+class PostDecisionWager(ngym.PeriodEnv):
     metadata = {
         'description': '''Agents do a discrimination task (see PerceptualDecisionMaking). On a
          random half of the trials, the agent is given the option to abort
