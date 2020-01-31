@@ -27,7 +27,7 @@ def write_doc(write_type):
 
     for name in sorted(all_items.keys()):
         try:
-            string += '---\n\n'
+            string += '___\n\n'
             string += info_fn(name)
             names += '[{:s}](#{:s})\n\n'.format(
                 name, name.lower().replace(' ', '-'))

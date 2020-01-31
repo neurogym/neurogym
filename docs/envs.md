@@ -56,7 +56,7 @@
 
 [pdWager-v0](#pdwager-v0)
 
----
+___
 
 ### AngleReproduction
 
@@ -87,7 +87,7 @@ Tags: perceptual, working memory, delayed response, continuous action space, sup
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/anglereproduction.py)
 
----
+___
 
 ### AntiReach1D
 
@@ -108,7 +108,7 @@ Tags: perceptual, continuous action space, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/antireach.py)
 
----
+___
 
 ### Bandit
 
@@ -120,17 +120,17 @@ Reference paper:
 
 Other parameters: 
 
+probs : Reward probabilities for each arm. (def: (.9, .1))
+
 gt_arm : High reward arm. (def: 0)
 
 n_arms : Number of arms. (def: 2)
-
-probs : Reward probabilities for each arm. (def: (.9, .1))
 
 Tags: n-alternative, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/bandit.py)
 
----
+___
 
 ### CVLearning
 
@@ -158,7 +158,7 @@ Tags: perceptual, delayed response, two-alternative, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/cv_learning.py)
 
----
+___
 
 ### ChangingEnvironment
 
@@ -179,17 +179,17 @@ decision : constant 500
 
 Other parameters: 
 
-cxt_ch_prob : Probability of changing context.
-
 cxt_cue : Whether to show context as a cue.
 
 stimEv : Controls the difficulty of the experiment. (def: 1.)
+
+cxt_ch_prob : Probability of changing context.
 
 Tags: perceptual, 2-alternative, supervised, context dependent.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/changingenvironment.py)
 
----
+___
 
 ### DawTwoStep
 
@@ -203,7 +203,7 @@ Tags: two-alternative, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/dawtwostep.py)
 
----
+___
 
 ### DelayPairedAssociation
 
@@ -236,7 +236,7 @@ Tags: perceptual, working memory, go/no-go, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delaypairedassociation.py)
 
----
+___
 
 ### DelayedMatchCategory
 
@@ -261,7 +261,7 @@ Tags: perceptual, working memory, two-alternative, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delaymatchcategory.py)
 
----
+___
 
 ### DelayedMatchToSample
 
@@ -288,7 +288,7 @@ Tags: perceptual, working memory, two-alternative, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delaymatchsample.py)
 
----
+___
 
 ### DelayedMatchToSampleDistractor1D
 
@@ -322,7 +322,7 @@ Tags: perceptual, working memory, two-alternative, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delaymatchsample.py)
 
----
+___
 
 ### DR
 
@@ -350,7 +350,7 @@ Tags: perceptual, delayed response, two-alternative, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delayresponse.py)
 
----
+___
 
 ### Detection
 
@@ -370,17 +370,17 @@ stimulus : truncated_exponential [1000, 500, 1500]
 
 Other parameters: 
 
+delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
+
 noise : Standard deviation of background noise. (def: 1)
 
 stim_dur : Stimulus duration. (def: 100, ms)
-
-delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
 
 Tags: perceptual, reaction time, go/no-go, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/detection.py)
 
----
+___
 
 ### GoNogo
 
@@ -404,7 +404,7 @@ Tags: delayed response, go/no-go, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/gonogo.py)
 
----
+___
 
 ### IntervalDiscrimination
 
@@ -433,7 +433,7 @@ Tags: timing, working memory, delayed response, two-alternative, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/intervaldiscrimination.py)
 
----
+___
 
 ### Mante
 
@@ -458,7 +458,7 @@ Tags: perceptual, context dependent, two-alternative, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/mante.py)
 
----
+___
 
 ### MatchingPenny
 
@@ -478,7 +478,7 @@ Tags: two-alternative, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/matchingpenny.py)
 
----
+___
 
 ### MotorTiming
 
@@ -501,7 +501,7 @@ Tags: timing, go/no-go, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/readysetgo.py)
 
----
+___
 
 ### nalt_PerceptualDecisionMaking
 
@@ -533,7 +533,7 @@ Tags: perceptual, n-alternative, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/nalt_perceptualdecisionmaking.py)
 
----
+___
 
 ### PerceptualDecisionMaking
 
@@ -562,7 +562,7 @@ Tags: perceptual, 2-alternative, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/perceptualdecisionmaking.py)
 
----
+___
 
 ### Reaching1D
 
@@ -582,7 +582,7 @@ Tags: motor, continuous action space, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/reaching.py)
 
----
+___
 
 ### Reaching1DWithSelfDistraction
 
@@ -606,7 +606,7 @@ Tags: motor, continuous action space, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/reaching.py)
 
----
+___
 
 ### ReadySetGo
 
@@ -636,7 +636,7 @@ Tags: timing, go/no-go, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/readysetgo.py)
 
----
+___
 
 ### Romo
 
@@ -665,7 +665,7 @@ Tags: perceptual, working memory, two-alternative, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/romo.py)
 
----
+___
 
 ### Serrano
 
@@ -690,7 +690,7 @@ Tags: perceptual, delayed response, continuous action space, multidimensional ac
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/serrano.py)
 
----
+___
 
 ### PadoaSch
 
@@ -714,7 +714,7 @@ Tags: perceptual, value-based.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/padoa_sch.py)
 
----
+___
 
 ### PDWager
 
