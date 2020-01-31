@@ -22,7 +22,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class GoNogo(ngym.EpochEnv):
+class GoNogo(ngym.PeriodEnv):
     # TODO: Find the original go-no-go paper
     metadata = {
         'description': 'Go/No-Go task in which the subject has either Go' +
@@ -64,11 +64,11 @@ class GoNogo(ngym.EpochEnv):
         }
         self.trial.update(kwargs)
 
-        # Epoch info
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('stimulus', after='fixation')
-        self.add_epoch('resp_delay', after='stimulus')
-        self.add_epoch('decision', after='resp_delay', last_epoch=True)
+        # Period info
+        self.add_period('fixation', after=0)
+        self.add_period('stimulus', after='fixation')
+        self.add_period('resp_delay', after='stimulus')
+        self.add_period('decision', after='resp_delay', last_period=True)
 
         self.set_ob('fixation', [1, 0, 0])
         self.set_ob('stimulus', [1, 0, 0])
@@ -83,11 +83,11 @@ class GoNogo(ngym.EpochEnv):
         reward = 0
         obs = self.obs_now
         gt = self.gt_now
-        if self.in_epoch('fixation'):
+        if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('decision'):
+        elif self.in_period('decision'):
             if action != 0:
                 new_trial = True
                 if gt != 0:

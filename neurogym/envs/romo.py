@@ -18,7 +18,7 @@ import neurogym as ngym
 from neurogym.meta import info
 
 
-class Romo(ngym.EpochEnv):
+class Romo(ngym.PeriodEnv):
     metadata = {
         'description': """Two-alternative forced choice task in which
          the subject has to compare two stimuli separated by a delay
@@ -74,13 +74,13 @@ class Romo(ngym.EpochEnv):
         if self.trial['ground_truth'] == 2:
             f1, f2 = f2, f1
         # -------------------------------------------------------------------------
-        # Epochs
+        # Periods
         # --------------------------------------------------------------------------
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('f1', after='fixation')
-        self.add_epoch('delay', after='f1')
-        self.add_epoch('f2', after='delay')
-        self.add_epoch('decision', after='f2', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('f1', after='fixation')
+        self.add_period('delay', after='f1')
+        self.add_period('f2', after='delay')
+        self.add_period('decision', after='f2', last_period=True)
 
         self.set_ob('fixation', [1, 0])
         self.set_ob('f1', [1, self.scale_p(f1)])
@@ -112,11 +112,11 @@ class Romo(ngym.EpochEnv):
         obs = self.obs_now
         # rewards
         reward = 0
-        if self.in_epoch('fixation'):
+        if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('decision'):
+        elif self.in_period('decision'):
             if action != 0:
                 new_trial = True
                 if action == gt:

@@ -13,7 +13,7 @@ import neurogym as ngym
 from neurogym.meta import info
 
 
-class DelayPairedAssociation(ngym.EpochEnv):
+class DelayPairedAssociation(ngym.PeriodEnv):
     metadata = {
         'description': 'A sample is followed by a delay and a test.' +
         ' Agents have to report if the pair sample-test is a rewarded pair' +
@@ -74,14 +74,14 @@ class DelayPairedAssociation(ngym.EpochEnv):
         self.trial.update(kwargs)
         pair = self.trial['pair']
         # ---------------------------------------------------------------------
-        # Epochs
+        # Periods
         # ---------------------------------------------------------------------
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('stim1', after='fixation')
-        self.add_epoch('delay_btw_stim', after='stim1')
-        self.add_epoch('stim2', after='delay_btw_stim')
-        self.add_epoch('delay_aft_stim', after='stim2')
-        self.add_epoch('decision', after='delay_aft_stim', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('stim1', after='fixation')
+        self.add_period('delay_btw_stim', after='stim1')
+        self.add_period('stim2', after='delay_btw_stim')
+        self.add_period('delay_aft_stim', after='stim2')
+        self.add_period('decision', after='delay_aft_stim', last_period=True)
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
@@ -119,11 +119,11 @@ class DelayPairedAssociation(ngym.EpochEnv):
         obs = self.obs_now
         gt = self.gt_now
         # observations
-        if self.in_epoch('fixation'):
+        if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('decision'):
+        elif self.in_period('decision'):
             if action != 0:
                 if action == gt:
                     reward = self.R_CORRECT

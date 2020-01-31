@@ -12,7 +12,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class DelayedMatchCategory(ngym.EpochEnv):
+class DelayedMatchCategory(ngym.PeriodEnv):
     metadata = {
         'description': 'A sample stimulus is followed by a delay and test.' +
         ' Agents are required to indicate if the sample and test are in the' +
@@ -82,13 +82,13 @@ class DelayedMatchCategory(ngym.EpochEnv):
         test_theta = (test_category + self.rng.random()) * np.pi
 
         # ---------------------------------------------------------------------
-        # Epochs
+        # Periods
         # ---------------------------------------------------------------------
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('sample', after='fixation')
-        self.add_epoch('first_delay', after='sample')
-        self.add_epoch('test', after='first_delay', last_epoch=True)
-        # self.add_epoch('decision', after='test', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('sample', after='fixation')
+        self.add_period('first_delay', after='sample')
+        self.add_period('test', after='first_delay', last_period=True)
+        # self.add_period('decision', after='test', last_period=True)
 
         self.set_ob('fixation', [1, 0, 0])
 
@@ -125,11 +125,11 @@ class DelayedMatchCategory(ngym.EpochEnv):
         gt = self.gt_now
 
         reward = 0
-        if self.in_epoch('fixation'):
+        if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('test'):
+        elif self.in_period('test'):
             if action != 0:
                 new_trial = True
                 if action == gt:

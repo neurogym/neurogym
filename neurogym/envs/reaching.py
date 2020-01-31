@@ -10,7 +10,7 @@ from neurogym.ops import tasktools
 
 # TODO: Ground truth and action have different space,
 # making it difficult for SL and RL to work together
-class Reaching1D(ngym.EpochEnv):
+class Reaching1D(ngym.PeriodEnv):
     metadata = {
         'description': 'The agent has to reproduce the angle indicated' +
         ' by the observation.',
@@ -41,10 +41,10 @@ class Reaching1D(ngym.EpochEnv):
         }
         self.trial.update(kwargs)
         # ---------------------------------------------------------------------
-        # Epochs
+        # Periods
         # ---------------------------------------------------------------------
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('reach', after='fixation', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('reach', after='fixation', last_period=True)
 
         ob = self.view_ob('reach')
 
@@ -64,7 +64,7 @@ class Reaching1D(ngym.EpochEnv):
         self.state = np.mod(self.state, 2*np.pi)
 
         gt = self.gt_now
-        if self.in_epoch('fixation'):
+        if self.in_period('fixation'):
             reward = 0
         else:
             reward =\
@@ -73,7 +73,7 @@ class Reaching1D(ngym.EpochEnv):
         return ob, reward, False, {'new_trial': False}
 
 
-class Reaching1DWithSelfDistraction(ngym.EpochEnv):
+class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
     """
     Reaching with self distraction.
     In this task, the reaching state itself generates strong inputs that
@@ -114,10 +114,10 @@ class Reaching1DWithSelfDistraction(ngym.EpochEnv):
         }
         self.trial.update(kwargs)
         # ---------------------------------------------------------------------
-        # Epochs
+        # Periods
         # ---------------------------------------------------------------------
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('reach', after='fixation', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('reach', after='fixation', last_period=True)
 
         ob = self.view_ob('reach')
         # Signal is weaker than the self-distraction
@@ -135,7 +135,7 @@ class Reaching1DWithSelfDistraction(ngym.EpochEnv):
         self.state = np.mod(self.state, 2*np.pi)
 
         gt = self.gt_now
-        if self.in_epoch('fixation'):
+        if self.in_period('fixation'):
             reward = 0
         else:
             reward =\

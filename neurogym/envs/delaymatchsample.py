@@ -11,7 +11,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class DelayedMatchToSample(ngym.EpochEnv):
+class DelayedMatchToSample(ngym.PeriodEnv):
     metadata = {
         'description': 'A sample stimulus is followed by a delay and test.' +
         ' Agents are required to indicate if the sample and test are the' +
@@ -64,13 +64,13 @@ class DelayedMatchToSample(ngym.EpochEnv):
         test = sample if ground_truth == 1 else 3 - sample
         self.trial['test'] = test
         # ---------------------------------------------------------------------
-        # Epochs
+        # Periods
         # ---------------------------------------------------------------------
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('sample', after='fixation')
-        self.add_epoch('delay', after='sample')
-        self.add_epoch('test', after='delay')
-        self.add_epoch('decision', after='test', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('sample', after='fixation')
+        self.add_period('delay', after='sample')
+        self.add_period('test', after='delay')
+        self.add_period('decision', after='test', last_period=True)
 
         self.set_ob('fixation', [1, 0, 0])
         ob = self.view_ob('sample')
@@ -94,11 +94,11 @@ class DelayedMatchToSample(ngym.EpochEnv):
         obs = self.obs_now
         gt = self.gt_now
 
-        if self.in_epoch('fixation'):
+        if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('decision'):
+        elif self.in_period('decision'):
             if action != 0:
                 new_trial = True
                 if action == gt:
@@ -109,7 +109,7 @@ class DelayedMatchToSample(ngym.EpochEnv):
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
-class DelayedMatchToSampleDistractor1D(ngym.EpochEnv):
+class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
     """
     Delay Match to sample with multiple, potentially repeating distractors
     """
@@ -169,21 +169,21 @@ class DelayedMatchToSampleDistractor1D(ngym.EpochEnv):
             self.trial['test'+str(i)] = tmp
 
         # ---------------------------------------------------------------------
-        # Epochs
+        # Periods
         # ---------------------------------------------------------------------
-        epochs = ['fixation', 'sample', 'delay1', 'test1',
+        periods = ['fixation', 'sample', 'delay1', 'test1',
                   'delay2', 'test2', 'delay3', 'test3']
-        self.add_epoch(epochs[0], after=0)
-        for i in range(1, len(epochs)):
-            self.add_epoch(epochs[i], after=epochs[i-1],
-                           last_epoch=i == len(epochs)-1)
+        self.add_period(periods[0], after=0)
+        for i in range(1, len(periods)):
+            self.add_period(periods[i], after=periods[i-1],
+                           last_period=i == len(periods)-1)
 
         ob = self.view_ob('fixation')
         ob[:, 0] = 1
 
-        for epoch in ['sample', 'test1', 'test2', 'test3']:
-            ob = self.view_ob(epoch)
-            ob[:, 1:] += np.cos(self.theta - self.trial[epoch])
+        for period in ['sample', 'test1', 'test2', 'test3']:
+            ob = self.view_ob(period)
+            ob[:, 1:] += np.cos(self.theta - self.trial[period])
 
         self.set_groundtruth('test'+str(ground_truth), 1)
 
@@ -194,7 +194,7 @@ class DelayedMatchToSampleDistractor1D(ngym.EpochEnv):
         obs = self.obs_now
         gt = self.gt_now
 
-        if not self.in_epoch('test'+str(self.trial['ground_truth'])):
+        if not self.in_period('test'+str(self.trial['ground_truth'])):
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED

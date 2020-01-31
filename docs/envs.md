@@ -67,7 +67,7 @@ Reference paper:
 [Visual perception as retrospective Bayesian
         decoding from high- to low-level features](https://www.pnas.org/content/114/43/E9115.short)
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 500
 
@@ -83,7 +83,7 @@ go1 : constant 500
 
 go2 : constant 500
 
-Tags: perceptual, working memory, delayed response, continuous action space, supervised.
+Tags: perceptual, working memory, delayed response, steps action space.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/anglereproduction.py)
 
@@ -98,13 +98,13 @@ Reference paper:
 [Look away: the anti-saccade task and
         the voluntary control of eye movement](https://www.nature.com/articles/nrn1345)
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 500
 
 reach : constant 500
 
-Tags: perceptual, continuous action space, supervised.
+Tags: perceptual, steps action space.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/antireach.py)
 
@@ -120,11 +120,11 @@ Reference paper:
 
 Other parameters: 
 
-gt_arm : High reward arm. (def: 0)
-
 n_arms : Number of arms. (def: 2)
 
 probs : Reward probabilities for each arm. (def: (.9, .1))
+
+gt_arm : High reward arm. (def: 0)
 
 Tags: n-alternative, supervised.
 
@@ -140,7 +140,7 @@ Reference paper:
 
 [Discrete attractor dynamics underlies persistent activity in the frontal cortex](https://www.nature.com/articles/s41586-019-0919-7)
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 200
 
@@ -169,7 +169,7 @@ Reference paper:
 [Hierarchical decision processes that operate over
         distinct timescales underlie choice and changes in strategy](https://www.pnas.org/content/113/31/E4531)
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 500
 
@@ -179,11 +179,11 @@ decision : constant 500
 
 Other parameters: 
 
-stimEv : Controls the difficulty of the experiment. (def: 1.)
+cxt_cue : Whether to show context as a cue.
 
 cxt_ch_prob : Probability of changing context.
 
-cxt_cue : Whether to show context as a cue.
+stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Tags: perceptual, 2-alternative, supervised, context dependent.
 
@@ -213,7 +213,7 @@ Reference paper:
 
 [Active information maintenance in working memory by a sensory cortex](https://elifesciences.org/articles/43191)
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 0
 
@@ -247,7 +247,7 @@ Reference paper:
 [Experience-dependent representation
         of visual categories in parietal cortex](https://www.nature.com/articles/nature05078)
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 500
 
@@ -272,7 +272,7 @@ Reference paper:
 [Neural Mechanisms of Visual Working Memory
         in Prefrontal Cortex of the Macaque](https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf)
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 300
 
@@ -300,7 +300,7 @@ Reference paper:
 [Neural Mechanisms of Visual Working Memory
         in Prefrontal Cortex of the Macaque](https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf)
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 300
 
@@ -334,7 +334,7 @@ Missing paper name
 
 Missing paper link
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 500
 
@@ -342,11 +342,11 @@ stimulus : truncated_exponential [1000, 500, 1500]
 
 Other parameters: 
 
+stim_dur : Stimulus duration. (def: 100, ms)
+
 delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
 
 noise : Standard deviation of background noise. (def: 1)
-
-stim_dur : Stimulus duration. (def: 100, ms)
 
 Tags: perceptual, reaction time, go/no-go, supervised.
 
@@ -362,7 +362,7 @@ Reference paper:
 
 [Active information maintenance in working memory by a sensory cortex](https://elifesciences.org/articles/43191)
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 0
 
@@ -387,7 +387,7 @@ Reference paper:
 [Feature- and Order-Based Timing Representations
          in the Frontal Cortex](https://www.sciencedirect.com/science/article/pii/S0896627309004887)
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 300
 
@@ -416,7 +416,7 @@ Reference paper:
 [Context-dependent computation by recurrent
          dynamics in prefrontal cortex](https://www.nature.com/articles/nature12742)
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 300
 
@@ -461,7 +461,7 @@ Reference paper:
 [Flexible timing by temporal scaling of
          cortical responses](https://www.nature.com/articles/s41593-017-0028-6)
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 500
 
@@ -487,7 +487,7 @@ Missing paper name
 
 Missing paper link
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 500
 
@@ -497,9 +497,9 @@ decision : constant 500
 
 Other parameters: 
 
-stimEv : Controls the difficulty of the experiment. (def: 1.)
-
 n_ch : Number of choices. (def: 3)
+
+stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Tags: perceptual, n-alternative, supervised.
 
@@ -518,7 +518,7 @@ Reference paper:
 [The analysis of visual motion: a comparison of
         neuronal and psychophysical performance](https://www.jneurosci.org/content/12/12/4745)
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 100
 
@@ -544,7 +544,7 @@ Reference paper:
 
 [Discrete attractor dynamics underlies persistent activity in the frontal cortex](https://www.nature.com/articles/s41586-019-0919-7)
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 0
 
@@ -572,13 +572,13 @@ Reference paper:
 
 [Neuronal population coding of movement direction](https://science.sciencemag.org/content/233/4771/1416)
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 500
 
 reach : constant 500
 
-Tags: motor, continuous action space, supervised.
+Tags: motor, steps action space.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/reaching.py)
 
@@ -596,13 +596,13 @@ Missing paper name
 
 Missing paper link
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 500
 
 reach : constant 500
 
-Tags: motor, continuous action space, supervised.
+Tags: motor, steps action space.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/reaching.py)
 
@@ -619,7 +619,7 @@ Missing paper name
 
 Missing paper link
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 stimulus : constant 500
 
@@ -643,7 +643,7 @@ Reference paper:
 [Flexible Sensorimotor Computations through Rapid
         Reconfiguration of Cortical Dynamics](https://www.sciencedirect.com/science/article/pii/S0896627318304185)
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 100
 
@@ -674,7 +674,7 @@ Reference paper:
 [Neuronal Population Coding of Parametric
         Working Memory](https://www.jneurosci.org/content/30/28/9424)
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : uniform (1500, 3000)
 
@@ -702,7 +702,7 @@ Reference paper:
 [Neurons in the orbitofrontal cortex encode
          economic value](https://www.nature.com/articles/nature04676)
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 1500
 
@@ -728,7 +728,7 @@ Reference paper:
 [Representation of Confidence Associated with a
          Decision by Neurons in the Parietal Cortex](https://science.sciencemag.org/content/324/5928/759.long)
 
-Default Epoch timing (ms) 
+Default Period timing (ms) 
 
 fixation : constant 100
 

@@ -6,7 +6,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class MultiSensoryIntegration(ngym.EpochEnv):
+class MultiSensoryIntegration(ngym.PeriodEnv):
     metadata = {
         'description': 'Agent has to perform one of two different perceptual' +
         ' discriminations. On every trial, a contextual cue indicates which' +
@@ -65,12 +65,12 @@ class MultiSensoryIntegration(ngym.EpochEnv):
             choice_1, choice_0 = choice_0, choice_1
         coh_0, coh_1 = self.trial['coh_0'], self.trial['coh_1']
         # -----------------------------------------------------------------------
-        # Epochs
+        # Periods
         # -----------------------------------------------------------------------
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('stimulus', after='fixation')
-        self.add_epoch('delay', after='stimulus')
-        self.add_epoch('decision', after='delay', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('stimulus', after='fixation')
+        self.add_period('delay', after='stimulus')
+        self.add_period('decision', after='delay', last_period=True)
 
         high_0, low_0 = (3, 4) if choice_0 == 1 else (4, 3)
         high_1, low_1 = (5, 6) if choice_1 == 1 else (6, 5)
@@ -91,11 +91,11 @@ class MultiSensoryIntegration(ngym.EpochEnv):
 
         new_trial = False
         reward = 0
-        if self.in_epoch('fixation'):
+        if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('decision'):
+        elif self.in_period('decision'):
             if action != 0:  # broke fixation
                 new_trial = True
                 if action == gt:

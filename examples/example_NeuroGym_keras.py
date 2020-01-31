@@ -93,7 +93,7 @@ def train_env_keras_net(env_name, kwargs, rollout, num_tr, folder='',
                                                 n_steps=steps_per_tr,
                                                 obs_size=obs_size,
                                                 act_size=act_size)
-        model.fit(samples, target, epochs=1, verbose=0)
+        model.fit(samples, target, periods=1, verbose=0)
         # test
         samples, target, env = get_dataset_for_SL(env_name=env_name,
                                                   kwargs=kwargs,
@@ -115,7 +115,7 @@ def train_env_keras_net(env_name, kwargs, rollout, num_tr, folder='',
             print('Accuracy: ', acc)
             print('Performance: ', perf)
             rem_time = (num_ep-ind_ep)*(time.time()-start_time)/3600
-            print('epoch {0} out of {1}'.format(ind_ep, num_ep))
+            print('period {0} out of {1}'.format(ind_ep, num_ep))
             print('remaining time: {:.2f}'.format(rem_time))
             print('-------------')
 

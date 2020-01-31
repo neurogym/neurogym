@@ -12,7 +12,7 @@ import neurogym as ngym
 from neurogym.meta import info
 
 
-class Detection(ngym.EpochEnv):
+class Detection(ngym.PeriodEnv):
     metadata = {
             'description': 'The agent has to GO if a stimulus is presented.',
             'paper_link': None,
@@ -68,10 +68,10 @@ class Detection(ngym.EpochEnv):
         self.trial.update(kwargs)  # allows wrappers to modify the trial
         ground_truth = self.trial['ground_truth']
         # ---------------------------------------------------------------------
-        # Epochs
+        # Periods
         # ---------------------------------------------------------------------
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('stimulus', after='fixation', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('stimulus', after='fixation', last_period=True)
         # ---------------------------------------------------------------------
         # Observations
         # ---------------------------------------------------------------------
@@ -119,11 +119,11 @@ class Detection(ngym.EpochEnv):
         reward = 0
         gt = self.gt_now
         # Example structure
-        if self.in_epoch('fixation'):  # during fixation period
+        if self.in_period('fixation'):  # during fixation period
             if action != 0:  # if fixation break
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('stimulus'):  # during stimulus period
+        elif self.in_period('stimulus'):  # during stimulus period
             if action != 0:
                 new_trial = True
                 if ((action == self.trial['ground_truth']) and

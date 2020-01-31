@@ -9,7 +9,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class ReadySetGo(ngym.EpochEnv):
+class ReadySetGo(ngym.PeriodEnv):
     metadata = {
         'description': '''Agents have to measure and produce different time
          intervals.''',
@@ -51,12 +51,12 @@ class ReadySetGo(ngym.EpochEnv):
 
         self.trial['production'] = measure * self.trial['gain']
 
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('ready', after='fixation')
-        self.add_epoch('measure', duration=measure, after='fixation')
-        self.add_epoch('set', after='measure')
-        self.add_epoch('production', duration=2*self.trial['production'],
-                       after='set', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('ready', after='fixation')
+        self.add_period('measure', duration=measure, after='fixation')
+        self.add_period('set', after='measure')
+        self.add_period('production', duration=2*self.trial['production'],
+                       after='set', last_period=True)
 
         self.set_ob('fixation', [1, 0, 0])
         self.set_ob('ready', [0, 1, 0])
@@ -72,11 +72,11 @@ class ReadySetGo(ngym.EpochEnv):
         gt = np.zeros((2,))
         gt[0] = 1
         new_trial = False
-        if self.in_epoch('fixation'):
+        if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        if self.in_epoch('production'):
+        if self.in_period('production'):
             t_prod = self.t - self.end_t['measure']  # time from end of measur
             eps = abs(t_prod - trial['production'])
             if eps < self.dt/2 + 1:
@@ -96,7 +96,7 @@ class ReadySetGo(ngym.EpochEnv):
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
-class MotorTiming(ngym.EpochEnv):
+class MotorTiming(ngym.PeriodEnv):
     #  TODO: different actions not implemented
     metadata = {
         'description': 'Agents have to produce different time' +
@@ -137,11 +137,11 @@ class MotorTiming(ngym.EpochEnv):
 
         self.trial['production'] = self.intervals[self.trial['production_ind']]
 
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('cue', after='fixation')
-        self.add_epoch('set', after='cue')
-        self.add_epoch('production', duration=2*self.trial['production'],
-                       after='set', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('cue', after='fixation')
+        self.add_period('set', after='cue')
+        self.add_period('production', duration=2*self.trial['production'],
+                       after='set', last_period=True)
 
         self.set_ob('fixation', [1, 0, 0, 0])
         ob = self.view_ob('cue')
@@ -162,11 +162,11 @@ class MotorTiming(ngym.EpochEnv):
         gt = np.zeros((2,))
         gt[0] = 1
         new_trial = False
-        if self.in_epoch('fixation'):
+        if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        if self.in_epoch('production'):
+        if self.in_period('production'):
             t_prod = self.t - self.end_t['set']  # time from end of measure
             eps = abs(t_prod - trial['production'])
             if eps < self.dt/2 + 1:

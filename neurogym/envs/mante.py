@@ -13,7 +13,7 @@ import neurogym as ngym
 from neurogym.ops.inputs import GaussianNoise
 
 
-class Mante(ngym.EpochEnv):
+class Mante(ngym.PeriodEnv):
     metadata = {
         'description': 'Agent has to perform one of two different perceptual' +
         ' discriminations. On every trial, a contextual cue indicates which' +
@@ -72,12 +72,12 @@ class Mante(ngym.EpochEnv):
             choice_1, choice_0 = choice_0, choice_1
         coh_0, coh_1 = self.trial['coh_0'], self.trial['coh_1']
         # -----------------------------------------------------------------------
-        # Epochs
+        # Periods
         # -----------------------------------------------------------------------
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('stimulus', after='fixation')
-        self.add_epoch('delay', after='stimulus')
-        self.add_epoch('decision', after='delay', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('stimulus', after='fixation')
+        self.add_period('delay', after='stimulus')
+        self.add_period('decision', after='delay', last_period=True)
 
         high_0, low_0 = (3, 4) if choice_0 == 1 else (4, 3)
         high_1, low_1 = (5, 6) if choice_1 == 1 else (6, 5)
@@ -98,11 +98,11 @@ class Mante(ngym.EpochEnv):
 
         new_trial = False
         reward = 0
-        if self.in_epoch('fixation'):
+        if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('decision'):
+        elif self.in_period('decision'):
             if action != 0:  # broke fixation
                 new_trial = True
                 if action == gt:
@@ -112,7 +112,7 @@ class Mante(ngym.EpochEnv):
 
 
 # TODO: Under development
-class ManteWithAbstraction(ngym.EpochEnv):
+class ManteWithAbstraction(ngym.PeriodEnv):
     metadata = {
         'paper_link': 'https://www.nature.com/articles/nature12742',
         'paper_name': '''Context-dependent computation by recurrent
@@ -177,24 +177,24 @@ class ManteWithAbstraction(ngym.EpochEnv):
             choice_1, choice_0 = choice_0, choice_1
         coh_0, coh_1 = self.trial['coh_0'], self.trial['coh_1']
         # -----------------------------------------------------------------------
-        # Epochs
+        # Periods
         # -----------------------------------------------------------------------
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('stimulus', after='fixation')
-        self.add_epoch('delay', after='stimulus')
-        self.add_epoch('decision', after='delay', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('stimulus', after='fixation')
+        self.add_period('delay', after='stimulus')
+        self.add_period('decision', after='delay', last_period=True)
 
         high_0, low_0 = (3, 4) if choice_0 == 1 else (4, 3)
         high_1, low_1 = (5, 6) if choice_1 == 1 else (6, 5)
 
-        self.add_input(1, loc=0, epoch=['fixation', 'stimulus'])
+        self.add_input(1, loc=0, period=['fixation', 'stimulus'])
         for loc, coh in zip([high_0, low_0, high_1, low_1],
                             [coh_0, -coh_0, coh_1, -coh_1]):
             self.add_input(GaussianNoise(mu=(1 + coh/100)/2,
                                          sigma=self.sigma_dt),
-                           loc=loc, epoch='stimulus')
+                           loc=loc, period='stimulus')
         self.add_input(1, loc=self.trial['context'],
-                       epoch=['fixation', 'stimulus', 'delay'])
+                       period=['fixation', 'stimulus', 'delay'])
 
         self.set_groundtruth('decision', self.trial['ground_truth'])
 
@@ -204,11 +204,11 @@ class ManteWithAbstraction(ngym.EpochEnv):
 
         new_trial = False
         reward = 0
-        if self.in_epoch('fixation'):
+        if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('decision'):
+        elif self.in_period('decision'):
             if action != 0:  # broke fixation
                 new_trial = True
                 if action == gt:

@@ -52,9 +52,9 @@ def info(task=None, show_code=False, show_fig=False, n_stps_plt=200, tags=None):
             else:
                 string += "[{:s}]({:s})\n\n".format(paper_name, paper_link)
             # add timing info
-            if isinstance(env, ngym.EpochEnv):
+            if isinstance(env, ngym.PeriodEnv):
                 timing = metadata['timing']
-                string += 'Default Epoch timing (ms) \n\n'
+                string += 'Default Period timing (ms) \n\n'
                 for key, val in timing.items():
                     dist, args = val
                     string += key + ' : ' + dist + ' ' + str(args) + '\n\n'

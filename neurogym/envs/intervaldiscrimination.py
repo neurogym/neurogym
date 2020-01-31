@@ -8,7 +8,7 @@ import neurogym as ngym
 
 
 # TODO: Getting duration is not intuitive, not clear to people
-class IntervalDiscrimination(ngym.EpochEnv):
+class IntervalDiscrimination(ngym.PeriodEnv):
     metadata = {
         'description': 'Agents have to report which of two stimuli presented' +
         ' sequentially is longer.',
@@ -45,11 +45,11 @@ class IntervalDiscrimination(ngym.EpochEnv):
         duration2 = self.timing_fn['stim2']()
         ground_truth = 1 if duration1 < duration2 else 2
 
-        epochs = ['fixation', 'stim1', 'delay1', 'stim2', 'delay2', 'decision']
-        self.add_epoch(epochs[0], after=0)
-        for i in range(1, len(epochs)):
-            self.add_epoch(epochs[i], after=epochs[i - 1],
-                           last_epoch=i == len(epochs) - 1)
+        periods = ['fixation', 'stim1', 'delay1', 'stim2', 'delay2', 'decision']
+        self.add_period(periods[0], after=0)
+        for i in range(1, len(periods)):
+            self.add_period(periods[i], after=periods[i - 1],
+                           last_period=i == len(periods) - 1)
 
         self.set_ob('fixation', [1, 0, 0])
         self.set_ob('stim1', [1, 1, 0])
@@ -69,11 +69,11 @@ class IntervalDiscrimination(ngym.EpochEnv):
         reward = 0
         gt = self.gt_now
         # observations
-        if self.in_epoch('fixation'):
+        if self.in_period('fixation'):
             if action != 0:  # action = 0 means fixating
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('decision'):
+        elif self.in_period('decision'):
             if action != 0:
                 new_trial = True
                 if action == gt:

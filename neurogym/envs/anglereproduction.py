@@ -7,7 +7,7 @@ import neurogym as ngym
 from neurogym.meta import info
 
 
-class AngleReproduction(ngym.EpochEnv):
+class AngleReproduction(ngym.PeriodEnv):
     metadata = {
         'description': 'The agent has to reproduce to two angles ' +
         'separated by a constant delay.',
@@ -48,14 +48,14 @@ class AngleReproduction(ngym.EpochEnv):
         }
         self.trial.update(kwargs)
         # ---------------------------------------------------------------------
-        # Epochs
+        # Periods
         # ---------------------------------------------------------------------
-        epochs = ['fixation', 'stim1', 'delay1', 'stim2',
+        periods = ['fixation', 'stim1', 'delay1', 'stim2',
                   'delay2', 'go1', 'go2']
-        self.add_epoch(epochs[0], after=0)
-        for i in range(1, len(epochs)):
-            self.add_epoch(epochs[i], after=epochs[i - 1],
-                           last_epoch=i == len(epochs) - 1)
+        self.add_period(periods[0], after=0)
+        for i in range(1, len(periods)):
+            self.add_period(periods[i], after=periods[i - 1],
+                           last_period=i == len(periods) - 1)
 
         ob = self.view_ob('stim1')
         ob[:, :16] = np.cos(self.theta - self.trial['ground_truth1'])
@@ -81,7 +81,7 @@ class AngleReproduction(ngym.EpochEnv):
 
         gt = self.gt_now
         reward = 0
-        if self.in_epoch('go1') or self.in_epoch('go2'):
+        if self.in_period('go1') or self.in_period('go2'):
             reward = np.max((1 - np.abs(self.state - gt), -0.1))
 
         return ob, reward, False, {'new_trial': False}
