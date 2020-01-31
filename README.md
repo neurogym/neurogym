@@ -2,20 +2,15 @@
 
 #### In Development. Tasks are subject to changes right now.
 
-NeuroGym is a comprehensive toolkit that allows training any network model on many established neuroscience tasks using Reinforcement Learning techniques. NeuroGym includes working memory tasks, value-based decision tasks and context-dependent perceptual categorization tasks. 
+NeuroGym is a curated collection of neuroscience tasks with a common interface.
+The goal is to facilitate training of neural network models on neuroscience tasks. 
 
-NeuroGym Inherites all functionalities from the machine learning toolkit Gym (OpenAI) and thus allows a wide range of well established machine learning algorithms to be easily trained on behavioral paradigms relevant for the neuroscience community. NeuroGym also incorporates several properties and functions (e.g. realistic time step or separation of training into trials) that are specific to the protocols used in neuroscience.
-The toolkit also includes various modifier functions that greatly expand the space of available tasks. For instance, users can introduce trial-to-trial correlations onto any task. Also, tasks can be combined so as to test the capacity of a given model to perform two tasks simultaneously ([Molano-Mazon et al. CNS2019](https://www.cnsorg.org/cns-2019)). 
+NeuroGym inherits from the machine learning toolkit [Gym](https://github.com/openai/gym) by OpenAI, 
+and thus allows a wide range of well established machine learning algorithms to be easily trained on behavioral paradigms relevant for the neuroscience community. 
+NeuroGym also incorporates several properties and functions (e.g. continuous-time and trial-based tasks) that are important for neuroscience applications.
+The toolkit also includes various modifier functions that allow easy configuration of new tasks. 
 
 ![alt tag](docs/pipeline.png)
-
-### Prerequisites
-
-* Python 3.5+
-* Numpy.
-* SciPy.
-* Matplotlib.
-* [Gym](https://gym.openai.com/).
 
 ### Installation
 
