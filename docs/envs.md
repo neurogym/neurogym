@@ -122,9 +122,9 @@ Reference paper:
 
 Other parameters: 
 
-gt_arm : High reward arm. (def: 0)
-
 n_arms : Number of arms. (def: 2)
+
+gt_arm : High reward arm. (def: 0)
 
 probs : Reward probabilities for each arm. (def: (.9, .1))
 
@@ -180,9 +180,9 @@ decision : constant 500
 
 Other parameters: 
 
-cxt_ch_prob : Probability of changing context.
-
 stimEv : Controls the difficulty of the experiment. (def: 1.)
+
+cxt_ch_prob : Probability of changing context.
 
 cxt_cue : Whether to show context as a cue.
 
@@ -388,11 +388,11 @@ stimulus : truncated_exponential [1000, 500, 1500]
 
 Other parameters: 
 
+stim_dur : Stimulus duration. (def: 100, ms)
+
 delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
 
 noise : Standard deviation of background noise. (def: 1)
-
-stim_dur : Stimulus duration. (def: 100, ms)
 
 Tags: [perceptual](#perceptual), [reaction time](#reaction-time), [go-no-go](#go-no-go), [supervised](#supervised)
 
@@ -726,9 +726,9 @@ ___
 
 ### context dependent 
 
-[ContextDecisionMaking-v0](#contextdecisionmaking)
-
 [ChangingEnvironment-v0](#changingenvironment)
+
+[ContextDecisionMaking-v0](#contextdecisionmaking)
 
 ### continuous action space 
 
@@ -736,31 +736,31 @@ ___
 
 ### delayed response 
 
-[PostDecisionWager-v0](#postdecisionwager)
+[AngleReproduction-v0](#anglereproduction)
+
+[CVLearning-v0](#cvlearning)
 
 [GoNogo-v0](#gonogo)
 
-[PerceptualDecisionMakingDelayResponse-v0](#perceptualdecisionmakingdelayresponse)
-
 [IntervalDiscrimination-v0](#intervaldiscrimination)
 
-[AngleReproduction-v0](#anglereproduction)
+[PerceptualDecisionMakingDelayResponse-v0](#perceptualdecisionmakingdelayresponse)
+
+[PostDecisionWager-v0](#postdecisionwager)
 
 [ReachingDelayResponse-v0](#reachingdelayresponse)
-
-[CVLearning-v0](#cvlearning)
 
 ### go-no-go 
 
 [DelayPairedAssociation-v0](#delaypairedassociation)
 
-[GoNogo-v0](#gonogo)
+[Detection-v0](#detection)
 
-[ReadySetGo-v0](#readysetgo)
+[GoNogo-v0](#gonogo)
 
 [MotorTiming-v0](#motortiming)
 
-[Detection-v0](#detection)
+[ReadySetGo-v0](#readysetgo)
 
 ### motor 
 
@@ -780,39 +780,39 @@ ___
 
 ### perceptual 
 
-[ContextDecisionMaking-v0](#contextdecisionmaking)
-
-[DelayedComparison-v0](#delayedcomparison)
-
-[PerceptualDecisionMaking-v0](#perceptualdecisionmaking)
-
-[EconomicDecisionMaking-v0](#economicdecisionmaking)
-
-[PostDecisionWager-v0](#postdecisionwager)
-
-[DelayPairedAssociation-v0](#delaypairedassociation)
-
-[DelayedMatchSample-v0](#delayedmatchtosample)
-
-[DelayedMatchCategory-v0](#delayedmatchcategory)
-
-[PerceptualDecisionMakingDelayResponse-v0](#perceptualdecisionmakingdelayresponse)
-
-[NAltPerceptualDecisionMaking-v0](#nalt_perceptualdecisionmaking)
-
-[AntiReach-v0](#antireach1d)
-
-[DelayedMatchToSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
-
 [AngleReproduction-v0](#anglereproduction)
 
-[Detection-v0](#detection)
-
-[ReachingDelayResponse-v0](#reachingdelayresponse)
+[AntiReach-v0](#antireach1d)
 
 [CVLearning-v0](#cvlearning)
 
 [ChangingEnvironment-v0](#changingenvironment)
+
+[ContextDecisionMaking-v0](#contextdecisionmaking)
+
+[DelayPairedAssociation-v0](#delaypairedassociation)
+
+[DelayedComparison-v0](#delayedcomparison)
+
+[DelayedMatchCategory-v0](#delayedmatchcategory)
+
+[DelayedMatchSample-v0](#delayedmatchtosample)
+
+[DelayedMatchToSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
+
+[Detection-v0](#detection)
+
+[EconomicDecisionMaking-v0](#economicdecisionmaking)
+
+[NAltPerceptualDecisionMaking-v0](#nalt_perceptualdecisionmaking)
+
+[PerceptualDecisionMaking-v0](#perceptualdecisionmaking)
+
+[PerceptualDecisionMakingDelayResponse-v0](#perceptualdecisionmakingdelayresponse)
+
+[PostDecisionWager-v0](#postdecisionwager)
+
+[ReachingDelayResponse-v0](#reachingdelayresponse)
 
 ### reaction time 
 
@@ -820,89 +820,89 @@ ___
 
 ### steps action space 
 
+[AngleReproduction-v0](#anglereproduction)
+
+[AntiReach-v0](#antireach1d)
+
 [Reaching1D-v0](#reaching1d)
 
 [Reaching1DWithSelfDistraction-v0](#reaching1dwithselfdistraction)
 
-[AntiReach-v0](#antireach1d)
-
-[AngleReproduction-v0](#anglereproduction)
-
 ### supervised 
-
-[ContextDecisionMaking-v0](#contextdecisionmaking)
-
-[DelayedComparison-v0](#delayedcomparison)
-
-[PerceptualDecisionMaking-v0](#perceptualdecisionmaking)
-
-[PostDecisionWager-v0](#postdecisionwager)
-
-[DelayPairedAssociation-v0](#delaypairedassociation)
-
-[GoNogo-v0](#gonogo)
-
-[ReadySetGo-v0](#readysetgo)
-
-[DelayedMatchSample-v0](#delayedmatchtosample)
-
-[DelayedMatchCategory-v0](#delayedmatchcategory)
-
-[MatchingPenny-v0](#matchingpenny)
-
-[MotorTiming-v0](#motortiming)
 
 [Bandit-v0](#bandit)
 
-[PerceptualDecisionMakingDelayResponse-v0](#perceptualdecisionmakingdelayresponse)
-
-[NAltPerceptualDecisionMaking-v0](#nalt_perceptualdecisionmaking)
-
-[DelayedMatchToSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
-
-[IntervalDiscrimination-v0](#intervaldiscrimination)
-
-[Detection-v0](#detection)
-
-[ReachingDelayResponse-v0](#reachingdelayresponse)
-
 [CVLearning-v0](#cvlearning)
 
 [ChangingEnvironment-v0](#changingenvironment)
-
-### timing 
-
-[ReadySetGo-v0](#readysetgo)
-
-[MotorTiming-v0](#motortiming)
-
-[IntervalDiscrimination-v0](#intervaldiscrimination)
-
-### two-alternative 
 
 [ContextDecisionMaking-v0](#contextdecisionmaking)
 
+[DelayPairedAssociation-v0](#delaypairedassociation)
+
 [DelayedComparison-v0](#delayedcomparison)
-
-[PerceptualDecisionMaking-v0](#perceptualdecisionmaking)
-
-[DelayedMatchSample-v0](#delayedmatchtosample)
 
 [DelayedMatchCategory-v0](#delayedmatchcategory)
 
-[DawTwoStep-v0](#dawtwostep)
+[DelayedMatchSample-v0](#delayedmatchtosample)
+
+[DelayedMatchToSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
+
+[Detection-v0](#detection)
+
+[GoNogo-v0](#gonogo)
+
+[IntervalDiscrimination-v0](#intervaldiscrimination)
 
 [MatchingPenny-v0](#matchingpenny)
 
+[MotorTiming-v0](#motortiming)
+
+[NAltPerceptualDecisionMaking-v0](#nalt_perceptualdecisionmaking)
+
+[PerceptualDecisionMaking-v0](#perceptualdecisionmaking)
+
 [PerceptualDecisionMakingDelayResponse-v0](#perceptualdecisionmakingdelayresponse)
+
+[PostDecisionWager-v0](#postdecisionwager)
+
+[ReachingDelayResponse-v0](#reachingdelayresponse)
+
+[ReadySetGo-v0](#readysetgo)
+
+### timing 
+
+[IntervalDiscrimination-v0](#intervaldiscrimination)
+
+[MotorTiming-v0](#motortiming)
+
+[ReadySetGo-v0](#readysetgo)
+
+### two-alternative 
+
+[CVLearning-v0](#cvlearning)
+
+[ChangingEnvironment-v0](#changingenvironment)
+
+[ContextDecisionMaking-v0](#contextdecisionmaking)
+
+[DawTwoStep-v0](#dawtwostep)
+
+[DelayedComparison-v0](#delayedcomparison)
+
+[DelayedMatchCategory-v0](#delayedmatchcategory)
+
+[DelayedMatchSample-v0](#delayedmatchtosample)
 
 [DelayedMatchToSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
 
 [IntervalDiscrimination-v0](#intervaldiscrimination)
 
-[CVLearning-v0](#cvlearning)
+[MatchingPenny-v0](#matchingpenny)
 
-[ChangingEnvironment-v0](#changingenvironment)
+[PerceptualDecisionMaking-v0](#perceptualdecisionmaking)
+
+[PerceptualDecisionMakingDelayResponse-v0](#perceptualdecisionmakingdelayresponse)
 
 ### value-based 
 
@@ -910,17 +910,17 @@ ___
 
 ### working memory 
 
-[DelayedComparison-v0](#delayedcomparison)
+[AngleReproduction-v0](#anglereproduction)
 
 [DelayPairedAssociation-v0](#delaypairedassociation)
 
-[DelayedMatchSample-v0](#delayedmatchtosample)
+[DelayedComparison-v0](#delayedcomparison)
 
 [DelayedMatchCategory-v0](#delayedmatchcategory)
+
+[DelayedMatchSample-v0](#delayedmatchtosample)
 
 [DelayedMatchToSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
 
 [IntervalDiscrimination-v0](#intervaldiscrimination)
-
-[AngleReproduction-v0](#anglereproduction)
 

@@ -27,4 +27,4 @@ ALL_WRAPPERS = {'CatchTrials-v0': 'neurogym.wrappers.catch_trials:CatchTrials',
 
 
 def all_wrappers():
-    return ALL_WRAPPERS.copy()
+    return sorted(list(ALL_WRAPPERS.keys()))

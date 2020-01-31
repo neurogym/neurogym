@@ -30,21 +30,21 @@ def write_doc(write_type):
             for tag in tag_list:
                 tag_dict[tag].append(name)
         all_tags = set(all_tags)
+        all_items_dict = ngym.envs.ALL_ENVS
 
     elif write_type == 'wrappers':
         all_items = ngym.all_wrappers()
         info_fn = info_wrapper
         fname = 'wrappers.md'
+        all_items_dict = ngym.wrappers.ALL_WRAPPERS
     else:
         raise ValueError
-
-    print(all_tags)
 
     string = ''
     names = ''
     counter = 0
     link_dict = dict()
-    for name in sorted(all_items.keys()):
+    for name in all_items:
         try:
             string += '___\n\n'
             info_string = info_fn(name)
@@ -73,7 +73,7 @@ def write_doc(write_type):
             link_dict[name] = link
 
             names += add_link(name, link) + '\n\n'
-            source_link = all_items[name].split(':')[0].replace('.', '/')
+            source_link = all_items_dict[name].split(':')[0].replace('.', '/')
             string += '[Source]({:s})\n\n'.format(
                 SOURCE_ROOT + source_link + '.py')
             counter += 1

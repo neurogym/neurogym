@@ -18,7 +18,7 @@ def info(env=None, show_code=False, show_fig=False, n_stps_plt=200,
 
     string = ''
     if env is None:
-        envs = ngym.all_envs().keys()
+        envs = ngym.all_envs()
         counter = 0
         for env_name in sorted(envs):
             env = gym.make(env_name)
@@ -44,7 +44,7 @@ def info(env=None, show_code=False, show_fig=False, n_stps_plt=200,
             if show_code:
                 string += '''\n#### Source code #### \n\n'''
                 import inspect
-                env_ref = ngym.all_envs()[env]
+                env_ref = ngym.envs.ALL_ENVS[env]
                 from_ = env_ref[:env_ref.find(':')]
                 class_ = env_ref[env_ref.find(':')+1:]
                 imported = getattr(__import__(from_, fromlist=[class_]),
@@ -61,7 +61,7 @@ def info(env=None, show_code=False, show_fig=False, n_stps_plt=200,
 def info_wrapper(wrapper=None, show_code=False):
     """Script to get wrappers info"""
     if wrapper is None:
-        wrappers = ngym.all_wrappers().keys()
+        wrappers = ngym.all_wrappers()
         string = ''
         for env_name in sorted(wrappers):
             string += env_name + '\n'
@@ -71,7 +71,7 @@ def info_wrapper(wrapper=None, show_code=False):
     else:
         string = ''
         try:
-            wrapp_ref = ngym.all_wrappers()[wrapper]
+            wrapp_ref = ngym.wrappers.ALL_WRAPPERS[wrapper]
             from_ = wrapp_ref[:wrapp_ref.find(':')]
             class_ = wrapp_ref[wrapp_ref.find(':')+1:]
             imported = getattr(__import__(from_, fromlist=[class_]), class_)
@@ -234,7 +234,7 @@ def fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=True,
 
 def get_all_tags(verbose=0):
     """Script to get all tags"""
-    envs = ngym.all_envs().keys()
+    envs = ngym.all_envs()
     tags = []
     for env_name in sorted(envs):
         try:

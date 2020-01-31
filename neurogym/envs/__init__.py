@@ -49,7 +49,7 @@ ALL_ENVS = {'ContextDecisionMaking-v0': 'neurogym.envs.contextdecisionmaking:Con
 
 
 def all_envs():
-    return ALL_ENVS.copy()
+    return sorted(list(ALL_ENVS.keys()))
 
 
 _all_gym_envs = [env.id for env in gym.envs.registry.all()]

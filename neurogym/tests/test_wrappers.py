@@ -57,7 +57,7 @@ def test_all(test_fn):
     """Test speed of all experiments."""
     success_count = 0
     total_count = 0
-    for env_name in sorted(ngym.all_envs().keys()):
+    for env_name in sorted(ngym.all_envs()):
         total_count += 1
         print('Running env: {:s} Wrapped with SideBias'.format(env_name))
         try:
