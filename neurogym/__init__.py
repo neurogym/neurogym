@@ -8,7 +8,7 @@ from neurogym.core import PeriodEnv
 from neurogym.core import TrialWrapper
 
 
-ALL_TASKS = {'Mante-v0': 'neurogym.envs.mante:Mante',
+ALL_TASKS = {'ContextDecisionMaking-v0': 'neurogym.envs.contextdecisionmaking:ContextDecisionMaking',
              'DelayedComparison-v0': 'neurogym.envs.delayedcomparison:DelayedComparison',
              'PerceptualDecisionMaking-v0':
                  'neurogym.envs.perceptualdecisionmaking:PerceptualDecisionMaking',

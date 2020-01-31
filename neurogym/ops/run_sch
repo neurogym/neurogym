@@ -11,7 +11,7 @@ python -m baselines.run --alg=a2c --env=PerceptualDecisionMaking-v0 --network=ls
 
 python -m baselines.run --alg=a2c --env=DelayedComparison-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm --num_env=12 >> ./results/res.out
 
-python -m baselines.run --alg=a2c --env=Mante-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm --num_env=12 >> ./results/res.out
+python -m baselines.run --alg=a2c --env=ContextDecisionMaking-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm --num_env=12 >> ./results/res.out
 
 python -m baselines.run --alg=a2c --env=economicDecisionMaking-v0 --network=lstm --nsteps=$num_steps_batch --num_timesteps=$num_steps --log_interval=$li --ent_coef=$entropy_c --lrschedule=constant --gamma=$gamm --num_env=12 >> ./results/res.out
 

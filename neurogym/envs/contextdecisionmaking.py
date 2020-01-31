@@ -13,7 +13,7 @@ import neurogym as ngym
 from neurogym.ops.inputs import GaussianNoise
 
 
-class Mante(ngym.PeriodEnv):
+class ContextDecisionMaking(ngym.PeriodEnv):
     metadata = {
         'description': 'Agent has to perform one of two different perceptual' +
         ' discriminations. On every trial, a contextual cue indicates which' +
@@ -112,7 +112,7 @@ class Mante(ngym.PeriodEnv):
 
 
 # TODO: Under development
-class ManteWithAbstraction(ngym.PeriodEnv):
+class ContextDecisionMakingWithAbstraction(ngym.PeriodEnv):
     metadata = {
         'paper_link': 'https://www.nature.com/articles/nature12742',
         'paper_name': '''Context-dependent computation by recurrent

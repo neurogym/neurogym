@@ -180,7 +180,7 @@ if __name__ == '__main__':
     # test_print_all()
     # env_name = 'GoNogo-v0'
     # env_name = 'PerceptualDecisionMaking-v0'
-    # env_name = 'Mante-v0'
+    # env_name = 'ContextDecisionMaking-v0'
     # env_name = 'NAltPerceptualDecisionMaking-v0'
     # env_name = 'DelayedMatchCategory-v0'
     # env_name = 'MemoryRecall-v0'
