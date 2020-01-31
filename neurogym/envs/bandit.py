@@ -55,12 +55,13 @@ class Bandit(ngym.TrialEnv):
             'high_reward_arm': self.gt_arm,
             }
         self.trial.update(kwargs)
+        self.obs = np.zeros(self.observation_space.shape)
 
     def _step(self, action):
         trial = self.trial
         info = {'continue': True, 'gt': np.zeros((self.n_arm,))}
 
-        obs = np.zeros(self.observation_space.shape)
+        obs = self.obs
         if action == trial['high_reward_arm']:
             reward = trial['rew_high_reward_arm']
         else:
