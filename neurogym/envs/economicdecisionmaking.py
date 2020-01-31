@@ -21,7 +21,7 @@ import neurogym as ngym
 from gym import spaces
 
 
-class PadoaSch(ngym.PeriodEnv):
+class EconomicDecisionMaking(ngym.PeriodEnv):
     metadata = {
         'description': '''Agents choose between two stimuli (A and B; where A
          is preferred) offered in different amounts.''',
