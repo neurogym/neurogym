@@ -20,7 +20,7 @@ all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
              'RDM-v0': 'neurogym.envs.rdm:RDM',
              'padoaSch-v0': 'neurogym.envs.padoa_sch:PadoaSch',
              'pdWager-v0': 'neurogym.envs.pd_wager:PDWager',
-             'DPA-v0': 'neurogym.envs.dpa:DPA',
+             'DelayPairedAssociation-v0': 'neurogym.envs.delayPairedAssociation:DelayPairedAssociation',
              'GNG-v0': 'neurogym.envs.gng:GNG',
              'ReadySetGo-v0': 'neurogym.envs.readysetgo:ReadySetGo',
              'DelayedMatchSample-v0':

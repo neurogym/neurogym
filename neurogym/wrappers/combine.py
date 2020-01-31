@@ -196,7 +196,7 @@ class Combine():
 
 
 if __name__ == '__main__':
-    task = 'DPA-v0'
+    task = 'DelayPairedAssociation-v0'
     KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
                                     'stim1': ('constant', 100),
                                     'delay_btw_stim': ('constant', 500),

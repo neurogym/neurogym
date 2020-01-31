@@ -13,7 +13,7 @@ import neurogym as ngym
 from neurogym.meta import tasks_info
 
 
-class DPA(ngym.EpochEnv):
+class DelayPairedAssociation(ngym.EpochEnv):
     metadata = {
         'description': 'A sample is followed by a delay and a test.' +
         ' Agents have to report if the pair sample-test is a rewarded pair' +
@@ -135,5 +135,5 @@ class DPA(ngym.EpochEnv):
 
 
 if __name__ == '__main__':
-    env = DPA()
+    env = DelayPairedAssociation()
     tasks_info.plot_struct(env, num_steps_env=1000, n_stps_plt=1000)
