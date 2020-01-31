@@ -11,16 +11,29 @@ SOURCE_ROOT = 'https://github.com/gyyang/neurogym/blob/master/'
 
 
 def write_doc(write_type):
+    all_tags = []
     if write_type == 'tasks':
         all_items = ngym.all_tasks()
         info_fn = info
         fname = 'envs.md'
+
+        tag_dict = defaultdict(list)
+        for name in ngym.all_tasks():
+            env = gym.make(name)
+            tag_list = env.metadata.get('tags', [])
+            all_tags += tag_list
+            for tag in tag_list:
+                tag_dict[tag].append(name)
+        all_tags = set(all_tags)
+
     elif write_type == 'wrappers':
         all_items = ngym.all_wrappers()
         info_fn = info_wrapper
         fname = 'wrappers.md'
     else:
         raise ValueError
+
+    print(all_tags)
 
     string = ''
     names = ''
@@ -29,8 +42,21 @@ def write_doc(write_type):
     for name in sorted(all_items.keys()):
         try:
             string += '___\n\n'
-            string += info_fn(name)
-            print(string)
+            info_string = info_fn(name)
+
+            if write_type == 'tasks':
+                # Tags has to be last
+                ind = info_string.find('Tags')
+                info_string = info_string[:ind]
+                env = gym.make(name)
+                # Modify to add tag links
+                info_string += 'Tags: '
+                for tag in env.metadata.get('tags', []):
+                    tag_link = tag.lower().replace(' ', '-')
+                    tag_with_link = '[{:s}]({:s})'.format(tag, tag_link)
+                    info_string += tag_with_link + ', '
+                info_string = info_string[:-2] + '\n\n'
+            string += info_string
 
             # Using github's automatic link to section titles
             if write_type == 'tasks':
@@ -55,15 +81,6 @@ def write_doc(write_type):
 
     string = str1 + str2 + names + string
     if write_type == 'tasks':
-        all_tags = []
-        tag_dict = defaultdict(list)
-        for name in ngym.all_tasks():
-            env = gym.make(name)
-            tag_list = env.metadata.get('tags', [])
-            all_tags += tag_list
-            for tag in tag_list:
-                tag_dict[tag].append(name)
-        all_tags = set(all_tags)
         string_tag = '___\n\n### Tags ### \n\n'
         for tag in sorted(all_tags):
             string_tag += '### {:s} \n\n'.format(tag)
@@ -81,7 +98,6 @@ def write_doc(write_type):
 def main():
     write_doc('tasks')
     write_doc('wrappers')
-
 
 
 if __name__ == '__main__':
