@@ -29,6 +29,7 @@ def write_doc(write_type):
         try:
             string += '___\n\n'
             string += info_fn(name)
+            print(string)
 
             # Using github's automatic link to section titles
             if write_type == 'tasks':

@@ -17,8 +17,8 @@ class ChangingEnvironment(ngym.PeriodEnv):
         'description': 'Random Dots Motion tasks in which the correct action' +
         ' depends on a randomly changing context',
         'paper_link': 'https://www.pnas.org/content/113/31/E4531',
-        'paper_name': '''Hierarchical decision processes that operate over
-        distinct timescales underlie choice and changes in strategy''',
+        'paper_name': '''Hierarchical decision processes that operate
+        over distinct timescales underlie choice and changes in strategy''',
         'timing': {
             'fixation': ('constant', 500),
             'stimulus': ('truncated_exponential', [1000, 500, 1500]),

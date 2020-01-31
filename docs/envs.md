@@ -64,8 +64,7 @@ Logic: The agent has to reproduce to two angles separated by a constant delay.
 
 Reference paper: 
 
-[Visual perception as retrospective Bayesian
-        decoding from high- to low-level features](https://www.pnas.org/content/114/43/E9115.short)
+[Visual perception as retrospective Bayesian decoding from high- to low-level features](https://www.pnas.org/content/114/43/E9115.short)
 
 Default Period timing (ms) 
 
@@ -95,8 +94,7 @@ Logic: The agent has to move in the direction opposite to the one indicated by t
 
 Reference paper: 
 
-[Look away: the anti-saccade task and
-        the voluntary control of eye movement](https://www.nature.com/articles/nrn1345)
+[Look away: the anti-saccade task and the voluntary control of eye movement](https://www.nature.com/articles/nrn1345)
 
 Default Period timing (ms) 
 
@@ -120,11 +118,11 @@ Reference paper:
 
 Other parameters: 
 
+gt_arm : High reward arm. (def: 0)
+
 n_arms : Number of arms. (def: 2)
 
 probs : Reward probabilities for each arm. (def: (.9, .1))
-
-gt_arm : High reward arm. (def: 0)
 
 Tags: n-alternative, supervised.
 
@@ -166,8 +164,7 @@ Logic: Random Dots Motion tasks in which the correct action depends on a randoml
 
 Reference paper: 
 
-[Hierarchical decision processes that operate over
-        distinct timescales underlie choice and changes in strategy](https://www.pnas.org/content/113/31/E4531)
+[Hierarchical decision processes that operate over distinct timescales underlie choice and changes in strategy](https://www.pnas.org/content/113/31/E4531)
 
 Default Period timing (ms) 
 
@@ -193,7 +190,7 @@ ___
 
 ### DawTwoStep
 
-Logic: On each trial, an initial choice between two options lead to either of two, second-stage states. In turn, these both demand another two-option choice, each of which is associated with  a different chance of receiving reward.
+Logic: On each trial, an initial choice between two options lead to either of two, second-stage states. In turn, these both demand another two-option choice, each of which is associated with a different chance of receiving reward.
 
 Reference paper: 
 
@@ -229,8 +226,7 @@ decision : constant 500
 
 Other parameters: 
 
-noise : Standard deviation of the Gaussian noise added to
-        the stimulus. (def: 0.01)
+noise : Standard deviation of the Gaussian noise added to the stimulus. (def: 0.01)
 
 Tags: perceptual, working memory, go/no-go, supervised.
 
@@ -244,8 +240,7 @@ Logic: A sample stimulus is followed by a delay and test. Agents are required to
 
 Reference paper: 
 
-[Experience-dependent representation
-        of visual categories in parietal cortex](https://www.nature.com/articles/nature05078)
+[Experience-dependent representation of visual categories in parietal cortex](https://www.nature.com/articles/nature05078)
 
 Default Period timing (ms) 
 
@@ -269,8 +264,7 @@ Logic: A sample stimulus is followed by a delay and test. Agents are required to
 
 Reference paper: 
 
-[Neural Mechanisms of Visual Working Memory
-        in Prefrontal Cortex of the Macaque](https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf)
+[Neural Mechanisms of Visual Working Memory in Prefrontal Cortex of the Macaque](https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf)
 
 Default Period timing (ms) 
 
@@ -292,13 +286,11 @@ ___
 
 ### DelayedMatchToSampleDistractor1D
 
-Logic: Delay Match to sample with multiple,
-         potentially repeating distractors.
+Logic: Delay Match to sample with multiple, potentially repeating distractors.
 
 Reference paper: 
 
-[Neural Mechanisms of Visual Working Memory
-        in Prefrontal Cortex of the Macaque](https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf)
+[Neural Mechanisms of Visual Working Memory in Prefrontal Cortex of the Macaque](https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf)
 
 Default Period timing (ms) 
 
@@ -342,11 +334,11 @@ stimulus : truncated_exponential [1000, 500, 1500]
 
 Other parameters: 
 
+noise : Standard deviation of background noise. (def: 1)
+
 stim_dur : Stimulus duration. (def: 100, ms)
 
 delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
-
-noise : Standard deviation of background noise. (def: 1)
 
 Tags: perceptual, reaction time, go/no-go, supervised.
 
@@ -384,8 +376,7 @@ Logic: Agents have to report which of two stimuli presented sequentially is long
 
 Reference paper: 
 
-[Feature- and Order-Based Timing Representations
-         in the Frontal Cortex](https://www.sciencedirect.com/science/article/pii/S0896627309004887)
+[Feature- and Order-Based Timing Representations in the Frontal Cortex](https://www.sciencedirect.com/science/article/pii/S0896627309004887)
 
 Default Period timing (ms) 
 
@@ -413,8 +404,7 @@ Logic: Agent has to perform one of two different perceptual discriminations. On 
 
 Reference paper: 
 
-[Context-dependent computation by recurrent
-         dynamics in prefrontal cortex](https://www.nature.com/articles/nature12742)
+[Context-dependent computation by recurrent dynamics in prefrontal cortex](https://www.nature.com/articles/nature12742)
 
 Default Period timing (ms) 
 
@@ -434,13 +424,11 @@ ___
 
 ### MatchingPenny
 
-Logic: The agent is rewarded when it selects the
-         same target as the computer.
+Logic: The agent is rewarded when it selects the same target as the computer.
 
 Reference paper: 
 
-[Prefrontal cortex and decision making in a
-         mixed-strategy game](https://www.nature.com/articles/nn1209)
+[Prefrontal cortex and decision making in a mixed-strategy game](https://www.nature.com/articles/nn1209)
 
 Other parameters: 
 
@@ -458,8 +446,7 @@ Logic: Agents have to produce different time intervals using different effectors
 
 Reference paper: 
 
-[Flexible timing by temporal scaling of
-         cortical responses](https://www.nature.com/articles/s41593-017-0028-6)
+[Flexible timing by temporal scaling of cortical responses](https://www.nature.com/articles/s41593-017-0028-6)
 
 Default Period timing (ms) 
 
@@ -477,9 +464,7 @@ ___
 
 ### nalt_PerceptualDecisionMaking
 
-Logic: N-alternative forced choice task in which the subject
-         has to integrate N stimuli to decide which one is higher
-          on average.
+Logic: N-alternative forced choice task in which the subject has to integrate N stimuli to decide which one is higher on average.
 
 Reference paper: 
 
@@ -509,14 +494,11 @@ ___
 
 ### PerceptualDecisionMaking
 
-Logic: Random dot motion task. Two-alternative forced
-         choice task in which the subject has to integrate two stimuli to
-         decide which one is higher on average.
+Logic: Random dot motion task. Two-alternative forced choice task in which the subject has to integrate two stimuli to decide which one is higher on average.
 
 Reference paper: 
 
-[The analysis of visual motion: a comparison of
-        neuronal and psychophysical performance](https://www.jneurosci.org/content/12/12/4745)
+[The analysis of visual motion: a comparison of neuronal and psychophysical performance](https://www.jneurosci.org/content/12/12/4745)
 
 Default Period timing (ms) 
 
@@ -586,9 +568,7 @@ ___
 
 ### Reaching1DWithSelfDistraction
 
-Logic: The agent has to reproduce the angle indicated
-         by the observation. Furthermore, the reaching state itself
-         generates strong inputs that overshadows the actual target input.
+Logic: The agent has to reproduce the angle indicated by the observation. Furthermore, the reaching state itself generates strong inputs that overshadows the actual target input.
 
 Reference paper: 
 
@@ -610,8 +590,7 @@ ___
 
 ### ReachingDelayResponse
 
-Logic: Working memory visual spatial task  ~ Funahashi et al. 1991 adapted to freely moving mice in a continous choice-space.
-Brief description: while fixating, stimulus is presented in a touchscreen (bright circle). Afterwards (perhaps including an extra delay), doors open allowing the mouse to touch the screen where the stimulus was located.
+Logic: Working memory visual spatial task ~ Funahashi et al. 1991 adapted to freely moving mice in a continous choice-space.Brief description: while fixating, stimulus is presented in a touchscreen (bright circle). Afterwards (perhaps including an extra delay), doors open allowing the mouse to touch the screen where the stimulus was located.
 
 Reference paper: 
 
@@ -635,13 +614,11 @@ ___
 
 ### ReadySetGo
 
-Logic: Agents have to measure and produce different time
-         intervals.
+Logic: Agents have to measure and produce different time intervals.
 
 Reference paper: 
 
-[Flexible Sensorimotor Computations through Rapid
-        Reconfiguration of Cortical Dynamics](https://www.sciencedirect.com/science/article/pii/S0896627318304185)
+[Flexible Sensorimotor Computations through Rapid Reconfiguration of Cortical Dynamics](https://www.sciencedirect.com/science/article/pii/S0896627318304185)
 
 Default Period timing (ms) 
 
@@ -665,14 +642,11 @@ ___
 
 ### Romo
 
-Logic: Two-alternative forced choice task in which
-         the subject has to compare two stimuli separated by a delay
-         to decide which one has a higher frequency.
+Logic: Two-alternative forced choice task in which the subject has to compare two stimuli separated by a delay to decide which one has a higher frequency.
 
 Reference paper: 
 
-[Neuronal Population Coding of Parametric
-        Working Memory](https://www.jneurosci.org/content/30/28/9424)
+[Neuronal Population Coding of Parametric Working Memory](https://www.jneurosci.org/content/30/28/9424)
 
 Default Period timing (ms) 
 
@@ -694,13 +668,11 @@ ___
 
 ### PadoaSch
 
-Logic: Agents choose between two stimuli (A and B; where A
-         is preferred) offered in different amounts.
+Logic: Agents choose between two stimuli (A and B; where A is preferred) offered in different amounts.
 
 Reference paper: 
 
-[Neurons in the orbitofrontal cortex encode
-         economic value](https://www.nature.com/articles/nature04676)
+[Neurons in the orbitofrontal cortex encode economic value](https://www.nature.com/articles/nature04676)
 
 Default Period timing (ms) 
 
@@ -718,15 +690,11 @@ ___
 
 ### PDWager
 
-Logic: Agents do a discrimination task (see PerceptualDecisionMaking). On a
-         random half of the trials, the agent is given the option to abort
-         the direction discrimination and to choose instead a small but
-         certain reward associated with a action.
+Logic: Agents do a discrimination task (see PerceptualDecisionMaking). On a random half of the trials, the agent is given the option to abort the direction discrimination and to choose instead a small but certain reward associated with a action.
 
 Reference paper: 
 
-[Representation of Confidence Associated with a
-         Decision by Neurons in the Parietal Cortex](https://science.sciencemag.org/content/324/5928/759.long)
+[Representation of Confidence Associated with a Decision by Neurons in the Parietal Cortex](https://science.sciencemag.org/content/324/5928/759.long)
 
 Default Period timing (ms) 
 

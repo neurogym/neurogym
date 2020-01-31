@@ -7,12 +7,9 @@ import matplotlib.pyplot as plt
 
 import gym
 import neurogym as ngym
+from neurogym.core import env_string, METADATA_DEF_KEYS
 from neurogym import all_tasks
 from neurogym.wrappers import all_wrappers
-
-
-METADATA_DEF_KEYS = ['description', 'paper_name', 'paper_link', 'timing',
-                     'tags']
 
 
 def info(task=None, show_code=False, show_fig=False, n_stps_plt=200, tags=None):
@@ -34,42 +31,10 @@ def info(task=None, show_code=False, show_fig=False, n_stps_plt=200, tags=None):
         print("* {0} tasks implemented so far.\n\n".format(counter))
         print(string)
     else:
-        string = ''
         try:
             env = gym.make(task)
-            metadata = env.metadata
-            string += "### {:s}\n\n".format(type(env).__name__)
-            paper_name = metadata.get('paper_name',
-                                      None) or 'Missing paper name'
-            paper_link = metadata.get('paper_link', None)
-            task_description = metadata.get('description',
-                                            None) or 'Missing description'
-            string += "Logic: {:s}\n\n".format(task_description)
-            string += "Reference paper: \n\n"
-            if paper_link is None:
-                string += "{:s}\n\n".format(paper_name)
-                string += 'Missing paper link\n\n'
-            else:
-                string += "[{:s}]({:s})\n\n".format(paper_name, paper_link)
-            # add timing info
-            if isinstance(env, ngym.PeriodEnv):
-                timing = metadata['timing']
-                string += 'Default Period timing (ms) \n\n'
-                for key, val in timing.items():
-                    dist, args = val
-                    string += key + ' : ' + dist + ' ' + str(args) + '\n\n'
-            # add extra info
-            other_info = list(set(metadata.keys()) - set(METADATA_DEF_KEYS))
-            if len(other_info) > 0:
-                string += "Other parameters: \n\n"
-                for key in other_info:
-                    string += key + ' : ' + str(metadata[key]) + '\n\n'
-            # tags
-            tags = metadata['tags']
-            string += 'Tags: '
-            for tag in tags:
-                string += tag + ', '
-            string = string[:-2] + '.\n\n'
+            string = env_string(env)
+            string = string.replace('\n', '\n\n') # for markdown
 
             # plot basic structure
             if show_fig:
