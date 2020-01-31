@@ -9,7 +9,6 @@ import neurogym as ngym
 from neurogym.wrappers import TrialHistory
 from neurogym.wrappers import SideBias
 from neurogym.wrappers import PassAction
-from neurogym import all_tasks
 
 
 def test_sidebias(env_name, verbose=False):
@@ -58,7 +57,7 @@ def test_all(test_fn):
     """Test speed of all experiments."""
     success_count = 0
     total_count = 0
-    for env_name in sorted(all_tasks.keys()):
+    for env_name in sorted(ngym.all_tasks().keys()):
         total_count += 1
         print('Running env: {:s} Wrapped with SideBias'.format(env_name))
         try:

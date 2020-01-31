@@ -16,9 +16,9 @@ def info(task=None, show_code=False, show_fig=False, n_stps_plt=200,
     if tags is None:
         tags = list()
 
+    string = ''
     if task is None:
         tasks = ngym.all_tasks().keys()
-        string = ''
         counter = 0
         for env_name in sorted(tasks):
             env = gym.make(env_name)
@@ -51,10 +51,10 @@ def info(task=None, show_code=False, show_fig=False, n_stps_plt=200,
                                    class_)
                 lines = inspect.getsource(imported)
                 string += lines + '\n\n'
+            print(string)
         except BaseException as e:
             print('Failure in ', type(env).__name__)
             print(e)
-        print(string)
     return string
 
 
@@ -234,17 +234,17 @@ def fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=True,
 
 def get_all_tags(verbose=0):
     """Script to get all tags"""
-    tasks = all_tasks.keys()
+    tasks = ngym.all_tasks().keys()
     tags = []
     for env_name in sorted(tasks):
         try:
             env = gym.make(env_name)
             metadata = env.metadata
-            new_tags = list(set(metadata['tags']) - set(tags))
-            tags += new_tags
+            tags += metadata.get('tags', [])
         except BaseException as e:
             print('Failure in ', env_name)
             print(e)
+    tags = set(tags)
     if verbose:
         print('\nTAGS:\n')
         for tag in tags:
