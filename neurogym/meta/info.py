@@ -15,7 +15,8 @@ METADATA_DEF_KEYS = ['description', 'paper_name', 'paper_link', 'timing',
                      'tags']
 
 
-def info(task=None, show_code=False, show_fig=False, n_stps_plt=200, tags=None):
+def info(task=None, show_code=False, show_fig=False, n_stps_plt=200,
+         tags=None):
     """Script to get tasks info"""
     if tags is None:
         tags = list()
