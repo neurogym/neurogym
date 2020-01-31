@@ -32,6 +32,8 @@ Logic: Introduces catch trials in which the reward for
 
 Input parameters: 
 
+catch_prob : Catch trial probability. (def: 0.1)
+
 stim_th : Percentile of stimulus distribution below which catch
         trials are allowed (in some cases, experimenter might decide not
         to have catch trials when  stimulus is very obvious). (def: 50)
@@ -39,7 +41,7 @@ stim_th : Percentile of stimulus distribution below which catch
 start : Number of trials after which the catch trials can occur.
         (def: 0)
 
-catch_prob : Catch trial probability. (def: 0.1)
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/wrappers/catch_trials.py)
 
 ### MissTrialReward-v0
 
@@ -49,20 +51,24 @@ Input parameters:
 
 r_miss : Reward given when a miss trial occurs.(def: 0)
 
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/wrappers/miss_trials_reward.py)
+
 ### Monitor-v0
 
 Logic: Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth.
 
 Input parameters: 
 
-info_keywords : (tuple) extra information to log, from the information return of environment.step
+num_tr_save : Data will be saved every num_tr_save trials.
+        (def: 100000)
 
 folder : Folder where the data will be saved. (def: None)
 
 verbose : Whether to print information about average reward and number of trials
 
-num_tr_save : Data will be saved every num_tr_save trials.
-        (def: 100000)
+info_keywords : (tuple) extra information to log, from the information return of environment.step
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/wrappers/monitor.py)
 
 ### Noise-v0
 
@@ -72,20 +78,28 @@ Input parameters:
 
 std_noise : Standard deviation of noise. (def: 0.1)
 
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/wrappers/noise.py)
+
 ### PassAction-v0
 
 Logic: Modifies observation by adding the previous
         action.
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/wrappers/pass_action.py)
 
 ### PassReward-v0
 
 Logic: Modifies observation by adding the previous
         reward.
 
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/wrappers/pass_reward.py)
+
 ### ReactionTime-v0
 
 Logic: Modfies a given environment by allowing the network
         to act at any time after the fixation period.
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/wrappers/reaction_time.py)
 
 ### SideBias-v0
 
@@ -99,6 +113,8 @@ prob : Specifies probabilities for each choice. Within each block,
 
 block_dur : Number of trials per block. (def: 200 (int))
 
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/wrappers/side_bias.py)
+
 ### TrialHistory-v0
 
 Logic: Change ground truth probability based on previous outcome.
@@ -110,11 +126,13 @@ Reference paper:
 
 Input parameters: 
 
-blk_ch_prob : If not None, specifies the probability of changing
-        block (randomly). (def: None)
-
 rep_prob : Specifies probabilities of repeating for each block.
         (def: (.2, .8))
 
+blk_ch_prob : If not None, specifies the probability of changing
+        block (randomly). (def: None)
+
 block_dur : Number of trials per block. (def: 200 (int))
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/wrappers/trial_hist.py)
 
