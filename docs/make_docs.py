@@ -27,9 +27,10 @@ def write_doc(write_type):
 
     for name in sorted(all_items.keys()):
         try:
-            # string += '___\n\n'
+            string += '___\n\n'
             string += info_fn(name)
 
+            # Using github's automatic link to section titles
             if write_type == 'tasks':
                 env = gym.make(name)
                 link = type(env).__name__
