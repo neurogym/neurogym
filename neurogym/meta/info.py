@@ -31,6 +31,7 @@ def info(env=None, show_code=False, show_fig=False, n_stps_plt=200,
         print(string)
     else:
         try:
+            env_name = env
             env = gym.make(env)
             string = env_string(env)
             string = string.replace('\n', '\n\n') # for markdown
@@ -44,7 +45,7 @@ def info(env=None, show_code=False, show_fig=False, n_stps_plt=200,
             if show_code:
                 string += '''\n#### Source code #### \n\n'''
                 import inspect
-                env_ref = ngym.envs.ALL_ENVS[env]
+                env_ref = ngym.envs.ALL_ENVS[env_name]
                 from_ = env_ref[:env_ref.find(':')]
                 class_ = env_ref[env_ref.find(':')+1:]
                 imported = getattr(__import__(from_, fromlist=[class_]),
@@ -255,7 +256,7 @@ def get_all_tags(verbose=0):
 if __name__ == '__main__':
     # get_all_tags(verbose=1)
     # info(tags=['supervised', 'n-alternative'])
-    info('ChangingEnvironment-v0')
+    info('PerceptualDecisionMaking-v0', show_code=True, show_fig=False)
     # info('PerceptualDecisionMaking-v0', show_code=True, show_fig=True)
 #    info_wrapper()
 #    info_wrapper('ReactionTime-v0', show_code=True)
