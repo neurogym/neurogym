@@ -85,7 +85,7 @@ def write_doc(write_type):
         for tag in sorted(all_tags):
             string_tag += '### {:s} \n\n'.format(tag)
             for name in tag_dict[tag]:
-                string_tag += '[{:s}]({:s})'.format(name, link_dict[name])
+                string_tag += '[{:s}](#{:s})'.format(name, link_dict[name])
                 string_tag += '\n\n'
 
         string = string + string_tag
