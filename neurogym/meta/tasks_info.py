@@ -35,7 +35,7 @@ def info(task=None, show_code=False, show_fig=False, n_stps_plt=200, tags=[]):
         try:
             env = gym.make(task)
             metadata = env.metadata
-            string += "### {:s} task ###\n\n".format(type(env).__name__)
+            string += "### {:s}\n\n".format(type(env).__name__)
             paper_name = metadata.get('paper_name',
                                       None) or 'Missing paper name'
             paper_link = metadata.get('paper_link', None)

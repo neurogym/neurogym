@@ -4,7 +4,59 @@
 
 * 26 tasks implemented so far.
 
-### AngleReproduction task ###
+[AngleReproduction-v0](#anglereproduction)
+
+[AntiReach-v0](#anglereproduction)
+
+[Bandit-v0](#anglereproduction)
+
+[CVLearning-v0](#anglereproduction)
+
+[ChangingEnvironment-v0](#anglereproduction)
+
+[DawTwoStep-v0](#anglereproduction)
+
+[DelayPairedAssociation-v0](#anglereproduction)
+
+[DelayedMatchCategory-v0](#anglereproduction)
+
+[DelayedMatchSample-v0](#anglereproduction)
+
+[DelayedMatchToSampleDistractor1D-v0](#anglereproduction)
+
+[DelayedResponse-v0](#anglereproduction)
+
+[Detection-v0](#anglereproduction)
+
+[GoNogo-v0](#anglereproduction)
+
+[IntervalDiscrimination-v0](#anglereproduction)
+
+[Mante-v0](#anglereproduction)
+
+[MatchingPenny-v0](#anglereproduction)
+
+[MotorTiming-v0](#anglereproduction)
+
+[NAltPerceptualDecisionMaking-v0](#anglereproduction)
+
+[PerceptualDecisionMaking-v0](#anglereproduction)
+
+[Reaching1D-v0](#anglereproduction)
+
+[Reaching1DWithSelfDistraction-v0](#anglereproduction)
+
+[ReadySetGo-v0](#anglereproduction)
+
+[Romo-v0](#anglereproduction)
+
+[Serrano-v0](#anglereproduction)
+
+[padoaSch-v0](#anglereproduction)
+
+[pdWager-v0](#anglereproduction)
+
+### AngleReproduction
 
 Logic: The agent has to reproduce to two angles separated by a constant delay.
 
@@ -31,7 +83,7 @@ go2 : constant 500
 
 Tags: perceptual, working memory, delayed response, continuous action space, supervised setting.
 
-### AntiReach1D task ###
+### AntiReach1D
 
 Logic: The agent has to move in the direction opposite to the one indicated by the observation.
 
@@ -48,7 +100,7 @@ reach : constant 500
 
 Tags: perceptual, continuous action space, supervised setting.
 
-### Bandit task ###
+### Bandit
 
 Logic: The agent has to select between N actions with different reward probabilities.
 
@@ -66,7 +118,7 @@ gt_arm : High reward arm. (def: 0)
 
 Tags: n-alternative, supervised setting.
 
-### CVLearning task ###
+### CVLearning
 
 Logic: Implements shaping for the delay-response task, in which agents have to integrate two stimuli and report which one is larger on average after a delay.
 
@@ -90,7 +142,7 @@ stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Tags: perceptual, delayed response, two-alternative, supervised setting.
 
-### ChangingEnvironment task ###
+### ChangingEnvironment
 
 Logic: Random Dots Motion tasks in which the correct action depends on a randomly changing context
 
@@ -109,15 +161,15 @@ decision : constant 500
 
 Other parameters: 
 
-cxt_ch_prob : Probability of changing context.
+cxt_cue : Whether to show context as a cue.
 
 stimEv : Controls the difficulty of the experiment. (def: 1.)
 
-cxt_cue : Whether to show context as a cue.
+cxt_ch_prob : Probability of changing context.
 
 Tags: perceptual, 2-alternative, supervised setting, context dependent.
 
-### DawTwoStep task ###
+### DawTwoStep
 
 Logic: On each trial, an initial choice between two options lead to either of two, second-stage states. In turn, these both demand another two-option choice, each of which is associated with  a different chance of receiving reward.
 
@@ -127,7 +179,7 @@ Reference paper:
 
 Tags: two-alternative, supervised setting.
 
-### DelayPairedAssociation task ###
+### DelayPairedAssociation
 
 Logic: A sample is followed by a delay and a test. Agents have to report if the pair sample-test is a rewarded pair or not.
 
@@ -156,7 +208,7 @@ noise : Standard deviation of the Gaussian noise added to
 
 Tags: perceptual, working memory, go/no-go, supervised setting.
 
-### DelayedMatchCategory task ###
+### DelayedMatchCategory
 
 Logic: A sample stimulus is followed by a delay and test. Agents are required to indicate if the sample and test are in the same category.
 
@@ -177,7 +229,7 @@ test : constant 650
 
 Tags: perceptual, working memory, two-alternative, supervised setting.
 
-### DelayedMatchToSample task ###
+### DelayedMatchToSample
 
 Logic: A sample stimulus is followed by a delay and test. Agents are required to indicate if the sample and test are the same stimulus.
 
@@ -200,7 +252,7 @@ decision : constant 900
 
 Tags: perceptual, working memory, two-alternative, supervised setting.
 
-### DelayedMatchToSampleDistractor1D task ###
+### DelayedMatchToSampleDistractor1D
 
 Logic: Delay Match to sample with multiple,
          potentially repeating distractors.
@@ -230,7 +282,7 @@ test3 : constant 500
 
 Tags: perceptual, working memory, two-alternative, supervised setting.
 
-### DR task ###
+### DR
 
 Logic: Agents have to integrate two stimuli and report which one is larger on average after a delay.
 
@@ -254,7 +306,7 @@ stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Tags: perceptual, delayed response, two-alternative, supervised setting.
 
-### Detection task ###
+### Detection
 
 Logic: The agent has to GO if a stimulus is presented.
 
@@ -280,7 +332,7 @@ stim_dur : Stimulus duration. (def: 100, ms)
 
 Tags: perceptual, reaction time, go/no-go, supervised setting.
 
-### GoNogo task ###
+### GoNogo
 
 Logic: Go/No-Go task in which the subject has either Go (e.g. lick) or not Go depending on which one of two stimuli is presented with.
 
@@ -300,7 +352,7 @@ decision : constant 500
 
 Tags: delayed response, go/no-go, supervised setting.
 
-### IntervalDiscrimination task ###
+### IntervalDiscrimination
 
 Logic: Agents have to report which of two stimuli presented sequentially is longer.
 
@@ -325,7 +377,7 @@ decision : constant 300
 
 Tags: timing, working memory, delayed response, two-alternative, supervised setting.
 
-### Mante task ###
+### Mante
 
 Logic: Agent has to perform one of two different perceptual discriminations. On every trial, a contextual cue indicates which one to perform.
 
@@ -346,7 +398,7 @@ decision : constant 100
 
 Tags: perceptual, context dependent, two-alternative, supervised setting.
 
-### MatchingPenny task ###
+### MatchingPenny
 
 Logic: The agent is rewarded when it selects the
          same target as the computer.
@@ -362,7 +414,7 @@ opponent_type : Type of opponent. (def: 'random')
 
 Tags: two-alternative, supervised setting.
 
-### MotorTiming task ###
+### MotorTiming
 
 Logic: Agents have to produce different time intervals using different effectors (actions). [different actions not implemented]
 
@@ -381,7 +433,7 @@ set : constant 50
 
 Tags: timing, go/no-go, supervised setting.
 
-### nalt_PerceptualDecisionMaking task ###
+### nalt_PerceptualDecisionMaking
 
 Logic: N-alternative forced choice task in which the subject
          has to integrate N stimuli to decide which one is higher
@@ -409,7 +461,7 @@ stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Tags: perceptual, n-alternative, supervised setting.
 
-### PerceptualDecisionMaking task ###
+### PerceptualDecisionMaking
 
 Logic: Random dot motion task. Two-alternative forced
          choice task in which the subject has to integrate two stimuli to
@@ -434,7 +486,7 @@ stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Tags: perceptual, 2-alternative, supervised setting.
 
-### Reaching1D task ###
+### Reaching1D
 
 Logic: The agent has to reproduce the angle indicated by the observation.
 
@@ -450,7 +502,7 @@ reach : constant 500
 
 Tags: motor, continuous action space, supervised setting.
 
-### Reaching1DWithSelfDistraction task ###
+### Reaching1DWithSelfDistraction
 
 Logic: The agent has to reproduce the angle indicated
          by the observation. Furthermore, the reaching state itself
@@ -470,7 +522,7 @@ reach : constant 500
 
 Tags: motor, continuous action space, supervised setting.
 
-### ReadySetGo task ###
+### ReadySetGo
 
 Logic: Agents have to measure and produce different time
          intervals.
@@ -496,7 +548,7 @@ gain : Controls the measure that the agent has to produce. (def: 1)
 
 Tags: timing, go/no-go, supervised setting.
 
-### Romo task ###
+### Romo
 
 Logic: Two-alternative forced choice task in which
          the subject has to compare two stimuli separated by a delay
@@ -521,7 +573,7 @@ decision : constant 100
 
 Tags: perceptual, working memory, two-alternative, supervised setting.
 
-### Serrano task ###
+### Serrano
 
 Logic: Working memory visual spatial task  ~ Funahashi et al. 1991 adapted to freely moving mice in a continous choice-space.
 Brief description: while fixating, stimulus is presented in a touchscreen (bright circle). Afterwards (perhaps including an extra delay), doors open allowing the mouse to touch the screen where the stimulus was located.
@@ -542,7 +594,7 @@ decision : constant 5000
 
 Tags: perceptual, delayed response, continuous action space, multidimensional action space, supervised setting.
 
-### PadoaSch task ###
+### PadoaSch
 
 Logic: Agents choose between two stimuli (A and B; where A
          is preferred) offered in different amounts.
@@ -562,7 +614,7 @@ decision : constant 750
 
 Tags: perceptual, value-based.
 
-### PDWager task ###
+### PDWager
 
 Logic: Agents do a discrimination task (see PerceptualDecisionMaking). On a
          random half of the trials, the agent is given the option to abort
@@ -587,109 +639,4 @@ pre_sure : uniform [500, 750]
 decision : constant 100
 
 Tags: perceptual, delayed response, confidence, supervised setting.
-
-
-
-
-
-
-### List of wrappers implemented
-
-* 9 wrappers implemented so far.
-
-### CatchTrials-v0 wrapper ###
-
-Logic: Introduces catch trials in which the reward for
-         a correct choice is modified (e.g. is set to the reward for an
-         incorrect choice). Note that the wrapper only changes the reward
-         associated to a correct answer and does not change the ground truth.
-         Thus, the catch trial affect a pure supervised learning setting.
-
-Input parameters: 
-
-stim_th : Percentile of stimulus distribution below which catch
-        trials are allowed (in some cases, experimenter might decide not
-        to have catch trials when  stimulus is very obvious). (def: 50)
-
-start : Number of trials after which the catch trials can occur.
-        (def: 0)
-
-catch_prob : Catch trial probability. (def: 0.1)
-
-### MissTrialReward-v0 wrapper ###
-
-Logic: Add a negative reward if a trial ends with no action.
-
-Input parameters: 
-
-r_miss : Reward given when a miss trial occurs.(def: 0)
-
-### Monitor-v0 wrapper ###
-
-Logic: Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth.
-
-Input parameters: 
-
-folder : Folder where the data will be saved. (def: None)
-
-num_tr_save : Data will be saved every num_tr_save trials.
-        (def: 100000)
-
-verbose : Whether to print information about average reward and number of trials
-
-info_keywords : (tuple) extra information to log, from the information return of environment.step
-
-### Noise-v0 wrapper ###
-
-Logic: Add Gaussian noise to the observations.
-
-Input parameters: 
-
-std_noise : Standard deviation of noise. (def: 0.1)
-
-### PassAction-v0 wrapper ###
-
-Logic: Modifies observation by adding the previous
-        action.
-
-### PassReward-v0 wrapper ###
-
-Logic: Modifies observation by adding the previous
-        reward.
-
-### ReactionTime-v0 wrapper ###
-
-Logic: Modfies a given environment by allowing the network
-        to act at any time after the fixation period.
-
-### SideBias-v0 wrapper ###
-
-Logic: Changes the probability of ground truth.
-
-Input parameters: 
-
-block_dur : Number of trials per block. (def: 200 (int))
-
-prob : Specifies probabilities for each choice. Within each block,
-        the probability should sum up to 1.
-        (def: None (Numpy array (n_block, n_choices)))
-
-### TrialHistory-v0 wrapper ###
-
-Logic: Change ground truth probability based on previous outcome.
-
-Reference paper: 
-
-[Response outcomes gate the impact of expectations
-         on perceptual decisions](https://www.biorxiv.org/content/10.1101/433409v3)
-
-Input parameters: 
-
-block_dur : Number of trials per block. (def: 200 (int))
-
-rep_prob : Specifies probabilities of repeating for each block.
-        (def: (.2, .8))
-
-blk_ch_prob : If not None, specifies the probability of changing
-        block (randomly). (def: None)
 
