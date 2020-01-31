@@ -2,7 +2,7 @@
 
 ### List of environments implemented
 
-* 25 tasks implemented so far.
+* 26 tasks implemented so far.
 
 ### AngleReproduction task ###
 
@@ -58,9 +58,9 @@ Reference paper:
 
 Other parameters: 
 
-probs : Reward probabilities for each arm. (def: (.9, .1))
-
 n_arms : Number of arms. (def: 2)
+
+probs : Reward probabilities for each arm. (def: (.9, .1))
 
 gt_arm : High reward arm. (def: 0)
 
@@ -90,6 +90,43 @@ stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Tags: perceptual, delayed response, two-alternative, supervised setting.
 
+### ChangingEnvironment task ###
+
+Logic: Random Dots Motion tasks in which the correct action depends on a randomly changing context
+
+Reference paper: 
+
+[Hierarchical decision processes that operate over
+        distinct timescales underlie choice and changes in strategy](https://www.pnas.org/content/113/31/E4531)
+
+Default Epoch timing (ms) 
+
+fixation : constant 500
+
+stimulus : truncated_exponential [1000, 500, 1500]
+
+decision : constant 500
+
+Other parameters: 
+
+cxt_ch_prob : Probability of changing context.
+
+stimEv : Controls the difficulty of the experiment. (def: 1.)
+
+cxt_cue : Whether to show context as a cue.
+
+Tags: perceptual, 2-alternative, supervised setting, context dependent.
+
+### DawTwoStep task ###
+
+Logic: On each trial, an initial choice between two options lead to either of two, second-stage states. In turn, these both demand another two-option choice, each of which is associated with  a different chance of receiving reward.
+
+Reference paper: 
+
+[Model-Based Influences on Humans Choices and Striatal Prediction Errors](https://www.sciencedirect.com/science/article/pii/S0896627311001255)
+
+Tags: two-alternative, supervised setting.
+
 ### DelayPairedAssociation task ###
 
 Logic: A sample is followed by a delay and a test. Agents have to report if the pair sample-test is a rewarded pair or not.
@@ -118,16 +155,6 @@ noise : Standard deviation of the Gaussian noise added to
         the stimulus. (def: 0.01)
 
 Tags: perceptual, working memory, go/no-go, supervised setting.
-
-### DawTwoStep task ###
-
-Logic: On each trial, an initial choice between two options lead to either of two, second-stage states. In turn, these both demand another two-option choice, each of which is associated with  a different chance of receiving reward.
-
-Reference paper: 
-
-[Model-Based Influences on Humans Choices and Striatal Prediction Errors](https://www.sciencedirect.com/science/article/pii/S0896627311001255)
-
-Tags: two-alternative, supervised setting.
 
 ### DelayedMatchCategory task ###
 
@@ -245,11 +272,11 @@ stimulus : truncated_exponential [1000, 500, 1500]
 
 Other parameters: 
 
-stim_dur : Stimulus duration. (def: 100, ms)
-
 delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
 
 noise : Standard deviation of background noise. (def: 1)
+
+stim_dur : Stimulus duration. (def: 100, ms)
 
 Tags: perceptual, reaction time, go/no-go, supervised setting.
 
@@ -584,10 +611,10 @@ stim_th : Percentile of stimulus distribution below which catch
         trials are allowed (in some cases, experimenter might decide not
         to have catch trials when  stimulus is very obvious). (def: 50)
 
-catch_prob : Catch trial probability. (def: 0.1)
-
 start : Number of trials after which the catch trials can occur.
         (def: 0)
+
+catch_prob : Catch trial probability. (def: 0.1)
 
 ### MissTrialReward-v0 wrapper ###
 
@@ -608,9 +635,9 @@ folder : Folder where the data will be saved. (def: None)
 num_tr_save : Data will be saved every num_tr_save trials.
         (def: 100000)
 
-info_keywords : (tuple) extra information to log, from the information return of environment.step
-
 verbose : Whether to print information about average reward and number of trials
+
+info_keywords : (tuple) extra information to log, from the information return of environment.step
 
 ### Noise-v0 wrapper ###
 
@@ -641,11 +668,11 @@ Logic: Changes the probability of ground truth.
 
 Input parameters: 
 
+block_dur : Number of trials per block. (def: 200 (int))
+
 prob : Specifies probabilities for each choice. Within each block,
         the probability should sum up to 1.
         (def: None (Numpy array (n_block, n_choices)))
-
-block_dur : Number of trials per block. (def: 200 (int))
 
 ### TrialHistory-v0 wrapper ###
 
@@ -658,11 +685,11 @@ Reference paper:
 
 Input parameters: 
 
-blk_ch_prob : If not None, specifies the probability of changing
-        block (randomly). (def: None)
+block_dur : Number of trials per block. (def: 200 (int))
 
 rep_prob : Specifies probabilities of repeating for each block.
         (def: (.2, .8))
 
-block_dur : Number of trials per block. (def: 200 (int))
+blk_ch_prob : If not None, specifies the probability of changing
+        block (randomly). (def: None)
 
