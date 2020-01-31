@@ -158,7 +158,8 @@ class ChangingEnvironment(ngym.PeriodEnv):
                 else:  # if incorrect
                     reward = self.R_FAIL
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return obs, reward, False, {'new_trial': new_trial, 'gt': gt,
+                                    'context': self.curr_cxt}
 
 
 if __name__ == '__main__':

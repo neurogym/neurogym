@@ -178,7 +178,7 @@ def plot_struct(env, num_steps_env=200, n_stps_plt=200,
 
 
 def fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=True,
-         obs_cum=None, states=None, name=''):
+         obs_cum=None, states=None, name='', folder=''):
     if states is not None:
         rows = 4
     else:
@@ -226,6 +226,10 @@ def fig_(obs, actions, gt, rewards, n_stps_plt, perf, legend=True,
     plt.xlabel('timesteps')
     plt.tight_layout()
     plt.show()
+    if folder != '':
+        f.savefig(folder + '/task_struct.png')
+        plt.close(f)
+
     return f
 
 
