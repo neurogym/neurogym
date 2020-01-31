@@ -228,7 +228,7 @@ Other parameters:
 
 noise : Standard deviation of the Gaussian noise added to the stimulus. (def: 0.01)
 
-Tags: [perceptual](#perceptual), [working memory](#working-memory), [go/no-go](#go/no-go), [supervised](#supervised)
+Tags: [perceptual](#perceptual), [working memory](#working-memory), [go-no-go](#go-no-go), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delaypairedassociation.py)
 
@@ -340,7 +340,7 @@ noise : Standard deviation of background noise. (def: 1)
 
 stim_dur : Stimulus duration. (def: 100, ms)
 
-Tags: [perceptual](#perceptual), [reaction time](#reaction-time), [go/no-go](#go/no-go), [supervised](#supervised)
+Tags: [perceptual](#perceptual), [reaction time](#reaction-time), [go-no-go](#go-no-go), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/detection.py)
 
@@ -364,7 +364,7 @@ resp_delay : constant 500
 
 decision : constant 500
 
-Tags: [delayed response](#delayed-response), [go/no-go](#go/no-go), [supervised](#supervised)
+Tags: [delayed response](#delayed-response), [go-no-go](#go-no-go), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/gonogo.py)
 
@@ -456,7 +456,7 @@ cue : uniform [1000, 3000]
 
 set : constant 50
 
-Tags: [timing](#timing), [go/no-go](#go/no-go), [supervised](#supervised)
+Tags: [timing](#timing), [go-no-go](#go-no-go), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/readysetgo.py)
 
@@ -660,7 +660,7 @@ Other parameters:
 
 gain : Controls the measure that the agent has to produce. (def: 1)
 
-Tags: [timing](#timing), [go/no-go](#go/no-go), [supervised](#supervised)
+Tags: [timing](#timing), [go-no-go](#go-no-go), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/readysetgo.py)
 
@@ -752,7 +752,7 @@ ___
 
 [CVLearning-v0](cvlearning)
 
-### go/no-go 
+### go-no-go 
 
 [DelayPairedAssociation-v0](delaypairedassociation)
 

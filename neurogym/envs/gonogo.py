@@ -36,7 +36,7 @@ class GoNogo(ngym.PeriodEnv):
             'stimulus': ('constant', 500),
             'resp_delay': ('constant', 500),
             'decision': ('constant', 500)},
-        'tags': ['delayed response', 'go/no-go', 'supervised']
+        'tags': ['delayed response', 'go-no-go', 'supervised']
     }
 
     def __init__(self, dt=100, timing=None):

@@ -30,7 +30,7 @@ class DelayPairedAssociation(ngym.PeriodEnv):
             'decision': ('constant', 500)},
         'noise': '''Standard deviation of the Gaussian noise added to
         the stimulus. (def: 0.01)''',
-        'tags': ['perceptual', 'working memory', 'go/no-go',
+        'tags': ['perceptual', 'working memory', 'go-no-go',
                  'supervised']
     }
 

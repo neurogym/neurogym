@@ -23,7 +23,7 @@ class ReadySetGo(ngym.PeriodEnv):
             'measure': ('choice', [800, 1500]),
             'set': ('constant', 83)},
         'gain': 'Controls the measure that the agent has to produce. (def: 1)',
-        'tags': ['timing', 'go/no-go', 'supervised']
+        'tags': ['timing', 'go-no-go', 'supervised']
     }
 
     def __init__(self, dt=80, timing=None, gain=1):
@@ -109,7 +109,7 @@ class MotorTiming(ngym.PeriodEnv):
             'fixation': ('constant', 500),  # XXX: not specified
             'cue': ('uniform', [1000, 3000]),
             'set': ('constant', 50)},
-        'tags': ['timing', 'go/no-go', 'supervised']
+        'tags': ['timing', 'go-no-go', 'supervised']
     }
 
     def __init__(self, dt=80, timing=None):

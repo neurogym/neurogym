@@ -26,7 +26,7 @@ class Detection(ngym.PeriodEnv):
             'stimulus is presented. Otherwise, the delay is drawn from' +
             ' a uniform distribution. (def: None)',
             'stim_dur': 'Stimulus duration. (def: 100, ms)',
-            'tags': ['perceptual', 'reaction time', 'go/no-go',
+            'tags': ['perceptual', 'reaction time', 'go-no-go',
                      'supervised']
             }
 
