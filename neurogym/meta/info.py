@@ -8,8 +8,6 @@ import matplotlib.pyplot as plt
 import gym
 import neurogym as ngym
 from neurogym.core import env_string, METADATA_DEF_KEYS
-from neurogym import all_tasks
-from neurogym.wrappers import all_wrappers
 
 
 def info(task=None, show_code=False, show_fig=False, n_stps_plt=200, tags=None):
@@ -18,7 +16,7 @@ def info(task=None, show_code=False, show_fig=False, n_stps_plt=200, tags=None):
         tags = list()
 
     if task is None:
-        tasks = all_tasks.keys()
+        tasks = ngym.all_tasks().keys()
         string = ''
         counter = 0
         for env_name in sorted(tasks):
@@ -45,7 +43,7 @@ def info(task=None, show_code=False, show_fig=False, n_stps_plt=200, tags=None):
             if show_code:
                 string += '''\n#### Source code #### \n\n'''
                 import inspect
-                task_ref = all_tasks[task]
+                task_ref = ngym.all_tasks()[task]
                 from_ = task_ref[:task_ref.find(':')]
                 class_ = task_ref[task_ref.find(':')+1:]
                 imported = getattr(__import__(from_, fromlist=[class_]),
@@ -62,7 +60,7 @@ def info(task=None, show_code=False, show_fig=False, n_stps_plt=200, tags=None):
 def info_wrapper(wrapper=None, show_code=False):
     """Script to get wrappers info"""
     if wrapper is None:
-        wrappers = all_wrappers.keys()
+        wrappers = ngym.all_wrappers().keys()
         string = ''
         for env_name in sorted(wrappers):
             string += env_name + '\n'
@@ -72,7 +70,7 @@ def info_wrapper(wrapper=None, show_code=False):
     else:
         string = ''
         try:
-            wrapp_ref = all_wrappers[wrapper]
+            wrapp_ref = ngym.all_wrappers()[wrapper]
             from_ = wrapp_ref[:wrapp_ref.find(':')]
             class_ = wrapp_ref[wrapp_ref.find(':')+1:]
             imported = getattr(__import__(from_, fromlist=[class_]), class_)

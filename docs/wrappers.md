@@ -2,7 +2,7 @@
 
 ### List of wrappers implemented
 
-* 9 wrappers implemented so far.
+* 10 wrappers implemented so far.
 
 [CatchTrials-v0](#catchtrials-v0)
 
@@ -19,6 +19,8 @@
 [ReactionTime-v0](#reactiontime-v0)
 
 [SideBias-v0](#sidebias-v0)
+
+[TTLPulse-v0](#ttlpulse-v0)
 
 [TrialHistory-v0](#trialhistory-v0)
 
@@ -70,9 +72,11 @@ folder : Folder where the data will be saved. (def: None)
 num_tr_save : Data will be saved every num_tr_save trials.
         (def: 100000)
 
-info_keywords : (tuple) extra information to log, from the information return of environment.step
+sv_fig : Whether to save a figure of the experiment structure. If True, a figure will be updated every num_tr_save. (def: False)
 
 verbose : Whether to print information about average reward and number of trials
+
+num_stps_sv_fig : Number of trial steps to include in the figure. (def: 100)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/wrappers/monitor.py)
 
@@ -133,6 +137,18 @@ prob : Specifies probabilities for each choice. Within each block,
 
 ___
 
+### TTLPulse-v0
+
+Logic: Outputs extra pulses that will be non-zero during specified periods.
+
+Input parameters: 
+
+periods : List of list specifying the on periods for each pulse. (def: [])
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/wrappers/ttl_pulse.py)
+
+___
+
 ### TrialHistory-v0
 
 Logic: Change ground truth probability based on previous outcome.
@@ -144,13 +160,13 @@ Reference paper:
 
 Input parameters: 
 
-rep_prob : Specifies probabilities of repeating for each block.
-        (def: (.2, .8))
+blk_ch_prob : If not None, specifies the probability of changing
+        block (randomly). (def: None)
 
 block_dur : Number of trials per block. (def: 200 (int))
 
-blk_ch_prob : If not None, specifies the probability of changing
-        block (randomly). (def: None)
+rep_prob : Specifies probabilities of repeating for each block.
+        (def: (.2, .8))
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/wrappers/trial_hist.py)
 

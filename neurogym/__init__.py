@@ -8,14 +8,7 @@ from neurogym.core import PeriodEnv
 from neurogym.core import TrialWrapper
 
 
-def register_neuroTask(id_task):
-    for env in gym.envs.registry.all():
-        if env.id == id_task:
-            return
-    register(id=id_task, entry_point=all_tasks[id_task])
-
-
-all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
+ALL_TASKS = {'Mante-v0': 'neurogym.envs.mante:Mante',
              'Romo-v0': 'neurogym.envs.romo:Romo',
              'PerceptualDecisionMaking-v0':
                  'neurogym.envs.perceptualdecisionmaking:PerceptualDecisionMaking',
@@ -60,5 +53,37 @@ all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
                  'neurogym.envs.changingenvironment:ChangingEnvironment'
              }
 
-for task in all_tasks.keys():
-    register_neuroTask(task)
+
+ALL_WRAPPERS = {'CatchTrials-v0': 'neurogym.wrappers.catch_trials:CatchTrials',
+                'Monitor-v0': 'neurogym.wrappers.monitor:Monitor',
+                'Noise-v0': 'neurogym.wrappers.noise:Noise',
+                'PassReward-v0': 'neurogym.wrappers.pass_reward:PassReward',
+                'PassAction-v0': 'neurogym.wrappers.pass_action:PassAction',
+                'ReactionTime-v0':
+                    'neurogym.wrappers.reaction_time:ReactionTime',
+                'SideBias-v0': 'neurogym.wrappers.side_bias:SideBias',
+                'TrialHistory-v0': 'neurogym.wrappers.trial_hist:TrialHistory',
+                'MissTrialReward-v0':
+                    'neurogym.wrappers.miss_trials_reward:MissTrialReward',
+                'TTLPulse-v0':
+                    'neurogym.wrappers.ttl_pulse:TTLPulse'
+                }
+
+
+def all_tasks():
+    return ALL_TASKS.copy()
+
+
+def all_wrappers():
+    return ALL_WRAPPERS.copy()
+
+
+def register_task(id_task):
+    for env in gym.envs.registry.all():
+        if env.id == id_task:
+            return
+    register(id=id_task, entry_point=ALL_TASKS[id_task])
+
+
+for task in ALL_TASKS.keys():
+    register_task(task)

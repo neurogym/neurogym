@@ -42,6 +42,8 @@
 
 [PerceptualDecisionMakingDelayResponse-v0](#perceptualdecisionmakingdelayresponse)
 
+[PostDecisionWager-v0](#postdecisionwager)
+
 [Reaching1D-v0](#reaching1d)
 
 [Reaching1DWithSelfDistraction-v0](#reaching1dwithselfdistraction)
@@ -53,8 +55,6 @@
 [Romo-v0](#romo)
 
 [padoaSch-v0](#padoasch)
-
-[PostDecisionWager-v0](#PostDecisionWager)
 
 ___
 
@@ -118,11 +118,11 @@ Reference paper:
 
 Other parameters: 
 
-gt_arm : High reward arm. (def: 0)
-
 n_arms : Number of arms. (def: 2)
 
 probs : Reward probabilities for each arm. (def: (.9, .1))
+
+gt_arm : High reward arm. (def: 0)
 
 Tags: n-alternative, supervised.
 
@@ -176,11 +176,11 @@ decision : constant 500
 
 Other parameters: 
 
+stimEv : Controls the difficulty of the experiment. (def: 1.)
+
 cxt_cue : Whether to show context as a cue.
 
 cxt_ch_prob : Probability of changing context.
-
-stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Tags: perceptual, 2-alternative, supervised, context dependent.
 
@@ -334,11 +334,11 @@ stimulus : truncated_exponential [1000, 500, 1500]
 
 Other parameters: 
 
-noise : Standard deviation of background noise. (def: 1)
-
 stim_dur : Stimulus duration. (def: 100, ms)
 
 delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
+
+noise : Standard deviation of background noise. (def: 1)
 
 Tags: perceptual, reaction time, go/no-go, supervised.
 
@@ -482,9 +482,9 @@ decision : constant 500
 
 Other parameters: 
 
-n_ch : Number of choices. (def: 3)
-
 stimEv : Controls the difficulty of the experiment. (def: 1.)
+
+n_ch : Number of choices. (def: 3)
 
 Tags: perceptual, n-alternative, supervised.
 
@@ -543,6 +543,32 @@ stimEv : Controls the difficulty of the experiment. (def: 1.)
 Tags: perceptual, delayed response, two-alternative, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/perceptualdecisionmaking.py)
+
+___
+
+### PostDecisionWager
+
+Logic: Agents do a discrimination task (see PerceptualDecisionMaking). On a random half of the trials, the agent is given the option to abort the direction discrimination and to choose instead a small but certain reward associated with a action.
+
+Reference paper: 
+
+[Representation of Confidence Associated with a Decision by Neurons in the Parietal Cortex](https://science.sciencemag.org/content/324/5928/759.long)
+
+Default Period timing (ms) 
+
+fixation : constant 100
+
+stimulus : truncated_exponential [180, 100, 900]
+
+delay : truncated_exponential [1350, 1200, 1800]
+
+pre_sure : uniform [500, 750]
+
+decision : constant 100
+
+Tags: perceptual, delayed response, confidence, supervised.
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/postdecisionwager.py)
 
 ___
 
@@ -685,30 +711,4 @@ decision : constant 750
 Tags: perceptual, value-based.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/padoa_sch.py)
-
-___
-
-### PostDecisionWager
-
-Logic: Agents do a discrimination task (see PerceptualDecisionMaking). On a random half of the trials, the agent is given the option to abort the direction discrimination and to choose instead a small but certain reward associated with a action.
-
-Reference paper: 
-
-[Representation of Confidence Associated with a Decision by Neurons in the Parietal Cortex](https://science.sciencemag.org/content/324/5928/759.long)
-
-Default Period timing (ms) 
-
-fixation : constant 100
-
-stimulus : truncated_exponential [180, 100, 900]
-
-delay : truncated_exponential [1350, 1200, 1800]
-
-pre_sure : uniform [500, 750]
-
-decision : constant 100
-
-Tags: perceptual, delayed response, confidence, supervised.
-
-[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/postdecisionwager.py)
 
