@@ -5,7 +5,7 @@ from gym import spaces
 
 import neurogym as ngym
 from neurogym.meta import info
-from neurogym.ops import tasktools
+from neurogym.utils import tasktools
 
 
 class AntiReach1D(ngym.PeriodEnv):

@@ -7,7 +7,7 @@ import numpy as np
 import gym
 import warnings
 
-from neurogym.ops import tasktools
+from neurogym.utils import tasktools
 
 METADATA_DEF_KEYS = ['description', 'paper_name', 'paper_link', 'timing',
                      'tags']

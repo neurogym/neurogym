@@ -16,7 +16,7 @@ Economic choice task, based on
 from __future__ import division
 
 import numpy as np
-from neurogym.ops import tasktools
+from neurogym.utils import tasktools
 import neurogym as ngym
 from gym import spaces
 

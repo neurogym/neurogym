@@ -17,7 +17,7 @@ class YourTask(ngym.PeriodEnv):  # TIP: if task has periods (alt.: ngym.TrialEnv
         'paper_link': '',
         'paper_name': '',
         # alts.: 'constant', 'uniform', 'truncated_exponential' and 'choice'
-        # (see neurogym/ops/tasktools.random_number_fn)
+        # (see neurogym/utils/tasktools.random_number_fn)
         'timing': {
             'period 1 (e.g. fixation)': ('constant', 'value'),
             'period 2 (e.g. stimulus)': ('truncated_exponential',
