@@ -17,10 +17,12 @@ def register_neuroTask(id_task):
 
 all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
              'Romo-v0': 'neurogym.envs.romo:Romo',
-             'PerceptualDecisionMaking-v0': 'neurogym.envs.perceptualdecisionmaking:PerceptualDecisionMaking',
+             'PerceptualDecisionMaking-v0':
+                 'neurogym.envs.perceptualdecisionmaking:PerceptualDecisionMaking',
              'padoaSch-v0': 'neurogym.envs.padoa_sch:PadoaSch',
              'pdWager-v0': 'neurogym.envs.pd_wager:PDWager',
-             'DelayPairedAssociation-v0': 'neurogym.envs.delaypairedassociation:DelayPairedAssociation',
+             'DelayPairedAssociation-v0':
+                 'neurogym.envs.delaypairedassociation:DelayPairedAssociation',
              'GoNogo-v0': 'neurogym.envs.gonogo:GoNogo',
              'ReadySetGo-v0': 'neurogym.envs.readysetgo:ReadySetGo',
              'DelayedMatchSample-v0':
@@ -31,8 +33,10 @@ all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
              'MatchingPenny-v0': 'neurogym.envs.matchingpenny:MatchingPenny',
              'MotorTiming-v0': 'neurogym.envs.readysetgo:MotorTiming',
              'Bandit-v0': 'neurogym.envs.bandit:Bandit',
-             'DelayedResponse-v0': 'neurogym.envs.delayresponse:DR',
-             'NAltPerceptualDecisionMaking-v0': 'neurogym.envs.nalt_perceptualdecisionmaking:nalt_PerceptualDecisionMaking',
+             'PerceptualDecisionMakingDelayResponse-v0':
+                 'neurogym.envs.perceptualdecisionmaking:PerceptualDecisionMakingDelayResponse',
+             'NAltPerceptualDecisionMaking-v0':
+                 'neurogym.envs.nalt_perceptualdecisionmaking:nalt_PerceptualDecisionMaking',
              # 'Combine-v0': 'neurogym.envs.combine:combine',
              # 'IBL-v0': 'neurogym.envs.ibl:IBL',
              # 'MemoryRecall-v0': 'neurogym.envs.memoryrecall:MemoryRecall',
@@ -48,8 +52,8 @@ all_tasks = {'Mante-v0': 'neurogym.envs.mante:Mante',
                  'neurogym.envs.anglereproduction:AngleReproduction',
              'Detection-v0':
                  'neurogym.envs.detection:Detection',
-             'Serrano-v0':
-                 'neurogym.envs.serrano:Serrano',
+             'ReachingDelayResponse-v0':
+                 'neurogym.envs.reachingdelayresponse:ReachingDelayResponse',
              'CVLearning-v0':
                  'neurogym.envs.cv_learning:CVLearning',
              'ChangingEnvironment-v0':

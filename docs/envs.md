@@ -2,7 +2,7 @@
 
 ### List of tasks implemented
 
-* 24 tasks implemented so far.
+* 26 tasks implemented so far.
 
 [AngleReproduction-v0](#anglereproduction)
 
@@ -40,9 +40,13 @@
 
 [PerceptualDecisionMaking-v0](#perceptualdecisionmaking)
 
+[PerceptualDecisionMakingDelayResponse-v0](#perceptualdecisionmakingdelayresponse)
+
 [Reaching1D-v0](#reaching1d)
 
 [Reaching1DWithSelfDistraction-v0](#reaching1dwithselfdistraction)
+
+[ReachingDelayResponse-v0](#reachingdelayresponse)
 
 [ReadySetGo-v0](#readysetgo)
 
@@ -116,9 +120,9 @@ Reference paper:
 
 Other parameters: 
 
-n_arms : Number of arms. (def: 2)
-
 gt_arm : High reward arm. (def: 0)
+
+n_arms : Number of arms. (def: 2)
 
 probs : Reward probabilities for each arm. (def: (.9, .1))
 
@@ -175,11 +179,11 @@ decision : constant 500
 
 Other parameters: 
 
+stimEv : Controls the difficulty of the experiment. (def: 1.)
+
 cxt_ch_prob : Probability of changing context.
 
 cxt_cue : Whether to show context as a cue.
-
-stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Tags: perceptual, 2-alternative, supervised, context dependent.
 
@@ -320,8 +324,6 @@ Tags: perceptual, working memory, two-alternative, supervised.
 
 ___
 
-___
-
 ### Detection
 
 Logic: The agent has to GO if a stimulus is presented.
@@ -340,11 +342,11 @@ stimulus : truncated_exponential [1000, 500, 1500]
 
 Other parameters: 
 
-stim_dur : Stimulus duration. (def: 100, ms)
+delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
 
 noise : Standard deviation of background noise. (def: 1)
 
-delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
+stim_dur : Stimulus duration. (def: 100, ms)
 
 Tags: perceptual, reaction time, go/no-go, supervised.
 
@@ -495,9 +497,9 @@ decision : constant 500
 
 Other parameters: 
 
-n_ch : Number of choices. (def: 3)
-
 stimEv : Controls the difficulty of the experiment. (def: 1.)
+
+n_ch : Number of choices. (def: 3)
 
 Tags: perceptual, n-alternative, supervised.
 
@@ -529,6 +531,34 @@ Other parameters:
 stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Tags: perceptual, 2-alternative, supervised.
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/perceptualdecisionmaking.py)
+
+___
+
+### PerceptualDecisionMakingDelayResponse
+
+Logic: Agents have to integrate two stimuli and report which one is larger on average after a delay.
+
+Reference paper: 
+
+[Discrete attractor dynamics underlies persistent activity in the frontal cortex](https://www.nature.com/articles/s41586-019-0919-7)
+
+Default Epoch timing (ms) 
+
+fixation : constant 0
+
+stimulus : constant 1150
+
+delay : choice [300, 500, 700, 900, 1200, 2000, 3200, 4000]
+
+decision : constant 1500
+
+Other parameters: 
+
+stimEv : Controls the difficulty of the experiment. (def: 1.)
+
+Tags: perceptual, delayed response, two-alternative, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/perceptualdecisionmaking.py)
 
@@ -575,6 +605,31 @@ reach : constant 500
 Tags: motor, continuous action space, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/reaching.py)
+
+___
+
+### ReachingDelayResponse
+
+Logic: Working memory visual spatial task  ~ Funahashi et al. 1991 adapted to freely moving mice in a continous choice-space.
+Brief description: while fixating, stimulus is presented in a touchscreen (bright circle). Afterwards (perhaps including an extra delay), doors open allowing the mouse to touch the screen where the stimulus was located.
+
+Reference paper: 
+
+Missing paper name
+
+Missing paper link
+
+Default Epoch timing (ms) 
+
+stimulus : constant 500
+
+delay : choice [0, 1000, 2000]
+
+decision : constant 5000
+
+Tags: perceptual, delayed response, continuous action space, multidimensional action space, supervised.
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/reachingdelayresponse.py)
 
 ___
 
@@ -634,8 +689,6 @@ decision : constant 100
 Tags: perceptual, working memory, two-alternative, supervised.
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/romo.py)
-
-___
 
 ___
 
