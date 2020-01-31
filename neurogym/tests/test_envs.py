@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 
 import gym
 import neurogym as ngym
-from neurogym.meta.info import plot_struct
 
 
 def test_run(env, verbose=False):

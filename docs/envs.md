@@ -124,9 +124,9 @@ Other parameters:
 
 n_arms : Number of arms. (def: 2)
 
-gt_arm : High reward arm. (def: 0)
-
 probs : Reward probabilities for each arm. (def: (.9, .1))
+
+gt_arm : High reward arm. (def: 0)
 
 Tags: [n-alternative](#n-alternative), [supervised](#supervised)
 
@@ -182,9 +182,9 @@ Other parameters:
 
 stimEv : Controls the difficulty of the experiment. (def: 1.)
 
-cxt_ch_prob : Probability of changing context.
-
 cxt_cue : Whether to show context as a cue.
+
+cxt_ch_prob : Probability of changing context.
 
 Tags: [perceptual](#perceptual), [two-alternative](#two-alternative), [supervised](#supervised), [context dependent](#context-dependent)
 
@@ -388,9 +388,9 @@ stimulus : truncated_exponential [1000, 500, 1500]
 
 Other parameters: 
 
-stim_dur : Stimulus duration. (def: 100, ms)
-
 delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
+
+stim_dur : Stimulus duration. (def: 100, ms)
 
 noise : Standard deviation of background noise. (def: 1)
 
@@ -534,9 +534,9 @@ decision : constant 500
 
 Other parameters: 
 
-stimEv : Controls the difficulty of the experiment. (def: 1.)
-
 n_ch : Number of choices. (def: 3)
+
+stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Tags: [perceptual](#perceptual), [n-alternative](#n-alternative), [supervised](#supervised)
 

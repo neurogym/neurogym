@@ -9,7 +9,7 @@ Created on Mon Mar  4 12:41:52 2019
 from gym.core import Wrapper
 import os
 import numpy as np
-from neurogym.meta import info
+from neurogym.utils.plotting import fig_
 
 
 class Monitor(Wrapper):
@@ -107,11 +107,11 @@ class Monitor(Wrapper):
         elif len(self.rew_mat) > 0:
             obs_mat = np.array(self.obs_mat)
             act_mat = np.array(self.act_mat)
-            info.fig_(obs=obs_mat, actions=act_mat,
-                      gt=self.gt_mat, rewards=self.rew_mat,
-                      n_stps_plt=self.num_stps_sv_fig,
-                      perf=self.data['reward'],
-                      folder=self.folder)
+            fig_(obs=obs_mat, actions=act_mat,
+                  gt=self.gt_mat, rewards=self.rew_mat,
+                  n_stps_plt=self.num_stps_sv_fig,
+                  perf=self.data['reward'],
+                  folder=self.folder)
             self.obs_mat = []
             self.act_mat = []
             self.rew_mat = []
