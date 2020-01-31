@@ -54,10 +54,11 @@ class MatchingPenny(ngym.TrialEnv):
         self.trial = {
             'opponent_action': opponent_action,
             }
+        self.obs = np.zeros(self.observation_space.shape)
 
     def _step(self, action):
         trial = self.trial
-        obs = np.zeros(self.observation_space.shape)
+        obs = self.obs
         obs[trial['opponent_action']] = 1.
         if action == trial['opponent_action']:
             reward = self.R_CORRECT

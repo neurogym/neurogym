@@ -109,19 +109,19 @@ class Combine():
             obs1, reward1, done1, info1 = self.env.step(action1)
             new_trial1 = info1['new_trial']
             self.env_on = not new_trial1
-            info['new_trial1'] = new_trial1
+            info['env_info'] = info1
         else:
             obs1, reward1, done1, info1 = self.standby_step(self.env)
-            info['new_trial1'] = False
+            info['env_info'] = None
         # get outputs from distractor task
         if self.t > self.delay and self.distractor_on:
             obs2, reward2, done2, info2 = self.distractor.step(action2)
             new_trial2 = info2['new_trial']
             self.distractor_on = not new_trial2
-            info['new_trial2'] = new_trial2
+            info['distractor_info'] = info2
         else:
             obs2, reward2, done2, info2 = self.standby_step(self.distractor)
-            info['new_trial2'] = False
+            info['distractor_info'] = None
         # new trial?
         if not self.env_on and not self.distractor_on:
             info['new_trial'] = True
@@ -130,7 +130,6 @@ class Combine():
             info['new_trial'] = False
 
         # build joint observation
-        obs2 *= 2
         obs = np.concatenate((obs1, obs2), axis=0)
         if self.trial_cue:
             cue = np.array([self.task_type])
@@ -141,7 +140,7 @@ class Combine():
         if self.share_action_space:
             if info1['gt'] == info2['gt']:
                 info['gt'] = info1['gt']  # task 1 is the default task
-                reward = reward1 + 2*reward2
+                reward = reward1 + reward2
             elif (info1['gt'] != self.defaults[0] and
                   info2['gt'] == self.defaults[1]):
                 info['gt'] = info1['gt']
@@ -149,7 +148,7 @@ class Combine():
             elif (info1['gt'] == self.defaults[0] and
                   info2['gt'] != self.defaults[1]):
                 info['gt'] = info2['gt']
-                reward = 2*reward2
+                reward = reward2
         else:
             info['gt'] = np.concatenate((info2['gt'], info2['gt']))
         return obs, reward, done, info
@@ -157,14 +156,9 @@ class Combine():
     def step(self, action):
         obs, reward, done, info = self._step(action)
         self.t += self.dt  # increment within trial time count
-        #        print(self.task_type)
-        #        print(self.env.t)
-        #        print(self.distractor.t)
-        #        print('----')
         if info['new_trial']:
             self.t = 0
             self.new_trial()
-            #            print('--------------------')
 
         return obs, reward, done, info
 

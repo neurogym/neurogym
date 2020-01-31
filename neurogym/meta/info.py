@@ -10,7 +10,8 @@ import neurogym as ngym
 from neurogym.core import env_string, METADATA_DEF_KEYS
 
 
-def info(task=None, show_code=False, show_fig=False, n_stps_plt=200, tags=None):
+def info(task=None, show_code=False, show_fig=False, n_stps_plt=200,
+         tags=None):
     """Script to get tasks info"""
     if tags is None:
         tags = list()
