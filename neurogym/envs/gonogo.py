@@ -50,6 +50,7 @@ class GoNogo(ngym.EpochEnv):
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
         self.R_FAIL = 0.
+        self.r_tmax = -0.5
         self.abort = False
         # set action and observation spaces
         self.action_space = spaces.Discrete(2)

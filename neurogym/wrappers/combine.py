@@ -31,7 +31,7 @@ class Combine():
     }
 
     def __init__(self, env, distractor, delay=800,
-                 dt=100, mix=(.5, .0, .5), share_action_space=True,
+                 dt=100, mix=(.3, .3, .4), share_action_space=True,
                  defaults=[0, 0], trial_cue=False):
         self.share_action_space = share_action_space
         self.trial_cue = trial_cue
@@ -78,30 +78,26 @@ class Combine():
 
     def new_trial(self):
         # decide type of trial
-        self.task_type = self.env.rng.choices([0, 1, 2], weights=self.mix)
+        self.task_type = self.env.rng.choices([0, 1, 2], weights=self.mix)[0]
         if self.task_type == 0:
-            self.env.trial = self.env.new_trial()
             self.env_on = True
             self.distractor_on = False
             self.tmax = self.env.tmax
         elif self.task_type == 1:
-            self.distractor.trial = self.distractor.new_trial()
             self.env_on = False
             self.distractor_on = True
             self.tmax = self.distractor.tmax
         else:
-            self.env.trial = self.env.new_trial()
-            self.distractor.trial = self.distractor.new_trial()
             self.env_on = True
             self.distractor_on = True
             self.tmax = self.env.tmax + self.distractor.tmax
 
     def reset(self):
-        obs_env, _, _, _ = self.standby_step(self.env)
-        obs_distractor, _, _, _ = self.standby_step(self.distractor)
+        obs_env = self.env.reset()
+        obs_distractor = self.distractor.reset()
         obs = np.concatenate((obs_env, obs_distractor), axis=0)
         if self.trial_cue:
-            cue = np.array(self.task_type)
+            cue = np.array([self.task_type])
             obs = np.concatenate((cue, obs), axis=0)
         return obs
 
@@ -110,23 +106,19 @@ class Combine():
         action1, action2 = self.action_split[action]
         # get outputs from main task
         if self.env_on:
-            obs1, reward1, done1, info1 = self.env._step(action1)
-            new_trial1 = (self.env.t <= self.env.tmax - self.dt)
+            obs1, reward1, done1, info1 = self.env.step(action1)
+            new_trial1 = info1['new_trial']
             self.env_on = not new_trial1
             info['new_trial1'] = new_trial1
-            self.env.t += self.env.dt  # increment within trial time count
-            self.env.t_ind += 1
         else:
             obs1, reward1, done1, info1 = self.standby_step(self.env)
             info['new_trial1'] = False
         # get outputs from distractor task
         if self.t > self.delay and self.distractor_on:
-            obs2, reward2, done2, info2 = self.distractor._step(action2)
-            new_trial2 = (self.distractor.t <= self.distractor.tmax - self.dt)
+            obs2, reward2, done2, info2 = self.distractor.step(action2)
+            new_trial2 = info2['new_trial']
             self.distractor_on = not new_trial2
             info['new_trial2'] = new_trial2
-            self.distractor.t += self.distractor.dt
-            self.distractor.t_ind += 1
         else:
             obs2, reward2, done2, info2 = self.standby_step(self.distractor)
             info['new_trial2'] = False
@@ -141,7 +133,7 @@ class Combine():
         obs2 *= 2
         obs = np.concatenate((obs1, obs2), axis=0)
         if self.trial_cue:
-            cue = np.array(self.task_type)
+            cue = np.array([self.task_type])
             obs = np.concatenate((cue, obs), axis=0)
         done = done1  # done whenever the task 1 is done
 
@@ -149,7 +141,7 @@ class Combine():
         if self.share_action_space:
             if info1['gt'] == info2['gt']:
                 info['gt'] = info1['gt']  # task 1 is the default task
-                reward = reward1 + reward2
+                reward = reward1 + 2*reward2
             elif (info1['gt'] != self.defaults[0] and
                   info2['gt'] == self.defaults[1]):
                 info['gt'] = info1['gt']
@@ -157,7 +149,7 @@ class Combine():
             elif (info1['gt'] == self.defaults[0] and
                   info2['gt'] != self.defaults[1]):
                 info['gt'] = info2['gt']
-                reward = reward2
+                reward = 2*reward2
         else:
             info['gt'] = np.concatenate((info2['gt'], info2['gt']))
         return obs, reward, done, info
@@ -165,21 +157,14 @@ class Combine():
     def step(self, action):
         obs, reward, done, info = self._step(action)
         self.t += self.dt  # increment within trial time count
-        if self.t > self.tmax - self.dt:
-            info['new_trial'] = True
-
+        #        print(self.task_type)
+        #        print(self.env.t)
+        #        print(self.distractor.t)
+        #        print('----')
         if info['new_trial']:
-            self.env.t = self.env.t_ind = 0
-            self.distractor.t = self.distractor.t_ind = 0
-            if self.task_type == 0:
-                self.env.num_tr += 1  # Increment trial count
-            elif self.task_type == 1:
-                self.distractor.num_tr += 1  # Increment trial count
-            else:
-                self.env.num_tr += 1  # Increment trial count
-                self.distractor.num_tr += 1  # Increment trial count
             self.t = 0
             self.new_trial()
+            #            print('--------------------')
 
         return obs, reward, done, info
 
@@ -196,22 +181,28 @@ class Combine():
 
 
 if __name__ == '__main__':
-    task = 'DelayPairedAssociation-v0'
+    #    task = 'DelayPairedAssociation-v0'
+    #    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
+    #                                    'stim1': ('constant', 100),
+    #                                    'delay_btw_stim': ('constant', 500),
+    #                                    'stim2': ('constant', 100),
+    #                                    'delay_aft_stim': ('constant', 100),
+    #                                    'decision': ('constant', 200)}}
+    #    env = gym.make(task, **KWARGS)
+    task = 'GoNogo-v0'
     KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
-                                    'stim1': ('constant', 100),
-                                    'delay_btw_stim': ('constant', 500),
-                                    'stim2': ('constant', 100),
-                                    'delay_aft_stim': ('constant', 100),
-                                    'decision': ('constant', 200)}}
+                                    'stimulus': ('constant', 100),
+                                    'resp_delay': ('constant', 1200),
+                                    'decision': ('constant', 100)}}
     env = gym.make(task, **KWARGS)
+
     task = 'GoNogo-v0'
     KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
                                     'stimulus': ('constant', 100),
                                     'resp_delay': ('constant', 100),
                                     'decision': ('constant', 100)}}
-
     distractor = gym.make(task, **KWARGS)
-    env = Combine(env, distractor, delay=100, mix=(.5, .0, .5),
+    env = Combine(env, distractor, delay=300, mix=(.3, .3, .4),
                   share_action_space=True, defaults=[0, 0],
                   trial_cue=True)
     info.plot_struct(env, num_steps_env=100, n_stps_plt=100)

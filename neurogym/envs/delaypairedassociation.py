@@ -60,13 +60,13 @@ class DelayPairedAssociation(ngym.EpochEnv):
         new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:
             durations, which stores the duration of the different periods (in
-            the case of perceptualDecisionMaking: fixation, stimulus and decision periods)
+            the case of perceptualDecisionMaking: fixation, stimulus
+            and decision periods)
             ground truth: correct response for the trial
             coh: stimulus coherence (evidence) for the trial
             obs: observation
         """
         pair = self.rng.choice(self.dpa_pairs)
-        print(pair)
         self.trial = {
             'pair': pair,
             'ground_truth': int(np.diff(pair)[0] % 2 == self.association),
