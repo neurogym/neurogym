@@ -18,6 +18,8 @@
 
 [DelayPairedAssociation-v0](#delaypairedassociation)
 
+[DelayedComparison-v0](#delayedcomparison)
+
 [DelayedMatchCategory-v0](#delayedmatchcategory)
 
 [DelayedMatchSample-v0](#delayedmatchtosample)
@@ -25,6 +27,8 @@
 [DelayedMatchToSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
 
 [Detection-v0](#detection)
+
+[EconomicDecisionMaking-v0](#economicdecisionmaking)
 
 [GoNogo-v0](#gonogo)
 
@@ -51,10 +55,6 @@
 [ReachingDelayResponse-v0](#reachingdelayresponse)
 
 [ReadySetGo-v0](#readysetgo)
-
-[Romo-v0](#romo)
-
-[padoaSch-v0](#padoasch)
 
 ___
 
@@ -120,9 +120,9 @@ Other parameters:
 
 probs : Reward probabilities for each arm. (def: (.9, .1))
 
-n_arms : Number of arms. (def: 2)
-
 gt_arm : High reward arm. (def: 0)
+
+n_arms : Number of arms. (def: 2)
 
 Tags: [n-alternative](#n-alternative), [supervised](#supervised)
 
@@ -178,9 +178,9 @@ Other parameters:
 
 cxt_ch_prob : Probability of changing context.
 
-stimEv : Controls the difficulty of the experiment. (def: 1.)
-
 cxt_cue : Whether to show context as a cue.
+
+stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Tags: [perceptual](#perceptual), [2-alternative](#2-alternative), [supervised](#supervised), [context dependent](#context-dependent)
 
@@ -231,6 +231,32 @@ noise : Standard deviation of the Gaussian noise added to the stimulus. (def: 0.
 Tags: [perceptual](#perceptual), [working memory](#working-memory), [go-no-go](#go-no-go), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delaypairedassociation.py)
+
+___
+
+### DelayedComparison
+
+Logic: Two-alternative forced choice task in which the subject has to compare two stimuli separated by a delay to decide which one has a higher frequency.
+
+Reference paper: 
+
+[Neuronal Population Coding of Parametric Working Memory](https://www.jneurosci.org/content/30/28/9424)
+
+Default Period timing (ms) 
+
+fixation : uniform (1500, 3000)
+
+f1 : constant 500
+
+delay : constant 3000
+
+f2 : constant 500
+
+decision : constant 100
+
+Tags: [perceptual](#perceptual), [working memory](#working-memory), [two-alternative](#two-alternative), [supervised](#supervised)
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delayedcomparison.py)
 
 ___
 
@@ -343,6 +369,28 @@ stim_dur : Stimulus duration. (def: 100, ms)
 Tags: [perceptual](#perceptual), [reaction time](#reaction-time), [go-no-go](#go-no-go), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/detection.py)
+
+___
+
+### EconomicDecisionMaking
+
+Logic: Agents choose between two stimuli (A and B; where A is preferred) offered in different amounts.
+
+Reference paper: 
+
+[Neurons in the orbitofrontal cortex encode economic value](https://www.nature.com/articles/nature04676)
+
+Default Period timing (ms) 
+
+fixation : constant 1500
+
+offer_on : uniform [1000, 2000]
+
+decision : constant 750
+
+Tags: [perceptual](#perceptual), [value-based](#value-based)
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/economicdecisionmaking.py)
 
 ___
 
@@ -482,9 +530,9 @@ decision : constant 500
 
 Other parameters: 
 
-n_ch : Number of choices. (def: 3)
-
 stimEv : Controls the difficulty of the experiment. (def: 1.)
+
+n_ch : Number of choices. (def: 3)
 
 Tags: [perceptual](#perceptual), [n-alternative](#n-alternative), [supervised](#supervised)
 
@@ -666,54 +714,6 @@ Tags: [timing](#timing), [go-no-go](#go-no-go), [supervised](#supervised)
 
 ___
 
-### Romo
-
-Logic: Two-alternative forced choice task in which the subject has to compare two stimuli separated by a delay to decide which one has a higher frequency.
-
-Reference paper: 
-
-[Neuronal Population Coding of Parametric Working Memory](https://www.jneurosci.org/content/30/28/9424)
-
-Default Period timing (ms) 
-
-fixation : uniform (1500, 3000)
-
-f1 : constant 500
-
-delay : constant 3000
-
-f2 : constant 500
-
-decision : constant 100
-
-Tags: [perceptual](#perceptual), [working memory](#working-memory), [two-alternative](#two-alternative), [supervised](#supervised)
-
-[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/romo.py)
-
-___
-
-### PadoaSch
-
-Logic: Agents choose between two stimuli (A and B; where A is preferred) offered in different amounts.
-
-Reference paper: 
-
-[Neurons in the orbitofrontal cortex encode economic value](https://www.nature.com/articles/nature04676)
-
-Default Period timing (ms) 
-
-fixation : constant 1500
-
-offer_on : uniform [1000, 2000]
-
-decision : constant 750
-
-Tags: [perceptual](#perceptual), [value-based](#value-based)
-
-[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/padoa_sch.py)
-
-___
-
 ### Tags ### 
 
 ### 2-alternative 
@@ -784,11 +784,11 @@ ___
 
 [Mante-v0](#mante)
 
-[Romo-v0](#romo)
+[DelayedComparison-v0](#delayedcomparison)
 
 [PerceptualDecisionMaking-v0](#perceptualdecisionmaking)
 
-[padoaSch-v0](#padoasch)
+[EconomicDecisionMaking-v0](#economicdecisionmaking)
 
 [PostDecisionWager-v0](#postdecisionwager)
 
@@ -834,7 +834,7 @@ ___
 
 [Mante-v0](#mante)
 
-[Romo-v0](#romo)
+[DelayedComparison-v0](#delayedcomparison)
 
 [PerceptualDecisionMaking-v0](#perceptualdecisionmaking)
 
@@ -884,7 +884,7 @@ ___
 
 [Mante-v0](#mante)
 
-[Romo-v0](#romo)
+[DelayedComparison-v0](#delayedcomparison)
 
 [DelayedMatchSample-v0](#delayedmatchtosample)
 
@@ -904,11 +904,11 @@ ___
 
 ### value-based 
 
-[padoaSch-v0](#padoasch)
+[EconomicDecisionMaking-v0](#economicdecisionmaking)
 
 ### working memory 
 
-[Romo-v0](#romo)
+[DelayedComparison-v0](#delayedcomparison)
 
 [DelayPairedAssociation-v0](#delaypairedassociation)
 

@@ -12,7 +12,7 @@ ALL_TASKS = {'Mante-v0': 'neurogym.envs.mante:Mante',
              'DelayedComparison-v0': 'neurogym.envs.delayedcomparison:DelayedComparison',
              'PerceptualDecisionMaking-v0':
                  'neurogym.envs.perceptualdecisionmaking:PerceptualDecisionMaking',
-             'padoaSch-v0': 'neurogym.envs.padoa_sch:PadoaSch',
+             'EconomicDecisionMaking-v0': 'neurogym.envs.economicdecisionmaking:EconomicDecisionMaking',
              'PostDecisionWager-v0': 'neurogym.envs.postdecisionwager:PostDecisionWager',
              'DelayPairedAssociation-v0':
                  'neurogym.envs.delaypairedassociation:DelayPairedAssociation',

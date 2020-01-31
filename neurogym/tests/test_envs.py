@@ -105,8 +105,6 @@ def test_run_all(verbose_success=False):
     success_count = 0
     total_count = 0
     for env_name in sorted(ngym.all_tasks().keys()):
-        if env_name in ['Combine-v0']:
-            continue
         total_count += 1
 
         print('Running env: {:s}'.format(env_name))
