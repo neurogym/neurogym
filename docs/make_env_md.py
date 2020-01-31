@@ -5,7 +5,8 @@ from neurogym import all_tasks
 from neurogym.wrappers import all_wrappers
 from neurogym.meta.tasks_info import info, info_wrapper
 
-
+SOURCE_ROOT = 'https://github.com/gyyang/neurogym/blob/master/'
+# TODO: Add link to source
 def write_envs():
     md_file = 'envs.md'
     counter = 0
@@ -13,7 +14,10 @@ def write_envs():
     names = ''
     for env_name in sorted(all_tasks.keys()):
         try:
+            string += '---\n\n'
             string += info(env_name)
+            source_link = all_tasks[env_name].split(':')[0].replace('.', '/')
+            string += '[Source]({:s})\n\n'.format(SOURCE_ROOT+source_link+'.py')
             env = gym.make(env_name)
             # Adding automatic tagging using github's mechanism
             names += '[{:s}](#{:s})\n\n'.format(

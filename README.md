@@ -24,7 +24,8 @@ You can perform a minimal install of ``neurogym`` with:
 Currently implemented tasks can be found [here](https://github.com/gyyang/neurogym/blob/master/docs/envs.md).
 
 ### Wrappers
-Wrappers (see [list](https://github.com/gyyang/neurogym/blob/master/docs/wrappers.md))are short scripts that allow introducing modifications the original tasks. For instance, the Random Dots Motion task can be transformed into a reaction time task by passing it through the *reaction_time* wrapper. Alternatively, the *combine* wrapper allows training an agent in two different tasks simultaneously. 
+Wrappers (see [list](https://github.com/gyyang/neurogym/blob/master/docs/wrappers.md) )
+are short scripts that allow introducing modifications the original tasks. For instance, the Random Dots Motion task can be transformed into a reaction time task by passing it through the *reaction_time* wrapper. Alternatively, the *combine* wrapper allows training an agent in two different tasks simultaneously. 
 
 ### Example
 

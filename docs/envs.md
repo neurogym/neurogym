@@ -56,6 +56,8 @@
 
 [pdWager-v0](#pdwager)
 
+---
+
 ### AngleReproduction
 
 Logic: The agent has to reproduce to two angles separated by a constant delay.
@@ -83,6 +85,10 @@ go2 : constant 500
 
 Tags: perceptual, working memory, delayed response, continuous action space, supervised setting.
 
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/anglereproduction.py)
+
+---
+
 ### AntiReach1D
 
 Logic: The agent has to move in the direction opposite to the one indicated by the observation.
@@ -100,6 +106,10 @@ reach : constant 500
 
 Tags: perceptual, continuous action space, supervised setting.
 
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/antireach.py)
+
+---
+
 ### Bandit
 
 Logic: The agent has to select between N actions with different reward probabilities.
@@ -110,13 +120,17 @@ Reference paper:
 
 Other parameters: 
 
+gt_arm : High reward arm. (def: 0)
+
 n_arms : Number of arms. (def: 2)
 
 probs : Reward probabilities for each arm. (def: (.9, .1))
 
-gt_arm : High reward arm. (def: 0)
-
 Tags: n-alternative, supervised setting.
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/bandit.py)
+
+---
 
 ### CVLearning
 
@@ -142,6 +156,10 @@ stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Tags: perceptual, delayed response, two-alternative, supervised setting.
 
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/cv_learning.py)
+
+---
+
 ### ChangingEnvironment
 
 Logic: Random Dots Motion tasks in which the correct action depends on a randomly changing context
@@ -161,13 +179,17 @@ decision : constant 500
 
 Other parameters: 
 
-cxt_cue : Whether to show context as a cue.
-
 stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 cxt_ch_prob : Probability of changing context.
 
+cxt_cue : Whether to show context as a cue.
+
 Tags: perceptual, 2-alternative, supervised setting, context dependent.
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/changingenvironment.py)
+
+---
 
 ### DawTwoStep
 
@@ -178,6 +200,10 @@ Reference paper:
 [Model-Based Influences on Humans Choices and Striatal Prediction Errors](https://www.sciencedirect.com/science/article/pii/S0896627311001255)
 
 Tags: two-alternative, supervised setting.
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/dawtwostep.py)
+
+---
 
 ### DelayPairedAssociation
 
@@ -208,6 +234,10 @@ noise : Standard deviation of the Gaussian noise added to
 
 Tags: perceptual, working memory, go/no-go, supervised setting.
 
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delaypairedassociation.py)
+
+---
+
 ### DelayedMatchCategory
 
 Logic: A sample stimulus is followed by a delay and test. Agents are required to indicate if the sample and test are in the same category.
@@ -228,6 +258,10 @@ first_delay : constant 1000
 test : constant 650
 
 Tags: perceptual, working memory, two-alternative, supervised setting.
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delaymatchcategory.py)
+
+---
 
 ### DelayedMatchToSample
 
@@ -251,6 +285,10 @@ test : constant 500
 decision : constant 900
 
 Tags: perceptual, working memory, two-alternative, supervised setting.
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delaymatchsample.py)
+
+---
 
 ### DelayedMatchToSampleDistractor1D
 
@@ -282,6 +320,10 @@ test3 : constant 500
 
 Tags: perceptual, working memory, two-alternative, supervised setting.
 
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delaymatchsample.py)
+
+---
+
 ### DR
 
 Logic: Agents have to integrate two stimuli and report which one is larger on average after a delay.
@@ -306,6 +348,10 @@ stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Tags: perceptual, delayed response, two-alternative, supervised setting.
 
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delayresponse.py)
+
+---
+
 ### Detection
 
 Logic: The agent has to GO if a stimulus is presented.
@@ -326,11 +372,15 @@ Other parameters:
 
 stim_dur : Stimulus duration. (def: 100, ms)
 
-delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
-
 noise : Standard deviation of background noise. (def: 1)
 
+delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
+
 Tags: perceptual, reaction time, go/no-go, supervised setting.
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/detection.py)
+
+---
 
 ### GoNogo
 
@@ -351,6 +401,10 @@ resp_delay : constant 500
 decision : constant 500
 
 Tags: delayed response, go/no-go, supervised setting.
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/gonogo.py)
+
+---
 
 ### IntervalDiscrimination
 
@@ -377,6 +431,10 @@ decision : constant 300
 
 Tags: timing, working memory, delayed response, two-alternative, supervised setting.
 
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/intervaldiscrimination.py)
+
+---
+
 ### Mante
 
 Logic: Agent has to perform one of two different perceptual discriminations. On every trial, a contextual cue indicates which one to perform.
@@ -398,6 +456,10 @@ decision : constant 100
 
 Tags: perceptual, context dependent, two-alternative, supervised setting.
 
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/mante.py)
+
+---
+
 ### MatchingPenny
 
 Logic: The agent is rewarded when it selects the
@@ -413,6 +475,10 @@ Other parameters:
 opponent_type : Type of opponent. (def: 'random')
 
 Tags: two-alternative, supervised setting.
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/matchingpenny.py)
+
+---
 
 ### MotorTiming
 
@@ -432,6 +498,10 @@ cue : uniform [1000, 3000]
 set : constant 50
 
 Tags: timing, go/no-go, supervised setting.
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/readysetgo.py)
+
+---
 
 ### nalt_PerceptualDecisionMaking
 
@@ -455,11 +525,15 @@ decision : constant 500
 
 Other parameters: 
 
-stimEv : Controls the difficulty of the experiment. (def: 1.)
-
 n_ch : Number of choices. (def: 3)
 
+stimEv : Controls the difficulty of the experiment. (def: 1.)
+
 Tags: perceptual, n-alternative, supervised setting.
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/nalt_perceptualdecisionmaking.py)
+
+---
 
 ### PerceptualDecisionMaking
 
@@ -486,6 +560,10 @@ stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Tags: perceptual, 2-alternative, supervised setting.
 
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/perceptualdecisionmaking.py)
+
+---
+
 ### Reaching1D
 
 Logic: The agent has to reproduce the angle indicated by the observation.
@@ -501,6 +579,10 @@ fixation : constant 500
 reach : constant 500
 
 Tags: motor, continuous action space, supervised setting.
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/reaching.py)
+
+---
 
 ### Reaching1DWithSelfDistraction
 
@@ -521,6 +603,10 @@ fixation : constant 500
 reach : constant 500
 
 Tags: motor, continuous action space, supervised setting.
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/reaching.py)
+
+---
 
 ### ReadySetGo
 
@@ -548,6 +634,10 @@ gain : Controls the measure that the agent has to produce. (def: 1)
 
 Tags: timing, go/no-go, supervised setting.
 
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/readysetgo.py)
+
+---
+
 ### Romo
 
 Logic: Two-alternative forced choice task in which
@@ -573,6 +663,10 @@ decision : constant 100
 
 Tags: perceptual, working memory, two-alternative, supervised setting.
 
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/romo.py)
+
+---
+
 ### Serrano
 
 Logic: Working memory visual spatial task  ~ Funahashi et al. 1991 adapted to freely moving mice in a continous choice-space.
@@ -594,6 +688,10 @@ decision : constant 5000
 
 Tags: perceptual, delayed response, continuous action space, multidimensional action space, supervised setting.
 
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/serrano.py)
+
+---
+
 ### PadoaSch
 
 Logic: Agents choose between two stimuli (A and B; where A
@@ -613,6 +711,10 @@ offer_on : uniform [1000, 2000]
 decision : constant 750
 
 Tags: perceptual, value-based.
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/padoa_sch.py)
+
+---
 
 ### PDWager
 
@@ -639,4 +741,6 @@ pre_sure : uniform [500, 750]
 decision : constant 100
 
 Tags: perceptual, delayed response, confidence, supervised setting.
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/pd_wager.py)
 
