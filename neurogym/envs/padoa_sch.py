@@ -21,7 +21,7 @@ import neurogym as ngym
 from gym import spaces
 
 
-class PadoaSch(ngym.EpochEnv):
+class PadoaSch(ngym.PeriodEnv):
     metadata = {
         'description': '''Agents choose between two stimuli (A and B; where A
          is preferred) offered in different amounts.''',
@@ -91,11 +91,11 @@ class PadoaSch(ngym.EpochEnv):
             nL, nR = nB, nA
 
         # ---------------------------------------------------------------------
-        # Epochs
+        # Periods
         # ---------------------------------------------------------------------
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('offer_on', after='fixation')
-        self.add_epoch('decision', after='offer_on', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('offer_on', after='fixation')
+        self.add_period('decision', after='offer_on', last_period=True)
 
         # ---------------------------------------------------------------------
         # Inputs
@@ -118,11 +118,11 @@ class PadoaSch(ngym.EpochEnv):
         obs = self.obs_now
 
         reward = 0
-        if self.in_epoch('fixation') or self.in_epoch('offer_on'):
+        if self.in_period('fixation') or self.in_period('offer_on'):
             if action != self.actions['FIXATE']:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('decision'):
+        elif self.in_period('decision'):
             if action in [self.actions['CHOOSE-LEFT'],
                           self.actions['CHOOSE-RIGHT']]:
                 new_trial = True

@@ -24,7 +24,7 @@ class ReactionTime(Wrapper):
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
-        # Epochs
+        # Periods
         # ---------------------------------------------------------------------
         trial = self.env._new_trial()
         trial['durations']['decision'] = (trial['durations']['fixation'][1],

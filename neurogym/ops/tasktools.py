@@ -20,19 +20,19 @@ def to_map(*args):
 
 def get_idx(t, start_end):
     """
-    auxiliary function for defining task epochs
+    auxiliary function for defining task periods
     """
     start, end = start_end
     return list(np.where((start <= t) & (t < end))[0])
 
 
-def get_epochs_idx(dt, epochs):
+def get_periods_idx(dt, periods):
     """
-    function for defining task epochs
+    function for defining task periods
     """
-    t = np.linspace(0, epochs['tmax'], int(epochs['tmax']/dt)+1)
+    t = np.linspace(0, periods['tmax'], int(periods['tmax']/dt)+1)
 
-    return t, {k: get_idx(t, v) for k, v in epochs.items() if k != 'tmax'}
+    return t, {k: get_idx(t, v) for k, v in periods.items() if k != 'tmax'}
 
 
 def uniform(rng, dt, xmin, xmax):
@@ -44,7 +44,7 @@ def uniform(rng, dt, xmin, xmax):
 
 def trunc_exp(rng, dt, mean, xmin=0, xmax=np.inf):
     """
-    function for generating epoch durations that are multiples of the time step
+    function for generating period durations that are multiples of the time step
     """
     if xmin >= xmax:  # the > is to avoid issues when making xmin as big as dt
         return (xmax//dt)*dt
@@ -57,7 +57,7 @@ def trunc_exp(rng, dt, mean, xmin=0, xmax=np.inf):
 
 def trunc_exp_new(mean, xmin=0, xmax=np.inf):
     """
-    function for generating epoch durations that are multiples of the time step
+    function for generating period durations that are multiples of the time step
     """
     if xmin >= xmax:  # the > is to avoid issues when making xmin as big as dt
         return xmax

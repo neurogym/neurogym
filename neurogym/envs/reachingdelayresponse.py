@@ -8,7 +8,7 @@ from neurogym.meta import info
 import neurogym as ngym
 
 
-class ReachingDelayResponse(ngym.EpochEnv):
+class ReachingDelayResponse(ngym.PeriodEnv):
     metadata = {
         'description': 'Working memory visual spatial task ' +
         ' ~ Funahashi et al. 1991 adapted to freely moving mice in a ' +
@@ -57,10 +57,10 @@ class ReachingDelayResponse(ngym.EpochEnv):
         self.trial.update(kwargs)
         ground_truth_stim = self.trial['ground_truth']
 
-        # Epochs
-        self.add_epoch('stimulus', after=0)
-        self.add_epoch('delay', after='stimulus')
-        self.add_epoch('decision', after='delay', last_epoch=True)
+        # Periods
+        self.add_period('stimulus', after=0)
+        self.add_period('delay', after='stimulus')
+        self.add_period('decision', after='delay', last_period=True)
 
         stimulus = self.view_ob('stimulus')
         stimulus[:, 1] = ground_truth_stim
@@ -86,11 +86,11 @@ class ReachingDelayResponse(ngym.EpochEnv):
         reward = 0
         gt = self.gt_now # 2 dim now
 
-        if self.in_epoch('stimulus'):
+        if self.in_period('stimulus'):
             if not action[0] < 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED        
-        elif self.in_epoch('decision'):
+        elif self.in_period('decision'):
             if action[0] > 0:
                 new_trial = True
                 reward = self.R_CORRECT/((1+abs(action[1]-gt[1]))**2)

@@ -4,7 +4,7 @@ from gym.envs.registration import register
 from neurogym.version import VERSION as __version__
 from neurogym.core import BaseEnv
 from neurogym.core import TrialEnv
-from neurogym.core import EpochEnv
+from neurogym.core import PeriodEnv
 from neurogym.core import TrialWrapper
 
 

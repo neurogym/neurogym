@@ -102,12 +102,12 @@ class TrialEnv(BaseEnv):
         pass
 
 
-class EpochEnv(TrialEnv):
-    """Environment class with trial/epoch structure."""
+class PeriodEnv(TrialEnv):
+    """Environment class with trial/period structure."""
 
     def __init__(self, dt=100, timing=None, num_trials_before_reset=10000000,
                  r_tmax=0):
-        super(EpochEnv, self).__init__(
+        super(PeriodEnv, self).__init__(
             dt=dt, num_trials_before_reset=num_trials_before_reset,
             r_tmax=r_tmax)
 
@@ -123,7 +123,7 @@ class EpochEnv(TrialEnv):
             self.timing_fn[key] = tasktools.random_number_fn(dist, args)
             min_tmp, max_tmp = tasktools.minmax_number(dist, args)
             if min_tmp < self.dt:
-                warnings.warn('Warning: Minimum time for epoch {:s} {:f} smaller than dt {:f}'.format(
+                warnings.warn('Warning: Minimum time for period {:s} {:f} smaller than dt {:f}'.format(
                     key, min_tmp, self.dt))
 
         self.start_t = dict()
@@ -137,7 +137,7 @@ class EpochEnv(TrialEnv):
         string = ''
         for key, val in self._timing.items():
             dist, args = val
-            string += 'Epoch ' + key + '\n'
+            string += 'Period ' + key + '\n'
             string += '    ' + dist + ' ' + str(args) + '\n'
 
             min_tmp, max_tmp = tasktools.minmax_number(dist, args)
@@ -145,26 +145,26 @@ class EpochEnv(TrialEnv):
             total_max += max_tmp  # XXX: is there a fn that provides total_max?
 
         string += 'Time step {:0.2f}ms\n'.format(self.dt)
-        string += 'Estimate time per trial assuming sequential epoch\n'
+        string += 'Estimate time per trial assuming sequential period\n'
         string += 'Min/Max: {:0.2f}/{:0.2f}\n'.format(total_min, total_max)
         return string
 
-    def add_epoch(self, epoch, duration=None, before=None, after=None,
-                  last_epoch=False):
-        """Add an epoch.
+    def add_period(self, period, duration=None, before=None, after=None,
+                  last_period=False):
+        """Add an period.
 
         Args:
-            epoch: string, name of the epoch
-            duration: float or None, duration of the epoch
+            period: string, name of the period
+            duration: float or None, duration of the period
                 if None, inferred from timing_fn
-            before: (optional) string, name of epoch that this epoch is before
-            after: (optional) string, name of epoch that this epoch is after
-                or float, time of epoch start
-            last_epoch: bool, default False. If True, then this is last epoch
+            before: (optional) string, name of period that this period is before
+            after: (optional) string, name of period that this period is after
+                or float, time of period start
+            last_period: bool, default False. If True, then this is last period
                 will generate self.tmax, self.tind, and self.obs
         """
         if duration is None:
-            duration = (self.timing_fn[epoch]() // self.dt) * self.dt
+            duration = (self.timing_fn[period]() // self.dt) * self.dt
 
         if after is not None:
             if isinstance(after, str):
@@ -176,12 +176,12 @@ class EpochEnv(TrialEnv):
         else:
             raise ValueError('''before or start can not be both None''')
 
-        self.start_t[epoch] = start
-        self.end_t[epoch] = start + duration
-        self.start_ind[epoch] = int(start/self.dt)
-        self.end_ind[epoch] = int((start + duration)/self.dt)
+        self.start_t[period] = start
+        self.end_t[period] = start + duration
+        self.start_ind[period] = int(start/self.dt)
+        self.end_ind[period] = int((start + duration)/self.dt)
 
-        if last_epoch:
+        if last_period:
             self._init_trial(start + duration)
 
     def _init_trial(self, tmax):
@@ -191,20 +191,20 @@ class EpochEnv(TrialEnv):
         self.obs = np.zeros([tmax_ind] + list(self.observation_space.shape))
         self.gt = np.zeros([tmax_ind] + list(self.action_space.shape))
 
-    def add_input(self, input, loc=None, epoch=None):
+    def add_input(self, input, loc=None, period=None):
         """Add an input to current observation."""
-        if isinstance(epoch, str):
-            self._add_input(input, loc, epoch)
+        if isinstance(period, str):
+            self._add_input(input, loc, period)
         else:
-            for e in epoch:
+            for e in period:
                 self._add_input(input, loc, e)
 
-    def _add_input(self, input, loc=None, epoch=None):
+    def _add_input(self, input, loc=None, period=None):
         """Add an input to current observation."""
-        if epoch is None:
+        if period is None:
             ob = self.obs
         else:
-            ob = self.view_ob(epoch)
+            ob = self.view_ob(period)
 
         if loc is None:
             try:
@@ -217,42 +217,42 @@ class EpochEnv(TrialEnv):
             except TypeError:
                 ob[:, loc] += input
 
-    def set_ob(self, epoch, value):
-        """Set observation in epoch to value.
+    def set_ob(self, period, value):
+        """Set observation in period to value.
 
         Args:
-            epoch: string, must be name of an added epoch
+            period: string, must be name of an added period
             value: np array (ob_space.shape, ...)
         """
-        self.obs[self.start_ind[epoch]:self.end_ind[epoch]] = value
+        self.obs[self.start_ind[period]:self.end_ind[period]] = value
 
-    def view_ob(self, epoch):
-        """View observation of an epoch."""
-        return self.obs[self.start_ind[epoch]:self.end_ind[epoch]]
+    def view_ob(self, period):
+        """View observation of an period."""
+        return self.obs[self.start_ind[period]:self.end_ind[period]]
 
-    def add_ob(self, epoch, value):
+    def add_ob(self, period, value):
         """Add value to observation.
 
         Args:
-            epoch: string, must be name of an added epoch
+            period: string, must be name of an added period
             value: np array (ob_space.shape, ...)
         """
-        ob = self.view_ob(epoch)
+        ob = self.view_ob(period)
         ob += value  # in-place
 
-    def set_groundtruth(self, epoch, value):
+    def set_groundtruth(self, period, value):
         """Set groundtruth value."""
-        self.gt[self.start_ind[epoch]: self.end_ind[epoch]] = value
+        self.gt[self.start_ind[period]: self.end_ind[period]] = value
 
-    def view_groundtruth(self, epoch):
-        """View observation of an epoch."""
-        return self.gt[self.start_ind[epoch]:self.end_ind[epoch]]
+    def view_groundtruth(self, period):
+        """View observation of an period."""
+        return self.gt[self.start_ind[period]:self.end_ind[period]]
 
-    def in_epoch(self, epoch, t=None):
-        """Check if current time or time t is in epoch"""
+    def in_period(self, period, t=None):
+        """Check if current time or time t is in period"""
         if t is None:
             t = self.t  # Default
-        return self.start_t[epoch] <= t < self.end_t[epoch]
+        return self.start_t[period] <= t < self.end_t[period]
 
     @property
     def obs_now(self):

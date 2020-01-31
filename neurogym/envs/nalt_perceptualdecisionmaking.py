@@ -24,7 +24,7 @@ import neurogym as ngym
 from neurogym.meta import info
 
 
-class nalt_PerceptualDecisionMaking(ngym.EpochEnv):
+class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
     metadata = {
         'description': '''N-alternative forced choice task in which the subject
          has to integrate N stimuli to decide which one is higher
@@ -79,11 +79,11 @@ class nalt_PerceptualDecisionMaking(ngym.EpochEnv):
         }
         self.trial.update(kwargs)
         # ---------------------------------------------------------------------
-        # Epochs
+        # Periods
         # ---------------------------------------------------------------------
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('stimulus', after='fixation')
-        self.add_epoch('decision', after='stimulus', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('stimulus', after='fixation')
+        self.add_period('decision', after='stimulus', last_period=True)
 
         self.set_ob('fixation', [1] + [0]*self.n)
         ob = self.view_ob('stimulus')
@@ -115,11 +115,11 @@ class nalt_PerceptualDecisionMaking(ngym.EpochEnv):
         gt = self.gt_now
 
         reward = 0
-        if self.in_epoch('fixation'):
+        if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('decision'):
+        elif self.in_period('decision'):
             if action != 0:
                 new_trial = True
                 if action == gt:

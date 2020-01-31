@@ -9,7 +9,7 @@ import neurogym as ngym
 from neurogym.meta import info
 
 
-class PerceptualDecisionMaking(ngym.EpochEnv):
+class PerceptualDecisionMaking(ngym.PeriodEnv):
     metadata = {
         'description': '''Random dot motion task. Two-alternative forced
          choice task in which the subject has to integrate two stimuli to
@@ -67,11 +67,11 @@ class PerceptualDecisionMaking(ngym.EpochEnv):
         coh = self.trial['coh']
         ground_truth = self.trial['ground_truth']
         # ---------------------------------------------------------------------
-        # Epochs
+        # Periods
         # ---------------------------------------------------------------------
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('stimulus', after='fixation')
-        self.add_epoch('decision', after='stimulus', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('stimulus', after='fixation')
+        self.add_period('decision', after='stimulus', last_period=True)
         # ---------------------------------------------------------------------
         # Observations
         # ---------------------------------------------------------------------
@@ -106,11 +106,11 @@ class PerceptualDecisionMaking(ngym.EpochEnv):
         reward = 0
         gt = self.gt_now
         # observations
-        if self.in_epoch('fixation'):
+        if self.in_period('fixation'):
             if action != 0:  # action = 0 means fixating
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('decision'):
+        elif self.in_period('decision'):
             if action != 0:
                 new_trial = True
                 if action == gt:
@@ -122,7 +122,7 @@ class PerceptualDecisionMaking(ngym.EpochEnv):
 
 
 #  TODO: there should be a timeout of 1000ms for incorrect trials
-class PerceptualDecisionMakingDelayResponse(ngym.EpochEnv):
+class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
     metadata = {
         'description': 'Agents have to integrate two stimuli and report' +
         ' which one is larger on average after a delay.',
@@ -186,12 +186,12 @@ class PerceptualDecisionMakingDelayResponse(ngym.EpochEnv):
         self.trial.update(kwargs)
 
         # ---------------------------------------------------------------------
-        # Epochs
+        # Periods
         # ---------------------------------------------------------------------
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('stimulus', after='fixation')
-        self.add_epoch('delay', after='stimulus')
-        self.add_epoch('decision', after='delay', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('stimulus', after='fixation')
+        self.add_period('delay', after='stimulus')
+        self.add_period('decision', after='delay', last_period=True)
 
         # define observations
         self.set_ob('fixation', [1, 0, 0])
@@ -226,11 +226,11 @@ class PerceptualDecisionMakingDelayResponse(ngym.EpochEnv):
         gt = self.gt_now
 
         first_trial = np.nan
-        if self.in_epoch('fixation') or self.in_epoch('delay'):
+        if self.in_period('fixation') or self.in_period('delay'):
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('decision'):
+        elif self.in_period('decision'):
             if action == gt:
                 reward = self.R_CORRECT
                 new_trial = True

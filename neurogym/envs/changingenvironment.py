@@ -12,7 +12,7 @@ import neurogym as ngym
 from neurogym.meta import info
 
 
-class ChangingEnvironment(ngym.EpochEnv):
+class ChangingEnvironment(ngym.PeriodEnv):
     metadata = {
         'description': 'Random Dots Motion tasks in which the correct action' +
         ' depends on a randomly changing context',
@@ -89,11 +89,11 @@ class ChangingEnvironment(ngym.EpochEnv):
         ground_truth = self.trial['ground_truth']
 
         # ---------------------------------------------------------------------
-        # Epochs
+        # Periods
         # ---------------------------------------------------------------------
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('stimulus', after='fixation')
-        self.add_epoch('decision', after='stimulus', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('stimulus', after='fixation')
+        self.add_period('decision', after='stimulus', last_period=True)
         # ---------------------------------------------------------------------
         # Observations
         # ---------------------------------------------------------------------
@@ -146,11 +146,11 @@ class ChangingEnvironment(ngym.EpochEnv):
         gt = self.gt_now
         obs = self.obs_now
         # Example structure
-        if self.in_epoch('fixation'):  # during fixation period
+        if self.in_period('fixation'):  # during fixation period
             if action != 0:  # if fixation break
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('decision'):  # during decision period
+        elif self.in_period('decision'):  # during decision period
             if action != 0:
                 new_trial = True
                 if action == gt:  # if correct

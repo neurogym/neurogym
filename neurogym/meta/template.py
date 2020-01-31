@@ -11,7 +11,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class YourTask(ngym.EpochEnv):  # TIP: if task has epochs (alt.: ngym.TrialEnv)
+class YourTask(ngym.PeriodEnv):  # TIP: if task has periods (alt.: ngym.TrialEnv)
     metadata = {
         'description': '',
         'paper_link': '',
@@ -63,11 +63,11 @@ class YourTask(ngym.EpochEnv):  # TIP: if task has epochs (alt.: ngym.TrialEnv)
         self.trial.update(kwargs)  # allows wrappers to modify the trial
         ground_truth = self.trial['ground_truth']
         # ---------------------------------------------------------------------
-        # Epochs
+        # Periods
         # ---------------------------------------------------------------------
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('stimulus', after='fixation')
-        self.add_epoch('decision', after='stimulus', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('stimulus', after='fixation')
+        self.add_period('decision', after='stimulus', last_period=True)
         # ---------------------------------------------------------------------
         # Observations
         # ---------------------------------------------------------------------
@@ -101,11 +101,11 @@ class YourTask(ngym.EpochEnv):  # TIP: if task has epochs (alt.: ngym.TrialEnv)
         reward = 0
         gt = self.gt_now
         # Example structure
-        if self.in_epoch('fixation'):  # during fixation period
+        if self.in_period('fixation'):  # during fixation period
             if action != 0:  # if fixation break
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('decision'):  # during decision period
+        elif self.in_period('decision'):  # during decision period
             if action != 0:
                 new_trial = True
                 if action == gt:  # if correct

@@ -22,7 +22,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class PDWager(ngym.EpochEnv):
+class PDWager(ngym.PeriodEnv):
     metadata = {
         'description': '''Agents do a discrimination task (see PerceptualDecisionMaking). On a
          random half of the trials, the agent is given the option to abort
@@ -85,16 +85,16 @@ class PDWager(ngym.EpochEnv):
         }
         self.trial.update(kwargs)
         # ---------------------------------------------------------------------
-        # Epochs
+        # Periods
         # ---------------------------------------------------------------------
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('stimulus', after='fixation')
-        self.add_epoch('delay', after='stimulus')
-        self.add_epoch('decision', after='delay', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('stimulus', after='fixation')
+        self.add_period('delay', after='stimulus')
+        self.add_period('decision', after='delay', last_period=True)
 
         if self.trial['wager']:
-            self.add_epoch('pre_sure', after='stimulus')
-            self.add_epoch('sure', duration=10000, after='pre_sure')
+            self.add_period('pre_sure', after='stimulus')
+            self.add_period('sure', duration=10000, after='pre_sure')
 
     def _step(self, action):
         # ---------------------------------------------------------------------
@@ -108,12 +108,12 @@ class PDWager(ngym.EpochEnv):
         reward = 0
         # observations
         obs = np.zeros((4,))
-        if self.in_epoch('fixation'):
+        if self.in_period('fixation'):
             obs[0] = 1
             if self.actions[action] != 0:
                 info['new_trial'] = self.abort
                 reward = self.R_ABORTED
-        elif self.in_epoch('decision'):
+        elif self.in_period('decision'):
             if self.actions[action] == 2:
                 if trial['wager']:
                     reward = self.R_SURE
@@ -128,16 +128,16 @@ class PDWager(ngym.EpochEnv):
                     reward = self.R_FAIL
             info['new_trial'] = self.actions[action] != 0
 
-        if self.in_epoch('delay'):
+        if self.in_period('delay'):
             obs[0] = 1
-        elif self.in_epoch('stimulus'):
+        elif self.in_period('stimulus'):
             high = (trial['ground_truth'] > 0) + 1
             low = (trial['ground_truth'] < 0) + 1
             obs[high] = self.scale(+trial['coh']) +\
                 self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
             obs[low] = self.scale(-trial['coh']) +\
                 self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
-        if trial['wager'] and self.in_epoch('sure'):
+        if trial['wager'] and self.in_period('sure'):
             obs[3] = 1
 
         return obs, reward, False, info

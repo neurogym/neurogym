@@ -40,7 +40,7 @@ class TrialHistory(ngym.TrialWrapper):
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
-        # Epochs
+        # Periods
         # ---------------------------------------------------------------------
         # change rep. prob. every self.block_dur trials
         if self.blk_ch_prob is None:

@@ -8,7 +8,7 @@ from neurogym.meta import info
 from neurogym.ops import tasktools
 
 
-class AntiReach1D(ngym.EpochEnv):
+class AntiReach1D(ngym.PeriodEnv):
     metadata = {
         'description': 'The agent has to move in the direction opposite ' +
         'to the one indicated by the observation.',
@@ -42,10 +42,10 @@ class AntiReach1D(ngym.EpochEnv):
         }
         self.trial.update(kwargs)
         # ---------------------------------------------------------------------
-        # Epochs
+        # Periods
         # ---------------------------------------------------------------------
-        self.add_epoch('fixation', after=0)
-        self.add_epoch('reach', after='fixation', last_epoch=True)
+        self.add_period('fixation', after=0)
+        self.add_period('reach', after='fixation', last_period=True)
 
         ob = self.view_ob('fixation')
         ob[:, 32 + self.trial['context']] += 1
@@ -68,7 +68,7 @@ class AntiReach1D(ngym.EpochEnv):
         self.state = np.mod(self.state, 2*np.pi)
 
         gt = self.gt_now
-        if self.in_epoch('fixation'):
+        if self.in_period('fixation'):
             reward = 0
         else:
             reward =\
