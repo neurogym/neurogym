@@ -29,8 +29,15 @@ def write_doc(write_type):
         try:
             # string += '___\n\n'
             string += info_fn(name)
+
+            if write_type == 'tasks':
+                env = gym.make(name)
+                link = type(env).__name__
+            else:
+                link = name
+
             names += '[{:s}](#{:s})\n\n'.format(
-                name, name.lower().replace(' ', '-'))
+                name, link.lower().replace(' ', '-'))
             source_link = all_items[name].split(':')[0].replace('.', '/')
             string += '[Source]({:s})\n\n'.format(
                 SOURCE_ROOT + source_link + '.py')

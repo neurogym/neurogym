@@ -4,57 +4,57 @@
 
 * 26 tasks implemented so far.
 
-[AngleReproduction-v0](#anglereproduction-v0)
+[AngleReproduction-v0](#anglereproduction)
 
-[AntiReach-v0](#antireach-v0)
+[AntiReach-v0](#antireach1d)
 
-[Bandit-v0](#bandit-v0)
+[Bandit-v0](#bandit)
 
-[CVLearning-v0](#cvlearning-v0)
+[CVLearning-v0](#cvlearning)
 
-[ChangingEnvironment-v0](#changingenvironment-v0)
+[ChangingEnvironment-v0](#changingenvironment)
 
-[DawTwoStep-v0](#dawtwostep-v0)
+[DawTwoStep-v0](#dawtwostep)
 
-[DelayPairedAssociation-v0](#delaypairedassociation-v0)
+[DelayPairedAssociation-v0](#delaypairedassociation)
 
-[DelayedMatchCategory-v0](#delayedmatchcategory-v0)
+[DelayedMatchCategory-v0](#delayedmatchcategory)
 
-[DelayedMatchSample-v0](#delayedmatchsample-v0)
+[DelayedMatchSample-v0](#delayedmatchtosample)
 
-[DelayedMatchToSampleDistractor1D-v0](#delayedmatchtosampledistractor1d-v0)
+[DelayedMatchToSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
 
-[DelayedResponse-v0](#delayedresponse-v0)
+[DelayedResponse-v0](#dr)
 
-[Detection-v0](#detection-v0)
+[Detection-v0](#detection)
 
-[GoNogo-v0](#gonogo-v0)
+[GoNogo-v0](#gonogo)
 
-[IntervalDiscrimination-v0](#intervaldiscrimination-v0)
+[IntervalDiscrimination-v0](#intervaldiscrimination)
 
-[Mante-v0](#mante-v0)
+[Mante-v0](#mante)
 
-[MatchingPenny-v0](#matchingpenny-v0)
+[MatchingPenny-v0](#matchingpenny)
 
-[MotorTiming-v0](#motortiming-v0)
+[MotorTiming-v0](#motortiming)
 
-[NAltPerceptualDecisionMaking-v0](#naltperceptualdecisionmaking-v0)
+[NAltPerceptualDecisionMaking-v0](#nalt_perceptualdecisionmaking)
 
-[PerceptualDecisionMaking-v0](#perceptualdecisionmaking-v0)
+[PerceptualDecisionMaking-v0](#perceptualdecisionmaking)
 
-[Reaching1D-v0](#reaching1d-v0)
+[Reaching1D-v0](#reaching1d)
 
-[Reaching1DWithSelfDistraction-v0](#reaching1dwithselfdistraction-v0)
+[Reaching1DWithSelfDistraction-v0](#reaching1dwithselfdistraction)
 
-[ReadySetGo-v0](#readysetgo-v0)
+[ReadySetGo-v0](#readysetgo)
 
-[Romo-v0](#romo-v0)
+[Romo-v0](#romo)
 
-[Serrano-v0](#serrano-v0)
+[Serrano-v0](#serrano)
 
-[padoaSch-v0](#padoasch-v0)
+[padoaSch-v0](#padoasch)
 
-[pdWager-v0](#pdwager-v0)
+[pdWager-v0](#pdwager)
 
 ### AngleReproduction
 
@@ -114,9 +114,9 @@ Reference paper:
 
 Other parameters: 
 
-n_arms : Number of arms. (def: 2)
-
 probs : Reward probabilities for each arm. (def: (.9, .1))
+
+n_arms : Number of arms. (def: 2)
 
 gt_arm : High reward arm. (def: 0)
 
@@ -169,11 +169,11 @@ decision : constant 500
 
 Other parameters: 
 
-cxt_cue : Whether to show context as a cue.
+cxt_ch_prob : Probability of changing context.
 
 stimEv : Controls the difficulty of the experiment. (def: 1.)
 
-cxt_ch_prob : Probability of changing context.
+cxt_cue : Whether to show context as a cue.
 
 Tags: perceptual, 2-alternative, supervised, context dependent.
 
@@ -348,9 +348,9 @@ Other parameters:
 
 stim_dur : Stimulus duration. (def: 100, ms)
 
-noise : Standard deviation of background noise. (def: 1)
-
 delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
+
+noise : Standard deviation of background noise. (def: 1)
 
 Tags: perceptual, reaction time, go/no-go, supervised.
 
@@ -489,9 +489,9 @@ decision : constant 500
 
 Other parameters: 
 
-n_ch : Number of choices. (def: 3)
-
 stimEv : Controls the difficulty of the experiment. (def: 1.)
+
+n_ch : Number of choices. (def: 3)
 
 Tags: perceptual, n-alternative, supervised.
 
