@@ -2,7 +2,7 @@
 
 ### List of tasks implemented
 
-* 26 tasks implemented so far.
+* 24 tasks implemented so far.
 
 [AngleReproduction-v0](#anglereproduction)
 
@@ -23,8 +23,6 @@
 [DelayedMatchSample-v0](#delayedmatchtosample)
 
 [DelayedMatchToSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
-
-[DelayedResponse-v0](#dr)
 
 [Detection-v0](#detection)
 
@@ -49,8 +47,6 @@
 [ReadySetGo-v0](#readysetgo)
 
 [Romo-v0](#romo)
-
-[Serrano-v0](#serrano)
 
 [padoaSch-v0](#padoasch)
 
@@ -120,11 +116,11 @@ Reference paper:
 
 Other parameters: 
 
-probs : Reward probabilities for each arm. (def: (.9, .1))
-
 n_arms : Number of arms. (def: 2)
 
 gt_arm : High reward arm. (def: 0)
+
+probs : Reward probabilities for each arm. (def: (.9, .1))
 
 Tags: n-alternative, supervised.
 
@@ -181,9 +177,9 @@ Other parameters:
 
 cxt_ch_prob : Probability of changing context.
 
-stimEv : Controls the difficulty of the experiment. (def: 1.)
-
 cxt_cue : Whether to show context as a cue.
+
+stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Tags: perceptual, 2-alternative, supervised, context dependent.
 
@@ -324,32 +320,6 @@ Tags: perceptual, working memory, two-alternative, supervised.
 
 ___
 
-### DR
-
-Logic: Agents have to integrate two stimuli and report which one is larger on average after a delay.
-
-Reference paper: 
-
-[Discrete attractor dynamics underlies persistent activity in the frontal cortex](https://www.nature.com/articles/s41586-019-0919-7)
-
-Default Epoch timing (ms) 
-
-fixation : constant 0
-
-stimulus : constant 1150
-
-delay : choice [300, 500, 700, 900, 1200, 2000, 3200, 4000]
-
-decision : constant 1500
-
-Other parameters: 
-
-stimEv : Controls the difficulty of the experiment. (def: 1.)
-
-Tags: perceptual, delayed response, two-alternative, supervised.
-
-[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delayresponse.py)
-
 ___
 
 ### Detection
@@ -370,9 +340,9 @@ stimulus : truncated_exponential [1000, 500, 1500]
 
 Other parameters: 
 
-noise : Standard deviation of background noise. (def: 1)
-
 stim_dur : Stimulus duration. (def: 100, ms)
+
+noise : Standard deviation of background noise. (def: 1)
 
 delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
 
@@ -525,9 +495,9 @@ decision : constant 500
 
 Other parameters: 
 
-stimEv : Controls the difficulty of the experiment. (def: 1.)
-
 n_ch : Number of choices. (def: 3)
+
+stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 Tags: perceptual, n-alternative, supervised.
 
@@ -666,29 +636,6 @@ Tags: perceptual, working memory, two-alternative, supervised.
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/romo.py)
 
 ___
-
-### Serrano
-
-Logic: Working memory visual spatial task  ~ Funahashi et al. 1991 adapted to freely moving mice in a continous choice-space.
-Brief description: while fixating, stimulus is presented in a touchscreen (bright circle). Afterwards (perhaps including an extra delay), doors open allowing the mouse to touch the screen where the stimulus was located.
-
-Reference paper: 
-
-Missing paper name
-
-Missing paper link
-
-Default Epoch timing (ms) 
-
-stimulus : constant 500
-
-delay : choice [0, 1000, 2000]
-
-decision : constant 5000
-
-Tags: perceptual, delayed response, continuous action space, multidimensional action space, supervised.
-
-[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/serrano.py)
 
 ___
 

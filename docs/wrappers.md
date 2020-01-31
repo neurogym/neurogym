@@ -34,12 +34,12 @@ Logic: Introduces catch trials in which the reward for
 
 Input parameters: 
 
-start : Number of trials after which the catch trials can occur.
-        (def: 0)
-
 stim_th : Percentile of stimulus distribution below which catch
         trials are allowed (in some cases, experimenter might decide not
         to have catch trials when  stimulus is very obvious). (def: 50)
+
+start : Number of trials after which the catch trials can occur.
+        (def: 0)
 
 catch_prob : Catch trial probability. (def: 0.1)
 
@@ -65,14 +65,14 @@ Logic: Saves relevant behavioral information: rewards, actions, observations, ne
 
 Input parameters: 
 
-folder : Folder where the data will be saved. (def: None)
-
 num_tr_save : Data will be saved every num_tr_save trials.
         (def: 100000)
 
+info_keywords : (tuple) extra information to log, from the information return of environment.step
+
 verbose : Whether to print information about average reward and number of trials
 
-info_keywords : (tuple) extra information to log, from the information return of environment.step
+folder : Folder where the data will be saved. (def: None)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/wrappers/monitor.py)
 
@@ -144,11 +144,11 @@ Reference paper:
 
 Input parameters: 
 
-rep_prob : Specifies probabilities of repeating for each block.
-        (def: (.2, .8))
-
 blk_ch_prob : If not None, specifies the probability of changing
         block (randomly). (def: None)
+
+rep_prob : Specifies probabilities of repeating for each block.
+        (def: (.2, .8))
 
 block_dur : Number of trials per block. (def: 200 (int))
 
