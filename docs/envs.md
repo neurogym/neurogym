@@ -82,7 +82,7 @@ go1 : constant 500
 
 go2 : constant 500
 
-Tags: [perceptual](perceptual), [working memory](working-memory), [delayed response](delayed-response), [steps action space](steps-action-space)
+Tags: [perceptual](#perceptual), [working memory](#working-memory), [delayed response](#delayed-response), [steps action space](#steps-action-space)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/anglereproduction.py)
 
@@ -102,7 +102,7 @@ fixation : constant 500
 
 reach : constant 500
 
-Tags: [perceptual](perceptual), [steps action space](steps-action-space)
+Tags: [perceptual](#perceptual), [steps action space](#steps-action-space)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/antireach.py)
 
@@ -118,13 +118,13 @@ Reference paper:
 
 Other parameters: 
 
+probs : Reward probabilities for each arm. (def: (.9, .1))
+
 n_arms : Number of arms. (def: 2)
 
 gt_arm : High reward arm. (def: 0)
 
-probs : Reward probabilities for each arm. (def: (.9, .1))
-
-Tags: [n-alternative](n-alternative), [supervised](supervised)
+Tags: [n-alternative](#n-alternative), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/bandit.py)
 
@@ -152,7 +152,7 @@ Other parameters:
 
 stimEv : Controls the difficulty of the experiment. (def: 1.)
 
-Tags: [perceptual](perceptual), [delayed response](delayed-response), [two-alternative](two-alternative), [supervised](supervised)
+Tags: [perceptual](#perceptual), [delayed response](#delayed-response), [two-alternative](#two-alternative), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/cv_learning.py)
 
@@ -182,7 +182,7 @@ stimEv : Controls the difficulty of the experiment. (def: 1.)
 
 cxt_cue : Whether to show context as a cue.
 
-Tags: [perceptual](perceptual), [2-alternative](2-alternative), [supervised](supervised), [context dependent](context-dependent)
+Tags: [perceptual](#perceptual), [2-alternative](#2-alternative), [supervised](#supervised), [context dependent](#context-dependent)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/changingenvironment.py)
 
@@ -196,7 +196,7 @@ Reference paper:
 
 [Model-Based Influences on Humans Choices and Striatal Prediction Errors](https://www.sciencedirect.com/science/article/pii/S0896627311001255)
 
-Tags: [two-alternative](two-alternative)
+Tags: [two-alternative](#two-alternative)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/dawtwostep.py)
 
@@ -228,7 +228,7 @@ Other parameters:
 
 noise : Standard deviation of the Gaussian noise added to the stimulus. (def: 0.01)
 
-Tags: [perceptual](perceptual), [working memory](working-memory), [go/no-go](go/no-go), [supervised](supervised)
+Tags: [perceptual](#perceptual), [working memory](#working-memory), [go/no-go](#go/no-go), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delaypairedassociation.py)
 
@@ -252,7 +252,7 @@ first_delay : constant 1000
 
 test : constant 650
 
-Tags: [perceptual](perceptual), [working memory](working-memory), [two-alternative](two-alternative), [supervised](supervised)
+Tags: [perceptual](#perceptual), [working memory](#working-memory), [two-alternative](#two-alternative), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delaymatchcategory.py)
 
@@ -278,7 +278,7 @@ test : constant 500
 
 decision : constant 900
 
-Tags: [perceptual](perceptual), [working memory](working-memory), [two-alternative](two-alternative), [supervised](supervised)
+Tags: [perceptual](#perceptual), [working memory](#working-memory), [two-alternative](#two-alternative), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delaymatchsample.py)
 
@@ -310,7 +310,7 @@ delay3 : constant 1000
 
 test3 : constant 500
 
-Tags: [perceptual](perceptual), [working memory](working-memory), [two-alternative](two-alternative), [supervised](supervised)
+Tags: [perceptual](#perceptual), [working memory](#working-memory), [two-alternative](#two-alternative), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delaymatchsample.py)
 
@@ -336,11 +336,11 @@ Other parameters:
 
 delay : If not None indicates the delay, from the moment of the start of the stimulus period when the actual stimulus is presented. Otherwise, the delay is drawn from a uniform distribution. (def: None)
 
-stim_dur : Stimulus duration. (def: 100, ms)
-
 noise : Standard deviation of background noise. (def: 1)
 
-Tags: [perceptual](perceptual), [reaction time](reaction-time), [go/no-go](go/no-go), [supervised](supervised)
+stim_dur : Stimulus duration. (def: 100, ms)
+
+Tags: [perceptual](#perceptual), [reaction time](#reaction-time), [go/no-go](#go/no-go), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/detection.py)
 
@@ -364,7 +364,7 @@ resp_delay : constant 500
 
 decision : constant 500
 
-Tags: [delayed response](delayed-response), [go/no-go](go/no-go), [supervised](supervised)
+Tags: [delayed response](#delayed-response), [go/no-go](#go/no-go), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/gonogo.py)
 
@@ -392,7 +392,7 @@ delay2 : constant 500
 
 decision : constant 300
 
-Tags: [timing](timing), [working memory](working-memory), [delayed response](delayed-response), [two-alternative](two-alternative), [supervised](supervised)
+Tags: [timing](#timing), [working memory](#working-memory), [delayed response](#delayed-response), [two-alternative](#two-alternative), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/intervaldiscrimination.py)
 
@@ -416,7 +416,7 @@ delay : truncated_exponential [600, 300, 3000]
 
 decision : constant 100
 
-Tags: [perceptual](perceptual), [context dependent](context-dependent), [two-alternative](two-alternative), [supervised](supervised)
+Tags: [perceptual](#perceptual), [context dependent](#context-dependent), [two-alternative](#two-alternative), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/mante.py)
 
@@ -434,7 +434,7 @@ Other parameters:
 
 opponent_type : Type of opponent. (def: 'random')
 
-Tags: [two-alternative](two-alternative), [supervised](supervised)
+Tags: [two-alternative](#two-alternative), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/matchingpenny.py)
 
@@ -456,7 +456,7 @@ cue : uniform [1000, 3000]
 
 set : constant 50
 
-Tags: [timing](timing), [go/no-go](go/no-go), [supervised](supervised)
+Tags: [timing](#timing), [go/no-go](#go/no-go), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/readysetgo.py)
 
@@ -486,7 +486,7 @@ n_ch : Number of choices. (def: 3)
 
 stimEv : Controls the difficulty of the experiment. (def: 1.)
 
-Tags: [perceptual](perceptual), [n-alternative](n-alternative), [supervised](supervised)
+Tags: [perceptual](#perceptual), [n-alternative](#n-alternative), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/nalt_perceptualdecisionmaking.py)
 
@@ -512,7 +512,7 @@ Other parameters:
 
 stimEv : Controls the difficulty of the experiment. (def: 1.)
 
-Tags: [perceptual](perceptual), [2-alternative](2-alternative), [supervised](supervised)
+Tags: [perceptual](#perceptual), [2-alternative](#2-alternative), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/perceptualdecisionmaking.py)
 
@@ -540,7 +540,7 @@ Other parameters:
 
 stimEv : Controls the difficulty of the experiment. (def: 1.)
 
-Tags: [perceptual](perceptual), [delayed response](delayed-response), [two-alternative](two-alternative), [supervised](supervised)
+Tags: [perceptual](#perceptual), [delayed response](#delayed-response), [two-alternative](#two-alternative), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/perceptualdecisionmaking.py)
 
@@ -566,7 +566,7 @@ pre_sure : uniform [500, 750]
 
 decision : constant 100
 
-Tags: [perceptual](perceptual), [delayed response](delayed-response), [confidence](confidence), [supervised](supervised)
+Tags: [perceptual](#perceptual), [delayed response](#delayed-response), [confidence](#confidence), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/postdecisionwager.py)
 
@@ -586,7 +586,7 @@ fixation : constant 500
 
 reach : constant 500
 
-Tags: [motor](motor), [steps action space](steps-action-space)
+Tags: [motor](#motor), [steps action space](#steps-action-space)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/reaching.py)
 
@@ -608,7 +608,7 @@ fixation : constant 500
 
 reach : constant 500
 
-Tags: [motor](motor), [steps action space](steps-action-space)
+Tags: [motor](#motor), [steps action space](#steps-action-space)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/reaching.py)
 
@@ -632,7 +632,7 @@ delay : choice [0, 1000, 2000]
 
 decision : constant 5000
 
-Tags: [perceptual](perceptual), [delayed response](delayed-response), [continuous action space](continuous-action-space), [multidimensional action space](multidimensional-action-space), [supervised](supervised)
+Tags: [perceptual](#perceptual), [delayed response](#delayed-response), [continuous action space](#continuous-action-space), [multidimensional action space](#multidimensional-action-space), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/reachingdelayresponse.py)
 
@@ -660,7 +660,7 @@ Other parameters:
 
 gain : Controls the measure that the agent has to produce. (def: 1)
 
-Tags: [timing](timing), [go/no-go](go/no-go), [supervised](supervised)
+Tags: [timing](#timing), [go/no-go](#go/no-go), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/readysetgo.py)
 
@@ -686,7 +686,7 @@ f2 : constant 500
 
 decision : constant 100
 
-Tags: [perceptual](perceptual), [working memory](working-memory), [two-alternative](two-alternative), [supervised](supervised)
+Tags: [perceptual](#perceptual), [working memory](#working-memory), [two-alternative](#two-alternative), [supervised](#supervised)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/romo.py)
 
@@ -708,7 +708,7 @@ offer_on : uniform [1000, 2000]
 
 decision : constant 750
 
-Tags: [perceptual](perceptual), [value-based](value-based)
+Tags: [perceptual](#perceptual), [value-based](#value-based)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/padoa_sch.py)
 

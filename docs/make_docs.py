@@ -53,7 +53,7 @@ def write_doc(write_type):
                 info_string += 'Tags: '
                 for tag in env.metadata.get('tags', []):
                     tag_link = tag.lower().replace(' ', '-')
-                    tag_with_link = '[{:s}]({:s})'.format(tag, tag_link)
+                    tag_with_link = '[{:s}](#{:s})'.format(tag, tag_link)
                     info_string += tag_with_link + ', '
                 info_string = info_string[:-2] + '\n\n'
             string += info_string
