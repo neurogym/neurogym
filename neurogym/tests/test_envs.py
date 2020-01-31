@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 
 import gym
 import neurogym as ngym
-from neurogym import all_tasks
 from neurogym.meta.info import plot_struct
 
 
@@ -78,7 +77,7 @@ def test_speed(env_name):
 
 def test_speed_all():
     """Test speed of all experiments."""
-    for env_name in sorted(all_tasks.keys()):
+    for env_name in sorted(ngym.all_tasks().keys()):
         try:
             test_speed(env_name)
             print('Success')
@@ -89,7 +88,7 @@ def test_speed_all():
 
 def test_print_all():
     """Test printing of all experiments."""
-    for env_name in sorted(all_tasks.keys()):
+    for env_name in sorted(ngym.all_tasks().keys()):
         print('')
         print('Test printing env: {:s}'.format(env_name))
         try:
@@ -105,7 +104,7 @@ def test_run_all(verbose_success=False):
     """Test if all environments can at least be run."""
     success_count = 0
     total_count = 0
-    for env_name in sorted(all_tasks.keys()):
+    for env_name in sorted(ngym.all_tasks().keys()):
         if env_name in ['Combine-v0']:
             continue
         total_count += 1
@@ -129,7 +128,7 @@ def test_trialenv_all():
     success_count = 0
     total_count = 0
     hastrial_count = 0
-    for env_name in sorted(all_tasks.keys()):
+    for env_name in sorted(ngym.all_tasks().keys()):
         if env_name in ['Combine-v0']:
             continue
         env = gym.make(env_name)

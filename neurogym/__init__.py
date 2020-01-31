@@ -9,7 +9,7 @@ from neurogym.core import TrialWrapper
 
 
 ALL_TASKS = {'Mante-v0': 'neurogym.envs.mante:Mante',
-             'Romo-v0': 'neurogym.envs.romo:Romo',
+             'DelayedComparison-v0': 'neurogym.envs.delayedcomparison:DelayedComparison',
              'PerceptualDecisionMaking-v0':
                  'neurogym.envs.perceptualdecisionmaking:PerceptualDecisionMaking',
              'padoaSch-v0': 'neurogym.envs.padoa_sch:PadoaSch',

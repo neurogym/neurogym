@@ -18,7 +18,7 @@ import neurogym as ngym
 from neurogym.meta import info
 
 
-class Romo(ngym.PeriodEnv):
+class DelayedComparison(ngym.PeriodEnv):
     metadata = {
         'description': """Two-alternative forced choice task in which
          the subject has to compare two stimuli separated by a delay
@@ -128,5 +128,5 @@ class Romo(ngym.PeriodEnv):
 
 
 if __name__ == '__main__':
-    env = Romo()
+    env = DelayedComparison()
     info.plot_struct(env, num_steps_env=50000)
