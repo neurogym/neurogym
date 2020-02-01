@@ -9,7 +9,8 @@ def test_dataset(env):
     """Main function for testing if an environment is healthy."""
     print('Testing Environment:', env)
     kwargs = {'dt': 20}
-    dataset = Dataset(env, env_kwargs=kwargs, batch_size=16, single_trial=True)
+    dataset = Dataset(env, env_kwargs=kwargs, batch_size=16, seq_len=300,
+                      cache_len=1e4)
     for i in range(10):
         inputs, target = dataset()
         assert inputs.shape[0] == target.shape[0]
