@@ -4,7 +4,7 @@ import numpy as np
 from gym import spaces
 
 import neurogym as ngym
-from neurogym.meta import info
+
 from neurogym.utils import tasktools
 
 
@@ -149,4 +149,4 @@ if __name__ == '__main__':
     # env = Reaching1D()
     env = Reaching1DWithSelfDistraction()
     test_run(env)
-    info.plot_env(env)
+    ngym.utils.plot_env(env)

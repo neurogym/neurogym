@@ -9,7 +9,7 @@ Created on Thu Jan 30 13:47:15 2020
 import numpy as np
 from gym import spaces
 import neurogym as ngym
-from neurogym.meta import info
+
 
 
 class ChangingEnvironment(ngym.PeriodEnv):
@@ -164,4 +164,4 @@ class ChangingEnvironment(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = ChangingEnvironment(cxt_ch_prob=0.05, stimEv=100, cxt_cue=False)
-    info.plot_env(env)
+    ngym.utils.plot_env(env)

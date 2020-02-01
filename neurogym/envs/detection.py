@@ -9,7 +9,7 @@ Created on Mon Jan 27 11:00:26 2020
 import numpy as np
 from gym import spaces
 import neurogym as ngym
-from neurogym.meta import info
+
 
 
 class Detection(ngym.PeriodEnv):
@@ -137,5 +137,5 @@ class Detection(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = Detection(noise=0, timing={'stimulus': ('constant', 200)})
-    info.plot_env(env, num_steps_env=50,
+    ngym.utils.plot_env(env, num_steps_env=50,
                            num_steps_plt=50, legend=False)  # ,def_act=1)

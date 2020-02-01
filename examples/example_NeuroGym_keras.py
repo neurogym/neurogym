@@ -12,7 +12,7 @@ from tensorflow.keras.layers import Dense, LSTM, TimeDistributed, Input
 import matplotlib.pyplot as plt
 import gym
 import neurogym  # need to import it so ngym envs are registered
-from neurogym.meta import info
+
 
 
 def test_env(env, kwargs, num_steps=100):

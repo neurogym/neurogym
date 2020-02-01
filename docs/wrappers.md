@@ -38,15 +38,15 @@ Input parameters:
 
 
 
+start : Number of trials after which the catch trials can occur. (def: 0)
+
+
+
 catch_prob : Catch trial probability. (def: 0.1)
 
 
 
 stim_th : Percentile of stimulus distribution below which catch trials are allowed (in some cases, experimenter might decide not to have catch trials when  stimulus is very obvious). (def: 50)
-
-
-
-start : Number of trials after which the catch trials can occur. (def: 0)
 
 
 
@@ -74,7 +74,7 @@ Input parameters:
 
 
 
-defaults : Default actions for each task. (def: [0, 0])
+distractor : Distractor task. (no default value)
 
 
 
@@ -82,7 +82,7 @@ mix : Probabilities for the different trial types (only main, only distractor, b
 
 
 
-delay : Time when the distractor task appears. (def: 800 (ms))
+share_action_space : Whether the two task share the same action space. (def: True)
 
 
 
@@ -90,11 +90,11 @@ trial_cue : Whether to show the type of trial as a cue
 
 
 
-distractor : Distractor task. (no default value)
+defaults : Default actions for each task. (def: [0, 0])
 
 
 
-share_action_space : Whether the two task share the same action space. (def: True)
+delay : Time when the distractor task appears. (def: 800 (ms))
 
 
 
@@ -138,7 +138,7 @@ num_stps_sv_fig : Number of trial steps to include in the figure. (def: 100)
 
 
 
-verbose : Whether to print information about average reward and number of trials
+sv_fig : Whether to save a figure of the experiment structure. If True, a figure will be updated every num_tr_save. (def: False)
 
 
 
@@ -148,11 +148,11 @@ num_tr_save : Data will be saved every num_tr_save trials.
 
 
 
+verbose : Whether to print information about average reward and number of trials
+
+
+
 folder : Folder where the data will be saved. (def: None)
-
-
-
-sv_fig : Whether to save a figure of the experiment structure. If True, a figure will be updated every num_tr_save. (def: False)
 
 
 
@@ -228,11 +228,11 @@ Input parameters:
 
 
 
-block_dur : Number of trials per block. (def: 200 (int))
-
-
-
 prob : Specifies probabilities for each choice. Within each block, the probability should sum up to 1. (def: None (Numpy array (n_block, n_choices)))
+
+
+
+block_dur : Number of trials per block. (def: 200 (int))
 
 
 

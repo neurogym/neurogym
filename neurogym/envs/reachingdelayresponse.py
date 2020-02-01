@@ -4,7 +4,7 @@
 from __future__ import division
 import numpy as np
 from gym import spaces
-from neurogym.meta import info
+
 import neurogym as ngym
 
 
@@ -98,4 +98,4 @@ class ReachingDelayResponse(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = ReachingDelayResponse()
-    info.plot_env(env, num_steps_env=20, num_steps_plt=20)
+    ngym.utils.plot_env(env, num_steps_env=20, num_steps_plt=20)

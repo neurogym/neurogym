@@ -10,7 +10,7 @@ import numpy as np
 from gym import spaces
 
 import neurogym as ngym
-from neurogym.meta import info
+
 
 
 class DelayPairedAssociation(ngym.PeriodEnv):
@@ -136,4 +136,4 @@ class DelayPairedAssociation(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = DelayPairedAssociation()
-    info.plot_env(env, num_steps_env=1000, num_steps_plt=1000)
+    ngym.utils.plot_env(env, num_steps_env=1000, num_steps_plt=1000)

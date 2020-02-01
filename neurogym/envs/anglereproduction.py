@@ -4,7 +4,6 @@ import numpy as np
 from gym import spaces
 
 import neurogym as ngym
-from neurogym.meta import info
 
 
 class AngleReproduction(ngym.PeriodEnv):
@@ -91,4 +90,4 @@ if __name__ == '__main__':
     from neurogym.tests import test_run
     env = AngleReproduction()
     test_run(env)
-    info.plot_env(env)
+    ngym.utils.plot_env(env)

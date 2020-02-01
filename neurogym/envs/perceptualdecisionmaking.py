@@ -6,7 +6,7 @@ import numpy as np
 from gym import spaces
 
 import neurogym as ngym
-from neurogym.meta import info
+
 
 
 class PerceptualDecisionMaking(ngym.PeriodEnv):
@@ -252,4 +252,4 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = PerceptualDecisionMaking()
-    info.plot_env(env, num_steps_env=50000)
+    ngym.utils.plot_env(env, num_steps_env=50000)

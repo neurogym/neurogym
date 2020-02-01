@@ -4,7 +4,7 @@ from collections import defaultdict
 
 import gym
 import neurogym as ngym
-from neurogym.meta.info import info, info_wrapper
+from neurogym.utils.info import info, info_wrapper
 
 
 SOURCE_ROOT = 'https://github.com/gyyang/neurogym/blob/master/'
