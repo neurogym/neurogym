@@ -94,10 +94,16 @@ def fig_(obs, actions, gt, rewards, num_steps_plt, perf, legend=True,
     plt.plot(np.arange(num_steps_plt) + 0.,
              actions[:num_steps_plt], marker='+', label='actions')
     gt = np.array(gt)
-    for ind_gt in range(gt.shape[1]):
+    if len(gt.shape) > 1:
+        for ind_gt in range(gt.shape[1]):
+            plt.plot(np.arange(num_steps_plt) + 0.,
+                     gt[:num_steps_plt, ind_gt], '--'+gt_colors[ind_gt],
+                     label='ground truth '+str(ind_gt))
+    else:
         plt.plot(np.arange(num_steps_plt) + 0.,
-                 gt[:num_steps_plt, ind_gt], '--'+gt_colors[ind_gt],
-                 label='ground truth '+str(ind_gt))
+                 gt[:num_steps_plt], '--'+gt_colors[0],
+                 label='ground truth')
+
     plt.ylabel('actions')
     if legend:
         plt.legend()
