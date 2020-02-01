@@ -24,8 +24,11 @@ class Combine():
         'mix': 'Probabilities for the different trial types' +
         ' (only main, only distractor, both). (def: (.5, .0, .5))',
         'share_action_space': 'Whether the two task share the same action' +
-        ' space. (def: True)',
-        'defaults': 'Default actions for each task. (def: [0, 0])',
+        ' space. Not sharing allows to control (via reward)  what the agent' +
+        ' does for each task at each timestep (def: True)',
+        'defaults': 'Default actions for each task. This is used to decide' +
+        ' which gt/reward to use in the sharing-action-space scenario.' +
+        ' (def: [0, 0])',
         'trial_cue': 'Whether to show the type of trial as a cue'
     }
 
@@ -143,27 +146,21 @@ class Combine():
         if self.share_action_space:
             if info1['gt'] == info2['gt']:
                 info['gt'] = info1['gt']  # task 1 is the default task
+                reward = reward1 + reward2
             elif (info1['gt'] != self.defaults[0] and
                   info2['gt'] == self.defaults[1]):
                 info['gt'] = info1['gt']
+                reward = reward1
             elif (info1['gt'] == self.defaults[0] and
                   info2['gt'] != self.defaults[1]):
                 info['gt'] = info2['gt']
+                reward = reward2
         else:
             ind = [(x[0], x[1]) == ([info1['gt']], [info2['gt']])
                    for x in self.action_split]
             info['gt'] = np.where(ind)[0]
             assert len(info['gt']) == 1, info['gt']
-
-        # reward
-        if info1['gt'] == info2['gt']:
             reward = reward1 + reward2
-        elif (info1['gt'] != self.defaults[0] and
-              info2['gt'] == self.defaults[1]):
-            reward = reward1
-        elif (info1['gt'] == self.defaults[0] and
-              info2['gt'] != self.defaults[1]):
-            reward = reward2
 
         return obs, reward, done, info
 
