@@ -120,9 +120,9 @@ Reference paper:
 
 Other parameters: 
 
-n_arms : Number of arms. (def: 2)
-
 gt_arm : High reward arm. (def: 0)
+
+n_arms : Number of arms. (def: 2)
 
 probs : Reward probabilities for each arm. (def: (.9, .1))
 
@@ -178,9 +178,9 @@ decision : constant 500
 
 Other parameters: 
 
-cxt_cue : Whether to show context as a cue.
-
 cxt_ch_prob : Probability of changing context.
+
+cxt_cue : Whether to show context as a cue.
 
 stimEv : Controls the difficulty of the experiment. (def: 1.)
 
@@ -532,9 +532,9 @@ decision : constant 500
 
 Other parameters: 
 
-n_ch : Number of choices. (def: 3)
-
 stimEv : Controls the difficulty of the experiment. (def: 1.)
+
+n_ch : Number of choices. (def: 3)
 
 Tags: [perceptual](#perceptual), [n-alternative](#n-alternative), [supervised](#supervised)
 

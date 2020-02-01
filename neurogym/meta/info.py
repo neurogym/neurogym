@@ -6,10 +6,11 @@ import gym
 from neurogym.core import env_string, METADATA_DEF_KEYS
 from neurogym.envs import all_envs, ALL_ENVS
 from neurogym.wrappers import ALL_WRAPPERS
-from neurogym.utils.plotting import plot_env
 
 
-def info(env=None, show_code=False, show_fig=False, num_steps_plt=200):
+# TODO: Move this file to somewhere else
+
+def info(env=None, show_code=False):
     """Script to get envs info"""
     string = ''
     try:
@@ -17,11 +18,6 @@ def info(env=None, show_code=False, show_fig=False, num_steps_plt=200):
         env = gym.make(env)
         string = env_string(env)
 
-        # plot basic structure
-        if show_fig:
-            print('#### Example trials ####')
-            plot_env(env, num_steps_plt=num_steps_plt,
-                        num_steps_env=num_steps_plt)
         # show source code
         if show_code:
             string += '''\n#### Source code #### \n\n'''
@@ -45,8 +41,7 @@ def info_wrapper(wrapper=None, show_code=False):
     string = ''
     try:
         wrapp_ref = ALL_WRAPPERS[wrapper]
-        from_ = wrapp_ref[:wrapp_ref.find(':')]
-        class_ = wrapp_ref[wrapp_ref.find(':')+1:]
+        from_, class_ = wrapp_ref.split(':')
         imported = getattr(__import__(from_, fromlist=[class_]), class_)
         metadata = imported.metadata
         string += "### {:s}\n\n".format(wrapper)
@@ -106,6 +101,6 @@ def get_all_tags(verbose=0):
 if __name__ == '__main__':
     # get_all_tags(verbose=1)
     # info(tags=['supervised', 'n-alternative'])
-    info('PerceptualDecisionMaking-v0', show_code=True, show_fig=False)
+    info('PerceptualDecisionMaking-v0', show_code=True)
     # info('PerceptualDecisionMaking-v0', show_code=True, show_fig=True)
 #    info_wrapper('ReactionTime-v0', show_code=True)
