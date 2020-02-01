@@ -20,11 +20,11 @@ class CatchTrials(Wrapper):
         'paper_link': None,
         'paper_name': None,
         'catch_prob': 'Catch trial probability. (def: 0.1)',
-        'stim_th': '''Percentile of stimulus distribution below which catch
-        trials are allowed (in some cases, experimenter might decide not
-        to have catch trials when  stimulus is very obvious). (def: 50)''',
-        'start': '''Number of trials after which the catch trials can occur.
-        (def: 0)'''
+        'stim_th': 'Percentile of stimulus distribution below which catch' +
+        ' trials are allowed (in some cases, experimenter might decide not' +
+        ' to have catch trials when  stimulus is very obvious). (def: 50)',
+        'start': 'Number of trials after which the catch trials can occur.' +
+        ' (def: 0)'
     }
 
     def __init__(self, env, catch_prob=0.1, stim_th=50, start=0):

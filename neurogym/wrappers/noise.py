@@ -11,7 +11,7 @@ import numpy as np
 
 class Noise(Wrapper):
     metadata = {
-        'description': '''Add Gaussian noise to the observations.''',
+        'description': 'Add Gaussian noise to the observations.',
         'paper_link': None,
         'paper_name': None,
         'std_noise': 'Standard deviation of noise. (def: 0.1)',

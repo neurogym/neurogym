@@ -82,7 +82,8 @@ def write_doc(write_type):
             print('Failure in ', name)
             print(e)
 
-    full_string = '### List of {:d} {:s} implemented\n\n'.format(counter, write_type)
+    full_string = '### List of {:d} {:s} implemented\n\n'.format(counter,
+                                                                 write_type)
     full_string += names
 
     if write_type == 'tasks':

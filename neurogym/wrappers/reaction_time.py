@@ -11,8 +11,8 @@ from gym.core import Wrapper
 
 class ReactionTime(Wrapper):
     metadata = {
-        'description': '''Modifies a given environment by allowing the network
-        to act at any time after the fixation period.''',
+        'description': 'Modifies a given environment by allowing the network' +
+        ' to act at any time after the fixation period.',
         'paper_link': None,
         'paper_name': None,
     }

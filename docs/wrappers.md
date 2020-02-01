@@ -40,17 +40,11 @@ catch_prob : Catch trial probability. (def: 0.1)
 
 
 
-stim_th : Percentile of stimulus distribution below which catch
-
-        trials are allowed (in some cases, experimenter might decide not
-
-        to have catch trials when  stimulus is very obvious). (def: 50)
+stim_th : Percentile of stimulus distribution below which catch trials are allowed (in some cases, experimenter might decide not to have catch trials when  stimulus is very obvious). (def: 50)
 
 
 
-start : Number of trials after which the catch trials can occur.
-
-        (def: 0)
+start : Number of trials after which the catch trials can occur. (def: 0)
 
 
 
@@ -140,9 +134,7 @@ ___
 
 
 
-Logic: Modifies observation by adding the previous
-
-         action.
+Logic: Modifies observation by adding the previous action.
 
 
 
@@ -154,9 +146,7 @@ ___
 
 
 
-Logic: Modifies observation by adding the previous
-
-        reward.
+Logic: Modifies observation by adding the previous reward.
 
 
 
@@ -168,9 +158,7 @@ ___
 
 
 
-Logic: Modifies a given environment by allowing the network
-
-        to act at any time after the fixation period.
+Logic: Modifies a given environment by allowing the network to act at any time after the fixation period.
 
 
 
@@ -190,11 +178,7 @@ Input parameters:
 
 
 
-prob : Specifies probabilities for each choice. Within each block,
-
-        the probability should sum up to 1.
-
-        (def: None (Numpy array (n_block, n_choices)))
+prob : Specifies probabilities for each choice. Within each block, the probability should sum up to 1. (def: None (Numpy array (n_block, n_choices)))
 
 
 
