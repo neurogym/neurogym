@@ -38,7 +38,7 @@ Input parameters:
 
 
 
-start : Number of trials after which the catch trials can occur. (def: 0)
+stim_th : Percentile of stimulus distribution below which catch trials are allowed (in some cases, experimenter might decide not to have catch trials when  stimulus is very obvious). (def: 50)
 
 
 
@@ -46,7 +46,7 @@ catch_prob : Catch trial probability. (def: 0.1)
 
 
 
-stim_th : Percentile of stimulus distribution below which catch trials are allowed (in some cases, experimenter might decide not to have catch trials when  stimulus is very obvious). (def: 50)
+start : Number of trials after which the catch trials can occur. (def: 0)
 
 
 
@@ -74,15 +74,7 @@ Input parameters:
 
 
 
-distractor : Distractor task. (no default value)
-
-
-
-mix : Probabilities for the different trial types (only main, only distractor, both). (def: (.5, .0, .5))
-
-
-
-share_action_space : Whether the two task share the same action space. (def: True)
+defaults : Default actions for each task. This is used to decide which gt/reward to use in the sharing-action-space scenario. (def: [0, 0])
 
 
 
@@ -90,11 +82,19 @@ trial_cue : Whether to show the type of trial as a cue
 
 
 
-defaults : Default actions for each task. (def: [0, 0])
+share_action_space : Whether the two task share the same action space. Not sharing allows to control (via reward)  what the agent does for each task at each timestep (def: True)
 
 
 
 delay : Time when the distractor task appears. (def: 800 (ms))
+
+
+
+mix : Probabilities for the different trial types (only main, only distractor, both). (def: (.5, .0, .5))
+
+
+
+distractor : Distractor task. (no default value)
 
 
 
@@ -142,17 +142,17 @@ sv_fig : Whether to save a figure of the experiment structure. If True, a figure
 
 
 
-num_tr_save : Data will be saved every num_tr_save trials.
-
-        (def: 100000)
-
-
-
 verbose : Whether to print information about average reward and number of trials
 
 
 
 folder : Folder where the data will be saved. (def: None)
+
+
+
+num_tr_save : Data will be saved every num_tr_save trials.
+
+        (def: 100000)
 
 
 
@@ -280,15 +280,15 @@ Input parameters:
 
 
 
-rep_prob : Specifies probabilities of repeating for each block. (def: (.2, .8))
-
-
-
 block_dur : Number of trials per block. (def: 200 (int))
 
 
 
 blk_ch_prob : If not None, specifies the probability of changing block (randomly). (def: None)
+
+
+
+rep_prob : Specifies probabilities of repeating for each block. (def: (.2, .8))
 
 
 

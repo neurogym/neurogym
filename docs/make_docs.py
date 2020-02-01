@@ -22,13 +22,10 @@ def write_doc(write_type):
         info_fn = info
         fname = 'envs.md'
 
-        tag_dict = defaultdict(list)
         for name in ngym.all_envs():
             env = gym.make(name)
             tag_list = env.metadata.get('tags', [])
             all_tags += tag_list
-            for tag in tag_list:
-                tag_dict[tag].append(name)
         all_tags = set(all_tags)
         all_items_dict = ngym.envs.ALL_ENVS
 
@@ -101,7 +98,7 @@ def write_doc(write_type):
         string_tag = '___\n\n### Tags ### \n\n'
         for tag in sorted(all_tags):
             string_tag += '### {:s} \n\n'.format(tag)
-            for name in tag_dict[tag]:
+            for name in ngym.all_envs(tag=tag):
                 string_tag += add_link(name, link_dict[name])
                 string_tag += '\n\n'
         full_string += string_tag

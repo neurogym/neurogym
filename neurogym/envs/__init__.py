@@ -48,8 +48,22 @@ ALL_ENVS = {'ContextDecisionMaking-v0': 'neurogym.envs.contextdecisionmaking:Con
              }
 
 
-def all_envs():
-    return sorted(list(ALL_ENVS.keys()))
+def all_envs(tag=None):
+    env_list = sorted(list(ALL_ENVS.keys()))
+    if tag is None:
+        return env_list
+    else:
+        if not isinstance(tag, str):
+            raise ValueError('tag must be str, but got ', type(tag))
+
+        new_env_list = list()
+        for env in env_list:
+            from_, class_ = ALL_ENVS[env].split(':')
+            imported = getattr(__import__(from_, fromlist=[class_]), class_)
+            env_tag = imported.metadata.get('tags', [])
+            if tag in env_tag:
+                new_env_list.append(env)
+        return new_env_list
 
 
 _all_gym_envs = [env.id for env in gym.envs.registry.all()]
