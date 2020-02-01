@@ -9,7 +9,6 @@ from gym import spaces
 import numpy as np
 import itertools
 import gym
-from neurogym.meta import info
 # XXX: implemented without relying on core.trTrialWrapper
 
 
@@ -175,6 +174,7 @@ class Combine():
 
 
 if __name__ == '__main__':
+    import neurogym as ngym
     #    task = 'DelayPairedAssociation-v0'
     #    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
     #                                    'stim1': ('constant', 100),
@@ -199,4 +199,4 @@ if __name__ == '__main__':
     env = Combine(env, distractor, delay=300, mix=(.3, .3, .4),
                   share_action_space=True, defaults=[0, 0],
                   trial_cue=True)
-    info.plot_env(env, num_steps_env=100, num_steps_plt=100)
+    ngym.utils.plot_env(env, num_steps_env=100, num_steps_plt=100)

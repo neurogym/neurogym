@@ -1,14 +1,14 @@
-#    from neurogym.wrappers.catch_trials import CatchTrials
-#    from neurogym.wrappers.monitor import Monitor
-#    from neurogym.wrappers.noise import Noise
-#    from neurogym.wrappers.pass_reward import PassReward
-#    from neurogym.wrappers.miss_trials_reward import MissTrialReward
-#    from neurogym.wrappers.pass_action import PassAction
-#    from neurogym.wrappers.reaction_time import ReactionTime
-#    from neurogym.wrappers.side_bias import SideBias
-#    from neurogym.wrappers.trial_hist import TrialHistory
-#    from neurogym.wrappers.ttl_pulse import TTLPulse
-#    from neurogym.wrappers.combine import Combine
+from neurogym.wrappers.catch_trials import CatchTrials
+from neurogym.wrappers.monitor import Monitor
+from neurogym.wrappers.noise import Noise
+from neurogym.wrappers.pass_reward import PassReward
+from neurogym.wrappers.miss_trials_reward import MissTrialReward
+from neurogym.wrappers.pass_action import PassAction
+from neurogym.wrappers.reaction_time import ReactionTime
+from neurogym.wrappers.side_bias import SideBias
+from neurogym.wrappers.trial_hist import TrialHistory
+from neurogym.wrappers.ttl_pulse import TTLPulse
+from neurogym.wrappers.combine import Combine
 
 
 ALL_WRAPPERS = {'CatchTrials-v0': 'neurogym.wrappers.catch_trials:CatchTrials',
