@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """Formatting information about envs and wrappers."""
 
+import inspect
+
 import gym
 from neurogym.core import env_string, METADATA_DEF_KEYS
 from neurogym.envs import all_envs, ALL_ENVS
@@ -17,16 +19,12 @@ def info(env=None, show_code=False):
         env_name = env
         env = gym.make(env)
         string = env_string(env)
-
         # show source code
         if show_code:
             string += '''\n#### Source code #### \n\n'''
-            import inspect
             env_ref = ALL_ENVS[env_name]
-            from_ = env_ref[:env_ref.find(':')]
-            class_ = env_ref[env_ref.find(':')+1:]
-            imported = getattr(__import__(from_, fromlist=[class_]),
-                               class_)
+            from_, class_ = env_ref.split(':')
+            imported = getattr(__import__(from_, fromlist=[class_]), class_)
             lines = inspect.getsource(imported)
             string += lines + '\n\n'
         print(string)
@@ -68,7 +66,6 @@ def info_wrapper(wrapper=None, show_code=False):
         # show source code
         if show_code:
             string += '''\n#### Source code #### \n\n'''
-            import inspect
             lines = inspect.getsource(imported)
             string += lines + '\n\n'
     except BaseException as e:
@@ -78,7 +75,7 @@ def info_wrapper(wrapper=None, show_code=False):
     return string
 
 
-def get_all_tags(verbose=0):
+def all_tags(verbose=0):
     """Script to get all tags"""
     envs = all_envs()
     tags = []
