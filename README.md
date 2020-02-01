@@ -5,6 +5,13 @@
 NeuroGym is a curated collection of neuroscience tasks with a common interface.
 The goal is to facilitate training of neural network models on neuroscience tasks. 
 
+- [Installation](#Installation)
+- [Tasks](#Tasks)
+- [Wrappers](#Wrappers)
+- [Examples](#Examples)
+- [Contributing](#Contributing)
+- [Authors](#Authors)
+
 NeuroGym inherits from the machine learning toolkit [Gym](https://github.com/openai/gym) by OpenAI, 
 and thus allows a wide range of well established machine learning algorithms to be easily trained on behavioral paradigms relevant for the neuroscience community. 
 NeuroGym also incorporates several properties and functions (e.g. continuous-time and trial-based tasks) that are important for neuroscience applications.
@@ -20,14 +27,14 @@ You can perform a minimal install of ``neurogym`` with:
     cd neurogym
     pip install -e .
 
-### Implemented tasks
+### Tasks
 Currently implemented tasks can be found [here](https://github.com/gyyang/neurogym/blob/master/docs/envs.md).
 
 ### Wrappers
 Wrappers (see [list](https://github.com/gyyang/neurogym/blob/master/docs/wrappers.md))
 are short scripts that allow introducing modifications the original tasks. For instance, the Random Dots Motion task can be transformed into a reaction time task by passing it through the *reaction_time* wrapper. Alternatively, the *combine* wrapper allows training an agent in two different tasks simultaneously. 
 
-### Example
+### Examples
 
 NeuroGym is compatible with most packages that use OpenAI gym. 
 In this [example](https://github.com/gyyang/neurogym/blob/master/examples/example_neurogym_rl.ipynb) jupyter notebook we show how to train
@@ -35,7 +42,7 @@ a neural network with reinforcement learning algorithms using the
 [Stable Baselines](https://github.com/hill-a/stable-baselines) toolbox.
 
 
-### Contributing new tasks
+### Contributing
 Contributing new tasks should be easy. You can contribute tasks using the regular OpenAI gym format. If your task has a trial/period structure,
 this [template](https://github.com/gyyang/neurogym/blob/master/docs/template.py) provides the basic structure that we recommend a task to have:
 
@@ -77,8 +84,13 @@ class YourTask(ngym.PeriodEnv):
 
 
 
-### Contact
-* [Manuel Molano](https://github.com/manuelmolano) (manuelmolanomazon@gmail.com).
-* [Guangyu Robert Yang](https://github.com/gyyang) (gyyang.neuro@gmail.com).
+### Authors
+* Contact
 
+    [Manuel Molano](https://github.com/manuelmolano) (manuelmolanomazon@gmail.com).
+    [Guangyu Robert Yang](https://github.com/gyyang) (gyyang.neuro@gmail.com).
 
+* Contributors
+
+    [Marta Fradera](https://github.com/martafradera),
+    [Jordi Pastor](https://github.com/pastorjordi)
