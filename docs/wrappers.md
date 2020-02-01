@@ -28,15 +28,7 @@ ___
 
 
 
-Logic: Introduces catch trials in which the reward for
-
-         a correct choice is modified (e.g. is set to the reward for an
-
-         incorrect choice). Note that the wrapper only changes the reward
-
-         associated to a correct answer and does not change the ground truth.
-
-         Thus, the catch trial affect a pure supervised learning setting.
+Logic: Introduces catch trials in which the reward for a correct choice is modified (e.g. is set to the reward for an incorrect choice). Note that the wrapper only changes the reward associated to a correct answer and does not change the ground truth. Thus, the catch trial affect a pure supervised learning setting.
 
 
 
