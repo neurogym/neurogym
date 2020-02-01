@@ -80,7 +80,7 @@ def fig_(obs, actions, gt, rewards, num_steps_plt, perf, legend=True,
         rows = 4
     else:
         rows = 3
-
+    gt_colors = 'rgkmc'
     f = plt.figure(figsize=(8, 8))
     # obs
     plt.subplot(rows, 1, 1)
@@ -94,10 +94,10 @@ def fig_(obs, actions, gt, rewards, num_steps_plt, perf, legend=True,
     plt.plot(np.arange(num_steps_plt) + 0.,
              actions[:num_steps_plt], marker='+', label='actions')
     gt = np.array(gt)
-    if len(gt.shape) == 2:
-        gt = np.argmax(gt, axis=1)
-    plt.plot(np.arange(num_steps_plt) + 0.,
-             gt[:num_steps_plt], 'r', label='ground truth')
+    for ind_gt in range(gt.shape[1]):
+        plt.plot(np.arange(num_steps_plt) + 0.,
+                 gt[:num_steps_plt, ind_gt], gt_colors[ind_gt],
+                 label='ground truth '+str(ind_gt))
     plt.ylabel('actions')
     if legend:
         plt.legend()
