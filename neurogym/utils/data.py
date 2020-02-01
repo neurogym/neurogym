@@ -92,12 +92,10 @@ class Dataset(object):
 
 
 if __name__ == '__main__':
-    import neurogym
-    dataset = Dataset('PerceptualDecisionMaking-v0', env_kwargs={'dt': 20},
-                      batch_size=32)
-    for i in range(10):
+    import neurogym as ngym
+    dataset = ngym.Dataset(
+        'PerceptualDecisionMaking-v0', env_kwargs={'dt': 20}, batch_size=32)
+    for i in range(100):
         inputs, target = dataset()
-        if i > 10:
-            break
 
 

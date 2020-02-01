@@ -5,3 +5,4 @@ from neurogym.core import PeriodEnv
 from neurogym.core import TrialWrapper
 from neurogym.envs import all_envs
 from neurogym.wrappers import all_wrappers
+from neurogym.utils.data import Dataset
