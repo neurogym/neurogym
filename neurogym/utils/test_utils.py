@@ -5,41 +5,29 @@ import neurogym as ngym
 from neurogym.utils.data import Dataset
 
 
-def _test_dataset(env):
-    dataset = Dataset(env)
-    for i in range(10):
-        data = dataset()
-
-
-def test_dataset(env, verbose=False):
+def test_dataset(env):
     """Main function for testing if an environment is healthy."""
-    if isinstance(env, str):
-        print('Testing Environment:', env)
-        kwargs = {'dt': 20}
-        env = gym.make(env, **kwargs)
-    else:
-        if not isinstance(env, gym.Env):
-            raise ValueError('env must be a string or a gym.Env')
-    _test_dataset(env)
-    if verbose:
-        print(env)
-    return env
+    print('Testing Environment:', env)
+    kwargs = {'dt': 20}
+    dataset = Dataset(env, env_kwargs=kwargs, batch_size=16, single_trial=True)
+    for i in range(10):
+        inputs, target = dataset()
+        assert inputs.shape[0] == target.shape[0]
 
 
-def test_dataset_all(verbose_success=False):
+def test_dataset_all():
     """Test if all environments can at least be run."""
     success_count = 0
     total_count = 0
-    supervised_count = 0
+    supervised_count = len(ngym.all_envs(tag='supervised'))
     for env_name in sorted(ngym.all_envs()):
         total_count += 1
 
         print('Running env: {:s}'.format(env_name))
         try:
-            env = test_dataset(env_name, verbose=verbose_success)
+            test_dataset(env_name)
             print('Success')
             success_count += 1
-            supervised_count += 'supervised' in env.metadata.get('tags', [])
         except BaseException as e:
             print('Failure at running env: {:s}'.format(env_name))
             print(e)

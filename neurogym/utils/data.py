@@ -1,6 +1,7 @@
 """Utilities for data."""
 
 import numpy as np
+import gym
 
 
 class Dataset(object):
@@ -17,8 +18,12 @@ class Dataset(object):
         until the total length is seq_len
     """
 
-    def __init__(self, env, batch_size=1, single_trial=True, seq_len=None):
-        self.env = env
+    def __init__(self, env_name, env_kwargs=None,
+                 batch_size=1, single_trial=True, seq_len=None):
+        if env_kwargs is None:
+            env_kwargs = {}
+        self.envs = [gym.make(env_name, **env_kwargs) for _ in range(batch_size)]
+        env = self.envs[0]
         self.batch_size = batch_size
         self.single_trial = single_trial
 
@@ -30,11 +35,8 @@ class Dataset(object):
             seq_len = 100
 
         self.seq_len = seq_len
-        self.inputs_shape = [batch_size, seq_len] + list(self.env.observation_space.shape)
-        self.target_shape = [batch_size, seq_len] + list(self.env.action_space.shape)
-
-        if batch_size > 1:
-            raise ValueError('Larger batch size not implemented yet')
+        self.inputs_shape = [batch_size, seq_len] + list(env.observation_space.shape)
+        self.target_shape = [batch_size, seq_len] + list(env.action_space.shape)
 
     def __iter__(self):
         return self
@@ -43,13 +45,16 @@ class Dataset(object):
         return self.__next__()
 
     def __next__(self):
-        self.env.new_trial()
-        obs, gt = self.env.obs, self.env.gt
-        min_seq_len = np.min((obs.shape[0], self.seq_len))
         inputs = np.zeros(self.inputs_shape)
         target = np.zeros(self.target_shape)
-        inputs[0, :min_seq_len, ...] = obs[:min_seq_len]
-        target[0, :min_seq_len, ...] = gt[:min_seq_len]
+
+        for i in range(self.batch_size):
+            env = self.envs[i]
+            env.new_trial()
+            obs, gt = env.obs, env.gt
+            min_seq_len = np.min((obs.shape[0], self.seq_len))
+            inputs[i, :min_seq_len, ...] = obs[:min_seq_len]
+            target[i, :min_seq_len, ...] = gt[:min_seq_len]
 
         return inputs, target
 
@@ -80,9 +85,7 @@ def get_dataset_for_SL(env, rollout, n_tr, n_steps, obs_size,
 
 
 if __name__ == '__main__':
-    from neurogym.envs.perceptualdecisionmaking import PerceptualDecisionMaking
-    env = PerceptualDecisionMaking()
-    dataset = Dataset(env)
+    dataset = Dataset('PerceptualDecisionMaking-v0')
     for i in range(10):
         inputs, target = dataset()
         if i > 10:
