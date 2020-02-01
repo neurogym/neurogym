@@ -18,8 +18,8 @@ class Combine():
         'description': 'Allows to combine two tasks, one of which working as' +
         ' the distractor task.',
         'paper_link': 'https://www.biorxiv.org/content/10.1101/433409v3',
-        'paper_name': '''Response outcomes gate the impact of expectations
-         on perceptual decisions''',
+        'paper_name': 'Response outcomes gate the impact of expectations ' +
+        'on perceptual decisions',
         'distractor': 'Distractor task. (no default value)',
         'delay': 'Time when the distractor task appears. (def: 800 (ms))',
         'mix': 'Probabilities for the different trial types' +
