@@ -15,8 +15,8 @@ from gym import spaces
 
 class PassReward(Wrapper):
     metadata = {
-        'description': """Modifies observation by adding the previous
-        reward.""",
+        'description': '''Modifies observation by adding the previous
+        reward.''',
         'paper_link': None,
         'paper_name': None,
     }

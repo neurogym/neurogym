@@ -12,7 +12,7 @@ import neurogym as ngym
 
 class SideBias(ngym.TrialWrapper):
     metadata = {
-        'description': """Changes the probability of ground truth.""",
+        'description': '''Changes the probability of ground truth.''',
         'paper_link': None,
         'paper_name': None,
         'prob': '''Specifies probabilities for each choice. Within each block,

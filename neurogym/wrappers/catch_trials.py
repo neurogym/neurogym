@@ -11,11 +11,11 @@ import numpy as np
 
 class CatchTrials(Wrapper):
     metadata = {
-        'description': """Introduces catch trials in which the reward for
+        'description': '''Introduces catch trials in which the reward for
          a correct choice is modified (e.g. is set to the reward for an
          incorrect choice). Note that the wrapper only changes the reward
          associated to a correct answer and does not change the ground truth.
-         Thus, the catch trial affect a pure supervised learning setting.""",
+         Thus, the catch trial affect a pure supervised learning setting.''',
         'paper_link': None,
         'paper_name': None,
         'catch_prob': 'Catch trial probability. (def: 0.1)',

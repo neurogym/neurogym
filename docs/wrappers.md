@@ -98,6 +98,14 @@ Input parameters:
 
 
 
+sv_fig : Whether to save a figure of the experiment structure. If True, a figure will be updated every num_tr_save. (def: False)
+
+
+
+num_stps_sv_fig : Number of trial steps to include in the figure. (def: 100)
+
+
+
 num_tr_save : Data will be saved every num_tr_save trials.
 
         (def: 100000)
@@ -108,15 +116,7 @@ folder : Folder where the data will be saved. (def: None)
 
 
 
-sv_fig : Whether to save a figure of the experiment structure. If True, a figure will be updated every num_tr_save. (def: False)
-
-
-
 verbose : Whether to print information about average reward and number of trials
-
-
-
-num_stps_sv_fig : Number of trial steps to include in the figure. (def: 100)
 
 
 
@@ -150,7 +150,7 @@ ___
 
 Logic: Modifies observation by adding the previous
 
-        action.
+         action.
 
 
 
@@ -198,15 +198,15 @@ Input parameters:
 
 
 
-block_dur : Number of trials per block. (def: 200 (int))
-
-
-
 prob : Specifies probabilities for each choice. Within each block,
 
         the probability should sum up to 1.
 
         (def: None (Numpy array (n_block, n_choices)))
+
+
+
+block_dur : Number of trials per block. (def: 200 (int))
 
 
 
@@ -256,10 +256,6 @@ Input parameters:
 
 
 
-block_dur : Number of trials per block. (def: 200 (int))
-
-
-
 rep_prob : Specifies probabilities of repeating for each block.
 
         (def: (.2, .8))
@@ -269,6 +265,10 @@ rep_prob : Specifies probabilities of repeating for each block.
 blk_ch_prob : If not None, specifies the probability of changing
 
         block (randomly). (def: None)
+
+
+
+block_dur : Number of trials per block. (def: 200 (int))
 
 
 
