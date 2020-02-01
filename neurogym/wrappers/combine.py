@@ -53,6 +53,8 @@ class Combine():
             act_list = np.arange(self.num_act).reshape((self.num_act, 1))
             self.action_split = np.hstack((act_list, act_list))
         else:
+            self.num_act1 = num_act1
+            self.num_act2 = num_act2
             self.num_act = self.num_act1 * self.num_act2
             self.action_space = spaces.Discrete(self.num_act)
             self.action_split =\
@@ -109,6 +111,7 @@ class Combine():
             new_trial1 = info1['new_trial']
             self.env_on = not new_trial1
             info['env_info'] = info1
+            info['env_info']['reward'] = reward1
         else:
             obs1, reward1, done1, info1 = self.standby_step(self.env)
             info['env_info'] = None
@@ -118,6 +121,7 @@ class Combine():
             new_trial2 = info2['new_trial']
             self.distractor_on = not new_trial2
             info['distractor_info'] = info2
+            info['distractor_info']['reward'] = reward2
         else:
             obs2, reward2, done2, info2 = self.standby_step(self.distractor)
             info['distractor_info'] = None
@@ -139,17 +143,28 @@ class Combine():
         if self.share_action_space:
             if info1['gt'] == info2['gt']:
                 info['gt'] = info1['gt']  # task 1 is the default task
-                reward = reward1 + reward2
             elif (info1['gt'] != self.defaults[0] and
                   info2['gt'] == self.defaults[1]):
                 info['gt'] = info1['gt']
-                reward = reward1
             elif (info1['gt'] == self.defaults[0] and
                   info2['gt'] != self.defaults[1]):
                 info['gt'] = info2['gt']
-                reward = reward2
         else:
-            info['gt'] = np.concatenate((info2['gt'], info2['gt']))
+            ind = [(x[0], x[1]) == ([info1['gt']], [info2['gt']])
+                   for x in self.action_split]
+            info['gt'] = np.where(ind)[0]
+            assert len(info['gt']) == 1, info['gt']
+
+        # reward
+        if info1['gt'] == info2['gt']:
+            reward = reward1 + reward2
+        elif (info1['gt'] != self.defaults[0] and
+              info2['gt'] == self.defaults[1]):
+            reward = reward1
+        elif (info1['gt'] == self.defaults[0] and
+              info2['gt'] != self.defaults[1]):
+            reward = reward2
+
         return obs, reward, done, info
 
     def step(self, action):
@@ -197,6 +212,6 @@ if __name__ == '__main__':
                                     'decision': ('constant', 100)}}
     distractor = gym.make(task, **KWARGS)
     env = Combine(env, distractor, delay=300, mix=(.3, .3, .4),
-                  share_action_space=True, defaults=[0, 0],
+                  share_action_space=False, defaults=[0, 0],
                   trial_cue=True)
     ngym.utils.plot_env(env, num_steps_env=100, num_steps_plt=100)
