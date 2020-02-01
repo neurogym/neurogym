@@ -2,7 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-
+import glob
 import gym
 
 
@@ -80,7 +80,7 @@ def fig_(obs, actions, gt, rewards, num_steps_plt, perf, legend=True,
         rows = 4
     else:
         rows = 3
-
+    gt_colors = 'gkmcry'
     f = plt.figure(figsize=(8, 8))
     # obs
     plt.subplot(rows, 1, 1)
@@ -94,10 +94,16 @@ def fig_(obs, actions, gt, rewards, num_steps_plt, perf, legend=True,
     plt.plot(np.arange(num_steps_plt) + 0.,
              actions[:num_steps_plt], marker='+', label='actions')
     gt = np.array(gt)
-    if len(gt.shape) == 2:
-        gt = np.argmax(gt, axis=1)
-    plt.plot(np.arange(num_steps_plt) + 0.,
-             gt[:num_steps_plt], 'r', label='ground truth')
+    if len(gt.shape) > 1:
+        for ind_gt in range(gt.shape[1]):
+            plt.plot(np.arange(num_steps_plt) + 0.,
+                     gt[:num_steps_plt, ind_gt], '--'+gt_colors[ind_gt],
+                     label='ground truth '+str(ind_gt))
+    else:
+        plt.plot(np.arange(num_steps_plt) + 0.,
+                 gt[:num_steps_plt], '--'+gt_colors[0],
+                 label='ground truth')
+
     plt.ylabel('actions')
     if legend:
         plt.legend()
@@ -122,9 +128,47 @@ def fig_(obs, actions, gt, rewards, num_steps_plt, perf, legend=True,
 
     plt.xlabel('timesteps')
     plt.tight_layout()
-    plt.show()
+    # plt.show()
     if folder != '':
         f.savefig(folder + '/env_struct.png')
         plt.close(f)
 
     return f
+
+
+def plot_rew_across_training(folder, window=500):
+    data = put_together_files(folder)
+    f = plt.figure(figsize=(8, 8))
+    reward = data['reward']
+    mean_reward = np.convolve(reward, np.ones((window,))/window, mode='valid')
+    plt.plot(mean_reward)
+    plt.xlabel('trials')
+    plt.ylabel('mean reward (running window of {:d} trials'.format(window))
+    f.savefig(folder + '/mean_reward_across_training.png')
+
+
+def put_together_files(folder):
+    files = glob.glob(folder + '/*_bhvr_data*npz')
+    files = order_by_sufix(files)
+    file_data = np.load(files[0], allow_pickle=True)
+    data = {}
+    for key in file_data.keys():
+        data[key] = file_data[key]
+
+    for ind_f in range(len(files)):
+        file_data = np.load(files[ind_f], allow_pickle=True)
+        for key in file_data.keys():
+            data[key] = np.concatenate((data[key], file_data[key]))
+    np.savez(folder + '/bhvr_data_all.npz', **data)
+    return data
+
+
+def order_by_sufix(file_list):
+    sfx = [int(x[x.rfind('_')+1:x.rfind('.')]) for x in file_list]
+    sorted_list = [x for _, x in sorted(zip(sfx, file_list))]
+    return sorted_list
+
+
+if __name__ == '__main__':
+    f = '/home/manuel/ngym_usage/results/combine_tests_no_shared_actSpace/'
+    plot_rew_across_training(folder=f)
