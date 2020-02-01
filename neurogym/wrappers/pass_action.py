@@ -15,8 +15,7 @@ from gym import spaces
 
 class PassAction(Wrapper):
     metadata = {
-        'description': """Modifies observation by adding the previous
-        action.""",
+        'description': 'Modifies observation by adding the previous action.',
         'paper_link': None,
         'paper_name': None,
     }

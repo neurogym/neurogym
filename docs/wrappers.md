@@ -28,15 +28,7 @@ ___
 
 
 
-Logic: Introduces catch trials in which the reward for
-
-         a correct choice is modified (e.g. is set to the reward for an
-
-         incorrect choice). Note that the wrapper only changes the reward
-
-         associated to a correct answer and does not change the ground truth.
-
-         Thus, the catch trial affect a pure supervised learning setting.
+Logic: Introduces catch trials in which the reward for a correct choice is modified (e.g. is set to the reward for an incorrect choice). Note that the wrapper only changes the reward associated to a correct answer and does not change the ground truth. Thus, the catch trial affect a pure supervised learning setting.
 
 
 
@@ -48,17 +40,11 @@ catch_prob : Catch trial probability. (def: 0.1)
 
 
 
-stim_th : Percentile of stimulus distribution below which catch
-
-        trials are allowed (in some cases, experimenter might decide not
-
-        to have catch trials when  stimulus is very obvious). (def: 50)
+stim_th : Percentile of stimulus distribution below which catch trials are allowed (in some cases, experimenter might decide not to have catch trials when  stimulus is very obvious). (def: 50)
 
 
 
-start : Number of trials after which the catch trials can occur.
-
-        (def: 0)
+start : Number of trials after which the catch trials can occur. (def: 0)
 
 
 
@@ -98,6 +84,14 @@ Input parameters:
 
 
 
+sv_fig : Whether to save a figure of the experiment structure. If True, a figure will be updated every num_tr_save. (def: False)
+
+
+
+num_stps_sv_fig : Number of trial steps to include in the figure. (def: 100)
+
+
+
 num_tr_save : Data will be saved every num_tr_save trials.
 
         (def: 100000)
@@ -108,15 +102,7 @@ folder : Folder where the data will be saved. (def: None)
 
 
 
-sv_fig : Whether to save a figure of the experiment structure. If True, a figure will be updated every num_tr_save. (def: False)
-
-
-
 verbose : Whether to print information about average reward and number of trials
-
-
-
-num_stps_sv_fig : Number of trial steps to include in the figure. (def: 100)
 
 
 
@@ -148,9 +134,7 @@ ___
 
 
 
-Logic: Modifies observation by adding the previous
-
-        action.
+Logic: Modifies observation by adding the previous action.
 
 
 
@@ -162,9 +146,7 @@ ___
 
 
 
-Logic: Modifies observation by adding the previous
-
-        reward.
+Logic: Modifies observation by adding the previous reward.
 
 
 
@@ -176,9 +158,7 @@ ___
 
 
 
-Logic: Modifies a given environment by allowing the network
-
-        to act at any time after the fixation period.
+Logic: Modifies a given environment by allowing the network to act at any time after the fixation period.
 
 
 
@@ -198,15 +178,11 @@ Input parameters:
 
 
 
+prob : Specifies probabilities for each choice. Within each block, the probability should sum up to 1. (def: None (Numpy array (n_block, n_choices)))
+
+
+
 block_dur : Number of trials per block. (def: 200 (int))
-
-
-
-prob : Specifies probabilities for each choice. Within each block,
-
-        the probability should sum up to 1.
-
-        (def: None (Numpy array (n_block, n_choices)))
 
 
 
@@ -256,10 +232,6 @@ Input parameters:
 
 
 
-block_dur : Number of trials per block. (def: 200 (int))
-
-
-
 rep_prob : Specifies probabilities of repeating for each block.
 
         (def: (.2, .8))
@@ -269,6 +241,10 @@ rep_prob : Specifies probabilities of repeating for each block.
 blk_ch_prob : If not None, specifies the probability of changing
 
         block (randomly). (def: None)
+
+
+
+block_dur : Number of trials per block. (def: 200 (int))
 
 
 
