@@ -1,7 +1,5 @@
 """Script to make environment md"""
 
-from collections import defaultdict
-
 import gym
 import neurogym as ngym
 from neurogym.utils.info import info, info_wrapper
