@@ -42,7 +42,7 @@ class Dataset(object):
 
         if cache_len is None:
             # Infer cache len
-            cache_len = 1e7
+            cache_len = 1e5
             cache_len /= (np.prod(observation_shape) + np.prod(action_shape))
             cache_len /= batch_size
         cache_len = int((cache_len // seq_len) * seq_len)
