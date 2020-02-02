@@ -6,10 +6,10 @@ import glob
 import gym
 
 
-def plot_env(env, num_steps_env=200, num_steps_plt=None,
+def plot_env(env, num_steps_env=200,
              def_act=None, model=None, name=None, legend=True):
-    if num_steps_plt is None:
-        num_steps_plt = num_steps_env
+    # TODO: Separate the running from plotting. Make running a separate function
+    # TODO: Can't we use Monitor here?
     if isinstance(env, str):
         env = gym.make(env)
     if name is None:
@@ -26,6 +26,7 @@ def plot_env(env, num_steps_env=200, num_steps_plt=None,
     obs_cum_temp = obs
     for stp in range(int(num_steps_env)):
         if model is not None:
+            # TODO: This is a particular kind of model. Document.
             action, _states = model.predict(obs)
             if isinstance(action, float) or isinstance(action, int):
                 action = [action]
@@ -65,7 +66,7 @@ def plot_env(env, num_steps_env=200, num_steps_plt=None,
         states = None
     obs_cum = np.array(obs_cum)
     obs = np.array(observations)
-    fig_(obs, actions, gt, rewards, num_steps_plt, perf, legend=legend,
+    fig_(obs, actions, gt, rewards, legend=legend,
          states=states, name=name)
     data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
             'actions': actions, 'perf': perf,
@@ -74,61 +75,62 @@ def plot_env(env, num_steps_env=200, num_steps_plt=None,
     return data
 
 
-def fig_(obs, actions, gt, rewards, num_steps_plt, perf, legend=True,
-         obs_cum=None, states=None, name='', folder=''):
-    if states is not None:
-        rows = 4
-    else:
-        rows = 3
+def fig_(obs, actions, gt=None, rewards=None, states=None,
+         legend=True, name='', folder=''):
+    if len(obs.shape) != 2:
+        raise ValueError('obs has to be 2-dimensional.')
+    # TODO: Add documentation
+    steps = np.arange(obs.shape[0])
+
+    n_row = 2  # observation and action
+    n_row += rewards is not None
+    n_row += states is not None
+
     gt_colors = 'gkmcry'
-    f = plt.figure(figsize=(8, 8))
+    f, axes = plt.subplots(n_row, 1, sharex=True, figsize=(5, n_row*1.5))
     # obs
-    plt.subplot(rows, 1, 1)
-    plt.imshow(obs[:num_steps_plt, :].T, aspect='auto')
-    plt.title('observations ' + name + ' env')
-    ax = plt.gca()
-    ax.set_xticks([])
+    ax = axes[0]
+    ax.imshow(obs.T, aspect='auto')
+    if name:
+        ax.set_title(name + ' env')
+    ax.set_ylabel('Observations')
     ax.set_yticks([])
+    ax.set_xlim([-0.5, len(steps)-0.5])
+
     # actions
-    plt.subplot(rows, 1, 2)
-    plt.plot(np.arange(num_steps_plt) + 0.,
-             actions[:num_steps_plt], marker='+', label='actions')
-    gt = np.array(gt)
-    if len(gt.shape) > 1:
-        for ind_gt in range(gt.shape[1]):
-            plt.plot(np.arange(num_steps_plt) + 0.,
-                     gt[:num_steps_plt, ind_gt], '--'+gt_colors[ind_gt],
-                     label='ground truth '+str(ind_gt))
-    else:
-        plt.plot(np.arange(num_steps_plt) + 0.,
-                 gt[:num_steps_plt], '--'+gt_colors[0],
-                 label='ground truth')
+    ax = axes[1]
+    ax.plot(steps, actions, marker='+', label='Actions')
 
-    plt.ylabel('actions')
+    if gt is not None:
+        if len(gt.shape) > 1:
+            for ind_gt in range(gt.shape[1]):
+                ax.plot(steps, gt[:, ind_gt], '--'+gt_colors[ind_gt],
+                         label='Ground truth '+str(ind_gt))
+        else:
+            ax.plot(steps, gt, '--'+gt_colors[0], label='Ground truth')
+
+    ax.set_ylabel('Actions')
     if legend:
-        plt.legend()
-    plt.xlim([-0.5, num_steps_plt-0.5])
-    ax = plt.gca()
-    ax.set_xticks([])
-    # rewards
-    plt.subplot(rows, 1, 3)
-    plt.plot(np.arange(num_steps_plt) + 0.,
-             rewards[:num_steps_plt], 'r')
-    plt.xlim([-0.5, num_steps_plt-0.5])
-    plt.ylabel('reward ' + ' (' + str(np.round(np.mean(perf), 2)) + ')')
-    if states is not None:
-        ax = plt.gca()
-        ax.set_xticks([])
-        plt.subplot(rows, 1, 4)
-        plt.imshow(states[:num_steps_plt, int(states.shape[1]/2):].T,
-                   aspect='auto')
-        plt.title('network activity')
-        plt.ylabel('neurons')
-        ax = plt.gca()
+        ax.legend()
 
-    plt.xlabel('timesteps')
+    if rewards is not None:
+        # rewards
+        ax = axes[2]
+        ax.plot(steps, rewards, 'r')
+        ax.set_ylabel('Reward')
+        # ax.set_ylabel('reward ' + ' (' + str(np.round(np.mean(perf), 2)) + ')')
+
+    if states is not None:
+        ax.set_xticks([])
+        ax = axes[3]
+        plt.imshow(states[:, int(states.shape[1]/2):].T,
+                   aspect='auto')
+        ax.set_title('Activity')
+        ax.set_ylabel('Neurons')
+
+    ax.set_xlabel('Steps')
     plt.tight_layout()
-    # plt.show()
+    plt.show()
     if folder != '':
         f.savefig(folder + '/env_struct.png')
         plt.close(f)

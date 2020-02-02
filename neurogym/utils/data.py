@@ -26,6 +26,7 @@ class Dataset(object):
         for env in self.envs:
             env.reset()
         env = self.envs[0]
+        self.env = env
         self.batch_size = batch_size
 
         if seq_len is None:

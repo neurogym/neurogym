@@ -252,4 +252,4 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = PerceptualDecisionMaking()
-    ngym.utils.plot_env(env, num_steps_env=50000)
+    ngym.utils.plot_env(env, num_steps_env=100)
