@@ -34,6 +34,10 @@ class Dataset(object):
 
         observation_shape = env.observation_space.shape
         action_shape = env.action_space.shape
+        if len(action_shape) == 0:
+            self._expand_action = True
+        else:
+            self._expand_action = False
 
         if cache_len is None:
             # Infer cache len
@@ -46,12 +50,10 @@ class Dataset(object):
         self.inputs_shape = [batch_size, seq_len] + list(observation_shape)
         self.target_shape = [batch_size, seq_len] + list(action_shape)
 
-        self._cache_inputs_shape = [batch_size, cache_len] + list(
-            env.observation_space.shape)
-        self._cache_target_shape = [batch_size, cache_len] + list(
-            env.action_space.shape)
-
         self._cache_len = cache_len
+        self._cache_inputs_shape = [batch_size, cache_len] + list(observation_shape)
+        self._cache_target_shape = [batch_size, cache_len] + list(action_shape)
+
         self._cache()
 
     def _cache(self):
@@ -76,6 +78,9 @@ class Dataset(object):
 
         self._seq_start = 0
 
+        if self._expand_action:
+            self._target = self._target[..., np.newaxis]
+
     def __iter__(self):
         return self
 
@@ -97,5 +102,7 @@ if __name__ == '__main__':
         'PerceptualDecisionMaking-v0', env_kwargs={'dt': 20}, batch_size=32)
     for i in range(100):
         inputs, target = dataset()
+    print(inputs.shape)
+    print(target.shape)
 
 
