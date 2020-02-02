@@ -5,17 +5,11 @@ import gym
 
 
 class Dataset(object):
-    """Make an environment into an iterable dataset.
+    """Make an environment into an iterable dataset for supervised learning.
 
-    Create an iterator that generates
+    Create an iterator that at each call returns
         inputs: numpy array (batch_size, sequence_length, input_units)
         target: numpy array (batch_size, sequence_length, output_units)
-
-    There are two modes:
-        When single_trial=True, each batch contains only a single trial,
-        seq_len is either provided by user or is the maximum across all trials
-        When single_trial=False, seq_len must be provided, and env will be run
-        until the total length is seq_len
     """
 
     def __init__(self, env_name, env_kwargs=None,
