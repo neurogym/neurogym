@@ -35,6 +35,9 @@ class DelayPairedAssociation(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, timing=None, noise=0.01):
+        """
+        
+        """
         super().__init__(dt=dt, timing=timing)
         self.choices = [0, 1]
         # trial conditions
@@ -141,4 +144,4 @@ class DelayPairedAssociation(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = DelayPairedAssociation()
-    ngym.utils.plot_env(env, num_steps_env=1000, num_steps_plt=1000)
+    ngym.utils.plot_env(env, num_steps_env=1000, def_act=0)
