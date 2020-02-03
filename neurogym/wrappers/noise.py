@@ -15,21 +15,24 @@ class Noise(Wrapper):
         'paper_link': None,
         'paper_name': None,
         'std_noise': 'Standard deviation of noise. (def: 0.1)',
-        'w': 'Window length. (def: 100)'
+        'rew_th': 'If != None, the wrapper will adjust the noise so the mean' +
+        ' reward is not larger than rew_th. (def: None)',
+        'w': 'Window used to compute the mean reward. (def: 100)',
+        'step_noise': 'Step used to increment/decrease std. (def: 0.001)',
     }
 
-    def __init__(self, env, std_noise=.1, rew_th=None, w=200, step_noise=0.001,
-                 margin=0.05):
+    def __init__(self, env, std_noise=.1, rew_th=None, w=200,
+                 step_noise=0.001):
         super().__init__(env)
         self.env = env
         self.std_noise = std_noise
         self.std_noise = self.std_noise / self.env.dt
         self.init_noise = 0
         self.step_noise = step_noise
-        self.margin = margin
         self.w = w
         self.min_w = False
         self.rew_th = rew_th
+        self.cum_rew = 0
         if self.rew_th is not None:
             self.rew_th = rew_th
             self.rewards = []
@@ -41,8 +44,10 @@ class Noise(Wrapper):
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
         info['std_noise'] = self.std_noise
+        self.cum_rew += reward
         if self.rew_th is not None and info['new_trial']:
-            self.rewards.append(reward)
+            self.rewards.append(self.cum_rew)
+            self.cum_rew = 0
             if len(self.rewards) > self.w:
                 self.rewards.pop(0)
                 self.min_w = True
@@ -51,7 +56,7 @@ class Noise(Wrapper):
             info['rew_mean'] = rew_mean
             if rew_mean > self.rew_th and self.min_w is True:
                 self.std_noise += self.step_noise
-            elif rew_mean < self.rew_th-self.margin and self.std_noise > 0:
+            elif rew_mean < self.rew_th and self.std_noise > 0:
                 self.std_noise = max(0, self.std_noise-self.step_noise)
         # add noise
         obs += np.random.normal(loc=0, scale=self.std_noise,
