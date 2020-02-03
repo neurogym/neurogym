@@ -18,52 +18,49 @@ class Noise(Wrapper):
         'w': 'Window length. (def: 100)'
     }
 
-    def __init__(self, env, std_noise=.1, rew_th=None, w=100):
+    def __init__(self, env, std_noise=.1, rew_th=None, w=10, step_noise=0.01):
         super().__init__(env)
         self.env = env
         self.std_noise = std_noise
         self.std_noise = self.std_noise / self.env.dt
-        self.init_noise = self.std_noise
-        self.rewards = []
+        self.init_noise = 0
+        self.step_noise = step_noise
         self.w = w
         self.min_w = False
-        self.add_noise = False
-        if rew_th is not None:
+        self.rew_th = rew_th
+        if self.rew_th is not None:
             self.rew_th = rew_th
+            self.rewards = []
+            self.std_noise = 0
         else:
-            self.rew_th = 0
             self.min_w = True
             self.init_noise = 0
 
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
-
+        info['std_noise'] = self.std_noise
         if info['new_trial']:
-            self.rewards.append(reward)
-            if len(self.rewards) > self.w:
-                self.rewards.pop(0)
-                self.min_w = True
+            if self.rew_th is not None:
+                self.rewards.append(reward)
+                if len(self.rewards) > self.w:
+                    self.rewards.pop(0)
+                    self.min_w = True
 
-        rew_mean = np.mean(self.rewards)
-        info['rew_mean'] = rew_mean
-        info['std_noise'] = self.std_noise * self.min_w
+                rew_mean = np.mean(self.rewards)
+                info['rew_mean'] = rew_mean
+                if rew_mean > self.rew_th and self.min_w is True:
+                    self.std_noise += self.step_noise
 
-        if rew_mean >= self.rew_th and self.min_w is True:
-            self.add_noise = True
-            obs += np.random.normal(loc=0, scale=self.std_noise,
-                                    size=obs.shape)
-            self.std_noise += self.init_noise
-        elif self.add_noise is True:
-            obs += np.random.normal(loc=0, scale=self.std_noise,
-                                    size=obs.shape)
+        # add noise
+        obs += np.random.normal(loc=0, scale=self.std_noise,
+                                size=obs.shape)
 
         return obs, reward, done, info
 
 
 def plot_env(env, num_steps_env=200,
              def_act=None, model=None, name=None, legend=True):
-    # TODO: Separate the running from plotting. Make running a separate function
-    # TODO: Can't we use Monitor here?
+    import gym
     if isinstance(env, str):
         env = gym.make(env)
     if name is None:
@@ -110,13 +107,14 @@ def plot_env(env, num_steps_env=200,
             actions_end_of_trial.append(action)
             perf.append(rew)
             obs_cum_temp = np.zeros_like(obs_cum_temp)
+            rew_mean.append(info['rew_mean'])
         else:
             actions_end_of_trial.append(-1)
+            rew_mean.append(-1)
         rewards.append(rew)
         actions.append(action)
         gt.append(info['gt'])
         std_noise.append(info['std_noise'])
-        rew_mean.append(info['rew_mean'])
     if model is not None:
         states = np.array(state_mat)
         states = states[:, 0, :]
@@ -135,6 +133,7 @@ def plot_env(env, num_steps_env=200,
 
 def fig_(obs, actions, gt=None, rewards=None, std_noise=None, rew_mean=None,
          legend=True, name='', folder=''):
+    import matplotlib.pyplot as plt
     if len(obs.shape) != 2:
         raise ValueError('obs has to be 2-dimensional.')
     # TODO: Add documentation
@@ -178,17 +177,14 @@ def fig_(obs, actions, gt=None, rewards=None, std_noise=None, rew_mean=None,
         ax = axes[2]
         ax.plot(steps, rewards, 'r')
         ax.set_ylabel('Reward')
-        # ax.set_ylabel('reward ' + ' (' + str(np.round(np.mean(perf), 2)) + ')')
 
     if std_noise is not None:
-        ax.set_xticks([])
         ax = axes[3]
         ax.plot(steps, std_noise)
         ax.set_title('Noise')
         ax.set_ylabel('Std')
 
     if rew_mean is not None:
-        ax.set_xticks([])
         ax = axes[4]
         ax.plot(steps, rew_mean)
         ax.set_title('Rew window')
@@ -203,10 +199,11 @@ def fig_(obs, actions, gt=None, rewards=None, std_noise=None, rew_mean=None,
 
     return f
 
-import gym
-import matplotlib.pyplot as plt
+
 if __name__ == '__main__':
+    import gym
     task = 'PerceptualDecisionMakingDelayResponse-v0'
     env = gym.make(task)
-    env = Noise(env, rew_th=0.1)
-    plot_env(env, num_steps_env=20000)
+    env = Noise(env, rew_th=0.)
+    plot_env(env, num_steps_env=5000)
+    plt.plot([0, 20000], [0, 0], '--')
