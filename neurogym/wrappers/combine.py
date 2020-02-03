@@ -26,7 +26,7 @@ class Combine():
         'share_action_space': 'Whether the two task share the same action' +
         ' space. Not sharing allows to control (via reward)  what the agent' +
         ' does for each task at each timestep (def: True)',
-        'defaults': 'Default actions for each task. This is used to decide' +
+        'defaults': 'Default rewards for each task. This is used to decide' +
         ' which gt/reward to use in the sharing-action-space scenario.' +
         ' (def: [0, 0])',
         'trial_cue': 'Whether to show the type of trial as a cue'
@@ -116,7 +116,8 @@ class Combine():
             info['env_info'] = info1
             info['env_info']['reward'] = reward1
         else:
-            obs1, reward1, done1, info1 = self.standby_step(self.env)
+            obs1, done1, info1 = self.standby_step(self.env)
+            reward1 = self.defaults[0]
             info['env_info'] = None
         # get outputs from distractor task
         if self.t > self.delay and self.distractor_on:
@@ -126,7 +127,8 @@ class Combine():
             info['distractor_info'] = info2
             info['distractor_info']['reward'] = reward2
         else:
-            obs2, reward2, done2, info2 = self.standby_step(self.distractor)
+            obs2, done2, info2 = self.standby_step(self.distractor)
+            reward2 = self.defaults[1]
             info['distractor_info'] = None
         # new trial?
         if not self.env_on and not self.distractor_on:
@@ -144,17 +146,12 @@ class Combine():
 
         # ground truth
         if self.share_action_space:
-            if info1['gt'] == info2['gt']:
-                info['gt'] = info1['gt']  # task 1 is the default task
-                reward = reward1 + reward2
-            elif (info1['gt'] != self.defaults[0] and
-                  info2['gt'] == self.defaults[1]):
-                info['gt'] = info1['gt']
-                reward = reward1
-            elif (info1['gt'] == self.defaults[0] and
-                  info2['gt'] != self.defaults[1]):
+            if (reward1 == self.defaults[0] and reward2 != self.defaults[1]):
                 info['gt'] = info2['gt']
                 reward = reward2
+            else:
+                info['gt'] = info1['gt']  # task 1 is the default task
+                reward = reward1
         else:
             ind = [(x[0], x[1]) == ([info1['gt']], [info2['gt']])
                    for x in self.action_split]
@@ -178,11 +175,10 @@ class Combine():
         creates fake outputs when env is not active
         """
         obs = np.zeros((env.observation_space.shape[0], ))
-        rew = 0
         done = False
         gt = 0
         info = {'new_trial': False, 'gt': gt}
-        return obs, rew, done, info
+        return obs, done, info
 
 
 if __name__ == '__main__':
@@ -199,16 +195,16 @@ if __name__ == '__main__':
     KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
                                     'stimulus': ('constant', 100),
                                     'resp_delay': ('constant', 1200),
-                                    'decision': ('constant', 100)}}
+                                    'decision': ('constant', 300)}}
     env = gym.make(task, **KWARGS)
 
     task = 'GoNogo-v0'
     KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
                                     'stimulus': ('constant', 100),
                                     'resp_delay': ('constant', 100),
-                                    'decision': ('constant', 100)}}
+                                    'decision': ('constant', 300)}}
     distractor = gym.make(task, **KWARGS)
     env = Combine(env, distractor, delay=300, mix=(.3, .3, .4),
-                  share_action_space=False, defaults=[0, 0],
+                  share_action_space=True, defaults=[0, 0],
                   trial_cue=True)
-    ngym.utils.plot_env(env, num_steps_env=100, num_steps_plt=100)
+    ngym.utils.plot_env(env, num_steps_env=100, def_act=0)
