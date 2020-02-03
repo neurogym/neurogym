@@ -49,8 +49,8 @@ class GoNogo(ngym.PeriodEnv):
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
-        self.R_FAIL = 0.
-        self.r_tmax = -0.5
+        self.R_FAIL = -0.5
+        self.R_MISS = -0.5  # punishment for miss when trial is GO
         self.abort = False
         # set action and observation spaces
         self.action_space = spaces.Discrete(2)
@@ -69,13 +69,15 @@ class GoNogo(ngym.PeriodEnv):
         self.add_period('stimulus', after='fixation')
         self.add_period('resp_delay', after='stimulus')
         self.add_period('decision', after='resp_delay', last_period=True)
-
+        # set observations
         self.set_ob('fixation', [1, 0, 0])
         self.set_ob('stimulus', [1, 0, 0])
         self.set_ob('resp_delay', [1, 0, 0])
         ob = self.view_ob('stimulus')
         ob[:, self.trial['ground_truth']+1] = 1
-
+        # if trial is GO the reward is set to R_MISS and  to 0 otherwise
+        self.r_tmax = self.R_MISS*self.trial['ground_truth']
+        # set ground truth during decision period
         self.set_groundtruth('decision', self.trial['ground_truth'])
 
     def _step(self, action):

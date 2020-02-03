@@ -8,12 +8,40 @@ import gym
 
 def plot_env(env, num_steps_env=200,
              def_act=None, model=None, name=None, legend=True):
-    # TODO: Separate the running from plotting. Make running a separate function
-    # TODO: Can't we use Monitor here?
+    """
+    env: already built neurogym task or name of it
+    num_steps_env: number of steps to run the task
+    def_act: if not None (and model=None), the task will be run with the
+             specified action
+    model: if not None, the task will be run with the actions predicted by
+           model, which so far is assumed to be created and trained with the
+           stable-baselines toolbox:
+               (https://github.com/hill-a/stable-baselines)
+    name: title to show on the rewards panel
+    legend: whether to show the legend for actions panel or not.
+    """
+    # TODO: Can't we use Monitor here? We could but:
+    # 1) env could be already prewrapped with monitor
+    # 2) monitor will save data and so the function will need a folder
     if isinstance(env, str):
         env = gym.make(env)
     if name is None:
         name = type(env).__name__
+    observations, obs_cum, rewards, actions, perf, actions_end_of_trial,\
+        gt, states = run_env(env=env, num_steps_env=num_steps_env,
+                             def_act=def_act, model=model)
+    obs_cum = np.array(obs_cum)
+    obs = np.array(observations)
+    fig_(obs, actions, gt, rewards, legend=legend,
+         states=states, name=name)
+    data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
+            'actions': actions, 'perf': perf,
+            'actions_end_of_trial': actions_end_of_trial, 'gt': gt,
+            'states': states}
+    return data
+
+
+def run_env(env, num_steps_env=200, def_act=None, model=None):
     observations = []
     obs_cum = []
     state_mat = []
@@ -26,7 +54,6 @@ def plot_env(env, num_steps_env=200,
     obs_cum_temp = obs
     for stp in range(int(num_steps_env)):
         if model is not None:
-            # TODO: This is a particular kind of model. Document.
             action, _states = model.predict(obs)
             if isinstance(action, float) or isinstance(action, int):
                 action = [action]
@@ -64,15 +91,8 @@ def plot_env(env, num_steps_env=200,
         states = states[:, 0, :]
     else:
         states = None
-    obs_cum = np.array(obs_cum)
-    obs = np.array(observations)
-    fig_(obs, actions, gt, rewards, legend=legend,
-         states=states, name=name)
-    data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
-            'actions': actions, 'perf': perf,
-            'actions_end_of_trial': actions_end_of_trial, 'gt': gt,
-            'states': states}
-    return data
+    return observations, obs_cum, rewards, actions, perf,\
+        actions_end_of_trial, gt, states
 
 
 def fig_(obs, actions, gt=None, rewards=None, states=None,
@@ -102,10 +122,11 @@ def fig_(obs, actions, gt=None, rewards=None, states=None,
     ax.plot(steps, actions, marker='+', label='Actions')
 
     if gt is not None:
+        gt = np.array(gt)
         if len(gt.shape) > 1:
             for ind_gt in range(gt.shape[1]):
                 ax.plot(steps, gt[:, ind_gt], '--'+gt_colors[ind_gt],
-                         label='Ground truth '+str(ind_gt))
+                        label='Ground truth '+str(ind_gt))
         else:
             ax.plot(steps, gt, '--'+gt_colors[0], label='Ground truth')
 
@@ -118,7 +139,6 @@ def fig_(obs, actions, gt=None, rewards=None, states=None,
         ax = axes[2]
         ax.plot(steps, rewards, 'r')
         ax.set_ylabel('Reward')
-        # ax.set_ylabel('reward ' + ' (' + str(np.round(np.mean(perf), 2)) + ')')
 
     if states is not None:
         ax.set_xticks([])
@@ -130,8 +150,7 @@ def fig_(obs, actions, gt=None, rewards=None, states=None,
 
     ax.set_xlabel('Steps')
     plt.tight_layout()
-    plt.show()
-    if folder != '':
+    if folder is not None and folder != '':
         f.savefig(folder + '/env_struct.png')
         plt.close(f)
 

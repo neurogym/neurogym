@@ -49,6 +49,7 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
         self.R_FAIL = -0.5
+        self.R_MISS = -0.5  # punishment for miss when trial is GO
         self.abort = False
         # action and observation spaces
         self.action_space = spaces.Discrete(2)
@@ -85,6 +86,7 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
+        # set observations
         self.set_ob('fixation', [1, 0, 0, 0, 0])
 
         ob = self.view_ob('stim1')
@@ -97,8 +99,11 @@ class DelayPairedAssociation(ngym.PeriodEnv):
 
         self.set_ob('delay_btw_stim', [1, 0, 0, 0, 0])
         self.set_ob('delay_aft_stim', [1, 0, 0, 0, 0])
-
+        # set ground truth
         self.set_groundtruth('decision', self.trial['ground_truth'])
+
+        # if trial is GO the reward is set to R_MISS and  to 0 otherwise
+        self.r_tmax = self.R_MISS*self.trial['ground_truth']
 
     def _step(self, action, **kwargs):
         """
