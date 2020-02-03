@@ -20,12 +20,28 @@ def plot_env(env, num_steps_env=200,
     name: title to show on the rewards panel
     legend: whether to show the legend for actions panel or not.
     """
-    # TODO: Separate the running from plotting. Make running a separate function
-    # TODO: Can't we use Monitor here?
+    # TODO: Can't we use Monitor here? We could but:
+    # 1) env could be already prewrapped with monitor
+    # 2) monitor will save data and so the function will need a folder
     if isinstance(env, str):
         env = gym.make(env)
     if name is None:
         name = type(env).__name__
+    observations, obs_cum, rewards, actions, perf, actions_end_of_trial,\
+        gt, states = run_env(env=env, num_steps_env=num_steps_env,
+                             def_act=def_act, model=model)
+    obs_cum = np.array(obs_cum)
+    obs = np.array(observations)
+    fig_(obs, actions, gt, rewards, legend=legend,
+         states=states, name=name)
+    data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
+            'actions': actions, 'perf': perf,
+            'actions_end_of_trial': actions_end_of_trial, 'gt': gt,
+            'states': states}
+    return data
+
+
+def run_env(env, num_steps_env=200, def_act=None, model=None):
     observations = []
     obs_cum = []
     state_mat = []
@@ -75,15 +91,8 @@ def plot_env(env, num_steps_env=200,
         states = states[:, 0, :]
     else:
         states = None
-    obs_cum = np.array(obs_cum)
-    obs = np.array(observations)
-    fig_(obs, actions, gt, rewards, legend=legend,
-         states=states, name=name)
-    data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
-            'actions': actions, 'perf': perf,
-            'actions_end_of_trial': actions_end_of_trial, 'gt': gt,
-            'states': states}
-    return data
+    return observations, obs_cum, rewards, actions, perf,\
+        actions_end_of_trial, gt, states
 
 
 def fig_(obs, actions, gt=None, rewards=None, states=None,
