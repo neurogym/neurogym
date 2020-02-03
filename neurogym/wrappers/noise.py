@@ -17,7 +17,7 @@ class Noise(Wrapper):
         'std_noise': 'Standard deviation of noise. (def: 0.1)',
     }
 
-    def __init__(self, env, std_noise=.1):
+    def __init__(self, env, std_noise=.1, rew_th=None, w=100):
         super().__init__(env)
         self.env = env
         self.std_noise = std_noise
