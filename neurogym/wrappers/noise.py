@@ -18,13 +18,15 @@ class Noise(Wrapper):
         'w': 'Window length. (def: 100)'
     }
 
-    def __init__(self, env, std_noise=.1, rew_th=None, w=10, step_noise=0.01):
+    def __init__(self, env, std_noise=.1, rew_th=None, w=200, step_noise=0.001,
+                 margin=0.05):
         super().__init__(env)
         self.env = env
         self.std_noise = std_noise
         self.std_noise = self.std_noise / self.env.dt
         self.init_noise = 0
         self.step_noise = step_noise
+        self.margin = margin
         self.w = w
         self.min_w = False
         self.rew_th = rew_th
@@ -39,18 +41,18 @@ class Noise(Wrapper):
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
         info['std_noise'] = self.std_noise
-        if info['new_trial']:
-            if self.rew_th is not None:
-                self.rewards.append(reward)
-                if len(self.rewards) > self.w:
-                    self.rewards.pop(0)
-                    self.min_w = True
+        if self.rew_th is not None and info['new_trial']:
+            self.rewards.append(reward)
+            if len(self.rewards) > self.w:
+                self.rewards.pop(0)
+                self.min_w = True
 
-                rew_mean = np.mean(self.rewards)
-                info['rew_mean'] = rew_mean
-                if rew_mean > self.rew_th and self.min_w is True:
-                    self.std_noise += self.step_noise
-
+            rew_mean = np.mean(self.rewards)
+            info['rew_mean'] = rew_mean
+            if rew_mean > self.rew_th and self.min_w is True:
+                self.std_noise += self.step_noise
+            elif rew_mean < self.rew_th-self.margin and self.std_noise > 0:
+                self.std_noise = max(0, self.std_noise-self.step_noise)
         # add noise
         obs += np.random.normal(loc=0, scale=self.std_noise,
                                 size=obs.shape)
