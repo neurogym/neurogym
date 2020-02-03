@@ -138,8 +138,9 @@ class Combine():
         if self.trial_cue:
             cue = np.array([self.task_type])
             obs = np.concatenate((cue, obs), axis=0)
-        done = done1  # done whenever the task 1 is done
+        info['task_type'] = self.task_type
 
+        done = done1  # done whenever the task 1 is done
         # ground truth
         if self.share_action_space:
             if (reward1 == self.defaults[0] and reward2 != self.defaults[1]):
@@ -154,7 +155,6 @@ class Combine():
             info['gt'] = np.where(ind)[0]
             assert len(info['gt']) == 1, info['gt']
             reward = reward1 + reward2
-
         return obs, reward, done, info
 
     def step(self, action):
