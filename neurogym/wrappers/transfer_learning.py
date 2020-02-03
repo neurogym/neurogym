@@ -12,38 +12,26 @@ import gym
 # XXX: implemented without relying on core.trTrialWrapper
 
 
-class Combine():
+class transferLearning():
     metadata = {
-        'description': 'Allows to combine two tasks, one of which working as' +
-        ' the distractor task.',
-        'paper_link': 'https://www.biorxiv.org/content/10.1101/433409v3',
-        'paper_name': 'Response outcomes gate the impact of expectations ' +
-        'on perceptual decisions',
-        'distractor': 'Distractor task. (no default value)',
-        'delay': 'Time when the distractor task appears. (def: 800 (ms))',
-        'mix': 'Probabilities for the different trial types' +
-        ' (only main, only distractor, both). (def: (.5, .0, .5))',
+        'description': 'Allows training on several tasks sequencially.',
+        'paper_link': '',
+        'paper_name': '',
+        'envs': 'List with environments. (list)',        
+        'num_tr': 'Number of trials to train on each task. (list)',
         'share_action_space': 'Whether the two task share the same action' +
         ' space. (def: True)',
-        'defaults': 'Default actions for each task. (def: [0, 0])',
-        'trial_cue': 'Whether to show the type of trial as a cue'
+        'task_cue': 'Whether to show the current task as a cue'
     }
 
-    def __init__(self, envs, delay=800,
-                 dt=100, mix=(.3, .3, .4), share_action_space=True,
-                 defaults=[0, 0], trial_cue=False):
+    def __init__(self, envs, num_tr, dt=100, share_action_space=True,
+                 task_cue=False):
         self.share_action_space = share_action_space
-        self.trial_cue = trial_cue
         self.t = 0
         self.dt = dt
-        self.delay = delay
-        self.delay_on = True
         self.env = env
         self.distractor = distractor
-        # default behavior
-        self.defaults = defaults
         # sub-tasks probabilities
-        self.mix = mix
         num_act1 = self.env.action_space.n
         num_act2 = self.distractor.action_space.n
         if self.share_action_space:

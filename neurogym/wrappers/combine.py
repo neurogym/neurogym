@@ -40,7 +40,6 @@ class Combine():
         self.t = 0
         self.dt = dt
         self.delay = delay
-        self.delay_on = True
         self.env = env
         self.distractor = distractor
         # default behavior
