@@ -8,6 +8,18 @@ import gym
 
 def plot_env(env, num_steps_env=200,
              def_act=None, model=None, name=None, legend=True):
+    """
+    env: already built neurogym task or name of it
+    num_steps_env: number of steps to run the task
+    def_act: if not None (and model=None), the task will be run with the
+             specified action
+    model: if not None, the task will be run with the actions predicted by
+           model, which so far is assumed to be created and trained with the
+           stable-baselines toolbox:
+               (https://github.com/hill-a/stable-baselines)
+    name: title to show on the rewards panel
+    legend: whether to show the legend for actions panel or not.
+    """
     # TODO: Separate the running from plotting. Make running a separate function
     # TODO: Can't we use Monitor here?
     if isinstance(env, str):
@@ -26,7 +38,6 @@ def plot_env(env, num_steps_env=200,
     obs_cum_temp = obs
     for stp in range(int(num_steps_env)):
         if model is not None:
-            # TODO: This is a particular kind of model. Document.
             action, _states = model.predict(obs)
             if isinstance(action, float) or isinstance(action, int):
                 action = [action]
@@ -102,10 +113,11 @@ def fig_(obs, actions, gt=None, rewards=None, states=None,
     ax.plot(steps, actions, marker='+', label='Actions')
 
     if gt is not None:
+        gt = np.array(gt)
         if len(gt.shape) > 1:
             for ind_gt in range(gt.shape[1]):
                 ax.plot(steps, gt[:, ind_gt], '--'+gt_colors[ind_gt],
-                         label='Ground truth '+str(ind_gt))
+                        label='Ground truth '+str(ind_gt))
         else:
             ax.plot(steps, gt, '--'+gt_colors[0], label='Ground truth')
 
@@ -118,7 +130,6 @@ def fig_(obs, actions, gt=None, rewards=None, states=None,
         ax = axes[2]
         ax.plot(steps, rewards, 'r')
         ax.set_ylabel('Reward')
-        # ax.set_ylabel('reward ' + ' (' + str(np.round(np.mean(perf), 2)) + ')')
 
     if states is not None:
         ax.set_xticks([])
@@ -130,8 +141,7 @@ def fig_(obs, actions, gt=None, rewards=None, states=None,
 
     ax.set_xlabel('Steps')
     plt.tight_layout()
-    plt.show()
-    if folder != '':
+    if folder is not None and folder != '':
         f.savefig(folder + '/env_struct.png')
         plt.close(f)
 
