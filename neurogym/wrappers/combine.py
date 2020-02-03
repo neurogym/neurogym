@@ -10,6 +10,7 @@ import numpy as np
 import itertools
 import gym
 # XXX: implemented without relying on core.trTrialWrapper
+# TODO: extend to allow combinining more than two tasks
 
 
 class Combine():
@@ -72,10 +73,6 @@ class Combine():
         self.env_on = True
         self.distractor_on = True
         self.new_trial()
-        self.reward_range = (np.min([self.env.reward_range[0],
-                                     self.distractor.reward_range[0]]),
-                             np.max([self.env.reward_range[1],
-                                     self.distractor.reward_range[1]]))
         self.metadata = self.env.metadata
         self.metadata.update(self.distractor.metadata)
 
