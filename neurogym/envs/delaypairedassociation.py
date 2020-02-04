@@ -53,8 +53,8 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         # Rewards
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
-        self.R_FAIL = -0.5
-        self.R_MISS = -0.5  # punishment for miss when trial is GO
+        self.R_FAIL = -1.
+        self.R_MISS = -1.  # punishment for miss when trial is GO
         self.abort = False
         # action and observation spaces
         self.action_space = spaces.Discrete(2)
@@ -108,7 +108,7 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         self.set_groundtruth('decision', self.trial['ground_truth'])
 
         # if trial is GO the reward is set to R_MISS and  to 0 otherwise
-        self.r_tmax = self.R_MISS*self.trial['ground_truth']
+        self.r_tmax = self.R_MISS**(self.trial['ground_truth'] == 1)
 
     def _step(self, action, **kwargs):
         """
@@ -146,4 +146,4 @@ class DelayPairedAssociation(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = DelayPairedAssociation()
-    ngym.utils.plot_env(env, num_steps_env=1000, def_act=1)
+    ngym.utils.plot_env(env, num_steps_env=1000, def_act=0)
