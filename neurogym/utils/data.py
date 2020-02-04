@@ -16,7 +16,8 @@ class Dataset(object):
                  batch_size=1, seq_len=None, cache_len=None):
         if env_kwargs is None:
             env_kwargs = {}
-        self.envs = [gym.make(env_name, **env_kwargs) for _ in range(batch_size)]
+        self.envs = [gym.make(env_name, **env_kwargs)
+                     for _ in range(batch_size)]
         for env in self.envs:
             env.reset()
         env = self.envs[0]
@@ -27,7 +28,7 @@ class Dataset(object):
             # TODO: infer sequence length from task
             seq_len = 1000
 
-        observation_shape = env.observation_space.shape
+        obs_shape = env.observation_space.shape
         action_shape = env.action_space.shape
         if len(action_shape) == 0:
             self._expand_action = True
@@ -37,16 +38,16 @@ class Dataset(object):
         if cache_len is None:
             # Infer cache len
             cache_len = 1e5
-            cache_len /= (np.prod(observation_shape) + np.prod(action_shape))
+            cache_len /= (np.prod(obs_shape) + np.prod(action_shape))
             cache_len /= batch_size
         cache_len = int((cache_len // seq_len) * seq_len)
 
         self.seq_len = seq_len
-        self.inputs_shape = [batch_size, seq_len] + list(observation_shape)
+        self.inputs_shape = [batch_size, seq_len] + list(obs_shape)
         self.target_shape = [batch_size, seq_len] + list(action_shape)
 
         self._cache_len = cache_len
-        self._cache_inputs_shape = [batch_size, cache_len] + list(observation_shape)
+        self._cache_inputs_shape = [batch_size, cache_len] + list(obs_shape)
         self._cache_target_shape = [batch_size, cache_len] + list(action_shape)
 
         self._cache()
@@ -99,5 +100,3 @@ if __name__ == '__main__':
         inputs, target = dataset()
     print(inputs.shape)
     print(target.shape)
-
-
