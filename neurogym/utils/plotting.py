@@ -7,7 +7,7 @@ import gym
 
 
 def plot_env(env, num_steps_env=200,
-             def_act=None, model=None, name=None, legend=True):
+             def_act=None, model=None, name=None, legend=True, fig_kwargs={}):
     """
     env: already built neurogym task or name of it
     num_steps_env: number of steps to run the task
@@ -33,7 +33,7 @@ def plot_env(env, num_steps_env=200,
     obs_cum = np.array(obs_cum)
     obs = np.array(observations)
     fig_(obs, actions, gt, rewards, legend=legend,
-         states=states, name=name)
+         states=states, name=name, fig_kwargs=fig_kwargs)
     data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
             'actions': actions, 'perf': perf,
             'actions_end_of_trial': actions_end_of_trial, 'gt': gt,
@@ -99,7 +99,7 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
 
 
 def fig_(obs, actions, gt=None, rewards=None, states=None,
-         legend=True, name='', folder=''):
+         legend=True, name='', folder='', fig_kwargs={}):
     if len(obs.shape) != 2:
         raise ValueError('obs has to be 2-dimensional.')
     # TODO: Add documentation
@@ -110,7 +110,10 @@ def fig_(obs, actions, gt=None, rewards=None, states=None,
     n_row += states is not None
 
     gt_colors = 'gkmcry'
-    f, axes = plt.subplots(n_row, 1, sharex=True, figsize=(5, n_row*1.5))
+    if not fig_kwargs:
+        fig_kwargs=dict(sharex=True, figsize=(5, n_row*1.5))
+
+    f, axes = plt.subplots(n_row, 1, **fig_kwargs)
     # obs
     ax = axes[0]
     ax.imshow(obs.T, aspect='auto')
