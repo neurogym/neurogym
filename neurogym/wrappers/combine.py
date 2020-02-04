@@ -69,6 +69,11 @@ class Combine():
                               self.distractor.observation_space.shape[0] +
                               1*self.trial_cue, ),
                        dtype=np.float32)
+        # reward range
+        self.reward_range = (np.min([self.env.reward_range[0],
+                                     self.distractor.reward_range[0]]),
+                             np.max([self.env.reward_range[1],
+                                     self.distractor.reward_range[1]]))
         # start trials
         self.env_on = True
         self.distractor_on = True
