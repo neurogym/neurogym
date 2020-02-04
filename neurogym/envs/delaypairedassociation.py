@@ -12,7 +12,6 @@ from gym import spaces
 import neurogym as ngym
 
 
-
 class DelayPairedAssociation(ngym.PeriodEnv):
     metadata = {
         'description': 'A sample is followed by a delay and a test.' +
@@ -28,15 +27,18 @@ class DelayPairedAssociation(ngym.PeriodEnv):
             'stim2': ('constant', 1000),
             'delay_aft_stim': ('constant', 1000),
             'decision': ('constant', 500)},
-        'noise': '''Standard deviation of the Gaussian noise added to
-        the stimulus. (def: 0.01)''',
         'tags': ['perceptual', 'working memory', 'go-no-go',
                  'supervised']
     }
 
     def __init__(self, dt=100, timing=None, noise=0.01):
         """
-        
+        A sample is followed by a delay and a test. Agents have to report if
+        the pair sample-test is a rewarded pair or not.
+        dt: timestep duration.
+        timing: description and duration of periods forming a trial.
+        noise: Standard deviation of the Gaussian noise added to
+        the stimulus. (def: 0.01, float).
         """
         super().__init__(dt=dt, timing=timing)
         self.choices = [0, 1]
@@ -144,4 +146,4 @@ class DelayPairedAssociation(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = DelayPairedAssociation()
-    ngym.utils.plot_env(env, num_steps_env=1000, def_act=0)
+    ngym.utils.plot_env(env, num_steps_env=1000, def_act=1)
