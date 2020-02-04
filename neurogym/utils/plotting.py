@@ -50,7 +50,7 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
     actions_end_of_trial = []
     gt = []
     perf = []
-    obs = env.reset()
+    obs = env.reset()  # TODO: not saving this first observation
     obs_cum_temp = obs
     for stp in range(int(num_steps_env)):
         if model is not None:
@@ -85,7 +85,10 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
             actions_end_of_trial.append(-1)
         rewards.append(rew)
         actions.append(action)
-        gt.append(info['gt'])
+        if 'gt' in info.keys():
+            gt.append(info['gt'])
+        else:
+            gt.append(0)
     if model is not None:
         states = np.array(state_mat)
         states = states[:, 0, :]
@@ -191,5 +194,5 @@ def order_by_sufix(file_list):
 
 
 if __name__ == '__main__':
-    f = '/home/manuel/ngym_usage/results/combine_tests_no_shared_actSpace/'
+    f = '/home/molano/ngym_usage/results/dpa_tests/'
     plot_rew_across_training(folder=f)
