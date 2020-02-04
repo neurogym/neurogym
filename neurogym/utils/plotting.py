@@ -103,7 +103,7 @@ def fig_(obs, actions, gt=None, rewards=None, states=None,
     if len(obs.shape) != 2:
         raise ValueError('obs has to be 2-dimensional.')
     # TODO: Add documentation
-    steps = np.arange(obs.shape[0])
+    steps = np.arange(obs.shape[0])  # XXX: +1? 1st obs doesn't have action/gt
 
     n_row = 2  # observation and action
     n_row += rewards is not None
