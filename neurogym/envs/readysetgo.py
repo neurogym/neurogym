@@ -25,11 +25,15 @@ class ReadySetGo(ngym.PeriodEnv):
         'tags': ['timing', 'go-no-go', 'supervised']
     }
 
-    def __init__(self, dt=80, timing=None, gain=1):
+    def __init__(self, dt=80, rewards=None, timing=None, gain=1):
         """
         Agents have to measure and produce different time intervals.
         dt: Timestep duration. (def: 80 (ms), int)
         timing: Description and duration of periods forming a trial.
+        rewards:
+            R_ABORTED: given when breaking fixation.
+            R_CORRECT: given when correct.
+            R_FAIL: given when incorrect.
         gain: Controls the measure that the agent has to produce. (def: 1, int)
         """
         super().__init__(dt=dt, timing=timing)
@@ -37,9 +41,15 @@ class ReadySetGo(ngym.PeriodEnv):
         self.gain = gain
 
         # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
-        self.R_FAIL = 0.
+        # Rewards
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
+                          'R_FAIL': 0.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+
         self.abort = False
         # set action and observation space
         self.action_space = spaces.Discrete(2)  # (fixate, go)

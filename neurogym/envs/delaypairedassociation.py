@@ -31,12 +31,17 @@ class DelayPairedAssociation(ngym.PeriodEnv):
                  'supervised']
     }
 
-    def __init__(self, dt=100, timing=None, noise=0.01):
+    def __init__(self, dt=100, rewards=None, timing=None, noise=0.01):
         """
         A sample is followed by a delay and a test. Agents have to report if
         the pair sample-test is a rewarded pair or not.
         dt: Timestep duration. (def: 100 (ms), int)
         timing: Description and duration of periods forming a trial.
+        rewards:
+            R_ABORTED: given when breaking fixation.
+            R_CORRECT: given when correct.
+            R_FAIL: given when incorrect.
+            R_MISS:  given when not responding when a response was expected.
         noise: Standard deviation of the Gaussian noise added to
         the stimulus. (def: 0.01, float)
         """
@@ -51,10 +56,14 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         # Durations (stimulus duration will be drawn from an exponential)
 
         # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
-        self.R_FAIL = -1.
-        self.R_MISS = 0.  # punishment for miss when trial is GO
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
+                          'R_FAIL': -1., 'R_MISS': 0.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+        self.R_MISS = reward_default['R_MISS']  # rew for miss if trial is GO
         self.abort = False
         # action and observation spaces
         self.action_space = spaces.Discrete(2)
