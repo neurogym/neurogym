@@ -24,10 +24,11 @@ import neurogym as ngym
 
 class PostDecisionWager(ngym.PeriodEnv):
     metadata = {
-        'description': '''Agents do a discrimination task (see PerceptualDecisionMaking). On a
-         random half of the trials, the agent is given the option to abort
-         the direction discrimination and to choose instead a small but
-         certain reward associated with a action.''',
+        'description': """Agents do a discrimination task(see
+         PerceptualDecisionMaking). On a random half of the trials,
+         the agent is given the option to abort the direction discrimination
+         and to choose instead a small but certain reward associated with
+         a action.""",
         'paper_link': 'https://science.sciencemag.org/content/324/5928/' +
         '759.long',
         'paper_name': '''Representation of Confidence Associated with a
@@ -44,6 +45,14 @@ class PostDecisionWager(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, timing=None):
+        """
+        Agents do a discrimination task(see PerceptualDecisionMaking). On a
+        random half of the trials, the agent is given the option to abort
+        the direction discrimination and to choose instead a small but
+        certain reward associated with a action.
+        dt: Timestep duration. (def: 100 (ms), int)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt, timing=timing)
 #        # Actions
 #        self.actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT',

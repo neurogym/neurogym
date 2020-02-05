@@ -21,6 +21,9 @@ class PassAction(Wrapper):
     }
 
     def __init__(self, env):
+        """
+        Modifies observation by adding the previous action.
+        """
         super().__init__(env)
         self.env = env
         # TODO: This is not adding one-hot

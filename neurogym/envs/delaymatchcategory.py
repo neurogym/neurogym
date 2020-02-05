@@ -32,6 +32,12 @@ class DelayedMatchCategory(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, timing=None):
+        """
+        A sample stimulus is followed by a delay and test. Agents are required
+        to indicate if the sample and test are in the same category.
+        dt: Timestep duration.
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt, timing=timing)
         self.choices = [1, 2]  # match, non-match
 

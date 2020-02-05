@@ -21,6 +21,9 @@ class PassReward(Wrapper):
     }
 
     def __init__(self, env):
+        """
+        Modifies observation by adding the previous reward.
+        """
         super().__init__(env)
         env_oss = env.observation_space.shape[0]
         self.observation_space = spaces.Box(-np.inf, np.inf,

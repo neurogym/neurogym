@@ -36,6 +36,13 @@ class DelayedComparison(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, timing=None):
+        """
+        Two-alternative forced choice task in which the subject
+        has to compare two stimuli separated by a delay to decide
+        which one has a higher frequency.
+        dt: Timestep duration. (def: 100 (ms), int)
+        timing: Description and duration of periods forming a trial.
+        """
         # call ngm __init__ function
         super().__init__(dt=dt, timing=timing)
 

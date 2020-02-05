@@ -18,14 +18,20 @@ class Bandit(ngym.TrialEnv):
         'paper_link': 'https://www.nature.com/articles/s41593-018-0147-8',
         'paper_name': 'Prefrontal cortex as a meta-reinforcement learning' +
         ' system',
-        'n_arms': 'Number of arms. (def: 2)',
-        'probs': 'Reward probabilities for each arm. (def: (.9, .1))',
-        'gt_arm': 'High reward arm. (def: 0)',
         'tags': ['n-alternative', 'supervised']
     }
 
     def __init__(self, dt=100, n_arm=2, probs=(.9, .1), gt_arm=0,
                  timing=None):
+        """
+        The agent has to select between N actions with different reward
+        probabilities.
+        dt: Timestep duration. (def: 100 (ms), int)
+        n_arms: Number of arms. (def: 2, int)
+        probs: Reward probabilities for each arm. (def: (.9, .1), tuple)
+        gt_arm: High reward arm. (def: 0, int)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt)
         if timing is not None:
             print('Warning: Bandit task does not require timing variable.')

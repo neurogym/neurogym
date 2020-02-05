@@ -13,10 +13,12 @@ class MissTrialReward(Wrapper):
         'description': 'Add a negative reward if a trial ends with no action.',
         'paper_link': None,
         'paper_name': None,
-        'r_miss': 'Reward given when a miss trial occurs.(def: 0)',
     }
 
     def __init__(self, env, r_miss=0.):
+        """
+        r_miss: Reward given when a miss trial occurs.(def: 0, int)
+        """
         super().__init__(env)
         self.r_miss = r_miss
 

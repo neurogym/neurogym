@@ -16,16 +16,20 @@ class TransferLearning():
     metadata = {
         'description': 'Allows training on several tasks sequencially.',
         'paper_link': '',
-        'paper_name': '',
-        'envs': 'List with environments. (list)',
-        'num_tr': 'Number of trials to train on each task. (list)',
-        'share_action_space': 'Whether the tasks share the same action' +
-        ' space. (def: True)',
-        'task_cue': 'Whether to show the current task as a cue. (def:False)'
+        'paper_name': ''
     }
 
     def __init__(self, envs, num_tr_per_task, dt=100, share_action_space=True,
                  task_cue=False):
+        """
+        Allows training on several tasks sequencially.
+        envs: List with environments. (list)
+        num_tr_per_task: Number of trials to train on each task. (list)
+        dt: Timestep duration. (def: 100 (ms), int)
+        share_action_space: Whether the tasks share the same action space.
+        (def: True, bool)
+        task_cue: Whether to show the current task as a cue. (def: False, bool)
+        """
         self.share_action_space = share_action_space
         self.t = 0
         self.dt = dt

@@ -22,11 +22,16 @@ class ReadySetGo(ngym.PeriodEnv):
             'ready': ('constant', 83),
             'measure': ('choice', [800, 1500]),
             'set': ('constant', 83)},
-        'gain': 'Controls the measure that the agent has to produce. (def: 1)',
         'tags': ['timing', 'go-no-go', 'supervised']
     }
 
     def __init__(self, dt=80, timing=None, gain=1):
+        """
+        Agents have to measure and produce different time intervals.
+        dt: Timestep duration. (def: 80 (ms), int)
+        timing: Description and duration of periods forming a trial.
+        gain: Controls the measure that the agent has to produce. (def: 1, int)
+        """
         super().__init__(dt=dt, timing=timing)
 
         self.gain = gain

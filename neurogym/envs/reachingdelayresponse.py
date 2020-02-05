@@ -28,6 +28,12 @@ class ReachingDelayResponse(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, timing=None, lowbound=0., highbound=1.):
+        """
+        Working memory visual spatial task ~ Funahashi et al. 1991 adapted to
+        freely moving mice in a continous choice-space.
+        dt: Timestep duration. (def: 100 (ms), int)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt, timing=timing)
         self.lowbound = lowbound
         self.highbound = highbound

@@ -11,11 +11,10 @@ from gym import spaces
 import neurogym as ngym
 
 
-
 class ChangingEnvironment(ngym.PeriodEnv):
     metadata = {
         'description': 'Random Dots Motion tasks in which the correct action' +
-        ' depends on a randomly changing context',
+        ' depends on a randomly changing context.',
         'paper_link': 'https://www.pnas.org/content/113/31/E4531',
         'paper_name': '''Hierarchical decision processes that operate
         over distinct timescales underlie choice and changes in strategy''',
@@ -23,15 +22,21 @@ class ChangingEnvironment(ngym.PeriodEnv):
             'fixation': ('constant', 500),
             'stimulus': ('truncated_exponential', [1000, 500, 1500]),
             'decision': ('constant', 500)},
-        'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
-        'cxt_ch_prob': 'Probability of changing context.',
-        'cxt_cue': 'Whether to show context as a cue.',
         'tags': ['perceptual', 'two-alternative', 'supervised',
                  'context dependent']
     }
 
     def __init__(self, dt=100, timing=None, stimEv=1., cxt_ch_prob=0.01,
                  cxt_cue=False):
+        """
+        Random Dots Motion tasks in which the correct action
+        depends on a randomly changing context.
+        dt: Timestep duration. (def: 100 (ms), int)
+        timing: Description and duration of periods forming a trial.
+        stimEv: Controls the difficulty of the experiment. (def: 1., float)
+        cxt_ch_prob: Probability of changing context. (def: 0.01, float)
+        cxt_cue: Whether to show context as a cue. (def: False, bool)
+        """
         super().__init__(dt=dt, timing=timing)
 
         # Possible contexts
