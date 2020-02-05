@@ -98,7 +98,7 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
         actions_end_of_trial, gt, states
 
 
-def fig_(obs, actions, gt=None, rewards=None, states=None,
+def fig_(obs, actions, gt=None, rewards=None, states=None, mean_perf=None,
          legend=True, name='', folder='', fig_kwargs={}):
     if len(obs.shape) != 2:
         raise ValueError('obs has to be 2-dimensional.')
@@ -111,7 +111,7 @@ def fig_(obs, actions, gt=None, rewards=None, states=None,
 
     gt_colors = 'gkmcry'
     if not fig_kwargs:
-        fig_kwargs=dict(sharex=True, figsize=(5, n_row*1.5))
+        fig_kwargs = dict(sharex=True, figsize=(5, n_row*1.5))
 
     f, axes = plt.subplots(n_row, 1, **fig_kwargs)
     # obs
@@ -145,6 +145,8 @@ def fig_(obs, actions, gt=None, rewards=None, states=None,
         ax = axes[2]
         ax.plot(steps, rewards, 'r')
         ax.set_ylabel('Reward')
+        if mean_perf is not None:
+            ax.set_title('Mean performance: ' + str(np.round(mean_perf, 2)))
 
     if states is not None:
         ax.set_xticks([])
@@ -157,7 +159,7 @@ def fig_(obs, actions, gt=None, rewards=None, states=None,
     ax.set_xlabel('Steps')
     plt.tight_layout()
     if folder is not None and folder != '':
-        f.savefig(folder + '/env_struct.png')
+        f.savefig(folder + '/' + name + 'env_struct.png')
         plt.close(f)
 
     return f
