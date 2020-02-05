@@ -31,6 +31,12 @@ class DelayedMatchToSample(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, timing=None):
+        """
+        A sample stimulus is followed by a delay and test. Agents are required
+        to indicate if the sample and test are the same stimulus.
+        dt: Timestep duration. (def: 100 (ms), int)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt, timing=timing)
         # TODO: Code a continuous space version
         self.choices = [1, 2]

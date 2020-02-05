@@ -14,15 +14,18 @@ class Noise(Wrapper):
         'description': 'Add Gaussian noise to the observations.',
         'paper_link': None,
         'paper_name': None,
-        'std_noise': 'Standard deviation of noise. (def: 0.1)',
-        'rew_th': 'If != None, the wrapper will adjust the noise so the mean' +
-        ' reward is not larger than rew_th. (def: None)',
-        'w': 'Window used to compute the mean reward. (def: 100)',
-        'step_noise': 'Step used to increment/decrease std. (def: 0.001)',
     }
 
     def __init__(self, env, std_noise=.1, rew_th=None, w=200,
                  step_noise=0.001):
+        """
+        Add Gaussian noise to the observations.
+        std_noise: Standard deviation of noise. (def: 0.1)
+        rew_th: If != None, the wrapper will adjust the noise so the mean
+        reward is not larger than rew_th. (def: None, float)
+        w: Window used to compute the mean reward. (def: 100, int)
+        step_noise: Step used to increment/decrease std. (def: 0.001, float)
+        """
         super().__init__(env)
         self.env = env
         self.std_noise = std_noise

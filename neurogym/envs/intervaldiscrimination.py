@@ -1,4 +1,5 @@
 
+
 from __future__ import division
 
 import numpy as np
@@ -28,6 +29,12 @@ class IntervalDiscrimination(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=80, timing=None):
+        """
+        Agents have to report which of two stimuli presented
+        sequentially is longer.
+        dt: Timestep duration. (def: 80 (ms), int)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt, timing=timing)
         # Rewards
         self.R_ABORTED = -0.1

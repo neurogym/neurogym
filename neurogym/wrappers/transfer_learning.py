@@ -15,15 +15,17 @@ class TransferLearning():
     metadata = {
         'description': 'Allows training on several tasks sequencially.',
         'paper_link': '',
-        'paper_name': '',
-        'envs': 'List with environments. (list)',
-        'num_tr': 'Number of trials to train on each task. (list)',
-        'task_cue': 'Whether to show the current task as a cue. (def:False)'
-    }
+        'paper_name': ''
+        }
 
-    def __init__(self, envs, num_tr_per_task, dt=100, task_cue=False):
+    def __init__(self, envs, num_tr_per_task, task_cue=False):
+        """
+        Allows training on several tasks sequencially.
+        envs: List with environments. (list)
+        num_tr_per_task: Number of trials to train on each task. (list)
+        task_cue: Whether to show the current task as a cue. (def: False, bool)
+        """
         self.t = 0
-        self.dt = dt
         self.envs = envs
         self.num_tr_per_task = num_tr_per_task
         self.task_cue = task_cue

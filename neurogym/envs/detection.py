@@ -11,7 +11,6 @@ from gym import spaces
 import neurogym as ngym
 
 
-
 class Detection(ngym.PeriodEnv):
     metadata = {
             'description': 'The agent has to GO if a stimulus is presented.',
@@ -20,18 +19,22 @@ class Detection(ngym.PeriodEnv):
             'timing': {
                     'fixation': ('constant', 500),
                     'stimulus': ('truncated_exponential', [1000, 500, 1500])},
-            'noise': 'Standard deviation of background noise. (def: 1)',
-            'delay': 'If not None indicates the delay, from the moment of' +
-            ' the start of the stimulus period when the actual ' +
-            'stimulus is presented. Otherwise, the delay is drawn from' +
-            ' a uniform distribution. (def: None)',
-            'stim_dur': 'Stimulus duration. (def: 100, ms)',
             'tags': ['perceptual', 'reaction time', 'go-no-go',
                      'supervised']
             }
 
     def __init__(self, dt=100, timing=None, noise=1., delay=None,
                  stim_dur=100):
+        """
+        The agent has to GO if a stimulus is presented.
+        dt: Timestep duration. (def: 100 (ms), int)
+        timing: Description and duration of periods forming a trial.
+        noise: Standard deviation of background noise. (def: 1., float)
+        delay: If not None indicates the delay, from the moment of the start of
+        the stimulus period when the actual stimulus is presented. Otherwise,
+        the delay is drawn from a uniform distribution. (def: None (ms), int)
+        stim_dur: Stimulus duration. (def: 100 (ms), int)
+        """
         super().__init__(dt=dt, timing=timing)
         # Possible decisions at the end of the trial
         self.choices = [0, 1]

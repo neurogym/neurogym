@@ -18,20 +18,24 @@ class Monitor(Wrapper):
         ' actions, observations, new trial, ground truth.',
         'paper_link': None,
         'paper_name': None,
-        'folder': 'Folder where the data will be saved. (def: None)',
-        'num_tr_save': '''Data will be saved every num_tr_save trials.
-        (def: 100000)''',
-        'verbose': 'Whether to print information about average reward and' +
-        ' number of trials',
-        'sv_fig': 'Whether to save a figure of the experiment structure.' +
-        ' If True, a figure will be updated every num_tr_save. (def: False)',
-        'num_stps_sv_fig': 'Number of trial steps to include in the figure. ' +
-        '(def: 100)'
     }
     # TODO: use names similar to Tensorboard
 
     def __init__(self, env, folder=None, num_tr_save=100000, verbose=False,
                  sv_fig=False, num_stps_sv_fig=100):
+        """
+        Saves relevant behavioral information: rewards,actions, observations,
+        new trial, ground truth.
+        folder: Folder where the data will be saved. (def: None, str)
+        num_tr_save: Data will be saved every num_tr_save trials.
+        (def: 100000, int)
+        verbose: Whether to print information about average reward and number
+        of trials. (def: False, bool)
+        sv_fig: Whether to save a figure of the experiment structure. If True,
+        a figure will be updated every num_tr_save. (def: False, bool)
+        num_stps_sv_fig: Number of trial steps to include in the figure.
+        (def: 100, int)
+        """
         Wrapper.__init__(self, env=env)
         self.env = env
         self.num_tr = 0

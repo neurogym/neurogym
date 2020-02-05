@@ -23,7 +23,6 @@ from gym import spaces
 import neurogym as ngym
 
 
-
 class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
     metadata = {
         'description': '''N-alternative forced choice task in which the subject
@@ -35,12 +34,18 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
             'fixation': ('constant', 500),
             'stimulus': ('truncated_exponential', [330, 80, 1500]),
             'decision': ('constant', 500)},
-        'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
-        'n_ch': 'Number of choices. (def: 3)',
         'tags': ['perceptual', 'n-alternative', 'supervised']
     }
 
     def __init__(self, dt=100, timing=None, stimEv=1., n_ch=3):
+        """
+        N-alternative forced choice task in which the subject has
+        to integrate N stimuli to decide which one is higher on average.
+        dt: Timestep duration. (def: 100 (ms), int)
+        timing: Description and duration of periods forming a trial.
+        stimEv: Controls the difficulty of the experiment. (def: 1., float)
+        n_ch: Number of choices. (def: 3, int)
+        """
         super().__init__(dt=dt, timing=timing)
         self.n = n_ch
         self.choices = np.arange(n_ch) + 1

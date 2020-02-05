@@ -21,6 +21,12 @@ class AntiReach1D(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, timing=None):
+        """
+        The agent has to move in the direction opposite to the one indicated
+        by the observation.
+        dt: Timestep duration. (def: 100 (ms), int)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt, timing=timing)
         self.contexts = [0, 1]
         # action and observation spaces

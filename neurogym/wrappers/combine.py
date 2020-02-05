@@ -19,23 +19,29 @@ class Combine():
         ' the distractor task.',
         'paper_link': 'https://www.biorxiv.org/content/10.1101/433409v3',
         'paper_name': 'Response outcomes gate the impact of expectations ' +
-        'on perceptual decisions',
-        'distractor': 'Distractor task. (no default value)',
-        'delay': 'Time when the distractor task appears. (def: 800 (ms))',
-        'mix': 'Probabilities for the different trial types' +
-        ' (only main, only distractor, both). (def: (.5, .0, .5))',
-        'share_action_space': 'Whether the two task share the same action' +
-        ' space. Not sharing allows to control (via reward)  what the agent' +
-        ' does for each task at each timestep (def: True)',
-        'defaults': 'Default rewards for each task. This is used to decide' +
-        ' which gt/reward to use in the sharing-action-space scenario.' +
-        ' (def: [0, 0])',
-        'trial_cue': 'Whether to show the type of trial as a cue'
+        'on perceptual decisions'
     }
 
     def __init__(self, env, distractor, delay=800,
                  dt=100, mix=(.3, .3, .4), share_action_space=True,
                  defaults=[0, 0], trial_cue=False):
+        """
+        Allows to combine two tasks, one of which working as
+        the distractor task.
+        distractor: Distractor task. (no default value)
+        delay: Time when the distractor task appears. (def: 800 (ms), int)
+        dt: Timestep duration. (def: 100 (ms), int)
+        mix: Probabilities for the different trial types (only main, only
+        distractor, both). (def: (.5, .0, .5), tuple)
+        share_action_space: Whether the two task share the same action space.
+        Not sharing allows to control (via reward)  what the agent does for
+        each task at each timestep (def: True, bool)
+        defaults: Default rewards for each task. This is used to decide which
+        gt/reward to use in the sharing-action-space scenario.
+        (def: [0, 0], list)
+        trial_cue: Whether to show the type of trial as a cue.
+        (def: False, bool)
+        """
         self.share_action_space = share_action_space
         self.trial_cue = trial_cue
         self.t = 0

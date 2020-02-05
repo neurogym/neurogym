@@ -15,11 +15,14 @@ class TTLPulse(Wrapper):
         'specified periods.',
         'paper_link': None,
         'paper_name': None,
-        'periods': 'List of list specifying the on periods for each pulse. ' +
-        '(def: [])'
     }
 
     def __init__(self, env, periods=[]):
+        """
+        Outputs extra pulses that will be non-zero during specified periods.
+        periods: List of list specifying the on periods for each pulse.
+        (def: [], list)
+        """
         super().__init__(env)
 
         self.periods = periods

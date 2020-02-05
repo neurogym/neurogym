@@ -19,11 +19,16 @@ class MatchingPenny(ngym.TrialEnv):
         'paper_link': 'https://www.nature.com/articles/nn1209',
         'paper_name': '''Prefrontal cortex and decision making in a
          mixed-strategy game''',
-        'opponent_type': '''Type of opponent. (def: 'random')''',
         'tags': ['two-alternative', 'supervised']
     }
 
     def __init__(self, dt=100, opponent_type='random', timing=None):
+        """
+        The agent is rewarded when it selects the same target as the computer.
+        dt: Timestep duration. (def: 100 (ms), int)
+        opponent_type: Type of opponent. (def: 'random', str)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt)
         if timing is not None:
             print('Warning: Matching-Penny task does not require' +

@@ -26,13 +26,26 @@ class CVLearning(ngym.PeriodEnv):
             'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
             # 'go_cue': ('constant', 100), # TODO: Not implemented
             'decision': ('constant', 1500)},
-        'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
         'tags': ['perceptual', 'delayed response', 'two-alternative',
                  'supervised']
     }
 
     def __init__(self, dt=100, timing=None, stimEv=1., perf_w=1000,
                  max_num_reps=3, init_ph=0, th=0.8):
+        """
+        Implements shaping for the delay-response task, in which agents
+        have to integrate two stimuli and report which one is larger on
+        average after a delay.
+        dt: Timestep duration. (def: 100 (ms), int)
+        timing: Description and duration of periods forming a trial.
+        stimEv: Controls the difficulty of the experiment. (def: 1., float)
+        perf_w: Window used to compute the mean reward. (def: 1000, int)
+        max_num_reps: Maximum number of times that agent can go in a row
+        to the same side during phase 0. (def: 3, int)
+        init_ph: Phase initializing the task. (def: 0, int)
+        th: Performance threshold needed to proceed to the following phase.
+        (def: 0.8, float)
+        """
         super().__init__(dt=dt, timing=timing)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence (which is modulated by stimEv)

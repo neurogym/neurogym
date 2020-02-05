@@ -25,6 +25,14 @@ class DawTwoStep(ngym.TrialEnv):
     }
 
     def __init__(self, dt=100, timing=None):
+        """
+        On each trial, an initial choice between two options lead
+        to either of two, second-stage states. In turn, these both
+        demand another two-option choice, each of which is associated
+        with a different chance of receiving reward.
+        dt: Timestep duration. (def: 100 (ms), int)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt)
         if timing is not None:
             print('Warning: Two-step task does not require timing variable.')

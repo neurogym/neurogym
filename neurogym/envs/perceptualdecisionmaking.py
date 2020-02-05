@@ -8,7 +8,6 @@ from gym import spaces
 import neurogym as ngym
 
 
-
 class PerceptualDecisionMaking(ngym.PeriodEnv):
     metadata = {
         'description': '''Random dot motion task. Two-alternative forced
@@ -21,11 +20,18 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
             'fixation': ('constant', 100),  # TODO: depends on subject
             'stimulus': ('constant', 2000),
             'decision': ('constant', 100)},  # XXX: not specified
-        'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
         'tags': ['perceptual', 'two-alternative', 'supervised']
     }
 
     def __init__(self, dt=100, timing=None, stimEv=1.):
+        """
+        Random dot motion task. Two-alternative forced choice task
+        in whichthe subject has to integrate two stimuli to decide
+        which one is higher on average.
+        dt: Timestep duration. (def: 100 (ms), int)
+        timing: Description and duration of periods forming a trial.
+        stimEv: Controls the difficulty of the experiment. (def: 1., float)
+        """
         super().__init__(dt=dt, timing=timing)
         self.choices = [1, 2]  # [left, right]
         # cohs specifies the amount of evidence (which is modulated by stimEv)

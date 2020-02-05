@@ -36,6 +36,12 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, timing=None):
+        """
+        Agents choose between two stimuli (A and B; where A is preferred)
+        offered in different amounts.
+        dt: Timestep duration. (def: 100 (ms), int)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt, timing=timing)
         # Inputs
         self.inputs = tasktools.to_map('FIXATION', 'L-A', 'L-B', 'R-A',
