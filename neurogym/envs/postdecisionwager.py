@@ -159,3 +159,9 @@ class PostDecisionWager(ngym.PeriodEnv):
             obs[3] = 1
 
         return obs, reward, False, info
+
+
+if __name__ == '__main__':
+    env = PostDecisionWager()
+    env.seed(seed=0)
+    ngym.utils.plot_env(env, num_steps_env=100, def_act=0)

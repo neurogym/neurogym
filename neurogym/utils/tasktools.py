@@ -44,7 +44,7 @@ def uniform(rng, dt, xmin, xmax):
 
 def trunc_exp(rng, dt, mean, xmin=0, xmax=np.inf):
     """
-    function for generating period durations that are multiples of the time step
+    function for generating period durations that are multiples of the timestep
     """
     if xmin >= xmax:  # the > is to avoid issues when making xmin as big as dt
         return (xmax//dt)*dt
@@ -55,27 +55,27 @@ def trunc_exp(rng, dt, mean, xmin=0, xmax=np.inf):
                 return (x//dt)*dt
 
 
-def trunc_exp_new(mean, xmin=0, xmax=np.inf):
+def trunc_exp_new(rng, mean, xmin=0, xmax=np.inf):
     """
-    function for generating period durations that are multiples of the time step
+    function for generating period durations
     """
     if xmin >= xmax:  # the > is to avoid issues when making xmin as big as dt
         return xmax
     else:
         while True:
-            x = random.expovariate(1/mean)
+            x = rng.expovariate(1/mean)
             if xmin <= x < xmax:
                 return x
 
 
-def random_number_fn(dist, args):
+def random_number_fn(dist, args, rng):
     """Return a random number generating function from a distribution."""
     if dist == 'uniform':
-        return lambda: np.random.uniform(*args)
+        return lambda: rng.uniform(*args)
     elif dist == 'choice':
-        return lambda: np.random.choice(args)
+        return lambda: rng.choice(args)
     elif dist == 'truncated_exponential':
-        return lambda: trunc_exp_new(*args)
+        return lambda: trunc_exp_new(rng, *args)
     elif dist == 'constant':
         return lambda: args
     else:

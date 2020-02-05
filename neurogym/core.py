@@ -167,7 +167,8 @@ class PeriodEnv(TrialEnv):
         self.timing_fn = dict()
         for key, val in self._timing.items():
             dist, args = val
-            self.timing_fn[key] = tasktools.random_number_fn(dist, args)
+            self.timing_fn[key] = tasktools.random_number_fn(dist, args,
+                                                             self.rng)
             min_tmp, max_tmp = tasktools.minmax_number(dist, args)
             if min_tmp < self.dt:
                 warnings.warn('Warning: Minimum time for period {:s} {:f} smaller than dt {:f}'.format(
@@ -190,8 +191,8 @@ class PeriodEnv(TrialEnv):
             period: string, name of the period
             duration: float or None, duration of the period
                 if None, inferred from timing_fn
-            before: (optional) string, name of period that this period is before
-            after: (optional) string, name of period that this period is after
+            before: (optional) str, name of period that this period is before
+            after: (optional) str, name of period that this period is after
                 or float, time of period start
             last_period: bool, default False. If True, then this is last period
                 will generate self.tmax, self.tind, and self.obs
