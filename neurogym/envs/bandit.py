@@ -22,7 +22,7 @@ class Bandit(ngym.TrialEnv):
     }
 
     def __init__(self, dt=100, n_arm=2, probs=(.9, .1), gt_arm=0,
-                 timing=None):
+                 rewards=None, timing=None):
         """
         The agent has to select between N actions with different reward
         probabilities.
@@ -30,15 +30,23 @@ class Bandit(ngym.TrialEnv):
         n_arms: Number of arms. (def: 2, int)
         probs: Reward probabilities for each arm. (def: (.9, .1), tuple)
         gt_arm: High reward arm. (def: 0, int)
+        rewards:
+            R_CORRECT: given when correct. (def: +1., float)
         timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt)
         if timing is not None:
             print('Warning: Bandit task does not require timing variable.')
+
         # Rewards
-        self.R_CORRECT = +1.
+        reward_default = {'R_CORRECT': +1.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_CORRECT = reward_default['R_CORRECT']
+
         self.n_arm = n_arm
         self.gt_arm = gt_arm
+
         # Reward probabilities
         self.p_high = probs[0]
         self.p_low = probs[1]

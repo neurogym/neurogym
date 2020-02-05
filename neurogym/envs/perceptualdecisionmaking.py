@@ -23,12 +23,16 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         'tags': ['perceptual', 'two-alternative', 'supervised']
     }
 
-    def __init__(self, dt=100, timing=None, stimEv=1.):
+    def __init__(self, dt=100, rewards=None, timing=None, stimEv=1.):
         """
         Random dot motion task. Two-alternative forced choice task
         in whichthe subject has to integrate two stimuli to decide
         which one is higher on average.
         dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: 0., float)
         timing: Description and duration of periods forming a trial.
         stimEv: Controls the difficulty of the experiment. (def: 1., float)
         """
@@ -41,9 +45,14 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         self.sigma_dt = sigma / np.sqrt(self.dt)
 
         # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
-        self.R_FAIL = 0.
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
+                          'R_FAIL': 0.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+
         self.abort = False
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
@@ -147,7 +156,18 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
                  'supervised']
     }
 
-    def __init__(self, dt=100, timing=None, stimEv=1.):
+    def __init__(self, dt=100, rewards=None, timing=None, stimEv=1.):
+        """
+        Agents have to integrate two stimuli and report which one is
+        larger on average after a delay.
+        dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: -1., float)
+        timing: Description and duration of periods forming a trial.
+        stimEv: Controls the difficulty of the experiment. (def: 1., float)
+        """
         super().__init__(dt=dt, timing=timing)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
@@ -157,9 +177,14 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         self.sigma_dt = sigma / np.sqrt(self.dt)
 
         # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
-        self.R_FAIL = -1.
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
+                          'R_FAIL': -1.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+
         self.abort = False
         self.firstcounts = True
         self.first_flag = False

@@ -36,12 +36,13 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         A sample is followed by a delay and a test. Agents have to report if
         the pair sample-test is a rewarded pair or not.
         dt: Timestep duration. (def: 100 (ms), int)
-        timing: Description and duration of periods forming a trial.
         rewards:
-            R_ABORTED: given when breaking fixation.
-            R_CORRECT: given when correct.
-            R_FAIL: given when incorrect.
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: -1., float)
             R_MISS:  given when not responding when a response was expected.
+            (def: 0., float)
+        timing: Description and duration of periods forming a trial.
         noise: Standard deviation of the Gaussian noise added to
         the stimulus. (def: 0.01, float)
         """

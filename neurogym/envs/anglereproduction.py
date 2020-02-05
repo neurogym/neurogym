@@ -25,10 +25,13 @@ class AngleReproduction(ngym.PeriodEnv):
                  'steps action space']
     }
 
-    def __init__(self, dt=100, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None):
         """
         The agent has to reproduce to two angles separated by a constant delay.
         dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: -0.1, float)
         timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt, timing=timing)
@@ -40,8 +43,13 @@ class AngleReproduction(ngym.PeriodEnv):
                                             dtype=np.float32)
         self.theta = np.arange(0, 2*np.pi, 2*np.pi/16)
         self.state = np.pi
-        self.R_CORRECT = 1.
-        self.R_FAIL = -0.1
+
+        # Rewards
+        reward_default = {'R_CORRECT': +1., 'R_FAIL': -0.1}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------

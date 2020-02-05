@@ -24,13 +24,16 @@ class DawTwoStep(ngym.TrialEnv):
         'tags': ['two-alternative']
     }
 
-    def __init__(self, dt=100, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None):
         """
         On each trial, an initial choice between two options lead
         to either of two, second-stage states. In turn, these both
         demand another two-option choice, each of which is associated
         with a different chance of receiving reward.
         dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
         timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt)
@@ -50,9 +53,12 @@ class DawTwoStep(ngym.TrialEnv):
         self.state1_high_reward = self.rng.random() > 0.5
 
         # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
-        self.R_FAIL = 0.
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)

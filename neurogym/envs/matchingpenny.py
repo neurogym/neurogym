@@ -22,11 +22,15 @@ class MatchingPenny(ngym.TrialEnv):
         'tags': ['two-alternative', 'supervised']
     }
 
-    def __init__(self, dt=100, opponent_type='random', timing=None):
+    def __init__(self, dt=100, rewards=None, opponent_type='random',
+                 timing=None):
         """
         The agent is rewarded when it selects the same target as the computer.
         dt: Timestep duration. (def: 100 (ms), int)
         opponent_type: Type of opponent. (def: 'random', str)
+        rewards:
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: 0., float)
         timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt)
@@ -38,8 +42,12 @@ class MatchingPenny(ngym.TrialEnv):
         self.opponent_type = opponent_type
 
         # Rewards
-        self.R_CORRECT = +1.
-        self.R_FAIL = 0.
+        reward_default = {'R_CORRECT': +1., 'R_FAIL': 0.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,),
                                             dtype=np.float32)

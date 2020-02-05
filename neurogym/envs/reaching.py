@@ -100,6 +100,13 @@ class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, timing=None):
+        """
+        The agent has to reproduce the angle indicated by the observation.
+        Furthermore, the reaching state itself generates strong inputs that
+        overshadows the actual target input.
+        dt: Timestep duration. (def: 100 (ms), int)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt, timing=timing)
 
         # action and observation spaces

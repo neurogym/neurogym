@@ -30,11 +30,15 @@ class DelayedMatchToSample(ngym.PeriodEnv):
                  'supervised']
     }
 
-    def __init__(self, dt=100, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None):
         """
         A sample stimulus is followed by a delay and test. Agents are required
         to indicate if the sample and test are the same stimulus.
         dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: 0., float)
         timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt, timing=timing)
@@ -45,9 +49,14 @@ class DelayedMatchToSample(ngym.PeriodEnv):
         self.sigma_dt = sigma/np.sqrt(self.dt)
 
         # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
-        self.R_FAIL = 0.
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
+                          'R_FAIL': 0.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+
         self.abort = False
 
         self.action_space = spaces.Discrete(3)
@@ -116,9 +125,6 @@ class DelayedMatchToSample(ngym.PeriodEnv):
 
 
 class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
-    """
-    Delay Match to sample with multiple, potentially repeating distractors
-    """
     metadata = {
         'description': '''Delay Match to sample with multiple,
          potentially repeating distractors.''',
@@ -139,7 +145,15 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
                  'supervised']
     }
 
-    def __init__(self, dt=100, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None):
+        """
+        Delay Match to sample with multiple, potentially repeating distractors.
+        dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt, timing=timing)
         self.choices = [1, 2, 3]
         # Input noise
@@ -147,9 +161,12 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
         self.sigma_dt = sigma/np.sqrt(self.dt)
 
         # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
-        self.R_FAIL = 0.
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+
         self.abort = False
 
         self.action_space = spaces.Discrete(2)
@@ -178,11 +195,11 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
         # Periods
         # ---------------------------------------------------------------------
         periods = ['fixation', 'sample', 'delay1', 'test1',
-                  'delay2', 'test2', 'delay3', 'test3']
+                   'delay2', 'test2', 'delay3', 'test3']
         self.add_period(periods[0], after=0)
         for i in range(1, len(periods)):
             self.add_period(periods[i], after=periods[i-1],
-                           last_period=i == len(periods)-1)
+                            last_period=i == len(periods)-1)
 
         ob = self.view_ob('fixation')
         ob[:, 0] = 1

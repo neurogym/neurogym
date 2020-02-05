@@ -23,11 +23,17 @@ class Detection(ngym.PeriodEnv):
                      'supervised']
             }
 
-    def __init__(self, dt=100, timing=None, noise=1., delay=None,
+    def __init__(self, dt=100, rewards=None, timing=None, noise=1., delay=None,
                  stim_dur=100):
         """
         The agent has to GO if a stimulus is presented.
         dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: -1., float)
+            R_MISS:  given when not responding when a response was expected.
+            (def: -0.5, float)
         timing: Description and duration of periods forming a trial.
         noise: Standard deviation of background noise. (def: 1., float)
         delay: If not None indicates the delay, from the moment of the start of
@@ -44,11 +50,17 @@ class Detection(ngym.PeriodEnv):
         self.delay = delay
         self.stim_dur = int(stim_dur/self.dt)
         assert self.stim_dur > 0, 'Stimulus duration shorter than dt'
+
         # Rewards
-        self.R_ABORTED = -0.1  # reward given when break fixation
-        self.R_CORRECT = +1.  # reward given when correct
-        self.R_FAIL = -1.  # reward given when incorrect
-        self.R_MISS = -0.5  # reward given when missing the stimulus
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
+                          'R_FAIL': -1., 'R_MISS': -0.5}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+        self.R_MISS = reward_default['R_MISS']
+
         # whether to abort (T) or not (F) the trial when breaking fixation:
         self.abort = False
         # action and observation spaces: [fixate, go]
