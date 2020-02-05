@@ -35,6 +35,8 @@ class AntiReach1D(ngym.PeriodEnv):
                                             dtype=np.float32)
         self.theta = np.arange(0, 2*np.pi, 2*np.pi/16)
         self.state = np.pi
+        self.R_CORRECT = 1.
+        self.R_FAIL = -0.1
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
@@ -77,7 +79,8 @@ class AntiReach1D(ngym.PeriodEnv):
             reward = 0
         else:
             reward =\
-                np.max((1 - tasktools.circular_dist(self.state - gt), -0.1))
+                np.max((self.R_CORRECT-tasktools.circular_dist(self.state-gt),
+                        self.R_FAIL))
 
         return ob, reward, False, {'new_trial': False}
 

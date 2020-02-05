@@ -37,7 +37,6 @@ class Bandit(ngym.TrialEnv):
             print('Warning: Bandit task does not require timing variable.')
         # Rewards
         self.R_CORRECT = +1.
-        self.R_FAIL = 0.
         self.n_arm = n_arm
         self.gt_arm = gt_arm
         # Reward probabilities

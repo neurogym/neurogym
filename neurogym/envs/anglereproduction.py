@@ -2,7 +2,7 @@
 
 import numpy as np
 from gym import spaces
-
+from neurogym.utils import tasktools
 import neurogym as ngym
 
 
@@ -40,6 +40,8 @@ class AngleReproduction(ngym.PeriodEnv):
                                             dtype=np.float32)
         self.theta = np.arange(0, 2*np.pi, 2*np.pi/16)
         self.state = np.pi
+        self.R_CORRECT = 1.
+        self.R_FAIL = -0.1
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
@@ -55,11 +57,11 @@ class AngleReproduction(ngym.PeriodEnv):
         # Periods
         # ---------------------------------------------------------------------
         periods = ['fixation', 'stim1', 'delay1', 'stim2',
-                  'delay2', 'go1', 'go2']
+                   'delay2', 'go1', 'go2']
         self.add_period(periods[0], after=0)
         for i in range(1, len(periods)):
             self.add_period(periods[i], after=periods[i - 1],
-                           last_period=i == len(periods) - 1)
+                            last_period=i == len(periods) - 1)
 
         ob = self.view_ob('stim1')
         ob[:, :16] = np.cos(self.theta - self.trial['ground_truth1'])
@@ -86,7 +88,9 @@ class AngleReproduction(ngym.PeriodEnv):
         gt = self.gt_now
         reward = 0
         if self.in_period('go1') or self.in_period('go2'):
-            reward = np.max((1 - np.abs(self.state - gt), -0.1))
+            reward =\
+                np.max((self.R_CORRECT-tasktools.circular_dist(self.state-gt),
+                        self.R_FAIL))
 
         return ob, reward, False, {'new_trial': False}
 
