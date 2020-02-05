@@ -7,7 +7,7 @@ import gym
 
 
 def plot_env(env, num_steps_env=200,
-             def_act=None, model=None, name=None, legend=True):
+             def_act=None, model=None, name=None, legend=True, fig_kwargs={}):
     """
     env: already built neurogym task or name of it
     num_steps_env: number of steps to run the task
@@ -33,7 +33,7 @@ def plot_env(env, num_steps_env=200,
     obs_cum = np.array(obs_cum)
     obs = np.array(observations)
     fig_(obs, actions, gt, rewards, legend=legend,
-         states=states, name=name)
+         states=states, name=name, fig_kwargs=fig_kwargs)
     data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
             'actions': actions, 'perf': perf,
             'actions_end_of_trial': actions_end_of_trial, 'gt': gt,
@@ -50,7 +50,7 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
     actions_end_of_trial = []
     gt = []
     perf = []
-    obs = env.reset()
+    obs = env.reset()  # TODO: not saving this first observation
     obs_cum_temp = obs
     for stp in range(int(num_steps_env)):
         if model is not None:
@@ -85,7 +85,10 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
             actions_end_of_trial.append(-1)
         rewards.append(rew)
         actions.append(action)
-        gt.append(info['gt'])
+        if 'gt' in info.keys():
+            gt.append(info['gt'])
+        else:
+            gt.append(0)
     if model is not None:
         states = np.array(state_mat)
         states = states[:, 0, :]
@@ -96,18 +99,21 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
 
 
 def fig_(obs, actions, gt=None, rewards=None, states=None,
-         legend=True, name='', folder=''):
+         legend=True, name='', folder='', fig_kwargs={}):
     if len(obs.shape) != 2:
         raise ValueError('obs has to be 2-dimensional.')
     # TODO: Add documentation
-    steps = np.arange(obs.shape[0])
+    steps = np.arange(obs.shape[0])  # XXX: +1? 1st obs doesn't have action/gt
 
     n_row = 2  # observation and action
     n_row += rewards is not None
     n_row += states is not None
 
     gt_colors = 'gkmcry'
-    f, axes = plt.subplots(n_row, 1, sharex=True, figsize=(5, n_row*1.5))
+    if not fig_kwargs:
+        fig_kwargs=dict(sharex=True, figsize=(5, n_row*1.5))
+
+    f, axes = plt.subplots(n_row, 1, **fig_kwargs)
     # obs
     ax = axes[0]
     ax.imshow(obs.T, aspect='auto')
@@ -191,5 +197,5 @@ def order_by_sufix(file_list):
 
 
 if __name__ == '__main__':
-    f = '/home/manuel/ngym_usage/results/combine_tests_no_shared_actSpace/'
+    f = '/home/molano/ngym_usage/results/dpa_tests/'
     plot_rew_across_training(folder=f)
