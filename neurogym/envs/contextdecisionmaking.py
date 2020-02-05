@@ -31,11 +31,14 @@ class ContextDecisionMaking(ngym.PeriodEnv):
                  'supervised']
     }
 
-    def __init__(self, dt=100, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None):
         """
         Agent has to perform one of two different perceptual discriminations.
         On every trial, a contextual cue indicates which one to perform.
         dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
         timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt, timing=timing)
@@ -50,8 +53,12 @@ class ContextDecisionMaking(ngym.PeriodEnv):
         self.sigma_dt = sigma/np.sqrt(self.dt)
 
         # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+
         self.abort = False
 
         # set action and observation space
@@ -131,7 +138,14 @@ class ContextDecisionMakingWithAbstraction(ngym.PeriodEnv):
             'decision': ('constant', 100)},  # XXX: not specified
     }
 
-    def __init__(self, dt=100, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None):
+        """
+        dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt, timing=timing)
 
         # trial conditions
@@ -144,8 +158,13 @@ class ContextDecisionMakingWithAbstraction(ngym.PeriodEnv):
         self.sigma_dt = sigma/np.sqrt(self.dt)
 
         # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
+        # Rewards
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+
         self.abort = False
 
         # set action and observation space

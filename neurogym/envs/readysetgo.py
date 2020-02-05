@@ -29,18 +29,17 @@ class ReadySetGo(ngym.PeriodEnv):
         """
         Agents have to measure and produce different time intervals.
         dt: Timestep duration. (def: 80 (ms), int)
-        timing: Description and duration of periods forming a trial.
         rewards:
-            R_ABORTED: given when breaking fixation.
-            R_CORRECT: given when correct.
-            R_FAIL: given when incorrect.
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: 0., float)
+        timing: Description and duration of periods forming a trial.
         gain: Controls the measure that the agent has to produce. (def: 1, int)
         """
         super().__init__(dt=dt, timing=timing)
 
         self.gain = gain
 
-        # Rewards
         # Rewards
         reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
                           'R_FAIL': 0.}
@@ -127,16 +126,31 @@ class MotorTiming(ngym.PeriodEnv):
         'tags': ['timing', 'go-no-go', 'supervised']
     }
 
-    def __init__(self, dt=80, timing=None):
+    def __init__(self, dt=80, rewards=None, timing=None):
+        """
+        Agents have to produce different time intervals
+        using different effectors (actions).
+        dt: Timestep duration. (def: 80 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: 0., float)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt, timing=timing)
 
         self.production_ind = [0, 1]
         self.intervals = [800, 1500]
 
         # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
-        self.R_FAIL = 0.
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
+                          'R_FAIL': 0.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+
         self.abort = False
         # set action and observation space
         self.action_space = spaces.Discrete(2)  # (fixate, go)
@@ -156,7 +170,7 @@ class MotorTiming(ngym.PeriodEnv):
         self.add_period('cue', after='fixation')
         self.add_period('set', after='cue')
         self.add_period('production', duration=2*self.trial['production'],
-                       after='set', last_period=True)
+                        after='set', last_period=True)
 
         self.set_ob('fixation', [1, 0, 0, 0])
         ob = self.view_ob('cue')

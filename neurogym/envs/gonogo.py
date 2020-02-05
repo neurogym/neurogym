@@ -39,11 +39,17 @@ class GoNogo(ngym.PeriodEnv):
         'tags': ['delayed response', 'go-no-go', 'supervised']
     }
 
-    def __init__(self, dt=100, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None):
         """
         Go/No-Go task in which the subject has either Go (e.g. lick)
         or not Go depending on which one of two stimuli is presented with.
         dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: -0.5, float)
+            R_MISS:  given when not responding when a response was expected.
+            (def: -0.5, float)
         timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt, timing=timing)
@@ -53,10 +59,11 @@ class GoNogo(ngym.PeriodEnv):
         self.choices = [0, 1]
 
         # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
-        self.R_FAIL = -0.5
-        self.R_MISS = -0.5  # punishment for miss when trial is GO
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
+                          'R_FAIL': -0.5, 'R_MISS': -0.5}
+        if rewards is not None:
+            reward_default.update(rewards)
+
         self.abort = False
         # set action and observation spaces
         self.action_space = spaces.Discrete(2)

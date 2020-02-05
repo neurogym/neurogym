@@ -30,13 +30,17 @@ class CVLearning(ngym.PeriodEnv):
                  'supervised']
     }
 
-    def __init__(self, dt=100, timing=None, stimEv=1., perf_w=1000,
-                 max_num_reps=3, init_ph=0, th=0.8):
+    def __init__(self, dt=100, rewards=None, timing=None, stimEv=1.,
+                 perf_w=1000, max_num_reps=3, init_ph=0, th=0.8):
         """
         Implements shaping for the delay-response task, in which agents
         have to integrate two stimuli and report which one is larger on
         average after a delay.
         dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: -1., float)
         timing: Description and duration of periods forming a trial.
         stimEv: Controls the difficulty of the experiment. (def: 1., float)
         perf_w: Window used to compute the mean reward. (def: 1000, int)
@@ -53,11 +57,16 @@ class CVLearning(ngym.PeriodEnv):
         # Input noise
         sigma = np.sqrt(2*100*0.01)
         self.sigma_dt = sigma / np.sqrt(self.dt)
+
         # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
-        self.R_FAIL = -1.
-        self.R_MISS = 0.
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
+                          'R_FAIL': -1.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+
         self.abort = False
         self.firstcounts = True
         self.first_flag = False
@@ -78,12 +87,10 @@ class CVLearning(ngym.PeriodEnv):
         """
         new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:
-            durations, which stores the duration of the different periods (in
-            the case of perceptualDecisionMaking: fixation, stimulus and
-            decision periods)
-            ground truth: correct response for the trial
-            coh: stimulus coherence (evidence) for the trial
-            obs: observation
+            durations: Stores the duration of the different periods.
+            ground truth: Correct response for the trial.
+            coh: Stimulus coherence (evidence) for the trial.
+            obs: Observation.
         """
         self.trial = {
             'ground_truth': self.rng.choice(self.choices),
@@ -145,9 +152,9 @@ class CVLearning(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         self.add_period('fixation', after=0)
         self.add_period('stimulus', duration=self.durs['stimulus'],
-                       after='fixation')
+                        after='fixation')
         self.add_period('delay', duration=self.durs['delay'],
-                       after='stimulus')
+                        after='stimulus')
         self.add_period('decision', after='delay', last_period=True)
 
         # define observations
