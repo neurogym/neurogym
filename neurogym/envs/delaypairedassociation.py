@@ -54,7 +54,7 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         self.R_ABORTED = -0.1
         self.R_CORRECT = +1.
         self.R_FAIL = -1.
-        self.R_MISS = -1.  # punishment for miss when trial is GO
+        self.R_MISS = 0.  # punishment for miss when trial is GO
         self.abort = False
         # action and observation spaces
         self.action_space = spaces.Discrete(2)
