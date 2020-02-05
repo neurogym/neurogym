@@ -60,6 +60,8 @@ class MatchingPenny(ngym.TrialEnv):
             'opponent_action': opponent_action,
             }
         self.obs = np.zeros(self.observation_space.shape)
+        self.gt = np.zeros((1, 2))
+        self.gt[0, opponent_action] = 1
 
     def _step(self, action):
         trial = self.trial
@@ -70,5 +72,5 @@ class MatchingPenny(ngym.TrialEnv):
         else:
             reward = self.R_FAIL
 
-        info = {'new_trial': True, 'gt': obs}
+        info = {'new_trial': True, 'gt': self.gt[0]}
         return obs, reward, False, info

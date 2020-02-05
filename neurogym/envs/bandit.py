@@ -61,6 +61,8 @@ class Bandit(ngym.TrialEnv):
             }
         self.trial.update(kwargs)
         self.obs = np.zeros(self.observation_space.shape)
+        self.gt = np.zeros((1, self.n_arm))
+        self.gt[0, self.gt_arm] = 1
 
     def _step(self, action):
         trial = self.trial
@@ -74,5 +76,5 @@ class Bandit(ngym.TrialEnv):
 
         # new trial?
         info['new_trial'] = True
-        info['gt'][self.gt_arm] = 1
+        info['gt'] = self.gt[0]
         return obs, reward, False, info

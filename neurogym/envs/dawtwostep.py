@@ -113,5 +113,5 @@ class DawTwoStep(ngym.TrialEnv):
             info['new_trial'] = True
         else:
             raise ValueError('t is not 0 or 1')
-        info['gt'][trial['hi_state']+1] = 1  # TODO: check!
+
         return obs, reward, False, info
