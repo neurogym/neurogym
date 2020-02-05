@@ -221,3 +221,12 @@ class ContextDecisionMakingWithAbstraction(ngym.PeriodEnv):
                     reward = self.R_CORRECT
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+
+
+if __name__ == '__main__':
+    env = ContextDecisionMaking()
+    env.seed(seed=0)
+    ngym.utils.plot_env(env, num_steps_env=100, def_act=0)
+    env = ContextDecisionMaking()
+    env.seed(seed=0)
+    ngym.utils.plot_env(env, num_steps_env=100, def_act=0)
