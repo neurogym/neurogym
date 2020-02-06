@@ -40,8 +40,7 @@ class PostDecisionWager(ngym.PeriodEnv):
             'delay': ('truncated_exponential', [1350, 1200, 1800]),
             'pre_sure': ('uniform', [500, 750]),
             'decision': ('constant', 100)},  # XXX: not specified
-        'tags': ['perceptual', 'delayed response', 'confidence',
-                 'supervised']
+        'tags': ['perceptual', 'delayed response', 'confidence']
     }
 
     def __init__(self, dt=100, rewards=None, timing=None):

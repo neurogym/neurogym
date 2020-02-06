@@ -64,7 +64,7 @@ class GoNogo(ngym.PeriodEnv):
         self.R_ABORTED = reward_default['R_ABORTED']
         self.R_CORRECT = reward_default['R_CORRECT']
         self.R_FAIL = reward_default['R_FAIL']
-        self.R_MISS = reward_default['R_MISS']  # rew for miss if trial is GO        
+        self.R_MISS = reward_default['R_MISS']  # rew for miss if trial is GO
         if rewards is not None:
             reward_default.update(rewards)
 
