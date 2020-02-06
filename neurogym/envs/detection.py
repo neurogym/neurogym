@@ -23,7 +23,7 @@ class Detection(ngym.PeriodEnv):
                      'supervised']
             }
 
-    def __init__(self, dt=100, rewards=None, timing=None, noise=1., delay=None,
+    def __init__(self, dt=100, rewards=None, timing=None, noise=.5, delay=None,
                  stim_dur=100):
         """
         The agent has to GO if a stimulus is presented.

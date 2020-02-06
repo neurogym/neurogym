@@ -233,5 +233,4 @@ if __name__ == '__main__':
     from neurogym.tests import test_run
     from neurogym.utils.plotting import plot_env
     env = DelayedMatchToSampleDistractor1D()
-    test_run(env)
-    plot_env(env)
+    plot_env(env, num_steps_env=200, def_act=0)

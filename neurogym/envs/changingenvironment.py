@@ -27,7 +27,7 @@ class ChangingEnvironment(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, stimEv=1.,
-                 cxt_ch_prob=0.01, cxt_cue=False):
+                 cxt_ch_prob=0.001, cxt_cue=False):
         """
         Random Dots Motion tasks in which the correct action
         depends on a randomly changing context.
