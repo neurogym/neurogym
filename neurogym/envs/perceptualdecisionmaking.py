@@ -186,8 +186,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         self.R_FAIL = reward_default['R_FAIL']
 
         self.abort = False
-        self.firstcounts = True
-        self.first_flag = False
+
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
@@ -204,7 +203,6 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
             coh: stimulus coherence (evidence) for the trial
             obs: observation
         """
-        self.first_flag = False
 
         # ---------------------------------------------------------------------
         # Trial
@@ -256,7 +254,6 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         # observations
         gt = self.gt_now
 
-        first_trial = np.nan
         if self.in_period('fixation') or self.in_period('delay'):
             if action != 0:
                 new_trial = self.abort
@@ -265,22 +262,18 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
             if action == gt:
                 reward = self.R_CORRECT
                 new_trial = True
-                if ~self.first_flag:
-                    first_trial = True
-                    self.first_flag = True
+
             elif action == 3 - gt:  # 3-action is the other act
                 reward = self.R_FAIL
-                new_trial = self.firstcounts
-                if ~self.first_flag:
-                    first_trial = False
-                    self.first_flag = True
+                new_trial = True
 
         info = {'new_trial': new_trial,
-                'gt': gt,
-                'first_trial': first_trial}
+                'gt': gt}
         return self.obs_now, reward, False, info
 
 
 if __name__ == '__main__':
     env = PerceptualDecisionMaking()
-    ngym.utils.plot_env(env, num_steps_env=100)
+    ngym.utils.plot_env(env, num_steps_env=100, def_act=1)
+    env = PerceptualDecisionMakingDelayResponse()
+    ngym.utils.plot_env(env, num_steps_env=100, def_act=1)
