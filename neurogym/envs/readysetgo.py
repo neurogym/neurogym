@@ -70,11 +70,15 @@ class ReadySetGo(ngym.PeriodEnv):
         self.add_period('measure', duration=measure, after='fixation')
         self.add_period('set', after='measure')
         self.add_period('production', duration=2*self.trial['production'],
-                       after='set', last_period=True)
+                        after='set', last_period=True)
 
         self.set_ob('fixation', [1, 0, 0])
         self.set_ob('ready', [0, 1, 0])
         self.set_ob('set', [0, 0, 1])
+        # set ground truth
+        gt = np.zeros((int(2*self.trial['production']/self.dt),))
+        gt[int(self.trial['production']/self.dt)] = 1
+        self.set_groundtruth('production', gt)
 
     def _step(self, action):
         # ---------------------------------------------------------------------
@@ -83,21 +87,18 @@ class ReadySetGo(ngym.PeriodEnv):
         trial = self.trial
         reward = 0
         obs = self.obs_now
-        gt = np.zeros((2,))
-        gt[0] = 1
+        gt = self.gt_now
         new_trial = False
         if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
         if self.in_period('production'):
-            t_prod = self.t - self.end_t['measure']  # time from end of measur
-            eps = abs(t_prod - trial['production'])
-            if eps < self.dt/2 + 1:
-                gt[1] = 1
-
             if action == 1:
                 new_trial = True  # terminate
+                # time from end of measure:
+                t_prod = self.t - self.end_t['measure']
+                eps = abs(t_prod - trial['production'])
                 # actual production time
                 eps_threshold = 0.2*trial['production']+25
                 if eps > eps_threshold:
@@ -180,6 +181,10 @@ class MotorTiming(ngym.PeriodEnv):
         ob[:, 0] = 1
         ob[:, self.trial['production_ind'] + 1] = 1
         ob[:, 3] = 1
+        # set ground truth
+        gt = np.zeros((int(2*self.trial['production']/self.dt),))
+        gt[int(self.trial['production']/self.dt)] = 1
+        self.set_groundtruth('production', gt)
 
     def _step(self, action):
         # ---------------------------------------------------------------------
@@ -188,21 +193,17 @@ class MotorTiming(ngym.PeriodEnv):
         trial = self.trial
         reward = 0
         obs = self.obs_now
-        gt = np.zeros((2,))
-        gt[0] = 1
+        gt = self.gt_now
         new_trial = False
         if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
         if self.in_period('production'):
-            t_prod = self.t - self.end_t['set']  # time from end of measure
-            eps = abs(t_prod - trial['production'])
-            if eps < self.dt/2 + 1:
-                gt[1] = 1
-
             if action == 1:
                 new_trial = True  # terminate
+                t_prod = self.t - self.end_t['set']  # time from end of measure
+                eps = abs(t_prod - trial['production'])
                 # actual production time
                 eps_threshold = 0.2*trial['production']+25
                 if eps > eps_threshold:
@@ -213,3 +214,10 @@ class MotorTiming(ngym.PeriodEnv):
                     reward *= self.R_CORRECT
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+
+
+if __name__ == '__main__':
+    env = MotorTiming()
+    ngym.utils.plot_env(env, num_steps_env=100, def_act=0)
+#    env = ReadySetGo()
+#    ngym.utils.plot_env(env, num_steps_env=100, def_act=0)
