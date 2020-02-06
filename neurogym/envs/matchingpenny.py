@@ -6,7 +6,7 @@ See Daeyeol Lee's papers
 TODO: add the actual papers
 """
 from __future__ import division
-
+from sklearn.linear_model import LogisticRegression
 import numpy as np
 from gym import spaces
 import neurogym as ngym
@@ -51,6 +51,8 @@ class MatchingPenny(ngym.TrialEnv):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,),
                                             dtype=np.float32)
+        if self.opponent_type == 'lr':
+            self.actions = []
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
@@ -60,6 +62,8 @@ class MatchingPenny(ngym.TrialEnv):
         # determine the transitions
         if self.opponent_type == 'random':
             opponent_action = int(self.rng.random() > 0.5)
+        elif self.opponent_type == 'lr':
+            
         else:
             ot = self.opponent_type
             raise ValueError('Unknown opponent type {:s}'.format(ot))
@@ -68,12 +72,12 @@ class MatchingPenny(ngym.TrialEnv):
             'opponent_action': opponent_action,
             }
         self.obs = np.zeros((1, self.observation_space.shape[0]))
-        self.obs[0, opponent_action] = 1.
         self.gt = np.array([opponent_action])
 
     def _step(self, action):
         trial = self.trial
         obs = self.obs[0]
+        self.mean_action += action
         if action == trial['opponent_action']:
             reward = self.R_CORRECT
         else:
