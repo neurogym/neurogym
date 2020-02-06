@@ -167,8 +167,6 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
         self.R_ABORTED = reward_default['R_ABORTED']
         self.R_CORRECT = reward_default['R_CORRECT']
 
-        self.abort = False
-
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(33,),
                                             dtype=np.float32)
@@ -219,8 +217,8 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
 
         if not self.in_period('test'+str(self.trial['ground_truth'])):
             if action != 0:
-                new_trial = self.abort
                 reward = self.R_ABORTED
+                new_trial = True
         else:
             if action == 1:
                 reward = self.R_CORRECT
@@ -230,7 +228,6 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
 
 
 if __name__ == '__main__':
-    from neurogym.tests import test_run
     from neurogym.utils.plotting import plot_env
     env = DelayedMatchToSampleDistractor1D()
-    plot_env(env, num_steps_env=200, def_act=0)
+    plot_env(env, num_steps_env=200, def_act=1)
