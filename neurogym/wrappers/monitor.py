@@ -113,6 +113,7 @@ class Monitor(Wrapper):
             act_mat = np.array(self.act_mat)
             fig_(obs=obs_mat, actions=act_mat,
                  gt=self.gt_mat, rewards=self.rew_mat,
+                 mean_perf=np.mean(self.data['reward']),
                  folder=self.folder)
             self.obs_mat = []
             self.act_mat = []
