@@ -59,14 +59,21 @@ class IntervalDiscrimination(ngym.PeriodEnv):
     def new_trial(self, **kwargs):
         duration1 = self.timing_fn['stim1']()
         duration2 = self.timing_fn['stim2']()
-        ground_truth = 1 if duration1 < duration2 else 2
+        ground_truth = 1 if duration1 > duration2 else 2
 
         periods = ['fixation', 'stim1', 'delay1',
                    'stim2', 'delay2', 'decision']
         self.add_period(periods[0], after=0)
         for i in range(1, len(periods)):
-            self.add_period(periods[i], after=periods[i - 1],
-                            last_period=i == len(periods) - 1)
+            if periods[i] == 'stim1':
+                self.add_period(periods[i], after=periods[i - 1],
+                                duration=duration1)
+            elif periods[i] == 'stim2':
+                self.add_period(periods[i], after=periods[i - 1],
+                                duration=duration2)
+            else:
+                self.add_period(periods[i], after=periods[i - 1],
+                                last_period=i == len(periods) - 1)
 
         self.set_ob('fixation', [1, 0, 0])
         self.set_ob('stim1', [1, 1, 0])
@@ -105,4 +112,4 @@ if __name__ == '__main__':
     from neurogym.tests import test_run
     env = IntervalDiscrimination()
     test_run(env)
-    ngym.utils.plot_env(env)
+    ngym.utils.plot_env(env, def_act=0)
