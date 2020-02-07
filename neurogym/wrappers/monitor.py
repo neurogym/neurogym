@@ -114,7 +114,7 @@ class Monitor(Wrapper):
             fig_(obs=obs_mat, actions=act_mat,
                  gt=self.gt_mat, rewards=self.rew_mat,
                  mean_perf=np.mean(self.data['reward']),
-                 folder=self.folder)
+                 folder=self.folder+f'task_{self.num_tr:06}.png')
             self.obs_mat = []
             self.act_mat = []
             self.rew_mat = []

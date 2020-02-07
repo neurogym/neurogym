@@ -159,21 +159,40 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, mean_perf=None,
     ax.set_xlabel('Steps')
     plt.tight_layout()
     if folder is not None and folder != '':
-        f.savefig(folder + '/' + name + 'env_struct.png')
+        if folder.endswith('.png'):
+            f.savefig(folder)
+        else:
+            f.savefig(folder + name + 'env_struct.png')
         plt.close(f)
 
     return f
 
 
-def plot_rew_across_training(folder, window=500):
+def plot_rew_across_training(folder, window=500, ax=None, 
+                            fkwargs={'c': 'tab:blue'}, ytitle='', 
+                            legend=False, zline=False):
     data = put_together_files(folder)
-    f = plt.figure(figsize=(8, 8))
+    showfig = False 
+    if ax is None:
+        showfig = True
+        f, ax = plt.subplot(figsize=(8, 8))
     reward = data['reward']
+    if isinstance(window, float):
+        if window<1.0:
+            window = int(reward.size * window)
     mean_reward = np.convolve(reward, np.ones((window,))/window, mode='valid')
-    plt.plot(mean_reward)
-    plt.xlabel('trials')
-    plt.ylabel('mean reward (running window of {:d} trials'.format(window))
-    f.savefig(folder + '/mean_reward_across_training.png')
+    ax.plot(mean_reward, **fkwargs) # add color, label etc.
+    ax.set_xlabel('trials')
+    if not ytitle:
+        ax.set_ylabel('mean reward (running window of {:d} trials'.format(window))
+    else:
+        ax.set_ylabel(ytitle)
+    if legend:
+        ax.legend()
+    if zline:
+        ax.axhline(0, c='k', ls=':')
+    if showfig:
+        f.savefig(folder + '/mean_reward_across_training.png')
 
 
 def put_together_files(folder):
