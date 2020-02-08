@@ -21,18 +21,18 @@ class Monitor(Wrapper):
     }
     # TODO: use names similar to Tensorboard
 
-    def __init__(self, env, folder=None, num_tr_save=100000, verbose=False,
-                 sv_fig=False, num_stps_sv_fig=100):
+    def __init__(self, env, folder=None, sv_per=100000, sv_stp='trial',
+                 verbose=False, sv_fig=False, num_stps_sv_fig=100, name=''):
         """
         Saves relevant behavioral information: rewards,actions, observations,
         new trial, ground truth.
         folder: Folder where the data will be saved. (def: None, str)
-        num_tr_save: Data will be saved every num_tr_save trials.
+        sv_per and sv_stp: Data will be saved every sv_per sv_stp's.
         (def: 100000, int)
         verbose: Whether to print information about average reward and number
         of trials. (def: False, bool)
         sv_fig: Whether to save a figure of the experiment structure. If True,
-        a figure will be updated every num_tr_save. (def: False, bool)
+        a figure will be updated every sv_per. (def: False, bool)
         num_stps_sv_fig: Number of trial steps to include in the figure.
         (def: 100, int)
         """
@@ -43,7 +43,10 @@ class Monitor(Wrapper):
         self.data = {'choice': [], 'stimulus': [], 'reward': []}
         self.cum_obs = 0
         self.cum_rew = 0
-        self.num_tr_save = num_tr_save
+        self.sv_per = sv_per
+        self.sv_stp = sv_stp
+        if self.sv_stp == 'timestep':
+            self.t = 0
         self.verbose = verbose
         if folder is not None:
             self.folder = folder + '/'
@@ -52,8 +55,8 @@ class Monitor(Wrapper):
         if not os.path.exists(self.folder):
             os.mkdir(self.folder)
         # seeding
-        self.saving_name = self.folder +\
-            self.env.__class__.__name__
+        self.sv_name = self.folder +\
+            self.env.__class__.__name__+'_bhvr_data_'+name+'_'
         # figure
         self.sv_fig = sv_fig
         if self.sv_fig:
@@ -70,6 +73,8 @@ class Monitor(Wrapper):
         self.cum_rew += rew
         if self.sv_fig:
             self.store_data(obs, action, rew, info['gt'])
+        if self.sv_stp == 'timestep':
+            self.t += 1
         if info['new_trial']:
             self.num_tr += 1
             self.data['choice'].append(action)
@@ -84,9 +89,13 @@ class Monitor(Wrapper):
                     self.data[key].append(info[key])
 
             # save data
-            if self.num_tr % self.num_tr_save == 0:
-                np.savez(self.saving_name + '_bhvr_data_' +
-                         str(self.num_tr) + '.npz', **self.data)
+            save = False
+            if self.sv_stp == 'timestep':
+                save = self.t >= self.sv_per
+            else:
+                save = self.num_tr % self.sv_per == 0
+            if save:
+                np.savez(self.sv_name + str(self.num_tr) + '.npz', **self.data)
                 if self.verbose:
                     print('--------------------')
                     print('Number of steps: ', np.mean(self.num_tr))
@@ -95,6 +104,9 @@ class Monitor(Wrapper):
                 self.reset_data()
                 if self.sv_fig:
                     self.stp_counter = 0
+                if self.sv_stp == 'timestep':
+                    self.t = 0
+
         return obs, rew, done, info
 
     def reset_data(self):
@@ -114,7 +126,7 @@ class Monitor(Wrapper):
             fig_(obs=obs_mat, actions=act_mat,
                  gt=self.gt_mat, rewards=self.rew_mat,
                  mean_perf=np.mean(self.data['reward']),
-                 folder=self.folder+f'task_{self.num_tr:06}.png')
+                 folder=self.sv_name+f'task_{self.num_tr:06}.png')
             self.obs_mat = []
             self.act_mat = []
             self.rew_mat = []
