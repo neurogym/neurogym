@@ -175,7 +175,7 @@ def plot_rew_across_training(folder, window=500, ax=None,
     showfig = False
     if ax is None:
         showfig = True
-        f, ax = plt.subplot(figsize=(8, 8))
+        f, ax = plt.subplots(figsize=(8, 8))
     reward = data['reward']
     if isinstance(window, float):
         if window < 1.0:
@@ -219,5 +219,5 @@ def order_by_sufix(file_list):
 
 
 if __name__ == '__main__':
-    f = '/home/molano/ngym_usage/results/dpa_tests/'
+    f = '/home/molano/res080220/SL_PerceptualDecisionMaking-v0_0/'
     plot_rew_across_training(folder=f)
