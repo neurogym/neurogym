@@ -52,6 +52,7 @@ class MatchingPenny(ngym.TrialEnv):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,),
                                             dtype=np.float32)
+        self.prev_opp_action = int(self.rng.random() > 0.5)
         if self.opponent_type == 'mean_action':
             self.mean_action = 0
             self.lr = learning_rate
@@ -70,10 +71,10 @@ class MatchingPenny(ngym.TrialEnv):
             ot = self.opponent_type
             raise ValueError('Unknown opponent type {:s}'.format(ot))
 
-        self.trial = {
-            'opponent_action': opponent_action,
-            }
+        self.trial = {'opponent_action': opponent_action}
         self.obs = np.zeros((1, self.observation_space.shape[0]))
+        self.obs[0, self.prev_opp_action] = 1
+        self.prev_opp_action = self.trial['opponent_action']
         self.gt = np.array([opponent_action])
 
     def _step(self, action):

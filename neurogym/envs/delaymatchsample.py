@@ -152,6 +152,7 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
         rewards:
             R_ABORTED: given when breaking fixation. (def: -0.1, float)
             R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: -1., float)
         timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt, timing=timing)
@@ -161,12 +162,13 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
         self.sigma_dt = sigma/np.sqrt(self.dt)
 
         # Rewards
-        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.}
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1., 'R_FAIL': -1.}
         if rewards is not None:
             reward_default.update(rewards)
         self.R_ABORTED = reward_default['R_ABORTED']
         self.R_CORRECT = reward_default['R_CORRECT']
-
+        self.R_FAIL = reward_default['R_FAIL']
+        self.abort = False
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(33,),
                                             dtype=np.float32)
@@ -214,10 +216,13 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
 
         obs = self.obs_now
         gt = self.gt_now
-
-        if not self.in_period('test'+str(self.trial['ground_truth'])):
+        if ((self.in_period('fixation') or self.in_period('sample'))
+           and action != 0):
+            reward = self.R_ABORTED
+            new_trial = self.abort
+        elif not self.in_period('test'+str(self.trial['ground_truth'])):
             if action != 0:
-                reward = self.R_ABORTED
+                reward = self.R_FAIL
                 new_trial = True
         else:
             if action == 1:
@@ -229,5 +234,5 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     from neurogym.utils.plotting import plot_env
-    env = DelayedMatchToSampleDistractor1D()
-    plot_env(env, num_steps_env=200, def_act=1)
+    env = DelayedMatchToSample()
+    plot_env(env, num_steps_env=200)  # , def_act=1)

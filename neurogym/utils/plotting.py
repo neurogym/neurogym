@@ -168,23 +168,24 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, mean_perf=None,
     return f
 
 
-def plot_rew_across_training(folder, window=500, ax=None, 
-                            fkwargs={'c': 'tab:blue'}, ytitle='', 
-                            legend=False, zline=False):
+def plot_rew_across_training(folder, window=500, ax=None,
+                             fkwargs={'c': 'tab:blue'}, ytitle='',
+                             legend=False, zline=False):
     data = put_together_files(folder)
-    showfig = False 
+    showfig = False
     if ax is None:
         showfig = True
         f, ax = plt.subplot(figsize=(8, 8))
     reward = data['reward']
     if isinstance(window, float):
-        if window<1.0:
+        if window < 1.0:
             window = int(reward.size * window)
     mean_reward = np.convolve(reward, np.ones((window,))/window, mode='valid')
-    ax.plot(mean_reward, **fkwargs) # add color, label etc.
+    ax.plot(mean_reward, **fkwargs)  # add color, label etc.
     ax.set_xlabel('trials')
     if not ytitle:
-        ax.set_ylabel('mean reward (running window of {:d} trials'.format(window))
+        ax.set_ylabel('mean reward (running window' +
+                      ' of {:d} trials'.format(window))
     else:
         ax.set_ylabel(ytitle)
     if legend:
