@@ -172,43 +172,48 @@ def plot_rew_across_training(folder, window=500, ax=None,
                              fkwargs={'c': 'tab:blue'}, ytitle='',
                              legend=False, zline=False):
     data = put_together_files(folder)
-    showfig = False
-    if ax is None:
-        showfig = True
-        f, ax = plt.subplots(figsize=(8, 8))
-    reward = data['reward']
-    if isinstance(window, float):
-        if window < 1.0:
-            window = int(reward.size * window)
-    mean_reward = np.convolve(reward, np.ones((window,))/window, mode='valid')
-    ax.plot(mean_reward, **fkwargs)  # add color, label etc.
-    ax.set_xlabel('trials')
-    if not ytitle:
-        ax.set_ylabel('mean reward (running window' +
-                      ' of {:d} trials'.format(window))
+    if data:
+        sv_fig = False
+        if ax is None:
+            sv_fig = True
+            f, ax = plt.subplots(figsize=(8, 8))
+        reward = data['reward']
+        if isinstance(window, float):
+            if window < 1.0:
+                window = int(reward.size * window)
+        mean_reward = np.convolve(reward, np.ones((window,))/window,
+                                  mode='valid')
+        ax.plot(mean_reward, **fkwargs)  # add color, label etc.
+        ax.set_xlabel('trials')
+        if not ytitle:
+            ax.set_ylabel('mean reward (running window' +
+                          ' of {:d} trials'.format(window))
+        else:
+            ax.set_ylabel(ytitle)
+        if legend:
+            ax.legend()
+        if zline:
+            ax.axhline(0, c='k', ls=':')
+        if sv_fig:
+            f.savefig(folder + '/mean_reward_across_training.png')
     else:
-        ax.set_ylabel(ytitle)
-    if legend:
-        ax.legend()
-    if zline:
-        ax.axhline(0, c='k', ls=':')
-    if showfig:
-        f.savefig(folder + '/mean_reward_across_training.png')
+        print('No data in: ', folder)
 
 
 def put_together_files(folder):
     files = glob.glob(folder + '/*_bhvr_data*npz')
-    files = order_by_sufix(files)
-    file_data = np.load(files[0], allow_pickle=True)
     data = {}
-    for key in file_data.keys():
-        data[key] = file_data[key]
-
-    for ind_f in range(len(files)):
-        file_data = np.load(files[ind_f], allow_pickle=True)
+    if len(files) > 0:
+        files = order_by_sufix(files)
+        file_data = np.load(files[0], allow_pickle=True)
         for key in file_data.keys():
-            data[key] = np.concatenate((data[key], file_data[key]))
-    np.savez(folder + '/bhvr_data_all.npz', **data)
+            data[key] = file_data[key]
+
+        for ind_f in range(len(files)):
+            file_data = np.load(files[ind_f], allow_pickle=True)
+            for key in file_data.keys():
+                data[key] = np.concatenate((data[key], file_data[key]))
+        np.savez(folder + '/bhvr_data_all.npz', **data)
     return data
 
 
