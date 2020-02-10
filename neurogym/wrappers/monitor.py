@@ -72,7 +72,11 @@ class Monitor(Wrapper):
         self.cum_obs += obs
         self.cum_rew += rew
         if self.sv_fig:
-            self.store_data(obs, action, rew, info['gt'])
+            if 'gt' in info.keys():
+                gt = info['gt']
+            else:
+                gt = 0
+            self.store_data(obs, action, rew, gt)
         if self.sv_stp == 'timestep':
             self.t += 1
         if info['new_trial']:
