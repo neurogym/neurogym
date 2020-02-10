@@ -20,15 +20,13 @@ def _clean_string(string):
 def env_string(env):
     string = ''
     metadata = env.metadata
+    docstring = env.__init__.__doc__
     string += "### {:s}\n".format(type(env).__name__)
     paper_name = metadata.get('paper_name',
                               None) or 'Missing paper name'
     paper_name = _clean_string(paper_name)
     paper_link = metadata.get('paper_link', None)
-    task_description = metadata.get('description',
-                                    None) or 'Missing description'
-    task_description = _clean_string(task_description)
-    string += "Logic: {:s}\n".format(task_description)
+    string += "Doc: {:s}\n".format(docstring)
     string += "Reference paper: \n"
     if paper_link is None:
         string += "{:s}\n".format(paper_name)
@@ -38,19 +36,19 @@ def env_string(env):
     # add timing info
     if isinstance(env, PeriodEnv):
         timing = metadata['timing']
-        string += 'Default Period timing (ms) \n'
+        string += '\nDefault Period timing (ms) \n'
         for key, val in timing.items():
             dist, args = val
             string += key + ' : ' + dist + ' ' + str(args) + '\n'
     # add extra info
     other_info = list(set(metadata.keys()) - set(METADATA_DEF_KEYS))
     if len(other_info) > 0:
-        string += "Other parameters: \n"
+        string += "\nOther parameters: \n"
         for key in other_info:
             string += key + ' : ' + _clean_string(str(metadata[key])) + '\n'
     # tags
     tags = metadata['tags']
-    string += 'Tags: '
+    string += '\nTags: '
     for tag in tags:
         string += tag + ', '
     string = string[:-2] + '.\n'
