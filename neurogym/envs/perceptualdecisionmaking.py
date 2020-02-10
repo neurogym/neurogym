@@ -25,9 +25,10 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
 
     def __init__(self, dt=100, rewards=None, timing=None, stimEv=1.):
         """
-        Random dot motion task. Two-alternative forced choice task
-        in whichthe subject has to integrate two stimuli to decide
-        which one is higher on average.
+        Two-alternative forced choice task in which the subject has to
+        integrate two stimuli to decide which one is higher on average.
+
+        Parameters:
         dt: Timestep duration. (def: 100 (ms), int)
         rewards:
             R_ABORTED: given when breaking fixation. (def: -0.1, float)
