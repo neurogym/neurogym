@@ -136,18 +136,19 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, mean_perf=None,
             'Please provide label for each trace in the observations'
         for ind_tr, tr in enumerate(obs_traces):
             ax.plot(obs[:, ind_tr], label=obs_traces[ind_tr])
+        ax.legend()
+        ax.set_xlim([-0.5, len(steps)-0.5])
     else:
         ax.imshow(obs.T, aspect='auto')
+        ax.set_yticks([])
+
     if name:
         ax.set_title(name + ' env')
     ax.set_ylabel('Observations')
-    ax.set_yticks([])
-    ax.set_xlim([-0.5, len(steps)-0.5])
 
     # actions
     ax = axes[1]
     ax.plot(steps, actions, marker='+', label='Actions')
-
     if gt is not None:
         gt = np.array(gt)
         if len(gt.shape) > 1:
@@ -156,19 +157,21 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, mean_perf=None,
                         label='Ground truth '+str(ind_gt))
         else:
             ax.plot(steps, gt, '--'+gt_colors[0], label='Ground truth')
-
+    ax.set_xlim([-0.5, len(steps)-0.5])
     ax.set_ylabel('Actions')
     if legend:
         ax.legend()
 
+    # rewards
     if rewards is not None:
-        # rewards
         ax = axes[2]
         ax.plot(steps, rewards, 'r')
         ax.set_ylabel('Reward')
         if mean_perf is not None:
             ax.set_title('Mean performance: ' + str(np.round(mean_perf, 2)))
+        ax.set_xlim([-0.5, len(steps)-0.5])
 
+    # states
     if states is not None:
         ax.set_xticks([])
         ax = axes[3]
