@@ -6,8 +6,8 @@ import glob
 import gym
 
 
-def plot_env(env, num_steps_env=200,
-             def_act=None, model=None, name=None, legend=True, fig_kwargs={}):
+def plot_env(env, num_steps_env=200, def_act=None, model=None,
+             name=None, legend=True, obs_traces=[], fig_kwargs={}):
     """
     env: already built neurogym task or name of it
     num_steps_env: number of steps to run the task
@@ -19,8 +19,11 @@ def plot_env(env, num_steps_env=200,
                (https://github.com/hill-a/stable-baselines)
     name: title to show on the rewards panel
     legend: whether to show the legend for actions panel or not.
+    obs_traces: if != [] observations will be plot as traces, with the labels
+                specified by obs_traces
+    fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
     """
-    # TODO: Can't we use Monitor here? We could but:
+    # We don't use monitor here because:
     # 1) env could be already prewrapped with monitor
     # 2) monitor will save data and so the function will need a folder
     if isinstance(env, str):
@@ -33,7 +36,8 @@ def plot_env(env, num_steps_env=200,
     obs_cum = np.array(obs_cum)
     obs = np.array(observations)
     fig_(obs, actions, gt, rewards, legend=legend,
-         states=states, name=name, fig_kwargs=fig_kwargs)
+         states=states, name=name, obs_traces=obs_traces,
+         fig_kwargs=fig_kwargs)
     data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
             'actions': actions, 'perf': perf,
             'actions_end_of_trial': actions_end_of_trial, 'gt': gt,
@@ -99,10 +103,21 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
 
 
 def fig_(obs, actions, gt=None, rewards=None, states=None, mean_perf=None,
-         legend=True, name='', folder='', fig_kwargs={}):
+         legend=True, obs_traces=[], name='', folder='', fig_kwargs={}):
+    """
+    obs, actions: data to plot
+    gt, rewards, states: if not None, data to plot
+    mean_perf: mean performance to show in the rewards panel
+    legend: whether to save the legend in actions panel
+    folder: if != '', where to save the figure
+    name: title to show on the rewards panel and name to save figure
+    legend: whether to show the legend for actions panel or not.
+    obs_traces: if != [] observations will be plot as traces, with the labels
+                specified by obs_traces
+    fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
+    """
     if len(obs.shape) != 2:
         raise ValueError('obs has to be 2-dimensional.')
-    # TODO: Add documentation
     steps = np.arange(obs.shape[0])  # XXX: +1? 1st obs doesn't have action/gt
 
     n_row = 2  # observation and action
@@ -116,7 +131,13 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, mean_perf=None,
     f, axes = plt.subplots(n_row, 1, **fig_kwargs)
     # obs
     ax = axes[0]
-    ax.imshow(obs.T, aspect='auto')
+    if len(obs_traces) > 0:
+        assert len(obs_traces) == obs.shape[1],\
+            'Please provide label for each trace in the observations'
+        for ind_tr, tr in enumerate(obs_traces):
+            ax.plot(obs[:, ind_tr], label=obs_traces[ind_tr])
+    else:
+        ax.imshow(obs.T, aspect='auto')
     if name:
         ax.set_title(name + ' env')
     ax.set_ylabel('Observations')
