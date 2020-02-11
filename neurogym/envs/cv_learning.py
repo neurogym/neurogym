@@ -66,7 +66,7 @@ class CVLearning(ngym.PeriodEnv):
         self.R_ABORTED = reward_default['R_ABORTED']
         self.R_CORRECT = reward_default['R_CORRECT']
         self.R_FAIL = reward_default['R_FAIL']
-
+        self.action = 0
         self.abort = False
         self.firstcounts = True
         self.first_flag = False
@@ -92,6 +92,11 @@ class CVLearning(ngym.PeriodEnv):
             coh: Stimulus coherence (evidence) for the trial.
             obs: Observation.
         """
+        self.set_phase()
+        if self.curr_ph == 0:
+            # control that agent does not repeat side more than 3 times
+            self.count(self.action)
+
         self.trial = {
             'ground_truth': self.rng.choice(self.choices),
             'coh': self.rng.choice(self.cohs),
@@ -102,7 +107,6 @@ class CVLearning(ngym.PeriodEnv):
         self.durs = {key: None for key in self.metadata['timing']}
 
         self.first_choice_rew = None
-        # self.set_phase()
         if self.curr_ph == 0:
             # no stim, reward is in both left and right
             # agent cannot go N times in a row to the same side
@@ -197,14 +201,11 @@ class CVLearning(ngym.PeriodEnv):
     def _step(self, action):
         # obs, reward, done, info = self.env._step(action)
         # ---------------------------------------------------------------------
-        # Reward and observations
-        # ---------------------------------------------------------------------
+
         new_trial = False
         # rewards
         reward = 0
-        # observations
         gt = self.gt_now
-
         first_choice = False
         if self.in_period('fixation') or self.in_period('delay'):
             if action != 0:
@@ -224,21 +225,19 @@ class CVLearning(ngym.PeriodEnv):
                     first_choice = True
                     self.first_flag = True
 
-        info = {'new_trial': new_trial, 'gt': gt,
-                'curr_ph': self.curr_ph, 'first_rew': self.rew}
-
         # check if first choice (phase 1)
         if ~self.firstcounts and first_choice:
             self.first_choice_rew = reward
-
         # set reward for all phases
         self.rew = self.first_choice_rew or reward
 
-        if info['new_trial']:
-            self.set_phase()
-            if self.curr_ph == 0:
-                # control that agent does not repeat side more than 3 times
-                self.count(action)
-                self.action = action
-
+        if new_trial and self.curr_ph == 0:
+            self.action = action
+        info = {'new_trial': new_trial, 'gt': gt, 'num_tr': self.num_tr,
+                'curr_ph': self.curr_ph, 'first_rew': self.rew}
         return self.obs_now, reward, False, info
+
+
+if __name__ == '__main__':
+    env = CVLearning()
+    ngym.utils.plot_env(env, num_steps_env=100)  # , def_act=1)
