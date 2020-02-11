@@ -89,6 +89,7 @@ class TrialEnv(BaseEnv):
         # Annotations of observation space and action space
         self.ob_dict = {}
         self.act_dict = {}
+        self.rewards = {}
 
         self.seed()
 

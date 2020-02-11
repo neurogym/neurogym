@@ -38,7 +38,7 @@ def plot_env(env, num_steps_env=200, def_act=None, model=None, show_fig=True,
     if show_fig:
         fig_(obs, actions, gt, rewards, legend=legend,
              states=states, name=name, obs_traces=obs_traces,
-             fig_kwargs=fig_kwargs)
+             fig_kwargs=fig_kwargs, env=env)
     data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
             'actions': actions, 'perf': perf,
             'actions_end_of_trial': actions_end_of_trial, 'gt': gt,
@@ -104,7 +104,7 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
 
 
 def fig_(obs, actions, gt=None, rewards=None, states=None, mean_perf=None,
-         legend=True, obs_traces=[], name='', folder='', fig_kwargs={}):
+         legend=True, obs_traces=None, name='', folder='', fig_kwargs={}, env=None):
     """
     obs, actions: data to plot
     gt, rewards, states: if not None, data to plot
@@ -113,9 +113,11 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, mean_perf=None,
     folder: if != '', where to save the figure
     name: title to show on the rewards panel and name to save figure
     legend: whether to show the legend for actions panel or not.
-    obs_traces: if != [] observations will be plot as traces, with the labels
-                specified by obs_traces
+    obs_traces: None or list.
+     If list, observations will be plot as traces, with the labels
+     specified by obs_traces
     fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
+    env: environment class for extra information
     """
     if len(obs.shape) != 2:
         raise ValueError('obs has to be 2-dimensional.')
@@ -132,7 +134,7 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, mean_perf=None,
     f, axes = plt.subplots(n_row, 1, **fig_kwargs)
     # obs
     ax = axes[0]
-    if len(obs_traces) > 0:
+    if obs_traces:
         assert len(obs_traces) == obs.shape[1],\
             'Please provide label for each trace in the observations'
         for ind_tr, tr in enumerate(obs_traces):
@@ -141,7 +143,17 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, mean_perf=None,
         ax.set_xlim([-0.5, len(steps)-0.5])
     else:
         ax.imshow(obs.T, aspect='auto', origin='lower')
-        ax.set_yticks([])
+        if env and env.ob_dict:
+            # Plot environment annotation
+            yticks = []
+            yticklabels = []
+            for key, val in env.ob_dict.items():
+                yticks.append((np.min(val)+np.max(val))/2)
+                yticklabels.append(key)
+            ax.set_yticks(yticks)
+            ax.set_yticklabels(yticklabels)
+        else:
+            ax.set_yticks([])
 
     if name:
         ax.set_title(name + ' env')
@@ -162,6 +174,15 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, mean_perf=None,
     ax.set_ylabel('Actions')
     if legend:
         ax.legend()
+    if env and env.act_dict:
+        # Plot environment annotation
+        yticks = []
+        yticklabels = []
+        for key, val in env.act_dict.items():
+            yticks.append((np.min(val) + np.max(val)) / 2)
+            yticklabels.append(key)
+        ax.set_yticks(yticks)
+        ax.set_yticklabels(yticklabels)
 
     # rewards
     if rewards is not None:
@@ -171,6 +192,16 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, mean_perf=None,
         if mean_perf is not None:
             ax.set_title('Mean performance: ' + str(np.round(mean_perf, 2)))
         ax.set_xlim([-0.5, len(steps)-0.5])
+
+        if env and env.rewards:
+            # Plot environment annotation
+            yticks = []
+            yticklabels = []
+            for key, val in env.rewards.items():
+                yticks.append(val)
+                yticklabels.append('{:s} {:0.2f}'.format(key, val))
+            ax.set_yticks(yticks)
+            ax.set_yticklabels(yticklabels)
 
     # states
     if states is not None:
