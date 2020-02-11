@@ -35,10 +35,12 @@ def write_doc(write_type):
     link_dict = dict()
     for name in all_items:
         try:
+            # Get information about individual task or wrapper
             string += '___\n\n'
             info_string = info_fn(name)
             info_string = info_string.replace('\n', '\n\n')  # for markdown
 
+            # If task, add link to tags
             if write_type == 'tasks':
                 # Tags has to be last
                 ind = info_string.find('Tags')
@@ -53,6 +55,7 @@ def write_doc(write_type):
                 info_string = info_string[:-2] + '\n\n'
             string += info_string
 
+            # Make links to the section titles
             # Using github's automatic link to section titles
             if write_type == 'tasks':
                 env = gym.make(name)
@@ -62,6 +65,7 @@ def write_doc(write_type):
             link = link.lower().replace(' ', '-')
             link_dict[name] = link
 
+            # Add link to source code
             names += add_link(name, link) + '\n\n'
             source_link = all_items_dict[name].split(':')[0].replace('.', '/')
             string += '[Source]({:s})\n\n'.format(
