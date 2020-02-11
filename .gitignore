@@ -104,4 +104,6 @@ venv.bak/
 .mypy_cache/
 
 # added by robert
+# Pycharm related
 .idea/
+neurogym/envs/experimental/
