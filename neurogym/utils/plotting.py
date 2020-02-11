@@ -212,7 +212,7 @@ def plot_rew_across_training(folder, window=500, ax=None,
         ax.set_xlabel('trials')
         if not ytitle:
             ax.set_ylabel('mean reward (running window' +
-                          ' of {:d} trials'.format(window))
+                          ' of {:d} trials)'.format(window))
         else:
             ax.set_ylabel(ytitle)
         if legend:
