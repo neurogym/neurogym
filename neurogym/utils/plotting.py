@@ -6,7 +6,7 @@ import glob
 import gym
 
 
-def plot_env(env, num_steps_env=200, def_act=None, model=None,
+def plot_env(env, num_steps_env=200, def_act=None, model=None, show_fig=True,
              name=None, legend=True, obs_traces=[], fig_kwargs={}):
     """
     env: already built neurogym task or name of it
@@ -35,9 +35,10 @@ def plot_env(env, num_steps_env=200, def_act=None, model=None,
                              def_act=def_act, model=model)
     obs_cum = np.array(obs_cum)
     obs = np.array(observations)
-    fig_(obs, actions, gt, rewards, legend=legend,
-         states=states, name=name, obs_traces=obs_traces,
-         fig_kwargs=fig_kwargs)
+    if show_fig:
+        fig_(obs, actions, gt, rewards, legend=legend,
+             states=states, name=name, obs_traces=obs_traces,
+             fig_kwargs=fig_kwargs)
     data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
             'actions': actions, 'perf': perf,
             'actions_end_of_trial': actions_end_of_trial, 'gt': gt,
