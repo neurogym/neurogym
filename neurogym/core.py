@@ -228,32 +228,6 @@ class PeriodEnv(TrialEnv):
         self.obs = np.zeros([tmax_ind] + list(self.observation_space.shape))
         self.gt = np.zeros([tmax_ind] + list(self.action_space.shape))
 
-    def obsolete_add_input(self, input, loc=None, period=None):
-        """Add an input to current observation."""
-        if isinstance(period, str):
-            self._add_input(input, loc, period)
-        else:
-            for e in period:
-                self._add_input(input, loc, e)
-
-    def _add_input(self, input, loc=None, period=None):
-        """Add an input to current observation."""
-        if period is None:
-            ob = self.obs
-        else:
-            ob = self.view_ob(period)
-
-        if loc is None:
-            try:
-                ob[:, :] += input()
-            except TypeError:
-                ob[:, :] += input
-        else:
-            try:
-                ob[:, loc] += input()
-            except TypeError:
-                ob[:, loc] += input
-
     def view_ob(self, period=None):
         """View observation of an period."""
         if period is None:
