@@ -234,7 +234,7 @@ def put_together_files(folder):
         for key in file_data.keys():
             data[key] = file_data[key]
 
-        for ind_f in range(len(files)):
+        for ind_f in range(1, len(files)):
             file_data = np.load(files[ind_f], allow_pickle=True)
             for key in file_data.keys():
                 data[key] = np.concatenate((data[key], file_data[key]))
