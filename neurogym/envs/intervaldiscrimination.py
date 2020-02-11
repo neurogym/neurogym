@@ -1,4 +1,5 @@
 
+
 from __future__ import division
 
 import numpy as np
@@ -27,12 +28,27 @@ class IntervalDiscrimination(ngym.PeriodEnv):
                  'two-alternative', 'supervised']
     }
 
-    def __init__(self, dt=80, timing=None):
+    def __init__(self, dt=80, rewards=None, timing=None):
+        """
+        Agents have to report which of two stimuli presented
+        sequentially is longer.
+        dt: Timestep duration. (def: 80 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: 0., float)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt, timing=timing)
         # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
-        self.R_FAIL = 0.
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
+                          'R_FAIL': 0.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+
         self.abort = False
         # set action and observation space
         self.action_space = spaces.Discrete(3)  # (fixate, choose 1, choose2)
@@ -43,13 +59,21 @@ class IntervalDiscrimination(ngym.PeriodEnv):
     def new_trial(self, **kwargs):
         duration1 = self.timing_fn['stim1']()
         duration2 = self.timing_fn['stim2']()
-        ground_truth = 1 if duration1 < duration2 else 2
+        ground_truth = 1 if duration1 > duration2 else 2
 
-        periods = ['fixation', 'stim1', 'delay1', 'stim2', 'delay2', 'decision']
+        periods = ['fixation', 'stim1', 'delay1',
+                   'stim2', 'delay2', 'decision']
         self.add_period(periods[0], after=0)
         for i in range(1, len(periods)):
-            self.add_period(periods[i], after=periods[i - 1],
-                           last_period=i == len(periods) - 1)
+            if periods[i] == 'stim1':
+                self.add_period(periods[i], after=periods[i - 1],
+                                duration=duration1)
+            elif periods[i] == 'stim2':
+                self.add_period(periods[i], after=periods[i - 1],
+                                duration=duration2)
+            else:
+                self.add_period(periods[i], after=periods[i - 1],
+                                last_period=i == len(periods) - 1)
 
         self.set_ob('fixation', [1, 0, 0])
         self.set_ob('stim1', [1, 1, 0])
@@ -88,4 +112,4 @@ if __name__ == '__main__':
     from neurogym.tests import test_run
     env = IntervalDiscrimination()
     test_run(env)
-    ngym.utils.plot_env(env)
+    ngym.utils.plot_env(env, def_act=0)

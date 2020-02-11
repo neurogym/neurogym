@@ -9,8 +9,7 @@ Created on Mon Jan 27 11:00:26 2020
 import numpy as np
 from gym import spaces
 import neurogym as ngym
-
-
+import warnings
 
 class Detection(ngym.PeriodEnv):
     metadata = {
@@ -20,18 +19,28 @@ class Detection(ngym.PeriodEnv):
             'timing': {
                     'fixation': ('constant', 500),
                     'stimulus': ('truncated_exponential', [1000, 500, 1500])},
-            'noise': 'Standard deviation of background noise. (def: 1)',
-            'delay': 'If not None indicates the delay, from the moment of' +
-            ' the start of the stimulus period when the actual ' +
-            'stimulus is presented. Otherwise, the delay is drawn from' +
-            ' a uniform distribution. (def: None)',
-            'stim_dur': 'Stimulus duration. (def: 100, ms)',
             'tags': ['perceptual', 'reaction time', 'go-no-go',
                      'supervised']
             }
 
-    def __init__(self, dt=100, timing=None, noise=1., delay=None,
+    def __init__(self, dt=100, rewards=None, timing=None, noise=.5, delay=None,
                  stim_dur=100):
+        """
+        The agent has to GO if a stimulus is presented.
+        dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: -1., float)
+            R_MISS:  given when not responding when a response was expected.
+            (def: -0.5, float)
+        timing: Description and duration of periods forming a trial.
+        noise: Standard deviation of background noise. (def: 1., float)
+        delay: If not None indicates the delay, from the moment of the start of
+        the stimulus period when the actual stimulus is presented. Otherwise,
+        the delay is drawn from a uniform distribution. (def: None (ms), int)
+        stim_dur: Stimulus duration. (def: 100 (ms), int)
+        """
         super().__init__(dt=dt, timing=timing)
         # Possible decisions at the end of the trial
         self.choices = [0, 1]
@@ -39,13 +48,30 @@ class Detection(ngym.PeriodEnv):
         # Noise added to the observations
         self.sigma_dt = noise / np.sqrt(self.dt)
         self.delay = delay
-        self.stim_dur = int(stim_dur/self.dt)
-        assert self.stim_dur > 0, 'Stimulus duration shorter than dt'
+        self.stim_dur = int(stim_dur/self.dt) # in steps # should be greater
+        # than 1 step, else it wont have enough time to respond within the window
+        if self.stim_dur == 1:
+            self.extra_step = 1
+            if delay is None:
+                warnings.warn('Added an extra step after the actual stimulus, '+
+                                'else model will not be able to respond '+
+                                'within response window (stimulus epoch)')
+        else:
+            self.extra_step = 0
+
+        if self.stim_dur < 1:
+            warnings.warn('Stimulus duration shorter than dt') 
+
         # Rewards
-        self.R_ABORTED = -0.1  # reward given when break fixation
-        self.R_CORRECT = +1.  # reward given when correct
-        self.R_FAIL = -1.  # reward given when incorrect
-        self.R_MISS = -0.5  # reward given when missing the stimulus
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
+                          'R_FAIL': -1., 'R_MISS': -1} 
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+        self.R_MISS = reward_default['R_MISS']
+
         # whether to abort (T) or not (F) the trial when breaking fixation:
         self.abort = False
         # action and observation spaces: [fixate, go]
@@ -80,22 +106,26 @@ class Detection(ngym.PeriodEnv):
         self.set_ob('fixation', [1, 0])
         # stimulus:
         stim = self.view_ob('stimulus')
-        stim[:, 1:] += np.random.randn(stim.shape[0], 1) * self.sigma_dt
+        stim[:, 1:] += np.random.randn(stim.shape[0], 1) * self.sigma_dt # uncomment when it is actually learning
+        
         # delay
         # SET THE STIMULUS
         # adding gaussian noise to stimulus with std = self.sigma_dt
         if ground_truth == 1:
             if self.delay is None:
-                delay = self.rng.randint(0, stim.shape[0]-self.stim_dur)
+                delay = self.rng.randint(0, stim.shape[0]-self.stim_dur-self.extra_step)
+                # there must be a step after the stim else model won't be able to 
+                # respond within trial and will be punished
             else:
                 delay = self.delay
-            stim[delay:delay + self.stim_dur, 1] += 0.5
+            stim[delay:delay + self.stim_dur, 1] += 0.5 # actual stim
             self.r_tmax = self.R_MISS
         else:
             stim[:, 1:] +=\
                 np.random.randn(stim.shape[0], 1) * self.sigma_dt
             delay = 0
-            self.r_tmax = 0
+            self.r_tmax = 0 # response omision is correct but not rewarded
+
         self.delay_trial = delay*self.dt
         # ---------------------------------------------------------------------
         # Ground truth
@@ -124,13 +154,14 @@ class Detection(ngym.PeriodEnv):
                 new_trial = self.abort
                 reward = self.R_ABORTED
         elif self.in_period('stimulus'):  # during stimulus period
-            if action != 0:
+            if action != 0: # original  
                 new_trial = True
                 if ((action == self.trial['ground_truth']) and
                    (self.t >= self.end_t['fixation'] + self.delay_trial)):
                     reward = self.R_CORRECT
                 else:  # if incorrect
                     reward = self.R_FAIL
+
 
         return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 

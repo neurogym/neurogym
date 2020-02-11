@@ -35,7 +35,16 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
         'tags': ['perceptual', 'value-based']
     }
 
-    def __init__(self, dt=100, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None):
+        """
+        Agents choose between two stimuli (A and B; where A is preferred)
+        offered in different amounts.
+        dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: rew associated to most valued juice. (def: .22, float)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt, timing=timing)
         # Inputs
         self.inputs = tasktools.to_map('FIXATION', 'L-A', 'L-B', 'R-A',
@@ -46,7 +55,7 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
                                         'CHOOSE-RIGHT')
 
         # trial conditions
-        self.A_to_B = 2.2
+        self.B_to_A = 1/2.2
         self.juices = [('A', 'B'), ('B', 'A')]
         self.offers = [(0, 1), (1, 3), (1, 2), (1, 1), (2, 1),
                        (3, 1), (4, 1), (6, 1), (2, 0)]
@@ -56,11 +65,15 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
         self.sigma_dt = sigma/np.sqrt(self.dt)
 
         # Rewards
-        self.R_ABORTED = -0.1
-        self.abort = False
-        self.R_B = 0.1
-        self.R_A = self.A_to_B * self.R_B
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +0.22}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
 
+        self.R_B = self.B_to_A * self.R_B
+        self.R_A = self.R_CORRECT
+        self.abort = False
         # Increase initial policy -> baseline weights
         self.baseline_Win = 10
 

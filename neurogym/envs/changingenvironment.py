@@ -11,11 +11,10 @@ from gym import spaces
 import neurogym as ngym
 
 
-
 class ChangingEnvironment(ngym.PeriodEnv):
     metadata = {
         'description': 'Random Dots Motion tasks in which the correct action' +
-        ' depends on a randomly changing context',
+        ' depends on a randomly changing context.',
         'paper_link': 'https://www.pnas.org/content/113/31/E4531',
         'paper_name': '''Hierarchical decision processes that operate
         over distinct timescales underlie choice and changes in strategy''',
@@ -23,15 +22,25 @@ class ChangingEnvironment(ngym.PeriodEnv):
             'fixation': ('constant', 500),
             'stimulus': ('truncated_exponential', [1000, 500, 1500]),
             'decision': ('constant', 500)},
-        'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
-        'cxt_ch_prob': 'Probability of changing context.',
-        'cxt_cue': 'Whether to show context as a cue.',
         'tags': ['perceptual', 'two-alternative', 'supervised',
                  'context dependent']
     }
 
-    def __init__(self, dt=100, timing=None, stimEv=1., cxt_ch_prob=0.01,
-                 cxt_cue=False):
+    def __init__(self, dt=100, rewards=None, timing=None, stimEv=1.,
+                 cxt_ch_prob=0.001, cxt_cue=False):
+        """
+        Random Dots Motion tasks in which the correct action
+        depends on a randomly changing context.
+        dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: 0., float)
+        timing: Description and duration of periods forming a trial.
+        stimEv: Controls the difficulty of the experiment. (def: 1., float)
+        cxt_ch_prob: Probability of changing context. (def: 0.01, float)
+        cxt_cue: Whether to show context as a cue. (def: False, bool)
+        """
         super().__init__(dt=dt, timing=timing)
 
         # Possible contexts
@@ -49,9 +58,14 @@ class ChangingEnvironment(ngym.PeriodEnv):
         self.sigma_dt = sigma / np.sqrt(self.dt)
 
         # Rewards
-        self.R_ABORTED = -0.1  # reward given when break fixation
-        self.R_CORRECT = +1.  # reward given when correct
-        self.R_FAIL = 0.  # reward given when incorrect
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
+                          'R_FAIL': 0.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+
         # whether to abort (T) or not (F) the trial when breaking fixation:
         self.abort = False
         # action and observation spaces: [fixate, got left, got right]

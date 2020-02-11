@@ -10,7 +10,15 @@ from neurogym.envs import all_envs, ALL_ENVS
 from neurogym.wrappers import ALL_WRAPPERS
 
 
-# TODO: Move this file to somewhere else
+def all_tasks():
+    for task in sorted(ALL_ENVS):
+        print(task)
+
+
+def all_wrappers():
+    for wrapper in sorted(ALL_WRAPPERS):
+        print(wrapper)
+
 
 def info(env=None, show_code=False):
     """Script to get envs info"""
@@ -96,8 +104,9 @@ def all_tags(verbose=0):
 
 
 if __name__ == '__main__':
+    all_tasks()
     # get_all_tags(verbose=1)
     # info(tags=['supervised', 'n-alternative'])
-    info('PerceptualDecisionMaking-v0', show_code=True)
+    # info('PerceptualDecisionMaking-v0', show_code=True)
     # info('PerceptualDecisionMaking-v0', show_code=True, show_fig=True)
 #    info_wrapper('ReactionTime-v0', show_code=True)

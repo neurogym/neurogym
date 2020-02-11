@@ -20,7 +20,16 @@ class AntiReach1D(ngym.PeriodEnv):
         'tags': ['perceptual', 'steps action space']
     }
 
-    def __init__(self, dt=100, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None):
+        """
+        The agent has to move in the direction opposite to the one indicated
+        by the observation.
+        dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: -0.1, float)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt, timing=timing)
         self.contexts = [0, 1]
         # action and observation spaces
@@ -29,6 +38,13 @@ class AntiReach1D(ngym.PeriodEnv):
                                             dtype=np.float32)
         self.theta = np.arange(0, 2*np.pi, 2*np.pi/16)
         self.state = np.pi
+
+        # Rewards
+        reward_default = {'R_CORRECT': +1., 'R_FAIL': -0.1}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
@@ -71,7 +87,8 @@ class AntiReach1D(ngym.PeriodEnv):
             reward = 0
         else:
             reward =\
-                np.max((1 - tasktools.circular_dist(self.state - gt), -0.1))
+                np.max((self.R_CORRECT-tasktools.circular_dist(self.state-gt),
+                        self.R_FAIL))
 
         return ob, reward, False, {'new_trial': False}
 

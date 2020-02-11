@@ -10,6 +10,7 @@ import numpy as np
 import itertools
 import gym
 # XXX: implemented without relying on core.trTrialWrapper
+# TODO: extend to allow combinining more than two tasks
 
 
 class Combine():
@@ -18,23 +19,29 @@ class Combine():
         ' the distractor task.',
         'paper_link': 'https://www.biorxiv.org/content/10.1101/433409v3',
         'paper_name': 'Response outcomes gate the impact of expectations ' +
-        'on perceptual decisions',
-        'distractor': 'Distractor task. (no default value)',
-        'delay': 'Time when the distractor task appears. (def: 800 (ms))',
-        'mix': 'Probabilities for the different trial types' +
-        ' (only main, only distractor, both). (def: (.5, .0, .5))',
-        'share_action_space': 'Whether the two task share the same action' +
-        ' space. Not sharing allows to control (via reward)  what the agent' +
-        ' does for each task at each timestep (def: True)',
-        'defaults': 'Default rewards for each task. This is used to decide' +
-        ' which gt/reward to use in the sharing-action-space scenario.' +
-        ' (def: [0, 0])',
-        'trial_cue': 'Whether to show the type of trial as a cue'
+        'on perceptual decisions'
     }
 
     def __init__(self, env, distractor, delay=800,
                  dt=100, mix=(.3, .3, .4), share_action_space=True,
                  defaults=[0, 0], trial_cue=False):
+        """
+        Allows to combine two tasks, one of which working as
+        the distractor task.
+        distractor: Distractor task. (no default value)
+        delay: Time when the distractor task appears. (def: 800 (ms), int)
+        dt: Timestep duration. (def: 100 (ms), int)
+        mix: Probabilities for the different trial types (only main, only
+        distractor, both). (def: (.5, .0, .5), tuple)
+        share_action_space: Whether the two task share the same action space.
+        Not sharing allows to control (via reward)  what the agent does for
+        each task at each timestep (def: True, bool)
+        defaults: Default rewards for each task. This is used to decide which
+        gt/reward to use in the sharing-action-space scenario.
+        (def: [0, 0], list)
+        trial_cue: Whether to show the type of trial as a cue.
+        (def: False, bool)
+        """
         self.share_action_space = share_action_space
         self.trial_cue = trial_cue
         self.t = 0
@@ -68,14 +75,15 @@ class Combine():
                               self.distractor.observation_space.shape[0] +
                               1*self.trial_cue, ),
                        dtype=np.float32)
-        # start trials
-        self.env_on = True
-        self.distractor_on = True
-        self.new_trial()
+        # reward range
         self.reward_range = (np.min([self.env.reward_range[0],
                                      self.distractor.reward_range[0]]),
                              np.max([self.env.reward_range[1],
                                      self.distractor.reward_range[1]]))
+        # start trials
+        self.env_on = True
+        self.distractor_on = True
+        self.new_trial()
         self.metadata = self.env.metadata
         self.metadata.update(self.distractor.metadata)
 
@@ -141,8 +149,9 @@ class Combine():
         if self.trial_cue:
             cue = np.array([self.task_type])
             obs = np.concatenate((cue, obs), axis=0)
-        done = done1  # done whenever the task 1 is done
+        info['task_type'] = self.task_type
 
+        done = done1  # done whenever the task 1 is done
         # ground truth
         if self.share_action_space:
             if (reward1 == self.defaults[0] and reward2 != self.defaults[1]):
@@ -157,7 +166,6 @@ class Combine():
             info['gt'] = np.where(ind)[0]
             assert len(info['gt']) == 1, info['gt']
             reward = reward1 + reward2
-
         return obs, reward, done, info
 
     def step(self, action):

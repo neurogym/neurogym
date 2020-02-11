@@ -18,6 +18,10 @@ class ReactionTime(Wrapper):
     }
 
     def __init__(self, env):
+        """
+        Modifies a given environment by allowing the network to act at
+        any time after the fixation period.
+        """
         Wrapper.__init__(self, env=env)
         self.env = env
         raise ValueError('Broken right now')

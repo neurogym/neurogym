@@ -2,7 +2,7 @@
 
 import numpy as np
 from gym import spaces
-
+from neurogym.utils import tasktools
 import neurogym as ngym
 
 
@@ -25,7 +25,15 @@ class AngleReproduction(ngym.PeriodEnv):
                  'steps action space']
     }
 
-    def __init__(self, dt=100, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None):
+        """
+        The agent has to reproduce to two angles separated by a constant delay.
+        dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: -0.1, float)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt, timing=timing)
         # action and observation spaces
         # Do nothing, rotate clockwise, rotatet counterclockwise
@@ -35,6 +43,13 @@ class AngleReproduction(ngym.PeriodEnv):
                                             dtype=np.float32)
         self.theta = np.arange(0, 2*np.pi, 2*np.pi/16)
         self.state = np.pi
+
+        # Rewards
+        reward_default = {'R_CORRECT': +1., 'R_FAIL': -0.1}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
@@ -50,11 +65,11 @@ class AngleReproduction(ngym.PeriodEnv):
         # Periods
         # ---------------------------------------------------------------------
         periods = ['fixation', 'stim1', 'delay1', 'stim2',
-                  'delay2', 'go1', 'go2']
+                   'delay2', 'go1', 'go2']
         self.add_period(periods[0], after=0)
         for i in range(1, len(periods)):
             self.add_period(periods[i], after=periods[i - 1],
-                           last_period=i == len(periods) - 1)
+                            last_period=i == len(periods) - 1)
 
         ob = self.view_ob('stim1')
         ob[:, :16] = np.cos(self.theta - self.trial['ground_truth1'])
@@ -81,7 +96,9 @@ class AngleReproduction(ngym.PeriodEnv):
         gt = self.gt_now
         reward = 0
         if self.in_period('go1') or self.in_period('go2'):
-            reward = np.max((1 - np.abs(self.state - gt), -0.1))
+            reward =\
+                np.max((self.R_CORRECT-tasktools.circular_dist(self.state-gt),
+                        self.R_FAIL))
 
         return ob, reward, False, {'new_trial': False}
 

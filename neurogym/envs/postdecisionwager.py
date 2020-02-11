@@ -24,10 +24,11 @@ import neurogym as ngym
 
 class PostDecisionWager(ngym.PeriodEnv):
     metadata = {
-        'description': '''Agents do a discrimination task (see PerceptualDecisionMaking). On a
-         random half of the trials, the agent is given the option to abort
-         the direction discrimination and to choose instead a small but
-         certain reward associated with a action.''',
+        'description': """Agents do a discrimination task(see
+         PerceptualDecisionMaking). On a random half of the trials,
+         the agent is given the option to abort the direction discrimination
+         and to choose instead a small but certain reward associated with
+         a action.""",
         'paper_link': 'https://science.sciencemag.org/content/324/5928/' +
         '759.long',
         'paper_name': '''Representation of Confidence Associated with a
@@ -39,11 +40,22 @@ class PostDecisionWager(ngym.PeriodEnv):
             'delay': ('truncated_exponential', [1350, 1200, 1800]),
             'pre_sure': ('uniform', [500, 750]),
             'decision': ('constant', 100)},  # XXX: not specified
-        'tags': ['perceptual', 'delayed response', 'confidence',
-                 'supervised']
+        'tags': ['perceptual', 'delayed response', 'confidence']
     }
 
-    def __init__(self, dt=100, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None):
+        """
+        Agents do a discrimination task(see PerceptualDecisionMaking). On a
+        random half of the trials, the agent is given the option to abort
+        the direction discrimination and to choose instead a small but
+        certain reward associated with a action.
+        dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: 0., float)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt, timing=timing)
 #        # Actions
 #        self.actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT',
@@ -59,9 +71,14 @@ class PostDecisionWager(ngym.PeriodEnv):
         self.sigma = np.sqrt(2*100*0.01)
 
         # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
-        self.R_FAIL = 0.
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
+                          'R_FAIL': 0.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+
         self.abort = False
         self.R_SURE = 0.7*self.R_CORRECT
 
@@ -141,3 +158,9 @@ class PostDecisionWager(ngym.PeriodEnv):
             obs[3] = 1
 
         return obs, reward, False, info
+
+
+if __name__ == '__main__':
+    env = PostDecisionWager()
+    env.seed(seed=0)
+    ngym.utils.plot_env(env, num_steps_env=100, def_act=0)

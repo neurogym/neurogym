@@ -8,7 +8,6 @@ from gym import spaces
 import neurogym as ngym
 
 
-
 class PerceptualDecisionMaking(ngym.PeriodEnv):
     metadata = {
         'description': '''Random dot motion task. Two-alternative forced
@@ -21,11 +20,23 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
             'fixation': ('constant', 100),  # TODO: depends on subject
             'stimulus': ('constant', 2000),
             'decision': ('constant', 100)},  # XXX: not specified
-        'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
         'tags': ['perceptual', 'two-alternative', 'supervised']
     }
 
-    def __init__(self, dt=100, timing=None, stimEv=1.):
+    def __init__(self, dt=100, rewards=None, timing=None, stimEv=1.):
+        """
+        Two-alternative forced choice task in which the subject has to
+        integrate two stimuli to decide which one is higher on average.
+
+        Parameters:
+        dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: 0., float)
+        timing: Description and duration of periods forming a trial.
+        stimEv: Controls the difficulty of the experiment. (def: 1., float)
+        """
         super().__init__(dt=dt, timing=timing)
         self.choices = [1, 2]  # [left, right]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
@@ -35,9 +46,14 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         self.sigma_dt = sigma / np.sqrt(self.dt)
 
         # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
-        self.R_FAIL = 0.
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
+                          'R_FAIL': 0.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+
         self.abort = False
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
@@ -141,7 +157,18 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
                  'supervised']
     }
 
-    def __init__(self, dt=100, timing=None, stimEv=1.):
+    def __init__(self, dt=100, rewards=None, timing=None, stimEv=1.):
+        """
+        Agents have to integrate two stimuli and report which one is
+        larger on average after a delay.
+        dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: -1., float)
+        timing: Description and duration of periods forming a trial.
+        stimEv: Controls the difficulty of the experiment. (def: 1., float)
+        """
         super().__init__(dt=dt, timing=timing)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
@@ -151,12 +178,16 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         self.sigma_dt = sigma / np.sqrt(self.dt)
 
         # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
-        self.R_FAIL = -1.
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
+                          'R_FAIL': 0.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+
         self.abort = False
-        self.firstcounts = True
-        self.first_flag = False
+
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
@@ -173,7 +204,6 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
             coh: stimulus coherence (evidence) for the trial
             obs: observation
         """
-        self.first_flag = False
 
         # ---------------------------------------------------------------------
         # Trial
@@ -225,31 +255,23 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         # observations
         gt = self.gt_now
 
-        first_trial = np.nan
-        if self.in_period('fixation') or self.in_period('delay'):
+        if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
                 reward = self.R_ABORTED
-        elif self.in_period('decision'):
+        elif self.in_period('decision') and action != 0:
+            new_trial = True
             if action == gt:
                 reward = self.R_CORRECT
-                new_trial = True
-                if ~self.first_flag:
-                    first_trial = True
-                    self.first_flag = True
             elif action == 3 - gt:  # 3-action is the other act
                 reward = self.R_FAIL
-                new_trial = self.firstcounts
-                if ~self.first_flag:
-                    first_trial = False
-                    self.first_flag = True
 
-        info = {'new_trial': new_trial,
-                'gt': gt,
-                'first_trial': first_trial}
+        info = {'new_trial': new_trial, 'gt': gt}
         return self.obs_now, reward, False, info
 
 
 if __name__ == '__main__':
     env = PerceptualDecisionMaking()
-    ngym.utils.plot_env(env, num_steps_env=100)
+    ngym.utils.plot_env(env, num_steps_env=100, def_act=1)
+    env = PerceptualDecisionMakingDelayResponse()
+    ngym.utils.plot_env(env, num_steps_env=100, def_act=1)

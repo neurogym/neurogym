@@ -20,15 +20,13 @@ def _clean_string(string):
 def env_string(env):
     string = ''
     metadata = env.metadata
+    docstring = env.__init__.__doc__
     string += "### {:s}\n".format(type(env).__name__)
     paper_name = metadata.get('paper_name',
                               None) or 'Missing paper name'
     paper_name = _clean_string(paper_name)
     paper_link = metadata.get('paper_link', None)
-    task_description = metadata.get('description',
-                                    None) or 'Missing description'
-    task_description = _clean_string(task_description)
-    string += "Logic: {:s}\n".format(task_description)
+    string += "Doc: {:s}\n".format(docstring)
     string += "Reference paper: \n"
     if paper_link is None:
         string += "{:s}\n".format(paper_name)
@@ -38,19 +36,19 @@ def env_string(env):
     # add timing info
     if isinstance(env, PeriodEnv):
         timing = metadata['timing']
-        string += 'Default Period timing (ms) \n'
+        string += '\nDefault Period timing (ms) \n'
         for key, val in timing.items():
             dist, args = val
             string += key + ' : ' + dist + ' ' + str(args) + '\n'
     # add extra info
     other_info = list(set(metadata.keys()) - set(METADATA_DEF_KEYS))
     if len(other_info) > 0:
-        string += "Other parameters: \n"
+        string += "\nOther parameters: \n"
         for key in other_info:
             string += key + ' : ' + _clean_string(str(metadata[key])) + '\n'
     # tags
     tags = metadata['tags']
-    string += 'Tags: '
+    string += '\nTags: '
     for tag in tags:
         string += tag + ', '
     string = string[:-2] + '.\n'
@@ -167,7 +165,8 @@ class PeriodEnv(TrialEnv):
         self.timing_fn = dict()
         for key, val in self._timing.items():
             dist, args = val
-            self.timing_fn[key] = tasktools.random_number_fn(dist, args)
+            self.timing_fn[key] = tasktools.random_number_fn(dist, args,
+                                                             self.rng)
             min_tmp, max_tmp = tasktools.minmax_number(dist, args)
             if min_tmp < self.dt:
                 warnings.warn('Warning: Minimum time for period {:s} {:f} smaller than dt {:f}'.format(
@@ -190,8 +189,8 @@ class PeriodEnv(TrialEnv):
             period: string, name of the period
             duration: float or None, duration of the period
                 if None, inferred from timing_fn
-            before: (optional) string, name of period that this period is before
-            after: (optional) string, name of period that this period is after
+            before: (optional) str, name of period that this period is before
+            after: (optional) str, name of period that this period is after
                 or float, time of period start
             last_period: bool, default False. If True, then this is last period
                 will generate self.tmax, self.tind, and self.obs

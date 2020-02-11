@@ -15,16 +15,19 @@ class TrialHistory(ngym.TrialWrapper):
         'based on previous outcome.',
         'paper_link': 'https://www.biorxiv.org/content/10.1101/433409v3',
         'paper_name': 'Response outcomes gate the impact of expectations ' +
-        'on perceptual decisions',
-        'rep_prob': 'Specifies probabilities of repeating for each block. ' +
-        '(def: (.2, .8))',
-        'block_dur': 'Number of trials per block. (def: 200 (int))',
-        'blk_ch_prob': 'If not None, specifies the probability of changing ' +
-        'block (randomly). (def: None)',
+        'on perceptual decisions'
     }
 
     def __init__(self, env, rep_prob=(.2, .8), block_dur=200,
                  blk_ch_prob=None):
+        """
+        Change ground truth probability based on previous outcome.
+        rep_prob: Specifies probabilities of repeating for each block.
+        (def: (.2, .8), tuple)
+        block_dur: Number of trials per block. (def: 200 (int)
+        blk_ch_prob: If not None, specifies the probability of changing block
+        (randomly). (def: None, float)
+        """
         super().__init__(env)
 
         self.rep_prob = rep_prob

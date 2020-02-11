@@ -22,8 +22,23 @@ class Reaching1D(ngym.PeriodEnv):
         'tags': ['motor', 'steps action space']
     }
 
-    def __init__(self, dt=100, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None):
+        """
+        The agent has to reproduce the angle indicated by the observation.
+        dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: -0.1, float)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt, timing=timing)
+        # Rewards
+        reward_default = {'R_CORRECT': +1., 'R_FAIL': -0.1}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(32,),
@@ -68,7 +83,8 @@ class Reaching1D(ngym.PeriodEnv):
             reward = 0
         else:
             reward =\
-                np.max((1 - tasktools.circular_dist(self.state - gt), -0.1))
+                np.max((self.R_CORRECT-tasktools.circular_dist(self.state-gt),
+                        self.R_FAIL))
 
         return ob, reward, False, {'new_trial': False}
 
@@ -94,8 +110,24 @@ class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
         'tags': ['motor', 'steps action space']
     }
 
-    def __init__(self, dt=100, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None):
+        """
+        The agent has to reproduce the angle indicated by the observation.
+        Furthermore, the reaching state itself generates strong inputs that
+        overshadows the actual target input.
+        dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: -0.1, float)
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt, timing=timing)
+        # Rewards
+        reward_default = {'R_CORRECT': +1., 'R_FAIL': -0.1}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
 
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
@@ -139,7 +171,8 @@ class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
             reward = 0
         else:
             reward =\
-                np.max((1 - tasktools.circular_dist(self.state - gt), -0.1))
+                np.max((self.R_CORRECT-tasktools.circular_dist(self.state-gt),
+                        self.R_FAIL))
 
         return ob, reward, False, {'new_trial': False}
 

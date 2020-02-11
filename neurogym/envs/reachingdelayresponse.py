@@ -27,18 +27,35 @@ class ReachingDelayResponse(ngym.PeriodEnv):
                  'multidimensional action space', 'supervised']
     }
 
-    def __init__(self, dt=100, timing=None, lowbound=0., highbound=1.):
+    def __init__(self, dt=100, rewards=None, timing=None, lowbound=0., highbound=1.):
+        """
+        Working memory visual spatial task ~ Funahashi et al. 1991 adapted to
+        freely moving mice in a continous choice-space.
+        dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: -0., float)
+            R_MISS:  given when not responding when a response was expected.
+            (def: -0.5, float)
+        
+        timing: Description and duration of periods forming a trial.
+        """
         super().__init__(dt=dt, timing=timing)
         self.lowbound = lowbound
         self.highbound = highbound
         self.sigma = np.sqrt(2 * 100 * 0.01)
         self.sigma_dt = self.sigma / np.sqrt(self.dt)
 
-        # Reards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = 1.
-        self.R_FAIL = 0.
-        self.r_tmax = -0.5
+        # Rewards
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
+                          'R_FAIL': -0., 'R_MISS': -0.5}
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+        self.R_MISS = reward_default['R_MISS']  # rew for miss if trial is GO
+
+        self.r_tmax = self.R_MISS
         self.abort = False
 
         self.action_space = spaces.Box(low=np.array((-1.0, -1.0)),
@@ -69,25 +86,26 @@ class ReachingDelayResponse(ngym.PeriodEnv):
 
         gt = self.view_groundtruth('stimulus')
         for ep in ['stimulus', 'delay']:
-            gt[:,0] = -1. # fixate
-            gt[:,1] = -0.5 # no stim ~ arbitrary number which can cause issues with regression
+            gt[:, 0] = -1.  # fixate
+            # no stim ~ arbitrary number, can cause issues with regression:
+            gt[:, 1] = -0.5
 
         self.set_ob('delay', [0, -0.5])
         self.set_ob('decision', [1, -0.5])
         decision_gt = self.view_groundtruth('decision')
-        decision_gt[:,0] = 1. # go
-        decision_gt[:,1] = ground_truth_stim # Where to respond
+        decision_gt[:, 0] = 1.  # go
+        decision_gt[:, 1] = ground_truth_stim  # Where to respond
 
     def _step(self, action):
         new_trial = False
         # rewards
         reward = 0
-        gt = self.gt_now # 2 dim now
+        gt = self.gt_now  # 2 dim now
 
         if self.in_period('stimulus'):
             if not action[0] < 0:
                 new_trial = self.abort
-                reward = self.R_ABORTED        
+                reward = self.R_ABORTED
         elif self.in_period('decision'):
             if action[0] > 0:
                 new_trial = True

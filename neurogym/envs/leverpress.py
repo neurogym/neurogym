@@ -20,6 +20,9 @@ class LeverPress(gym.Env):
     }
 
     def __init__(self):
+        """
+        Lever pressing environment where a cue signals the sequence start.
+        """
         high = np.array([1])
 
         self.action_space = spaces.Discrete(2)

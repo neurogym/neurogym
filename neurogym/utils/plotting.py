@@ -6,8 +6,8 @@ import glob
 import gym
 
 
-def plot_env(env, num_steps_env=200,
-             def_act=None, model=None, name=None, legend=True):
+def plot_env(env, num_steps_env=200, def_act=None, model=None, show_fig=True,
+             name=None, legend=True, obs_traces=[], fig_kwargs={}):
     """
     env: already built neurogym task or name of it
     num_steps_env: number of steps to run the task
@@ -19,8 +19,11 @@ def plot_env(env, num_steps_env=200,
                (https://github.com/hill-a/stable-baselines)
     name: title to show on the rewards panel
     legend: whether to show the legend for actions panel or not.
+    obs_traces: if != [] observations will be plot as traces, with the labels
+                specified by obs_traces
+    fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
     """
-    # TODO: Can't we use Monitor here? We could but:
+    # We don't use monitor here because:
     # 1) env could be already prewrapped with monitor
     # 2) monitor will save data and so the function will need a folder
     if isinstance(env, str):
@@ -32,8 +35,10 @@ def plot_env(env, num_steps_env=200,
                              def_act=def_act, model=model)
     obs_cum = np.array(obs_cum)
     obs = np.array(observations)
-    fig_(obs, actions, gt, rewards, legend=legend,
-         states=states, name=name)
+    if show_fig:
+        fig_(obs, actions, gt, rewards, legend=legend,
+             states=states, name=name, obs_traces=obs_traces,
+             fig_kwargs=fig_kwargs)
     data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
             'actions': actions, 'perf': perf,
             'actions_end_of_trial': actions_end_of_trial, 'gt': gt,
@@ -50,7 +55,7 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
     actions_end_of_trial = []
     gt = []
     perf = []
-    obs = env.reset()
+    obs = env.reset()  # TODO: not saving this first observation
     obs_cum_temp = obs
     for stp in range(int(num_steps_env)):
         if model is not None:
@@ -85,7 +90,10 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
             actions_end_of_trial.append(-1)
         rewards.append(rew)
         actions.append(action)
-        gt.append(info['gt'])
+        if 'gt' in info.keys():
+            gt.append(info['gt'])
+        else:
+            gt.append(0)
     if model is not None:
         states = np.array(state_mat)
         states = states[:, 0, :]
@@ -95,32 +103,53 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
         actions_end_of_trial, gt, states
 
 
-def fig_(obs, actions, gt=None, rewards=None, states=None,
-         legend=True, name='', folder=''):
+def fig_(obs, actions, gt=None, rewards=None, states=None, mean_perf=None,
+         legend=True, obs_traces=[], name='', folder='', fig_kwargs={}):
+    """
+    obs, actions: data to plot
+    gt, rewards, states: if not None, data to plot
+    mean_perf: mean performance to show in the rewards panel
+    legend: whether to save the legend in actions panel
+    folder: if != '', where to save the figure
+    name: title to show on the rewards panel and name to save figure
+    legend: whether to show the legend for actions panel or not.
+    obs_traces: if != [] observations will be plot as traces, with the labels
+                specified by obs_traces
+    fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
+    """
     if len(obs.shape) != 2:
         raise ValueError('obs has to be 2-dimensional.')
-    # TODO: Add documentation
-    steps = np.arange(obs.shape[0])
+    steps = np.arange(obs.shape[0])  # XXX: +1? 1st obs doesn't have action/gt
 
     n_row = 2  # observation and action
     n_row += rewards is not None
     n_row += states is not None
 
     gt_colors = 'gkmcry'
-    f, axes = plt.subplots(n_row, 1, sharex=True, figsize=(5, n_row*1.5))
+    if not fig_kwargs:
+        fig_kwargs = dict(sharex=True, figsize=(5, n_row*1.5))
+
+    f, axes = plt.subplots(n_row, 1, **fig_kwargs)
     # obs
     ax = axes[0]
-    ax.imshow(obs.T, aspect='auto')
+    if len(obs_traces) > 0:
+        assert len(obs_traces) == obs.shape[1],\
+            'Please provide label for each trace in the observations'
+        for ind_tr, tr in enumerate(obs_traces):
+            ax.plot(obs[:, ind_tr], label=obs_traces[ind_tr])
+        ax.legend()
+        ax.set_xlim([-0.5, len(steps)-0.5])
+    else:
+        ax.imshow(obs.T, aspect='auto')
+        ax.set_yticks([])
+
     if name:
         ax.set_title(name + ' env')
     ax.set_ylabel('Observations')
-    ax.set_yticks([])
-    ax.set_xlim([-0.5, len(steps)-0.5])
 
     # actions
     ax = axes[1]
     ax.plot(steps, actions, marker='+', label='Actions')
-
     if gt is not None:
         gt = np.array(gt)
         if len(gt.shape) > 1:
@@ -129,17 +158,21 @@ def fig_(obs, actions, gt=None, rewards=None, states=None,
                         label='Ground truth '+str(ind_gt))
         else:
             ax.plot(steps, gt, '--'+gt_colors[0], label='Ground truth')
-
+    ax.set_xlim([-0.5, len(steps)-0.5])
     ax.set_ylabel('Actions')
     if legend:
         ax.legend()
 
+    # rewards
     if rewards is not None:
-        # rewards
         ax = axes[2]
         ax.plot(steps, rewards, 'r')
         ax.set_ylabel('Reward')
+        if mean_perf is not None:
+            ax.set_title('Mean performance: ' + str(np.round(mean_perf, 2)))
+        ax.set_xlim([-0.5, len(steps)-0.5])
 
+    # states
     if states is not None:
         ax.set_xticks([])
         ax = axes[3]
@@ -151,36 +184,61 @@ def fig_(obs, actions, gt=None, rewards=None, states=None,
     ax.set_xlabel('Steps')
     plt.tight_layout()
     if folder is not None and folder != '':
-        f.savefig(folder + '/env_struct.png')
+        if folder.endswith('.png'):
+            f.savefig(folder)
+        else:
+            f.savefig(folder + name + 'env_struct.png')
         plt.close(f)
 
     return f
 
 
-def plot_rew_across_training(folder, window=500):
+def plot_rew_across_training(folder, window=500, ax=None,
+                             fkwargs={'c': 'tab:blue'}, ytitle='',
+                             legend=False, zline=False):
     data = put_together_files(folder)
-    f = plt.figure(figsize=(8, 8))
-    reward = data['reward']
-    mean_reward = np.convolve(reward, np.ones((window,))/window, mode='valid')
-    plt.plot(mean_reward)
-    plt.xlabel('trials')
-    plt.ylabel('mean reward (running window of {:d} trials'.format(window))
-    f.savefig(folder + '/mean_reward_across_training.png')
+    if data:
+        sv_fig = False
+        if ax is None:
+            sv_fig = True
+            f, ax = plt.subplots(figsize=(8, 8))
+        reward = data['reward']
+        if isinstance(window, float):
+            if window < 1.0:
+                window = int(reward.size * window)
+        mean_reward = np.convolve(reward, np.ones((window,))/window,
+                                  mode='valid')
+        ax.plot(mean_reward, **fkwargs)  # add color, label etc.
+        ax.set_xlabel('trials')
+        if not ytitle:
+            ax.set_ylabel('mean reward (running window' +
+                          ' of {:d} trials)'.format(window))
+        else:
+            ax.set_ylabel(ytitle)
+        if legend:
+            ax.legend()
+        if zline:
+            ax.axhline(0, c='k', ls=':')
+        if sv_fig:
+            f.savefig(folder + '/mean_reward_across_training.png')
+    else:
+        print('No data in: ', folder)
 
 
 def put_together_files(folder):
     files = glob.glob(folder + '/*_bhvr_data*npz')
-    files = order_by_sufix(files)
-    file_data = np.load(files[0], allow_pickle=True)
     data = {}
-    for key in file_data.keys():
-        data[key] = file_data[key]
-
-    for ind_f in range(len(files)):
-        file_data = np.load(files[ind_f], allow_pickle=True)
+    if len(files) > 0:
+        files = order_by_sufix(files)
+        file_data = np.load(files[0], allow_pickle=True)
         for key in file_data.keys():
-            data[key] = np.concatenate((data[key], file_data[key]))
-    np.savez(folder + '/bhvr_data_all.npz', **data)
+            data[key] = file_data[key]
+
+        for ind_f in range(len(files)):
+            file_data = np.load(files[ind_f], allow_pickle=True)
+            for key in file_data.keys():
+                data[key] = np.concatenate((data[key], file_data[key]))
+        np.savez(folder + '/bhvr_data_all.npz', **data)
     return data
 
 
@@ -191,5 +249,5 @@ def order_by_sufix(file_list):
 
 
 if __name__ == '__main__':
-    f = '/home/manuel/ngym_usage/results/combine_tests_no_shared_actSpace/'
+    f = '/home/molano/res080220/SL_PerceptualDecisionMaking-v0_0/'
     plot_rew_across_training(folder=f)

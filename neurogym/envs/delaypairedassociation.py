@@ -12,7 +12,6 @@ from gym import spaces
 import neurogym as ngym
 
 
-
 class DelayPairedAssociation(ngym.PeriodEnv):
     metadata = {
         'description': 'A sample is followed by a delay and a test.' +
@@ -28,15 +27,24 @@ class DelayPairedAssociation(ngym.PeriodEnv):
             'stim2': ('constant', 1000),
             'delay_aft_stim': ('constant', 1000),
             'decision': ('constant', 500)},
-        'noise': '''Standard deviation of the Gaussian noise added to
-        the stimulus. (def: 0.01)''',
         'tags': ['perceptual', 'working memory', 'go-no-go',
                  'supervised']
     }
 
-    def __init__(self, dt=100, timing=None, noise=0.01):
+    def __init__(self, dt=100, rewards=None, timing=None, noise=0.01):
         """
-        
+        A sample is followed by a delay and a test. Agents have to report if
+        the pair sample-test is a rewarded pair or not.
+        dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: -1., float)
+            R_MISS:  given when not responding when a response was expected.
+            (def: 0., float)
+        timing: Description and duration of periods forming a trial.
+        noise: Standard deviation of the Gaussian noise added to
+        the stimulus. (def: 0.01, float)
         """
         super().__init__(dt=dt, timing=timing)
         self.choices = [0, 1]
@@ -49,10 +57,14 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         # Durations (stimulus duration will be drawn from an exponential)
 
         # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
-        self.R_FAIL = -0.5
-        self.R_MISS = -0.5  # punishment for miss when trial is GO
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
+                          'R_FAIL': -1., 'R_MISS': 0.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+        self.R_MISS = reward_default['R_MISS']  # rew for miss if trial is GO
         self.abort = False
         # action and observation spaces
         self.action_space = spaces.Discrete(2)
@@ -106,7 +118,7 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         self.set_groundtruth('decision', self.trial['ground_truth'])
 
         # if trial is GO the reward is set to R_MISS and  to 0 otherwise
-        self.r_tmax = self.R_MISS*self.trial['ground_truth']
+        self.r_tmax = self.R_MISS**(self.trial['ground_truth'] == 1)
 
     def _step(self, action, **kwargs):
         """

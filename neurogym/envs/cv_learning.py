@@ -26,13 +26,30 @@ class CVLearning(ngym.PeriodEnv):
             'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
             # 'go_cue': ('constant', 100), # TODO: Not implemented
             'decision': ('constant', 1500)},
-        'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
         'tags': ['perceptual', 'delayed response', 'two-alternative',
                  'supervised']
     }
 
-    def __init__(self, dt=100, timing=None, stimEv=1., perf_w=1000,
-                 max_num_reps=3, init_ph=0, th=0.8):
+    def __init__(self, dt=100, rewards=None, timing=None, stimEv=1.,
+                 perf_w=1000, max_num_reps=3, init_ph=0, th=0.8):
+        """
+        Implements shaping for the delay-response task, in which agents
+        have to integrate two stimuli and report which one is larger on
+        average after a delay.
+        dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_ABORTED: given when breaking fixation. (def: -0.1, float)
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: -1., float)
+        timing: Description and duration of periods forming a trial.
+        stimEv: Controls the difficulty of the experiment. (def: 1., float)
+        perf_w: Window used to compute the mean reward. (def: 1000, int)
+        max_num_reps: Maximum number of times that agent can go in a row
+        to the same side during phase 0. (def: 3, int)
+        init_ph: Phase initializing the task. (def: 0, int)
+        th: Performance threshold needed to proceed to the following phase.
+        (def: 0.8, float)
+        """
         super().__init__(dt=dt, timing=timing)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
@@ -40,11 +57,16 @@ class CVLearning(ngym.PeriodEnv):
         # Input noise
         sigma = np.sqrt(2*100*0.01)
         self.sigma_dt = sigma / np.sqrt(self.dt)
+
         # Rewards
-        self.R_ABORTED = -0.1
-        self.R_CORRECT = +1.
-        self.R_FAIL = -1.
-        self.R_MISS = 0.
+        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
+                          'R_FAIL': -1.}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_ABORTED = reward_default['R_ABORTED']
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+        self.action = 0
         self.abort = False
         self.firstcounts = True
         self.first_flag = False
@@ -65,12 +87,16 @@ class CVLearning(ngym.PeriodEnv):
         """
         new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:
-            durations, which stores the duration of the different periods (in
-            the case of perceptualDecisionMaking: fixation, stimulus and decision periods)
-            ground truth: correct response for the trial
-            coh: stimulus coherence (evidence) for the trial
-            obs: observation
+            durations: Stores the duration of the different periods.
+            ground truth: Correct response for the trial.
+            coh: Stimulus coherence (evidence) for the trial.
+            obs: Observation.
         """
+        self.set_phase()
+        if self.curr_ph == 0:
+            # control that agent does not repeat side more than 3 times
+            self.count(self.action)
+
         self.trial = {
             'ground_truth': self.rng.choice(self.choices),
             'coh': self.rng.choice(self.cohs),
@@ -81,7 +107,6 @@ class CVLearning(ngym.PeriodEnv):
         self.durs = {key: None for key in self.metadata['timing']}
 
         self.first_choice_rew = None
-        # self.set_phase()
         if self.curr_ph == 0:
             # no stim, reward is in both left and right
             # agent cannot go N times in a row to the same side
@@ -131,9 +156,9 @@ class CVLearning(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         self.add_period('fixation', after=0)
         self.add_period('stimulus', duration=self.durs['stimulus'],
-                       after='fixation')
+                        after='fixation')
         self.add_period('delay', duration=self.durs['delay'],
-                       after='stimulus')
+                        after='stimulus')
         self.add_period('decision', after='delay', last_period=True)
 
         # define observations
@@ -176,14 +201,11 @@ class CVLearning(ngym.PeriodEnv):
     def _step(self, action):
         # obs, reward, done, info = self.env._step(action)
         # ---------------------------------------------------------------------
-        # Reward and observations
-        # ---------------------------------------------------------------------
+
         new_trial = False
         # rewards
         reward = 0
-        # observations
         gt = self.gt_now
-
         first_choice = False
         if self.in_period('fixation') or self.in_period('delay'):
             if action != 0:
@@ -203,21 +225,19 @@ class CVLearning(ngym.PeriodEnv):
                     first_choice = True
                     self.first_flag = True
 
-        info = {'new_trial': new_trial, 'gt': gt,
-                'curr_ph': self.curr_ph, 'first_rew': self.rew}
-
         # check if first choice (phase 1)
         if ~self.firstcounts and first_choice:
             self.first_choice_rew = reward
-
         # set reward for all phases
         self.rew = self.first_choice_rew or reward
 
-        if info['new_trial']:
-            self.set_phase()
-            if self.curr_ph == 0:
-                # control that agent does not repeat side more than 3 times
-                self.count(action)
-                self.action = action
-
+        if new_trial and self.curr_ph == 0:
+            self.action = action
+        info = {'new_trial': new_trial, 'gt': gt, 'num_tr': self.num_tr,
+                'curr_ph': self.curr_ph, 'first_rew': self.rew}
         return self.obs_now, reward, False, info
+
+
+if __name__ == '__main__':
+    env = CVLearning()
+    ngym.utils.plot_env(env, num_steps_env=100)  # , def_act=1)

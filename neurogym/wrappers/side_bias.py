@@ -14,14 +14,17 @@ class SideBias(ngym.TrialWrapper):
     metadata = {
         'description': 'Changes the probability of ground truth.',
         'paper_link': None,
-        'paper_name': None,
-        'prob': 'Specifies probabilities for each choice. Within each block,' +
-        ' the probability should sum up to 1. ' +
-        '(def: None (Numpy array (n_block, n_choices)))',
-        'block_dur': 'Number of trials per block. (def: 200 (int))',
+        'paper_name': None
     }
 
     def __init__(self, env, prob=None, block_dur=200):
+        """
+        Changes the probability of ground truth.
+        prob: Specifies probabilities for each choice. Within each block,the
+        probability should sum up to 1. (def: None, numpy array (n_block,
+        n_choices))
+        block_dur: Number of trials per block. (def: 200, int)
+        """
         super().__init__(env)
         try:
             self.choices = self.task.choices
