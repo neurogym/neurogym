@@ -140,7 +140,7 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, mean_perf=None,
         ax.legend()
         ax.set_xlim([-0.5, len(steps)-0.5])
     else:
-        ax.imshow(obs.T, aspect='auto')
+        ax.imshow(obs.T, aspect='auto', origin='lower')
         ax.set_yticks([])
 
     if name:
