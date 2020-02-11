@@ -14,17 +14,11 @@ def add_link(text, link):
 
 
 def write_doc(write_type):
-    all_tags = []
+    all_tags = ngym.all_tags()
     if write_type == 'tasks':
         all_items = ngym.all_envs()
         info_fn = info
         fname = 'envs.md'
-
-        for name in ngym.all_envs():
-            env = gym.make(name)
-            tag_list = env.metadata.get('tags', [])
-            all_tags += tag_list
-        all_tags = set(all_tags)
         all_items_dict = ngym.envs.ALL_ENVS
 
     elif write_type == 'wrappers':

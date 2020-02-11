@@ -70,3 +70,9 @@ _all_gym_envs = [env.id for env in gym.envs.registry.all()]
 for env_id in ALL_ENVS.keys():
     if env_id not in _all_gym_envs:
         register(id=env_id, entry_point=ALL_ENVS[env_id])
+
+
+def all_tags():
+    return ['confidence', 'context dependent', 'continuous action space', 'delayed response', 'go-no-go',
+            'motor', 'multidimensional action space', 'n-alternative', 'perceptual', 'reaction time',
+            'steps action space', 'supervised', 'timing', 'two-alternative', 'value-based', 'working memory']

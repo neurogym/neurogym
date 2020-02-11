@@ -41,6 +41,12 @@ def _test_run(env):
         if done:
             env.reset()
 
+    tags = env.metadata.get('tags', [])
+    all_tags = ngym.all_tags()
+    for t in tags:
+        if t not in all_tags:
+            print('Warning: env has tag {:s} not in all_tags'.format(t))
+
     return env
 
 
