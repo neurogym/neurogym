@@ -71,7 +71,7 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
         self.R_ABORTED = reward_default['R_ABORTED']
         self.R_CORRECT = reward_default['R_CORRECT']
 
-        self.R_B = self.B_to_A * self.R_B
+        self.R_B = self.B_to_A * self.R_CORRECT
         self.R_A = self.R_CORRECT
         self.abort = False
         # Increase initial policy -> baseline weights
