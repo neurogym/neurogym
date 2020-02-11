@@ -31,7 +31,7 @@ class CVLearning(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, stimEv=1.,
-                 perf_w=1000, max_num_reps=3, init_ph=0, th=0.8):
+                 perf_w=100, max_num_reps=3, init_ph=0, th=0.8):
         """
         Implements shaping for the delay-response task, in which agents
         have to integrate two stimuli and report which one is larger on
