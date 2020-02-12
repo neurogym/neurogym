@@ -240,4 +240,5 @@ class CVLearning(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = CVLearning()
-    ngym.utils.plot_env(env, num_steps_env=100)  # , def_act=1)
+    ngym.utils.plot_env(env, num_steps_env=100,
+                        obs_traces=['Fixation Cue', 'Stim1', 'Stim2'])
