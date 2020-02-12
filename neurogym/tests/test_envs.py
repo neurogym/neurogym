@@ -13,7 +13,6 @@ import neurogym as ngym
 def test_run(env, verbose=False):
     """Main function for testing if an environment is healthy."""
     if isinstance(env, str):
-        print('Testing Environment:', env)
         kwargs = {'dt': 20}
         env = gym.make(env, **kwargs)
     else:
@@ -41,16 +40,24 @@ def _test_run(env):
         if done:
             env.reset()
 
+    tags = env.metadata.get('tags', [])
+    all_tags = ngym.all_tags()
+    for t in tags:
+        if t not in all_tags:
+            print('Warning: env has tag {:s} not in all_tags'.format(t))
+
     return env
 
 
-def test_speed(env_name):
+def test_speed(env):
     """Test speed of an environment."""
     n_steps = 100000
     warmup_steps = 10000
     kwargs = {'dt': 20}
 
-    env = gym.make(env_name, **kwargs)
+    if isinstance(env, str):
+        env = gym.make(env, **kwargs)
+
     env.reset()
     for stp in range(warmup_steps):
         action = env.action_space.sample()
@@ -59,7 +66,6 @@ def test_speed(env_name):
             env.reset()
 
     total_time = 0
-    env = gym.make(env_name, **kwargs)
     env.reset()
     for stp in range(n_steps):
         action = env.action_space.sample()
@@ -69,7 +75,6 @@ def test_speed(env_name):
         if done:
             env.reset()
 
-    print('Env: ', env_name)
     print('Time per step {:0.3f}us'.format(total_time/n_steps*1e6))
     return env
 
@@ -77,6 +82,7 @@ def test_speed(env_name):
 def test_speed_all():
     """Test speed of all experiments."""
     for env_name in sorted(ngym.all_envs()):
+        print('Running env: {:s}'.format(env_name))
         try:
             test_speed(env_name)
             print('Success')

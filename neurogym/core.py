@@ -86,6 +86,11 @@ class TrialEnv(BaseEnv):
         self.num_tr = 0
         self.num_tr_exp = num_trials_before_reset
         self.trial = None
+        # Annotations of observation space and action space
+        self.ob_dict = {}
+        self.act_dict = {}
+        self.rewards = {}
+
         self.seed()
 
     def new_trial(self, **kwargs):
@@ -223,54 +228,51 @@ class PeriodEnv(TrialEnv):
         self.obs = np.zeros([tmax_ind] + list(self.observation_space.shape))
         self.gt = np.zeros([tmax_ind] + list(self.action_space.shape))
 
-    def add_input(self, input, loc=None, period=None):
-        """Add an input to current observation."""
-        if isinstance(period, str):
-            self._add_input(input, loc, period)
-        else:
-            for e in period:
-                self._add_input(input, loc, e)
-
-    def _add_input(self, input, loc=None, period=None):
-        """Add an input to current observation."""
+    def view_ob(self, period=None):
+        """View observation of an period."""
         if period is None:
-            ob = self.obs
+            return self.obs
         else:
-            ob = self.view_ob(period)
+            return self.obs[self.start_ind[period]:self.end_ind[period]]
 
-        if loc is None:
-            try:
-                ob[:, :] += input()
-            except TypeError:
-                ob[:, :] += input
-        else:
-            try:
-                ob[:, loc] += input()
-            except TypeError:
-                ob[:, loc] += input
-
-    def set_ob(self, period, value):
+    def _add_ob(self, period, value, where=None, reset=False):
         """Set observation in period to value.
 
         Args:
             period: string, must be name of an added period
             value: np array (ob_space.shape, ...)
+            where: string or np array, location of stimulus to be added
         """
-        self.obs[self.start_ind[period]:self.end_ind[period]] = value
+        # self.obs[self.start_ind[period]:self.end_ind[period]] = value
+        ob = self.view_ob(period=period)
+        if reset:
+            ob *= 0
+        if where is None:
+            try:
+                ob += value(ob)
+            except TypeError:
+                ob += value
+        else:
+            if isinstance(where, str):
+                where = self.ob_dict[where]
+            # TODO: This only works if the slicing is one one-dimension
+            try:
+                ob[..., where] += value(ob[..., where])
+            except TypeError:
+                ob[..., where] += value
 
-    def view_ob(self, period):
-        """View observation of an period."""
-        return self.obs[self.start_ind[period]:self.end_ind[period]]
-
-    def add_ob(self, period, value):
+    def add_ob(self, period, value, where=None):
         """Add value to observation.
 
         Args:
             period: string, must be name of an added period
             value: np array (ob_space.shape, ...)
+            where: string or np array, location of stimulus to be added
         """
-        ob = self.view_ob(period)
-        ob += value  # in-place
+        self._add_ob(period, value, where, reset=False)
+
+    def set_ob(self, period, value, where=None):
+        self._add_ob(period, value, where, reset=True)
 
     def set_groundtruth(self, period, value):
         """Set groundtruth value."""

@@ -62,6 +62,7 @@ class Dataset(object):
             seq_end = 0
             while seq_end < self._cache_len:
                 env.new_trial()
+                # TODO: Increment trial number here
                 obs, gt = env.obs, env.gt
                 seq_len = obs.shape[0]
                 seq_end = seq_start + seq_len

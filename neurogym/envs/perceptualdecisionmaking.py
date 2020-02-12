@@ -271,7 +271,9 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
 
 
 if __name__ == '__main__':
-    env = PerceptualDecisionMaking()
-    ngym.utils.plot_env(env, num_steps_env=100, def_act=1)
-    env = PerceptualDecisionMakingDelayResponse()
-    ngym.utils.plot_env(env, num_steps_env=100, def_act=1)
+    env = PerceptualDecisionMaking(dt=20, timing={'stimulus': ('constant', 500)})
+    from neurogym.tests.test_envs import test_speed
+    test_speed(env)
+    # ngym.utils.plot_env(env, num_steps_env=100, def_act=1)
+    # env = PerceptualDecisionMakingDelayResponse()
+    # ngym.utils.plot_env(env, num_steps_env=100, def_act=1)

@@ -34,22 +34,6 @@ Logic: Introduces catch trials in which the reward for a correct choice is modif
 
 
 
-Input parameters: 
-
-
-
-stim_th : Percentile of stimulus distribution below which catch trials are allowed (in some cases, experimenter might decide not to have catch trials when  stimulus is very obvious). (def: 50)
-
-
-
-catch_prob : Catch trial probability. (def: 0.1)
-
-
-
-start : Number of trials after which the catch trials can occur. (def: 0)
-
-
-
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/wrappers/catch_trials.py)
 
 ___
@@ -70,34 +54,6 @@ Reference paper:
 
 
 
-Input parameters: 
-
-
-
-defaults : Default actions for each task. This is used to decide which gt/reward to use in the sharing-action-space scenario. (def: [0, 0])
-
-
-
-trial_cue : Whether to show the type of trial as a cue
-
-
-
-share_action_space : Whether the two task share the same action space. Not sharing allows to control (via reward)  what the agent does for each task at each timestep (def: True)
-
-
-
-delay : Time when the distractor task appears. (def: 800 (ms))
-
-
-
-mix : Probabilities for the different trial types (only main, only distractor, both). (def: (.5, .0, .5))
-
-
-
-distractor : Distractor task. (no default value)
-
-
-
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/wrappers/combine.py)
 
 ___
@@ -107,14 +63,6 @@ ___
 
 
 Logic: Add a negative reward if a trial ends with no action.
-
-
-
-Input parameters: 
-
-
-
-r_miss : Reward given when a miss trial occurs.(def: 0)
 
 
 
@@ -130,32 +78,6 @@ Logic: Saves relevant behavioral information: rewards, actions, observations, ne
 
 
 
-Input parameters: 
-
-
-
-num_stps_sv_fig : Number of trial steps to include in the figure. (def: 100)
-
-
-
-sv_fig : Whether to save a figure of the experiment structure. If True, a figure will be updated every num_tr_save. (def: False)
-
-
-
-verbose : Whether to print information about average reward and number of trials
-
-
-
-folder : Folder where the data will be saved. (def: None)
-
-
-
-num_tr_save : Data will be saved every num_tr_save trials.
-
-        (def: 100000)
-
-
-
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/wrappers/monitor.py)
 
 ___
@@ -165,14 +87,6 @@ ___
 
 
 Logic: Add Gaussian noise to the observations.
-
-
-
-Input parameters: 
-
-
-
-std_noise : Standard deviation of noise. (def: 0.1)
 
 
 
@@ -224,18 +138,6 @@ Logic: Changes the probability of ground truth.
 
 
 
-Input parameters: 
-
-
-
-prob : Specifies probabilities for each choice. Within each block, the probability should sum up to 1. (def: None (Numpy array (n_block, n_choices)))
-
-
-
-block_dur : Number of trials per block. (def: 200 (int))
-
-
-
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/wrappers/side_bias.py)
 
 ___
@@ -245,14 +147,6 @@ ___
 
 
 Logic: Outputs extra pulses that will be non-zero during specified periods.
-
-
-
-Input parameters: 
-
-
-
-periods : List of list specifying the on periods for each pulse. (def: [])
 
 
 
@@ -273,22 +167,6 @@ Reference paper:
 
 
 [Response outcomes gate the impact of expectations on perceptual decisions](https://www.biorxiv.org/content/10.1101/433409v3)
-
-
-
-Input parameters: 
-
-
-
-block_dur : Number of trials per block. (def: 200 (int))
-
-
-
-blk_ch_prob : If not None, specifies the probability of changing block (randomly). (def: None)
-
-
-
-rep_prob : Specifies probabilities of repeating for each block. (def: (.2, .8))
 
 
 
