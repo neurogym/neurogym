@@ -123,7 +123,7 @@ class ChangingEnvironment(ngym.PeriodEnv):
             stimulus[:, side] = (1 + coh / 100) / 2
             # adding gaussian noise to stimulus with std = self.sigma_dt
             stimulus[:, 1:] +=\
-                np.random.randn(stimulus.shape[0], 2) * self.sigma_dt
+                self.rng.randn(stimulus.shape[0], 2) * self.sigma_dt
         else:
             self.set_ob('fixation', [self.curr_cxt, 0, 0, 0])
             self.set_ob('stimulus', [self.curr_cxt, 0, 0, 0])
@@ -137,7 +137,7 @@ class ChangingEnvironment(ngym.PeriodEnv):
             stimulus[:, side] = (1 + coh / 100) / 2
             # adding gaussian noise to stimulus with std = self.sigma_dt
             stimulus[:, 2:] +=\
-                np.random.randn(stimulus.shape[0], 2) * self.sigma_dt
+                self.rng.randn(stimulus.shape[0], 2) * self.sigma_dt
 
         # ---------------------------------------------------------------------
         # Ground truth

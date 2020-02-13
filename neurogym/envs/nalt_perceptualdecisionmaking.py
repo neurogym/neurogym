@@ -102,7 +102,7 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         ob[:, 0] = 1
         ob[:, 1:] = (1 - self.trial['coh']/100)/2
         ob[:, self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
-        ob[:, 1:] += np.random.randn(ob.shape[0], self.n) * self.sigma_dt
+        ob[:, 1:] += self.rng.randn(ob.shape[0], self.n) * self.sigma_dt
 
         self.set_groundtruth('fixation', 0)
         self.set_groundtruth('stimulus', 0)

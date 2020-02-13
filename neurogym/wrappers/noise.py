@@ -62,7 +62,7 @@ class Noise(Wrapper):
             elif rew_mean < self.rew_th and self.std_noise > 0:
                 self.std_noise = max(0, self.std_noise-self.step_noise)
         # add noise
-        obs += np.random.normal(loc=0, scale=self.std_noise,
-                                size=obs.shape)
+        obs += self.env.rng.normal(loc=0, scale=self.std_noise,
+                                   size=obs.shape)
 
         return obs, reward, done, info

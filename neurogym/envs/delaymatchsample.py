@@ -91,12 +91,12 @@ class DelayedMatchToSample(ngym.PeriodEnv):
         ob = self.view_ob('sample')
         ob[:, 0] = 1
         ob[:, sample] = 1
-        ob[:, 1:] += np.random.randn(ob.shape[0], 2) * self.sigma_dt
+        ob[:, 1:] += self.rng.randn(ob.shape[0], 2) * self.sigma_dt
 
         ob = self.view_ob('test')
         ob[:, 0] = 1
         ob[:, test] = 1
-        ob[:, 1:] += np.random.randn(ob.shape[0], 2) * self.sigma_dt
+        ob[:, 1:] += self.rng.randn(ob.shape[0], 2) * self.sigma_dt
 
         self.set_ob('delay', [1, 0, 0])
 

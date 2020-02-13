@@ -168,7 +168,7 @@ class CVLearning(ngym.PeriodEnv):
         stim[:, 1:] = (1 - self.trial['coh']/100)/2
         stim[:, self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
         stim[:, 1:] +=\
-            np.random.randn(stim.shape[0], 2) * self.trial['sigma_dt']
+            self.rng.randn(stim.shape[0], 2) * self.trial['sigma_dt']
 
         self.set_ob('delay', [1, 0, 0])
 

@@ -65,7 +65,7 @@ class BaseEnv(gym.Env):
 
     # Auxiliary functions
     def seed(self, seed=None):
-        self.rng = random
+        self.rng = np.random
         self.rng.seed(seed)
         return [seed]
 

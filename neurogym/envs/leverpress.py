@@ -367,7 +367,7 @@ class ContextSwitch(gym.Env):
     def _step(self, action):
         assert self.action_space.contains(action), "%r (%s) invalid" % (
             action, type(action))
-        if np.random.rand() < self.p_switch:
+        if self.rng.rand() < self.p_switch:
             self.context = 1 - self.context
 
         if self.context == 0:
@@ -378,7 +378,7 @@ class ContextSwitch(gym.Env):
         reward = (correct_action == action) * 1.0
 
         # new observation
-        self.ob = np.random.randint(0, 2)
+        self.ob = self.rng.randint(0, 2)
         obs = np.array([0., 0.])
         obs[self.ob] = 1.
 

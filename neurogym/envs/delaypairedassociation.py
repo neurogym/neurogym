@@ -106,11 +106,11 @@ class DelayPairedAssociation(ngym.PeriodEnv):
 
         ob = self.view_ob('stim1')
         ob[:, 0] = 1
-        ob[:, pair[0]] = 1 + np.random.randn(ob.shape[0]) * self.sigma_dt
+        ob[:, pair[0]] = 1 + self.rng.randn(ob.shape[0]) * self.sigma_dt
 
         ob = self.view_ob('stim2')
         ob[:, 0] = 1
-        ob[:, pair[1]] = 1 + np.random.randn(ob.shape[0]) * self.sigma_dt
+        ob[:, pair[1]] = 1 + self.rng.randn(ob.shape[0]) * self.sigma_dt
 
         self.set_ob('delay_btw_stim', [1, 0, 0, 0, 0])
         self.set_ob('delay_aft_stim', [1, 0, 0, 0, 0])

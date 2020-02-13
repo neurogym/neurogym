@@ -121,7 +121,7 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
         ob[:, self.inputs['N-L']] = self.scale(nL)
         ob[:, self.inputs['N-R']] = self.scale(nR)
         ob[:, [self.inputs['N-L'], self.inputs['N-R']]] += \
-            np.random.randn(ob.shape[0], 2) * self.sigma_dt
+            self.rng.randn(ob.shape[0], 2) * self.sigma_dt
 
     def _step(self, action):
         trial = self.trial

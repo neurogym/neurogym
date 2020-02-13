@@ -99,7 +99,7 @@ class ContextDecisionMaking(ngym.PeriodEnv):
         ob = self.view_ob('stimulus')
         ob[:, [high_0, low_0, high_1, low_1]] =\
             (1 + np.array([coh_0, -coh_0, coh_1, -coh_1])/100)/2
-        ob[:, 3:] += np.random.randn(ob.shape[0], 4) * self.sigma_dt
+        ob[:, 3:] += self.rng.randn(ob.shape[0], 4) * self.sigma_dt
         self.set_ob('decision', np.zeros(7))
         self.obs[:, self.trial['context']] = 1
 

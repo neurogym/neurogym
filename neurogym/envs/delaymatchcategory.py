@@ -107,13 +107,13 @@ class DelayedMatchCategory(ngym.PeriodEnv):
 
         ob = self.view_ob('sample')
         ob[:, :] += np.array([1, np.cos(sample_theta), np.sin(sample_theta)])
-        ob[:, 1:] += np.random.randn(ob.shape[0], 2) * self.sigma_dt
+        ob[:, 1:] += self.rng.randn(ob.shape[0], 2) * self.sigma_dt
 
         self.set_ob('first_delay', [1, 0, 0])
 
         ob = self.view_ob('test')
         ob[:, :] += np.array([1, np.cos(test_theta), np.sin(test_theta)])
-        ob[:, 1:] += np.random.randn(ob.shape[0], 2) * self.sigma_dt
+        ob[:, 1:] += self.rng.randn(ob.shape[0], 2) * self.sigma_dt
 
         # self.set_ob('test', [0, 0, 0])
 

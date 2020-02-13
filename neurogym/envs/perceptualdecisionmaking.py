@@ -101,7 +101,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         stimulus[:, ground_truth] = (1 + coh / 100) / 2  # coh for correct side
         # adding gaussian noise to stimulus with std = self.sigma_dt
         stimulus[:, 1:] +=\
-            np.random.randn(stimulus.shape[0], 2) * self.sigma_dt
+            self.rng.randn(stimulus.shape[0], 2) * self.sigma_dt
         # ---------------------------------------------------------------------
         # Ground truth
         # ---------------------------------------------------------------------
@@ -231,7 +231,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         stim[:, 1:] = (1 - self.trial['coh']/100)/2
         stim[:, self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
         stim[:, 1:] +=\
-            np.random.randn(stim.shape[0], 2) * self.trial['sigma_dt']
+            self.rng.randn(stim.shape[0], 2) * self.trial['sigma_dt']
 
         self.set_ob('delay', [1, 0, 0])
 
@@ -273,7 +273,8 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
 
 
 if __name__ == '__main__':
-    env = PerceptualDecisionMaking(dt=20, timing={'stimulus': ('constant', 500)})
+    env = PerceptualDecisionMaking(dt=20,
+                                   timing={'stimulus': ('constant', 500)})
     from neurogym.tests.test_envs import test_speed
     test_speed(env)
     # ngym.utils.plot_env(env, num_steps_env=100, def_act=1)

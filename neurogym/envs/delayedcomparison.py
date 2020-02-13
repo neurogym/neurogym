@@ -103,9 +103,9 @@ class DelayedComparison(ngym.PeriodEnv):
         self.set_ob('f2', [1, self.scale_p(f2)])
         self.set_ob('decision', [0, 0])
         ob = self.view_ob('f1')
-        ob[:, 1] += np.random.randn(ob.shape[0]) * self.sigma_dt
+        ob[:, 1] += self.rng.randn(ob.shape[0]) * self.sigma_dt
         ob = self.view_ob('f2')
-        ob[:, 1] += np.random.randn(ob.shape[0]) * self.sigma_dt
+        ob[:, 1] += self.rng.randn(ob.shape[0]) * self.sigma_dt
 
         self.set_groundtruth('decision', self.trial['ground_truth'])
 

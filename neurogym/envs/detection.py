@@ -11,6 +11,7 @@ from gym import spaces
 import neurogym as ngym
 import warnings
 
+
 class Detection(ngym.PeriodEnv):
     metadata = {
             'description': 'The agent has to GO if a stimulus is presented.',
@@ -48,23 +49,23 @@ class Detection(ngym.PeriodEnv):
         # Noise added to the observations
         self.sigma_dt = noise / np.sqrt(self.dt)
         self.delay = delay
-        self.stim_dur = int(stim_dur/self.dt) # in steps # should be greater
-        # than 1 step, else it wont have enough time to respond within the window
+        self.stim_dur = int(stim_dur/self.dt)  # in steps should be greater
+        # than 1 stp else it wont have enough time to respond within the window
         if self.stim_dur == 1:
             self.extra_step = 1
             if delay is None:
-                warnings.warn('Added an extra step after the actual stimulus, '+
-                                'else model will not be able to respond '+
-                                'within response window (stimulus epoch)')
+                warnings.warn('Added an extra stp after the actual stimulus,' +
+                              ' else model will not be able to respond ' +
+                              'within response window (stimulus epoch)')
         else:
             self.extra_step = 0
 
         if self.stim_dur < 1:
-            warnings.warn('Stimulus duration shorter than dt') 
+            warnings.warn('Stimulus duration shorter than dt')
 
         # Rewards
         reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
-                          'R_FAIL': -1., 'R_MISS': -1} 
+                          'R_FAIL': -1., 'R_MISS': -1}
         if rewards is not None:
             reward_default.update(rewards)
         self.R_ABORTED = reward_default['R_ABORTED']
@@ -106,7 +107,7 @@ class Detection(ngym.PeriodEnv):
         self.set_ob('fixation', [1, 0])
         # stimulus:
         stim = self.view_ob('stimulus')
-        stim[:, 1:] += np.random.randn(stim.shape[0], 1) * self.sigma_dt
+        stim[:, 1:] += self.rng.randn(stim.shape[0], 1) * self.sigma_dt
         # delay
         # SET THE STIMULUS
         # adding gaussian noise to stimulus with std = self.sigma_dt
@@ -123,7 +124,7 @@ class Detection(ngym.PeriodEnv):
             self.performance = 0
         else:
             stim[:, 1:] +=\
-                np.random.randn(stim.shape[0], 1) * self.sigma_dt
+                self.rng.randn(stim.shape[0], 1) * self.sigma_dt
             delay = 0
             self.r_tmax = 0  # response omision is correct but not rewarded
             self.performance = 1
