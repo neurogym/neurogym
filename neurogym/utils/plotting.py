@@ -7,7 +7,7 @@ import gym
 
 
 def plot_env(env, num_steps_env=200, def_act=None, model=None, show_fig=True,
-             name=None, legend=True, obs_traces=[], fig_kwargs={}):
+             name=None, legend=True, obs_traces=[], fig_kwargs={}, folder=''):
     """
     env: already built neurogym task or name of it
     num_steps_env: number of steps to run the task
@@ -38,7 +38,7 @@ def plot_env(env, num_steps_env=200, def_act=None, model=None, show_fig=True,
     if show_fig:
         fig_(obs, actions, gt, rewards, legend=legend,
              states=states, name=name, obs_traces=obs_traces,
-             fig_kwargs=fig_kwargs, env=env)
+             fig_kwargs=fig_kwargs, env=env, folder=folder)
     data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
             'actions': actions, 'perf': perf,
             'actions_end_of_trial': actions_end_of_trial, 'gt': gt,
@@ -62,7 +62,8 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
             action, _states = model.predict(obs)
             if isinstance(action, float) or isinstance(action, int):
                 action = [action]
-            state_mat.append(_states)
+            if _states:
+                state_mat.append(_states)
         elif def_act is not None:
             action = def_act
         else:
@@ -94,7 +95,7 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
             gt.append(info['gt'])
         else:
             gt.append(0)
-    if model is not None:
+    if model is not None and len(state_mat) > 0:
         states = np.array(state_mat)
         states = states[:, 0, :]
     else:
@@ -104,7 +105,8 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
 
 
 def fig_(obs, actions, gt=None, rewards=None, states=None, mean_perf=None,
-         legend=True, obs_traces=None, name='', folder='', fig_kwargs={}, env=None):
+         legend=True, obs_traces=None, name='', folder='', fig_kwargs={},
+         env=None):
     """
     obs, actions: data to plot
     gt, rewards, states: if not None, data to plot
