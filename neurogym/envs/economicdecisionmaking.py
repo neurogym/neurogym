@@ -90,8 +90,8 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
         # Trial
         # ---------------------------------------------------------------------
         self.trial = {
-            'juice': self.rng.choice(self.juices),
-            'offer': self.rng.choice(self.offers),
+            'juice': self.juices[self.rng.choice(len(self.juices))],
+            'offer': self.offers[self.rng.choice(len(self.offers))]
         }
         self.trial.update(kwargs)
 

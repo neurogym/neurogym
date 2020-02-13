@@ -82,7 +82,7 @@ class DelayPairedAssociation(ngym.PeriodEnv):
             coh: stimulus coherence (evidence) for the trial
             obs: observation
         """
-        pair = self.rng.choice(self.dpa_pairs)
+        pair = self.dpa_pairs[self.rng.choice(len(self.dpa_pairs))]
         self.trial = {
             'pair': pair,
             'ground_truth': int(np.diff(pair)[0] % 2 == self.association),

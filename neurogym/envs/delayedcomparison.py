@@ -82,7 +82,7 @@ class DelayedComparison(ngym.PeriodEnv):
     def new_trial(self, **kwargs):
         self.trial = {
             'ground_truth': self.rng.choice(self.choices),
-            'fpair': self.rng.choice(self.fpairs)
+            'fpair': self.fpairs[self.rng.choice(len(self.fpairs))]
         }
         self.trial.update(kwargs)
         f1, f2 = self.trial['fpair']

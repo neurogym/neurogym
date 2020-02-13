@@ -36,7 +36,6 @@ class ReachingDelayResponse(ngym.PeriodEnv):
         rewards:
             R_ABORTED: given when breaking fixation. (def: -0.1, float)
             R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: -0., float)
             R_MISS:  given when not responding when a response was expected.
             (def: -0.5, float)
 
@@ -53,7 +52,6 @@ class ReachingDelayResponse(ngym.PeriodEnv):
                           'R_FAIL': -0., 'R_MISS': -0.5}
         self.R_ABORTED = reward_default['R_ABORTED']
         self.R_CORRECT = reward_default['R_CORRECT']
-        self.R_FAIL = reward_default['R_FAIL']
         self.R_MISS = reward_default['R_MISS']  # rew for miss if trial is GO
 
         self.r_tmax = self.R_MISS
@@ -111,7 +109,7 @@ class ReachingDelayResponse(ngym.PeriodEnv):
             if action[0] > 0:
                 new_trial = True
                 reward = self.R_CORRECT/((1+abs(action[1]-gt[1]))**2)
-                self.performance = reward
+                self.performance = reward/self.R_CORRECT
 
         return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 

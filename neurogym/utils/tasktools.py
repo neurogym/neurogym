@@ -62,7 +62,7 @@ def trunc_exp_new(rng, mean, xmin=0, xmax=np.inf):
         return xmax
     else:
         while True:
-            x = rng.exponential(1/mean)
+            x = rng.exponential(mean)
             if xmin <= x < xmax:
                 return x
 
