@@ -36,7 +36,7 @@ def plot_env(env, num_steps_env=200, def_act=None, model=None, show_fig=True,
     obs_cum = np.array(obs_cum)
     obs = np.array(observations)
     if show_fig:
-        fig_(obs, actions, gt, rewards, legend=legend,
+        fig_(obs, actions, gt, rewards, legend=legend, performance=perf,
              states=states, name=name, obs_traces=obs_traces,
              fig_kwargs=fig_kwargs, env=env, folder=folder)
     data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
@@ -85,10 +85,11 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
         observations.append(obs_aux)
         if info['new_trial']:
             actions_end_of_trial.append(action)
-            perf.append(rew)
+            perf.append(info['performance'])
             obs_cum_temp = np.zeros_like(obs_cum_temp)
         else:
             actions_end_of_trial.append(-1)
+            perf.append(-1)
         rewards.append(rew)
         actions.append(action)
         if 'gt' in info.keys():
@@ -104,12 +105,12 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
         actions_end_of_trial, gt, states
 
 
-def fig_(obs, actions, gt=None, rewards=None, states=None, mean_perf=None,
+def fig_(obs, actions, gt=None, rewards=None, states=None, performance=None,
          legend=True, obs_traces=None, name='', folder='', fig_kwargs={},
          env=None):
     """
     obs, actions: data to plot
-    gt, rewards, states: if not None, data to plot
+    gt, rewards, performance, states: if not None, data to plot
     mean_perf: mean performance to show in the rewards panel
     legend: whether to save the legend in actions panel
     folder: if != '', where to save the figure
@@ -190,9 +191,11 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, mean_perf=None,
     if rewards is not None:
         ax = axes[2]
         ax.plot(steps, rewards, 'r')
+        ax.plot(steps, performance, 'k')
         ax.set_ylabel('Reward')
-        if mean_perf is not None:
-            ax.set_title('Mean performance: ' + str(np.round(mean_perf, 2)))
+        performance = np.array(performance)
+        mean_perf = np.mean(performance[performance != -1])
+        ax.set_title('Mean performance: ' + str(np.round(mean_perf, 2)))
         ax.set_xlim([-0.5, len(steps)-0.5])
 
         if env and env.rewards:

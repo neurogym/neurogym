@@ -82,6 +82,8 @@ class AngleReproduction(ngym.PeriodEnv):
 
         self.set_groundtruth('go1', self.trial['ground_truth1'])
         self.set_groundtruth('go2', self.trial['ground_truth2'])
+        self.dec_per_dur = (self.end_ind['go1'] - self.start_ind['go1']) +\
+            (self.end_ind['go2'] - self.start_ind['go2'])
 
     def _step(self, action):
         ob = self.obs_now
@@ -99,6 +101,8 @@ class AngleReproduction(ngym.PeriodEnv):
             reward =\
                 np.max((self.R_CORRECT-tasktools.circular_dist(self.state-gt),
                         self.R_FAIL))
+            norm_rew = (reward-self.R_FAIL)/(self.R_CORRECT-self.R_FAIL)
+            self.performance += norm_rew/self.dec_per_dur
 
         return ob, reward, False, {'new_trial': False}
 

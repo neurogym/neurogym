@@ -131,6 +131,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
                 new_trial = True
                 if action == gt:
                     reward = self.R_CORRECT
+                    self.performance = 1
                 else:
                     reward = self.R_FAIL
 
@@ -263,6 +264,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
             new_trial = True
             if action == gt:
                 reward = self.R_CORRECT
+                self.performance = 1
             elif action == 3 - gt:  # 3-action is the other act
                 reward = self.R_FAIL
 

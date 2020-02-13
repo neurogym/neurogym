@@ -153,7 +153,9 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
 
                 if action == self.actions['CHOOSE-LEFT']:
                     reward = rL
+                    self.performance = rL > rR
                 elif action == self.actions['CHOOSE-RIGHT']:
                     reward = rR
+                    self.performance = rR > rL
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': 0}

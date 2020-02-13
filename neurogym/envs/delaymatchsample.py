@@ -118,6 +118,7 @@ class DelayedMatchToSample(ngym.PeriodEnv):
                 new_trial = True
                 if action == gt:
                     reward = self.R_CORRECT
+                    self.performance = 1
                 else:
                     reward = self.R_FAIL
 
@@ -228,6 +229,7 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
             if action == 1:
                 reward = self.R_CORRECT
                 new_trial = True
+                self.performance = 1
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 

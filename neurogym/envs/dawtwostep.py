@@ -43,8 +43,8 @@ class DawTwoStep(ngym.TrialEnv):
         self.actions = [0, 1, 2]
 
         # trial conditions
-        self.p1 = 0.8  # probability of transitioning to state1 with action1
-        self.p2 = 0.8  # probability of transitioning to state2 with action2
+        self.p1 = 0.8  # prob of transitioning to state1 with action1 (>=05)
+        self.p2 = 0.8  # prob of transitioning to state2 with action2 (>=05)
         self.p_switch = 0.025  # switch reward contingency
         self.high_reward_p = 0.9
         self.low_reward_p = 0.1
@@ -91,7 +91,7 @@ class DawTwoStep(ngym.TrialEnv):
                             self.high_reward_p) * self.R_CORRECT
         reward[low_state] = (self.rng.random() <
                              self.low_reward_p) * self.R_CORRECT
-
+        self.ground_truth = hi_state+1  # assuming p1, p2 >= 0.5
         self.trial = {
             'transition':  transition,
             'reward': reward,
@@ -100,7 +100,7 @@ class DawTwoStep(ngym.TrialEnv):
 
     def _step(self, action):
         trial = self.trial
-        info = {'new_trial': False, 'gt': np.zeros((3,))}
+        info = {'new_trial': False}
         reward = 0
 
         obs = np.zeros((3,))
@@ -112,6 +112,7 @@ class DawTwoStep(ngym.TrialEnv):
                 state = trial['transition'][action]
                 obs[int(state)] = 1
                 reward = trial['reward'][int(state-1)]
+                self.performance = action == self.ground_truth
         elif self.t == self.dt:
             obs[0] = 1
             if action != 0:
@@ -121,3 +122,8 @@ class DawTwoStep(ngym.TrialEnv):
             raise ValueError('t is not 0 or 1')
 
         return obs, reward, False, info
+
+
+if __name__ == '__main__':
+    env = DawTwoStep()
+    ngym.utils.plot_env(env)

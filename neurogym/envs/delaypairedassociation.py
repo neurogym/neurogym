@@ -118,7 +118,8 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         self.set_groundtruth('decision', self.trial['ground_truth'])
 
         # if trial is GO the reward is set to R_MISS and  to 0 otherwise
-        self.r_tmax = self.R_MISS**(self.trial['ground_truth'] == 1)
+        self.r_tmax = self.R_MISS*self.trial['ground_truth']
+        self.performance = 1-self.trial['ground_truth']
 
     def _step(self, action, **kwargs):
         """
@@ -147,8 +148,10 @@ class DelayPairedAssociation(ngym.PeriodEnv):
             if action != 0:
                 if action == gt:
                     reward = self.R_CORRECT
+                    self.performance = 1
                 else:
                     reward = self.R_FAIL
+                    self.performance = 0
                 new_trial = True
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}

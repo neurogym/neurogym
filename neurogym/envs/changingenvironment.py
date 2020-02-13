@@ -169,6 +169,7 @@ class ChangingEnvironment(ngym.PeriodEnv):
                 new_trial = True
                 if action == gt:  # if correct
                     reward = self.R_CORRECT
+                    self.performance = 1
                 else:  # if incorrect
                     reward = self.R_FAIL
 

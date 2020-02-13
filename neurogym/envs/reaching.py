@@ -67,6 +67,7 @@ class Reaching1D(ngym.PeriodEnv):
 
         self.set_groundtruth('fixation', np.pi)
         self.set_groundtruth('reach', self.trial['ground_truth'])
+        self.dec_per_dur = (self.end_ind['reach'] - self.start_ind['reach'])
 
     def _step(self, action):
         ob = self.obs_now
@@ -85,6 +86,8 @@ class Reaching1D(ngym.PeriodEnv):
             reward =\
                 np.max((self.R_CORRECT-tasktools.circular_dist(self.state-gt),
                         self.R_FAIL))
+            norm_rew = (reward-self.R_FAIL)/(self.R_CORRECT-self.R_FAIL)
+            self.performance += norm_rew/self.dec_per_dur
 
         return ob, reward, False, {'new_trial': False}
 
@@ -157,6 +160,7 @@ class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
 
         self.set_groundtruth('fixation', np.pi)
         self.set_groundtruth('reach', self.trial['ground_truth'])
+        self.dec_per_dur = (self.end_ind['reach'] - self.start_ind['reach'])
 
     def _step(self, action):
         ob = self.obs_now + np.cos(self.theta - self.state)
@@ -173,6 +177,8 @@ class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
             reward =\
                 np.max((self.R_CORRECT-tasktools.circular_dist(self.state-gt),
                         self.R_FAIL))
+            norm_rew = (reward-self.R_FAIL)/(self.R_CORRECT-self.R_FAIL)
+            self.performance += norm_rew/self.dec_per_dur
 
         return ob, reward, False, {'new_trial': False}
 

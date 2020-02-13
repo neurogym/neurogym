@@ -71,11 +71,9 @@ class DelayedMatchCategory(ngym.PeriodEnv):
         """
         new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:
-            durations, which stores the duration of the different periods (in
-            the case of perceptualDecisionMaking: fixation, stimulus and decision periods)
             ground truth: correct response for the trial
             coh: stimulus coherence (evidence) for the trial
-            obs: observation
+            ob: observation
         """
         # ---------------------------------------------------------------------
         # Trial
@@ -149,6 +147,7 @@ class DelayedMatchCategory(ngym.PeriodEnv):
                 new_trial = True
                 if action == gt:
                     reward = self.R_CORRECT
+                    self.performance = 1
                 else:
                     reward = self.R_FAIL
 

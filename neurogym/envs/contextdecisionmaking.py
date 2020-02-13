@@ -120,6 +120,7 @@ class ContextDecisionMaking(ngym.PeriodEnv):
                 new_trial = True
                 if action == gt:
                     reward = self.R_CORRECT
+                    self.performance = 1
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 

@@ -134,6 +134,9 @@ class PostDecisionWager(ngym.PeriodEnv):
             if self.actions[int(action)] == 2:
                 if trial['wager']:
                     reward = self.R_SURE
+                    norm_rew =\
+                        (reward-self.R_FAIL)/(self.R_CORRECT-self.R_FAIL)
+                    self.performance = norm_rew
                 else:
                     reward = self.R_ABORTED
             else:
@@ -141,6 +144,7 @@ class PostDecisionWager(ngym.PeriodEnv):
                 action_sign = np.sign(self.actions[int(action)])
                 if gt_sign == action_sign:
                     reward = self.R_CORRECT
+                    self.performance = 1
                 elif gt_sign == -action_sign:
                     reward = self.R_FAIL
             info['new_trial'] = self.actions[int(action)] != 0
@@ -163,4 +167,4 @@ class PostDecisionWager(ngym.PeriodEnv):
 if __name__ == '__main__':
     env = PostDecisionWager()
     env.seed(seed=0)
-    ngym.utils.plot_env(env, num_steps_env=100, def_act=0)
+    ngym.utils.plot_env(env, num_steps_env=100)  # , def_act=0)

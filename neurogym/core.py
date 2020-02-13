@@ -86,6 +86,7 @@ class TrialEnv(BaseEnv):
         self.num_tr = 0
         self.num_tr_exp = num_trials_before_reset
         self.trial = None
+        self.performance = 0
         # Annotations of observation space and action space
         self.ob_dict = {}
         self.act_dict = {}
@@ -126,8 +127,10 @@ class TrialEnv(BaseEnv):
             info['trial_endwith_tmax'] = False
 
         # TODO: Handle the case when new_trial is not provided in info
-        # TODO: new_trial happens after step, so trial index precedes obs change
+        # TODO: new_trial happens after step, so trial indx precedes obs change
         if info['new_trial']:
+            info['performance'] = self.performance
+            self.performance = 0
             self.t = self.t_ind = 0  # Reset within trial time count
             self.num_tr += 1  # Increment trial count
             self.new_trial(info=info)
