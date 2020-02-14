@@ -105,6 +105,8 @@ class RDM(ngym.PeriodEnv):
         self.add_ob(period='stimulus',
                     value=lambda ob: randomstim(ob, signed_coh, self.sigma_dt),
                     where='stimulus')
+        # TODO: Have a separate add noise
+        # TODO: Then use stimulus 1 and 2
         # ---------------------------------------------------------------------
         # Ground truth
         # ---------------------------------------------------------------------
