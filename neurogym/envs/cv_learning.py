@@ -215,18 +215,18 @@ class CVLearning(ngym.PeriodEnv):
             if action == gt:
                 reward = self.R_CORRECT
                 new_trial = True
-                if ~self.first_flag:
+                if not self.first_flag:
                     first_choice = True
                     self.first_flag = True
             elif action == 3 - gt:  # 3-action is the other act
                 reward = self.R_FAIL
                 new_trial = self.firstcounts
-                if ~self.first_flag:
+                if not self.first_flag:
                     first_choice = True
                     self.first_flag = True
 
         # check if first choice (phase 1)
-        if ~self.firstcounts and first_choice:
+        if not self.firstcounts and first_choice:
             self.first_choice_rew = reward
         # set reward for all phases
         self.rew = self.first_choice_rew or reward
@@ -239,6 +239,6 @@ class CVLearning(ngym.PeriodEnv):
 
 
 if __name__ == '__main__':
-    env = CVLearning()
+    env = CVLearning(init_ph=1)
     ngym.utils.plot_env(env, num_steps_env=100,
                         obs_traces=['Fixation Cue', 'Stim1', 'Stim2'])
