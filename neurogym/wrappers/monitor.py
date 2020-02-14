@@ -66,17 +66,14 @@ class Monitor(Wrapper):
             self.act_mat = []
             self.rew_mat = []
             self.gt_mat = []
+            self.perf_mat = []
 
     def step(self, action):
         obs, rew, done, info = self.env.step(action)
         self.cum_obs += obs
         self.cum_rew += rew
         if self.sv_fig:
-            if 'gt' in info.keys():
-                gt = info['gt']
-            else:
-                gt = 0
-            self.store_data(obs, action, rew, gt)
+            self.store_data(obs, action, rew, info)
         if self.sv_stp == 'timestep':
             self.t += 1
         if info['new_trial']:
@@ -117,21 +114,29 @@ class Monitor(Wrapper):
         for key in self.data.keys():
             self.data[key] = []
 
-    def store_data(self, obs, action, rew, gt):
+    def store_data(self, obs, action, rew, info):
         if self.stp_counter <= self.num_stps_sv_fig:
             self.obs_mat.append(obs)
             self.act_mat.append(action)
             self.rew_mat.append(rew)
-            self.gt_mat.append(gt)
+            if 'gt' in info.keys():
+                self.gt_mat.append(info['gt'])
+            else:
+                self.gt_mat.append(-1)
+            if 'performance' in info.keys():
+                self.perf_mat.append(info['performance'])
+            else:
+                self.perf_mat.append(-1)
             self.stp_counter += 1
         elif len(self.rew_mat) > 0:
             obs_mat = np.array(self.obs_mat)
             act_mat = np.array(self.act_mat)
             fig_(obs=obs_mat, actions=act_mat,
                  gt=self.gt_mat, rewards=self.rew_mat,
-                 mean_perf=np.mean(self.data['reward']),
+                 performance=self.perf_mat,
                  folder=self.sv_name+f'task_{self.num_tr:06}.png')
             self.obs_mat = []
             self.act_mat = []
             self.rew_mat = []
             self.gt_mat = []
+            self.perf_mat = []
