@@ -62,7 +62,7 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
             action, _states = model.predict(obs)
             if isinstance(action, float) or isinstance(action, int):
                 action = [action]
-            if _states:
+            if len(_states) > 0:
                 state_mat.append(_states)
         elif def_act is not None:
             action = def_act
