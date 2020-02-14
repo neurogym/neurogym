@@ -144,7 +144,7 @@ class TrialEnv(BaseEnv):
 
         # TODO: Check this works with wrapper
         self.new_trial()
-        obs, _, _, _ = self.step(self.action_space.sample())
+        obs, _, _, _ = self.step(0)
         return obs
 
     def render(self, mode='human'):
