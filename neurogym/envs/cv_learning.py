@@ -218,6 +218,7 @@ class CVLearning(ngym.PeriodEnv):
                 if not self.first_flag:
                     first_choice = True
                     self.first_flag = True
+                    self.performance = 1
             elif action == 3 - gt:  # 3-action is the other act
                 reward = self.R_FAIL
                 new_trial = self.firstcounts
