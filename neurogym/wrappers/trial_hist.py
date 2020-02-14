@@ -61,7 +61,7 @@ class TrialHistory(ngym.TrialWrapper):
         else:
             probs = (1-rep_prob, rep_prob)
 
-        ground_truth = self.task.rng.choice(self.task.choices, p=probs)[0]
+        ground_truth = self.task.rng.choice(self.task.choices, p=probs)
         self.prev_trial = ground_truth
         kwargs.update({'ground_truth': ground_truth})
         self.env.new_trial(**kwargs)
