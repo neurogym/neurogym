@@ -50,8 +50,7 @@ class DawTwoStep(ngym.TrialEnv):
         self.low_reward_p = 0.1
         self.tmax = 3*self.dt
         self.mean_trial_duration = self.tmax
-        self.state1_high_reward = self.rng.random() > 0.5
-
+        self.state1_high_reward = True
         # Rewards
         reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.}
         if rewards is not None:
@@ -125,5 +124,23 @@ class DawTwoStep(ngym.TrialEnv):
 
 
 if __name__ == '__main__':
+    import matplotlib.pyplot as plt
+    num_steps = 2
+    plt.close('all')
     env = DawTwoStep()
-    ngym.utils.plot_env(env)
+    env.seed(seed=0)
+    env.reset()
+    data = ngym.utils.plot_env(env, num_steps_env=num_steps, def_act=1)
+    plt.ylim([-1, 1])
+    rew1 = np.array(data['rewards'])
+    obs1 = np.array(data['obs'])
+    print('--------------------------------')
+    env = DawTwoStep()
+    env.seed(seed=0)
+    env.reset()
+    data = ngym.utils.plot_env(env, num_steps_env=num_steps, def_act=1)
+    rew2 = np.array(data['rewards'])
+    obs2 = np.array(data['obs'])
+    plt.ylim([-1, 1])
+    assert (obs1 == obs2).all(), 'observations are different'
+    assert (rew1 == rew2).all(), 'rewards are different'
