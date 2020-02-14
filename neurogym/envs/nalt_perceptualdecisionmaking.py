@@ -78,11 +78,9 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         """
         new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:
-            durations, which stores the duration of the different periods (in
-            the case of perceptualDecisionMaking: fixation, stimulus and decision periods)
-            ground truth: correct response for the trial
+            ground_truth: correct response for the trial
             coh: stimulus coherence (evidence) for the trial
-            obs: observation
+            ob: observation
         """
         # ---------------------------------------------------------------------
         # Trial
@@ -104,7 +102,7 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         ob[:, 0] = 1
         ob[:, 1:] = (1 - self.trial['coh']/100)/2
         ob[:, self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
-        ob[:, 1:] += np.random.randn(ob.shape[0], self.n) * self.sigma_dt
+        ob[:, 1:] += self.rng.randn(ob.shape[0], self.n) * self.sigma_dt
 
         self.set_groundtruth('fixation', 0)
         self.set_groundtruth('stimulus', 0)
@@ -138,6 +136,7 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
                 new_trial = True
                 if action == gt:
                     reward = self.R_CORRECT
+                    self.performance = 1
                 else:
                     reward = self.R_FAIL
 

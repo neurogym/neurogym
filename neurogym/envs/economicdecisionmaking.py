@@ -90,8 +90,8 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
         # Trial
         # ---------------------------------------------------------------------
         self.trial = {
-            'juice': self.rng.choice(self.juices),
-            'offer': self.rng.choice(self.offers),
+            'juice': self.juices[self.rng.choice(len(self.juices))],
+            'offer': self.offers[self.rng.choice(len(self.offers))]
         }
         self.trial.update(kwargs)
 
@@ -121,7 +121,7 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
         ob[:, self.inputs['N-L']] = self.scale(nL)
         ob[:, self.inputs['N-R']] = self.scale(nR)
         ob[:, [self.inputs['N-L'], self.inputs['N-R']]] += \
-            np.random.randn(ob.shape[0], 2) * self.sigma_dt
+            self.rng.randn(ob.shape[0], 2) * self.sigma_dt
 
     def _step(self, action):
         trial = self.trial
@@ -153,7 +153,9 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
 
                 if action == self.actions['CHOOSE-LEFT']:
                     reward = rL
+                    self.performance = rL > rR
                 elif action == self.actions['CHOOSE-RIGHT']:
                     reward = rR
+                    self.performance = rR > rL
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': 0}

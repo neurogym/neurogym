@@ -78,6 +78,7 @@ class Bandit(ngym.TrialEnv):
         obs = self.obs[0]
         if action == trial['high_reward_arm']:
             reward = trial['rew_high_reward_arm']
+            self.performance = 1
         else:
             reward = trial['rew_low_reward_arm']
 

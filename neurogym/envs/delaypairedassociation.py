@@ -82,7 +82,7 @@ class DelayPairedAssociation(ngym.PeriodEnv):
             coh: stimulus coherence (evidence) for the trial
             obs: observation
         """
-        pair = self.rng.choice(self.dpa_pairs)
+        pair = self.dpa_pairs[self.rng.choice(len(self.dpa_pairs))]
         self.trial = {
             'pair': pair,
             'ground_truth': int(np.diff(pair)[0] % 2 == self.association),
@@ -106,11 +106,11 @@ class DelayPairedAssociation(ngym.PeriodEnv):
 
         ob = self.view_ob('stim1')
         ob[:, 0] = 1
-        ob[:, pair[0]] = 1 + np.random.randn(ob.shape[0]) * self.sigma_dt
+        ob[:, pair[0]] = 1 + self.rng.randn(ob.shape[0]) * self.sigma_dt
 
         ob = self.view_ob('stim2')
         ob[:, 0] = 1
-        ob[:, pair[1]] = 1 + np.random.randn(ob.shape[0]) * self.sigma_dt
+        ob[:, pair[1]] = 1 + self.rng.randn(ob.shape[0]) * self.sigma_dt
 
         self.set_ob('delay_btw_stim', [1, 0, 0, 0, 0])
         self.set_ob('delay_aft_stim', [1, 0, 0, 0, 0])
@@ -118,7 +118,8 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         self.set_groundtruth('decision', self.trial['ground_truth'])
 
         # if trial is GO the reward is set to R_MISS and  to 0 otherwise
-        self.r_tmax = self.R_MISS**(self.trial['ground_truth'] == 1)
+        self.r_tmax = self.R_MISS*self.trial['ground_truth']
+        self.performance = 1-self.trial['ground_truth']
 
     def _step(self, action, **kwargs):
         """
@@ -147,8 +148,10 @@ class DelayPairedAssociation(ngym.PeriodEnv):
             if action != 0:
                 if action == gt:
                     reward = self.R_CORRECT
+                    self.performance = 1
                 else:
                     reward = self.R_FAIL
+                    self.performance = 0
                 new_trial = True
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}

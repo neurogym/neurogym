@@ -12,6 +12,7 @@ import neurogym as ngym
 
 def test_run(env, verbose=False):
     """Main function for testing if an environment is healthy."""
+    # TODO: consider removing this function and using directly _test_run()
     if isinstance(env, str):
         kwargs = {'dt': 20}
         env = gym.make(env, **kwargs)
@@ -178,8 +179,61 @@ def test_plot(env_name):
     plt.show()
 
 
+def test_seeding_all():
+    """Test if all environments can at least be run."""
+    success_count = 0
+    total_count = 0
+    for env_name in sorted(ngym.all_envs()):
+        total_count += 1
+
+        # print('Running env: {:s}'.format(env_name))
+        # env = test_run(env_name)
+        try:
+            states1, rews1 = test_seeding(env_name, def_act=0, seed=0)
+            states2, rews2 = test_seeding(env_name, def_act=0, seed=0)
+            assert (states1 == states2).all(), 'states are not identical'
+            assert (rews1 == rews2).all(), 'rewards are not identical'
+            states1, rews1 = test_seeding(env_name, def_act=1, seed=0)
+            states2, rews2 = test_seeding(env_name, def_act=1, seed=0)
+            assert (states1 == states2).all(), 'states are not identical'
+            assert (rews1 == rews2).all(), 'rewards are not identical'
+
+            # print('Success')
+            # print(env)
+            success_count += 1
+        except BaseException as e:
+            print('Failure at running env: {:s}'.format(env_name))
+            print(e)
+
+    print('Success {:d}/{:d} envs'.format(success_count, total_count))
+
+
+def test_seeding(env, def_act, seed):
+    """Test if environments are replicable."""
+    if isinstance(env, str):
+        kwargs = {'dt': 20}
+        env = gym.make(env, **kwargs)
+    else:
+        if not isinstance(env, gym.Env):
+            raise ValueError('env must be a string or a gym.Env')
+    env.seed(seed=seed)
+    env.reset()
+    states_mat = []
+    rew_mat = []
+    for stp in range(100):
+        state, rew, done, _ = env.step(def_act)
+        states_mat.append(state)
+        rew_mat.append(rew)
+        if done:
+            env.reset()
+    states_mat = np.array(states_mat)
+    rew_mat = np.array(rew_mat)
+    return states_mat, rew_mat
+
+
 if __name__ == '__main__':
-    test_run_all()
+    test_seeding_all()
+    # test_run_all()
     # test_speed_all()
     # test_trialenv_all()
     # test_print_all()

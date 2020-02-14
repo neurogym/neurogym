@@ -44,8 +44,8 @@ class MemoryRecall(ngym.TrialEnv):
         assert self.T_max >= self.T_min, 'T_max must be larger than T_min'
         self.T_distribution = T_distribution
         if T_distribution == 'uniform':
-            self.generate_T = lambda: np.random.randint(self.T_min,
-                                                        self.T_max+1)
+            self.generate_T = lambda: self.rng.randint(self.T_min,
+                                                       self.T_max+1)
         else:
             raise ValueError('Not supported T distribution type',
                              str(T_distribution))
@@ -109,13 +109,13 @@ class MemoryRecall(ngym.TrialEnv):
         # Storage phase
         if self.balanced:
             X_stim[:T_store, :] =\
-                (np.random.rand(T_store, stim_dim) > 0.5) * 2.0 - 1.0
+                (self.rng.rand(T_store, stim_dim) > 0.5) * 2.0 - 1.0
         else:
             X_stim[:T_store, :] =\
-                (np.random.rand(T_store, stim_dim) > 0.5) * 1.0
+                (self.rng.rand(T_store, stim_dim) > 0.5) * 1.0
 
-        store_signal = np.random.choice(np.arange(T_store), T_recall,
-                                        replace=False)
+        store_signal = self.rng.choice(np.arange(T_store), T_recall,
+                                       replace=False)
         X_store_signal[store_signal, 0] = 1.
 
         # Recall phase
@@ -127,10 +127,10 @@ class MemoryRecall(ngym.TrialEnv):
         # Flip probability
         if self.balanced:
             known_matrix =\
-                (np.random.rand(T_recall, stim_dim) > self.p_unknown) * 1.0
+                (self.rng.rand(T_recall, stim_dim) > self.p_unknown) * 1.0
             X_stim[T_store:, :stim_dim] = X_stim_recall * known_matrix
         else:
-            flip_matrix = np.random.rand(T_recall, stim_dim) < self.p_flip
+            flip_matrix = self.rng.rand(T_recall, stim_dim) < self.p_flip
             X_stim[T_store:, :stim_dim] = X_stim_recall * (1 - flip_matrix) + (
                         1 - X_stim_recall) * flip_matrix
 

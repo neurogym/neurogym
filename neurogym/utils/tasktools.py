@@ -2,7 +2,6 @@ from __future__ import division
 
 from collections import OrderedDict
 import numpy as np
-import random
 
 
 def to_map(*args):
@@ -63,7 +62,7 @@ def trunc_exp_new(rng, mean, xmin=0, xmax=np.inf):
         return xmax
     else:
         while True:
-            x = rng.expovariate(1/mean)
+            x = rng.exponential(mean)
             if xmin <= x < xmax:
                 return x
 

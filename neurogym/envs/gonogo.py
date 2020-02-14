@@ -94,6 +94,7 @@ class GoNogo(ngym.PeriodEnv):
         ob[:, self.trial['ground_truth']+1] = 1
         # if trial is GO the reward is set to R_MISS and  to 0 otherwise
         self.r_tmax = self.R_MISS*self.trial['ground_truth']
+        self.performance = 1-self.trial['ground_truth']
         # set ground truth during decision period
         self.set_groundtruth('decision', self.trial['ground_truth'])
 
@@ -111,7 +112,9 @@ class GoNogo(ngym.PeriodEnv):
                 new_trial = True
                 if gt != 0:
                     reward = self.R_CORRECT
+                    self.performance = 1
                 else:
                     reward = self.R_FAIL
+                    self.performance = 0
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}

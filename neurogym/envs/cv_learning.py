@@ -168,7 +168,7 @@ class CVLearning(ngym.PeriodEnv):
         stim[:, 1:] = (1 - self.trial['coh']/100)/2
         stim[:, self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
         stim[:, 1:] +=\
-            np.random.randn(stim.shape[0], 2) * self.trial['sigma_dt']
+            self.rng.randn(stim.shape[0], 2) * self.trial['sigma_dt']
 
         self.set_ob('delay', [1, 0, 0])
 
@@ -215,18 +215,19 @@ class CVLearning(ngym.PeriodEnv):
             if action == gt:
                 reward = self.R_CORRECT
                 new_trial = True
-                if ~self.first_flag:
+                if not self.first_flag:
                     first_choice = True
                     self.first_flag = True
+                    self.performance = 1
             elif action == 3 - gt:  # 3-action is the other act
                 reward = self.R_FAIL
                 new_trial = self.firstcounts
-                if ~self.first_flag:
+                if not self.first_flag:
                     first_choice = True
                     self.first_flag = True
 
         # check if first choice (phase 1)
-        if ~self.firstcounts and first_choice:
+        if not self.firstcounts and first_choice:
             self.first_choice_rew = reward
         # set reward for all phases
         self.rew = self.first_choice_rew or reward
@@ -239,5 +240,6 @@ class CVLearning(ngym.PeriodEnv):
 
 
 if __name__ == '__main__':
-    env = CVLearning()
-    ngym.utils.plot_env(env, num_steps_env=100)  # , def_act=1)
+    env = CVLearning(init_ph=1)
+    ngym.utils.plot_env(env, num_steps_env=100,
+                        obs_traces=['Fixation Cue', 'Stim1', 'Stim2'])

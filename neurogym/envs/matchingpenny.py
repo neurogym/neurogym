@@ -84,6 +84,7 @@ class MatchingPenny(ngym.TrialEnv):
             self.mean_action += self.lr*(action-self.mean_action)
         if action == trial['opponent_action']:
             reward = self.R_CORRECT
+            self.performance = 1
         else:
             reward = self.R_FAIL
 

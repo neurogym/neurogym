@@ -8,8 +8,8 @@ from gym import spaces
 import neurogym as ngym
 
 
-def randomstim(ob, signed_coh, sigma):
-    new_ob = np.random.randn(*ob.shape) * sigma
+def randomstim(ob, signed_coh, sigma, rng):
+    new_ob = rng.randn(*ob.shape) * sigma
     new_ob[:, 0] += (1 + signed_coh / 100) / 2
     new_ob[:, 1] += (1 - signed_coh / 100) / 2
     return new_ob
@@ -103,7 +103,8 @@ class RDM(ngym.PeriodEnv):
         signed_coh = coh if ground_truth == 1 else -coh
         self.add_ob(period='fixation', value=1, where='fixation')
         self.add_ob(period='stimulus',
-                    value=lambda ob: randomstim(ob, signed_coh, self.sigma_dt),
+                    value=lambda ob: randomstim(ob, signed_coh, self.sigma_dt,
+                                                self.rng),
                     where='stimulus')
         # TODO: Have a separate add noise
         # TODO: Then use stimulus 1 and 2

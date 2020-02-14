@@ -18,7 +18,7 @@ class IBL(ngym.TrialEnv):
     def __init__(self, dt=100):
         super(IBL, self).__init__(dt=dt)
         # TODO: Fix to use the default random number generator
-        self._rng = np.random.RandomState(0)
+        self._rng = self.rng.RandomState(0)
         self.sigma = 0.10  # noise
         self.num_tr = 0  # number of trials
         self.block = 0  # block id

@@ -68,8 +68,8 @@ class PostDecisionWager(ngym.PeriodEnv):
         self.cohs = [0, 3.2, 6.4, 12.8, 25.6, 51.2]
 
         # Input noise
-        self.sigma = np.sqrt(2*100*0.01)
-
+        sigma = np.sqrt(2*100*0.01)
+        self.sigma_dt = sigma / np.sqrt(self.dt)
         # Rewards
         reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
                           'R_FAIL': 0.}
@@ -134,6 +134,9 @@ class PostDecisionWager(ngym.PeriodEnv):
             if self.actions[int(action)] == 2:
                 if trial['wager']:
                     reward = self.R_SURE
+                    norm_rew =\
+                        (reward-self.R_FAIL)/(self.R_CORRECT-self.R_FAIL)
+                    self.performance = norm_rew
                 else:
                     reward = self.R_ABORTED
             else:
@@ -141,6 +144,7 @@ class PostDecisionWager(ngym.PeriodEnv):
                 action_sign = np.sign(self.actions[int(action)])
                 if gt_sign == action_sign:
                     reward = self.R_CORRECT
+                    self.performance = 1
                 elif gt_sign == -action_sign:
                     reward = self.R_FAIL
             info['new_trial'] = self.actions[int(action)] != 0
@@ -151,9 +155,9 @@ class PostDecisionWager(ngym.PeriodEnv):
             high = (trial['ground_truth'] > 0) + 1
             low = (trial['ground_truth'] < 0) + 1
             obs[high] = self.scale(+trial['coh']) +\
-                self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
+                self.rng.randn()*self.sigma_dt
             obs[low] = self.scale(-trial['coh']) +\
-                self.rng.gauss(mu=0, sigma=self.sigma)/np.sqrt(self.dt)
+                self.rng.randn()*self.sigma_dt
         if trial['wager'] and self.in_period('sure'):
             obs[3] = 1
 
@@ -163,4 +167,4 @@ class PostDecisionWager(ngym.PeriodEnv):
 if __name__ == '__main__':
     env = PostDecisionWager()
     env.seed(seed=0)
-    ngym.utils.plot_env(env, num_steps_env=100, def_act=0)
+    ngym.utils.plot_env(env, num_steps_env=100)  # , def_act=0)

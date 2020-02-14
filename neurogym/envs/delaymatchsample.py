@@ -91,12 +91,12 @@ class DelayedMatchToSample(ngym.PeriodEnv):
         ob = self.view_ob('sample')
         ob[:, 0] = 1
         ob[:, sample] = 1
-        ob[:, 1:] += np.random.randn(ob.shape[0], 2) * self.sigma_dt
+        ob[:, 1:] += self.rng.randn(ob.shape[0], 2) * self.sigma_dt
 
         ob = self.view_ob('test')
         ob[:, 0] = 1
         ob[:, test] = 1
-        ob[:, 1:] += np.random.randn(ob.shape[0], 2) * self.sigma_dt
+        ob[:, 1:] += self.rng.randn(ob.shape[0], 2) * self.sigma_dt
 
         self.set_ob('delay', [1, 0, 0])
 
@@ -118,6 +118,7 @@ class DelayedMatchToSample(ngym.PeriodEnv):
                 new_trial = True
                 if action == gt:
                     reward = self.R_CORRECT
+                    self.performance = 1
                 else:
                     reward = self.R_FAIL
 
@@ -228,6 +229,7 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
             if action == 1:
                 reward = self.R_CORRECT
                 new_trial = True
+                self.performance = 1
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 

@@ -82,7 +82,7 @@ class DelayedComparison(ngym.PeriodEnv):
     def new_trial(self, **kwargs):
         self.trial = {
             'ground_truth': self.rng.choice(self.choices),
-            'fpair': self.rng.choice(self.fpairs)
+            'fpair': self.fpairs[self.rng.choice(len(self.fpairs))]
         }
         self.trial.update(kwargs)
         f1, f2 = self.trial['fpair']
@@ -103,9 +103,9 @@ class DelayedComparison(ngym.PeriodEnv):
         self.set_ob('f2', [1, self.scale_p(f2)])
         self.set_ob('decision', [0, 0])
         ob = self.view_ob('f1')
-        ob[:, 1] += np.random.randn(ob.shape[0]) * self.sigma_dt
+        ob[:, 1] += self.rng.randn(ob.shape[0]) * self.sigma_dt
         ob = self.view_ob('f2')
-        ob[:, 1] += np.random.randn(ob.shape[0]) * self.sigma_dt
+        ob[:, 1] += self.rng.randn(ob.shape[0]) * self.sigma_dt
 
         self.set_groundtruth('decision', self.trial['ground_truth'])
 
@@ -136,6 +136,7 @@ class DelayedComparison(ngym.PeriodEnv):
                 new_trial = True
                 if action == gt:
                     reward = self.R_CORRECT
+                    self.performance = 1
                 else:
                     reward = self.R_FAIL
 
