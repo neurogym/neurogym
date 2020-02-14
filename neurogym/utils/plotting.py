@@ -190,12 +190,14 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, performance=None,
     # rewards
     if rewards is not None:
         ax = axes[2]
-        ax.plot(steps, rewards, 'r')
-        ax.plot(steps, performance, 'k')
-        ax.set_ylabel('Reward')
+        ax.plot(steps, rewards, 'r', label='Rewards')
+        ax.plot(steps, performance, 'k', label='Performance')
+        ax.set_ylabel('Reward/Performance')
         performance = np.array(performance)
         mean_perf = np.mean(performance[performance != -1])
         ax.set_title('Mean performance: ' + str(np.round(mean_perf, 2)))
+        if legend:
+            ax.legend()
         ax.set_xlim([-0.5, len(steps)-0.5])
 
         if env and env.rewards:
