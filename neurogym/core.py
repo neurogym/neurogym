@@ -86,6 +86,8 @@ class TrialEnv(BaseEnv):
         self.num_tr_exp = num_trials_before_reset
         self.trial = None
         self.performance = 0
+        # flag indicating whether the trial was succesfully built
+        self.trial_built = False
         # Annotations of observation space and action space
         self.ob_dict = {}
         self.act_dict = {}
@@ -132,7 +134,10 @@ class TrialEnv(BaseEnv):
             self.performance = 0
             self.t = self.t_ind = 0  # Reset within trial time count
             self.num_tr += 1  # Increment trial count
+            self.trial_built = False
             self.new_trial(info=info)
+            assert self.trial_built, 'Trial was not succesfully built.' +\
+                ' (Hint: make last_period=True when adding the last period)'
         return obs, reward, done, info
 
     def reset(self):
@@ -221,6 +226,7 @@ class PeriodEnv(TrialEnv):
         self.end_ind[period] = int((start + duration)/self.dt)
 
         if last_period:
+            self.trial_built = True
             self._init_trial(start + duration)
 
     def _init_trial(self, tmax):
