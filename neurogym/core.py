@@ -209,6 +209,12 @@ class PeriodEnv(TrialEnv):
         """
         if duration is None:
             duration = (self.timing_fn[period]() // self.dt) * self.dt
+        if duration == self.dt:
+            warnings.warn('Warning: Time for period {:s} {:f}'.format(period,
+                                                                      duration,
+                                                                      self.dt)
+                          + '  lasts only one timestep. Agents will not have' +
+                          ' time to respond (e.g. make a choice) on time.')
 
         if after is not None:
             if isinstance(after, str):
