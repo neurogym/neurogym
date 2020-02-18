@@ -335,8 +335,8 @@ class TrialWrapper(gym.Wrapper):
             info['new_trial'] = True
 
         if info['new_trial']:
-            info['performance'] = self.performance
-            self.performance = 0
+            info['performance'] = self.task.performance
+            self.task.performance = 0
             self.task.t = self.task.t_ind = 0  # Reset within trial time count
             self.task.num_tr += 1  # Increment trial count
             self.new_trial(info=info)  # new_trial from wrapper

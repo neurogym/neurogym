@@ -5,10 +5,10 @@ Created on Mon Jan 27 17:58:46 2020
 
 @author: molano
 """
-from gym.core import Wrapper
+import neurogym as ngym
 
 
-class MissTrialReward(Wrapper):
+class MissTrialReward(ngym.TrialWrapper):
     metadata = {
         'description': 'Add a negative reward if a trial ends with no action.',
         'paper_link': None,

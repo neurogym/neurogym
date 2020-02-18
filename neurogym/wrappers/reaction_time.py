@@ -6,10 +6,10 @@ Created on Thu Feb 28 15:07:21 2019
 @author: molano
 """
 
-from gym.core import Wrapper
+import neurogym as ngym
 
 
-class ReactionTime(Wrapper):
+class ReactionTime(ngym.TrialWrapper):
     metadata = {
         'description': 'Modifies a given environment by allowing the network' +
         ' to act at any time after the fixation period.',
@@ -22,7 +22,7 @@ class ReactionTime(Wrapper):
         Modifies a given environment by allowing the network to act at
         any time after the fixation period.
         """
-        Wrapper.__init__(self, env=env)
+        super().__init__(env)
         self.env = env
         raise ValueError('Broken right now')
 

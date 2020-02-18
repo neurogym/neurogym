@@ -9,11 +9,11 @@ Created on Tue Mar 26 08:53:05 2019
 """
 
 import numpy as np
-from gym.core import Wrapper
+import neurogym as ngym
 from gym import spaces
 
 
-class PassAction(Wrapper):
+class PassAction(ngym.TrialWrapper):
     metadata = {
         'description': 'Modifies observation by adding the previous action.',
         'paper_link': None,

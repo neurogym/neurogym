@@ -9,11 +9,11 @@ Created on Wed Mar 20 14:25:12 2019
 """
 
 import numpy as np
-from gym.core import Wrapper
+import neurogym as ngym
 from gym import spaces
 
 
-class PassReward(Wrapper):
+class PassReward(ngym.TrialWrapper):
     metadata = {
         'description': 'Modifies observation by adding the previous reward.',
         'paper_link': None,

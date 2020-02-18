@@ -7,7 +7,7 @@ Created on Fri Mar  1 11:48:59 2019
 """
 
 import neurogym as ngym
-
+import numpy as np
 
 class TrialHistory(ngym.TrialWrapper):
     metadata = {
@@ -23,7 +23,8 @@ class TrialHistory(ngym.TrialWrapper):
         """
         Change ground truth probability based on previous outcome.
         probs: matrix of probabilities of the current choice conditioned
-        on the previous for each block. (def: None, np.array)
+        on the previous for each block. (def: None, np.array,
+        num-blocks x num-choices x num-choices)
         block_dur: Number of trials per block. (def: 200 (int))
         blk_ch_prob: If not None, specifies the probability of changing block
         (randomly). (def: None, float)
@@ -41,7 +42,7 @@ class TrialHistory(ngym.TrialWrapper):
             ' inferred from prob mismatchs {:d}'.format(len(self.choices)) +\
             ' inferred from choices'
 
-        self.n_block = self.choice_prob.shape[0]
+        self.n_block = probs.shape[0]
         self.curr_block = self.task.rng.choice(range(self.n_block))
         self.probs = probs
         self.block_dur = block_dur
@@ -55,13 +56,13 @@ class TrialHistory(ngym.TrialWrapper):
         # change rep. prob. every self.block_dur trials
         if self.blk_ch_prob is None:
             if self.task.num_tr % self.block_dur == 0:
-                self.curr_block = (self.curr_block + 1) % len(self.rep_prob)
+                self.curr_block = (self.curr_block + 1) % len(self.choices)
         else:
             if self.task.rng.random() < self.blk_ch_prob:
-                self.curr_block = (self.curr_block + 1) % len(self.rep_prob)
-
-        ground_truth = self.task.rng.choice(self.task.choices,
-                                            p=self.probs[self.prev_trial, :])
-        self.prev_trial = ground_truth
+                self.curr_block = (self.curr_block + 1) % len(self.choices)
+        probs_curr_blk = self.probs[self.curr_block, self.prev_trial, :]
+        ground_truth = self.task.rng.choice(self.choices,
+                                            p=probs_curr_blk)
+        self.prev_trial = np.where(self.choices == ground_truth)[0][0]
         kwargs.update({'ground_truth': ground_truth})
         self.env.new_trial(**kwargs)

@@ -5,11 +5,11 @@ Created on Tue Jun 25 13:45:32 2019
 
 @author: molano
 """
-from gym.core import Wrapper
+import neurogym as ngym
 import numpy as np
 
 
-class Noise(Wrapper):
+class Noise(ngym.TrialWrapper):
     metadata = {
         'description': 'Add Gaussian noise to the observations.',
         'paper_link': None,

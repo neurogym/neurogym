@@ -6,13 +6,13 @@ Created on Mon Mar  4 12:41:52 2019
 @author: molano
 """
 
-from gym.core import Wrapper
+import neurogym as ngym
 import os
 import numpy as np
 from neurogym.utils.plotting import fig_
 
 
-class Monitor(Wrapper):
+class Monitor(ngym.TrialWrapper):
     metadata = {
         'description': 'Saves relevant behavioral information: rewards,' +
         ' actions, observations, new trial, ground truth.',
@@ -36,7 +36,7 @@ class Monitor(Wrapper):
         num_stps_sv_fig: Number of trial steps to include in the figure.
         (def: 100, int)
         """
-        Wrapper.__init__(self, env=env)
+        super().__init__(env)
         self.env = env
         self.num_tr = 0
         # data to save
@@ -107,7 +107,6 @@ class Monitor(Wrapper):
                     self.stp_counter = 0
                 if self.sv_stp == 'timestep':
                     self.t = 0
-
         return obs, rew, done, info
 
     def reset_data(self):
