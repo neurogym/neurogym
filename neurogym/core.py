@@ -173,9 +173,9 @@ class PeriodEnv(TrialEnv):
         default_timing = self.metadata['timing'].copy()
         if timing is not None:
             default_timing.update(timing)
-        self._timing = default_timing
+        self.timing = default_timing
         self.timing_fn = dict()
-        for key, val in self._timing.items():
+        for key, val in self.timing.items():
             dist, args = val
             self.timing_fn[key] = tasktools.random_number_fn(dist, args,
                                                              self.rng)
