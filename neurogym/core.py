@@ -122,10 +122,7 @@ class TrialEnv(BaseEnv):
 
         if self.t > self.tmax - self.dt and not info['new_trial']:
             info['new_trial'] = True
-            info['trial_endwith_tmax'] = True  # TODO: do whe need this?
             reward += self.r_tmax
-        else:
-            info['trial_endwith_tmax'] = False
 
         # TODO: Handle the case when new_trial is not provided in info
         # TODO: new_trial happens after step, so trial indx precedes obs change
