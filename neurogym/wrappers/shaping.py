@@ -45,22 +45,21 @@ class Shaping(ngym.TrialWrapper):
                 self.prev_act = action
 
     def new_trial(self, **kwargs):
-        self.set_phase()
+        #self.set_phase()
         self.first_choice_rew = None
-        if self.curr_ph > 2:
+        if self.curr_ph < 2:
             self.env.performance = 0
             self.env.t = self.env.t_ind = 0
             self.env.num_tr += 1
             if not self.short:
                 self.short = True
-                periods = self.env.timing.itemss()
-                for key, val in periods[:-1]:
+                periods = self.env.timing.items()
+                for key, val in periods:
                     dist, args = val
                     self.env.timing[key] =\
-                        np.max(self.dt,
-                               int(self.env.timing[k]/self.short_min))
+                        ('constant', args[0] if type(args) == list else args/4)
 
-            self.first_choice = True       
+            self.first_choice = True
         elif self.curr_ph == 2:
             # first answer counts
             # wrong answer is penalized
