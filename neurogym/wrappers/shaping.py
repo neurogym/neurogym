@@ -18,12 +18,17 @@ class Shaping(ngym.TrialWrapper):
         'paper_name': None,
     }
 
-    def __init__(self, env, init_ph=0, max_num_reps=3):
+    def __init__(self, env, init_ph=0, max_num_reps=3, shortening=4, th=0.8,
+                 perf_w=1000):
         """
         """
         super().__init__(env)
         self.env = env
         self.curr_ph = init_ph
+        self.curr_perf = 0
+        self.perf_window = perf_w
+        self.goal_perf = [th]*4
+        self.mov_window = []
         self.counter = 0
         self.action = 0
         self.prev_act = 0
@@ -31,6 +36,10 @@ class Shaping(ngym.TrialWrapper):
         self.first_choice = True
         self.performance = 0
         self.short = False
+        self.variable = True
+        self.shortening = shortening
+        self.ori_timing = self.env.timing
+        self.ori_periods = self.env.timing.items()
 
     def count(self, action):
         '''
@@ -44,35 +53,55 @@ class Shaping(ngym.TrialWrapper):
                 self.counter = 1
                 self.prev_act = action
 
+    def set_phase(self):
+        if self.curr_ph < 4:
+            if len(self.mov_window) >= self.perf_window:
+                self.mov_window.append(self.performance)
+                self.mov_window.pop(0)  # remove first value
+                self.curr_perf = np.mean(self.mov_window)
+                if self.curr_perf >= self.goal_perf[self.curr_ph]:
+                    self.curr_ph += 1
+                    self.mov_window = []
+            else:
+                self.mov_window.append(self.performance)
+
     def new_trial(self, **kwargs):
-        #self.set_phase()
-        self.first_choice_rew = None
+        self.set_phase()
+        self.first_choice = True
+
         if self.curr_ph < 2:
             self.env.performance = 0
             self.env.t = self.env.t_ind = 0
             self.env.num_tr += 1
             if not self.short:
+                print(self.env.timing)
                 self.short = True
-                periods = self.env.timing.items()
-                for key, val in periods:
+                self.variable = False
+                for key, val in self.ori_periods:
                     dist, args = val
                     self.env.timing[key] =\
-                        ('constant', args[0] if type(args) == list else args/4)
+                        ('constant', max(args[0]/self.shortening
+                         if type(args) == list else args/self.shortening, 100))
+                print(self.env.timing)
 
-            self.first_choice = True
         elif self.curr_ph == 2:
-            # first answer counts
-            # wrong answer is penalized
-            self.durs.update({'delay': (0)})
-            self.trial.update({'coh': 100})
-            self.trial.update({'sigma_dt': 0})
-            self.R_FAIL = -1
-            self.firstcounts = True
-        elif self.curr_ph == 3:
-            # delay component is introduced
-            self.trial.update({'coh': 100})
-            self.trial.update({'sigma_dt': 0})
-        # phase 4: ambiguity component is introduced
+            if not self.short or not self.variable:
+                print(self.env.timing)
+                self.short = True
+                self.variable = True
+                for key, val in self.ori_periods:
+                    dist, args = val
+                    if dist != 'constant':
+                        self.env.timing[key] =\
+                            (dist, [max(n/self.shortening, 100) for n in args])
+                    else:
+                        self.env.timing[key] =\
+                            ('constant', max(args/self.shortening, 100))
+                print(self.env.timing)
+
+        else:
+            self.env.timing = self.ori_timing
+
         self.env.new_trial()
 
     def step(self, action):
@@ -113,6 +142,7 @@ class Shaping(ngym.TrialWrapper):
             obs, reward, done, info = self.env.step(action)
             if self.curr_ph == 2:
                 reward = max(reward, 0)
+            self.new_trial()
 
         return obs, reward, done, info
 
@@ -120,7 +150,7 @@ class Shaping(ngym.TrialWrapper):
 if __name__ == '__main__':
     import neurogym as ngym
 
-    task = 'DelayedMatchSample-v0'
+    task = 'IntervalDiscrimination-v0'
     env = gym.make(task)
-    env = Shaping(env, init_ph=1)
+    env = Shaping(env, init_ph=2)
     ngym.utils.plot_env(env, num_steps_env=100)
