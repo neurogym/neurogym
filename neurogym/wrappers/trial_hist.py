@@ -11,8 +11,8 @@ import numpy as np
 
 class TrialHistory(ngym.TrialWrapper):
     metadata = {
-        'description': 'Change ground truth probability ' +
-        'based on previous outcome.',
+        'description': 'Change ground truth probability based on previous' +
+        'outcome.',
         'paper_link': 'https://www.biorxiv.org/content/10.1101/433409v3',
         'paper_name': 'Response outcomes gate the impact of expectations ' +
         'on perceptual decisions'
