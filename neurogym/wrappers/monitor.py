@@ -22,7 +22,8 @@ class Monitor(ngym.TrialWrapper):
     # TODO: use names similar to Tensorboard
 
     def __init__(self, env, folder=None, sv_per=100000, sv_stp='trial',
-                 verbose=False, sv_fig=False, num_stps_sv_fig=100, name=''):
+                 verbose=False, sv_fig=False, num_stps_sv_fig=100, name='',
+                 fig_type='png'):
         """
         Saves relevant behavioral information: rewards,actions, observations,
         new trial, ground truth.
@@ -45,6 +46,7 @@ class Monitor(ngym.TrialWrapper):
         self.cum_rew = 0
         self.sv_per = sv_per
         self.sv_stp = sv_stp
+        self.fig_type = fig_type
         if self.sv_stp == 'timestep':
             self.t = 0
         self.verbose = verbose
@@ -133,7 +135,7 @@ class Monitor(ngym.TrialWrapper):
             fig_(obs=obs_mat, actions=act_mat,
                  gt=self.gt_mat, rewards=self.rew_mat,
                  performance=self.perf_mat,
-                 folder=self.sv_name+f'task_{self.num_tr:06}.png')
+                 folder=self.sv_name+f'task_{self.num_tr:06}.'+self.fig_type)
             self.obs_mat = []
             self.act_mat = []
             self.rew_mat = []
