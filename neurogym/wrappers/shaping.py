@@ -18,7 +18,7 @@ class Shaping(ngym.TrialWrapper):
         'paper_name': None,
     }
 
-    def __init__(self, env, init_ph=0, max_num_reps=3, shortening=4, th=0.8,
+    def __init__(self, env, init_ph=0, max_num_reps=3, short_dur=2, th=0.8,
                  perf_w=1000):
         """
         """
@@ -37,7 +37,7 @@ class Shaping(ngym.TrialWrapper):
         self.performance = 0
         self.short = False
         self.variable = True
-        self.shortening = shortening
+        self.short_dur = int(2*self.env.dt)
         self.ori_timing = self.env.timing
         self.ori_periods = self.env.timing.items()
 
@@ -68,6 +68,7 @@ class Shaping(ngym.TrialWrapper):
     def new_trial(self, **kwargs):
         self.set_phase()
         self.first_choice = True
+        self.change_periods = list(self.ori_timing.keys())[:-1]
 
         if self.curr_ph < 2:
             self.env.performance = 0
@@ -78,10 +79,9 @@ class Shaping(ngym.TrialWrapper):
                 self.short = True
                 self.variable = False
                 for key, val in self.ori_periods:
-                    dist, args = val
-                    self.env.timing[key] =\
-                        ('constant', max(args[0]/self.shortening
-                         if type(args) == list else args/self.shortening, 100))
+                    if key in self.change_periods:
+                        dist, args = val
+                        self.env.timing[key] = ('cosntant', self.short_dur)
                 print(self.env.timing)
 
         elif self.curr_ph == 2:
@@ -90,13 +90,15 @@ class Shaping(ngym.TrialWrapper):
                 self.short = True
                 self.variable = True
                 for key, val in self.ori_periods:
-                    dist, args = val
-                    if dist != 'constant':
-                        self.env.timing[key] =\
-                            (dist, [max(n/self.shortening, 100) for n in args])
-                    else:
-                        self.env.timing[key] =\
-                            ('constant', max(args/self.shortening, 100))
+                    if key in self.change_periods:
+                        print('yes', key)
+                        dist, args = val
+                        if dist != 'constant':
+                            shortening = args[0]/self.short_dur
+                            self.env.timing[key] =\
+                                (dist, [int(n/shortening) for n in args])
+                        else:
+                            self.env.timing[key] = ('cosntant', self.short_dur)
                 print(self.env.timing)
 
         else:
@@ -132,7 +134,6 @@ class Shaping(ngym.TrialWrapper):
             if self.env.t > self.env.tmax - self.env.dt and\
                not info['new_trial']:
                 info['new_trial'] = True
-                self.performance = self.env.performance
                 reward += self.r_tmax
 
             if info['new_trial']:
@@ -150,7 +151,7 @@ class Shaping(ngym.TrialWrapper):
 if __name__ == '__main__':
     import neurogym as ngym
 
-    task = 'IntervalDiscrimination-v0'
+    task = 'DelayedMatchSample-v0'
     env = gym.make(task)
-    env = Shaping(env, init_ph=2)
+    env = Shaping(env, init_ph=1)
     ngym.utils.plot_env(env, num_steps_env=100)
