@@ -44,7 +44,7 @@ class ContextDecisionMaking(ngym.PeriodEnv):
         super().__init__(dt=dt, timing=timing)
 
         # trial conditions
-        self.contexts = [1, 2]  # index for context inputs
+        self.contexts = [0, 1]  # index for context inputs
         self.choices = [1, 2]  # left, right choice
         self.cohs = [5, 15, 50]
 
@@ -63,6 +63,9 @@ class ContextDecisionMaking(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(7,),
                                             dtype=np.float32)
+        names = ['fixation', 'stim1_mod1', 'stim2_mod1',
+                 'stim1_mod2', 'stim2_mod2', 'context1', 'context2']
+        self.ob_dict = {name: i for i, name in enumerate(names)}
 
     def new_trial(self, **kwargs):
         # -------------------------------------------------------------------------
@@ -82,6 +85,9 @@ class ContextDecisionMaking(ngym.PeriodEnv):
         if self.trial['context'] == 1:
             choice_1, choice_0 = choice_0, choice_1
         coh_0, coh_1 = self.trial['coh_0'], self.trial['coh_1']
+
+        signed_coh_0 = coh_0 if choice_0 == 1 else -coh_0
+        signed_coh_1 = coh_1 if choice_1 == 1 else -coh_1
         # -----------------------------------------------------------------------
         # Periods
         # -----------------------------------------------------------------------
@@ -90,16 +96,18 @@ class ContextDecisionMaking(ngym.PeriodEnv):
         self.add_period('delay', after='stimulus')
         self.add_period('decision', after='delay', last_period=True)
 
-        high_0, low_0 = (3, 4) if choice_0 == 1 else (4, 3)
-        high_1, low_1 = (5, 6) if choice_1 == 1 else (6, 5)
-
-        self.obs[:, 0] = 1
-        ob = self.view_ob('stimulus')
-        ob[:, [high_0, low_0, high_1, low_1]] =\
-            (1 + np.array([coh_0, -coh_0, coh_1, -coh_1])/100)/2
-        ob[:, 3:] += self.rng.randn(ob.shape[0], 4) * self.sigma_dt
+        self.add_ob(1, where='fixation')
+        self.add_ob((1 + signed_coh_0 / 100) / 2, period='stimulus', where='stim1_mod1')
+        self.add_ob((1 - signed_coh_0 / 100) / 2, period='stimulus', where='stim2_mod1')
+        self.add_ob((1 + signed_coh_1 / 100) / 2, period='stimulus', where='stim1_mod2')
+        self.add_ob((1 - signed_coh_1 / 100) / 2, period='stimulus', where='stim2_mod2')
+        self.add_randn(0, self.sigma_dt, 'stimulus')
         self.set_ob(0, 'decision')
-        self.obs[:, self.trial['context']] = 1
+
+        if self.trial['context'] == 0:
+            self.add_ob(1, where='context1')
+        else:
+            self.add_ob(1, where='context2')
 
         self.set_groundtruth(self.trial['ground_truth'], 'decision')
 
