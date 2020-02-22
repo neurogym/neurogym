@@ -47,13 +47,13 @@ class CatchTrials(ngym.TrialWrapper):
             self.stim_th = np.percentile(self.task.cohs, stim_th)
         else:
             self.stim_th = None
-        self.rewards['correct']_ORI = self.task.R_CORRECT
+        self.r_correct_original = self.task.rewards['correct']
         self.catch_trial = False
         # number of trials after which the prob. of catch trials is != 0
         self.start = start
 
     def new_trial(self, **kwargs):
-        self.task.R_CORRECT = self.rewards['correct']_ORI
+        self.task.rewards['correct'] = self.r_correct_original
         coh = self.task.rng.choice(self.task.cohs)
         if self.stim_th is not None:
             if coh <= self.stim_th:
@@ -63,7 +63,7 @@ class CatchTrials(ngym.TrialWrapper):
         else:
             self.catch_trial = self.task.rng.random() < self.catch_prob
         if self.catch_trial:
-            self.task.R_CORRECT = self.task.R_FAIL
+            self.task.rewards['correct'] = self.task.rewards['fail']
         kwargs.update({'coh': coh})
         self.env.new_trial(**kwargs)
 

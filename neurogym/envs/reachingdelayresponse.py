@@ -49,6 +49,8 @@ class ReachingDelayResponse(ngym.PeriodEnv):
 
         # Rewards
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': -0., 'miss': -0.5}
+        if rewards:
+            self.rewards.update(rewards)
 
         self.r_tmax = self.rewards['miss']
         self.abort = False
@@ -112,4 +114,4 @@ class ReachingDelayResponse(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = ReachingDelayResponse()
-    ngym.utils.plot_env(env, num_steps_env=20, num_steps_plt=20)
+    ngym.utils.plot_env(env, num_steps_env=20)

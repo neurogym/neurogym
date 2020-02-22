@@ -232,8 +232,8 @@ def test_seeding(env, def_act, seed):
 
 
 if __name__ == '__main__':
-    test_seeding_all()
-    # test_run_all()
+    # test_seeding_all()
+    test_run_all()
     # test_speed_all()
     # test_trialenv_all()
     # test_print_all()
