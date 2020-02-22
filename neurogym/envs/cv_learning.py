@@ -159,7 +159,7 @@ class CVLearning(ngym.PeriodEnv):
         self.add_period('decision', after='delay', last_period=True)
 
         # define observations
-        self.set_ob('fixation', [1, 0, 0])
+        self.set_ob([1, 0, 0], 'fixation')
         stim = self.view_ob('stimulus')
         stim[:, 0] = 1
         stim[:, 1:] = (1 - self.trial['coh']/100)/2
@@ -167,9 +167,9 @@ class CVLearning(ngym.PeriodEnv):
         stim[:, 1:] +=\
             self.rng.randn(stim.shape[0], 2) * self.trial['sigma_dt']
 
-        self.set_ob('delay', [1, 0, 0])
+        self.set_ob([1, 0, 0], 'delay')
 
-        self.set_groundtruth('decision', self.trial['ground_truth'])
+        self.set_groundtruth(self.trial['ground_truth'], 'decision')
 
     def count(self, action):
         '''

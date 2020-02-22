@@ -72,7 +72,7 @@ class DelayedComparison(ngym.PeriodEnv):
 
         # action and observation space
         self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2, ),
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,),
                                             dtype=np.float32)
 
     def new_trial(self, **kwargs):
@@ -93,17 +93,17 @@ class DelayedComparison(ngym.PeriodEnv):
         self.add_period('f2', after='delay')
         self.add_period('decision', after='f2', last_period=True)
 
-        self.set_ob('fixation', [1, 0])
-        self.set_ob('f1', [1, self.scale_p(f1)])
-        self.set_ob('delay', [1, 0])
-        self.set_ob('f2', [1, self.scale_p(f2)])
-        self.set_ob('decision', [0, 0])
+        self.set_ob([1, 0], 'fixation')
+        self.set_ob([1, self.scale_p(f1)], 'f1')
+        self.set_ob([1, 0], 'delay')
+        self.set_ob([1, self.scale_p(f2)], 'f2')
+        self.set_ob([0, 0], 'decision')
         ob = self.view_ob('f1')
         ob[:, 1] += self.rng.randn(ob.shape[0]) * self.sigma_dt
         ob = self.view_ob('f2')
         ob[:, 1] += self.rng.randn(ob.shape[0]) * self.sigma_dt
 
-        self.set_groundtruth('decision', self.trial['ground_truth'])
+        self.set_groundtruth(self.trial['ground_truth'], 'decision')
 
     def scale(self, f):
         return (f - self.fmin)/(self.fmax - self.fmin)

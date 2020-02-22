@@ -91,10 +91,10 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
         ob[:, [high_0, low_0, high_1, low_1]] =\
             (1 + np.array([coh_0, -coh_0, coh_1, -coh_1])/100)/2
         ob[:, 3:] += self.rng.randn(ob.shape[0], 4) * self.sigma_dt
-        self.set_ob('decision', np.zeros(7))
+        self.set_ob(np.zeros(7), 'decision')
         self.obs[:, self.trial['context']] = 1
 
-        self.set_groundtruth('decision', self.trial['ground_truth'])
+        self.set_groundtruth(self.trial['ground_truth'], 'decision')
 
     def _step(self, action):
         obs = self.obs_now

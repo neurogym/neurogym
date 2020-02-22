@@ -94,14 +94,14 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         # Observations
         # ---------------------------------------------------------------------
         signed_coh = coh if ground_truth == 1 else -coh
-        self.add_ob(period='fixation', value=1, where='fixation')
-        self.add_ob(period='stimulus', value=(1 + signed_coh / 100) / 2, where='stimulus1')
-        self.add_ob(period='stimulus', value=(1 - signed_coh / 100) / 2, where='stimulus2')
-        self.add_randn(period='stimulus', sigma=self.sigma_dt)
+        self.add_ob(1, period='fixation', where='fixation')
+        self.add_ob((1 + signed_coh / 100) / 2, period='stimulus', where='stimulus1')
+        self.add_ob((1 - signed_coh / 100) / 2, period='stimulus', where='stimulus2')
+        self.add_randn(0, self.sigma_dt, 'stimulus')
         # ---------------------------------------------------------------------
         # Ground truth
         # ---------------------------------------------------------------------
-        self.set_groundtruth('decision', ground_truth)
+        self.set_groundtruth(ground_truth, 'decision')
 
     def _step(self, action):
         """
@@ -220,7 +220,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         self.add_period('decision', after='delay', last_period=True)
 
         # define observations
-        self.set_ob('fixation', [1, 0, 0])
+        self.set_ob([1, 0, 0], 'fixation')
         stim = self.view_ob('stimulus')
         stim[:, 0] = 1
         stim[:, 1:] = (1 - self.trial['coh']/100)/2
@@ -228,9 +228,9 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         stim[:, 1:] +=\
             self.rng.randn(stim.shape[0], 2) * self.trial['sigma_dt']
 
-        self.set_ob('delay', [1, 0, 0])
+        self.set_ob([1, 0, 0], 'delay')
 
-        self.set_groundtruth('decision', self.trial['ground_truth'])
+        self.set_groundtruth(self.trial['ground_truth'], 'decision')
 
     def _step(self, action):
         """

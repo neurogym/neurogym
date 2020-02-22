@@ -87,8 +87,8 @@ class ReachingDelayResponse(ngym.PeriodEnv):
             # no stim ~ arbitrary number, can cause issues with regression:
             gt[:, 1] = -0.5
 
-        self.set_ob('delay', [0, -0.5])
-        self.set_ob('decision', [1, -0.5])
+        self.set_ob([0, -0.5], 'delay')
+        self.set_ob([1, -0.5], 'decision')
         decision_gt = self.view_groundtruth('decision')
         decision_gt[:, 0] = 1.  # go
         decision_gt[:, 1] = ground_truth_stim  # Where to respond

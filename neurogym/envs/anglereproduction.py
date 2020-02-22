@@ -78,8 +78,8 @@ class AngleReproduction(ngym.PeriodEnv):
         ob = self.view_ob('go2')
         ob[:, 33] = 1
 
-        self.set_groundtruth('go1', self.trial['ground_truth1'])
-        self.set_groundtruth('go2', self.trial['ground_truth2'])
+        self.set_groundtruth(self.trial['ground_truth1'], 'go1')
+        self.set_groundtruth(self.trial['ground_truth2'], 'go2')
         self.dec_per_dur = (self.end_ind['go1'] - self.start_ind['go1']) +\
             (self.end_ind['go2'] - self.start_ind['go2'])
 

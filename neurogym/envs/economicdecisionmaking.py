@@ -111,7 +111,7 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # Inputs
         # ---------------------------------------------------------------------
-        self.set_ob('fixation', [1]+[0]*6)
+        self.set_ob([1]+[0]*6, 'fixation')
         ob = self.view_ob('offer_on')
         ob[:, 0] = 1
         ob[:, self.inputs['L-'+juiceL]] = 1

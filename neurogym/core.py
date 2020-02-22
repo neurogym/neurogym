@@ -244,12 +244,12 @@ class PeriodEnv(TrialEnv):
         else:
             return self.obs[self.start_ind[period]:self.end_ind[period]]
 
-    def _add_ob(self, period, value, where=None, reset=False):
+    def _add_ob(self, value, period=None, where=None, reset=False):
         """Set observation in period to value.
 
         Args:
-            period: string, must be name of an added period
             value: np array (ob_space.shape, ...)
+            period: string, must be name of an added period
             where: string or np array, location of stimulus to be added
         """
         assert self._trial_built, 'Trial was not succesfully built.' +\
@@ -272,7 +272,7 @@ class PeriodEnv(TrialEnv):
             except TypeError:
                 ob[..., where] += value
 
-    def add_ob(self, period, value, where=None):
+    def add_ob(self, value, period=None, where=None):
         """Add value to observation.
 
         Args:
@@ -280,18 +280,18 @@ class PeriodEnv(TrialEnv):
             value: np array (ob_space.shape, ...)
             where: string or np array, location of stimulus to be added
         """
-        self._add_ob(period, value, where, reset=False)
+        self._add_ob(value, period, where, reset=False)
 
-    def add_randn(self, period, mu=0, sigma=1):
+    def add_randn(self, mu=0, sigma=1, period=None):
         ob = self.view_ob(period=period)
         if mu:
             ob += mu
         ob += self.rng.randn(*ob.shape) * sigma
 
-    def set_ob(self, period, value, where=None):
-        self._add_ob(period, value, where, reset=True)
+    def set_ob(self, value, period=None, where=None):
+        self._add_ob(value, period, where, reset=True)
 
-    def set_groundtruth(self, period, value):
+    def set_groundtruth(self, value, period):
         """Set groundtruth value."""
         self.gt[self.start_ind[period]: self.end_ind[period]] = value
 

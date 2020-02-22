@@ -98,7 +98,7 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         # Trial
         # ---------------------------------------------------------------------
         # set observations
-        self.set_ob('fixation', [1, 0, 0, 0, 0])
+        self.set_ob([1, 0, 0, 0, 0], 'fixation')
 
         ob = self.view_ob('stim1')
         ob[:, 0] = 1
@@ -108,10 +108,10 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         ob[:, 0] = 1
         ob[:, pair[1]] = 1 + self.rng.randn(ob.shape[0]) * self.sigma_dt
 
-        self.set_ob('delay_btw_stim', [1, 0, 0, 0, 0])
-        self.set_ob('delay_aft_stim', [1, 0, 0, 0, 0])
+        self.set_ob([1, 0, 0, 0, 0], 'delay_btw_stim')
+        self.set_ob([1, 0, 0, 0, 0], 'delay_aft_stim')
         # set ground truth
-        self.set_groundtruth('decision', self.trial['ground_truth'])
+        self.set_groundtruth(self.trial['ground_truth'], 'decision')
 
         # if trial is GO the reward is set to R_MISS and  to 0 otherwise
         self.r_tmax = self.rewards['miss']*self.trial['ground_truth']

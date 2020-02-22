@@ -94,16 +94,14 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         self.add_period('stimulus', after='fixation')
         self.add_period('decision', after='stimulus', last_period=True)
 
-        self.add_ob('fixation', value=1, where='fixation')
-        self.add_ob('fixation', value=1, where='fixation')
+        self.add_ob(1, 'fixation', where='fixation')
+        self.add_ob(1, 'fixation', where='fixation')
         stim = np.ones(self.n) * (1 - self.trial['coh']/100)/2
         stim[self.trial['ground_truth'] - 1] = (1 + self.trial['coh']/100)/2
-        self.add_ob('stimulus', value=stim, where='stimulus')
-        self.add_randn('stimulus', sigma=self.sigma_dt)
+        self.add_ob(stim, 'stimulus', where='stimulus')
+        self.add_randn(0, self.sigma_dt, 'stimulus')
 
-        self.set_groundtruth('fixation', 0)
-        self.set_groundtruth('stimulus', 0)
-        self.set_groundtruth('decision', self.trial['ground_truth'])
+        self.set_groundtruth(self.trial['ground_truth'], 'decision')
 
     def _step(self, action, **kwargs):
         """

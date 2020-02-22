@@ -68,8 +68,8 @@ class AntiReach1D(ngym.PeriodEnv):
         shift = 0 if self.trial['context'] == 0 else np.pi
         ob[:, :16] = np.cos(self.theta - (self.trial['ground_truth'] + shift))
 
-        self.set_groundtruth('fixation', np.pi)
-        self.set_groundtruth('reach', self.trial['ground_truth'])
+        self.set_groundtruth(np.pi, 'fixation')
+        self.set_groundtruth(self.trial['ground_truth'], 'reach')
 
     def _step(self, action):
         ob = self.obs_now

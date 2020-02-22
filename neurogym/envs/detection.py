@@ -99,7 +99,7 @@ class Detection(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # all observation values are 0 by default
         # FIXATION: setting fixation cue to 1 during fixation period
-        self.set_ob('fixation', [1, 0])
+        self.set_ob([1, 0], 'fixation')
         # stimulus:
         stim = self.view_ob('stimulus')
         stim[:, 1:] += self.rng.randn(stim.shape[0], 1) * self.sigma_dt

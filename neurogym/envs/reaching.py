@@ -68,10 +68,10 @@ class Reaching1D(ngym.PeriodEnv):
         self.add_period('reach', after='fixation', last_period=True)
 
         target = np.cos(self.theta - self.trial['ground_truth'])
-        self.add_ob('reach', value=target, where='target')
+        self.add_ob(target, 'reach', where='target')
 
-        self.set_groundtruth('fixation', np.pi)
-        self.set_groundtruth('reach', self.trial['ground_truth'])
+        self.set_groundtruth(np.pi, 'fixation')
+        self.set_groundtruth(self.trial['ground_truth'], 'reach')
         self.dec_per_dur = (self.end_ind['reach'] - self.start_ind['reach'])
 
     def _step(self, action):
@@ -161,8 +161,8 @@ class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
         # Signal is weaker than the self-distraction
         ob += np.cos(self.theta - self.trial['ground_truth']) * 0.3
 
-        self.set_groundtruth('fixation', np.pi)
-        self.set_groundtruth('reach', self.trial['ground_truth'])
+        self.set_groundtruth(np.pi, 'fixation')
+        self.set_groundtruth(self.trial['ground_truth'], 'reach')
         self.dec_per_dur = (self.end_ind['reach'] - self.start_ind['reach'])
 
     def _step(self, action):

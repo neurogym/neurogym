@@ -99,13 +99,13 @@ class DelayedMatchCategory(ngym.PeriodEnv):
         self.add_period('test', after='first_delay', last_period=True)
         # self.add_period('decision', after='test', last_period=True)
 
-        self.set_ob('fixation', [1, 0, 0])
+        self.set_ob([1, 0, 0], 'fixation')
 
         ob = self.view_ob('sample')
         ob[:, :] += np.array([1, np.cos(sample_theta), np.sin(sample_theta)])
         ob[:, 1:] += self.rng.randn(ob.shape[0], 2) * self.sigma_dt
 
-        self.set_ob('first_delay', [1, 0, 0])
+        self.set_ob([1, 0, 0], 'first_delay')
 
         ob = self.view_ob('test')
         ob[:, :] += np.array([1, np.cos(test_theta), np.sin(test_theta)])
@@ -113,7 +113,7 @@ class DelayedMatchCategory(ngym.PeriodEnv):
 
         # self.set_ob('test', [0, 0, 0])
 
-        self.set_groundtruth('test', ground_truth)
+        self.set_groundtruth(ground_truth, 'test')
 
     def _step(self, action, **kwargs):
         """

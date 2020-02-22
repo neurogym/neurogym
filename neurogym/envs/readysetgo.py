@@ -72,13 +72,13 @@ class ReadySetGo(ngym.PeriodEnv):
         self.add_period('production', duration=2*self.trial['production'],
                         after='set', last_period=True)
 
-        self.set_ob('fixation', [1, 0, 0])
-        self.set_ob('ready', [0, 1, 0])
-        self.set_ob('set', [0, 0, 1])
+        self.set_ob([1, 0, 0], 'fixation')
+        self.set_ob([0, 1, 0], 'ready')
+        self.set_ob([0, 0, 1], 'set')
         # set ground truth
         gt = np.zeros((int(2*self.trial['production']/self.dt),))
         gt[int(self.trial['production']/self.dt)] = 1
-        self.set_groundtruth('production', gt)
+        self.set_groundtruth(gt, 'production')
 
     def _step(self, action):
         # ---------------------------------------------------------------------
@@ -175,7 +175,7 @@ class MotorTiming(ngym.PeriodEnv):
         self.add_period('production', duration=2*self.trial['production'],
                         after='set', last_period=True)
 
-        self.set_ob('fixation', [1, 0, 0, 0])
+        self.set_ob([1, 0, 0, 0], 'fixation')
         ob = self.view_ob('cue')
         ob[:, 0] = 1
         ob[:, self.trial['production_ind']+1] = 1
@@ -186,7 +186,7 @@ class MotorTiming(ngym.PeriodEnv):
         # set ground truth
         gt = np.zeros((int(2*self.trial['production']/self.dt),))
         gt[int(self.trial['production']/self.dt)] = 1
-        self.set_groundtruth('production', gt)
+        self.set_groundtruth(gt, 'production')
 
     def _step(self, action):
         # ---------------------------------------------------------------------

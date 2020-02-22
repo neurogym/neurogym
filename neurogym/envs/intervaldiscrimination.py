@@ -71,14 +71,14 @@ class IntervalDiscrimination(ngym.PeriodEnv):
                 self.add_period(periods[i], after=periods[i - 1],
                                 last_period=i == len(periods) - 1)
 
-        self.set_ob('fixation', [1, 0, 0])
-        self.set_ob('stim1', [1, 1, 0])
-        self.set_ob('delay1', [1, 0, 0])
-        self.set_ob('stim2', [1, 0, 1])
-        self.set_ob('delay2', [1, 0, 0])
-        self.set_ob('decision', [0, 0, 0])
+        self.set_ob([1, 0, 0], 'fixation')
+        self.set_ob([1, 1, 0], 'stim1')
+        self.set_ob([1, 0, 0], 'delay1')
+        self.set_ob([1, 0, 1], 'stim2')
+        self.set_ob([1, 0, 0], 'delay2')
+        self.set_ob([0, 0, 0], 'decision')
 
-        self.set_groundtruth('decision', ground_truth)
+        self.set_groundtruth(ground_truth, 'decision')
 
     def _step(self, action):
         # ---------------------------------------------------------------------

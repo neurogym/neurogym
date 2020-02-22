@@ -110,7 +110,7 @@ class ChangingEnvironment(ngym.PeriodEnv):
         # all observation values are 0 by default
         # FIXATION: setting fixation cue to 1 during fixation period
         if not self.cxt_cue:
-            self.set_ob('fixation', [1, 0, 0])
+            self.set_ob([1, 0, 0], 'fixation')
             # STIMULUS
             # view_ob return a pointer to observations during stimulus period:
             stimulus = self.view_ob('stimulus')  # (shape = time x obs-dim)
@@ -121,10 +121,10 @@ class ChangingEnvironment(ngym.PeriodEnv):
             stimulus[:, 1:] +=\
                 self.rng.randn(stimulus.shape[0], 2) * self.sigma_dt
         else:
-            self.set_ob('fixation', [self.curr_cxt, 0, 0, 0])
-            self.set_ob('stimulus', [self.curr_cxt, 0, 0, 0])
-            self.set_ob('decision', [self.curr_cxt, 0, 0, 0])
-            self.set_ob('fixation', [0, 1, 0, 0])
+            self.set_ob([self.curr_cxt, 0, 0, 0], 'fixation')
+            self.set_ob([self.curr_cxt, 0, 0, 0], 'stimulus')
+            self.set_ob([self.curr_cxt, 0, 0, 0], 'decision')
+            self.set_ob([0, 1, 0, 0], 'fixation')  # TODO: Is this right?
             # STIMULUS
             # view_ob return a pointer to observations during stimulus period:
             stimulus = self.view_ob('stimulus')  # (shape = time x obs-dim)
@@ -138,7 +138,7 @@ class ChangingEnvironment(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # Ground truth
         # ---------------------------------------------------------------------
-        self.set_groundtruth('decision', ground_truth)
+        self.set_groundtruth(ground_truth, 'decision')
 
     def _step(self, action):
         """
