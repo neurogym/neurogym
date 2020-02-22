@@ -89,7 +89,7 @@ class Combine():
 
     def new_trial(self):
         # decide type of trial
-        self.task_type = self.env.rng.choices([0, 1, 2], weights=self.mix)[0]
+        self.task_type = self.env.rng.choice([0, 1, 2], p=self.mix)
         if self.task_type == 0:
             self.env_on = True
             self.distractor_on = False

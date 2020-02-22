@@ -25,7 +25,8 @@ class ReadySetGo(ngym.PeriodEnv):
         'tags': ['timing', 'go-no-go', 'supervised']
     }
 
-    def __init__(self, dt=80, rewards=None, timing=None, gain=1):
+    def __init__(self, dt=80, rewards=None, timing=None, gain=1,
+                 prod_margin=0.2):
         """
         Agents have to measure and produce different time intervals.
         dt: Timestep duration. (def: 80 (ms), int)
@@ -35,8 +36,11 @@ class ReadySetGo(ngym.PeriodEnv):
             R_FAIL: given when incorrect. (def: 0., float)
         timing: Description and duration of periods forming a trial.
         gain: Controls the measure that the agent has to produce. (def: 1, int)
+        prod_margin: controls the interval around the ground truth production
+                    time within which the agent receives proportional reward
         """
         super().__init__(dt=dt, timing=timing)
+        self.prod_margin = prod_margin
 
         self.gain = gain
 
@@ -100,12 +104,12 @@ class ReadySetGo(ngym.PeriodEnv):
                 t_prod = self.t - self.end_t['measure']
                 eps = abs(t_prod - trial['production'])
                 # actual production time
-                eps_threshold = 0.2*trial['production']+25
+                eps_threshold = self.prod_margin*trial['production']+25
                 if eps > eps_threshold:
                     reward = self.R_FAIL
                 else:
                     reward = (1. - eps/eps_threshold)**1.5
-                    reward = min(reward, 0.1)
+                    reward = max(reward, 0.1)
                     reward *= self.R_CORRECT
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
@@ -127,7 +131,7 @@ class MotorTiming(ngym.PeriodEnv):
         'tags': ['timing', 'go-no-go', 'supervised']
     }
 
-    def __init__(self, dt=80, rewards=None, timing=None):
+    def __init__(self, dt=80, rewards=None, timing=None, prod_margin=0.2):
         """
         Agents have to produce different time intervals
         using different effectors (actions).
@@ -137,9 +141,11 @@ class MotorTiming(ngym.PeriodEnv):
             R_CORRECT: given when correct. (def: +1., float)
             R_FAIL: given when incorrect. (def: 0., float)
         timing: Description and duration of periods forming a trial.
+        prod_margin: controls the interval around the ground truth production
+                    time within which the agent receives proportional reward
         """
         super().__init__(dt=dt, timing=timing)
-
+        self.prod_margin = prod_margin
         self.production_ind = [0, 1]
         self.intervals = [800, 1500]
 
@@ -205,19 +211,28 @@ class MotorTiming(ngym.PeriodEnv):
                 t_prod = self.t - self.end_t['set']  # time from end of measure
                 eps = abs(t_prod - trial['production'])
                 # actual production time
-                eps_threshold = 0.2*trial['production']+25
+                eps_threshold = self.prod_margin*trial['production']+25
                 if eps > eps_threshold:
                     reward = self.R_FAIL
                 else:
                     reward = (1. - eps/eps_threshold)**1.5
-                    reward = min(reward, 0.1)
+                    reward = max(reward, 0.1)
                     reward *= self.R_CORRECT
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
 if __name__ == '__main__':
-    env = MotorTiming()
-    ngym.utils.plot_env(env, num_steps_env=100, def_act=0)
+    env = ReadySetGo(dt=100, timing={'fixation': ('constant', 200),
+                                     'ready': ('constant', 200),
+                                     'measure': ('choice', [100, 200]),
+                                     'set': ('constant', 100)})
+#    env = ReadySetGo(dt=100, timing={'ready': ('constant', 100),
+#                                     'set': ('constant', 100)})
+    from ngym_usage import random_agent
+    import matplotlib.pyplot as plt
+    plt.close('all')
+    model = random_agent.randomAgent(env=env, policy=[.9])
+    ngym.utils.plot_env(env, num_steps_env=100, model=model)  # , def_act=0)
 #    env = ReadySetGo()
 #    ngym.utils.plot_env(env, num_steps_env=100, def_act=0)

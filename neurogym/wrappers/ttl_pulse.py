@@ -6,10 +6,10 @@ Created on Fri Jan 31 15:10:01 2020
 @author: martafradera
 """
 
-from gym.core import Wrapper
+import neurogym as ngym
 
 
-class TTLPulse(Wrapper):
+class TTLPulse(ngym.TrialWrapper):
     metadata = {
         'description': 'Outputs extra pulses that will be non-zero during ' +
         'specified periods.',

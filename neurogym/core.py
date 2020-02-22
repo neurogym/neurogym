@@ -86,6 +86,8 @@ class TrialEnv(BaseEnv):
         self.num_tr_exp = num_trials_before_reset
         self.trial = None
         self.performance = 0
+        # flag indicating whether the trial was succesfully built
+        self.trial_built = False
         # Annotations of observation space and action space
         self.ob_dict = {}
         self.act_dict = {}
@@ -120,10 +122,7 @@ class TrialEnv(BaseEnv):
 
         if self.t > self.tmax - self.dt and not info['new_trial']:
             info['new_trial'] = True
-            info['trial_endwith_tmax'] = True  # TODO: do whe need this?
             reward += self.r_tmax
-        else:
-            info['trial_endwith_tmax'] = False
 
         # TODO: Handle the case when new_trial is not provided in info
         # TODO: new_trial happens after step, so trial indx precedes obs change
@@ -132,7 +131,10 @@ class TrialEnv(BaseEnv):
             self.performance = 0
             self.t = self.t_ind = 0  # Reset within trial time count
             self.num_tr += 1  # Increment trial count
+            self.trial_built = False
             self.new_trial(info=info)
+            assert self.trial_built, 'Trial was not succesfully built.' +\
+                ' (Hint: make last_period=True when adding the last period)'
         return obs, reward, done, info
 
     def reset(self):
@@ -168,9 +170,9 @@ class PeriodEnv(TrialEnv):
         default_timing = self.metadata['timing'].copy()
         if timing is not None:
             default_timing.update(timing)
-        self._timing = default_timing
+        self.timing = default_timing
         self.timing_fn = dict()
-        for key, val in self._timing.items():
+        for key, val in self.timing.items():
             dist, args = val
             self.timing_fn[key] = tasktools.random_number_fn(dist, args,
                                                              self.rng)
@@ -204,6 +206,12 @@ class PeriodEnv(TrialEnv):
         """
         if duration is None:
             duration = (self.timing_fn[period]() // self.dt) * self.dt
+        if duration == self.dt:
+            warnings.warn('Warning: Time for period {:s} {:f}'.format(period,
+                                                                      duration,
+                                                                      self.dt)
+                          + '  lasts only one timestep. Agents will not have' +
+                          ' time to respond (e.g. make a choice) on time.')
 
         if after is not None:
             if isinstance(after, str):
@@ -221,6 +229,7 @@ class PeriodEnv(TrialEnv):
         self.end_ind[period] = int((start + duration)/self.dt)
 
         if last_period:
+            self.trial_built = True
             self._init_trial(start + duration)
 
     def _init_trial(self, tmax):
@@ -323,6 +332,8 @@ class TrialWrapper(gym.Wrapper):
             info['new_trial'] = True
 
         if info['new_trial']:
+            info['performance'] = self.task.performance
+            self.task.performance = 0
             self.task.t = self.task.t_ind = 0  # Reset within trial time count
             self.task.num_tr += 1  # Increment trial count
             self.new_trial(info=info)  # new_trial from wrapper

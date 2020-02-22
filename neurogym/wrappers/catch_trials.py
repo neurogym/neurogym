@@ -5,11 +5,11 @@ Created on Thu Oct 17 11:23:36 2019
 
 @author: molano
 """
-from gym.core import Wrapper
+import neurogym as ngym
 import numpy as np
 
 
-class CatchTrials(Wrapper):
+class CatchTrials(ngym.TrialWrapper):
     metadata = {
         'description': 'Introduces catch trials in which the reward for' +
         ' a correct choice is modified (e.g. is set to the reward for an' +
@@ -35,7 +35,7 @@ class CatchTrials(Wrapper):
         start: Number of trials after which the catch trials can occur.
         (def: 0, int)
         """
-        Wrapper.__init__(self, env=env)
+        super().__init__(env)
         self.env = env
         # we get the original task, in case we are composing wrappers
         env_aux = env

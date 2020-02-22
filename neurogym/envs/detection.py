@@ -116,7 +116,7 @@ class Detection(ngym.PeriodEnv):
                 # there must be a step after the stim or the model will not
                 # be able to respond on time
                 max_delay = stim.shape[0]-self.stim_dur-self.extra_step
-                delay = self.rng.randint(0, max_delay)
+                delay = 0 if max_delay == 0 else self.rng.randint(0, max_delay)
             else:
                 delay = self.delay
             stim[delay:delay + self.stim_dur, 1] += 0.5  # actual stim
@@ -173,4 +173,4 @@ class Detection(ngym.PeriodEnv):
 if __name__ == '__main__':
     env = Detection(noise=0, timing={'stimulus': ('constant', 200)})
     ngym.utils.plot_env(env, num_steps_env=50,
-                        num_steps_plt=50, legend=False)  # ,def_act=1)
+                        legend=False)  # ,def_act=1)
