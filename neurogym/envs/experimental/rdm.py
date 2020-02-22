@@ -6,6 +6,7 @@ import numpy as np
 from gym import spaces
 
 import neurogym as ngym
+from neurogym.utils import tasktools
 
 
 class RDM(ngym.PeriodEnv):
@@ -133,8 +134,99 @@ class RDM(ngym.PeriodEnv):
         return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
+
+# TODO: Ground truth and action have different space,
+# making it difficult for SL and RL to work together
+class Reaching1D(ngym.PeriodEnv):
+    metadata = {
+        'description': 'The agent has to reproduce the angle indicated' +
+        ' by the observation.',
+        'paper_link': 'https://science.sciencemag.org/content/233/4771/1416',
+        'paper_name': 'Neuronal population coding of movement direction',
+        'timing': {
+            'fixation': ('constant', 500),
+            'reach': ('constant', 500)},
+        'tags': ['motor', 'steps action space']
+    }
+
+    def __init__(self, dt=100, rewards=None, timing=None):
+        """
+        The agent has to reproduce the angle indicated by the observation.
+        dt: Timestep duration. (def: 100 (ms), int)
+        rewards:
+            R_CORRECT: given when correct. (def: +1., float)
+            R_FAIL: given when incorrect. (def: -0.1, float)
+        timing: Description and duration of periods forming a trial.
+        """
+        super().__init__(dt=dt, timing=timing)
+        # Rewards
+        reward_default = {'R_CORRECT': +1., 'R_FAIL': -0.1}
+        if rewards is not None:
+            reward_default.update(rewards)
+        self.R_CORRECT = reward_default['R_CORRECT']
+        self.R_FAIL = reward_default['R_FAIL']
+
+        # action and observation spaces
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(32,),
+                                            dtype=np.float32)
+        self.ob_dict = {'self': range(16, 32),
+                        'target': range(16)}
+        self.action_space = spaces.Discrete(3)
+        self.act_dict = {'fixation': 0,
+                         'left': 1,
+                         'right': 2,
+                         }
+        self.theta = np.arange(0, 2*np.pi, 2*np.pi/16)
+        self.state = np.pi
+
+    def new_trial(self, **kwargs):
+        # ---------------------------------------------------------------------
+        # Trial
+        # ---------------------------------------------------------------------
+        self.state = np.pi
+        self.trial = {
+            'ground_truth': self.rng.uniform(0, np.pi*2)
+        }
+        self.trial.update(kwargs)
+        # ---------------------------------------------------------------------
+        # Periods
+        # ---------------------------------------------------------------------
+        self.add_period('fixation', after=0)
+        self.add_period('reach', after='fixation', last_period=True)
+
+        target = np.cos(self.theta - self.trial['ground_truth'])
+        self.add_ob('reach', value=target, where='target')
+
+        self.set_groundtruth('fixation', np.pi)
+        self.set_groundtruth('reach', self.trial['ground_truth'])
+        self.dec_per_dur = (self.end_ind['reach'] - self.start_ind['reach'])
+
+    def _step(self, action):
+        ob = self.obs_now
+        ob[16:] = np.cos(self.theta - self.state)
+        if action == 1:
+            self.state += 0.05
+        elif action == 2:
+            self.state -= 0.05
+
+        self.state = np.mod(self.state, 2*np.pi)
+
+        gt = self.gt_now
+        if self.in_period('fixation'):
+            reward = 0
+        else:
+            reward =\
+                np.max((self.R_CORRECT-tasktools.circular_dist(self.state-gt),
+                        self.R_FAIL))
+            norm_rew = (reward-self.R_FAIL)/(self.R_CORRECT-self.R_FAIL)
+            self.performance += norm_rew/self.dec_per_dur
+
+        return ob, reward, False, {'new_trial': False}
+
+
 if __name__ == '__main__':
-    env = RDM(dt=20, timing={'stimulus': ('constant', 500)})
+    env = Reaching1D(dt=20)
+    # env = RDM(dt=20, timing={'stimulus': ('constant', 500)})
     from neurogym.tests.test_envs import test_speed
     test_speed(env)
     ngym.utils.plot_env(env, num_steps_env=100, def_act=1)

@@ -40,9 +40,15 @@ class Reaching1D(ngym.PeriodEnv):
         self.R_FAIL = reward_default['R_FAIL']
 
         # action and observation spaces
-        self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(32,),
                                             dtype=np.float32)
+        self.ob_dict = {'self': range(16, 32),
+                        'target': range(16)}
+        self.action_space = spaces.Discrete(3)
+        self.act_dict = {'fixation': 0,
+                         'left': 1,
+                         'right': 2,
+                         }
         self.theta = np.arange(0, 2*np.pi, 2*np.pi/16)
         self.state = np.pi
 
@@ -61,9 +67,8 @@ class Reaching1D(ngym.PeriodEnv):
         self.add_period('fixation', after=0)
         self.add_period('reach', after='fixation', last_period=True)
 
-        ob = self.view_ob('reach')
-
-        ob[:, :16] = np.cos(self.theta - self.trial['ground_truth'])
+        target = np.cos(self.theta - self.trial['ground_truth'])
+        self.add_ob('reach', value=target, where='target')
 
         self.set_groundtruth('fixation', np.pi)
         self.set_groundtruth('reach', self.trial['ground_truth'])

@@ -46,20 +46,22 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         self.sigma_dt = sigma / np.sqrt(self.dt)
 
         # Rewards
-        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
-                          'R_FAIL': 0.}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_ABORTED = reward_default['R_ABORTED']
-        self.R_CORRECT = reward_default['R_CORRECT']
-        self.R_FAIL = reward_default['R_FAIL']
+        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
+        if rewards:
+            self.rewards.update(rewards)
 
         self.abort = False
-        # action and observation spaces
-        self.action_space = spaces.Discrete(3)
-        # observation space: [fixation cue, left stim, right stim]
+
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
+        self.ob_dict = {'fixation': 0,
+                        'stimulus1': 1,
+                        'stimulus2': 2}
+
+        self.action_space = spaces.Discrete(3)
+        self.act_dict = {'fixation': 0,
+                         'choice1': 1,
+                         'choice2': 2}
 
     def new_trial(self, **kwargs):
         """
@@ -91,17 +93,11 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # Observations
         # ---------------------------------------------------------------------
-        # all observation values are 0 by default
-        # FIXATION: setting fixation cue to 1 during fixation period
-        self.set_ob('fixation', [1, 0, 0])
-        # STIMULUS
-        stimulus = self.view_ob('stimulus')  # stimulus shape = time x obs-dim
-        # setting coherences
-        stimulus[:, 1:] = (1 - coh / 100) / 2
-        stimulus[:, ground_truth] = (1 + coh / 100) / 2  # coh for correct side
-        # adding gaussian noise to stimulus with std = self.sigma_dt
-        stimulus[:, 1:] +=\
-            self.rng.randn(stimulus.shape[0], 2) * self.sigma_dt
+        signed_coh = coh if ground_truth == 1 else -coh
+        self.add_ob(period='fixation', value=1, where='fixation')
+        self.add_ob(period='stimulus', value=(1 + signed_coh / 100) / 2, where='stimulus1')
+        self.add_ob(period='stimulus', value=(1 - signed_coh / 100) / 2, where='stimulus2')
+        self.add_randn(period='stimulus', sigma=self.sigma_dt)
         # ---------------------------------------------------------------------
         # Ground truth
         # ---------------------------------------------------------------------
@@ -125,17 +121,17 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         if self.in_period('fixation'):
             if action != 0:  # action = 0 means fixating
                 new_trial = self.abort
-                reward = self.R_ABORTED
+                reward += self.rewards['abort']
         elif self.in_period('decision'):
             if action != 0:
                 new_trial = True
                 if action == gt:
-                    reward = self.R_CORRECT
-                    self.performance = 1
+                    reward += self.rewards['correct']
                 else:
-                    reward = self.R_FAIL
+                    reward += self.rewards['fail']
 
         return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
+
 
 
 #  TODO: there should be a timeout of 1000ms for incorrect trials
