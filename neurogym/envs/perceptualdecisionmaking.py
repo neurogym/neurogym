@@ -133,7 +133,6 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
-
 #  TODO: there should be a timeout of 1000ms for incorrect trials
 class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
     metadata = {
@@ -273,6 +272,6 @@ if __name__ == '__main__':
                                    timing={'stimulus': ('constant', 500)})
     from neurogym.tests.test_envs import test_speed
     test_speed(env)
-    # ngym.utils.plot_env(env, num_steps_env=100, def_act=1)
+    ngym.utils.plot_env(env, num_steps_env=100, def_act=1)
     # env = PerceptualDecisionMakingDelayResponse()
     # ngym.utils.plot_env(env, num_steps_env=100, def_act=1)

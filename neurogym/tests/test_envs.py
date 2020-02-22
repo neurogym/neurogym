@@ -189,12 +189,12 @@ def test_seeding_all():
         # print('Running env: {:s}'.format(env_name))
         # env = test_run(env_name)
         try:
-            states1, rews1 = test_seeding(env_name, def_act=0, seed=0)
-            states2, rews2 = test_seeding(env_name, def_act=0, seed=0)
+            states1, rews1 = test_seeding(env_name, seed=0)
+            states2, rews2 = test_seeding(env_name, seed=0)
             assert (states1 == states2).all(), 'states are not identical'
             assert (rews1 == rews2).all(), 'rewards are not identical'
-            states1, rews1 = test_seeding(env_name, def_act=1, seed=0)
-            states2, rews2 = test_seeding(env_name, def_act=1, seed=0)
+            states1, rews1 = test_seeding(env_name, seed=0)
+            states2, rews2 = test_seeding(env_name, seed=0)
             assert (states1 == states2).all(), 'states are not identical'
             assert (rews1 == rews2).all(), 'rewards are not identical'
 
@@ -208,7 +208,7 @@ def test_seeding_all():
     print('Success {:d}/{:d} envs'.format(success_count, total_count))
 
 
-def test_seeding(env, def_act, seed):
+def test_seeding(env, seed):
     """Test if environments are replicable."""
     if isinstance(env, str):
         kwargs = {'dt': 20}
@@ -220,8 +220,9 @@ def test_seeding(env, def_act, seed):
     env.reset()
     states_mat = []
     rew_mat = []
+    env.action_space.seed(seed)
     for stp in range(100):
-        state, rew, done, _ = env.step(def_act)
+        state, rew, done, _ = env.step(env.action_space.sample())
         states_mat.append(state)
         rew_mat.append(rew)
         if done:
@@ -243,7 +244,7 @@ if __name__ == '__main__':
     # env_name = 'NAltPerceptualDecisionMaking-v0'
     # env_name = 'DelayedMatchCategory-v0'
     # env_name = 'MemoryRecall-v0'
-    # env_name = 'Bandit-v0'
+    # env_name = 'ReachingDelayResponse-v0'
     # test_run(env_name)
     # test_plot(env_name)
     # test_speed(env_name)

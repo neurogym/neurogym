@@ -90,7 +90,6 @@ class TrialEnv(BaseEnv):
         self.ob_dict = {}
         self.act_dict = {}
         self.rewards = {}
-
         self.seed()
 
     def new_trial(self, **kwargs):
@@ -141,7 +140,9 @@ class TrialEnv(BaseEnv):
 
         # TODO: Check this works with wrapper
         self.new_trial()
-        obs, _, _, _ = self.step(0)
+        # obs, _, _, _ = self.step(0)
+        self.action_space.seed(0)
+        obs, _, _, _ = self.step(self.action_space.sample())
         return obs
 
     def render(self, mode='human'):

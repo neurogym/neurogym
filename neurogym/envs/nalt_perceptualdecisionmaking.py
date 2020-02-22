@@ -69,6 +69,7 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(n_ch+1)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(n_ch+1,),
                                             dtype=np.float32)
+        self.ob_dict = {'fixation': 0, 'stimulus': range(1, n_ch+1)}
 
     def new_trial(self, **kwargs):
         """
@@ -93,12 +94,12 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         self.add_period('stimulus', after='fixation')
         self.add_period('decision', after='stimulus', last_period=True)
 
-        self.set_ob('fixation', [1] + [0]*self.n)
-        ob = self.view_ob('stimulus')
-        ob[:, 0] = 1
-        ob[:, 1:] = (1 - self.trial['coh']/100)/2
-        ob[:, self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
-        ob[:, 1:] += self.rng.randn(ob.shape[0], self.n) * self.sigma_dt
+        self.add_ob('fixation', value=1, where='fixation')
+        self.add_ob('fixation', value=1, where='fixation')
+        stim = np.ones(self.n) * (1 - self.trial['coh']/100)/2
+        stim[self.trial['ground_truth'] - 1] = (1 + self.trial['coh']/100)/2
+        self.add_ob('stimulus', value=stim, where='stimulus')
+        self.add_randn('stimulus', sigma=self.sigma_dt)
 
         self.set_groundtruth('fixation', 0)
         self.set_groundtruth('stimulus', 0)
