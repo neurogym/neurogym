@@ -59,13 +59,10 @@ class CVLearning(ngym.PeriodEnv):
         self.sigma_dt = sigma / np.sqrt(self.dt)
 
         # Rewards
-        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
-                          'R_FAIL': -1.}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_ABORTED = reward_default['R_ABORTED']
-        self.R_CORRECT = reward_default['R_CORRECT']
-        self.R_FAIL = reward_default['R_FAIL']
+        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': -1.}
+        if rewards:
+            self.rewards.update(rewards)
+
         self.action = 0
         self.abort = False
         self.firstcounts = True
@@ -113,9 +110,9 @@ class CVLearning(ngym.PeriodEnv):
             if np.abs(self.counter) >= self.max_num_reps:
                 ground_truth = 1 if self.action == 2 else 2
                 self.trial.update({'ground_truth': ground_truth})
-                self.R_FAIL = 0
+                self.rewards['fail'] = 0
             else:
-                self.R_FAIL = self.R_CORRECT
+                self.rewards['fail'] = self.rewards['correct']
             self.durs.update({'stimulus': (0),
                              'delay': (0)})
             self.trial.update({'sigma_dt': 0})
@@ -127,7 +124,7 @@ class CVLearning(ngym.PeriodEnv):
             self.durs.update({'delay': (0)})
             self.trial.update({'coh': 100})
             self.trial.update({'sigma_dt': 0})
-            self.R_FAIL = 0
+            self.rewards['fail'] = 0
             self.firstcounts = False
         elif self.curr_ph == 2:
             # first answer counts
@@ -135,7 +132,7 @@ class CVLearning(ngym.PeriodEnv):
             self.durs.update({'delay': (0)})
             self.trial.update({'coh': 100})
             self.trial.update({'sigma_dt': 0})
-            self.R_FAIL = -1
+            self.rewards['fail'] = -1
             self.firstcounts = True
         elif self.curr_ph == 3:
             # delay component is introduced
@@ -189,14 +186,14 @@ class CVLearning(ngym.PeriodEnv):
     def set_phase(self):
         if self.curr_ph < 4:
             if len(self.mov_window) >= self.perf_window:
-                self.mov_window.append(1*(self.rew == self.R_CORRECT))
+                self.mov_window.append(1*(self.rew == self.rewards['correct']))
                 self.mov_window.pop(0)  # remove first value
                 self.curr_perf = np.sum(self.mov_window)/self.perf_window
                 if self.curr_perf >= self.goal_perf[self.curr_ph]:
                     self.curr_ph += 1
                     self.mov_window = []
             else:
-                self.mov_window.append(1*(self.rew == self.R_CORRECT))
+                self.mov_window.append(1*(self.rew == self.rewards['correct']))
 
     def _step(self, action):
         # obs, reward, done, info = self.env._step(action)
@@ -210,22 +207,22 @@ class CVLearning(ngym.PeriodEnv):
         if self.in_period('fixation') or self.in_period('delay'):
             if action != 0:
                 new_trial = self.abort
-                reward = self.R_ABORTED
+                reward = self.rewards['abort']
         elif self.in_period('decision'):
             if action == gt:
-                reward = self.R_CORRECT
+                reward = self.rewards['correct']
                 new_trial = True
                 if not self.first_flag:
                     first_choice = True
                     self.first_flag = True
                     self.performance = 1
             elif action == 3 - gt:  # 3-action is the other act
-                reward = self.R_FAIL
+                reward = self.rewards['fail']
                 new_trial = self.firstcounts
                 if not self.first_flag:
                     first_choice = True
                     self.first_flag = True
-                    self.performance = self.R_FAIL == self.R_CORRECT
+                    self.performance = self.rewards['fail'] == self.rewards['correct']
 
         # check if first choice (phase 1)
         if not self.firstcounts and first_choice:

@@ -46,11 +46,9 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
         self.sigma_dt = sigma/np.sqrt(self.dt)
 
         # Rewards
-        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_ABORTED = reward_default['R_ABORTED']
-        self.R_CORRECT = reward_default['R_CORRECT']
+        self.rewards = {'abort': -0.1, 'correct': +1.}
+        if rewards:
+            self.rewards.update(rewards)
 
         self.abort = False
 
@@ -107,11 +105,11 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
         if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
-                reward = self.R_ABORTED
+                reward = self.rewards['abort']
         elif self.in_period('decision'):
             if action != 0:  # broke fixation
                 new_trial = True
                 if action == gt:
-                    reward = self.R_CORRECT
+                    reward = self.rewards['correct']
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}

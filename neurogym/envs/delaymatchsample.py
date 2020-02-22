@@ -49,13 +49,9 @@ class DelayedMatchToSample(ngym.PeriodEnv):
         self.sigma_dt = sigma/np.sqrt(self.dt)
 
         # Rewards
-        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
-                          'R_FAIL': 0.}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_ABORTED = reward_default['R_ABORTED']
-        self.R_CORRECT = reward_default['R_CORRECT']
-        self.R_FAIL = reward_default['R_FAIL']
+        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
+        if rewards:
+            self.rewards.update(rewards)
 
         self.abort = False
 
@@ -112,15 +108,15 @@ class DelayedMatchToSample(ngym.PeriodEnv):
         if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
-                reward = self.R_ABORTED
+                reward = self.rewards['abort']
         elif self.in_period('decision'):
             if action != 0:
                 new_trial = True
                 if action == gt:
-                    reward = self.R_CORRECT
+                    reward = self.rewards['correct']
                     self.performance = 1
                 else:
-                    reward = self.R_FAIL
+                    reward = self.rewards['fail']
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
@@ -163,12 +159,12 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
         self.sigma_dt = sigma/np.sqrt(self.dt)
 
         # Rewards
-        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1., 'R_FAIL': -1.}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_ABORTED = reward_default['R_ABORTED']
-        self.R_CORRECT = reward_default['R_CORRECT']
-        self.R_FAIL = reward_default['R_FAIL']
+        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': -1.}
+        if rewards:
+            self.rewards.update(rewards)
+        self.rewards['abort'] = self.rewards['abort']
+        self.rewards['correct'] = self.rewards['correct']
+        self.rewards['fail'] = self.rewards['fail']
         self.abort = False
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(33,),
@@ -219,15 +215,15 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
         gt = self.gt_now
         if ((self.in_period('fixation') or self.in_period('sample'))
            and action != 0):
-            reward = self.R_ABORTED
+            reward = self.rewards['abort']
             new_trial = self.abort
         elif not self.in_period('test'+str(self.trial['ground_truth'])):
             if action != 0:
-                reward = self.R_FAIL
+                reward = self.rewards['fail']
                 new_trial = True
         else:
             if action == 1:
-                reward = self.R_CORRECT
+                reward = self.rewards['correct']
                 new_trial = True
                 self.performance = 1
 

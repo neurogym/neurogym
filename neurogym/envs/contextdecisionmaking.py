@@ -53,11 +53,9 @@ class ContextDecisionMaking(ngym.PeriodEnv):
         self.sigma_dt = sigma/np.sqrt(self.dt)
 
         # Rewards
-        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_ABORTED = reward_default['R_ABORTED']
-        self.R_CORRECT = reward_default['R_CORRECT']
+        self.rewards = {'abort': -0.1, 'correct': +1.}
+        if rewards:
+            self.rewards.update(rewards)
 
         self.abort = False
 
@@ -114,12 +112,12 @@ class ContextDecisionMaking(ngym.PeriodEnv):
         if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
-                reward = self.R_ABORTED
+                reward = self.rewards['abort']
         elif self.in_period('decision'):
             if action != 0:  # broke fixation
                 new_trial = True
                 if action == gt:
-                    reward = self.R_CORRECT
+                    reward = self.rewards['correct']
                     self.performance = 1
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
@@ -160,11 +158,11 @@ class ContextDecisionMakingWithAbstraction(ngym.PeriodEnv):
 
         # Rewards
         # Rewards
-        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_ABORTED = reward_default['R_ABORTED']
-        self.R_CORRECT = reward_default['R_CORRECT']
+        self.rewards = {'abort': -0.1, 'correct': +1.}
+        if rewards:
+            self.rewards.update(rewards)
+        self.rewards['abort'] = self.rewards['abort']
+        self.rewards['correct'] = self.rewards['correct']
 
         self.abort = False
 
@@ -233,12 +231,12 @@ class ContextDecisionMakingWithAbstraction(ngym.PeriodEnv):
         if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
-                reward = self.R_ABORTED
+                reward = self.rewards['abort']
         elif self.in_period('decision'):
             if action != 0:  # broke fixation
                 new_trial = True
                 if action == gt:
-                    reward = self.R_CORRECT
+                    reward = self.rewards['correct']
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 

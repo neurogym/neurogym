@@ -71,16 +71,12 @@ class PostDecisionWager(ngym.PeriodEnv):
         sigma = np.sqrt(2*100*0.01)
         self.sigma_dt = sigma / np.sqrt(self.dt)
         # Rewards
-        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
-                          'R_FAIL': 0.}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_ABORTED = reward_default['R_ABORTED']
-        self.R_CORRECT = reward_default['R_CORRECT']
-        self.R_FAIL = reward_default['R_FAIL']
+        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
+        if rewards:
+            self.rewards.update(rewards)
 
         self.abort = False
-        self.R_SURE = 0.7*self.R_CORRECT
+        self.rewards['sure'] = 0.7*self.rewards['correct']
 
         # set action and observation space
         self.action_space = spaces.Discrete(4)
@@ -129,24 +125,24 @@ class PostDecisionWager(ngym.PeriodEnv):
             obs[0] = 1
             if self.actions[int(action)] != 0:
                 info['new_trial'] = self.abort
-                reward = self.R_ABORTED
+                reward = self.rewards['abort']
         elif self.in_period('decision'):
             if self.actions[int(action)] == 2:
                 if trial['wager']:
-                    reward = self.R_SURE
+                    reward = self.rewards['sure']
                     norm_rew =\
-                        (reward-self.R_FAIL)/(self.R_CORRECT-self.R_FAIL)
+                        (reward-self.rewards['fail'])/(self.rewards['correct']-self.rewards['fail'])
                     self.performance = norm_rew
                 else:
-                    reward = self.R_ABORTED
+                    reward = self.rewards['abort']
             else:
                 gt_sign = np.sign(trial['ground_truth'])
                 action_sign = np.sign(self.actions[int(action)])
                 if gt_sign == action_sign:
-                    reward = self.R_CORRECT
+                    reward = self.rewards['correct']
                     self.performance = 1
                 elif gt_sign == -action_sign:
-                    reward = self.R_FAIL
+                    reward = self.rewards['fail']
             info['new_trial'] = self.actions[int(action)] != 0
 
         if self.in_period('delay'):

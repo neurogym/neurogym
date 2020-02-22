@@ -33,11 +33,11 @@ class Reaching1D(ngym.PeriodEnv):
         """
         super().__init__(dt=dt, timing=timing)
         # Rewards
-        reward_default = {'R_CORRECT': +1., 'R_FAIL': -0.1}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_CORRECT = reward_default['R_CORRECT']
-        self.R_FAIL = reward_default['R_FAIL']
+        self.rewards = {'correct': +1., 'fail': -0.1}
+        if rewards:
+            self.rewards.update(rewards)
+        self.rewards['correct'] = self.rewards['correct']
+        self.rewards['fail'] = self.rewards['fail']
 
         # action and observation spaces
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(32,),
@@ -89,9 +89,9 @@ class Reaching1D(ngym.PeriodEnv):
             reward = 0
         else:
             reward =\
-                np.max((self.R_CORRECT-tasktools.circular_dist(self.state-gt),
-                        self.R_FAIL))
-            norm_rew = (reward-self.R_FAIL)/(self.R_CORRECT-self.R_FAIL)
+                np.max((self.rewards['correct']-tasktools.circular_dist(self.state-gt),
+                        self.rewards['fail']))
+            norm_rew = (reward-self.rewards['fail'])/(self.rewards['correct']-self.rewards['fail'])
             self.performance += norm_rew/self.dec_per_dur
 
         return ob, reward, False, {'new_trial': False}
@@ -131,11 +131,9 @@ class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
         """
         super().__init__(dt=dt, timing=timing)
         # Rewards
-        reward_default = {'R_CORRECT': +1., 'R_FAIL': -0.1}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_CORRECT = reward_default['R_CORRECT']
-        self.R_FAIL = reward_default['R_FAIL']
+        self.rewards = {'correct': +1., 'fail': -0.1}
+        if rewards:
+            self.rewards.update(rewards)
 
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
@@ -180,9 +178,9 @@ class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
             reward = 0
         else:
             reward =\
-                np.max((self.R_CORRECT-tasktools.circular_dist(self.state-gt),
-                        self.R_FAIL))
-            norm_rew = (reward-self.R_FAIL)/(self.R_CORRECT-self.R_FAIL)
+                np.max((self.rewards['correct']-tasktools.circular_dist(self.state-gt),
+                        self.rewards['fail']))
+            norm_rew = (reward-self.rewards['fail'])/(self.rewards['correct']-self.rewards['fail'])
             self.performance += norm_rew/self.dec_per_dur
 
         return ob, reward, False, {'new_trial': False}

@@ -38,9 +38,9 @@ class YourTask(ngym.PeriodEnv):  # TIP: if task has periods (alt.: ngym.TrialEnv
         self.sigma_dt = sigma / np.sqrt(self.dt)
 
         # Rewards
-        self.R_ABORTED = -0.1  # reward given when break fixation
-        self.R_CORRECT = +1.  # reward given when correct
-        self.R_FAIL = 0.  # reward given when incorrect
+        self.rewards['abort'] = -0.1  # reward given when break fixation
+        self.rewards['correct'] = +1.  # reward given when correct
+        self.rewards['fail'] = 0.  # reward given when incorrect
         # whether to abort (T) or not (F) the trial when breaking fixation:
         self.abort = False
         # action and observation spaces: [fixate, got left, got right]
@@ -104,13 +104,13 @@ class YourTask(ngym.PeriodEnv):  # TIP: if task has periods (alt.: ngym.TrialEnv
         if self.in_period('fixation'):  # during fixation period
             if action != 0:  # if fixation break
                 new_trial = self.abort
-                reward = self.R_ABORTED
+                reward = self.rewards['abort']
         elif self.in_period('decision'):  # during decision period
             if action != 0:
                 new_trial = True
                 if action == gt:  # if correct
-                    reward = self.R_CORRECT
+                    reward = self.rewards['correct']
                 else:  # if incorrect
-                    reward = self.R_FAIL
+                    reward = self.rewards['fail']
 
         return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}

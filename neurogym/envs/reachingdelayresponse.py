@@ -48,13 +48,9 @@ class ReachingDelayResponse(ngym.PeriodEnv):
         self.sigma_dt = self.sigma / np.sqrt(self.dt)
 
         # Rewards
-        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
-                          'R_FAIL': -0., 'R_MISS': -0.5}
-        self.R_ABORTED = reward_default['R_ABORTED']
-        self.R_CORRECT = reward_default['R_CORRECT']
-        self.R_MISS = reward_default['R_MISS']  # rew for miss if trial is GO
+        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': -0., 'miss': -0.5}
 
-        self.r_tmax = self.R_MISS
+        self.r_tmax = self.rewards['miss']
         self.abort = False
 
         self.action_space = spaces.Box(low=np.array((-1.0, -1.0)),
@@ -104,12 +100,12 @@ class ReachingDelayResponse(ngym.PeriodEnv):
         if self.in_period('stimulus'):
             if not action[0] < 0:
                 new_trial = self.abort
-                reward = self.R_ABORTED
+                reward = self.rewards['abort']
         elif self.in_period('decision'):
             if action[0] > 0:
                 new_trial = True
-                reward = self.R_CORRECT/((1+abs(action[1]-gt[1]))**2)
-                self.performance = reward/self.R_CORRECT
+                reward = self.rewards['correct']/((1+abs(action[1]-gt[1]))**2)
+                self.performance = reward/self.rewards['correct']
 
         return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 

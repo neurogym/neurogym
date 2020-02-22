@@ -59,14 +59,9 @@ class GoNogo(ngym.PeriodEnv):
         self.choices = [0, 1]
 
         # Rewards
-        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
-                          'R_FAIL': -0.5, 'R_MISS': -0.5}
-        self.R_ABORTED = reward_default['R_ABORTED']
-        self.R_CORRECT = reward_default['R_CORRECT']
-        self.R_FAIL = reward_default['R_FAIL']
-        self.R_MISS = reward_default['R_MISS']  # rew for miss if trial is GO
-        if rewards is not None:
-            reward_default.update(rewards)
+        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': -0.5, 'miss': -0.5}
+        if rewards:
+            self.rewards.update(rewards)
 
         self.abort = False
         # set action and observation spaces
@@ -93,7 +88,7 @@ class GoNogo(ngym.PeriodEnv):
         ob = self.view_ob('stimulus')
         ob[:, self.trial['ground_truth']+1] = 1
         # if trial is GO the reward is set to R_MISS and  to 0 otherwise
-        self.r_tmax = self.R_MISS*self.trial['ground_truth']
+        self.r_tmax = self.rewards['miss']*self.trial['ground_truth']
         self.performance = 1-self.trial['ground_truth']
         # set ground truth during decision period
         self.set_groundtruth('decision', self.trial['ground_truth'])
@@ -106,15 +101,15 @@ class GoNogo(ngym.PeriodEnv):
         if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
-                reward = self.R_ABORTED
+                reward = self.rewards['abort']
         elif self.in_period('decision'):
             if action != 0:
                 new_trial = True
                 if gt != 0:
-                    reward = self.R_CORRECT
+                    reward = self.rewards['correct']
                     self.performance = 1
                 else:
-                    reward = self.R_FAIL
+                    reward = self.rewards['fail']
                     self.performance = 0
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}

@@ -45,11 +45,9 @@ class AngleReproduction(ngym.PeriodEnv):
         self.state = np.pi
 
         # Rewards
-        reward_default = {'R_CORRECT': +1., 'R_FAIL': -0.1}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_CORRECT = reward_default['R_CORRECT']
-        self.R_FAIL = reward_default['R_FAIL']
+        self.rewards = {'correct': +1., 'fail': -0.1}
+        if rewards:
+            self.rewards.update(rewards)
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
@@ -99,9 +97,9 @@ class AngleReproduction(ngym.PeriodEnv):
         reward = 0
         if self.in_period('go1') or self.in_period('go2'):
             reward =\
-                np.max((self.R_CORRECT-tasktools.circular_dist(self.state-gt),
-                        self.R_FAIL))
-            norm_rew = (reward-self.R_FAIL)/(self.R_CORRECT-self.R_FAIL)
+                np.max((self.rewards['correct']-tasktools.circular_dist(self.state-gt),
+                        self.rewards['fail']))
+            norm_rew = (reward-self.rewards['fail'])/(self.rewards['correct']-self.rewards['fail'])
             self.performance += norm_rew/self.dec_per_dur
 
         return ob, reward, False, {'new_trial': False}

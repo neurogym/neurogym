@@ -40,11 +40,9 @@ class AntiReach1D(ngym.PeriodEnv):
         self.state = np.pi
 
         # Rewards
-        reward_default = {'R_CORRECT': +1., 'R_FAIL': -0.1}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_CORRECT = reward_default['R_CORRECT']
-        self.R_FAIL = reward_default['R_FAIL']
+        self.rewards = {'correct': +1., 'fail': -0.1}
+        if rewards:
+            self.rewards.update(rewards)
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
@@ -87,8 +85,8 @@ class AntiReach1D(ngym.PeriodEnv):
             reward = 0
         else:
             reward =\
-                np.max((self.R_CORRECT-tasktools.circular_dist(self.state-gt),
-                        self.R_FAIL))
+                np.max((self.rewards['correct']-tasktools.circular_dist(self.state-gt),
+                        self.rewards['fail']))
 
         return ob, reward, False, {'new_trial': False}
 

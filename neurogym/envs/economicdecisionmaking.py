@@ -65,14 +65,12 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
         self.sigma_dt = sigma/np.sqrt(self.dt)
 
         # Rewards
-        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +0.22}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_ABORTED = reward_default['R_ABORTED']
-        self.R_CORRECT = reward_default['R_CORRECT']
+        self.rewards = {'abort': -0.1, 'correct': +0.22}
+        if rewards:
+            self.rewards.update(rewards)
 
-        self.R_B = self.B_to_A * self.R_CORRECT
-        self.R_A = self.R_CORRECT
+        self.R_B = self.B_to_A * self.rewards['correct']
+        self.R_A = self.rewards['correct']
         self.abort = False
         # Increase initial policy -> baseline weights
         self.baseline_Win = 10
@@ -134,7 +132,7 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
         if self.in_period('fixation') or self.in_period('offer_on'):
             if action != self.actions['FIXATE']:
                 new_trial = self.abort
-                reward = self.R_ABORTED
+                reward = self.rewards['abort']
         elif self.in_period('decision'):
             if action in [self.actions['CHOOSE-LEFT'],
                           self.actions['CHOOSE-RIGHT']]:

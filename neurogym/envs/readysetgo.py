@@ -45,13 +45,9 @@ class ReadySetGo(ngym.PeriodEnv):
         self.gain = gain
 
         # Rewards
-        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
-                          'R_FAIL': 0.}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_ABORTED = reward_default['R_ABORTED']
-        self.R_CORRECT = reward_default['R_CORRECT']
-        self.R_FAIL = reward_default['R_FAIL']
+        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
+        if rewards:
+            self.rewards.update(rewards)
 
         self.abort = False
         # set action and observation space
@@ -96,7 +92,7 @@ class ReadySetGo(ngym.PeriodEnv):
         if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
-                reward = self.R_ABORTED
+                reward = self.rewards['abort']
         if self.in_period('production'):
             if action == 1:
                 new_trial = True  # terminate
@@ -106,11 +102,11 @@ class ReadySetGo(ngym.PeriodEnv):
                 # actual production time
                 eps_threshold = self.prod_margin*trial['production']+25
                 if eps > eps_threshold:
-                    reward = self.R_FAIL
+                    reward = self.rewards['fail']
                 else:
                     reward = (1. - eps/eps_threshold)**1.5
                     reward = max(reward, 0.1)
-                    reward *= self.R_CORRECT
+                    reward *= self.rewards['correct']
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
@@ -150,13 +146,13 @@ class MotorTiming(ngym.PeriodEnv):
         self.intervals = [800, 1500]
 
         # Rewards
-        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
-                          'R_FAIL': 0.}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_ABORTED = reward_default['R_ABORTED']
-        self.R_CORRECT = reward_default['R_CORRECT']
-        self.R_FAIL = reward_default['R_FAIL']
+        self.rewards = {'abort': -0.1, 'correct': +1.,
+                          'fail': 0.}
+        if rewards:
+            self.rewards.update(rewards)
+        self.rewards['abort'] = self.rewards['abort']
+        self.rewards['correct'] = self.rewards['correct']
+        self.rewards['fail'] = self.rewards['fail']
 
         self.abort = False
         # set action and observation space
@@ -204,7 +200,7 @@ class MotorTiming(ngym.PeriodEnv):
         if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
-                reward = self.R_ABORTED
+                reward = self.rewards['abort']
         if self.in_period('production'):
             if action == 1:
                 new_trial = True  # terminate
@@ -213,11 +209,11 @@ class MotorTiming(ngym.PeriodEnv):
                 # actual production time
                 eps_threshold = self.prod_margin*trial['production']+25
                 if eps > eps_threshold:
-                    reward = self.R_FAIL
+                    reward = self.rewards['fail']
                 else:
                     reward = (1. - eps/eps_threshold)**1.5
                     reward = max(reward, 0.1)
-                    reward *= self.R_CORRECT
+                    reward *= self.rewards['correct']
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 

@@ -175,13 +175,13 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         self.sigma_dt = sigma / np.sqrt(self.dt)
 
         # Rewards
-        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
-                          'R_FAIL': 0.}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_ABORTED = reward_default['R_ABORTED']
-        self.R_CORRECT = reward_default['R_CORRECT']
-        self.R_FAIL = reward_default['R_FAIL']
+        self.rewards = {'abort': -0.1, 'correct': +1.,
+                          'fail': 0.}
+        if rewards:
+            self.rewards.update(rewards)
+        self.rewards['abort'] = self.rewards['abort']
+        self.rewards['correct'] = self.rewards['correct']
+        self.rewards['fail'] = self.rewards['fail']
 
         self.abort = False
 
@@ -255,14 +255,14 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
-                reward = self.R_ABORTED
+                reward = self.rewards['abort']
         elif self.in_period('decision') and action != 0:
             new_trial = True
             if action == gt:
-                reward = self.R_CORRECT
+                reward = self.rewards['correct']
                 self.performance = 1
             elif action == 3 - gt:  # 3-action is the other act
-                reward = self.R_FAIL
+                reward = self.rewards['fail']
 
         info = {'new_trial': new_trial, 'gt': gt}
         return self.obs_now, reward, False, info

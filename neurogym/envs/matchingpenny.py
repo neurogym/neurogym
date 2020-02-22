@@ -43,11 +43,9 @@ class MatchingPenny(ngym.TrialEnv):
         self.opponent_type = opponent_type
 
         # Rewards
-        reward_default = {'R_CORRECT': +1., 'R_FAIL': 0.}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_CORRECT = reward_default['R_CORRECT']
-        self.R_FAIL = reward_default['R_FAIL']
+        self.rewards = {'correct': +1., 'fail': 0.}
+        if rewards:
+            self.rewards.update(rewards)
 
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,),
@@ -83,10 +81,10 @@ class MatchingPenny(ngym.TrialEnv):
         if self.opponent_type == 'mean_action':
             self.mean_action += self.lr*(action-self.mean_action)
         if action == trial['opponent_action']:
-            reward = self.R_CORRECT
+            reward = self.rewards['correct']
             self.performance = 1
         else:
-            reward = self.R_FAIL
+            reward = self.rewards['fail']
 
         info = {'new_trial': True, 'gt': self.gt}
         return obs, reward, False, info

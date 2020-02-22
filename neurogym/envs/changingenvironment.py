@@ -58,13 +58,9 @@ class ChangingEnvironment(ngym.PeriodEnv):
         self.sigma_dt = sigma / np.sqrt(self.dt)
 
         # Rewards
-        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
-                          'R_FAIL': 0.}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_ABORTED = reward_default['R_ABORTED']
-        self.R_CORRECT = reward_default['R_CORRECT']
-        self.R_FAIL = reward_default['R_FAIL']
+        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
+        if rewards:
+            self.rewards.update(rewards)
 
         # whether to abort (T) or not (F) the trial when breaking fixation:
         self.abort = False
@@ -163,15 +159,15 @@ class ChangingEnvironment(ngym.PeriodEnv):
         if self.in_period('fixation'):  # during fixation period
             if action != 0:  # if fixation break
                 new_trial = self.abort
-                reward = self.R_ABORTED
+                reward = self.rewards['abort']
         elif self.in_period('decision'):  # during decision period
             if action != 0:
                 new_trial = True
                 if action == gt:  # if correct
-                    reward = self.R_CORRECT
+                    reward = self.rewards['correct']
                     self.performance = 1
                 else:  # if incorrect
-                    reward = self.R_FAIL
+                    reward = self.rewards['fail']
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt,
                                     'context': self.curr_cxt}

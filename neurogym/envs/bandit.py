@@ -39,10 +39,10 @@ class Bandit(ngym.TrialEnv):
             print('Warning: Bandit task does not require timing variable.')
 
         # Rewards
-        reward_default = {'R_CORRECT': +1.}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_CORRECT = reward_default['R_CORRECT']
+        self.rewards = {'correct': +1.}
+        if rewards:
+            self.rewards.update(rewards)
+        self.rewards['correct'] = self.rewards['correct']
 
         self.n_arm = n_arm
         self.gt_arm = gt_arm
@@ -60,8 +60,8 @@ class Bandit(ngym.TrialEnv):
         # Trial
         # ---------------------------------------------------------------------
         rew_high_reward_arm = (self.rng.random() <
-                               self.p_high) * self.R_CORRECT
-        rew_low_reward_arm = (self.rng.random() < self.p_low) * self.R_CORRECT
+                               self.p_high) * self.rewards['correct']
+        rew_low_reward_arm = (self.rng.random() < self.p_low) * self.rewards['correct']
         self.trial = {
             'rew_high_reward_arm': rew_high_reward_arm,
             'rew_low_reward_arm': rew_low_reward_arm,

@@ -188,7 +188,7 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, performance=None,
         ax.set_yticklabels(yticklabels)
 
     # rewards
-    if rewards is not None:
+    if rewards:
         ax = axes[2]
         ax.plot(steps, rewards, 'r', label='Rewards')
         ax.plot(steps, performance, 'k', label='Performance')

@@ -52,11 +52,9 @@ class DawTwoStep(ngym.TrialEnv):
         self.mean_trial_duration = self.tmax
         self.state1_high_reward = True
         # Rewards
-        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_ABORTED = reward_default['R_ABORTED']
-        self.R_CORRECT = reward_default['R_CORRECT']
+        self.rewards = {'abort': -0.1, 'correct': +1.}
+        if rewards:
+            self.rewards.update(rewards)
 
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
@@ -87,9 +85,9 @@ class DawTwoStep(ngym.TrialEnv):
 
         reward = np.empty((2,))
         reward[hi_state] = (self.rng.random() <
-                            self.high_reward_p) * self.R_CORRECT
+                            self.high_reward_p) * self.rewards['correct']
         reward[low_state] = (self.rng.random() <
-                             self.low_reward_p) * self.R_CORRECT
+                             self.low_reward_p) * self.rewards['correct']
         self.ground_truth = hi_state+1  # assuming p1, p2 >= 0.5
         self.trial = {
             'transition':  transition,
@@ -105,7 +103,7 @@ class DawTwoStep(ngym.TrialEnv):
         obs = np.zeros((3,))
         if self.t == 0:  # at stage 1, if action==fixate, abort
             if action == 0:
-                reward = self.R_ABORTED
+                reward = self.rewards['abort']
                 info['new_trial'] = True
             else:
                 state = trial['transition'][action]
@@ -115,7 +113,7 @@ class DawTwoStep(ngym.TrialEnv):
         elif self.t == self.dt:
             obs[0] = 1
             if action != 0:
-                reward = self.R_ABORTED
+                reward = self.rewards['abort']
             info['new_trial'] = True
         else:
             raise ValueError('t is not 0 or 1')

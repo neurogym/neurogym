@@ -64,14 +64,9 @@ class Detection(ngym.PeriodEnv):
             warnings.warn('Stimulus duration shorter than dt')
 
         # Rewards
-        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
-                          'R_FAIL': -1., 'R_MISS': -1}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_ABORTED = reward_default['R_ABORTED']
-        self.R_CORRECT = reward_default['R_CORRECT']
-        self.R_FAIL = reward_default['R_FAIL']
-        self.R_MISS = reward_default['R_MISS']
+        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': -1., 'miss': -1}
+        if rewards:
+            self.rewards.update(rewards)
 
         # whether to abort (T) or not (F) the trial when breaking fixation:
         self.abort = False
@@ -120,7 +115,7 @@ class Detection(ngym.PeriodEnv):
             else:
                 delay = self.delay
             stim[delay:delay + self.stim_dur, 1] += 0.5  # actual stim
-            self.r_tmax = self.R_MISS
+            self.r_tmax = self.rewards['miss']
             self.performance = 0
         else:
             stim[:, 1:] +=\
@@ -155,16 +150,16 @@ class Detection(ngym.PeriodEnv):
         if self.in_period('fixation'):  # during fixation period
             if action != 0:  # if fixation break
                 new_trial = self.abort
-                reward = self.R_ABORTED
+                reward = self.rewards['abort']
         elif self.in_period('stimulus'):  # during stimulus period
             if action != 0:  # original
                 new_trial = True
                 if ((action == self.trial['ground_truth']) and
                    (self.t >= self.end_t['fixation'] + self.delay_trial)):
-                    reward = self.R_CORRECT
+                    reward = self.rewards['correct']
                     self.performance = 1
                 else:  # if incorrect
-                    reward = self.R_FAIL
+                    reward = self.rewards['fail']
                     self.performance = 0
 
         return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}

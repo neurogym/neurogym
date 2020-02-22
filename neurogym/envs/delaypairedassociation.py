@@ -57,14 +57,10 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         # Durations (stimulus duration will be drawn from an exponential)
 
         # Rewards
-        reward_default = {'R_ABORTED': -0.1, 'R_CORRECT': +1.,
-                          'R_FAIL': -1., 'R_MISS': 0.}
-        if rewards is not None:
-            reward_default.update(rewards)
-        self.R_ABORTED = reward_default['R_ABORTED']
-        self.R_CORRECT = reward_default['R_CORRECT']
-        self.R_FAIL = reward_default['R_FAIL']
-        self.R_MISS = reward_default['R_MISS']  # rew for miss if trial is GO
+        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': -1., 'miss': 0.}
+        if rewards:
+            self.rewards.update(rewards)
+
         self.abort = False
         # action and observation spaces
         self.action_space = spaces.Discrete(2)
@@ -118,7 +114,7 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         self.set_groundtruth('decision', self.trial['ground_truth'])
 
         # if trial is GO the reward is set to R_MISS and  to 0 otherwise
-        self.r_tmax = self.R_MISS*self.trial['ground_truth']
+        self.r_tmax = self.rewards['miss']*self.trial['ground_truth']
         self.performance = 1-self.trial['ground_truth']
 
     def _step(self, action, **kwargs):
@@ -143,14 +139,14 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         if self.in_period('fixation'):
             if action != 0:
                 new_trial = self.abort
-                reward = self.R_ABORTED
+                reward = self.rewards['abort']
         elif self.in_period('decision'):
             if action != 0:
                 if action == gt:
-                    reward = self.R_CORRECT
+                    reward = self.rewards['correct']
                     self.performance = 1
                 else:
-                    reward = self.R_FAIL
+                    reward = self.rewards['fail']
                     self.performance = 0
                 new_trial = True
 

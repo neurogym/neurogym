@@ -15,7 +15,7 @@ class IBL(ngym.TrialEnv):
         'Computational Neuroscience''',
     }
 
-    def __init__(self, dt=100):
+    def __init__(self, dt=100, rewards=None):
         super(IBL, self).__init__(dt=dt)
         # TODO: Fix to use the default random number generator
         self._rng = self.rng.RandomState(0)
@@ -25,8 +25,9 @@ class IBL(ngym.TrialEnv):
         self.block_size = 10000
 
         # Rewards
-        self.R_CORRECT = +1.
-        self.R_FAIL = 0.
+        self.rewards = {'correct': +1, 'fail': 0.}
+        if rewards:
+            self.rewards.update(rewards)
 
         # trial conditions (left, right)
         self.choices = [0, 1]
@@ -76,7 +77,7 @@ class IBL(ngym.TrialEnv):
         obs = self.obs[self.ind]
 
         # reward of last trial
-        reward = self.R_CORRECT  # TODO: need to be done
+        reward = self.rewards['correct']  # TODO: need to be done
 
         # ---------------------------------------------------------------------
         # new trial?
