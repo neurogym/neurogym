@@ -37,7 +37,7 @@ class Shaping(ngym.TrialWrapper):
         self.performance = 0
         self.short = False
         self.variable = True
-        self.short_dur = int(2*self.env.dt)
+        self.short_dur = int(short_dur*self.env.dt)
         self.ori_timing = self.env.timing
         self.ori_periods = self.env.timing.items()
 
@@ -153,5 +153,5 @@ if __name__ == '__main__':
 
     task = 'DelayedMatchSample-v0'
     env = gym.make(task)
-    env = Shaping(env, init_ph=1)
+    env = Shaping(env, init_ph=1, short_dur=1)
     ngym.utils.plot_env(env, num_steps_env=100)
