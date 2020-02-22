@@ -8,13 +8,6 @@ from gym import spaces
 import neurogym as ngym
 
 
-def randomstim(ob, signed_coh, sigma, rng):
-    new_ob = rng.randn(*ob.shape) * sigma
-    new_ob[:, 0] += (1 + signed_coh / 100) / 2
-    new_ob[:, 1] += (1 - signed_coh / 100) / 2
-    return new_ob
-
-
 class RDM(ngym.PeriodEnv):
     metadata = {
         'description': '''Random dot motion task. Two-alternative forced
@@ -58,17 +51,17 @@ class RDM(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.abort = False
-        # action and observation spaces
-        self.action_space = spaces.Discrete(3)
-        # observation space: [fixation cue, left stim, right stim]
+
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
-        
         self.ob_dict = {'fixation': 0,
-                        'stimulus': [1, 2]}
-        
+                        'stimulus1': 1,
+                        'stimulus2': 2}
+
+        self.action_space = spaces.Discrete(3)
         self.act_dict = {'fixation': 0,
-                         'choice': [1, 2]}
+                         'choice1': 1,
+                         'choice2': 2}
 
     def new_trial(self, **kwargs):
         """
@@ -102,12 +95,9 @@ class RDM(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         signed_coh = coh if ground_truth == 1 else -coh
         self.add_ob(period='fixation', value=1, where='fixation')
-        self.add_ob(period='stimulus',
-                    value=lambda ob: randomstim(ob, signed_coh, self.sigma_dt,
-                                                self.rng),
-                    where='stimulus')
-        # TODO: Have a separate add noise
-        # TODO: Then use stimulus 1 and 2
+        self.add_ob(period='stimulus', value=(1 + signed_coh / 100) / 2, where='stimulus1')
+        self.add_ob(period='stimulus', value=(1 - signed_coh / 100) / 2, where='stimulus2')
+        self.add_randn(period='stimulus', sigma=self.sigma_dt)
         # ---------------------------------------------------------------------
         # Ground truth
         # ---------------------------------------------------------------------
@@ -146,5 +136,5 @@ class RDM(ngym.PeriodEnv):
 if __name__ == '__main__':
     env = RDM(dt=20, timing={'stimulus': ('constant', 500)})
     from neurogym.tests.test_envs import test_speed
-    # test_speed(env)
+    test_speed(env)
     ngym.utils.plot_env(env, num_steps_env=100, def_act=1)

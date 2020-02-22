@@ -282,6 +282,12 @@ class PeriodEnv(TrialEnv):
         """
         self._add_ob(period, value, where, reset=False)
 
+    def add_randn(self, period, mu=0, sigma=1):
+        ob = self.view_ob(period=period)
+        if mu:
+            ob += mu
+        ob += self.rng.randn(*ob.shape) * sigma
+
     def set_ob(self, period, value, where=None):
         self._add_ob(period, value, where, reset=True)
 
