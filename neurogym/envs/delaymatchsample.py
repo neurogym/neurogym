@@ -194,10 +194,7 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         periods = ['fixation', 'sample', 'delay1', 'test1',
                    'delay2', 'test2', 'delay3', 'test3']
-        self.add_period(periods[0], after=0)
-        for i in range(1, len(periods)):
-            self.add_period(periods[i], after=periods[i-1],
-                            last_period=i == len(periods)-1)
+        self.add_period(periods, after=0, last_period=True)
 
         self.add_ob(1, 'fixation', where='fixation')
         for period in ['sample', 'test1', 'test2', 'test3']:

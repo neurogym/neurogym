@@ -196,7 +196,7 @@ class PeriodEnv(TrialEnv):
         """Add an period.
 
         Args:
-            period: string, name of the period
+            period: string or list of strings, name of the period
             duration: float or None, duration of the period
                 if None, inferred from timing_fn
             before: (optional) str, name of period that this period is before
@@ -205,6 +205,20 @@ class PeriodEnv(TrialEnv):
             last_period: bool, default False. If True, then this is last period
                 will generate self.tmax, self.tind, and self.obs
         """
+        if isinstance(period, str):
+            pass
+        else:
+            if duration is not None:
+                raise ValueError('Setting duration with period other than '
+                                 'string not supported yet')
+            # Recursively calling itself
+            self.add_period(period[0], after=after)
+            for i in range(1, len(period)):
+                is_last = (i == len(period) - 1) and last_period
+                self.add_period(period[i], after=period[i - 1],
+                                last_period=is_last)
+            return
+
         if duration is None:
             duration = (self.timing_fn[period]() // self.dt) * self.dt
         if duration == self.dt:
