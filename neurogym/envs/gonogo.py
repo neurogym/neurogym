@@ -77,10 +77,8 @@ class GoNogo(ngym.PeriodEnv):
         self.trial.update(kwargs)
 
         # Period info
-        self.add_period('fixation', after=0)
-        self.add_period('stimulus', after='fixation')
-        self.add_period('resp_delay', after='stimulus')
-        self.add_period('decision', after='resp_delay', last_period=True)
+        periods = ['fixation', 'stimulus', 'resp_delay', 'decision']
+        self.add_period(periods, after=0, last_period=True)
         # set observations
         self.set_ob([1, 0, 0], 'fixation')
         self.set_ob([1, 0, 0], 'stimulus')

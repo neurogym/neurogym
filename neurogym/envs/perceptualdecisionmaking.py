@@ -87,9 +87,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        self.add_period('fixation', after=0)
-        self.add_period('stimulus', after='fixation')
-        self.add_period('decision', after='stimulus', last_period=True)
+        self.add_period(['fixation', 'stimulus', 'decision'], after=0, last_period=True)
         # ---------------------------------------------------------------------
         # Observations
         # ---------------------------------------------------------------------

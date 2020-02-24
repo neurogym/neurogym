@@ -57,8 +57,8 @@ class AntiReach1D(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        self.add_period('fixation', after=0)
-        self.add_period('reach', after='fixation', last_period=True)
+        periods = ['fixation', 'reach']
+        self.add_period(periods, after=0, last_period=True)
 
         ob = self.view_ob('fixation')
         ob[:, 32 + self.trial['context']] += 1

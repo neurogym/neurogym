@@ -98,10 +98,8 @@ class DelayedMatchCategory(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        self.add_period('fixation', after=0)
-        self.add_period('sample', after='fixation')
-        self.add_period('first_delay', after='sample')
-        self.add_period('test', after='first_delay', last_period=True)
+        periods = ['fixation', 'sample', 'first_delay', 'test']
+        self.add_period(periods, after=0, last_period=True)
         # self.add_period('decision', after='test', last_period=True)
 
         self.add_ob(1, where='fixation')

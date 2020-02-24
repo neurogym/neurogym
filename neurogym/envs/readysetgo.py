@@ -169,9 +169,7 @@ class MotorTiming(ngym.PeriodEnv):
 
         self.trial['production'] = self.intervals[self.trial['production_ind']]
 
-        self.add_period('fixation', after=0)
-        self.add_period('cue', after='fixation')
-        self.add_period('set', after='cue')
+        self.add_period(['fixation', 'cue', 'set'], after=0)
         self.add_period('production', duration=2*self.trial['production'],
                         after='set', last_period=True)
 

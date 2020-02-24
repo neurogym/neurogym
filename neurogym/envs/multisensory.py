@@ -78,10 +78,8 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
         # -----------------------------------------------------------------------
         # Periods
         # -----------------------------------------------------------------------
-        self.add_period('fixation', after=0)
-        self.add_period('stimulus', after='fixation')
-        self.add_period('delay', after='stimulus')
-        self.add_period('decision', after='delay', last_period=True)
+        periods = ['fixation', 'stimulus', 'delay', 'decision']
+        self.add_period(periods, after=0, last_period=True)
 
         high_0, low_0 = (3, 4) if choice_0 == 1 else (4, 3)
         high_1, low_1 = (5, 6) if choice_1 == 1 else (6, 5)

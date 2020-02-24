@@ -87,12 +87,8 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
             'coh': self.rng.choice(self.cohs),
         }
         self.trial.update(kwargs)
-        # ---------------------------------------------------------------------
-        # Periods
-        # ---------------------------------------------------------------------
-        self.add_period('fixation', after=0)
-        self.add_period('stimulus', after='fixation')
-        self.add_period('decision', after='stimulus', last_period=True)
+
+        self.add_period(['fixation', 'stimulus', 'decision'], after=0, last_period=True)
 
         self.add_ob(1, 'fixation', where='fixation')
         self.add_ob(1, 'fixation', where='fixation')

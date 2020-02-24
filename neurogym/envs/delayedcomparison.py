@@ -88,11 +88,8 @@ class DelayedComparison(ngym.PeriodEnv):
         # -------------------------------------------------------------------------
         # Periods
         # --------------------------------------------------------------------------
-        self.add_period('fixation', after=0)
-        self.add_period('f1', after='fixation')
-        self.add_period('delay', after='f1')
-        self.add_period('f2', after='delay')
-        self.add_period('decision', after='f2', last_period=True)
+        periods = ['fixation', 'f1', 'delay', 'f2', 'decision']
+        self.add_period(periods, after=0, last_period=True)
 
         self.add_ob(1, where='fixation')
         self.add_ob(self.scale_p(f1), 'f1', where='stimulus')

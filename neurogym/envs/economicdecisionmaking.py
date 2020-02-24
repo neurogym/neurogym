@@ -104,10 +104,7 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        self.add_period('fixation', after=0)
-        self.add_period('offer_on', after='fixation')
-        self.add_period('decision', after='offer_on', last_period=True)
-
+        self.add_period(['fixation', 'offer_on', 'decision'], after=0, last_period=True)
         # ---------------------------------------------------------------------
         # Inputs
         # ---------------------------------------------------------------------
