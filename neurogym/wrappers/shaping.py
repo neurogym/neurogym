@@ -70,10 +70,11 @@ class Shaping(ngym.TrialWrapper):
         self.first_choice = True
         self.change_periods = list(self.ori_timing.keys())[:-1]
 
-        if self.curr_ph < 2:
+        if self.curr_ph < 2:  # TODO: make sigma_dt = 0
             self.env.performance = 0
             self.env.t = self.env.t_ind = 0
             self.env.num_tr += 1
+            timing = self.env.timing.copy()
             if not self.short:
                 print(self.env.timing)
                 self.short = True
@@ -81,8 +82,9 @@ class Shaping(ngym.TrialWrapper):
                 for key, val in self.ori_periods:
                     if key in self.change_periods:
                         dist, args = val
-                        self.env.timing[key] = ('cosntant', self.short_dur)
+                        timing[key] = ('constant', self.short_dur)
                 print(self.env.timing)
+            self.build_timing_fns(**timing)
 
         elif self.curr_ph == 2:
             if not self.short or not self.variable:
@@ -98,7 +100,7 @@ class Shaping(ngym.TrialWrapper):
                             self.env.timing[key] =\
                                 (dist, [int(n/shortening) for n in args])
                         else:
-                            self.env.timing[key] = ('cosntant', self.short_dur)
+                            self.env.timing[key] = ('constant', self.short_dur)
                 print(self.env.timing)
 
         else:
@@ -154,4 +156,5 @@ if __name__ == '__main__':
     task = 'DelayedMatchSample-v0'
     env = gym.make(task)
     env = Shaping(env, init_ph=1, short_dur=1)
+    env.reset()
     ngym.utils.plot_env(env, num_steps_env=100)

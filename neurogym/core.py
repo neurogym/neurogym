@@ -139,6 +139,7 @@ class TrialEnv(BaseEnv):
         self.t = self.t_ind = 0
 
         # TODO: Check this works with wrapper
+        # XXX: this does not seem to call the wrapper new_trial function, why?
         self.new_trial()
         # obs, _, _, _ = self.step(0)
         self.action_space.seed(0)
@@ -167,15 +168,7 @@ class PeriodEnv(TrialEnv):
         if timing is not None:
             default_timing.update(timing)
         self.timing = default_timing
-        self.timing_fn = dict()
-        for key, val in self.timing.items():
-            dist, args = val
-            self.timing_fn[key] = tasktools.random_number_fn(dist, args,
-                                                             self.rng)
-            min_tmp, max_tmp = tasktools.minmax_number(dist, args)
-            if min_tmp < self.dt:
-                warnings.warn('Warning: Minimum time for period {:s} {:f} smaller than dt {:f}'.format(
-                    key, min_tmp, self.dt))
+        self.build_timing_fns()
 
         self.start_t = dict()
         self.end_t = dict()
@@ -185,6 +178,18 @@ class PeriodEnv(TrialEnv):
     def __str__(self):
         """Information about task."""
         return env_string(self)
+
+    def build_timing_fns(self, **kwargs):
+        self.timing.update(kwargs)
+        self.timing_fn = dict()
+        for key, val in self.timing.items():
+            dist, args = val
+            self.timing_fn[key] = tasktools.random_number_fn(dist, args,
+                                                             self.rng)
+            min_tmp, _ = tasktools.minmax_number(dist, args)
+            if min_tmp < self.dt:
+                warnings.warn('Warning: Minimum time for period {:s} {:f} smaller than dt {:f}'.format(
+                    key, min_tmp, self.dt))
 
     def add_period(self, period, duration=None, before=None, after=None,
                    last_period=False):
