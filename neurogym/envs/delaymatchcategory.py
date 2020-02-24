@@ -58,10 +58,13 @@ class DelayedMatchCategory(ngym.PeriodEnv):
 
         # Fixation + Match + Non-match
         self.action_space = spaces.Discrete(3)
+        self.act_dict = {'fixation': 0, 'match': 1, 'non-match': 2}
 
         # Fixation + cos(theta) + sin(theta)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
+        self.ob_dict = {'fixation': 0, 'stimulus': range(1, 3)}
+
 
     def new_trial(self, **kwargs):
         """
@@ -89,6 +92,8 @@ class DelayedMatchCategory(ngym.PeriodEnv):
         if ground_truth == 2:
             test_category = 1 - test_category
         test_theta = (test_category + self.rng.random()) * np.pi
+        stim_sample = [np.cos(sample_theta), np.sin(sample_theta)]
+        stim_test = [np.cos(test_theta), np.sin(test_theta)]
 
         # ---------------------------------------------------------------------
         # Periods
@@ -99,19 +104,11 @@ class DelayedMatchCategory(ngym.PeriodEnv):
         self.add_period('test', after='first_delay', last_period=True)
         # self.add_period('decision', after='test', last_period=True)
 
-        self.set_ob([1, 0, 0], 'fixation')
-
-        ob = self.view_ob('sample')
-        ob[:, :] += np.array([1, np.cos(sample_theta), np.sin(sample_theta)])
-        ob[:, 1:] += self.rng.randn(ob.shape[0], 2) * self.sigma_dt
-
-        self.set_ob([1, 0, 0], 'first_delay')
-
-        ob = self.view_ob('test')
-        ob[:, :] += np.array([1, np.cos(test_theta), np.sin(test_theta)])
-        ob[:, 1:] += self.rng.randn(ob.shape[0], 2) * self.sigma_dt
-
-        # self.set_ob('test', [0, 0, 0])
+        self.add_ob(1, where='fixation')
+        self.add_ob(stim_sample, 'sample', where='stimulus')
+        self.add_ob(stim_test, 'test', where='stimulus')
+        self.add_randn(0, self.sigma_dt, 'sample')
+        self.add_randn(0, self.sigma_dt, 'test')
 
         self.set_groundtruth(ground_truth, 'test')
 
@@ -148,3 +145,8 @@ class DelayedMatchCategory(ngym.PeriodEnv):
                     reward = self.rewards['fail']
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+
+
+if __name__ == '__main__':
+    env = DelayedMatchCategory()
+    ngym.utils.plot_env(env, num_steps_env=100)

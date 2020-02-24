@@ -56,8 +56,10 @@ class DelayedMatchToSample(ngym.PeriodEnv):
         self.abort = False
 
         self.action_space = spaces.Discrete(3)
+        self.act_dict = {'fixation': 0, 'match': 1, 'non-match': 2}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
+        self.ob_dict = {'fixation': 0, 'stimulus': range(1, 3)}
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
@@ -65,15 +67,19 @@ class DelayedMatchToSample(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         self.trial = {
             'ground_truth': self.rng.choice(self.choices),
-            'sample': self.rng.choice([1, 2]),
+            'sample': self.rng.choice([0, 0.5]),
         }
         self.trial.update(kwargs)
 
         ground_truth = self.trial['ground_truth']
         sample = self.trial['sample']
 
-        test = sample if ground_truth == 1 else 3 - sample
+        test = sample if ground_truth == 1 else 0.5 - sample
         self.trial['test'] = test
+
+        sample_theta, test_theta = sample * np.pi, test * np.pi
+        stim_sample = [np.cos(sample_theta), np.sin(sample_theta)]
+        stim_test = [np.cos(test_theta), np.sin(test_theta)]
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
@@ -83,18 +89,11 @@ class DelayedMatchToSample(ngym.PeriodEnv):
         self.add_period('test', after='delay')
         self.add_period('decision', after='test', last_period=True)
 
-        self.set_ob([1, 0, 0], 'fixation')
-        ob = self.view_ob('sample')
-        ob[:, 0] = 1
-        ob[:, sample] = 1
-        ob[:, 1:] += self.rng.randn(ob.shape[0], 2) * self.sigma_dt
-
-        ob = self.view_ob('test')
-        ob[:, 0] = 1
-        ob[:, test] = 1
-        ob[:, 1:] += self.rng.randn(ob.shape[0], 2) * self.sigma_dt
-
-        self.set_ob([1, 0, 0], 'delay')
+        self.add_ob(1, where='fixation')
+        self.add_ob(stim_sample, 'sample', where='stimulus')
+        self.add_ob(stim_test, 'test', where='stimulus')
+        self.add_randn(0, self.sigma_dt, 'sample')
+        self.add_randn(0, self.sigma_dt, 'test')
 
         self.set_groundtruth(ground_truth, 'decision')
 
@@ -167,8 +166,10 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
         self.rewards['fail'] = self.rewards['fail']
         self.abort = False
         self.action_space = spaces.Discrete(2)
+        self.act_dict = {'fixation': 0, 'match': 1}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(33,),
                                             dtype=np.float32)
+        self.ob_dict = {'fixation': 0, 'stimulus': range(1, 33)}
         self.theta = np.arange(0, 2 * np.pi, 2 * np.pi / 32)
 
     def new_trial(self, **kwargs):
@@ -198,12 +199,9 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
             self.add_period(periods[i], after=periods[i-1],
                             last_period=i == len(periods)-1)
 
-        ob = self.view_ob('fixation')
-        ob[:, 0] = 1
-
+        self.add_ob(1, 'fixation', where='fixation')
         for period in ['sample', 'test1', 'test2', 'test3']:
-            ob = self.view_ob(period)
-            ob[:, 1:] += np.cos(self.theta - self.trial[period])
+            self.add_ob(np.cos(self.theta - self.trial[period]), period, 'stimulus')
 
         self.set_groundtruth(1, 'test'+str(ground_truth))
 
@@ -233,4 +231,6 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
 if __name__ == '__main__':
     from neurogym.utils.plotting import plot_env
     env = DelayedMatchToSample()
-    plot_env(env, num_steps_env=200)  # , def_act=1)
+    plot_env(env, num_steps_env=200)
+    env = DelayedMatchToSampleDistractor1D()
+    plot_env(env, num_steps_env=200, def_act=0)

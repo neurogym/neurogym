@@ -74,6 +74,7 @@ class DelayedComparison(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,),
                                             dtype=np.float32)
+        self.ob_dict = {'fixation': 0, 'stimulus': 1}
 
     def new_trial(self, **kwargs):
         self.trial = {
@@ -93,15 +94,12 @@ class DelayedComparison(ngym.PeriodEnv):
         self.add_period('f2', after='delay')
         self.add_period('decision', after='f2', last_period=True)
 
-        self.set_ob([1, 0], 'fixation')
-        self.set_ob([1, self.scale_p(f1)], 'f1')
-        self.set_ob([1, 0], 'delay')
-        self.set_ob([1, self.scale_p(f2)], 'f2')
-        self.set_ob([0, 0], 'decision')
-        ob = self.view_ob('f1')
-        ob[:, 1] += self.rng.randn(ob.shape[0]) * self.sigma_dt
-        ob = self.view_ob('f2')
-        ob[:, 1] += self.rng.randn(ob.shape[0]) * self.sigma_dt
+        self.add_ob(1, where='fixation')
+        self.add_ob(self.scale_p(f1), 'f1', where='stimulus')
+        self.add_ob(self.scale_p(f2), 'f2', where='stimulus')
+        self.set_ob(0, 'decision')
+        self.add_randn(0, self.sigma_dt, 'f1')
+        self.add_randn(0, self.sigma_dt, 'f2')
 
         self.set_groundtruth(self.trial['ground_truth'], 'decision')
 
@@ -141,4 +139,4 @@ class DelayedComparison(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = DelayedComparison()
-    ngym.utils.plot_env(env, num_steps_env=50000)
+    ngym.utils.plot_env(env, num_steps_env=100)
