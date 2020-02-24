@@ -113,11 +113,11 @@ def test_run_all(verbose_success=False):
     for env_name in sorted(ngym.all_envs()):
         total_count += 1
 
-        print('Running env: {:s}'.format(env_name))
+        # print('Running env: {:s}'.format(env_name))
         # env = test_run(env_name)
         try:
             test_run(env_name, verbose=verbose_success)
-            print('Success')
+            # print('Success')
             # print(env)
             success_count += 1
         except BaseException as e:
@@ -234,8 +234,8 @@ def test_seeding(env, seed):
 
 if __name__ == '__main__':
     # test_seeding_all()
-    # test_run_all()
-    test_speed_all()
+    test_run_all()
+    # test_speed_all()
     # test_trialenv_all()
     # test_print_all()
     # env_name = 'GoNogo-v0'
