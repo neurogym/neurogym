@@ -5,7 +5,7 @@ import numpy as np
 from gym import spaces
 import neurogym as ngym
 
-
+# TODO: This is not implemented yet
 class MultiSensoryIntegration(ngym.PeriodEnv):
     metadata = {
         'description': 'Agent has to perform one of two different perceptual' +
