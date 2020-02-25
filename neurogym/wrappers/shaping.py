@@ -158,9 +158,7 @@ class Shaping(ngym.TrialWrapper):
             if self.curr_ph == 2:
                 reward = max(reward, 0)
             if info['new_trial']:
-                self.performance = self.env.performance
-                print('perf: ', self.performance)
-                print('-----')
+                self.performance = info['performance']
                 self.new_trial()
 
         return obs, reward, done, info
