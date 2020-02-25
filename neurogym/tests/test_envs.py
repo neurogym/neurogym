@@ -94,17 +94,22 @@ def test_speed_all():
 
 def test_print_all():
     """Test printing of all experiments."""
+    success_count = 0
+    total_count = 0
     for env_name in sorted(ngym.all_envs()):
+        total_count += 1
         print('')
         print('Test printing env: {:s}'.format(env_name))
         try:
             env = gym.make(env_name)
             print(env)
             print('Success')
+            success_count += 1
         except BaseException as e:
             print('Failure')
             print(e)
 
+    print('Success {:d}/{:d} envs'.format(success_count, total_count))
 
 def test_run_all(verbose_success=False):
     """Test if all environments can at least be run."""
@@ -234,10 +239,10 @@ def test_seeding(env, seed):
 
 if __name__ == '__main__':
     # test_seeding_all()
-    test_run_all()
+    # test_run_all()
     # test_speed_all()
     # test_trialenv_all()
-    # test_print_all()
+    test_print_all()
     # env_name = 'GoNogo-v0'
     # env_name = 'PerceptualDecisionMaking-v0'
     # env_name = 'ContextDecisionMaking-v0'
