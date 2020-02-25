@@ -40,19 +40,10 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
         Agents choose between two stimuli (A and B; where A is preferred)
         offered in different amounts.
         dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: rew associated to most valued juice. (def: .22, float)
+        rewards: dictionary of rewards
         timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt, timing=timing)
-        # # Inputs
-        # self.inputs = tasktools.to_map('FIXATION', 'L-A', 'L-B', 'R-A',
-        #                                'R-B', 'N-L', 'N-R')
-        #
-        # # Actions
-        # self.actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT',
-        #                                 'CHOOSE-RIGHT')
 
         # trial conditions
         self.B_to_A = 1/2.2
