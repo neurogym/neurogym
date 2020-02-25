@@ -208,15 +208,17 @@ class PeriodEnv(TrialEnv):
         if isinstance(period, str):
             pass
         else:
-            if duration is not None:
-                raise ValueError('Setting duration with period other than '
-                                 'string not supported yet')
+            if duration is None:
+                duration = [None] * len(period)
+            else:
+                assert len(duration) == len(period), 'duration and period must have same length'
+
             # Recursively calling itself
-            self.add_period(period[0], after=after)
+            self.add_period(period[0], duration=duration[0], after=after)
             for i in range(1, len(period)):
                 is_last = (i == len(period) - 1) and last_period
-                self.add_period(period[i], after=period[i - 1],
-                                last_period=is_last)
+                self.add_period(period[i], duration=duration[i],
+                                after=period[i - 1], last_period=is_last)
             return
 
         if duration is None:
