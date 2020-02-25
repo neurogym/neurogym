@@ -87,14 +87,17 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        self.add_period(['fixation', 'stimulus', 'decision'], after=0, last_period=True)
+        self.add_period(['fixation', 'stimulus', 'decision'], after=0,
+                        last_period=True)
         # ---------------------------------------------------------------------
         # Observations
         # ---------------------------------------------------------------------
         signed_coh = coh if ground_truth == 1 else -coh
         self.add_ob(1, period='fixation', where='fixation')
-        self.add_ob((1 + signed_coh / 100) / 2, period='stimulus', where='stimulus1')
-        self.add_ob((1 - signed_coh / 100) / 2, period='stimulus', where='stimulus2')
+        self.add_ob((1 + signed_coh / 100) / 2, period='stimulus',
+                    where='stimulus1')
+        self.add_ob((1 - signed_coh / 100) / 2, period='stimulus',
+                    where='stimulus2')
         self.add_randn(0, self.sigma_dt, 'stimulus')
         # ---------------------------------------------------------------------
         # Ground truth
@@ -125,6 +128,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
                 new_trial = True
                 if action == gt:
                     reward += self.rewards['correct']
+                    self.performance = 1
                 else:
                     reward += self.rewards['fail']
 
@@ -173,7 +177,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
 
         # Rewards
         self.rewards = {'abort': -0.1, 'correct': +1.,
-                          'fail': 0.}
+                        'fail': 0.}
         if rewards:
             self.rewards.update(rewards)
         self.rewards['abort'] = self.rewards['abort']
