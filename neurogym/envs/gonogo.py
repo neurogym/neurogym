@@ -44,12 +44,7 @@ class GoNogo(ngym.PeriodEnv):
         Go/No-Go task in which the subject has either Go (e.g. lick)
         or not Go depending on which one of two stimuli is presented with.
         dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: -0.5, float)
-            R_MISS:  given when not responding when a response was expected.
-            (def: -0.5, float)
+        rewards: reward dictionary
         timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt, timing=timing)
@@ -66,8 +61,10 @@ class GoNogo(ngym.PeriodEnv):
         self.abort = False
         # set action and observation spaces
         self.action_space = spaces.Discrete(2)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3, ),
+        self.act_dict = {'fixation': 0, 'go': 1}
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
+        self.ob_dict = {'fixation': 0, 'nogo': 1, 'go': 2}
 
     def new_trial(self, **kwargs):
         # Trial info
@@ -80,11 +77,9 @@ class GoNogo(ngym.PeriodEnv):
         periods = ['fixation', 'stimulus', 'resp_delay', 'decision']
         self.add_period(periods, after=0, last_period=True)
         # set observations
-        self.set_ob([1, 0, 0], 'fixation')
-        self.set_ob([1, 0, 0], 'stimulus')
-        self.set_ob([1, 0, 0], 'resp_delay')
-        ob = self.view_ob('stimulus')
-        ob[:, self.trial['ground_truth']+1] = 1
+        self.add_ob(1, where='fixation')
+        self.add_ob(1, 'stimulus', where=self.trial['ground_truth']+1)
+        self.set_ob(0, 'decision')
         # if trial is GO the reward is set to R_MISS and  to 0 otherwise
         self.r_tmax = self.rewards['miss']*self.trial['ground_truth']
         self.performance = 1-self.trial['ground_truth']
@@ -111,3 +106,8 @@ class GoNogo(ngym.PeriodEnv):
                     self.performance = 0
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+
+
+if __name__ == '__main__':
+    env = GoNogo()
+    ngym.utils.plot_env(env, def_act=0)
