@@ -30,10 +30,7 @@ class ReadySetGo(ngym.PeriodEnv):
         """
         Agents have to measure and produce different time intervals.
         dt: Timestep duration. (def: 80 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: 0., float)
+        rewards: dictionary of rewards
         timing: Description and duration of periods forming a trial.
         gain: Controls the measure that the agent has to produce. (def: 1, int)
         prod_margin: controls the interval around the ground truth production
@@ -52,8 +49,10 @@ class ReadySetGo(ngym.PeriodEnv):
         self.abort = False
         # set action and observation space
         self.action_space = spaces.Discrete(2)  # (fixate, go)
+        self.act_dict = {'fixation': 0, 'go': 1}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
+        self.ob_dict = {'fixation': 0, 'ready': 1, 'set': 2}
 
     def new_trial(self, **kwargs):
         measure = (self.timing_fn['measure']() // self.dt) * self.dt
@@ -65,16 +64,16 @@ class ReadySetGo(ngym.PeriodEnv):
 
         self.trial['production'] = measure * self.trial['gain']
 
-        self.add_period('fixation', after=0)
-        self.add_period('ready', after='fixation')
+        self.add_period(['fixation', 'ready'], after=0)
         self.add_period('measure', duration=measure, after='fixation')
         self.add_period('set', after='measure')
         self.add_period('production', duration=2*self.trial['production'],
                         after='set', last_period=True)
 
-        self.set_ob([1, 0, 0], 'fixation')
-        self.set_ob([0, 1, 0], 'ready')
-        self.set_ob([0, 0, 1], 'set')
+        self.add_ob(1, 'fixation', where='fixation')
+        self.add_ob(1, 'ready', where='ready')
+        self.add_ob(1, 'set', where='set')
+
         # set ground truth
         gt = np.zeros((int(2*self.trial['production']/self.dt),))
         gt[int(self.trial['production']/self.dt)] = 1
@@ -146,13 +145,9 @@ class MotorTiming(ngym.PeriodEnv):
         self.intervals = [800, 1500]
 
         # Rewards
-        self.rewards = {'abort': -0.1, 'correct': +1.,
-                          'fail': 0.}
+        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
         if rewards:
             self.rewards.update(rewards)
-        self.rewards['abort'] = self.rewards['abort']
-        self.rewards['correct'] = self.rewards['correct']
-        self.rewards['fail'] = self.rewards['fail']
 
         self.abort = False
         # set action and observation space
@@ -217,16 +212,6 @@ class MotorTiming(ngym.PeriodEnv):
 
 
 if __name__ == '__main__':
-    env = ReadySetGo(dt=100, timing={'fixation': ('constant', 200),
-                                     'ready': ('constant', 200),
-                                     'measure': ('choice', [100, 200]),
-                                     'set': ('constant', 100)})
-#    env = ReadySetGo(dt=100, timing={'ready': ('constant', 100),
-#                                     'set': ('constant', 100)})
-    from ngym_usage import random_agent
-    import matplotlib.pyplot as plt
-    plt.close('all')
-    model = random_agent.randomAgent(env=env, policy=[.9])
-    ngym.utils.plot_env(env, num_steps_env=100, model=model)  # , def_act=0)
-#    env = ReadySetGo()
-#    ngym.utils.plot_env(env, num_steps_env=100, def_act=0)
+    env = ReadySetGo(dt=50)
+    ngym.utils.plot_env(env, num_steps_env=100, def_act=0)
+
