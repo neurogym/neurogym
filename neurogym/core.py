@@ -168,6 +168,7 @@ class PeriodEnv(TrialEnv):
         if timing is not None:
             default_timing.update(timing)
         self.timing = default_timing
+        self.timing_fn = dict()
         self.build_timing_fns()
 
         self.start_t = dict()
@@ -181,7 +182,6 @@ class PeriodEnv(TrialEnv):
 
     def build_timing_fns(self, **kwargs):
         self.timing.update(kwargs)
-        self.timing_fn = dict()
         for key, val in self.timing.items():
             dist, args = val
             self.timing_fn[key] = tasktools.random_number_fn(dist, args,
@@ -271,6 +271,13 @@ class PeriodEnv(TrialEnv):
             period: string, must be name of an added period
             where: string or np array, location of stimulus to be added
         """
+        if isinstance(period, str) or period is None:
+            pass
+        else:
+            for p in period:
+                self._add_ob(value, p, where, reset=reset)
+            return
+
         assert self._trial_built, 'Trial was not succesfully built.' +\
             ' (Hint: make last_period=True when adding the last period)'
         # self.obs[self.start_ind[period]:self.end_ind[period]] = value
@@ -302,6 +309,13 @@ class PeriodEnv(TrialEnv):
         self._add_ob(value, period, where, reset=False)
 
     def add_randn(self, mu=0, sigma=1, period=None):
+        if isinstance(period, str) or period is None:
+            pass
+        else:
+            for p in period:
+                self.add_randn(mu, sigma, p)
+            return
+
         ob = self.view_ob(period=period)
         if mu:
             ob += mu
@@ -312,7 +326,11 @@ class PeriodEnv(TrialEnv):
 
     def set_groundtruth(self, value, period):
         """Set groundtruth value."""
-        self.gt[self.start_ind[period]: self.end_ind[period]] = value
+        if isinstance(period, str):
+            self.gt[self.start_ind[period]: self.end_ind[period]] = value
+        else:
+            for p in period:
+                self.set_groundtruth(value, p)
 
     def view_groundtruth(self, period):
         """View observation of an period."""
