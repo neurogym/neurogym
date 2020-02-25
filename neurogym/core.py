@@ -34,11 +34,17 @@ def env_string(env):
         string += "[{:s}]({:s})\n".format(paper_name, paper_link)
     # add timing info
     if isinstance(env, PeriodEnv):
-        timing = metadata['timing']
-        string += '\nDefault Period timing (ms) \n'
+        timing = env.timing
+        string += '\nPeriod timing (ms) \n'
         for key, val in timing.items():
             dist, args = val
             string += key + ' : ' + dist + ' ' + str(args) + '\n'
+
+    if env.rewards:
+        string += '\nReward structure \n'
+        for key, val in env.rewards.items():
+            string += key + ' : ' + str(val) + '\n'
+
     # add extra info
     other_info = list(set(metadata.keys()) - set(METADATA_DEF_KEYS))
     if len(other_info) > 0:
