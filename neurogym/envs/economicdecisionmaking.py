@@ -28,10 +28,6 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
         'paper_link': 'https://www.nature.com/articles/nature04676',
         'paper_name': '''Neurons in the orbitofrontal cortex encode
          economic value''',
-        'timing': {
-            'fixation': ('constant', 1500),
-            'offer_on': ('uniform', [1000, 2000]),
-            'decision': ('constant', 750)},
         'tags': ['perceptual', 'value-based']
     }
 
@@ -43,7 +39,7 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
         rewards: dictionary of rewards
         timing: Description and duration of periods forming a trial.
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
 
         # trial conditions
         self.B_to_A = 1/2.2
@@ -59,6 +55,13 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +0.22}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('constant', 1500),
+            'offer_on': ('uniform', [1000, 2000]),
+            'decision': ('constant', 750)}
+        if timing:
+            self.timing.update(timing)
 
         self.R_B = self.B_to_A * self.rewards['correct']
         self.R_A = self.rewards['correct']

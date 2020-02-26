@@ -20,12 +20,6 @@ class CVLearning(ngym.PeriodEnv):
         'paper_link': 'https://www.nature.com/articles/s41586-019-0919-7',
         'paper_name': 'Discrete attractor dynamics underlies persistent' +
         ' activity in the frontal cortex',
-        'timing': {
-            'fixation': ('constant', 200),
-            'stimulus': ('constant', 1150),
-            'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
-            # 'go_cue': ('constant', 100), # TODO: Not implemented
-            'decision': ('constant', 1500)},
         'tags': ['perceptual', 'delayed response', 'two-alternative',
                  'supervised']
     }
@@ -50,7 +44,7 @@ class CVLearning(ngym.PeriodEnv):
         th: Performance threshold needed to proceed to the following phase.
         (def: 0.8, float)
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
@@ -62,6 +56,15 @@ class CVLearning(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': -1.}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('constant', 200),
+            'stimulus': ('constant', 1150),
+            'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
+            # 'go_cue': ('constant', 100), # TODO: Not implemented
+            'decision': ('constant', 1500)}
+        if timing:
+            self.timing.update(timing)
 
         self.action = 0
         self.abort = False
@@ -101,7 +104,7 @@ class CVLearning(ngym.PeriodEnv):
         }
 
         # init durations with None
-        self.durs = {key: None for key in self.metadata['timing']}
+        self.durs = {key: None for key in self.timing}
 
         self.first_choice_rew = None
         if self.curr_ph == 0:

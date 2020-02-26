@@ -54,7 +54,7 @@ class YourTask(ngym.PeriodEnv):
     metadata = {}
 
     def __init__(self, dt=100, timing=None, extra_input_param=None):
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
        
 
     def new_trial(self, **kwargs):

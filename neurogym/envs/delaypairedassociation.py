@@ -20,13 +20,6 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         'paper_link': 'https://elifesciences.org/articles/43191',
         'paper_name': 'Active information maintenance in working memory' +
         ' by a sensory cortex',
-        'timing': {
-            'fixation': ('constant', 0),
-            'stim1': ('constant', 1000),
-            'delay_btw_stim': ('constant', 13000),
-            'stim2': ('constant', 1000),
-            'delay_aft_stim': ('constant', 1000),
-            'decision': ('constant', 500)},
         'tags': ['perceptual', 'working memory', 'go-no-go',
                  'supervised']
     }
@@ -41,7 +34,7 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         noise: Standard deviation of the Gaussian noise added to
         the stimulus. (def: 0.01, float)
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         self.choices = [0, 1]
         # trial conditions
         self.pairs = [(1, 3), (1, 4), (2, 3), (2, 4)]
@@ -55,6 +48,16 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': -1., 'miss': 0.}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('constant', 0),
+            'stim1': ('constant', 1000),
+            'delay_btw_stim': ('constant', 13000),
+            'stim2': ('constant', 1000),
+            'delay_aft_stim': ('constant', 1000),
+            'decision': ('constant', 500)}
+        if timing:
+            self.timing.update(timing)
 
         self.abort = False
         # action and observation spaces

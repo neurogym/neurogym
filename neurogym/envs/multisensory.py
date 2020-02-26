@@ -14,12 +14,6 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
         'paper_link': 'https://www.nature.com/articles/nature12742',
         'paper_name': '''Context-dependent computation by recurrent
          dynamics in prefrontal cortex''',
-        'timing': {
-            'fixation': ('constant', 300),
-            # 'target': ('constant', 350),  # TODO: not implemented
-            'stimulus': ('constant', 750),
-            'delay': ('truncated_exponential', [600, 300, 3000]),
-            'decision': ('constant', 100)},  # XXX: not specified
         'tags': ['perceptual', 'context dependent', 'two-alternative',
                  'supervised']
     }
@@ -34,7 +28,7 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
             R_CORRECT: given when correct. (def: +1., float)
         timing: Description and duration of periods forming a trial.
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
 
         # trial conditions
         self.contexts = [1, 2]  # index for context inputs
@@ -50,6 +44,14 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
         if rewards:
             self.rewards.update(rewards)
 
+        self.timing = {
+            'fixation': ('constant', 300),
+            # 'target': ('constant', 350),  # TODO: not implemented
+            'stimulus': ('constant', 750),
+            'delay': ('truncated_exponential', [600, 300, 3000]),
+            'decision': ('constant', 100)}  # XXX: not specified
+        if timing:
+            self.timing.update(timing)
         self.abort = False
 
         # set action and observation space

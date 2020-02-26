@@ -17,9 +17,6 @@ class Detection(ngym.PeriodEnv):
             'description': 'The agent has to GO if a stimulus is presented.',
             'paper_link': None,
             'paper_name': None,
-            'timing': {
-                    'fixation': ('constant', 500),
-                    'stimulus': ('truncated_exponential', [1000, 500, 1500])},
             'tags': ['perceptual', 'reaction time', 'go-no-go',
                      'supervised']
             }
@@ -37,7 +34,7 @@ class Detection(ngym.PeriodEnv):
         the delay is drawn from a uniform distribution. (def: None (ms), int)
         stim_dur: Stimulus duration. (def: 100 (ms), int)
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         # Possible decisions at the end of the trial
         self.choices = [0, 1]
 
@@ -62,6 +59,12 @@ class Detection(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': -1., 'miss': -1}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('constant', 500),
+            'stimulus': ('truncated_exponential', [1000, 500, 1500])}
+        if timing:
+            self.timing.update(timing)
 
         # whether to abort (T) or not (F) the trial when breaking fixation:
         self.abort = False

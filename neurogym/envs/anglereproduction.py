@@ -13,14 +13,6 @@ class AngleReproduction(ngym.PeriodEnv):
         'paper_link': 'https://www.pnas.org/content/114/43/E9115.short',
         'paper_name': """Visual perception as retrospective Bayesian
         decoding from high- to low-level features""",
-        'timing': {  # TODO: Timing not from paper yet
-            'fixation': ('constant', 500),
-            'stim1': ('constant', 500),
-            'delay1': ('constant', 500),
-            'stim2': ('constant', 500),
-            'delay2': ('constant', 500),
-            'go1': ('constant', 500),
-            'go2': ('constant', 500)},
         'tags': ['perceptual', 'working memory', 'delayed response',
                  'steps action space']
     }
@@ -34,7 +26,7 @@ class AngleReproduction(ngym.PeriodEnv):
             R_FAIL: given when incorrect. (def: -0.1, float)
         timing: Description and duration of periods forming a trial.
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         # action and observation spaces
         # Do nothing, rotate clockwise, rotatet counterclockwise
         self.action_space = spaces.Discrete(3)
@@ -48,6 +40,17 @@ class AngleReproduction(ngym.PeriodEnv):
         self.rewards = {'correct': +1., 'fail': -0.1}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {  # TODO: Timing not from paper yet
+            'fixation': ('constant', 500),
+            'stim1': ('constant', 500),
+            'delay1': ('constant', 500),
+            'stim2': ('constant', 500),
+            'delay2': ('constant', 500),
+            'go1': ('constant', 500),
+            'go2': ('constant', 500)}
+        if timing:
+            self.timing.update(timing)
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------

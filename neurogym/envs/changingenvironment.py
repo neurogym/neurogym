@@ -18,10 +18,6 @@ class ChangingEnvironment(ngym.PeriodEnv):
         'paper_link': 'https://www.pnas.org/content/113/31/E4531',
         'paper_name': '''Hierarchical decision processes that operate
         over distinct timescales underlie choice and changes in strategy''',
-        'timing': {
-            'fixation': ('constant', 500),
-            'stimulus': ('truncated_exponential', [1000, 500, 1500]),
-            'decision': ('constant', 500)},
         'tags': ['perceptual', 'two-alternative', 'supervised',
                  'context dependent']
     }
@@ -41,7 +37,7 @@ class ChangingEnvironment(ngym.PeriodEnv):
         cxt_ch_prob: Probability of changing context. (def: 0.01, float)
         cxt_cue: Whether to show context as a cue. (def: False, bool)
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
 
         # Possible contexts
         self.cxt_ch_prob = cxt_ch_prob
@@ -61,6 +57,13 @@ class ChangingEnvironment(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('constant', 500),
+            'stimulus': ('truncated_exponential', [1000, 500, 1500]),
+            'decision': ('constant', 500)}
+        if timing:
+            self.timing.update(timing)
 
         # whether to abort (T) or not (F) the trial when breaking fixation:
         self.abort = False

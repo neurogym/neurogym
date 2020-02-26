@@ -21,12 +21,6 @@ class ContextDecisionMaking(ngym.PeriodEnv):
         'paper_link': 'https://www.nature.com/articles/nature12742',
         'paper_name': '''Context-dependent computation by recurrent
          dynamics in prefrontal cortex''',
-        'timing': {
-            'fixation': ('constant', 300),
-            # 'target': ('constant', 350),  # TODO: not implemented
-            'stimulus': ('constant', 750),
-            'delay': ('truncated_exponential', [600, 300, 3000]),
-            'decision': ('constant', 100)},  # XXX: not specified
         'tags': ['perceptual', 'context dependent', 'two-alternative',
                  'supervised']
     }
@@ -41,7 +35,7 @@ class ContextDecisionMaking(ngym.PeriodEnv):
             R_CORRECT: given when correct. (def: +1., float)
         timing: Description and duration of periods forming a trial.
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
 
         # trial conditions
         self.contexts = [0, 1]  # index for context inputs
@@ -56,6 +50,15 @@ class ContextDecisionMaking(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1.}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('constant', 300),
+            # 'target': ('constant', 350),  # TODO: not implemented
+            'stimulus': ('constant', 750),
+            'delay': ('truncated_exponential', [600, 300, 3000]),
+            'decision': ('constant', 100)}  # XXX: not specified
+        if timing:
+            self.timing.update(timing)
 
         self.abort = False
 

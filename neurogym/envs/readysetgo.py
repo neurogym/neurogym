@@ -17,11 +17,6 @@ class ReadySetGo(ngym.PeriodEnv):
         'S0896627318304185',
         'paper_name': '''Flexible Sensorimotor Computations through Rapid
         Reconfiguration of Cortical Dynamics''',
-        'timing': {
-            'fixation': ('constant', 100),
-            'ready': ('constant', 83),
-            'measure': ('choice', [800, 1500]),
-            'set': ('constant', 83)},
         'tags': ['timing', 'go-no-go', 'supervised']
     }
 
@@ -36,7 +31,7 @@ class ReadySetGo(ngym.PeriodEnv):
         prod_margin: controls the interval around the ground truth production
                     time within which the agent receives proportional reward
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         self.prod_margin = prod_margin
 
         self.gain = gain
@@ -45,6 +40,14 @@ class ReadySetGo(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('constant', 100),
+            'ready': ('constant', 83),
+            'measure': ('choice', [800, 1500]),
+            'set': ('constant', 83)}
+        if timing:
+            self.timing.update(timing)
 
         self.abort = False
         # set action and observation space
@@ -55,7 +58,7 @@ class ReadySetGo(ngym.PeriodEnv):
         self.ob_dict = {'fixation': 0, 'ready': 1, 'set': 2}
 
     def new_trial(self, **kwargs):
-        measure = (self.timing_fn['measure']() // self.dt) * self.dt
+        measure = self.sample_time('measure')
         self.trial = {
             'measure': measure,
             'gain': self.gain
@@ -119,10 +122,6 @@ class MotorTiming(ngym.PeriodEnv):
         'paper_link': 'https://www.nature.com/articles/s41593-017-0028-6',
         'paper_name': '''Flexible timing by temporal scaling of
          cortical responses''',
-        'timing': {
-            'fixation': ('constant', 500),  # XXX: not specified
-            'cue': ('uniform', [1000, 3000]),
-            'set': ('constant', 50)},
         'tags': ['timing', 'go-no-go', 'supervised']
     }
 
@@ -139,7 +138,7 @@ class MotorTiming(ngym.PeriodEnv):
         prod_margin: controls the interval around the ground truth production
                     time within which the agent receives proportional reward
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         self.prod_margin = prod_margin
         self.production_ind = [0, 1]
         self.intervals = [800, 1500]
@@ -148,6 +147,13 @@ class MotorTiming(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('constant', 500),  # XXX: not specified
+            'cue': ('uniform', [1000, 3000]),
+            'set': ('constant', 50)}
+        if timing:
+            self.timing.update(timing)
 
         self.abort = False
         # set action and observation space

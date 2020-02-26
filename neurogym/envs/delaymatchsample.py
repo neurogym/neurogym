@@ -20,12 +20,6 @@ class DelayedMatchToSample(ngym.PeriodEnv):
         '5154.full.pdf',
         'paper_name': '''Neural Mechanisms of Visual Working Memory
         in Prefrontal Cortex of the Macaque''',
-        'timing': {
-            'fixation': ('constant', 300),
-            'sample': ('constant', 500),
-            'delay': ('constant', 1000),
-            'test': ('constant', 500),
-            'decision': ('constant', 900)},
         'tags': ['perceptual', 'working memory', 'two-alternative',
                  'supervised']
     }
@@ -41,7 +35,7 @@ class DelayedMatchToSample(ngym.PeriodEnv):
             R_FAIL: given when incorrect. (def: 0., float)
         timing: Description and duration of periods forming a trial.
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         # TODO: Code a continuous space version
         self.choices = [1, 2]
         # Input noise
@@ -52,6 +46,15 @@ class DelayedMatchToSample(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('constant', 300),
+            'sample': ('constant', 500),
+            'delay': ('constant', 1000),
+            'test': ('constant', 500),
+            'decision': ('constant', 900)}
+        if timing:
+            self.timing.update(timing)
 
         self.abort = False
 
@@ -128,15 +131,6 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
         '5154.full.pdf',
         'paper_name': '''Neural Mechanisms of Visual Working Memory
         in Prefrontal Cortex of the Macaque''',
-        'timing': {
-            'fixation': ('constant', 300),
-            'sample': ('constant', 500),
-            'delay1': ('constant', 1000),
-            'test1': ('constant', 500),
-            'delay2': ('constant', 1000),
-            'test2': ('constant', 500),
-            'delay3': ('constant', 1000),
-            'test3': ('constant', 500)},
         'tags': ['perceptual', 'working memory', 'two-alternative',
                  'supervised']
     }
@@ -145,13 +139,10 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
         """
         Delay Match to sample with multiple, potentially repeating distractors.
         dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: -1., float)
+        rewards: dictionary of rewards
         timing: Description and duration of periods forming a trial.
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         self.choices = [1, 2, 3]
         # Input noise
         sigma = np.sqrt(2*100*0.01)
@@ -161,9 +152,19 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': -1.}
         if rewards:
             self.rewards.update(rewards)
-        self.rewards['abort'] = self.rewards['abort']
-        self.rewards['correct'] = self.rewards['correct']
-        self.rewards['fail'] = self.rewards['fail']
+
+        self.timing = {
+            'fixation': ('constant', 300),
+            'sample': ('constant', 500),
+            'delay1': ('constant', 1000),
+            'test1': ('constant', 500),
+            'delay2': ('constant', 1000),
+            'test2': ('constant', 500),
+            'delay3': ('constant', 1000),
+            'test3': ('constant', 500)}
+        if timing:
+            self.timing.update(timing)
+
         self.abort = False
         self.action_space = spaces.Discrete(2)
         self.act_dict = {'fixation': 0, 'match': 1}

@@ -38,7 +38,7 @@ class RDM(ngym.PeriodEnv):
         timing: Description and duration of periods forming a trial.
         stimEv: Controls the difficulty of the experiment. (def: 1., float)
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         self.choices = [1, 2]  # [left, right]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stimEv
@@ -158,7 +158,7 @@ class Reaching1D(ngym.PeriodEnv):
             R_FAIL: given when incorrect. (def: -0.1, float)
         timing: Description and duration of periods forming a trial.
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         # Rewards
         self.rewards = {'correct': +1., 'fail': -0.1}
         if rewards:

@@ -162,7 +162,7 @@ class TrialEnv(BaseEnv):
 class PeriodEnv(TrialEnv):
     """Environment class with trial/period structure."""
 
-    def __init__(self, dt=100, timing=None, num_trials_before_reset=10000000,
+    def __init__(self, dt=100, num_trials_before_reset=10000000,
                  r_tmax=0):
         super(PeriodEnv, self).__init__(
             dt=dt, num_trials_before_reset=num_trials_before_reset,
@@ -170,12 +170,13 @@ class PeriodEnv(TrialEnv):
 
         self.gt = None
 
-        default_timing = self.metadata['timing'].copy()
-        if timing is not None:
-            default_timing.update(timing)
-        self.timing = default_timing
-        self.timing_fn = dict()
-        self.build_timing_fns()
+        self.timing = {}
+        # default_timing = self.metadata['timing'].copy()
+        # if timing is not None:
+        #     default_timing.update(timing)
+        # self.timing = default_timing
+        # self.timing_fn = dict()
+        # self.build_timing_fns()
 
         self.start_t = dict()
         self.end_t = dict()
@@ -186,7 +187,21 @@ class PeriodEnv(TrialEnv):
         """Information about task."""
         return env_string(self)
 
-    def build_timing_fns(self, **kwargs):
+    def sample_time(self, period):
+        dist, args = self.timing[period]
+        if dist == 'uniform':
+            t = self.rng.uniform(*args)
+        elif dist == 'choice':
+            t = self.rng.choice(args)
+        elif dist == 'truncated_exponential':
+            t = tasktools.trunc_exp_new(self.rng, *args)
+        elif dist == 'constant':
+            t = args
+        else:
+            raise ValueError('Unknown dist:', str(dist))
+        return (t // self.dt) * self.dt
+
+    def build_timing_fns_obsolete(self, **kwargs):
         self.timing.update(kwargs)
         for key, val in self.timing.items():
             dist, args = val
@@ -228,7 +243,8 @@ class PeriodEnv(TrialEnv):
             return
 
         if duration is None:
-            duration = (self.timing_fn[period]() // self.dt) * self.dt
+            # duration = (self.timing_fn[period]() // self.dt) * self.dt
+            duration = self.sample_time(period)
         if duration == self.dt:
             warnings.warn('Warning: Time for period {:s} {:f}'.format(period,
                                                                       duration,

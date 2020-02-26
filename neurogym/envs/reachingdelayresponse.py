@@ -19,10 +19,6 @@ class ReachingDelayResponse(ngym.PeriodEnv):
         'where the stimulus was located.',
         'paper_link': None,
         'paper_name': None,
-        'timing': {
-            'stimulus': ('constant', 500),
-            'delay': ('choice', [0, 1000, 2000]),
-            'decision': ('constant', 5000)},
         'tags': ['perceptual', 'delayed response', 'continuous action space',
                  'multidimensional action space', 'supervised']
     }
@@ -36,7 +32,7 @@ class ReachingDelayResponse(ngym.PeriodEnv):
         rewards: dictionary of rewards
         timing: Description and duration of periods forming a trial.
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         self.lowbound = lowbound
         self.highbound = highbound
         self.sigma = np.sqrt(2 * 100 * 0.01)
@@ -46,6 +42,13 @@ class ReachingDelayResponse(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': -0., 'miss': -0.5}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+            'stimulus': ('constant', 500),
+            'delay': ('choice', [0, 1000, 2000]),
+            'decision': ('constant', 5000)}
+        if timing:
+            self.timing.update(timing)
 
         self.r_tmax = self.rewards['miss']
         self.abort = False

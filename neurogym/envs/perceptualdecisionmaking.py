@@ -16,10 +16,6 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         'paper_link': 'https://www.jneurosci.org/content/12/12/4745',
         'paper_name': '''The analysis of visual motion: a comparison of
         neuronal and psychophysical performance''',
-        'timing': {
-            'fixation': ('constant', 100),  # TODO: depends on subject
-            'stimulus': ('constant', 2000),
-            'decision': ('constant', 100)},  # XXX: not specified
         'tags': ['perceptual', 'two-alternative', 'supervised']
     }
 
@@ -37,7 +33,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         timing: Description and duration of periods forming a trial.
         stimEv: Controls the difficulty of the experiment. (def: 1., float)
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         self.choices = [1, 2]  # [left, right]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stimEv
@@ -49,6 +45,13 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('constant', 100),  # TODO: depends on subject
+            'stimulus': ('constant', 2000),
+            'decision': ('constant', 100)}  # XXX: not specified
+        if timing:
+            self.timing.update(timing)
 
         self.abort = False
 
@@ -143,13 +146,6 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         'paper_link': 'https://www.nature.com/articles/s41586-019-0919-7',
         'paper_name': 'Discrete attractor dynamics underlies persistent' +
         ' activity in the frontal cortex',
-        'timing': {
-            'fixation': ('constant', 0),
-            'stimulus': ('constant', 1150),
-            #  TODO: sampling of delays follows exponential
-            'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
-            # 'go_cue': ('constant', 100), # TODO: Not implemented
-            'decision': ('constant', 1500)},
         'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
         'tags': ['perceptual', 'delayed response', 'two-alternative',
                  'supervised']
@@ -167,7 +163,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         timing: Description and duration of periods forming a trial.
         stimEv: Controls the difficulty of the experiment. (def: 1., float)
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence (which is modulated by stimEv)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
@@ -180,9 +176,16 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
                         'fail': 0.}
         if rewards:
             self.rewards.update(rewards)
-        self.rewards['abort'] = self.rewards['abort']
-        self.rewards['correct'] = self.rewards['correct']
-        self.rewards['fail'] = self.rewards['fail']
+
+        self.timing = {
+            'fixation': ('constant', 0),
+            'stimulus': ('constant', 1150),
+            #  TODO: sampling of delays follows exponential
+            'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
+            # 'go_cue': ('constant', 100), # TODO: Not implemented
+            'decision': ('constant', 1500)}
+        if timing:
+            self.timing.update(timing)
 
         self.abort = False
 

@@ -31,11 +31,6 @@ class GoNogo(ngym.PeriodEnv):
         'paper_link': 'https://elifesciences.org/articles/43191',
         'paper_name': 'Active information maintenance in working memory' +
         ' by a sensory cortex',
-        'timing': {
-            'fixation': ('constant', 0),
-            'stimulus': ('constant', 500),
-            'resp_delay': ('constant', 500),
-            'decision': ('constant', 500)},
         'tags': ['delayed response', 'go-no-go', 'supervised']
     }
 
@@ -47,7 +42,7 @@ class GoNogo(ngym.PeriodEnv):
         rewards: reward dictionary
         timing: Description and duration of periods forming a trial.
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         # Actions (fixate, go)
         self.actions = [0, 1]
         # trial conditions
@@ -57,6 +52,14 @@ class GoNogo(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': -0.5, 'miss': -0.5}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+                          'fixation': ('constant', 0),
+                          'stimulus': ('constant', 500),
+                          'resp_delay': ('constant', 500),
+                          'decision': ('constant', 500)}
+        if timing:
+            self.timing.update(timing)
 
         self.abort = False
         # set action and observation spaces

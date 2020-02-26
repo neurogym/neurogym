@@ -17,13 +17,6 @@ class IntervalDiscrimination(ngym.PeriodEnv):
         'S0896627309004887',
         'paper_name': """Feature- and Order-Based Timing Representations
          in the Frontal Cortex""",
-        'timing': {  # TODO: Timing not from paper yet
-            'fixation': ('constant', 300),
-            'stim1': ('uniform', (300, 600)),
-            'delay1': ('choice', [800, 1500]),
-            'stim2': ('uniform', (300, 600)),
-            'delay2': ('constant', 500),
-            'decision': ('constant', 300)},
         'tags': ['timing', 'working memory', 'delayed response',
                  'two-alternative', 'supervised']
     }
@@ -36,11 +29,21 @@ class IntervalDiscrimination(ngym.PeriodEnv):
         rewards: dictionary of rewards
         timing: Description and duration of periods forming a trial.
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         # Rewards
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('constant', 300),
+            'stim1': ('uniform', (300, 600)),
+            'delay1': ('choice', [800, 1500]),
+            'stim2': ('uniform', (300, 600)),
+            'delay2': ('constant', 500),
+            'decision': ('constant', 300)}
+        if timing:
+            self.timing.update(timing)
 
         self.abort = False
 
@@ -51,8 +54,8 @@ class IntervalDiscrimination(ngym.PeriodEnv):
         self.ob_dict = {'fixation': 0, 'stim1': 1, 'stim2': 2}
 
     def new_trial(self, **kwargs):
-        duration1 = self.timing_fn['stim1']()
-        duration2 = self.timing_fn['stim2']()
+        duration1 = self.sample_time('stim1')
+        duration2 = self.sample_time('stim2')
         ground_truth = 1 if duration1 > duration2 else 2
 
         periods = ['fixation', 'stim1', 'delay1', 'stim2', 'delay2', 'decision']

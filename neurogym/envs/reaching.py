@@ -16,9 +16,6 @@ class Reaching1D(ngym.PeriodEnv):
         ' by the observation.',
         'paper_link': 'https://science.sciencemag.org/content/233/4771/1416',
         'paper_name': 'Neuronal population coding of movement direction',
-        'timing': {
-            'fixation': ('constant', 500),
-            'reach': ('constant', 500)},
         'tags': ['motor', 'steps action space']
     }
 
@@ -31,13 +28,17 @@ class Reaching1D(ngym.PeriodEnv):
             R_FAIL: given when incorrect. (def: -0.1, float)
         timing: Description and duration of periods forming a trial.
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         # Rewards
         self.rewards = {'correct': +1., 'fail': -0.1}
         if rewards:
             self.rewards.update(rewards)
-        self.rewards['correct'] = self.rewards['correct']
-        self.rewards['fail'] = self.rewards['fail']
+
+        self.timing = {
+            'fixation': ('constant', 500),
+            'reach': ('constant', 500)}
+        if timing:
+            self.timing.update(timing)
 
         # action and observation spaces
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(32,),
@@ -111,9 +112,6 @@ class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
          generates strong inputs that overshadows the actual target input.''',
         'paper_link': None,
         'paper_name': None,
-        'timing': {
-            'fixation': ('constant', 500),
-            'reach': ('constant', 500)},
         'tags': ['motor', 'steps action space']
     }
 
@@ -128,11 +126,17 @@ class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
             R_FAIL: given when incorrect. (def: -0.1, float)
         timing: Description and duration of periods forming a trial.
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         # Rewards
         self.rewards = {'correct': +1., 'fail': -0.1}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('constant', 500),
+            'reach': ('constant', 500)}
+        if timing:
+            self.timing.update(timing)
 
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
