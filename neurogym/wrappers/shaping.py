@@ -79,23 +79,20 @@ class Shaping(ngym.TrialWrapper):
 
         if self.curr_ph < 2:
             self.env.sigma_dt = 0
-            timing = self.env.timing.copy()
             if not self.short:
-                print('ori: ', timing)
+                print('ori: ', self.env.timing)
                 self.short = True
                 self.variable = False
                 for key, val in self.ori_periods.items():
                     if key in self.change_periods:
                         dist, args = val
-                        timing[key] = ('constant', self.short_dur)
-                print('new: ', timing)
-            self.build_timing_fns(**timing)
+                        self.env.timing[key] = ('constant', self.short_dur)
+                print('new: ', self.env.timing)
 
         elif self.curr_ph == 2:
             self.env.sigma_dt = 0
-            timing = self.env.timing.copy()
             if not self.short or not self.variable:
-                print('ori: ', timing)
+                print('ori: ', self.env.timing)
                 self.short = True
                 self.variable = True
                 for key, val in self.ori_periods.items():
@@ -103,20 +100,17 @@ class Shaping(ngym.TrialWrapper):
                         dist, args = val
                         if dist != 'constant':
                             factor = self.short_dur/args[0]
-                            timing[key] =\
+                            self.env.timing[key] =\
                                 (dist, [int(n*factor/self.env.dt)*self.env.dt
                                         for n in args])
                         else:
-                            timing[key] = ('constant', self.short_dur)
-                print('new: ', timing)
-            self.build_timing_fns(**timing)
+                            self.env.timing[key] = ('constant', self.short_dur)
+                print('new: ', self.env.timing)
 
         else:
             self.env.sigma_dt = self.sigma_dt_ori
-            timing = self.env.timing.copy()
-            print('ori: ', timing)
-            self.build_timing_fns(**timing)
-            print('new: ', timing)
+            print('ori: ', self.env.timing)
+            print('new: ', self.env.timing)
 
         self.env.new_trial()
 
