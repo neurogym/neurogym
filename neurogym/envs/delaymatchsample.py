@@ -28,12 +28,6 @@ class DelayedMatchToSample(ngym.PeriodEnv):
         """
         A sample stimulus is followed by a delay and test. Agents are required
         to indicate if the sample and test are the same stimulus.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: 0., float)
-        timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt)
         # TODO: Code a continuous space version

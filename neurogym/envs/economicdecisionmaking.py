@@ -35,9 +35,6 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
         """
         Agents choose between two stimuli (A and B; where A is preferred)
         offered in different amounts.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards: dictionary of rewards
-        timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt)
 

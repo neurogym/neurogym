@@ -21,11 +21,6 @@ class AntiReach1D(ngym.PeriodEnv):
         """
         The agent has to move in the direction opposite to the one indicated
         by the observation.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: -0.1, float)
-        timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt)
         self.contexts = [0, 1]

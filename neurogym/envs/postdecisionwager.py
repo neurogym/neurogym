@@ -42,12 +42,6 @@ class PostDecisionWager(ngym.PeriodEnv):
         random half of the trials, the agent is given the option to abort
         the direction discrimination and to choose instead a small but
         certain reward associated with a action.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: 0., float)
-        timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt)
 #        # Actions

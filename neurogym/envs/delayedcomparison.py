@@ -34,14 +34,7 @@ class DelayedComparison(ngym.PeriodEnv):
         Two-alternative forced choice task in which the subject
         has to compare two stimuli separated by a delay to decide
         which one has a higher frequency.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: 0., float)
-        timing: Description and duration of periods forming a trial.
         """
-        # call ngm __init__ function
         super().__init__(dt=dt)
 
         # trial conditions

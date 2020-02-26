@@ -22,11 +22,6 @@ class Reaching1D(ngym.PeriodEnv):
     def __init__(self, dt=100, rewards=None, timing=None):
         """
         The agent has to reproduce the angle indicated by the observation.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: -0.1, float)
-        timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt)
         # Rewards
@@ -120,11 +115,6 @@ class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
         The agent has to reproduce the angle indicated by the observation.
         Furthermore, the reaching state itself generates strong inputs that
         overshadows the actual target input.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: -0.1, float)
-        timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt)
         # Rewards

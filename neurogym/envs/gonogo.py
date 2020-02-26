@@ -38,9 +38,6 @@ class GoNogo(ngym.PeriodEnv):
         """
         Go/No-Go task in which the subject has either Go (e.g. lick)
         or not Go depending on which one of two stimuli is presented with.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards: reward dictionary
-        timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt)
         # Actions (fixate, go)

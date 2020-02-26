@@ -30,11 +30,6 @@ class DawTwoStep(ngym.TrialEnv):
         to either of two, second-stage states. In turn, these both
         demand another two-option choice, each of which is associated
         with a different chance of receiving reward.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-        timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt)
         if timing is not None:

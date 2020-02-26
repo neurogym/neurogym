@@ -26,13 +26,6 @@ class Bandit(ngym.TrialEnv):
         """
         The agent has to select between N actions with different reward
         probabilities.
-        dt: Timestep duration. (def: 100 (ms), int)
-        n_arms: Number of arms. (def: 2, int)
-        probs: Reward probabilities for each arm. (def: (.9, .1), tuple)
-        gt_arm: High reward arm. (def: 0, int)
-        rewards:
-            R_CORRECT: given when correct. (def: +1., float)
-        timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt)
         if timing is not None:

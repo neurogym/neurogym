@@ -37,9 +37,6 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         """
         N-alternative forced choice task in which the subject has
         to integrate N stimuli to decide which one is higher on average.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards: dictionary of rewards
-        timing: Description and duration of periods forming a trial.
         stimEv: Controls the difficulty of the experiment. (def: 1., float)
         n_ch: Number of choices. (def: 3, int)
         """

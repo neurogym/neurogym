@@ -22,11 +22,6 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
         """
         Agent has to perform one of two different perceptual discriminations.
         On every trial, a contextual cue indicates which one to perform.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-        timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt)
 

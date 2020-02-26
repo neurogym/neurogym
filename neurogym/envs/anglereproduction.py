@@ -18,14 +18,7 @@ class AngleReproduction(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None):
-        """
-        The agent has to reproduce to two angles separated by a constant delay.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: -0.1, float)
-        timing: Description and duration of periods forming a trial.
-        """
+        """The agent has to reproduce to two angles separated by a constant delay."""
         super().__init__(dt=dt)
         # action and observation spaces
         # Do nothing, rotate clockwise, rotatet counterclockwise

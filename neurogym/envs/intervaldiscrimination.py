@@ -25,9 +25,6 @@ class IntervalDiscrimination(ngym.PeriodEnv):
         """
         Agents have to report which of two stimuli presented
         sequentially is longer.
-        dt: Timestep duration. (def: 80 (ms), int)
-        rewards: dictionary of rewards
-        timing: Description and duration of periods forming a trial.
         """
         super().__init__(dt=dt)
         # Rewards

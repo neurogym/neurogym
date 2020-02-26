@@ -26,10 +26,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
 
         Parameters:
         dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: 0., float)
+        rewards: reward dictionary
         timing: Description and duration of periods forming a trial.
         stimEv: Controls the difficulty of the experiment. (def: 1., float)
         """
@@ -275,8 +272,6 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
 if __name__ == '__main__':
     env = PerceptualDecisionMaking(dt=20,
                                    timing={'stimulus': ('constant', 500)})
-    from neurogym.tests.test_envs import test_speed
-    test_speed(env)
     ngym.utils.plot_env(env, num_steps_env=100, def_act=1)
     # env = PerceptualDecisionMakingDelayResponse()
     # ngym.utils.plot_env(env, num_steps_env=100, def_act=1)

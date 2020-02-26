@@ -25,9 +25,6 @@ class Detection(ngym.PeriodEnv):
                  stim_dur=100):
         """
         The agent has to GO if a stimulus is presented.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards: dictionary of rewards
-        timing: Description and duration of periods forming a trial.
         noise: Standard deviation of background noise. (def: 1., float)
         delay: If not None indicates the delay, from the moment of the start of
         the stimulus period when the actual stimulus is presented. Otherwise,

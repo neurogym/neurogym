@@ -31,10 +31,7 @@ class CVLearning(ngym.PeriodEnv):
         have to integrate two stimuli and report which one is larger on
         average after a delay.
         dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: -1., float)
+        rewards: dictionary of rewards
         timing: Description and duration of periods forming a trial.
         stimEv: Controls the difficulty of the experiment. (def: 1., float)
         perf_w: Window used to compute the mean reward. (def: 1000, int)

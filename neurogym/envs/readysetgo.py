@@ -24,9 +24,6 @@ class ReadySetGo(ngym.PeriodEnv):
                  prod_margin=0.2):
         """
         Agents have to measure and produce different time intervals.
-        dt: Timestep duration. (def: 80 (ms), int)
-        rewards: dictionary of rewards
-        timing: Description and duration of periods forming a trial.
         gain: Controls the measure that the agent has to produce. (def: 1, int)
         prod_margin: controls the interval around the ground truth production
                     time within which the agent receives proportional reward

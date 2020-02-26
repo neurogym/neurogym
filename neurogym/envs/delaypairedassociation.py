@@ -28,11 +28,6 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         """
         A sample is followed by a delay and a test. Agents have to report if
         the pair sample-test is a rewarded pair or not.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards: dictionary of rewards
-        timing: Description and duration of periods forming a trial.
-        noise: Standard deviation of the Gaussian noise added to
-        the stimulus. (def: 0.01, float)
         """
         super().__init__(dt=dt)
         self.choices = [0, 1]
