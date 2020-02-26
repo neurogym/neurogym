@@ -81,6 +81,24 @@ def random_number_fn(dist, args, rng):
         raise ValueError('Unknown dist:', str(dist))
 
 
+def random_number_name(dist, args):
+    """Return a string explaining the dist and args."""
+    if dist == 'uniform':
+        return dist + ' between ' + str(args[0]) + ' and ' + str(args[1])
+    elif dist == 'choice':
+        return dist + ' within ' + str(args)
+    elif dist == 'truncated_exponential':
+        string = 'truncated exponential with mean ' + str(args[0])
+        if len(args) > 1:
+            string += ', min ' + str(args[1])
+        if len(args) > 2:
+            string += ', max ' + str(args[2])
+    elif dist == 'constant':
+        return dist + ' ' + str(args)
+    else:
+        raise ValueError('Unknown dist:', str(dist))
+
+
 def minmax_number(dist, args):
     """Given input to the random_number_fn function, return min and max."""
     if dist == 'uniform':

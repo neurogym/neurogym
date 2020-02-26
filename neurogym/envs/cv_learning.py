@@ -30,9 +30,6 @@ class CVLearning(ngym.PeriodEnv):
         Implements shaping for the delay-response task, in which agents
         have to integrate two stimuli and report which one is larger on
         average after a delay.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards: dictionary of rewards
-        timing: Description and duration of periods forming a trial.
         stimEv: Controls the difficulty of the experiment. (def: 1., float)
         perf_w: Window used to compute the mean reward. (def: 1000, int)
         max_num_reps: Maximum number of times that agent can go in a row

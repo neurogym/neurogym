@@ -38,7 +38,7 @@ def env_string(env):
         string += '\nPeriod timing (ms) \n'
         for key, val in timing.items():
             dist, args = val
-            string += key + ' : ' + dist + ' ' + str(args) + '\n'
+            string += key + ' : ' + tasktools.random_number_name(dist, args) + '\n'
 
     if env.rewards:
         string += '\nReward structure \n'

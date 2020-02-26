@@ -126,12 +126,6 @@ class MotorTiming(ngym.PeriodEnv):
         """
         Agents have to produce different time intervals
         using different effectors (actions).
-        dt: Timestep duration. (def: 80 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: 0., float)
-        timing: Description and duration of periods forming a trial.
         prod_margin: controls the interval around the ground truth production
                     time within which the agent receives proportional reward
         """
