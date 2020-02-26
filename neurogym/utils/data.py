@@ -3,7 +3,7 @@
 import numpy as np
 import gym
 
-
+# TODO: There is a bug somewhere, generated batches are all the same
 class Dataset(object):
     """Make an environment into an iterable dataset for supervised learning.
 
@@ -74,6 +74,7 @@ class Dataset(object):
                 seq_start = seq_end
 
         self._seq_start = 0
+        self._seq_end = self._seq_start + self.seq_len
 
         if self._expand_action:
             self._target = self._target[..., np.newaxis]
@@ -86,18 +87,24 @@ class Dataset(object):
 
     def __next__(self):
         self._seq_end = self._seq_start + self.seq_len
+
         if self._seq_end > self._cache_len:
             self._cache()
 
-        return (self._inputs[:, self._seq_start:self._seq_end, ...],
-                self._target[:, self._seq_start:self._seq_end, ...])
+        inputs = self._inputs[:, self._seq_start:self._seq_end, ...]
+        target = self._target[:, self._seq_start:self._seq_end, ...]
+
+        self._seq_start = self._seq_end
+        return inputs, target
 
 
 if __name__ == '__main__':
     import neurogym as ngym
     dataset = ngym.Dataset(
-        'PerceptualDecisionMaking-v0', env_kwargs={'dt': 20}, batch_size=32)
+        'PerceptualDecisionMaking-v0', env_kwargs={'dt': 100}, batch_size=32,
+        seq_len=40)
     for i in range(100):
         inputs, target = dataset()
-    print(inputs.shape)
-    print(target.shape)
+        print(target[:, 21, 0])
+    # print(inputs.shape)
+    # print(target.shape)
