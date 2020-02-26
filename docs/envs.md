@@ -153,7 +153,7 @@ Doc:
             R_CORRECT: given when correct. (def: +1., float)  
             R_FAIL: given when incorrect. (def: -1., float)  
         timing: Description and duration of periods forming a trial.  
-        stimEv: Controls the difficulty of the experiment. (def: 1., float)  
+        stim_scale: Controls the difficulty of the experiment. (def: 1., float)  
         perf_w: Window used to compute the mean reward. (def: 1000, int)  
         max_num_reps: Maximum number of times that agent can go in a row  
         to the same side during phase 0. (def: 3, int)  
@@ -191,7 +191,7 @@ Doc:
             R_CORRECT: given when correct. (def: +1., float)  
             R_FAIL: given when incorrect. (def: 0., float)  
         timing: Description and duration of periods forming a trial.  
-        stimEv: Controls the difficulty of the experiment. (def: 1., float)  
+        stim_scale: Controls the difficulty of the experiment. (def: 1., float)  
         cxt_ch_prob: Probability of changing context. (def: 0.01, float)  
         cxt_cue: Whether to show context as a cue. (def: False, bool)  
           
@@ -614,7 +614,7 @@ Doc:
             R_CORRECT: given when correct. (def: +1., float)  
             R_FAIL: given when incorrect. (def: 0., float)  
         timing: Description and duration of periods forming a trial.  
-        stimEv: Controls the difficulty of the experiment. (def: 1., float)  
+        stim_scale: Controls the difficulty of the experiment. (def: 1., float)  
         n_ch: Number of choices. (def: 3, int)  
           
 Reference paper:   
@@ -649,7 +649,7 @@ Doc:
             R_CORRECT: given when correct. (def: +1., float)  
             R_FAIL: given when incorrect. (def: 0., float)  
         timing: Description and duration of periods forming a trial.  
-        stimEv: Controls the difficulty of the experiment. (def: 1., float)  
+        stim_scale: Controls the difficulty of the experiment. (def: 1., float)  
           
 Reference paper:   
 [The analysis of visual motion: a comparison of neuronal and psychophysical performance](https://www.jneurosci.org/content/12/12/4745)  
@@ -680,7 +680,7 @@ Doc:
             R_CORRECT: given when correct. (def: +1., float)  
             R_FAIL: given when incorrect. (def: -1., float)  
         timing: Description and duration of periods forming a trial.  
-        stimEv: Controls the difficulty of the experiment. (def: 1., float)  
+        stim_scale: Controls the difficulty of the experiment. (def: 1., float)  
           
 Reference paper:   
 [Discrete attractor dynamics underlies persistent activity in the frontal cortex](https://www.nature.com/articles/s41586-019-0919-7)  
@@ -697,7 +697,7 @@ correct : 1.0
 fail : 0.0  
   
 Other parameters:   
-stimEv : Controls the difficulty of the experiment. (def: 1.)  
+stim_scale : Controls the difficulty of the experiment. (def: 1.)  
   
 Tags: [perceptual](#perceptual), [delayed response](#delayed-response), [two-alternative](#two-alternative), [supervised](#supervised)
 

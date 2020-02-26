@@ -71,7 +71,7 @@ def neuro_arg_parser():
     parser.add_argument('--bl_dur',
                         help='dur. of block in the trial-hist wrappr (trials)',
                         type=int, nargs='+', default=(200,))
-    parser.add_argument('--stimEv', help='allows scaling stimulus evidence',
+    parser.add_argument('--stim_scale', help='allows scaling stimulus evidence',
                         type=float, nargs='+', default=(1.,))
     parser.add_argument('--plot', help='show figure',
                         type=bool, default=True)

@@ -22,7 +22,7 @@ class ChangingEnvironment(ngym.PeriodEnv):
                  'context dependent']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, stimEv=1.,
+    def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
                  cxt_ch_prob=0.001, cxt_cue=False):
         """
         Random Dots Motion tasks in which the correct action
@@ -33,7 +33,7 @@ class ChangingEnvironment(ngym.PeriodEnv):
             R_CORRECT: given when correct. (def: +1., float)
             R_FAIL: given when incorrect. (def: 0., float)
         timing: Description and duration of periods forming a trial.
-        stimEv: Controls the difficulty of the experiment. (def: 1., float)
+        stim_scale: Controls the difficulty of the experiment. (def: 1., float)
         cxt_ch_prob: Probability of changing context. (def: 0.01, float)
         cxt_cue: Whether to show context as a cue. (def: False, bool)
         """
@@ -46,8 +46,8 @@ class ChangingEnvironment(ngym.PeriodEnv):
 
         # Possible decisions at the end of the trial
         self.choices = [1, 2]  # [left, right]
-        # cohs specifies the amount of evidence (which is modulated by stimEv)
-        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stimEv
+        # cohs specifies the amount of evidence (which is modulated by stim_scale)
+        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stim_scale
 
         # Noise added to the observations
         sigma = np.sqrt(2 * 100 * 0.01)
@@ -175,5 +175,5 @@ class ChangingEnvironment(ngym.PeriodEnv):
 
 
 if __name__ == '__main__':
-    env = ChangingEnvironment(cxt_ch_prob=0.05, stimEv=100, cxt_cue=False)
+    env = ChangingEnvironment(cxt_ch_prob=0.05, stim_scale=100, cxt_cue=False)
     ngym.utils.plot_env(env)
