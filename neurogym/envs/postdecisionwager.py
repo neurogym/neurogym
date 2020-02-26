@@ -61,6 +61,7 @@ class PostDecisionWager(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
         if rewards:
             self.rewards.update(rewards)
+        self.rewards['sure'] = 0.7 * self.rewards['correct']
 
         self.timing = {
             'fixation': ('constant', 100),  # XXX: not specified
@@ -73,7 +74,6 @@ class PostDecisionWager(ngym.PeriodEnv):
             self.timing.update(timing)
 
         self.abort = False
-        self.rewards['sure'] = 0.7*self.rewards['correct']
 
         # set action and observation space
         self.action_space = spaces.Discrete(4)

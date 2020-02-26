@@ -93,7 +93,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         # Observations
         # ---------------------------------------------------------------------
         signed_coh = coh if ground_truth == 1 else -coh
-        self.add_ob(1, period='fixation', where='fixation')
+        self.add_ob(1, period=['fixation', 'stimulus'], where='fixation')
         self.add_ob((1 + signed_coh / 100) / 2, period='stimulus',
                     where='stimulus1')
         self.add_ob((1 - signed_coh / 100) / 2, period='stimulus',
