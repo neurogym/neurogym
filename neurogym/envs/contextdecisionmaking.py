@@ -59,6 +59,7 @@ class ContextDecisionMaking(ngym.PeriodEnv):
 
         # set action and observation space
         self.action_space = spaces.Discrete(3)
+        self.act_dict = {'fixation': 0, 'choice1': 1, 'choice2': 2}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(7,),
                                             dtype=np.float32)
         names = ['fixation', 'stim1_mod1', 'stim2_mod1',
