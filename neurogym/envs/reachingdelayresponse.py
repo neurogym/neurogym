@@ -19,10 +19,6 @@ class ReachingDelayResponse(ngym.PeriodEnv):
         'where the stimulus was located.',
         'paper_link': None,
         'paper_name': None,
-        'timing': {
-            'stimulus': ('constant', 500),
-            'delay': ('choice', [0, 1000, 2000]),
-            'decision': ('constant', 5000)},
         'tags': ['perceptual', 'delayed response', 'continuous action space',
                  'multidimensional action space', 'supervised']
     }
@@ -32,16 +28,8 @@ class ReachingDelayResponse(ngym.PeriodEnv):
         """
         Working memory visual spatial task ~ Funahashi et al. 1991 adapted to
         freely moving mice in a continous choice-space.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_MISS:  given when not responding when a response was expected.
-            (def: -0.5, float)
-
-        timing: Description and duration of periods forming a trial.
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         self.lowbound = lowbound
         self.highbound = highbound
         self.sigma = np.sqrt(2 * 100 * 0.01)
@@ -51,6 +39,13 @@ class ReachingDelayResponse(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': -0., 'miss': -0.5}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+            'stimulus': ('constant', 500),
+            'delay': ('choice', [0, 1000, 2000]),
+            'decision': ('constant', 5000)}
+        if timing:
+            self.timing.update(timing)
 
         self.r_tmax = self.rewards['miss']
         self.abort = False
@@ -62,6 +57,7 @@ class ReachingDelayResponse(ngym.PeriodEnv):
         self.observation_space = spaces.Box(low=np.array([0., -2]),
                                             high=np.array([1, 2.]),
                                             dtype=np.float32)
+        self.ob_dict = {'go': 0, 'stimulus': 1}
 
     def new_trial(self, **kwargs):
         # Trial
@@ -74,22 +70,12 @@ class ReachingDelayResponse(ngym.PeriodEnv):
         # Periods
         self.add_period(['stimulus', 'delay', 'decision'], after=0, last_period=True)
 
-        stimulus = self.view_ob('stimulus')
-        stimulus[:, 1] = ground_truth_stim
-        stimulus[:, 1] +=\
-            self.rng.rand(stimulus.shape[0])*self.sigma_dt
-
-        gt = self.view_groundtruth('stimulus')
-        for ep in ['stimulus', 'delay']:
-            gt[:, 0] = -1.  # fixate
-            # no stim ~ arbitrary number, can cause issues with regression:
-            gt[:, 1] = -0.5
-
+        self.add_ob(ground_truth_stim, 'stimulus', where='stimulus')
         self.set_ob([0, -0.5], 'delay')
         self.set_ob([1, -0.5], 'decision')
-        decision_gt = self.view_groundtruth('decision')
-        decision_gt[:, 0] = 1.  # go
-        decision_gt[:, 1] = ground_truth_stim  # Where to respond
+
+        self.set_groundtruth([-1, -0.5], ['stimulus', 'delay'])
+        self.set_groundtruth([1, ground_truth_stim], 'decision')
 
     def _step(self, action):
         new_trial = False
@@ -112,4 +98,4 @@ class ReachingDelayResponse(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = ReachingDelayResponse()
-    ngym.utils.plot_env(env, num_steps_env=20)
+    ngym.utils.plot_env(env, num_steps_env=100)

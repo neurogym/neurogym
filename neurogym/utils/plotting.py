@@ -122,6 +122,8 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, performance=None,
     fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
     env: environment class for extra information
     """
+    obs = np.array(obs)
+    actions = np.array(actions)
     if len(obs.shape) != 2:
         raise ValueError('obs has to be 2-dimensional.')
     steps = np.arange(obs.shape[0])  # XXX: +1? 1st obs doesn't have action/gt
@@ -164,7 +166,11 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, performance=None,
 
     # actions
     ax = axes[1]
-    ax.plot(steps, actions, marker='+', label='Actions')
+    if len(actions.shape) > 1:
+        # Changes not implemented yet
+        ax.plot(steps, actions, marker='+', label='Actions')
+    else:
+        ax.plot(steps, actions, marker='+', label='Actions')
     if gt is not None:
         gt = np.array(gt)
         if len(gt.shape) > 1:

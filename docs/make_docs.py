@@ -38,7 +38,7 @@ def write_doc(write_type):
             # Get information about individual task or wrapper
             string += '___\n\n'
             info_string = info_fn(name)
-            info_string = info_string.replace('\n', '\n\n')  # for markdown
+            info_string = info_string.replace('\n', '  \n')  # for markdown
 
             # If task, add link to tags
             if write_type == 'tasks':

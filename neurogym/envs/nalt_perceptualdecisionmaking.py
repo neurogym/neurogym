@@ -30,31 +30,21 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
           on average.''',
         'paper_link': None,
         'paper_name': None,
-        'timing': {
-            'fixation': ('constant', 500),
-            'stimulus': ('truncated_exponential', [330, 80, 1500]),
-            'decision': ('constant', 500)},
         'tags': ['perceptual', 'n-alternative', 'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, stimEv=1., n_ch=3):
+    def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1., n_ch=3):
         """
         N-alternative forced choice task in which the subject has
         to integrate N stimuli to decide which one is higher on average.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: 0., float)
-        timing: Description and duration of periods forming a trial.
-        stimEv: Controls the difficulty of the experiment. (def: 1., float)
+        stim_scale: Controls the difficulty of the experiment. (def: 1., float)
         n_ch: Number of choices. (def: 3, int)
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         self.n = n_ch
         self.choices = np.arange(n_ch) + 1
-        # cohs specifies the amount of evidence (which is modulated by stimEv)
-        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
+        # cohs specifies the amount of evidence (which is modulated by stim_scale)
+        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stim_scale
         # Input noise
         sigma = np.sqrt(2*100*0.01)
         self.sigma_dt = sigma / np.sqrt(self.dt)
@@ -63,6 +53,12 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
         if rewards:
             self.rewards.update(rewards)
+        self.timing = {
+            'fixation': ('constant', 500),
+            'stimulus': ('truncated_exponential', [330, 80, 1500]),
+            'decision': ('constant', 500)}
+        if timing:
+            self.timing.update(timing)
 
         self.abort = False
         # action and observation spaces

@@ -18,7 +18,7 @@ class YourTask(ngym.PeriodEnv):  # TIP: if task has periods (alt.: ngym.TrialEnv
         'paper_name': '',
         # alts.: 'constant', 'uniform', 'truncated_exponential' and 'choice'
         # (see neurogym/utils/tasktools.random_number_fn)
-        'timing': {
+        self.timing = {
             'period 1 (e.g. fixation)': ('constant', 'value'),
             'period 2 (e.g. stimulus)': ('truncated_exponential',
                                          ['mean', 'min', 'max']),
@@ -29,7 +29,7 @@ class YourTask(ngym.PeriodEnv):  # TIP: if task has periods (alt.: ngym.TrialEnv
     }
 
     def __init__(self, dt=100, timing=None, extra_input_param=None):
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         # Possible decisions at the end of the trial
         self.choices = [1, 2]  # e.g. [left, right]
 

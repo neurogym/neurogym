@@ -33,13 +33,6 @@ class PostDecisionWager(ngym.PeriodEnv):
         '759.long',
         'paper_name': '''Representation of Confidence Associated with a
          Decision by Neurons in the Parietal Cortex''',
-        'timing': {
-            'fixation': ('constant', 100),  # XXX: not specified
-            # 'target':  ('constant', 0), # XXX: not implemented, not specified
-            'stimulus': ('truncated_exponential', [180, 100, 900]),
-            'delay': ('truncated_exponential', [1350, 1200, 1800]),
-            'pre_sure': ('uniform', [500, 750]),
-            'decision': ('constant', 100)},  # XXX: not specified
         'tags': ['perceptual', 'delayed response', 'confidence']
     }
 
@@ -49,14 +42,8 @@ class PostDecisionWager(ngym.PeriodEnv):
         random half of the trials, the agent is given the option to abort
         the direction discrimination and to choose instead a small but
         certain reward associated with a action.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: 0., float)
-        timing: Description and duration of periods forming a trial.
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
 #        # Actions
 #        self.actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT',
 #                                        'CHOOSE-RIGHT', 'CHOOSE-SURE')
@@ -74,9 +61,19 @@ class PostDecisionWager(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
         if rewards:
             self.rewards.update(rewards)
+        self.rewards['sure'] = 0.7 * self.rewards['correct']
+
+        self.timing = {
+            'fixation': ('constant', 100),  # XXX: not specified
+            # 'target':  ('constant', 0), # XXX: not implemented, not specified
+            'stimulus': ('truncated_exponential', [180, 100, 900]),
+            'delay': ('truncated_exponential', [1350, 1200, 1800]),
+            'pre_sure': ('uniform', [500, 750]),
+            'decision': ('constant', 100)}  # XXX: not specified
+        if timing:
+            self.timing.update(timing)
 
         self.abort = False
-        self.rewards['sure'] = 0.7*self.rewards['correct']
 
         # set action and observation space
         self.action_space = spaces.Discrete(4)

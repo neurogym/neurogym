@@ -20,29 +20,17 @@ class CVLearning(ngym.PeriodEnv):
         'paper_link': 'https://www.nature.com/articles/s41586-019-0919-7',
         'paper_name': 'Discrete attractor dynamics underlies persistent' +
         ' activity in the frontal cortex',
-        'timing': {
-            'fixation': ('constant', 200),
-            'stimulus': ('constant', 1150),
-            'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
-            # 'go_cue': ('constant', 100), # TODO: Not implemented
-            'decision': ('constant', 1500)},
         'tags': ['perceptual', 'delayed response', 'two-alternative',
                  'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, stimEv=1.,
+    def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
                  perf_w=100, max_num_reps=3, init_ph=0, th=0.8):
         """
         Implements shaping for the delay-response task, in which agents
         have to integrate two stimuli and report which one is larger on
         average after a delay.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: -1., float)
-        timing: Description and duration of periods forming a trial.
-        stimEv: Controls the difficulty of the experiment. (def: 1., float)
+        stim_scale: Controls the difficulty of the experiment. (def: 1., float)
         perf_w: Window used to compute the mean reward. (def: 1000, int)
         max_num_reps: Maximum number of times that agent can go in a row
         to the same side during phase 0. (def: 3, int)
@@ -50,10 +38,10 @@ class CVLearning(ngym.PeriodEnv):
         th: Performance threshold needed to proceed to the following phase.
         (def: 0.8, float)
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         self.choices = [1, 2]
-        # cohs specifies the amount of evidence (which is modulated by stimEv)
-        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
+        # cohs specifies the amount of evidence (which is modulated by stim_scale)
+        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stim_scale
         # Input noise
         sigma = np.sqrt(2*100*0.01)
         self.sigma_dt = sigma / np.sqrt(self.dt)
@@ -62,6 +50,15 @@ class CVLearning(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': -1.}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('constant', 200),
+            'stimulus': ('constant', 1150),
+            'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
+            # 'go_cue': ('constant', 100), # TODO: Not implemented
+            'decision': ('constant', 1500)}
+        if timing:
+            self.timing.update(timing)
 
         self.action = 0
         self.abort = False
@@ -101,7 +98,7 @@ class CVLearning(ngym.PeriodEnv):
         }
 
         # init durations with None
-        self.durs = {key: None for key in self.metadata['timing']}
+        self.durs = {key: None for key in self.timing}
 
         self.first_choice_rew = None
         if self.curr_ph == 0:

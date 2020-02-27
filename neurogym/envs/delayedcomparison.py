@@ -25,12 +25,6 @@ class DelayedComparison(ngym.PeriodEnv):
         'paper_link': 'https://www.jneurosci.org/content/30/28/9424',
         'paper_name': '''Neuronal Population Coding of Parametric
         Working Memory''',
-        'timing': {
-            'fixation': ('uniform', (1500, 3000)),
-            'f1': ('constant', 500),
-            'delay': ('constant', 3000),
-            'f2': ('constant', 500),
-            'decision': ('constant', 100)},  # XXX: not specified
         'tags': ['perceptual', 'working memory', 'two-alternative',
                  'supervised']
     }
@@ -40,15 +34,8 @@ class DelayedComparison(ngym.PeriodEnv):
         Two-alternative forced choice task in which the subject
         has to compare two stimuli separated by a delay to decide
         which one has a higher frequency.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: 0., float)
-        timing: Description and duration of periods forming a trial.
         """
-        # call ngm __init__ function
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
 
         # trial conditions
         self.choices = [1, 2]
@@ -62,6 +49,15 @@ class DelayedComparison(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('uniform', (1500, 3000)),
+            'f1': ('constant', 500),
+            'delay': ('constant', 3000),
+            'f2': ('constant', 500),
+            'decision': ('constant', 100)}
+        if timing:
+            self.timing.update(timing)
 
         self.abort = False
 

@@ -20,13 +20,6 @@ class DelayedMatchCategory(ngym.PeriodEnv):
         'paper_link': 'https://www.nature.com/articles/nature05078',
         'paper_name': '''Experience-dependent representation
         of visual categories in parietal cortex''',
-        'timing': {
-            'fixation': ('constant', 500),
-            'sample': ('constant', 650),
-            'first_delay': ('constant', 1000),
-            'test': ('constant', 650)},
-        # 'second_delay': ('constant', 250),  # TODO: not implemented
-        # 'decision': ('constant', 650)},  # TODO: not implemented
         'tags': ['perceptual', 'working memory', 'two-alternative',
                  'supervised']
     }
@@ -35,14 +28,8 @@ class DelayedMatchCategory(ngym.PeriodEnv):
         """
         A sample stimulus is followed by a delay and test. Agents are required
         to indicate if the sample and test are in the same category.
-        dt: Timestep duration.
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: 0., float)
-        timing: Description and duration of periods forming a trial.
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         self.choices = [1, 2]  # match, non-match
 
         # Input noise
@@ -53,6 +40,16 @@ class DelayedMatchCategory(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('constant', 500),
+            'sample': ('constant', 650),
+            'first_delay': ('constant', 1000),
+            'test': ('constant', 650)}
+        # 'second_delay': ('constant', 250),  # TODO: not implemented
+        # 'decision': ('constant', 650)},  # TODO: not implemented}
+        if timing:
+            self.timing.update(timing)
 
         self.abort = False
 

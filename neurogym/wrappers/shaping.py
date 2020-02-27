@@ -68,6 +68,7 @@ class Shaping(ngym.TrialWrapper):
 
     def new_trial(self, **kwargs):
         self.set_phase()
+        print('------')
         print('curr_ph: ', self.curr_ph)
         self.first_choice = True
         self.performance = 0
@@ -78,23 +79,19 @@ class Shaping(ngym.TrialWrapper):
         self.env.num_tr += 1
 
         if self.curr_ph < 2:
-            self.env.sigma_dt = 0
-            timing = self.env.timing.copy()
             if not self.short:
-                print('ori: ', timing)
+                print('ori: ', self.env.timing)
                 self.short = True
                 self.variable = False
                 for key, val in self.ori_periods.items():
                     if key in self.change_periods:
                         dist, args = val
-                        timing[key] = ('constant', self.short_dur)
-                print('new: ', timing)
-            self.build_timing_fns(**timing)
+                        self.env.timing[key] = ('constant', self.short_dur)
+                print('new: ', self.env.timing)
 
         elif 2 <= self.curr_ph < 4:
-            timing = self.env.timing.copy()
             if not self.short or not self.variable:
-                print('ori: ', timing)
+                print('ori: ', self.env.timing)
                 self.short = True
                 self.variable = True
                 for key, val in self.ori_periods.items():
@@ -102,24 +99,22 @@ class Shaping(ngym.TrialWrapper):
                         dist, args = val
                         if dist != 'constant':
                             factor = self.short_dur/args[0]
-                            timing[key] =\
+                            self.env.timing[key] =\
                                 (dist, [int(n*factor/self.env.dt)*self.env.dt
                                         for n in args])
                         else:
-                            timing[key] = ('constant', self.short_dur)
-                print('new: ', timing)
-            self.build_timing_fns(**timing)
-            if self.curr_ph == 2:
-                self.env.sigma_dt = 0
-            elif self.curr_ph == 3:
-                self.env.sigma_dt = self.sigma_dt_ori
+                            self.env.timing[key] = ('constant', self.short_dur)
+                print('new: ', self.env.timing)
 
         else:
-            self.env.sigma_dt = self.sigma_dt_ori
             print('ori: ', self.env.timing)
-            timing = self.ori_periods
-            self.build_timing_fns(**timing)
-            print('new: ', timing)
+            self.env.timing = self.ori_periods
+            print('new: ', self.env.timing)
+
+        if self.curr_ph <= 2:
+            self.env.sigma_dt = 0
+        else:
+            self.env.sigma_dt = self.sigma_dt_ori
 
         self.env.new_trial()
 
@@ -159,7 +154,7 @@ class Shaping(ngym.TrialWrapper):
                 self.new_trial()
         else:
             obs, reward, done, info = self.env.step(action)
-            if 2 <= self.curr_ph < 5:
+            if self.curr_ph < 5:
                 reward = max(reward, 0)
             if info['new_trial']:
                 self.performance = info['performance']

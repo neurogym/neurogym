@@ -34,11 +34,17 @@ def env_string(env):
         string += "[{:s}]({:s})\n".format(paper_name, paper_link)
     # add timing info
     if isinstance(env, PeriodEnv):
-        timing = metadata['timing']
-        string += '\nDefault Period timing (ms) \n'
+        timing = env.timing
+        string += '\nPeriod timing (ms) \n'
         for key, val in timing.items():
             dist, args = val
-            string += key + ' : ' + dist + ' ' + str(args) + '\n'
+            string += key + ' : ' + tasktools.random_number_name(dist, args) + '\n'
+
+    if env.rewards:
+        string += '\nReward structure \n'
+        for key, val in env.rewards.items():
+            string += key + ' : ' + str(val) + '\n'
+
     # add extra info
     other_info = list(set(metadata.keys()) - set(METADATA_DEF_KEYS))
     if len(other_info) > 0:
@@ -156,7 +162,7 @@ class TrialEnv(BaseEnv):
 class PeriodEnv(TrialEnv):
     """Environment class with trial/period structure."""
 
-    def __init__(self, dt=100, timing=None, num_trials_before_reset=10000000,
+    def __init__(self, dt=100, num_trials_before_reset=10000000,
                  r_tmax=0):
         super(PeriodEnv, self).__init__(
             dt=dt, num_trials_before_reset=num_trials_before_reset,
@@ -164,11 +170,13 @@ class PeriodEnv(TrialEnv):
 
         self.gt = None
 
-        default_timing = self.metadata['timing'].copy()
-        if timing is not None:
-            default_timing.update(timing)
-        self.timing = default_timing
-        self.build_timing_fns()
+        self.timing = {}
+        # default_timing = self.metadata['timing'].copy()
+        # if timing is not None:
+        #     default_timing.update(timing)
+        # self.timing = default_timing
+        # self.timing_fn = dict()
+        # self.build_timing_fns()
 
         self.start_t = dict()
         self.end_t = dict()
@@ -179,9 +187,22 @@ class PeriodEnv(TrialEnv):
         """Information about task."""
         return env_string(self)
 
-    def build_timing_fns(self, **kwargs):
+    def sample_time(self, period):
+        dist, args = self.timing[period]
+        if dist == 'uniform':
+            t = self.rng.uniform(*args)
+        elif dist == 'choice':
+            t = self.rng.choice(args)
+        elif dist == 'truncated_exponential':
+            t = tasktools.trunc_exp_new(self.rng, *args)
+        elif dist == 'constant':
+            t = args
+        else:
+            raise ValueError('Unknown dist:', str(dist))
+        return (t // self.dt) * self.dt
+
+    def build_timing_fns_obsolete(self, **kwargs):
         self.timing.update(kwargs)
-        self.timing_fn = dict()
         for key, val in self.timing.items():
             dist, args = val
             self.timing_fn[key] = tasktools.random_number_fn(dist, args,
@@ -208,19 +229,22 @@ class PeriodEnv(TrialEnv):
         if isinstance(period, str):
             pass
         else:
-            if duration is not None:
-                raise ValueError('Setting duration with period other than '
-                                 'string not supported yet')
+            if duration is None:
+                duration = [None] * len(period)
+            else:
+                assert len(duration) == len(period), 'duration and period must have same length'
+
             # Recursively calling itself
-            self.add_period(period[0], after=after)
+            self.add_period(period[0], duration=duration[0], after=after)
             for i in range(1, len(period)):
                 is_last = (i == len(period) - 1) and last_period
-                self.add_period(period[i], after=period[i - 1],
-                                last_period=is_last)
+                self.add_period(period[i], duration=duration[i],
+                                after=period[i - 1], last_period=is_last)
             return
 
         if duration is None:
-            duration = (self.timing_fn[period]() // self.dt) * self.dt
+            # duration = (self.timing_fn[period]() // self.dt) * self.dt
+            duration = self.sample_time(period)
         if duration == self.dt:
             warnings.warn('Warning: Time for period {:s} {:f}'.format(period,
                                                                       duration,
@@ -271,6 +295,13 @@ class PeriodEnv(TrialEnv):
             period: string, must be name of an added period
             where: string or np array, location of stimulus to be added
         """
+        if isinstance(period, str) or period is None:
+            pass
+        else:
+            for p in period:
+                self._add_ob(value, p, where, reset=reset)
+            return
+
         assert self._trial_built, 'Trial was not succesfully built.' +\
             ' (Hint: make last_period=True when adding the last period)'
         # self.obs[self.start_ind[period]:self.end_ind[period]] = value
@@ -302,6 +333,13 @@ class PeriodEnv(TrialEnv):
         self._add_ob(value, period, where, reset=False)
 
     def add_randn(self, mu=0, sigma=1, period=None):
+        if isinstance(period, str) or period is None:
+            pass
+        else:
+            for p in period:
+                self.add_randn(mu, sigma, p)
+            return
+
         ob = self.view_ob(period=period)
         if mu:
             ob += mu
@@ -312,7 +350,11 @@ class PeriodEnv(TrialEnv):
 
     def set_groundtruth(self, value, period):
         """Set groundtruth value."""
-        self.gt[self.start_ind[period]: self.end_ind[period]] = value
+        if isinstance(period, str):
+            self.gt[self.start_ind[period]: self.end_ind[period]] = value
+        else:
+            for p in period:
+                self.set_groundtruth(value, p)
 
     def view_groundtruth(self, period):
         """View observation of an period."""

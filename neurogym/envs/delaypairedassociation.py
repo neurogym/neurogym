@@ -20,13 +20,6 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         'paper_link': 'https://elifesciences.org/articles/43191',
         'paper_name': 'Active information maintenance in working memory' +
         ' by a sensory cortex',
-        'timing': {
-            'fixation': ('constant', 0),
-            'stim1': ('constant', 1000),
-            'delay_btw_stim': ('constant', 13000),
-            'stim2': ('constant', 1000),
-            'delay_aft_stim': ('constant', 1000),
-            'decision': ('constant', 500)},
         'tags': ['perceptual', 'working memory', 'go-no-go',
                  'supervised']
     }
@@ -35,21 +28,11 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         """
         A sample is followed by a delay and a test. Agents have to report if
         the pair sample-test is a rewarded pair or not.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: -1., float)
-            R_MISS:  given when not responding when a response was expected.
-            (def: 0., float)
-        timing: Description and duration of periods forming a trial.
-        noise: Standard deviation of the Gaussian noise added to
-        the stimulus. (def: 0.01, float)
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         self.choices = [0, 1]
         # trial conditions
-        self.dpa_pairs = [(1, 3), (1, 4), (2, 3), (2, 4)]
+        self.pairs = [(1, 3), (1, 4), (2, 3), (2, 4)]
         self.association = 0  # GO if np.diff(self.pair)[0]%2==self.association
         # Input noise
         sigma = np.sqrt(2*100*noise)
@@ -61,11 +44,23 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         if rewards:
             self.rewards.update(rewards)
 
+        self.timing = {
+            'fixation': ('constant', 0),
+            'stim1': ('constant', 1000),
+            'delay_btw_stim': ('constant', 13000),
+            'stim2': ('constant', 1000),
+            'delay_aft_stim': ('constant', 1000),
+            'decision': ('constant', 500)}
+        if timing:
+            self.timing.update(timing)
+
         self.abort = False
         # action and observation spaces
         self.action_space = spaces.Discrete(2)
+        self.act_dict = {'fixation': 0, 'go': 1}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(5,),
                                             dtype=np.float32)
+        self.ob_dict = {'fixation': 0, 'stimulus': range(1, 5)}
 
     def new_trial(self, **kwargs):
         """
@@ -78,7 +73,7 @@ class DelayPairedAssociation(ngym.PeriodEnv):
             coh: stimulus coherence (evidence) for the trial
             obs: observation
         """
-        pair = self.dpa_pairs[self.rng.choice(len(self.dpa_pairs))]
+        pair = self.pairs[self.rng.choice(len(self.pairs))]
         self.trial = {
             'pair': pair,
             'ground_truth': int(np.diff(pair)[0] % 2 == self.association),
@@ -95,18 +90,10 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         # Trial
         # ---------------------------------------------------------------------
         # set observations
-        self.set_ob([1, 0, 0, 0, 0], 'fixation')
-
-        ob = self.view_ob('stim1')
-        ob[:, 0] = 1
-        ob[:, pair[0]] = 1 + self.rng.randn(ob.shape[0]) * self.sigma_dt
-
-        ob = self.view_ob('stim2')
-        ob[:, 0] = 1
-        ob[:, pair[1]] = 1 + self.rng.randn(ob.shape[0]) * self.sigma_dt
-
-        self.set_ob([1, 0, 0, 0, 0], 'delay_btw_stim')
-        self.set_ob([1, 0, 0, 0, 0], 'delay_aft_stim')
+        self.add_ob(1, where='fixation')
+        self.add_ob(1, 'stim1', where=pair[0])
+        self.add_ob(1, 'stim2', where=pair[1])
+        self.set_ob(0, 'decision')
         # set ground truth
         self.set_groundtruth(self.trial['ground_truth'], 'decision')
 

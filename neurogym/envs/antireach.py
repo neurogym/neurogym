@@ -14,9 +14,6 @@ class AntiReach1D(ngym.PeriodEnv):
         'paper_link': 'https://www.nature.com/articles/nrn1345',
         'paper_name': """Look away: the anti-saccade task and
         the voluntary control of eye movement""",
-        'timing': {
-            'fixation': ('constant', 500),
-            'reach': ('constant', 500)},
         'tags': ['perceptual', 'steps action space']
     }
 
@@ -24,13 +21,8 @@ class AntiReach1D(ngym.PeriodEnv):
         """
         The agent has to move in the direction opposite to the one indicated
         by the observation.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: -0.1, float)
-        timing: Description and duration of periods forming a trial.
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         self.contexts = [0, 1]
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
@@ -43,6 +35,12 @@ class AntiReach1D(ngym.PeriodEnv):
         self.rewards = {'correct': +1., 'fail': -0.1}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('constant', 500),
+            'reach': ('constant', 500)}
+        if timing:
+            self.timing.update(timing)
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------

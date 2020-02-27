@@ -22,16 +22,11 @@ class MatchingPenny(ngym.TrialEnv):
         'tags': ['two-alternative', 'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, opponent_type='mean_action',
-                 learning_rate=0.2, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None,
+                 opponent_type='mean_action', learning_rate=0.2):
         """
         The agent is rewarded when it selects the same target as the computer.
-        dt: Timestep duration. (def: 100 (ms), int)
         opponent_type: Type of opponent. (def: 'mean_action', str)
-        rewards:
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: 0., float)
-        timing: Description and duration of periods forming a trial.
         learning_rate: learning rate in the mean_action opponent
         """
         super().__init__(dt=dt)

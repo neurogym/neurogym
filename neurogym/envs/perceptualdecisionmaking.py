@@ -16,31 +16,24 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         'paper_link': 'https://www.jneurosci.org/content/12/12/4745',
         'paper_name': '''The analysis of visual motion: a comparison of
         neuronal and psychophysical performance''',
-        'timing': {
-            'fixation': ('constant', 100),  # TODO: depends on subject
-            'stimulus': ('constant', 2000),
-            'decision': ('constant', 100)},  # XXX: not specified
         'tags': ['perceptual', 'two-alternative', 'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, stimEv=1.):
+    def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.):
         """
         Two-alternative forced choice task in which the subject has to
         integrate two stimuli to decide which one is higher on average.
 
         Parameters:
         dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: 0., float)
+        rewards: reward dictionary
         timing: Description and duration of periods forming a trial.
-        stimEv: Controls the difficulty of the experiment. (def: 1., float)
+        stim_scale: Controls the difficulty of the experiment. (def: 1., float)
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         self.choices = [1, 2]  # [left, right]
-        # cohs specifies the amount of evidence (which is modulated by stimEv)
-        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stimEv
+        # cohs specifies the amount of evidence (which is modulated by stim_scale)
+        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stim_scale
         # Input noise
         sigma = np.sqrt(2 * 100 * 0.01)
         self.sigma_dt = sigma / np.sqrt(self.dt)
@@ -49,6 +42,13 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
         if rewards:
             self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('constant', 100),  # TODO: depends on subject
+            'stimulus': ('constant', 2000),
+            'decision': ('constant', 100)}  # XXX: not specified
+        if timing:
+            self.timing.update(timing)
 
         self.abort = False
 
@@ -93,7 +93,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         # Observations
         # ---------------------------------------------------------------------
         signed_coh = coh if ground_truth == 1 else -coh
-        self.add_ob(1, period='fixation', where='fixation')
+        self.add_ob(1, period=['fixation', 'stimulus'], where='fixation')
         self.add_ob((1 + signed_coh / 100) / 2, period='stimulus',
                     where='stimulus1')
         self.add_ob((1 - signed_coh / 100) / 2, period='stimulus',
@@ -143,34 +143,21 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         'paper_link': 'https://www.nature.com/articles/s41586-019-0919-7',
         'paper_name': 'Discrete attractor dynamics underlies persistent' +
         ' activity in the frontal cortex',
-        'timing': {
-            'fixation': ('constant', 0),
-            'stimulus': ('constant', 1150),
-            #  TODO: sampling of delays follows exponential
-            'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
-            # 'go_cue': ('constant', 100), # TODO: Not implemented
-            'decision': ('constant', 1500)},
-        'stimEv': 'Controls the difficulty of the experiment. (def: 1.)',
+        'stim_scale': 'Controls the difficulty of the experiment. (def: 1.)',
         'tags': ['perceptual', 'delayed response', 'two-alternative',
                  'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, stimEv=1.):
+    def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.):
         """
         Agents have to integrate two stimuli and report which one is
         larger on average after a delay.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: -1., float)
-        timing: Description and duration of periods forming a trial.
-        stimEv: Controls the difficulty of the experiment. (def: 1., float)
+        stim_scale: Controls the difficulty of the experiment. (def: 1., float)
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         self.choices = [1, 2]
-        # cohs specifies the amount of evidence (which is modulated by stimEv)
-        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stimEv
+        # cohs specifies the amount of evidence (which is modulated by stim_scale)
+        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stim_scale
         # Input noise
         sigma = np.sqrt(2*100*0.01)
         self.sigma_dt = sigma / np.sqrt(self.dt)
@@ -180,9 +167,16 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
                         'fail': 0.}
         if rewards:
             self.rewards.update(rewards)
-        self.rewards['abort'] = self.rewards['abort']
-        self.rewards['correct'] = self.rewards['correct']
-        self.rewards['fail'] = self.rewards['fail']
+
+        self.timing = {
+            'fixation': ('constant', 0),
+            'stimulus': ('constant', 1150),
+            #  TODO: sampling of delays follows exponential
+            'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
+            # 'go_cue': ('constant', 100), # TODO: Not implemented
+            'decision': ('constant', 1500)}
+        if timing:
+            self.timing.update(timing)
 
         self.abort = False
 
@@ -272,8 +266,6 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
 if __name__ == '__main__':
     env = PerceptualDecisionMaking(dt=20,
                                    timing={'stimulus': ('constant', 500)})
-    from neurogym.tests.test_envs import test_speed
-    test_speed(env)
     ngym.utils.plot_env(env, num_steps_env=100, def_act=1)
     # env = PerceptualDecisionMakingDelayResponse()
     # ngym.utils.plot_env(env, num_steps_env=100, def_act=1)

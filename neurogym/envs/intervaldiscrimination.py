@@ -17,13 +17,6 @@ class IntervalDiscrimination(ngym.PeriodEnv):
         'S0896627309004887',
         'paper_name': """Feature- and Order-Based Timing Representations
          in the Frontal Cortex""",
-        'timing': {  # TODO: Timing not from paper yet
-            'fixation': ('constant', 300),
-            'stim1': ('uniform', (300, 600)),
-            'delay1': ('choice', [800, 1500]),
-            'stim2': ('uniform', (300, 600)),
-            'delay2': ('constant', 500),
-            'decision': ('constant', 300)},
         'tags': ['timing', 'working memory', 'delayed response',
                  'two-alternative', 'supervised']
     }
@@ -32,51 +25,44 @@ class IntervalDiscrimination(ngym.PeriodEnv):
         """
         Agents have to report which of two stimuli presented
         sequentially is longer.
-        dt: Timestep duration. (def: 80 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: 0., float)
-        timing: Description and duration of periods forming a trial.
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         # Rewards
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
         if rewards:
             self.rewards.update(rewards)
 
+        self.timing = {
+            'fixation': ('constant', 300),
+            'stim1': ('uniform', (300, 600)),
+            'delay1': ('choice', [800, 1500]),
+            'stim2': ('uniform', (300, 600)),
+            'delay2': ('constant', 500),
+            'decision': ('constant', 300)}
+        if timing:
+            self.timing.update(timing)
+
         self.abort = False
-        # set action and observation space
-        self.action_space = spaces.Discrete(3)  # (fixate, choose 1, choose2)
-        # (fixation, stim1, stim2)
+
+        self.action_space = spaces.Discrete(3)
+        self.act_dict = {'fixation': 0, 'choice1': 1, 'choice2': 2}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
+        self.ob_dict = {'fixation': 0, 'stim1': 1, 'stim2': 2}
 
     def new_trial(self, **kwargs):
-        duration1 = self.timing_fn['stim1']()
-        duration2 = self.timing_fn['stim2']()
+        duration1 = self.sample_time('stim1')
+        duration2 = self.sample_time('stim2')
         ground_truth = 1 if duration1 > duration2 else 2
 
-        periods = ['fixation', 'stim1', 'delay1',
-                   'stim2', 'delay2', 'decision']
-        self.add_period(periods[0], after=0)
-        for i in range(1, len(periods)):
-            if periods[i] == 'stim1':
-                self.add_period(periods[i], after=periods[i - 1],
-                                duration=duration1)
-            elif periods[i] == 'stim2':
-                self.add_period(periods[i], after=periods[i - 1],
-                                duration=duration2)
-            else:
-                self.add_period(periods[i], after=periods[i - 1],
-                                last_period=i == len(periods) - 1)
+        periods = ['fixation', 'stim1', 'delay1', 'stim2', 'delay2', 'decision']
+        durations = [None, duration1, None, duration2, None, None]
+        self.add_period(periods, duration=durations, after=0, last_period=True)
 
-        self.set_ob([1, 0, 0], 'fixation')
-        self.set_ob([1, 1, 0], 'stim1')
-        self.set_ob([1, 0, 0], 'delay1')
-        self.set_ob([1, 0, 1], 'stim2')
-        self.set_ob([1, 0, 0], 'delay2')
-        self.set_ob([0, 0, 0], 'decision')
+        self.add_ob(1, where='fixation')
+        self.add_ob(1, 'stim1', where='stim1')
+        self.add_ob(1, 'stim2', where='stim2')
+        self.set_ob(0, 'decision')
 
         self.set_groundtruth(ground_truth, 'decision')
 

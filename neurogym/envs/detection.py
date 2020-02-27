@@ -17,9 +17,6 @@ class Detection(ngym.PeriodEnv):
             'description': 'The agent has to GO if a stimulus is presented.',
             'paper_link': None,
             'paper_name': None,
-            'timing': {
-                    'fixation': ('constant', 500),
-                    'stimulus': ('truncated_exponential', [1000, 500, 1500])},
             'tags': ['perceptual', 'reaction time', 'go-no-go',
                      'supervised']
             }
@@ -28,21 +25,13 @@ class Detection(ngym.PeriodEnv):
                  stim_dur=100):
         """
         The agent has to GO if a stimulus is presented.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: -1., float)
-            R_MISS:  given when not responding when a response was expected.
-            (def: -0.5, float)
-        timing: Description and duration of periods forming a trial.
         noise: Standard deviation of background noise. (def: 1., float)
         delay: If not None indicates the delay, from the moment of the start of
         the stimulus period when the actual stimulus is presented. Otherwise,
         the delay is drawn from a uniform distribution. (def: None (ms), int)
         stim_dur: Stimulus duration. (def: 100 (ms), int)
         """
-        super().__init__(dt=dt, timing=timing)
+        super().__init__(dt=dt)
         # Possible decisions at the end of the trial
         self.choices = [0, 1]
 
@@ -68,13 +57,20 @@ class Detection(ngym.PeriodEnv):
         if rewards:
             self.rewards.update(rewards)
 
+        self.timing = {
+            'fixation': ('constant', 500),
+            'stimulus': ('truncated_exponential', [1000, 500, 1500])}
+        if timing:
+            self.timing.update(timing)
+
         # whether to abort (T) or not (F) the trial when breaking fixation:
         self.abort = False
-        # action and observation spaces: [fixate, go]
+
         self.action_space = spaces.Discrete(2)
-        # observation space: [fixation cue, stim]
+        self.act_dict = {'fixation': 0, 'go': 1}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,),
                                             dtype=np.float32)
+        self.ob_dict = {'fixation': 0, 'stimulus': 1}
 
     def new_trial(self, **kwargs):
         """
@@ -82,20 +78,19 @@ class Detection(ngym.PeriodEnv):
         Here you have to set (at least):
         1. The ground truth: the correct answer for the created trial.
         2. The trial periods: fixation, stimulus...
-            """
-        # ---------------------------------------------------------------------
+        """
         # Trial
-        # ---------------------------------------------------------------------
         self.trial = {'ground_truth': self.rng.choice(self.choices)}
         self.trial.update(kwargs)  # allows wrappers to modify the trial
         ground_truth = self.trial['ground_truth']
-        # ---------------------------------------------------------------------
-        # Periods
-        # ---------------------------------------------------------------------
+
+        # Period
         self.add_period(['fixation', 'stimulus'], after=0, last_period=True)
+
         # ---------------------------------------------------------------------
         # Observations
         # ---------------------------------------------------------------------
+        # TODO: The design of this task appears unnecessarily complicated
         # all observation values are 0 by default
         # FIXATION: setting fixation cue to 1 during fixation period
         self.set_ob([1, 0], 'fixation')
@@ -165,6 +160,5 @@ class Detection(ngym.PeriodEnv):
 
 
 if __name__ == '__main__':
-    env = Detection(noise=0, timing={'stimulus': ('constant', 200)})
-    ngym.utils.plot_env(env, num_steps_env=50,
-                        legend=False)  # ,def_act=1)
+    env = Detection()
+    ngym.utils.plot_env(env, num_steps_env=50, def_act=0)
