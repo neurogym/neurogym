@@ -108,7 +108,7 @@ class TrialEnv(BaseEnv):
         raise NotImplementedError('new_trial is not defined by user.')
 
     def _step(self, action):
-        """Private interface for the environment.
+        """Private interface for the environment.n_cpu_tf_sess
 
         Receives an action and returns a new state, a reward, a flag variable
         indicating whether the experiment has ended and a dictionary with
@@ -395,8 +395,9 @@ class TrialWrapper(gym.Wrapper):
         self.task.t += self.task.dt  # increment within trial time count
         self.task.t_ind += 1
 
-        if self.t > self.tmax - self.dt:
+        if self.task.t > self.task.tmax - self.task.dt and not info['new_trial']:
             info['new_trial'] = True
+            reward += self.task.r_tmax
 
         if info['new_trial']:
             info['performance'] = self.task.performance
