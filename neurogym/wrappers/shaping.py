@@ -27,7 +27,7 @@ class Shaping(ngym.TrialWrapper):
         self.curr_ph = init_ph
         self.curr_perf = 0
         self.perf_window = perf_w
-        self.goal_perf = [th]*4
+        self.goal_perf = [th]*5
         self.mov_window = []
         self.counter = 0
         self.action = 0
@@ -38,9 +38,9 @@ class Shaping(ngym.TrialWrapper):
         self.short = False
         self.variable = True
         self.short_dur = int(short_dur*self.env.dt)
-        self.ori_timing = self.env.timing
+        # self.ori_timing = self.env.timing
         self.ori_periods = self.env.timing.copy()
-        self.sigma_dt_ori = self.env.sigma_dt
+        self.sigma_dt_ori = self.env.sigma_dt.copy()
 
     def count(self, action):
         '''
@@ -55,7 +55,7 @@ class Shaping(ngym.TrialWrapper):
                 self.prev_act = action
 
     def set_phase(self):
-        if self.curr_ph < 4:
+        if self.curr_ph < 5:
             if len(self.mov_window) >= self.perf_window:
                 self.mov_window.append(self.performance)
                 self.mov_window.pop(0)  # remove first value
@@ -71,7 +71,7 @@ class Shaping(ngym.TrialWrapper):
         print('curr_ph: ', self.curr_ph)
         self.first_choice = True
         self.performance = 0
-        self.change_periods = list(self.ori_timing.keys())[:-1]
+        self.change_periods = list(self.ori_periods.keys())[:-1]
         # this is done in the step function in core that we have overwritten
         self.env.performance = 0
         self.env.t = self.env.t_ind = 0
@@ -91,8 +91,7 @@ class Shaping(ngym.TrialWrapper):
                 print('new: ', timing)
             self.build_timing_fns(**timing)
 
-        elif self.curr_ph == 2:
-            self.env.sigma_dt = 0
+        elif 2 <= self.curr_ph < 4:
             timing = self.env.timing.copy()
             if not self.short or not self.variable:
                 print('ori: ', timing)
@@ -110,11 +109,15 @@ class Shaping(ngym.TrialWrapper):
                             timing[key] = ('constant', self.short_dur)
                 print('new: ', timing)
             self.build_timing_fns(**timing)
+            if self.curr_ph == 2:
+                self.env.sigma_dt = 0
+            elif self.curr_ph == 3:
+                self.env.sigma_dt = self.sigma_dt_ori
 
         else:
             self.env.sigma_dt = self.sigma_dt_ori
-            timing = self.env.timing.copy()
-            print('ori: ', timing)
+            print('ori: ', self.env.timing)
+            timing = self.ori_periods
             self.build_timing_fns(**timing)
             print('new: ', timing)
 
@@ -123,6 +126,7 @@ class Shaping(ngym.TrialWrapper):
     def step(self, action):
         if self.curr_ph < 2:
             obs, reward, done, info = self.env._step(action)
+            reward = max(reward, 0)
             self.env.t += self.env.dt  # increment within trial time count
             self.env.t_ind += 1
             if info['new_trial']:
@@ -155,7 +159,7 @@ class Shaping(ngym.TrialWrapper):
                 self.new_trial()
         else:
             obs, reward, done, info = self.env.step(action)
-            if self.curr_ph == 2:
+            if 2 <= self.curr_ph < 5:
                 reward = max(reward, 0)
             if info['new_trial']:
                 self.performance = info['performance']
@@ -167,8 +171,8 @@ class Shaping(ngym.TrialWrapper):
 if __name__ == '__main__':
     import neurogym as ngym
 
-    task = 'PerceptualDecisionMaking-v0'
+    task = 'PerceptualDecisionMakingDelayResponse-v0'
     env = gym.make(task)
-    env = Shaping(env, init_ph=2, short_dur=3, th=0.1, perf_w=2)
+    env = Shaping(env, init_ph=4, perf_w=2, th=0.1)
     # env.seed(0)
     ngym.utils.plot_env(env, num_steps_env=100)  # , def_act=0)
