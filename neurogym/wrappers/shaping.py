@@ -42,6 +42,8 @@ class Shaping(ngym.TrialWrapper):
         self.ori_periods = self.env.timing.copy()
         self.sigma_dt_ori = self.env.sigma_dt.copy()
 
+        self.set_parameters()
+
     def count(self, action):
         '''
         check the last three answers during stage 0 so the network has to
@@ -66,17 +68,9 @@ class Shaping(ngym.TrialWrapper):
             else:
                 self.mov_window.append(self.performance)
 
-    def new_trial(self, **kwargs):
-        self.set_phase()
-        print('------')
-        print('curr_ph: ', self.curr_ph)
-        self.first_choice = True
-        self.performance = 0
+    def set_parameters(self):
+
         self.change_periods = list(self.ori_periods.keys())[:-1]
-        # this is done in the step function in core that we have overwritten
-        self.env.performance = 0
-        self.env.t = self.env.t_ind = 0
-        self.env.num_tr += 1
 
         if self.curr_ph < 2:
             if not self.short:
@@ -116,6 +110,18 @@ class Shaping(ngym.TrialWrapper):
         else:
             self.env.sigma_dt = self.sigma_dt_ori
 
+    def new_trial(self, **kwargs):
+        self.set_phase()
+        print('------')
+        print('curr_ph: ', self.curr_ph)
+
+        self.first_choice = True
+        self.performance = 0
+        self.env.performance = 0
+        self.env.t = self.env.t_ind = 0
+        self.env.num_tr += 1
+
+        self.set_parameters()
         self.env.new_trial()
 
     def step(self, action):
@@ -168,6 +174,6 @@ if __name__ == '__main__':
 
     task = 'PerceptualDecisionMakingDelayResponse-v0'
     env = gym.make(task)
-    env = Shaping(env, init_ph=4, perf_w=2, th=0.1)
+    env = Shaping(env, init_ph=1, perf_w=2, th=0.1)
     # env.seed(0)
     ngym.utils.plot_env(env, num_steps_env=100)  # , def_act=0)
