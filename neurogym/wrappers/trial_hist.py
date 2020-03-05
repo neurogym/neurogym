@@ -45,8 +45,9 @@ class TrialHistory(ngym.TrialWrapper):
                 (1-probs)/(self.n_ch-1)
             for ind in range(self.n_ch-1):
                 tr_mat[0, ind, ind+1] = probs
+                tr_mat[1, ind, ind] = probs
             tr_mat[0, self.n_ch-1, 0] = probs
-            tr_mat[1, :, :] = tr_mat[0, :, :].T
+            tr_mat[1, self.n_ch-1, self.n_ch-1] = probs
             probs = tr_mat
         assert probs.shape[1] == self.n_ch,\
             'The number of choices {:d}'.format(probs.shape[1]) +\

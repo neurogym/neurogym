@@ -211,6 +211,12 @@ class PeriodEnv(TrialEnv):
             if min_tmp < self.dt:
                 warnings.warn('Warning: Minimum time for period {:s} {:f} smaller than dt {:f}'.format(
                     key, min_tmp, self.dt))
+            if min_tmp == self.dt:
+                warnings.warn('Warning: Period {:s} is {:f}'.format(key,
+                                                                    min_tmp)
+                              + ' and  lasts only one timestep. Agents will' +
+                              ' not have time to respond (e.g. make a choice)' +
+                              ' on time.')
 
     def add_period(self, period, duration=None, before=None, after=None,
                    last_period=False):
@@ -245,12 +251,6 @@ class PeriodEnv(TrialEnv):
         if duration is None:
             # duration = (self.timing_fn[period]() // self.dt) * self.dt
             duration = self.sample_time(period)
-        if duration == self.dt:
-            warnings.warn('Warning: Time for period {:s} {:f}'.format(period,
-                                                                      duration,
-                                                                      self.dt)
-                          + '  lasts only one timestep. Agents will not have' +
-                          ' time to respond (e.g. make a choice) on time.')
 
         if after is not None:
             if isinstance(after, str):
