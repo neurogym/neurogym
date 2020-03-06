@@ -25,17 +25,17 @@ class CVLearning(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
-                 perf_w_stage=100, max_num_reps=3, th_stage=0.8,
-                 keep_days=2, trials_day=300, stages=None):
+                 max_num_reps=3, th_stage=0.8, days_perf=1, keep_days=2,
+                 trials_day=300, stages=[0, 1, 2, 3, 4]):
         """
         Implements shaping for the delay-response task, in which agents
         have to integrate two stimuli and report which one is larger on
         average after a delay.
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)
-        perf_w: Window used to compute the mean reward. (def: 1000, int)
+        perf_w_stage: Window used to compute the mean reward. (def: 1000, int)
         max_num_reps: Maximum number of times that agent can go in a row
         to the same side during phase 0. (def: 3, int)
-        th: Performance threshold needed to proceed to the following phase.
+        th_stage: Performance threshold needed to proceed to the following phase.
         (def: 0.8, float)
         """
         super().__init__(dt=dt)
@@ -55,18 +55,14 @@ class CVLearning(ngym.PeriodEnv):
             'fixation': ('constant', 200),
             'stimulus': ('constant', 1150),
             'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
-            # 'go_cue': ('constant', 100), # TODO: Not implemented
             'decision': ('constant', 1500)}
         if timing:
             self.timing.update(timing)
 
-        if stages:
-            self.stages = stages
-        else:
-            self.stages = np.arange(5)
-
+        self.stages = stages
         self.delay_durs = self.timing['delay'][1]
 
+        self.r_fail = self.rewards['fail']
         self.action = 0
         self.abort = False
         self.firstcounts = True
@@ -80,10 +76,10 @@ class CVLearning(ngym.PeriodEnv):
         self.curr_perf = 0
         self.min_perf = 0.6
         self.delays_perf = 0.6
-        self.trials_day = trials_day
-        self.goal_perf = [th_stage]*4
+        self.trials_perf = trials_day*days_perf
+        self.goal_perf = [th_stage]*len(self.stages)
         self.perf_window = []
-        self.w_keep = [keep_days*trials_day]*4
+        self.w_keep = [keep_days*trials_day]*len(self.stages)
         self.keep_stage = False
         self.counter = 0
         self.max_num_reps = max_num_reps
@@ -146,13 +142,17 @@ class CVLearning(ngym.PeriodEnv):
             self.durs.update({'delay': (0)})
             self.trial.update({'coh': 100})
             self.trial.update({'sigma_dt': 0})
-            self.rewards['fail'] = -1
+            self.rewards['fail'] = self.r_fail
             self.firstcounts = True
         elif self.curr_ph == 3:
+            self.rewards['fail'] = self.r_fail
             if self.curr_perf > self.delays_perf and\
                self.ind_durs < len(self.delay_durs):
                 self.ind_durs += 1
-            self.durs.update({'delay': np.random(self.delay_durs[0:self.ind_durs])})
+            dur = self.delay_durs[0:self.ind_durs]
+            print(dur)
+            print('----------')
+            self.durs.update({'delay': np.random.choice(dur)})
             # delay component is introduced
             self.trial.update({'coh': 100})
             self.trial.update({'sigma_dt': 0})
@@ -202,24 +202,24 @@ class CVLearning(ngym.PeriodEnv):
                 self.counter = new
 
     def set_phase(self):
-        if self.curr_ph < 4:
-            if len(self.perf_window) == self.trials_day:
-                self.curr_perf = np.mean(self.perf_window)
-                self.perf_window = []
-                if self.curr_perf >= self.goal_perf[self.curr_ph]:
-                    self.keep_stage = True
-                elif self.curr_perf < self.min_perf and self.curr_ph == 2:
-                    self.curr_ph = 1
-            else:
-                self.perf_window.append(1*(self.rew == self.rewards['correct']))
+        if len(self.perf_window) == self.trials_perf:
+            self.curr_perf = np.mean(self.perf_window)
+            self.perf_window = []
+            if self.curr_perf >= self.goal_perf[self.ind]:
+                self.keep_stage = True
+            elif self.curr_perf < self.min_perf and self.curr_ph == 2:
+                self.curr_ph = 1
+        else:
+            self.perf_window.append(1*(self.rew == self.rewards['correct']))
 
-            if self.keep_stage:
-                self.w_keep[self.curr_ph] -= 1
-                if self.w_keep[self.curr_ph] == 0:
-                    self.ind += 1
-                    self.curr_ph = self.stages[self.ind]
-                    self.mov_window = []
-                    self.keep_stage = False
+        if self.keep_stage:
+            self.w_keep[self.ind] -= 1
+            if self.w_keep[self.ind] == 0 and\
+               self.curr_ph < self.stages[-1]:
+                self.ind += 1
+                self.curr_ph = self.stages[self.ind]
+                self.mov_window = []
+                self.keep_stage = False
 
     def _step(self, action):
         # obs, reward, done, info = self.env._step(action)
@@ -248,7 +248,8 @@ class CVLearning(ngym.PeriodEnv):
                 if not self.first_flag:
                     first_choice = True
                     self.first_flag = True
-                    self.performance = self.rewards['fail'] == self.rewards['correct']
+                    self.performance =\
+                        self.rewards['fail'] == self.rewards['correct']
 
         # check if first choice (phase 1)
         if not self.firstcounts and first_choice:
@@ -264,6 +265,6 @@ class CVLearning(ngym.PeriodEnv):
 
 
 if __name__ == '__main__':
-    env = CVLearning(stages=[0,3,4])
+    env = CVLearning()
     ngym.utils.plot_env(env, num_steps_env=100,
                         obs_traces=['Fixation Cue', 'Stim1', 'Stim2'])
