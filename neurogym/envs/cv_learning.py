@@ -25,18 +25,23 @@ class CVLearning(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
-                 max_num_reps=3, th_stage=0.8, days_perf=1, keep_days=2,
+                 max_num_reps=3, th_stage=0.7, days_perf=1, keep_days=1,
                  trials_day=300, stages=[0, 1, 2, 3, 4]):
         """
         Implements shaping for the delay-response task, in which agents
         have to integrate two stimuli and report which one is larger on
         average after a delay.
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)
-        perf_w_stage: Window used to compute the mean reward. (def: 1000, int)
         max_num_reps: Maximum number of times that agent can go in a row
         to the same side during phase 0. (def: 3, int)
-        th_stage: Performance threshold needed to proceed to the following phase.
-        (def: 0.8, float)
+        th_stage: Performance threshold needed to proceed to the following
+        phase. (def: 0.7, float)
+        days_perf: Number of days that will be used to compute the mean
+        performance (def: 1, int)
+        keep_days: Number of days that the agent will be kept in the same phase
+        once arrived to the goal performacance. (def: 1, int)
+        trials_day: Number of trials performed during one day (def: 200, int)
+        stages: Stages used to train the agent. (def: [0, 1, 2, 3, 4], list)
         """
         super().__init__(dt=dt)
         self.choices = [1, 2]
