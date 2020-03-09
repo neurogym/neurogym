@@ -26,7 +26,7 @@ class CVLearning(ngym.PeriodEnv):
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
                  max_num_reps=3, th_stage=0.7, keep_days=1,
-                 trials_day=300, perf_len=30, stages=[0, 1, 2, 3, 4]):
+                 trials_day=300, perf_len=20, stages=[0, 1, 2, 3, 4]):
         """
         Implements shaping for the delay-response task, in which agents
         have to integrate two stimuli and report which one is larger on
@@ -40,7 +40,7 @@ class CVLearning(ngym.PeriodEnv):
         once arrived to the goal performacance. (def: 1, int)
         trials_day: Number of trials performed during one day. (def: 200, int)
         perf_len: Number of trials used to compute instantaneous performance.
-        (def: 30, int)
+        (def: 20, int)
         stages: Stages used to train the agent. (def: [0, 1, 2, 3, 4], list)
         """
         super().__init__(dt=dt)
@@ -66,7 +66,6 @@ class CVLearning(ngym.PeriodEnv):
             self.timing.update(timing)
 
         self.stages = stages
-        self.delay_durs = self.timing['delay'][1]
 
         self.r_fail = self.rewards['fail']
         self.action = 0
@@ -74,29 +73,43 @@ class CVLearning(ngym.PeriodEnv):
         self.firstcounts = True
         self.first_flag = False
         self.ind = 0
-        self.ind_durs = 1
         if th_stage == -1:
             self.curr_ph = self.stages[4]
         else:
             self.curr_ph = self.stages[self.ind]
         # TODO: comment variables
         # TODO: even more descriptive names
+        self.rew = 0
+
+        # PERFORMANCE VARIABLES
+        self.trials_counter = 0
+        # Day performance
         self.curr_perf = 0
-        self.min_perf = 0.6  # TODO: no magic numbers
-        self.delays_perf = 0.6
         self.trials_day = trials_day
         self.th_perf = [th_stage]*len(self.stages)  # TODO: simplify??
         self.day_perf = np.empty(trials_day)
-        self.trials_counter = 0
-        self.inst_perf = 0
-        self.perf_len = perf_len
-        self.mov_perf = np.zeros(perf_len)
         self.w_keep = [keep_days]*len(self.stages)  # TODO: simplify??
         self.days_keep = self.w_keep[self.ind]
         self.keep_stage = False
-        self.action_counter = 0
+        # Instantaneous performance
+        self.inst_perf = 0
+        self.perf_len = perf_len
+        self.mov_perf = np.zeros(perf_len)
+
+        # STAGE VARIABLES
+        # stage 0
         self.max_num_reps = max_num_reps
-        self.rew = 0
+        self.action_counter = 0
+        # stage 2
+        # min performance to keep the agent in stage 2
+        self.min_perf = 0.6  # TODO: no magic numbers
+        # stage 3
+        self.delay_durs = self.timing['delay'][1]
+        self.inc_delays = 0.75  # threshold perf to increase delays in stage 3
+        self.dec_delays = 0.5  # threshold perf to decrease delays in stage 3
+        self.ind_durs = 1   # index of max possible duration in delays list
+        # threshold above which delays are decreased
+
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
@@ -159,9 +172,11 @@ class CVLearning(ngym.PeriodEnv):
             self.firstcounts = True
         elif self.curr_ph == 3:
             self.rewards['fail'] = self.r_fail
-            if self.inst_perf >= self.delays_perf and\
+            if self.inst_perf >= self.inc_delays and\
                self.ind_durs < len(self.delay_durs):
                 self.ind_durs += 1
+            elif self.inst_perf <= self.dec_delays and self.ind_durs >= 1:
+                self.ind_durs -= 1
             dur = self.delay_durs[0:self.ind_durs]
             print(dur)
             print('----------')
@@ -226,6 +241,7 @@ class CVLearning(ngym.PeriodEnv):
             self.inst_perf = np.mean(self.mov_perf)
             if self.inst_perf < self.min_perf and self.curr_ph == 2:
                 self.curr_ph = 1
+                self.ind -= 1
 
         if self.trials_counter >= self.trials_day:
             self.trials_counter = 0
@@ -286,7 +302,8 @@ class CVLearning(ngym.PeriodEnv):
         if new_trial and self.curr_ph == 0:
             self.action = action
         info = {'new_trial': new_trial, 'gt': gt, 'num_tr': self.num_tr,
-                'curr_ph': self.curr_ph, 'first_rew': self.rew}
+                'curr_ph': self.curr_ph, 'first_rew': self.rew,
+                'keep_stage': self.keep_stage}
         return self.obs_now, reward, False, info
 
 
