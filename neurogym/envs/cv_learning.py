@@ -81,12 +81,15 @@ class CVLearning(ngym.PeriodEnv):
         self.curr_perf = 0
         self.min_perf = 0.6
         self.delays_perf = 0.6
-        self.trials_perf = trials_day*days_perf
+        self.trials_perf = trials_day*days_perf  # TODO: simplify
         self.goal_perf = [th_stage]*len(self.stages)
-        self.perf_window = []
-        self.w_keep = [keep_days*trials_day]*len(self.stages)
-        self.keep_stage = False
-        self.counter = 0
+        # TODO: initialize with trials_day duration.
+        # TODO: define day_trial counter
+        self.day_perf = []
+        # TODO: define instantaneous performance with modifiable length
+        self.w_keep = [keep_days*trials_day]*len(self.stages)  # TODO: simplify
+        self.keep_stage = False  # TODO: maintained True only if perf > th
+        self.counter = 0  # TODO: give a more descriptive name
         self.max_num_reps = max_num_reps
         self.rew = 0
         # action and observation spaces
@@ -207,15 +210,15 @@ class CVLearning(ngym.PeriodEnv):
                 self.counter = new
 
     def set_phase(self):
-        if len(self.perf_window) == self.trials_perf:
-            self.curr_perf = np.mean(self.perf_window)
-            self.perf_window = []
+        if len(self.day_perf) == self.trials_perf:
+            self.curr_perf = np.mean(self.day_perf)
+            self.day_perf = []
             if self.curr_perf >= self.goal_perf[self.ind]:
                 self.keep_stage = True
             elif self.curr_perf < self.min_perf and self.curr_ph == 2:
                 self.curr_ph = 1
         else:
-            self.perf_window.append(1*(self.rew == self.rewards['correct']))
+            self.day_perf.append(1*(self.rew == self.rewards['correct']))
 
         if self.keep_stage:
             self.w_keep[self.ind] -= 1
