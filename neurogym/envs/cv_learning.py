@@ -25,8 +25,8 @@ class CVLearning(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
-                 max_num_reps=3, th_stage=0.7, days_perf=1, keep_days=1,
-                 trials_day=300, stages=[0, 1, 2, 3, 4]):
+                 max_num_reps=3, th_stage=0.7, keep_days=1,
+                 trials_day=300, perf_len = 30, stages=[0, 1, 2, 3, 4]):
         """
         Implements shaping for the delay-response task, in which agents
         have to integrate two stimuli and report which one is larger on
@@ -36,11 +36,11 @@ class CVLearning(ngym.PeriodEnv):
         to the same side during phase 0. (def: 3, int)
         th_stage: Performance threshold needed to proceed to the following
         phase. (def: 0.7, float)
-        days_perf: Number of days that will be used to compute the mean
-        performance (def: 1, int)
         keep_days: Number of days that the agent will be kept in the same phase
         once arrived to the goal performacance. (def: 1, int)
-        trials_day: Number of trials performed during one day (def: 200, int)
+        trials_day: Number of trials performed during one day. (def: 200, int)
+        perf_len: Number of trials used to compute instantaneous performance.
+        (def: 30, int)
         stages: Stages used to train the agent. (def: [0, 1, 2, 3, 4], list)
         """
         super().__init__(dt=dt)
@@ -81,15 +81,17 @@ class CVLearning(ngym.PeriodEnv):
         self.curr_perf = 0
         self.min_perf = 0.6
         self.delays_perf = 0.6
-        self.trials_perf = trials_day*days_perf  # TODO: simplify
+        self.trials_day = trials_day
         self.goal_perf = [th_stage]*len(self.stages)
-        # TODO: initialize with trials_day duration.
-        # TODO: define day_trial counter
-        self.day_perf = []
-        # TODO: define instantaneous performance with modifiable length
-        self.w_keep = [keep_days*trials_day]*len(self.stages)  # TODO: simplify
-        self.keep_stage = False  # TODO: maintained True only if perf > th
-        self.counter = 0  # TODO: give a more descriptive name
+        self.day_perf = np.zeros(trials_day)
+        self.trials_counter = 0
+        self.inst_perf = 0
+        self.perf_len = perf_len
+        self.mov_perf = np.zeros(perf_len)
+        self.w_keep = [keep_days]*len(self.stages)
+        self.days_keep = self.w_keep[self.ind]
+        self.keep_stage = False
+        self.action_counter = 0
         self.max_num_reps = max_num_reps
         self.rew = 0
         # action and observation spaces
@@ -125,7 +127,7 @@ class CVLearning(ngym.PeriodEnv):
         if self.curr_ph == 0:
             # no stim, reward is in both left and right
             # agent cannot go N times in a row to the same side
-            if np.abs(self.counter) >= self.max_num_reps:
+            if np.abs(self.action_counter) >= self.max_num_reps:
                 ground_truth = 1 if self.action == 2 else 2
                 self.trial.update({'ground_truth': ground_truth})
                 self.rewards['fail'] = 0
@@ -154,7 +156,7 @@ class CVLearning(ngym.PeriodEnv):
             self.firstcounts = True
         elif self.curr_ph == 3:
             self.rewards['fail'] = self.r_fail
-            if self.curr_perf > self.delays_perf and\
+            if self.inst_perf >= self.delays_perf and\
                self.ind_durs < len(self.delay_durs):
                 self.ind_durs += 1
             dur = self.delay_durs[0:self.ind_durs]
@@ -204,30 +206,43 @@ class CVLearning(ngym.PeriodEnv):
         '''
         if action != 0:
             new = action - 2/action
-            if np.sign(self.counter) == np.sign(new):
-                self.counter += new
+            if np.sign(self.action_counter) == np.sign(new):
+                self.action_counter += new
             else:
-                self.counter = new
+                self.action_counter = new
 
     def set_phase(self):
-        if len(self.day_perf) == self.trials_perf:
+
+        self.day_perf[self.trials_counter] =\
+            1*(self.rew == self.rewards['correct'])
+        self.mov_perf[self.trials_counter % self.perf_len]
+        self.trials_counter += 1
+
+        # Instantaneous perfromace
+        if self.trials_counter >= self.perf_len:
+            self.inst_perf = np.mean(self.mov_perf)
+            if self.inst_perf < self.min_perf and self.curr_ph == 2:
+                self.curr_ph = 1
+
+        if self.trials_counter >= self.trials_day:
+            self.trials_counter = 0
             self.curr_perf = np.mean(self.day_perf)
-            self.day_perf = []
+            self.day_perf = np.zeros(self.trials_counter)
             if self.curr_perf >= self.goal_perf[self.ind]:
                 self.keep_stage = True
-            elif self.curr_perf < self.min_perf and self.curr_ph == 2:
-                self.curr_ph = 1
-        else:
-            self.day_perf.append(1*(self.rew == self.rewards['correct']))
 
-        if self.keep_stage:
-            self.w_keep[self.ind] -= 1
-            if self.w_keep[self.ind] == 0 and\
-               self.curr_ph < self.stages[-1]:
-                self.ind += 1
-                self.curr_ph = self.stages[self.ind]
-                self.mov_window = []
+            else:
                 self.keep_stage = False
+                self.days_keep = self.w_keep[self.ind]
+
+            if self.keep_stage:
+                self.days_keep -= 1
+                if self.days_keep <= 0 and\
+                   self.curr_ph < self.stages[-1]:
+                    self.ind += 1
+                    self.curr_ph = self.stages[self.ind]
+                    self.days_keep = self.w_keep[self.ind]
+                    self.keep_stage = False
 
     def _step(self, action):
         # obs, reward, done, info = self.env._step(action)
