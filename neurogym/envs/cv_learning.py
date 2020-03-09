@@ -26,7 +26,7 @@ class CVLearning(ngym.PeriodEnv):
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
                  max_num_reps=3, th_stage=0.7, keep_days=1,
-                 trials_day=300, perf_len = 30, stages=[0, 1, 2, 3, 4]):
+                 trials_day=300, perf_len=30, stages=[0, 1, 2, 3, 4]):
         """
         Implements shaping for the delay-response task, in which agents
         have to integrate two stimuli and report which one is larger on
@@ -45,7 +45,8 @@ class CVLearning(ngym.PeriodEnv):
         """
         super().__init__(dt=dt)
         self.choices = [1, 2]
-        # cohs specifies the amount of evidence (which is modulated by stim_scale)
+        # cohs specifies the amount of evidence
+        # (which is modulated by stim_scale)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stim_scale
         # Input noise
         sigma = np.sqrt(2*100*0.01)
@@ -78,17 +79,19 @@ class CVLearning(ngym.PeriodEnv):
             self.curr_ph = self.stages[4]
         else:
             self.curr_ph = self.stages[self.ind]
+        # TODO: comment variables
+        # TODO: even more descriptive names
         self.curr_perf = 0
-        self.min_perf = 0.6
+        self.min_perf = 0.6  # TODO: no magic numbers
         self.delays_perf = 0.6
         self.trials_day = trials_day
-        self.goal_perf = [th_stage]*len(self.stages)
-        self.day_perf = np.zeros(trials_day)
+        self.th_perf = [th_stage]*len(self.stages)  # TODO: simplify??
+        self.day_perf = np.empty(trials_day)
         self.trials_counter = 0
         self.inst_perf = 0
         self.perf_len = perf_len
         self.mov_perf = np.zeros(perf_len)
-        self.w_keep = [keep_days]*len(self.stages)
+        self.w_keep = [keep_days]*len(self.stages)  # TODO: simplify??
         self.days_keep = self.w_keep[self.ind]
         self.keep_stage = False
         self.action_counter = 0
@@ -228,7 +231,7 @@ class CVLearning(ngym.PeriodEnv):
             self.trials_counter = 0
             self.curr_perf = np.mean(self.day_perf)
             self.day_perf = np.zeros(self.trials_counter)
-            if self.curr_perf >= self.goal_perf[self.ind]:
+            if self.curr_perf >= self.th_perf[self.ind]:
                 self.keep_stage = True
 
             else:
