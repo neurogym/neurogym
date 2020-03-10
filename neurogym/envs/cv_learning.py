@@ -60,7 +60,7 @@ class CVLearning(ngym.PeriodEnv):
         self.timing = {
             'fixation': ('constant', 200),
             'stimulus': ('constant', 1150),
-            'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
+            'delay': ('choice', [0, 1000, 3000]),
             'decision': ('constant', 1500)}
         if timing:
             self.timing.update(timing)
@@ -77,8 +77,6 @@ class CVLearning(ngym.PeriodEnv):
             self.curr_ph = self.stages[4]
         else:
             self.curr_ph = self.stages[self.ind]
-        # TODO: comment variables
-        # TODO: even more descriptive names
         self.rew = 0
 
         # PERFORMANCE VARIABLES
@@ -105,10 +103,10 @@ class CVLearning(ngym.PeriodEnv):
         self.min_perf = 0.6  # TODO: no magic numbers
         # stage 3
         self.delay_durs = self.timing['delay'][1]
-        self.inc_delays = 0.75  # threshold perf to increase delays in stage 3
-        self.dec_delays = 0.5  # threshold perf to decrease delays in stage 3
-        self.ind_durs = 1   # index of max possible duration in delays list
-        # threshold above which delays are decreased
+        self.inc_delays = 0
+        self.inc_factor = 0.25
+        self.inc_delays_th = 0.75  # th perf to increase delays in stage 3
+        self.dec_delays_th = 0.5  # th perf to decrease delays in stage 3
 
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
@@ -126,6 +124,7 @@ class CVLearning(ngym.PeriodEnv):
         """
         self.set_phase()
         print(self.curr_ph)
+        print('inst', self.inst_perf)
         if self.curr_ph == 0:
             # control that agent does not repeat side more than 3 times
             self.count(self.action)
@@ -172,12 +171,12 @@ class CVLearning(ngym.PeriodEnv):
             self.firstcounts = True
         elif self.curr_ph == 3:
             self.rewards['fail'] = self.r_fail
-            if self.inst_perf >= self.inc_delays and\
-               self.ind_durs < len(self.delay_durs):
-                self.ind_durs += 1
-            elif self.inst_perf <= self.dec_delays and self.ind_durs >= 1:
-                self.ind_durs -= 1
-            dur = self.delay_durs[0:self.ind_durs]
+            if self.inst_perf >= self.inc_delays_th and self.inc_delays < 1:
+                self.inc_delays += self.inc_factor
+            elif self.inst_perf <= self.dec_delays_th and self.inc_delays > 0:
+                self.inc_delays -= self.inc_factor
+            dur = [d*self.inc_delays for d in self.delay_durs]
+
             print(dur)
             print('----------')
             self.durs.update({'delay': np.random.choice(dur)})
@@ -230,10 +229,11 @@ class CVLearning(ngym.PeriodEnv):
                 self.action_counter = new
 
     def set_phase(self):
-
+        print(self.trials_counter)
         self.day_perf[self.trials_counter] =\
             1*(self.rew == self.rewards['correct'])
-        self.mov_perf[self.trials_counter % self.perf_len]
+        self.mov_perf[self.trials_counter % self.perf_len] =\
+            1*(self.rew == self.rewards['correct'])
         self.trials_counter += 1
 
         # Instantaneous perfromace
@@ -246,7 +246,7 @@ class CVLearning(ngym.PeriodEnv):
         if self.trials_counter >= self.trials_day:
             self.trials_counter = 0
             self.curr_perf = np.mean(self.day_perf)
-            self.day_perf = np.zeros(self.trials_counter)
+            self.day_perf = np.empty(self.trials_day)
             if self.curr_perf >= self.th_perf[self.ind]:
                 self.keep_stage = True
 
@@ -308,6 +308,6 @@ class CVLearning(ngym.PeriodEnv):
 
 
 if __name__ == '__main__':
-    env = CVLearning()
+    env = CVLearning(stages=[3])
     ngym.utils.plot_env(env, num_steps_env=100,
                         obs_traces=['Fixation Cue', 'Stim1', 'Stim2'])
