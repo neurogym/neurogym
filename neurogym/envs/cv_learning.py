@@ -109,7 +109,7 @@ class CVLearning(ngym.PeriodEnv):
         self.dec_delays_th = 0.5  # th perf to decrease delays in stage 3
         self.trials_delay = 0
         self.max_delays = True
-        self.dur = 0
+        self.dur = [0]*len(self.delay_durs)
 
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
@@ -322,4 +322,4 @@ class CVLearning(ngym.PeriodEnv):
 if __name__ == '__main__':
     env = CVLearning(stages=[3])
     data = ngym.utils.plot_env(env, num_steps_env=100,
-                        obs_traces=['Fixation Cue', 'Stim1', 'Stim2'])
+                               obs_traces=['Fixation Cue', 'Stim1', 'Stim2'])
