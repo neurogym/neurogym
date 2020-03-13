@@ -228,7 +228,7 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, performance=None,
     ax.set_xlabel('Steps')
     plt.tight_layout()
     if folder is not None and folder != '':
-        if folder.endswith('.png'):
+        if folder.endswith('.png') or folder.endswith('.svg'):
             f.savefig(folder)
         else:
             f.savefig(folder + name + 'env_struct.png')

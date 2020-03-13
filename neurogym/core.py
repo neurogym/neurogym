@@ -108,7 +108,7 @@ class TrialEnv(BaseEnv):
         raise NotImplementedError('new_trial is not defined by user.')
 
     def _step(self, action):
-        """Private interface for the environment.
+        """Private interface for the environment.n_cpu_tf_sess
 
         Receives an action and returns a new state, a reward, a flag variable
         indicating whether the experiment has ended and a dictionary with
@@ -211,6 +211,12 @@ class PeriodEnv(TrialEnv):
             if min_tmp < self.dt:
                 warnings.warn('Warning: Minimum time for period {:s} {:f} smaller than dt {:f}'.format(
                     key, min_tmp, self.dt))
+            if min_tmp == self.dt:
+                warnings.warn('Warning: Period {:s} is {:f}'.format(key,
+                                                                    min_tmp)
+                              + ' and  lasts only one timestep. Agents will' +
+                              ' not have time to respond (e.g. make a choice)' +
+                              ' on time.')
 
     def add_period(self, period, duration=None, before=None, after=None,
                    last_period=False):
@@ -245,12 +251,6 @@ class PeriodEnv(TrialEnv):
         if duration is None:
             # duration = (self.timing_fn[period]() // self.dt) * self.dt
             duration = self.sample_time(period)
-        if duration == self.dt:
-            warnings.warn('Warning: Time for period {:s} {:f}'.format(period,
-                                                                      duration,
-                                                                      self.dt)
-                          + '  lasts only one timestep. Agents will not have' +
-                          ' time to respond (e.g. make a choice) on time.')
 
         if after is not None:
             if isinstance(after, str):
@@ -260,6 +260,7 @@ class PeriodEnv(TrialEnv):
         elif before is not None:
             start = self.start_t[before] - duration
         else:
+            #  XXX: after or before?
             raise ValueError('''before or start can not be both None''')
 
         self.start_t[period] = start
@@ -395,8 +396,9 @@ class TrialWrapper(gym.Wrapper):
         self.task.t += self.task.dt  # increment within trial time count
         self.task.t_ind += 1
 
-        if self.t > self.tmax - self.dt:
+        if self.task.t > self.task.tmax - self.task.dt and not info['new_trial']:
             info['new_trial'] = True
+            reward += self.task.r_tmax
 
         if info['new_trial']:
             info['performance'] = self.task.performance

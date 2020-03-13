@@ -25,22 +25,28 @@ class CVLearning(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
-                 perf_w=100, max_num_reps=3, init_ph=0, th=0.8):
+                 max_num_reps=3, th_stage=0.7, keep_days=1,
+                 trials_day=300, perf_len=20, stages=[0, 1, 2, 3, 4]):
         """
         Implements shaping for the delay-response task, in which agents
         have to integrate two stimuli and report which one is larger on
         average after a delay.
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)
-        perf_w: Window used to compute the mean reward. (def: 1000, int)
         max_num_reps: Maximum number of times that agent can go in a row
         to the same side during phase 0. (def: 3, int)
-        init_ph: Phase initializing the task. (def: 0, int)
-        th: Performance threshold needed to proceed to the following phase.
-        (def: 0.8, float)
+        th_stage: Performance threshold needed to proceed to the following
+        phase. (def: 0.7, float)
+        keep_days: Number of days that the agent will be kept in the same phase
+        once arrived to the goal performacance. (def: 1, int)
+        trials_day: Number of trials performed during one day. (def: 200, int)
+        perf_len: Number of trials used to compute instantaneous performance.
+        (def: 20, int)
+        stages: Stages used to train the agent. (def: [0, 1, 2, 3, 4], list)
         """
         super().__init__(dt=dt)
         self.choices = [1, 2]
-        # cohs specifies the amount of evidence (which is modulated by stim_scale)
+        # cohs specifies the amount of evidence
+        # (which is modulated by stim_scale)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stim_scale
         # Input noise
         sigma = np.sqrt(2*100*0.01)
@@ -54,24 +60,57 @@ class CVLearning(ngym.PeriodEnv):
         self.timing = {
             'fixation': ('constant', 200),
             'stimulus': ('constant', 1150),
-            'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
-            # 'go_cue': ('constant', 100), # TODO: Not implemented
+            'delay': ('choice', [0, 1000, 3000]),
             'decision': ('constant', 1500)}
         if timing:
             self.timing.update(timing)
 
+        self.stages = stages
+
+        self.r_fail = self.rewards['fail']
         self.action = 0
         self.abort = False
         self.firstcounts = True
         self.first_flag = False
-        self.curr_ph = init_ph
-        self.curr_perf = 0
-        self.perf_window = perf_w
-        self.goal_perf = [th]*4
-        self.mov_window = []
-        self.counter = 0
-        self.max_num_reps = max_num_reps
+        self.ind = 0
+        if th_stage == -1:
+            self.curr_ph = self.stages[-1]
+        else:
+            self.curr_ph = self.stages[self.ind]
         self.rew = 0
+
+        # PERFORMANCE VARIABLES
+        self.trials_counter = 0
+        # Day performance
+        self.curr_perf = 0
+        self.trials_day = trials_day
+        self.th_perf = th_stage
+        self.day_perf = np.empty(trials_day)
+        self.w_keep = [keep_days]*len(self.stages)  # TODO: simplify??
+        self.days_keep = self.w_keep[self.ind]
+        self.keep_stage = False
+        # Instantaneous performance
+        self.inst_perf = 0
+        self.perf_len = perf_len
+        self.mov_perf = np.zeros(perf_len)
+
+        # STAGE VARIABLES
+        # stage 0
+        self.max_num_reps = max_num_reps
+        self.action_counter = 0
+        # stage 2
+        # min performance to keep the agent in stage 2
+        self.min_perf = 0.6  # TODO: no magic numbers
+        # stage 3
+        self.delay_durs = self.timing['delay'][1]
+        self.inc_delays = 0
+        self.inc_factor = 0.25
+        self.inc_delays_th = 0.75  # th perf to increase delays in stage 3
+        self.dec_delays_th = 0.5  # th perf to decrease delays in stage 3
+        self.trials_delay = 0
+        self.max_delays = True
+        self.dur = [0]*len(self.delay_durs)
+
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
@@ -104,7 +143,7 @@ class CVLearning(ngym.PeriodEnv):
         if self.curr_ph == 0:
             # no stim, reward is in both left and right
             # agent cannot go N times in a row to the same side
-            if np.abs(self.counter) >= self.max_num_reps:
+            if np.abs(self.action_counter) >= self.max_num_reps:
                 ground_truth = 1 if self.action == 2 else 2
                 self.trial.update({'ground_truth': ground_truth})
                 self.rewards['fail'] = 0
@@ -129,14 +168,28 @@ class CVLearning(ngym.PeriodEnv):
             self.durs.update({'delay': (0)})
             self.trial.update({'coh': 100})
             self.trial.update({'sigma_dt': 0})
-            self.rewards['fail'] = -1
+            self.rewards['fail'] = self.r_fail
             self.firstcounts = True
         elif self.curr_ph == 3:
+            self.rewards['fail'] = self.r_fail
+            if self.trials_delay > self.perf_len:
+                if self.inst_perf >= self.inc_delays_th and\
+                   self.inc_delays < 1:
+                    self.inc_delays += self.inc_factor
+                    self.trials_delay = 0
+                elif self.inst_perf <= self.dec_delays_th and self.inc_delays > 0:
+                    self.inc_delays -= self.inc_factor
+                    self.trials_delay = 0
+            self.dur = [int(d*self.inc_delays) for d in self.delay_durs]
+            if self.dur == self.delay_durs:
+                self.max_delays = True
+            else:
+                self.max_delays = False
+            self.durs.update({'delay': np.random.choice(self.dur)})
             # delay component is introduced
             self.trial.update({'coh': 100})
             self.trial.update({'sigma_dt': 0})
         # phase 4: ambiguity component is introduced
-
         self.first_flag = False
 
         # ---------------------------------------------------------------------
@@ -175,22 +228,51 @@ class CVLearning(ngym.PeriodEnv):
         '''
         if action != 0:
             new = action - 2/action
-            if np.sign(self.counter) == np.sign(new):
-                self.counter += new
+            if np.sign(self.action_counter) == np.sign(new):
+                self.action_counter += new
             else:
-                self.counter = new
+                self.action_counter = new
 
     def set_phase(self):
-        if self.curr_ph < 4:
-            if len(self.mov_window) >= self.perf_window:
-                self.mov_window.append(1*(self.rew == self.rewards['correct']))
-                self.mov_window.pop(0)  # remove first value
-                self.curr_perf = np.sum(self.mov_window)/self.perf_window
-                if self.curr_perf >= self.goal_perf[self.curr_ph]:
-                    self.curr_ph += 1
-                    self.mov_window = []
+        # print(self.curr_ph)
+        self.day_perf[self.trials_counter] =\
+            1*(self.rew == self.rewards['correct'])
+        self.mov_perf[self.trials_counter % self.perf_len] =\
+            1*(self.rew == self.rewards['correct'])
+        self.trials_counter += 1
+        self.trials_delay += 1
+
+        # Instantaneous perfromace
+        if self.trials_counter > self.perf_len:
+            self.inst_perf = np.mean(self.mov_perf)
+            if self.inst_perf < self.min_perf and self.curr_ph == 2:
+                self.curr_ph = 1
+                if 1 in self.stages:
+                    self.ind -= 1
+                else:
+                    self.stages = list(self.stages)
+                    self.stages.insert(self.ind, 1)
+                    self.w_keep.insert(self.ind, self.w_keep[self.ind])
+
+        if self.trials_counter >= self.trials_day:
+            self.trials_counter = 0
+            self.curr_perf = np.mean(self.day_perf)
+            self.day_perf = np.empty(self.trials_day)
+            if self.curr_perf >= self.th_perf and self.max_delays:
+                self.keep_stage = True
+
             else:
-                self.mov_window.append(1*(self.rew == self.rewards['correct']))
+                self.keep_stage = False
+                self.days_keep = self.w_keep[self.ind]
+
+            if self.keep_stage:
+                self.days_keep -= 1
+                if self.days_keep <= 0 and\
+                   self.curr_ph < self.stages[-1]:
+                    self.ind += 1
+                    self.curr_ph = self.stages[self.ind]
+                    self.days_keep = self.w_keep[self.ind]
+                    self.keep_stage = False
 
     def _step(self, action):
         # obs, reward, done, info = self.env._step(action)
@@ -219,7 +301,8 @@ class CVLearning(ngym.PeriodEnv):
                 if not self.first_flag:
                     first_choice = True
                     self.first_flag = True
-                    self.performance = self.rewards['fail'] == self.rewards['correct']
+                    self.performance =\
+                        self.rewards['fail'] == self.rewards['correct']
 
         # check if first choice (phase 1)
         if not self.firstcounts and first_choice:
@@ -230,11 +313,13 @@ class CVLearning(ngym.PeriodEnv):
         if new_trial and self.curr_ph == 0:
             self.action = action
         info = {'new_trial': new_trial, 'gt': gt, 'num_tr': self.num_tr,
-                'curr_ph': self.curr_ph, 'first_rew': self.rew}
+                'curr_ph': self.curr_ph, 'first_rew': self.rew,
+                'keep_stage': self.keep_stage, 'inst_perf': self.inst_perf,
+                'trials_day': self.trials_counter, 'dur': self.dur}
         return self.obs_now, reward, False, info
 
 
 if __name__ == '__main__':
-    env = CVLearning(init_ph=0)
-    ngym.utils.plot_env(env, num_steps_env=100,
-                        obs_traces=['Fixation Cue', 'Stim1', 'Stim2'])
+    env = CVLearning(stages=[3])
+    data = ngym.utils.plot_env(env, num_steps_env=100,
+                               obs_traces=['Fixation Cue', 'Stim1', 'Stim2'])

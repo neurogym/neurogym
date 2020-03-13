@@ -35,11 +35,23 @@ class TrialHistory(ngym.TrialWrapper):
         except AttributeError:
             raise AttributeError('''SideBias requires task
                                  to have attribute choices''')
+        self.n_ch = len(self.choices)
         assert isinstance(self.task, ngym.TrialEnv), 'Task has to be TrialEnv'
         assert probs is not None, 'Please provide choices probabilities'
-        assert probs.shape[1] == len(self.choices),\
+        if isinstance(probs, float):
+            num_blocks = 2
+            tr_mat =\
+                np.zeros((num_blocks, self.n_ch, self.n_ch)) +\
+                (1-probs)/(self.n_ch-1)
+            for ind in range(self.n_ch-1):
+                tr_mat[0, ind, ind+1] = probs
+                tr_mat[1, ind, ind] = probs
+            tr_mat[0, self.n_ch-1, 0] = probs
+            tr_mat[1, self.n_ch-1, self.n_ch-1] = probs
+            probs = tr_mat
+        assert probs.shape[1] == self.n_ch,\
             'The number of choices {:d}'.format(probs.shape[1]) +\
-            ' inferred from prob mismatchs {:d}'.format(len(self.choices)) +\
+            ' inferred from prob mismatchs {:d}'.format(self.n_ch) +\
             ' inferred from choices'
 
         self.n_block = probs.shape[0]
@@ -48,6 +60,7 @@ class TrialHistory(ngym.TrialWrapper):
         self.block_dur = block_dur
         self.prev_trial = -1
         self.blk_ch_prob = blk_ch_prob
+        print(self.probs.shape)
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
@@ -56,10 +69,10 @@ class TrialHistory(ngym.TrialWrapper):
         # change rep. prob. every self.block_dur trials
         if self.blk_ch_prob is None:
             if self.task.num_tr % self.block_dur == 0:
-                self.curr_block = (self.curr_block + 1) % len(self.choices)
+                self.curr_block = (self.curr_block + 1) % self.n_block
         else:
             if self.task.rng.random() < self.blk_ch_prob:
-                self.curr_block = (self.curr_block + 1) % len(self.choices)
+                self.curr_block = (self.curr_block + 1) % self.n_block
         probs_curr_blk = self.probs[self.curr_block, self.prev_trial, :]
         ground_truth = self.task.rng.choice(self.choices,
                                             p=probs_curr_blk)
