@@ -7,20 +7,17 @@ Welcome to neurogym's documentation!
 ====================================
 
 .. toctree::
-   :caption: Getting started
-   :maxdepth: 2
+    :caption: Getting started
+    :maxdepth: 2
 
-   installing
-
-.. automodule:: neurogym
-   :members:
-
-.. automodule:: neurogym.envs.readysetgo
-   :members:
+    installing
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Documentation
+    :maxdepth: 2
+    :caption: Environments
+
+    envs
+
 
 
 

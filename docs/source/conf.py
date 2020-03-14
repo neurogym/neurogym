@@ -19,8 +19,8 @@ import sphinx_rtd_theme
 # -- Project information -----------------------------------------------------
 
 project = 'neurogym'
-copyright = '2020, Manuel Molano and Guangyu Robert Yang'
-author = 'Manuel Molano and Guangyu Robert Yang'
+copyright = '2020, Manuel Molano, Guangyu Robert Yang, & contributors'
+author = 'Manuel Molano, Guangyu Robert Yang, & contributors'
 
 
 # -- General configuration ---------------------------------------------------
@@ -28,8 +28,21 @@ author = 'Manuel Molano and Guangyu Robert Yang'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage',
-              'sphinx.ext.napoleon', 'sphinx_rtd_theme',
+# extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage',
+#               'sphinx.ext.napoleon',
+#               'sphinx_rtd_theme',
+# ]
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.viewcode',
+    'sphinxcontrib.katex',
+    'sphinx.ext.autosectionlabel',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
