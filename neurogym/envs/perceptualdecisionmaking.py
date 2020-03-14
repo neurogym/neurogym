@@ -9,6 +9,16 @@ import neurogym as ngym
 
 
 class PerceptualDecisionMaking(ngym.PeriodEnv):
+    """
+    Two-alternative forced choice task in which the subject has to
+    integrate two stimuli to decide which one is higher on average.
+
+    Parameters:
+    dt: Timestep duration. (def: 100 (ms), int)
+    rewards: reward dictionary
+    timing: Description and duration of periods forming a trial.
+    stim_scale: Controls the difficulty of the experiment. (def: 1., float)
+    """
     metadata = {
         'description': '''Random dot motion task. Two-alternative forced
          choice task in which the subject has to integrate two stimuli to
@@ -20,16 +30,6 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.):
-        """
-        Two-alternative forced choice task in which the subject has to
-        integrate two stimuli to decide which one is higher on average.
-
-        Parameters:
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards: reward dictionary
-        timing: Description and duration of periods forming a trial.
-        stim_scale: Controls the difficulty of the experiment. (def: 1., float)
-        """
         super().__init__(dt=dt)
         self.choices = [1, 2]  # [left, right]
         # cohs specifies the amount of evidence (which is modulated by stim_scale)
@@ -270,6 +270,22 @@ class PerceptualDecisionMaking1D(ngym.PeriodEnv):
 
 #  TODO: there should be a timeout of 1000ms for incorrect trials
 class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
+    """Perceptual decision-making with delayed responses.
+
+    Agents have to integrate two stimuli and report which one is
+    larger on average after a delay.
+
+    Args:
+        stim_scale: Controls the difficulty of the experiment. (def: 1., float)
+
+    Reference paper:
+        `Discrete attractor dynamics underlies persistent
+        activity in the frontal cortex`_
+
+    .. _Discrete attractor dynamics underlies persistent
+        activity in the frontal cortex:
+        https://www.nature.com/articles/s41586-019-0919-7
+    """
     metadata = {
         'description': 'Agents have to integrate two stimuli and report' +
         ' which one is larger on average after a delay.',
@@ -282,11 +298,6 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.):
-        """
-        Agents have to integrate two stimuli and report which one is
-        larger on average after a delay.
-        stim_scale: Controls the difficulty of the experiment. (def: 1., float)
-        """
         super().__init__(dt=dt)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence (which is modulated by stim_scale)

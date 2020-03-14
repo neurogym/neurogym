@@ -13,6 +13,15 @@ import warnings
 
 
 class Detection(ngym.PeriodEnv):
+    r"""The agent has to GO if a stimulus is presented.
+
+    Args:
+        noise: Standard deviation of background noise. (def: 1., float)
+        delay: If not None indicates the delay, from the moment of the start of
+            the stimulus period when the actual stimulus is presented. Otherwise,
+            the delay is drawn from a uniform distribution. (def: None (ms), int)
+        stim_dur: Stimulus duration. (def: 100 (ms), int)
+    """
     metadata = {
             'description': 'The agent has to GO if a stimulus is presented.',
             'paper_link': None,
@@ -23,14 +32,6 @@ class Detection(ngym.PeriodEnv):
 
     def __init__(self, dt=100, rewards=None, timing=None, noise=.5, delay=None,
                  stim_dur=100):
-        """
-        The agent has to GO if a stimulus is presented.
-        noise: Standard deviation of background noise. (def: 1., float)
-        delay: If not None indicates the delay, from the moment of the start of
-        the stimulus period when the actual stimulus is presented. Otherwise,
-        the delay is drawn from a uniform distribution. (def: None (ms), int)
-        stim_dur: Stimulus duration. (def: 100 (ms), int)
-        """
         super().__init__(dt=dt)
         # Possible decisions at the end of the trial
         self.choices = [0, 1]

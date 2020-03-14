@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Delayed paired association
-
-TODO: Add paper
-"""
 
 import numpy as np
 from gym import spaces
@@ -13,6 +8,18 @@ import neurogym as ngym
 
 
 class DelayPairedAssociation(ngym.PeriodEnv):
+    r"""A sample is followed by a delay and a test. Agents have to report if
+    the pair sample-test is a rewarded pair or not.
+
+    Reference paper:
+        `Active information maintenance in working memory
+        by a sensory cortex`_
+
+    .. _Active information maintenance in working memory
+        by a sensory cortex:
+        https://elifesciences.org/articles/43191
+    """
+
     metadata = {
         'description': 'A sample is followed by a delay and a test.' +
         ' Agents have to report if the pair sample-test is a rewarded pair' +
@@ -25,10 +32,6 @@ class DelayPairedAssociation(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, noise=0.01):
-        """
-        A sample is followed by a delay and a test. Agents have to report if
-        the pair sample-test is a rewarded pair or not.
-        """
         super().__init__(dt=dt)
         self.choices = [0, 1]
         # trial conditions

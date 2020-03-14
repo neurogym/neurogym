@@ -7,6 +7,7 @@ import neurogym as ngym
 
 # TODO: This is not finished yet
 class MultiSensoryIntegration(ngym.PeriodEnv):
+    r"""Multi-sensory integration."""
     metadata = {
         'description': None,
         'paper_link': None,
@@ -15,7 +16,6 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None):
-        """Multi-sensory integration"""
         super().__init__(dt=dt)
 
         # trial conditions

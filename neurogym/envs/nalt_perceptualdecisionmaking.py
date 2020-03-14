@@ -1,29 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Nov 12 17:39:17 2019
-
-@author: molano
-
-
-Perceptual decision-making task, based on
-
-  Bounded integration in parietal cortex underlies decisions even when viewing
-  duration is dictated by the environment.
-  R Kiani, TD Hanks, & MN Shadlen, JNS 2008.
-
-  http://dx.doi.org/10.1523/JNEUROSCI.4761-07.2008
-
-  But allowing for more than 2 choices.
-
-"""
-
 import numpy as np
 from gym import spaces
 import neurogym as ngym
 
 
 class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
+    """N-alternative perceptual decision-making.
+
+    N-alternative forced choice task in which the subject has
+    to integrate N stimuli to decide which one is higher on average.
+
+    Args:
+        stim_scale: Controls the difficulty of the experiment. (def: 1., float)
+        n_ch: Number of choices. (def: 3, int)
+
+    Reference paper:
+        `Bounded integration in parietal cortex underlies decisions
+        even when viewing duration is dictated by the environment`_
+
+    .. _Bounded integration in parietal cortex underlies decisions
+        even when viewing duration is dictated by the environment:
+        http://dx.doi.org/10.1523/JNEUROSCI.4761-07.2008
+    """
     metadata = {
         'description': '''N-alternative forced choice task in which the subject
          has to integrate N stimuli to decide which one is higher
@@ -34,12 +33,6 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1., n_ch=3):
-        """
-        N-alternative forced choice task in which the subject has
-        to integrate N stimuli to decide which one is higher on average.
-        stim_scale: Controls the difficulty of the experiment. (def: 1., float)
-        n_ch: Number of choices. (def: 3, int)
-        """
         super().__init__(dt=dt)
         self.n = n_ch
         self.choices = np.arange(n_ch) + 1

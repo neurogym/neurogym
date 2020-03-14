@@ -1,18 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Sun Feb 24 15:10:35 2019
 
-@author: molano
-
-Economic choice task, based on
-
-  Neurons in the orbitofrontal cortex encode economic value.
-  C Padoa-Schioppa & JA Assad, Nature 2006.
-
-  http://dx.doi.org/10.1038/nature04676
-
-"""
 from __future__ import division
 
 import numpy as np
@@ -22,6 +10,17 @@ from gym import spaces
 
 
 class EconomicDecisionMaking(ngym.PeriodEnv):
+    r"""Agents choose between two stimuli (A and B; where A is preferred)
+    offered in different amounts.
+
+    Reference paper:
+        `Neurons in the orbitofrontal cortex encode
+        economic value`_
+
+    .. _Neurons in the orbitofrontal cortex encode
+        economic value:
+        https://www.nature.com/articles/nature04676
+    """
     metadata = {
         'description': '''Agents choose between two stimuli (A and B; where A
          is preferred) offered in different amounts.''',
@@ -32,10 +31,6 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None):
-        """
-        Agents choose between two stimuli (A and B; where A is preferred)
-        offered in different amounts.
-        """
         super().__init__(dt=dt)
 
         # trial conditions

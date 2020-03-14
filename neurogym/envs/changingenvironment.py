@@ -12,6 +12,22 @@ import neurogym as ngym
 
 
 class ChangingEnvironment(ngym.PeriodEnv):
+    r"""Random Dots Motion tasks in which the correct action
+    depends on a randomly changing context.
+
+    Args:
+        stim_scale: Controls the difficulty of the experiment. (def: 1., float)
+        cxt_ch_prob: Probability of changing context. (def: 0.01, float)
+        cxt_cue: Whether to show context as a cue. (def: False, bool)
+
+    Reference paper:
+        `Hierarchical decision processes that operate
+        over distinct timescales underlie choice and changes in strategy`_
+
+    .. _Hierarchical decision processes that operate
+        over distinct timescales underlie choice and changes in strategy:
+        https://www.pnas.org/content/113/31/E4531
+    """
     metadata = {
         'description': 'Random Dots Motion tasks in which the correct action' +
         ' depends on a randomly changing context.',
@@ -24,19 +40,6 @@ class ChangingEnvironment(ngym.PeriodEnv):
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
                  cxt_ch_prob=0.001, cxt_cue=False):
-        """
-        Random Dots Motion tasks in which the correct action
-        depends on a randomly changing context.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards:
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)
-            R_CORRECT: given when correct. (def: +1., float)
-            R_FAIL: given when incorrect. (def: 0., float)
-        timing: Description and duration of periods forming a trial.
-        stim_scale: Controls the difficulty of the experiment. (def: 1., float)
-        cxt_ch_prob: Probability of changing context. (def: 0.01, float)
-        cxt_cue: Whether to show context as a cue. (def: False, bool)
-        """
         super().__init__(dt=dt)
 
         # Possible contexts

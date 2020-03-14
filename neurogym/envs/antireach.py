@@ -8,6 +8,19 @@ from neurogym.utils import tasktools
 
 
 class AntiReach1D(ngym.PeriodEnv):
+    """Anti-response task.
+
+    The agent has to move in the direction opposite to the one indicated
+    by the observation.
+
+    Reference paper:
+        `Look away: the anti-saccade task and
+        the voluntary control of eye movement`_
+
+    .. _Look away: the anti-saccade task and
+        the voluntary control of eye movement:
+        https://www.nature.com/articles/nrn1345
+    """
     metadata = {
         'description': 'The agent has to move in the direction opposite ' +
         'to the one indicated by the observation.',
@@ -18,10 +31,6 @@ class AntiReach1D(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None):
-        """
-        The agent has to move in the direction opposite to the one indicated
-        by the observation.
-        """
         super().__init__(dt=dt)
         self.contexts = [0, 1]
         # action and observation spaces

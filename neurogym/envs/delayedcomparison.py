@@ -1,23 +1,25 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Feb 21 18:00:32 2019
 
-@author: MOLANO
-
-A parametric working memory task, based on
-
-  Neuronal population coding of parametric working memory.
-  O. Barak, M. Tsodyks, & R. Romo, JNS 2010.
-
-  http://dx.doi.org/10.1523/JNEUROSCI.1875-10.2010
-
-"""
 import numpy as np
 from gym import spaces
 import neurogym as ngym
 
 
 class DelayedComparison(ngym.PeriodEnv):
+    """Delayed comparison.
+
+    Two-alternative forced choice task in which the subject
+    has to compare two stimuli separated by a delay to decide
+    which one has a higher frequency.
+
+    Reference paper:
+        `Neuronal Population Coding of Parametric
+        Working Memory`_
+
+    .. _Neuronal Population Coding of Parametric
+        Working Memory:
+        https://www.jneurosci.org/content/30/28/9424
+    """
     metadata = {
         'description': """Two-alternative forced choice task in which
          the subject has to compare two stimuli separated by a delay
@@ -30,11 +32,6 @@ class DelayedComparison(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None):
-        """
-        Two-alternative forced choice task in which the subject
-        has to compare two stimuli separated by a delay to decide
-        which one has a higher frequency.
-        """
         super().__init__(dt=dt)
 
         # trial conditions

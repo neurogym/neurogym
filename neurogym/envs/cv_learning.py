@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Nov  4 10:45:33 2019
-
-@author: molano
-"""
-
 
 import numpy as np
 from gym import spaces
@@ -13,6 +7,31 @@ import neurogym as ngym
 
 
 class CVLearning(ngym.PeriodEnv):
+    r"""Implements shaping for the delay-response task, in which agents
+    have to integrate two stimuli and report which one is larger on
+    average after a delay.
+
+    Args:
+        stim_scale: Controls the difficulty of the experiment. (def: 1., float)
+        max_num_reps: Maximum number of times that agent can go in a row
+        to the same side during phase 0. (def: 3, int)
+        th_stage: Performance threshold needed to proceed to the following
+        phase. (def: 0.7, float)
+        keep_days: Number of days that the agent will be kept in the same phase
+        once arrived to the goal performacance. (def: 1, int)
+        trials_day: Number of trials performed during one day. (def: 200, int)
+        perf_len: Number of trials used to compute instantaneous performance.
+        (def: 20, int)
+        stages: Stages used to train the agent. (def: [0, 1, 2, 3, 4], list)
+
+    Reference paper:
+        `Discrete attractor dynamics underlies persistent
+        activity in the frontal cortex`_
+
+    .. _Discrete attractor dynamics underlies persistent
+        activity in the frontal cortex:
+        https://www.nature.com/articles/s41586-019-0919-7
+    """
     metadata = {
         'description': 'Implements shaping for the delay-response task,' +
         ' in which agents have to integrate two stimuli and report' +
@@ -27,22 +46,6 @@ class CVLearning(ngym.PeriodEnv):
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
                  max_num_reps=3, th_stage=0.7, keep_days=1,
                  trials_day=300, perf_len=20, stages=[0, 1, 2, 3, 4]):
-        """
-        Implements shaping for the delay-response task, in which agents
-        have to integrate two stimuli and report which one is larger on
-        average after a delay.
-        stim_scale: Controls the difficulty of the experiment. (def: 1., float)
-        max_num_reps: Maximum number of times that agent can go in a row
-        to the same side during phase 0. (def: 3, int)
-        th_stage: Performance threshold needed to proceed to the following
-        phase. (def: 0.7, float)
-        keep_days: Number of days that the agent will be kept in the same phase
-        once arrived to the goal performacance. (def: 1, int)
-        trials_day: Number of trials performed during one day. (def: 200, int)
-        perf_len: Number of trials used to compute instantaneous performance.
-        (def: 20, int)
-        stages: Stages used to train the agent. (def: [0, 1, 2, 3, 4], list)
-        """
         super().__init__(dt=dt)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence

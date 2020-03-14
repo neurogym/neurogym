@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Delay Match to sample
 
-"""
 from __future__ import division
 
 import numpy as np
@@ -12,6 +9,19 @@ import neurogym as ngym
 
 
 class DelayedMatchToSample(ngym.PeriodEnv):
+    r"""Delayed-match-to-sample.
+
+    A sample stimulus is followed by a delay and test. Agents are required
+    to indicate if the sample and test are the same stimulus.
+
+    Reference paper:
+        `Neural Mechanisms of Visual Working Memory
+        in Prefrontal Cortex of the Macaque`_
+
+    .. _Neural Mechanisms of Visual Working Memory
+        in Prefrontal Cortex of the Macaque:
+        https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf
+    """
     metadata = {
         'description': 'A sample stimulus is followed by a delay and test.' +
         ' Agents are required to indicate if the sample and test are the' +
@@ -25,10 +35,6 @@ class DelayedMatchToSample(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None):
-        """
-        A sample stimulus is followed by a delay and test. Agents are required
-        to indicate if the sample and test are the same stimulus.
-        """
         super().__init__(dt=dt)
         # TODO: Code a continuous space version
         self.choices = [1, 2]
@@ -118,6 +124,21 @@ class DelayedMatchToSample(ngym.PeriodEnv):
 
 
 class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
+    r"""Delay Match to sample with multiple, potentially repeating distractors.
+
+    Args:
+        dt: Timestep duration. (def: 100 (ms), int)
+        rewards: dictionary of rewards
+        timing: Description and duration of periods forming a trial.
+
+    Reference paper:
+        `Neural Mechanisms of Visual Working Memory
+        in Prefrontal Cortex of the Macaque`_
+
+    .. _Neural Mechanisms of Visual Working Memory
+        in Prefrontal Cortex of the Macaque:
+        https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf
+    """
     metadata = {
         'description': '''Delay Match to sample with multiple,
          potentially repeating distractors.''',
@@ -130,12 +151,6 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None):
-        """
-        Delay Match to sample with multiple, potentially repeating distractors.
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards: dictionary of rewards
-        timing: Description and duration of periods forming a trial.
-        """
         super().__init__(dt=dt)
         self.choices = [1, 2, 3]
         # Input noise

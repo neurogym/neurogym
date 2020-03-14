@@ -1,19 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Sun Feb 24 15:31:14 2019
 
-@author: molano
-
-Perceptual decision-making with postdecision wagering, based on
-
-  Representation of confidence associated with a decision by
-  neurons in the parietal cortex.
-  R. Kiani & M. N. Shadlen, Science 2009.
-
-  http://dx.doi.org/10.1126/science.1169405
-
-"""
 from __future__ import division
 
 import numpy as np
@@ -23,6 +10,19 @@ import neurogym as ngym
 
 
 class PostDecisionWager(ngym.PeriodEnv):
+    r"""Agents do a discrimination task (see PerceptualDecisionMaking). On a
+    random half of the trials, the agent is given the option to abort
+    the direction discrimination and to choose instead a small but
+    certain reward associated with a action.
+
+    Reference paper:
+        `Representation of Confidence Associated with a
+        Decision by Neurons in the Parietal Cortex`_
+
+    .. _Representation of Confidence Associated with a
+        Decision by Neurons in the Parietal Cortex:
+        https://science.sciencemag.org/content/324/5928/759.long
+    """
     metadata = {
         'description': """Agents do a discrimination task(see
          PerceptualDecisionMaking). On a random half of the trials,
@@ -37,12 +37,6 @@ class PostDecisionWager(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None):
-        """
-        Agents do a discrimination task(see PerceptualDecisionMaking). On a
-        random half of the trials, the agent is given the option to abort
-        the direction discrimination and to choose instead a small but
-        certain reward associated with a action.
-        """
         super().__init__(dt=dt)
 #        # Actions
 #        self.actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT',

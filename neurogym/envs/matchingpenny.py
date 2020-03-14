@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Matching Penny task
-See Daeyeol Lee's papers
-TODO: add the actual papers
-"""
+
 from __future__ import division
 from sklearn.linear_model import LogisticRegression
 import numpy as np
@@ -13,6 +9,20 @@ import neurogym as ngym
 
 
 class MatchingPenny(ngym.TrialEnv):
+    """Matching penny task.
+
+    The agent is rewarded when it selects the same target as the computer.
+    opponent_type: Type of opponent. (def: 'mean_action', str)
+
+    Args:
+        learning_rate: learning rate in the mean_action opponent
+
+    Reference paper:
+        `Prefrontal cortex and decision making in a mixed-strategy game`_
+
+    .. _Prefrontal cortex and decision making in a mixed-strategy game:
+        https://www.nature.com/articles/nn1209
+    """
     metadata = {
         'description': '''The agent is rewarded when it selects the
          same target as the computer.''',
@@ -24,11 +34,6 @@ class MatchingPenny(ngym.TrialEnv):
 
     def __init__(self, dt=100, rewards=None, timing=None,
                  opponent_type='mean_action', learning_rate=0.2):
-        """
-        The agent is rewarded when it selects the same target as the computer.
-        opponent_type: Type of opponent. (def: 'mean_action', str)
-        learning_rate: learning rate in the mean_action opponent
-        """
         super().__init__(dt=dt)
         if timing is not None:
             print('Warning: Matching-Penny task does not require' +

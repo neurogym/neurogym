@@ -11,6 +11,14 @@ from neurogym.utils import tasktools
 # TODO: Ground truth and action have different space,
 # making it difficult for SL and RL to work together
 class Reaching1D(ngym.PeriodEnv):
+    r"""The agent has to reproduce the angle indicated by the observation.
+
+    Reference paper:
+        `Neuronal population coding of movement direction`_
+
+    .. _Neuronal population coding of movement direction:
+        https://science.sciencemag.org/content/233/4771/1416
+    """
     metadata = {
         'description': 'The agent has to reproduce the angle indicated' +
         ' by the observation.',
@@ -20,9 +28,6 @@ class Reaching1D(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None):
-        """
-        The agent has to reproduce the angle indicated by the observation.
-        """
         super().__init__(dt=dt)
         # Rewards
         self.rewards = {'correct': +1., 'fail': -0.1}
@@ -93,8 +98,8 @@ class Reaching1D(ngym.PeriodEnv):
 
 
 class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
-    """
-    Reaching with self distraction.
+    r"""Reaching with self distraction.
+
     In this task, the reaching state itself generates strong inputs that
     overshadows the actual target input. This task is inspired by behavior
     in electric fish where the electric sensing organ is distracted by
@@ -111,11 +116,6 @@ class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None):
-        """
-        The agent has to reproduce the angle indicated by the observation.
-        Furthermore, the reaching state itself generates strong inputs that
-        overshadows the actual target input.
-        """
         super().__init__(dt=dt)
         # Rewards
         self.rewards = {'correct': +1., 'fail': -0.1}
