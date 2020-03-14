@@ -330,7 +330,8 @@ class CVLearning(ngym.PeriodEnv):
                 'curr_ph': self.curr_ph, 'first_rew': self.rew,
                 'keep_stage': self.keep_stage, 'inst_perf': self.inst_perf,
                 'trials_day': self.trials_counter, 'durs': self.dur,
-                'inc_delays': self.inc_delays, 'trials_count': self.trials_counter}
+                'inc_delays': self.inc_delays, 'curr_perf': self.curr_perf,
+                'trials_count': self.trials_counter}
         return self.obs_now, reward, False, info
 
 
