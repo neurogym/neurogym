@@ -34,6 +34,10 @@ def main():
     envs.append(env)
 
     env_kwargs = {'dt': dt}
+    env = gym.make('ReachingDelayResponse-v0', **env_kwargs)
+    envs.append(env)
+
+    env_kwargs = {'dt': dt}
     env = gym.make('AntiReach-v0', **env_kwargs)
     envs.append(env)
     

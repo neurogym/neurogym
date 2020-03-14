@@ -77,3 +77,6 @@ def all_tags():
     return ['confidence', 'context dependent', 'continuous action space', 'delayed response', 'go-no-go',
             'motor', 'multidimensional action space', 'n-alternative', 'perceptual', 'reaction time',
             'steps action space', 'supervised', 'timing', 'two-alternative', 'value-based', 'working memory']
+
+
+__all__ = ['multisensory']
