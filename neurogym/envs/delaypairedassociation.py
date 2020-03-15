@@ -11,7 +11,7 @@ class DelayPairedAssociation(ngym.PeriodEnv):
     r"""A sample is followed by a delay and a test. Agents have to report if
     the pair sample-test is a rewarded pair or not.
 
-    Reference paper:
+    Reference paper
         `Active information maintenance in working memory
         by a sensory cortex`_
 

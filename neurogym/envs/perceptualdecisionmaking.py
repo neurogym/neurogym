@@ -278,7 +278,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
     Args:
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)
 
-    Reference paper:
+    Reference paper
         `Discrete attractor dynamics underlies persistent
         activity in the frontal cortex`_
 

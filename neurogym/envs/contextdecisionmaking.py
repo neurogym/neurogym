@@ -12,7 +12,7 @@ class ContextDecisionMaking(ngym.PeriodEnv):
     Agent has to perform one of two different perceptual discriminations.
     On every trial, a contextual cue indicates which one to perform.
 
-    Reference paper:
+    Reference paper
         `Context-dependent computation by recurrent
         dynamics in prefrontal cortex`_
 

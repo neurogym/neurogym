@@ -24,7 +24,7 @@ class CVLearning(ngym.PeriodEnv):
         (def: 20, int)
         stages: Stages used to train the agent. (def: [0, 1, 2, 3, 4], list)
 
-    Reference paper:
+    Reference paper
         `Discrete attractor dynamics underlies persistent
         activity in the frontal cortex`_
 

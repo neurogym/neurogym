@@ -13,7 +13,7 @@ class AntiReach1D(ngym.PeriodEnv):
     The agent has to move in the direction opposite to the one indicated
     by the observation.
 
-    Reference paper:
+    Reference paper
         `Look away: the anti-saccade task and
         the voluntary control of eye movement`_
 

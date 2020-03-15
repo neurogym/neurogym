@@ -13,7 +13,7 @@ from neurogym.utils import tasktools
 class Reaching1D(ngym.PeriodEnv):
     r"""The agent has to reproduce the angle indicated by the observation.
 
-    Reference paper:
+    Reference paper
         `Neuronal population coding of movement direction`_
 
     .. _Neuronal population coding of movement direction:

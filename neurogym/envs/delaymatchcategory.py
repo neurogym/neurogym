@@ -14,7 +14,7 @@ class DelayedMatchCategory(ngym.PeriodEnv):
     A sample stimulus is followed by a delay and test. Agents are required
     to indicate if the sample and test are in the same category.
 
-    Reference paper:
+    Reference paper
         `Experience-dependent representation
         of visual categories in parietal cortex`_
 

@@ -11,7 +11,7 @@ class IntervalDiscrimination(ngym.PeriodEnv):
     r"""Agents have to report which of two stimuli presented
     sequentially is longer.
 
-    Reference paper:
+    Reference paper
         `Feature- and Order-Based Timing Representations
         in the Frontal Cortex`_
 

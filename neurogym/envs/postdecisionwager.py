@@ -15,7 +15,7 @@ class PostDecisionWager(ngym.PeriodEnv):
     the direction discrimination and to choose instead a small but
     certain reward associated with a action.
 
-    Reference paper:
+    Reference paper
         `Representation of Confidence Associated with a
         Decision by Neurons in the Parietal Cortex`_
 

@@ -15,7 +15,7 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)
         n_ch: Number of choices. (def: 3, int)
 
-    Reference paper:
+    Reference paper
         `Bounded integration in parietal cortex underlies decisions
         even when viewing duration is dictated by the environment`_
 

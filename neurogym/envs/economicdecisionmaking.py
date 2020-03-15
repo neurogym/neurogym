@@ -13,7 +13,7 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
     r"""Agents choose between two stimuli (A and B; where A is preferred)
     offered in different amounts.
 
-    Reference paper:
+    Reference paper
         `Neurons in the orbitofrontal cortex encode
         economic value`_
 

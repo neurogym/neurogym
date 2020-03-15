@@ -17,7 +17,7 @@ class ReadySetGo(ngym.PeriodEnv):
         prod_margin: controls the interval around the ground truth production
             time within which the agent receives proportional reward
 
-    Reference paper:
+    Reference paper
         `Flexible Sensorimotor Computations through Rapid
         Reconfiguration of Cortical Dynamics`_
 
@@ -127,7 +127,7 @@ class MotorTiming(ngym.PeriodEnv):
         prod_margin: controls the interval around the ground truth production
                     time within which the agent receives proportional reward
 
-    Reference paper:
+    Reference paper
         `Flexible timing by temporal scaling of cortical responses`_
 
     .. _Flexible timing by temporal scaling of cortical responses:

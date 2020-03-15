@@ -14,7 +14,7 @@ class DelayedMatchToSample(ngym.PeriodEnv):
     A sample stimulus is followed by a delay and test. Agents are required
     to indicate if the sample and test are the same stimulus.
 
-    Reference paper:
+    Reference paper
         `Neural Mechanisms of Visual Working Memory
         in Prefrontal Cortex of the Macaque`_
 
@@ -131,7 +131,7 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
         rewards: dictionary of rewards
         timing: Description and duration of periods forming a trial.
 
-    Reference paper:
+    Reference paper
         `Neural Mechanisms of Visual Working Memory
         in Prefrontal Cortex of the Macaque`_
 

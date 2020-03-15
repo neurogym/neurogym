@@ -12,7 +12,7 @@ class DelayedComparison(ngym.PeriodEnv):
     has to compare two stimuli separated by a delay to decide
     which one has a higher frequency.
 
-    Reference paper:
+    Reference paper
         `Neuronal Population Coding of Parametric
         Working Memory`_
 

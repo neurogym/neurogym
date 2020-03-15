@@ -13,7 +13,7 @@ class GoNogo(ngym.PeriodEnv):
     r"""Go/No-Go task in which the subject has either Go (e.g. lick)
     or not Go depending on which one of two stimuli is presented with.
 
-    Reference paper:
+    Reference paper
         `Active information maintenance in working memory
         by a sensory cortex`_
 

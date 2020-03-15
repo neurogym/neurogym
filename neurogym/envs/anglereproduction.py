@@ -12,7 +12,7 @@ class AngleReproduction(ngym.PeriodEnv):
     The agent has to reproduce to two angles separated
     by a constant delay.
 
-    Reference paper:
+    Reference paper
         `Visual perception as retrospective Bayesian
         decoding from high- to low-level features`_
 

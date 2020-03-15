@@ -16,7 +16,7 @@ class DawTwoStep(ngym.TrialEnv):
     demand another two-option choice, each of which is associated
     with a different chance of receiving reward.
 
-    Reference paper:
+    Reference paper
         `Model-Based Influences on Humans
         Choices and Striatal Prediction Errors`_
 

@@ -20,7 +20,7 @@ class ChangingEnvironment(ngym.PeriodEnv):
         cxt_ch_prob: Probability of changing context. (def: 0.01, float)
         cxt_cue: Whether to show context as a cue. (def: False, bool)
 
-    Reference paper:
+    Reference paper
         `Hierarchical decision processes that operate
         over distinct timescales underlie choice and changes in strategy`_
 
