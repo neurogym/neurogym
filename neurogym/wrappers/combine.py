@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Mar  4 17:49:35 2019
 
-@author: molano
-"""
 from gym import spaces
 import numpy as np
 import itertools
@@ -14,6 +10,26 @@ import gym
 
 
 class Combine():
+    """Combine two tasks.
+
+    Allows to combine two tasks, one of which working as
+    the distractor task.
+
+    Args:
+        distractor: Distractor task. (no default value)
+        delay: Time when the distractor task appears. (def: 800 (ms), int)
+        dt: Timestep duration. (def: 100 (ms), int)
+        mix: Probabilities for the different trial types (only main, only
+            distractor, both). (def: (.5, .0, .5), tuple)
+        share_action_space: Whether the two task share the same action space.
+            Not sharing allows to control (via reward)  what the agent does for
+            each task at each timestep (def: True, bool)
+        defaults: Default rewards for each task. This is used to decide which
+            gt/reward to use in the sharing-action-space scenario.
+            (def: [0, 0], list)
+        trial_cue: Whether to show the type of trial as a cue.
+            (def: False, bool)
+    """
     metadata = {
         'description': 'Allows to combine two tasks, one of which working as' +
         ' the distractor task.',
@@ -25,23 +41,6 @@ class Combine():
     def __init__(self, env, distractor, delay=800,
                  dt=100, mix=(.3, .3, .4), share_action_space=True,
                  defaults=[0, 0], trial_cue=False):
-        """
-        Allows to combine two tasks, one of which working as
-        the distractor task.
-        distractor: Distractor task. (no default value)
-        delay: Time when the distractor task appears. (def: 800 (ms), int)
-        dt: Timestep duration. (def: 100 (ms), int)
-        mix: Probabilities for the different trial types (only main, only
-        distractor, both). (def: (.5, .0, .5), tuple)
-        share_action_space: Whether the two task share the same action space.
-        Not sharing allows to control (via reward)  what the agent does for
-        each task at each timestep (def: True, bool)
-        defaults: Default rewards for each task. This is used to decide which
-        gt/reward to use in the sharing-action-space scenario.
-        (def: [0, 0], list)
-        trial_cue: Whether to show the type of trial as a cue.
-        (def: False, bool)
-        """
         self.share_action_space = share_action_space
         self.trial_cue = trial_cue
         self.t = 0

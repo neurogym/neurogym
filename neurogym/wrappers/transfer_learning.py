@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Sat Feb  1 10:54:49 2020
 
-@author: manuel
-"""
 from gym import spaces
 import numpy as np
 import gym
@@ -12,6 +8,13 @@ import gym
 
 
 class TransferLearning():
+    """Allows training on several tasks sequencially.
+
+    Args:
+        envs: List with environments. (list)
+        num_tr_per_task: Number of trials to train on each task. (list)
+        task_cue: Whether to show the current task as a cue. (def: False, bool)
+    """
     metadata = {
         'description': 'Allows training on several tasks sequencially.',
         'paper_link': '',
@@ -19,12 +22,6 @@ class TransferLearning():
         }
 
     def __init__(self, envs, num_tr_per_task, task_cue=False):
-        """
-        Allows training on several tasks sequencially.
-        envs: List with environments. (list)
-        num_tr_per_task: Number of trials to train on each task. (list)
-        task_cue: Whether to show the current task as a cue. (def: False, bool)
-        """
         self.t = 0
         self.envs = envs
         self.num_tr_per_task = num_tr_per_task

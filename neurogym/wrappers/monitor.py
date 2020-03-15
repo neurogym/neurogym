@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Mar  4 12:41:52 2019
-
-@author: molano
-"""
 
 import neurogym as ngym
 import os
@@ -13,6 +8,22 @@ from neurogym.utils.plotting import fig_
 
 
 class Monitor(ngym.TrialWrapper):
+    """Monitor task.
+
+    Saves relevant behavioral information: rewards,actions, observations,
+    new trial, ground truth.
+
+    Args:
+        folder: Folder where the data will be saved. (def: None, str)
+            sv_per and sv_stp: Data will be saved every sv_per sv_stp's.
+            (def: 100000, int)
+        verbose: Whether to print information about average reward and number
+            of trials. (def: False, bool)
+        sv_fig: Whether to save a figure of the experiment structure. If True,
+            a figure will be updated every sv_per. (def: False, bool)
+        num_stps_sv_fig: Number of trial steps to include in the figure.
+            (def: 100, int)
+    """
     metadata = {
         'description': 'Saves relevant behavioral information: rewards,' +
         ' actions, observations, new trial, ground truth.',
@@ -24,19 +35,6 @@ class Monitor(ngym.TrialWrapper):
     def __init__(self, env, folder=None, sv_per=100000, sv_stp='trial',
                  verbose=False, sv_fig=False, num_stps_sv_fig=100, name='',
                  fig_type='png'):
-        """
-        Saves relevant behavioral information: rewards,actions, observations,
-        new trial, ground truth.
-        folder: Folder where the data will be saved. (def: None, str)
-        sv_per and sv_stp: Data will be saved every sv_per sv_stp's.
-        (def: 100000, int)
-        verbose: Whether to print information about average reward and number
-        of trials. (def: False, bool)
-        sv_fig: Whether to save a figure of the experiment structure. If True,
-        a figure will be updated every sv_per. (def: False, bool)
-        num_stps_sv_fig: Number of trial steps to include in the figure.
-        (def: 100, int)
-        """
         super().__init__(env)
         self.env = env
         self.num_tr = 0

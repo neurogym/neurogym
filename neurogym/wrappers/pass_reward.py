@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Mar 20 14:25:12 2019
-
-@author: linux
-
-@author: molano
-"""
 
 import numpy as np
 import neurogym as ngym

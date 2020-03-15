@@ -12,6 +12,10 @@ import numpy as np
 
 
 class Shaping(ngym.TrialWrapper):
+    """Shaping task.
+
+    TODO: Add doc
+    """
     metadata = {
         'description': '',
         'paper_link': None,
@@ -20,8 +24,6 @@ class Shaping(ngym.TrialWrapper):
 
     def __init__(self, env, init_ph=0, max_num_reps=3, short_dur=2, th=0.8,
                  perf_w=1000):
-        """
-        """
         super().__init__(env)
         self.env = env
         self.curr_ph = init_ph

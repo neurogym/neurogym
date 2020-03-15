@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Jun 25 13:45:32 2019
 
-@author: molano
-"""
 import neurogym as ngym
 import numpy as np
 
 
 class Noise(ngym.TrialWrapper):
+    """Add Gaussian noise to the observations.
+
+    Args:
+        std_noise: Standard deviation of noise. (def: 0.1)
+        rew_th: If != None, the wrapper will adjust the noise so the mean
+            reward is not larger than rew_th. (def: None, float)
+        w: Window used to compute the mean reward. (def: 100, int)
+        step_noise: Step used to increment/decrease std. (def: 0.001, float)
+    """
     metadata = {
         'description': 'Add Gaussian noise to the observations.',
         'paper_link': None,
@@ -18,14 +23,6 @@ class Noise(ngym.TrialWrapper):
 
     def __init__(self, env, std_noise=.1, rew_th=None, w=200,
                  step_noise=0.001):
-        """
-        Add Gaussian noise to the observations.
-        std_noise: Standard deviation of noise. (def: 0.1)
-        rew_th: If != None, the wrapper will adjust the noise so the mean
-        reward is not larger than rew_th. (def: None, float)
-        w: Window used to compute the mean reward. (def: 100, int)
-        step_noise: Step used to increment/decrease std. (def: 0.001, float)
-        """
         super().__init__(env)
         self.env = env
         self.std_noise = std_noise
