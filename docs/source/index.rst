@@ -17,6 +17,7 @@ Welcome to neurogym's documentation!
     :caption: Environments
 
     envs
+    tags
 
 
 
