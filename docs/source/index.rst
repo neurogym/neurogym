@@ -18,6 +18,7 @@ Welcome to neurogym's documentation!
 
     envs
     tags
+    wrappers
 
 
 

@@ -1,6 +1,7 @@
 import gym
 import neurogym as ngym
 from neurogym.envs import ALL_ENVS
+from neurogym.wrappers import ALL_WRAPPERS
 
 envs = ALL_ENVS.keys()
 
@@ -41,4 +42,21 @@ for tag in sorted(all_tags):
         string += '    :class:`{:s} <{:s}>`\n'.format(env, ALL_ENVS[env].replace(':', '.'))
     string += '\n'
 with open('tags.rst', 'w') as f:
+    f.write(string)
+
+
+wrappers = ALL_WRAPPERS.keys()
+
+string = """
+Wrappers
+===================================
+
+"""
+
+for key, val in ALL_WRAPPERS.items():
+    string += '.. autoclass:: ' + val.split(':')[0] + '.' + val.split(':')[1] + '\n'
+    string += '    :members:\n'
+    string += '    :exclude-members: new_trial\n\n'
+
+with open('wrappers.rst', 'w') as f:
     f.write(string)
