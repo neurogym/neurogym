@@ -14,19 +14,8 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
     Args:
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)
         n_ch: Number of choices. (def: 3, int)
-
-    Reference paper
-        `Bounded integration in parietal cortex underlies decisions
-        even when viewing duration is dictated by the environment`_
-
-    .. _Bounded integration in parietal cortex underlies decisions
-        even when viewing duration is dictated by the environment:
-        http://dx.doi.org/10.1523/JNEUROSCI.4761-07.2008
     """
     metadata = {
-        'description': '''N-alternative forced choice task in which the subject
-         has to integrate N stimuli to decide which one is higher
-          on average.''',
         'paper_link': None,
         'paper_name': None,
         'tags': ['perceptual', 'n-alternative', 'supervised']

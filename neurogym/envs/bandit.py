@@ -16,16 +16,8 @@ class Bandit(ngym.TrialEnv):
 
     The agent has to select between N actions with different reward
     probabilities.
-
-    Reference paper
-        `Prefrontal cortex as a meta-reinforcement learning system`_
-
-    .. _Prefrontal cortex as a meta-reinforcement learning system:
-        https://www.nature.com/articles/s41593-018-0147-8
     """
     metadata = {
-        'description': 'The agent has to select between N actions' +
-        ' with different reward probabilities.',
         'paper_link': 'https://www.nature.com/articles/s41593-018-0147-8',
         'paper_name': 'Prefrontal cortex as a meta-reinforcement learning' +
         ' system',

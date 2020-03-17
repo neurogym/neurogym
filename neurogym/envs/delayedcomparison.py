@@ -11,19 +11,8 @@ class DelayedComparison(ngym.PeriodEnv):
     Two-alternative forced choice task in which the subject
     has to compare two stimuli separated by a delay to decide
     which one has a higher frequency.
-
-    Reference paper
-        `Neuronal Population Coding of Parametric
-        Working Memory`_
-
-    .. _Neuronal Population Coding of Parametric
-        Working Memory:
-        https://www.jneurosci.org/content/30/28/9424
     """
     metadata = {
-        'description': """Two-alternative forced choice task in which
-         the subject has to compare two stimuli separated by a delay
-         to decide which one has a higher frequency.""",
         'paper_link': 'https://www.jneurosci.org/content/30/28/9424',
         'paper_name': '''Neuronal Population Coding of Parametric
         Working Memory''',

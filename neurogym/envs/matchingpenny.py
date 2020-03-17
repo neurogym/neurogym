@@ -16,16 +16,8 @@ class MatchingPenny(ngym.TrialEnv):
 
     Args:
         learning_rate: learning rate in the mean_action opponent
-
-    Reference paper
-        `Prefrontal cortex and decision making in a mixed-strategy game`_
-
-    .. _Prefrontal cortex and decision making in a mixed-strategy game:
-        https://www.nature.com/articles/nn1209
     """
     metadata = {
-        'description': '''The agent is rewarded when it selects the
-         same target as the computer.''',
         'paper_link': 'https://www.nature.com/articles/nn1209',
         'paper_name': '''Prefrontal cortex and decision making in a
          mixed-strategy game''',

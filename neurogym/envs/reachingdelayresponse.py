@@ -18,13 +18,6 @@ class ReachingDelayResponse(ngym.PeriodEnv):
     where the stimulus was located.
     """
     metadata = {
-        'description': 'Working memory visual spatial task ' +
-        ' ~ Funahashi et al. 1991 adapted to freely moving mice in a ' +
-        'continous choice-space.\n' +
-        'Brief description: while fixating, stimulus is presented in a ' +
-        'touchscreen (bright circle). Afterwards (perhaps including an ' +
-        'extra delay), doors open allowing the mouse to touch the screen ' +
-        'where the stimulus was located.',
         'paper_link': None,
         'paper_name': None,
         'tags': ['perceptual', 'delayed response', 'continuous action space',

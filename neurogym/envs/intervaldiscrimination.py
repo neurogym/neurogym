@@ -10,18 +10,8 @@ import neurogym as ngym
 class IntervalDiscrimination(ngym.PeriodEnv):
     r"""Agents have to report which of two stimuli presented
     sequentially is longer.
-
-    Reference paper
-        `Feature- and Order-Based Timing Representations
-        in the Frontal Cortex`_
-
-    .. _Feature- and Order-Based Timing Representations
-        in the Frontal Cortex:
-        https://www.sciencedirect.com/science/article/pii/S0896627309004887
     """
     metadata = {
-        'description': 'Agents have to report which of two stimuli presented' +
-        ' sequentially is longer.',
         'paper_link': 'https://www.sciencedirect.com/science/article/pii/' +
         'S0896627309004887',
         'paper_name': """Feature- and Order-Based Timing Representations

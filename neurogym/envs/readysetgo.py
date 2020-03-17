@@ -16,18 +16,8 @@ class ReadySetGo(ngym.PeriodEnv):
         gain: Controls the measure that the agent has to produce. (def: 1, int)
         prod_margin: controls the interval around the ground truth production
             time within which the agent receives proportional reward
-
-    Reference paper
-        `Flexible Sensorimotor Computations through Rapid
-        Reconfiguration of Cortical Dynamics`_
-
-    .. _Flexible Sensorimotor Computations through Rapid
-        Reconfiguration of Cortical Dynamics:
-        https://www.sciencedirect.com/science/article/pii/S0896627318304185
     """
     metadata = {
-        'description': '''Agents have to measure and produce different time
-         intervals.''',
         'paper_link': 'https://www.sciencedirect.com/science/article/pii/' +
         'S0896627318304185',
         'paper_name': '''Flexible Sensorimotor Computations through Rapid
@@ -126,18 +116,9 @@ class MotorTiming(ngym.PeriodEnv):
     Args:
         prod_margin: controls the interval around the ground truth production
                     time within which the agent receives proportional reward
-
-    Reference paper
-        `Flexible timing by temporal scaling of cortical responses`_
-
-    .. _Flexible timing by temporal scaling of cortical responses:
-        https://www.nature.com/articles/s41593-017-0028-6
     """
     #  TODO: different actions not implemented
     metadata = {
-        'description': 'Agents have to produce different time' +
-        ' intervals using different effectors (actions).' +
-        ' [different actions not implemented]',
         'paper_link': 'https://www.nature.com/articles/s41593-017-0028-6',
         'paper_name': '''Flexible timing by temporal scaling of
          cortical responses''',
