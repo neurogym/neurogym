@@ -19,13 +19,13 @@ for key, val in ALL_ENVS.items():
 
     env = gym.make(key)
     # Add paper
-    string += '    Reference paper\n'
     paper_name = env.metadata.get('paper_name', '')
     paper_link = env.metadata.get('paper_link', '')
     if paper_name:
+        string += '    Reference paper\n'
         paper_name = paper_name.replace('\n', ' ')
-        string += '        `{:s}`_\n\n'.format(paper_name)
-        string += '    .. _{:s}:\n        {:s}\n\n'.format(paper_name, paper_link)
+        string += '        `{:s} <{:s}>`__\n\n'.format(paper_name, paper_link)
+        # string += '    .. __{:s}:\n        {:s}\n\n'.format(paper_name, paper_link)
 
     # Add tags
     string += '    Tags\n'
