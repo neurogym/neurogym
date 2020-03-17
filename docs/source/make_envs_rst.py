@@ -12,10 +12,12 @@ Environments
 """
 
 for key, val in ALL_ENVS.items():
+    string += key + '\n'+'-'*50+'\n'
     string += '.. autoclass:: ' + val.split(':')[0] + '.' + val.split(':')[1] + '\n'
     string += '    :members:\n'
     string += '    :exclude-members: new_trial\n\n'
 
+    # Add tags
     string += '    Tags\n'
     env = gym.make(key)
     for tag in env.metadata.get('tags', []):
@@ -54,6 +56,7 @@ Wrappers
 """
 
 for key, val in ALL_WRAPPERS.items():
+    string += key + '\n' + '-' * 50 + '\n'
     string += '.. autoclass:: ' + val.split(':')[0] + '.' + val.split(':')[1] + '\n'
     string += '    :members:\n'
     string += '    :exclude-members: new_trial\n\n'
