@@ -9,6 +9,14 @@ import neurogym as ngym
 
 
 class ReachingDelayResponse(ngym.PeriodEnv):
+    r"""Working memory visual spatial task ~ Funahashi et al. 1991 adapted to
+    freely moving mice in a continous choice-space.
+
+    While fixating, stimulus is presented in a
+    touchscreen (bright circle). Afterwards (perhaps including an
+    extra delay), doors open allowing the mouse to touch the screen
+    where the stimulus was located.
+    """
     metadata = {
         'description': 'Working memory visual spatial task ' +
         ' ~ Funahashi et al. 1991 adapted to freely moving mice in a ' +
@@ -25,10 +33,6 @@ class ReachingDelayResponse(ngym.PeriodEnv):
 
     def __init__(self, dt=100, rewards=None, timing=None, lowbound=0.,
                  highbound=1.):
-        """
-        Working memory visual spatial task ~ Funahashi et al. 1991 adapted to
-        freely moving mice in a continous choice-space.
-        """
         super().__init__(dt=dt)
         self.lowbound = lowbound
         self.highbound = highbound

@@ -19,6 +19,7 @@ ALL_ENVS = {'ContextDecisionMaking-v0': 'neurogym.envs.contextdecisionmaking:Con
             'DawTwoStep-v0': 'neurogym.envs.dawtwostep:DawTwoStep',
             'MatchingPenny-v0': 'neurogym.envs.matchingpenny:MatchingPenny',
             'MotorTiming-v0': 'neurogym.envs.readysetgo:MotorTiming',
+            'MultiSensoryIntegration-v0': 'neurogym.envs.multisensory:MultiSensoryIntegration',
             'Bandit-v0': 'neurogym.envs.bandit:Bandit',
             'PerceptualDecisionMakingDelayResponse-v0':
                 'neurogym.envs.perceptualdecisionmaking:PerceptualDecisionMakingDelayResponse',
@@ -76,3 +77,6 @@ def all_tags():
     return ['confidence', 'context dependent', 'continuous action space', 'delayed response', 'go-no-go',
             'motor', 'multidimensional action space', 'n-alternative', 'perceptual', 'reaction time',
             'steps action space', 'supervised', 'timing', 'two-alternative', 'value-based', 'working memory']
+
+
+__all__ = ['multisensory']

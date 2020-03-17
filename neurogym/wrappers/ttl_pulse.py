@@ -10,6 +10,12 @@ import neurogym as ngym
 
 
 class TTLPulse(ngym.TrialWrapper):
+    """Outputs extra pulses that will be non-zero during specified periods.
+
+    Args:
+        periods: List of list specifying the on periods for each pulse.
+            (def: [], list)
+    """
     metadata = {
         'description': 'Outputs extra pulses that will be non-zero during ' +
         'specified periods.',
@@ -18,11 +24,6 @@ class TTLPulse(ngym.TrialWrapper):
     }
 
     def __init__(self, env, periods=[]):
-        """
-        Outputs extra pulses that will be non-zero during specified periods.
-        periods: List of list specifying the on periods for each pulse.
-        (def: [], list)
-        """
         super().__init__(env)
 
         self.periods = periods

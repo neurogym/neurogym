@@ -7,6 +7,19 @@ import neurogym as ngym
 
 
 class AngleReproduction(ngym.PeriodEnv):
+    r"""Angle reproduction.
+
+    The agent has to reproduce to two angles separated
+    by a constant delay.
+
+    Reference paper
+        `Visual perception as retrospective Bayesian
+        decoding from high- to low-level features`_
+
+    .. _Visual perception as retrospective Bayesian
+        decoding from high- to low-level features:
+        https://www.pnas.org/content/114/43/E9115.short
+    """
     metadata = {
         'description': 'The agent has to reproduce to two angles ' +
         'separated by a constant delay.',
@@ -18,7 +31,6 @@ class AngleReproduction(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None):
-        """The agent has to reproduce to two angles separated by a constant delay."""
         super().__init__(dt=dt)
         # action and observation spaces
         # Do nothing, rotate clockwise, rotatet counterclockwise

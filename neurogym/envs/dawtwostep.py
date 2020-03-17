@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Daw two-step task
 
-"""
 from __future__ import division
 
 import numpy as np
@@ -12,6 +9,21 @@ import neurogym as ngym
 
 
 class DawTwoStep(ngym.TrialEnv):
+    """Daw Two-step task.
+
+    On each trial, an initial choice between two options lead
+    to either of two, second-stage states. In turn, these both
+    demand another two-option choice, each of which is associated
+    with a different chance of receiving reward.
+
+    Reference paper
+        `Model-Based Influences on Humans
+        Choices and Striatal Prediction Errors`_
+
+    .. _Model-Based Influences on Humans
+        Choices and Striatal Prediction Errors:
+        https://www.sciencedirect.com/science/article/pii/S0896627311001255
+    """
     metadata = {
         'description': 'On each trial, an initial choice between two options' +
         ' lead to either of two, second-stage states. In turn, these both ' +
@@ -25,12 +37,6 @@ class DawTwoStep(ngym.TrialEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None):
-        """
-        On each trial, an initial choice between two options lead
-        to either of two, second-stage states. In turn, these both
-        demand another two-option choice, each of which is associated
-        with a different chance of receiving reward.
-        """
         super().__init__(dt=dt)
         if timing is not None:
             print('Warning: Two-step task does not require timing variable.')

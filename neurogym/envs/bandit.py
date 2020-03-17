@@ -12,6 +12,17 @@ import neurogym as ngym
 
 
 class Bandit(ngym.TrialEnv):
+    """Multi-arm bandit task.
+
+    The agent has to select between N actions with different reward
+    probabilities.
+
+    Reference paper
+        `Prefrontal cortex as a meta-reinforcement learning system`_
+
+    .. _Prefrontal cortex as a meta-reinforcement learning system:
+        https://www.nature.com/articles/s41593-018-0147-8
+    """
     metadata = {
         'description': 'The agent has to select between N actions' +
         ' with different reward probabilities.',
@@ -23,10 +34,6 @@ class Bandit(ngym.TrialEnv):
 
     def __init__(self, dt=100, n_arm=2, probs=(.9, .1), gt_arm=0,
                  rewards=None, timing=None):
-        """
-        The agent has to select between N actions with different reward
-        probabilities.
-        """
         super().__init__(dt=dt)
         if timing is not None:
             print('Warning: Bandit task does not require timing variable.')

@@ -107,7 +107,7 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
 
 def fig_(obs, actions, gt=None, rewards=None, states=None, performance=None,
          legend=True, obs_traces=None, name='', folder='', fig_kwargs={},
-         env=None):
+         env=None, sv_data=False):
     """
     obs, actions: data to plot
     gt, rewards, performance, states: if not None, data to plot
@@ -122,6 +122,8 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, performance=None,
     fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
     env: environment class for extra information
     """
+    if sv_data:
+        data = {'obs': obs, 'actions': actions}
     obs = np.array(obs)
     actions = np.array(actions)
     if len(obs.shape) != 2:
@@ -173,6 +175,8 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, performance=None,
         ax.plot(steps, actions, marker='+', label='Actions')
     if gt is not None:
         gt = np.array(gt)
+        if sv_data:
+            data['gt'] = gt
         if len(gt.shape) > 1:
             for ind_gt in range(gt.shape[1]):
                 ax.plot(steps, gt[:, ind_gt], '--'+gt_colors[ind_gt],
@@ -195,6 +199,9 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, performance=None,
 
     # rewards
     if rewards:
+        if sv_data:
+            data['rewards'] = rewards
+            data['performance'] = performance
         ax = axes[2]
         ax.plot(steps, rewards, 'r', label='Rewards')
         ax.plot(steps, performance, 'k', label='Performance')
@@ -218,6 +225,8 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, performance=None,
 
     # states
     if states is not None:
+        if sv_data:
+            data['states'] = states                
         ax.set_xticks([])
         ax = axes[3]
         plt.imshow(states[:, int(states.shape[1]/2):].T,
@@ -233,7 +242,8 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, performance=None,
         else:
             f.savefig(folder + name + 'env_struct.png')
         plt.close(f)
-
+        if sv_data:
+            np.savez(folder + name + 'env_struct.npz', **data)
     return f
 
 

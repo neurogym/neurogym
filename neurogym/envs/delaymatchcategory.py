@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Delay Match to category
-
-"""
 from __future__ import division
 
 import numpy as np
@@ -13,6 +9,19 @@ import neurogym as ngym
 
 
 class DelayedMatchCategory(ngym.PeriodEnv):
+    r"""Delayed match-to-category task.
+
+    A sample stimulus is followed by a delay and test. Agents are required
+    to indicate if the sample and test are in the same category.
+
+    Reference paper
+        `Experience-dependent representation
+        of visual categories in parietal cortex`_
+
+    .. _Experience-dependent representation
+        of visual categories in parietal cortex:
+        https://www.nature.com/articles/nature05078
+    """
     metadata = {
         'description': 'A sample stimulus is followed by a delay and test.' +
         ' Agents are required to indicate if the sample and test are in the' +
@@ -25,10 +34,6 @@ class DelayedMatchCategory(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None):
-        """
-        A sample stimulus is followed by a delay and test. Agents are required
-        to indicate if the sample and test are in the same category.
-        """
         super().__init__(dt=dt)
         self.choices = [1, 2]  # match, non-match
 

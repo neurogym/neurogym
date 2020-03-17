@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Mar  1 11:48:59 2019
-
-@author: molano
-"""
 
 import neurogym as ngym
 import numpy as np
 
 class TrialHistory(ngym.TrialWrapper):
+    """Change ground truth probability based on previous outcome.
+
+    Args:
+        probs: matrix of probabilities of the current choice conditioned
+            on the previous for each block. (def: None, np.array,
+            num-blocks x num-choices x num-choices)
+        block_dur: Number of trials per block. (def: 200 (int))
+        blk_ch_prob: If not None, specifies the probability of changing block
+            (randomly). (def: None, float)
+    """
     metadata = {
         'description': 'Change ground truth probability based on previous' +
         'outcome.',
@@ -20,15 +25,6 @@ class TrialHistory(ngym.TrialWrapper):
 
     def __init__(self, env, probs=None, block_dur=200,
                  blk_ch_prob=None):
-        """
-        Change ground truth probability based on previous outcome.
-        probs: matrix of probabilities of the current choice conditioned
-        on the previous for each block. (def: None, np.array,
-        num-blocks x num-choices x num-choices)
-        block_dur: Number of trials per block. (def: 200 (int))
-        blk_ch_prob: If not None, specifies the probability of changing block
-        (randomly). (def: None, float)
-        """
         super().__init__(env)
         try:
             self.choices = self.task.choices

@@ -10,6 +10,21 @@ import neurogym as ngym
 
 
 class ReadySetGo(ngym.PeriodEnv):
+    r"""Agents have to measure and produce different time intervals.
+
+    Args:
+        gain: Controls the measure that the agent has to produce. (def: 1, int)
+        prod_margin: controls the interval around the ground truth production
+            time within which the agent receives proportional reward
+
+    Reference paper
+        `Flexible Sensorimotor Computations through Rapid
+        Reconfiguration of Cortical Dynamics`_
+
+    .. _Flexible Sensorimotor Computations through Rapid
+        Reconfiguration of Cortical Dynamics:
+        https://www.sciencedirect.com/science/article/pii/S0896627318304185
+    """
     metadata = {
         'description': '''Agents have to measure and produce different time
          intervals.''',
@@ -22,12 +37,6 @@ class ReadySetGo(ngym.PeriodEnv):
 
     def __init__(self, dt=80, rewards=None, timing=None, gain=1,
                  prod_margin=0.2):
-        """
-        Agents have to measure and produce different time intervals.
-        gain: Controls the measure that the agent has to produce. (def: 1, int)
-        prod_margin: controls the interval around the ground truth production
-                    time within which the agent receives proportional reward
-        """
         super().__init__(dt=dt)
         self.prod_margin = prod_margin
 
@@ -111,6 +120,19 @@ class ReadySetGo(ngym.PeriodEnv):
 
 
 class MotorTiming(ngym.PeriodEnv):
+    """Agents have to produce different time intervals
+    using different effectors (actions).
+
+    Args:
+        prod_margin: controls the interval around the ground truth production
+                    time within which the agent receives proportional reward
+
+    Reference paper
+        `Flexible timing by temporal scaling of cortical responses`_
+
+    .. _Flexible timing by temporal scaling of cortical responses:
+        https://www.nature.com/articles/s41593-017-0028-6
+    """
     #  TODO: different actions not implemented
     metadata = {
         'description': 'Agents have to produce different time' +
@@ -123,12 +145,6 @@ class MotorTiming(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=80, rewards=None, timing=None, prod_margin=0.2):
-        """
-        Agents have to produce different time intervals
-        using different effectors (actions).
-        prod_margin: controls the interval around the ground truth production
-                    time within which the agent receives proportional reward
-        """
         super().__init__(dt=dt)
         self.prod_margin = prod_margin
         self.production_ind = [0, 1]

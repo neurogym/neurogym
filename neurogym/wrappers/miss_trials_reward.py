@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Jan 27 17:58:46 2020
 
-@author: molano
-"""
 import neurogym as ngym
 
 
 class MissTrialReward(ngym.TrialWrapper):
+    """Provide reward if trial is miss.
+
+    Args:
+        r_miss: Reward given when a miss trial occurs.(def: 0, int)
+    """
     metadata = {
         'description': 'Add a negative reward if a trial ends with no action.',
         'paper_link': None,
@@ -16,9 +17,6 @@ class MissTrialReward(ngym.TrialWrapper):
     }
 
     def __init__(self, env, r_miss=0.):
-        """
-        r_miss: Reward given when a miss trial occurs.(def: 0, int)
-        """
         super().__init__(env)
         self.r_miss = r_miss
 

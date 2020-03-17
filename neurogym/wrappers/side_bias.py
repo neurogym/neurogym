@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Jul 30 17:41:50 2019
-
-@author: molano
-"""
 
 import numpy as np
 import neurogym as ngym
 
 
 class SideBias(ngym.TrialWrapper):
+    """Changes the probability of ground truth.
+
+    Args:
+        prob: Specifies probabilities for each choice. Within each block,the
+            probability should sum up to 1. (def: None, numpy array (n_block,
+            n_choices))
+        block_dur: Number of trials per block. (def: 200, int)
+    """
     metadata = {
         'description': 'Changes the probability of ground truth.',
         'paper_link': None,
@@ -18,13 +21,6 @@ class SideBias(ngym.TrialWrapper):
     }
 
     def __init__(self, env, prob=None, block_dur=200):
-        """
-        Changes the probability of ground truth.
-        prob: Specifies probabilities for each choice. Within each block,the
-        probability should sum up to 1. (def: None, numpy array (n_block,
-        n_choices))
-        block_dur: Number of trials per block. (def: 200, int)
-        """
         super().__init__(env)
         try:
             self.choices = self.task.choices

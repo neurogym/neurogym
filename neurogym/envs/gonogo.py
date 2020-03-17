@@ -1,19 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Feb 27 14:01:22 2019
 
-@author: molano
-
-GO/NO-GO task based on:
-
-  Active information maintenance in working memory by a sensory cortex
-  Xiaoxing Zhang, Wenjun Yan, Wenliang Wang, Hongmei Fan, Ruiqing Hou,
-  Yulei Chen, Zhaoqin Chen, Shumin Duan, Albert Compte, Chengyu Li bioRxiv 2018
-
-  https://www.biorxiv.org/content/10.1101/385393v1
-
-"""
 from __future__ import division
 
 import numpy as np
@@ -23,6 +10,17 @@ import neurogym as ngym
 
 
 class GoNogo(ngym.PeriodEnv):
+    r"""Go/No-Go task in which the subject has either Go (e.g. lick)
+    or not Go depending on which one of two stimuli is presented with.
+
+    Reference paper
+        `Active information maintenance in working memory
+        by a sensory cortex`_
+
+    .. _Active information maintenance in working memory
+        by a sensory cortex:
+        https://elifesciences.org/articles/43191
+    """
     # TODO: Find the original go-no-go paper
     metadata = {
         'description': 'Go/No-Go task in which the subject has either Go' +
@@ -35,10 +33,6 @@ class GoNogo(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None):
-        """
-        Go/No-Go task in which the subject has either Go (e.g. lick)
-        or not Go depending on which one of two stimuli is presented with.
-        """
         super().__init__(dt=dt)
         # Actions (fixate, go)
         self.actions = [0, 1]
@@ -51,10 +45,10 @@ class GoNogo(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-                          'fixation': ('constant', 0),
-                          'stimulus': ('constant', 500),
-                          'resp_delay': ('constant', 500),
-                          'decision': ('constant', 500)}
+            'fixation': ('constant', 0),
+            'stimulus': ('constant', 500),
+            'resp_delay': ('constant', 500),
+            'decision': ('constant', 500)}
         if timing:
             self.timing.update(timing)
 
