@@ -273,22 +273,11 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
 
     Args:
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)
-
-    Reference paper
-        `Discrete attractor dynamics underlies persistent
-        activity in the frontal cortex`_
-
-    .. _Discrete attractor dynamics underlies persistent
-        activity in the frontal cortex:
-        https://www.nature.com/articles/s41586-019-0919-7
     """
     metadata = {
-        'description': 'Agents have to integrate two stimuli and report' +
-        ' which one is larger on average after a delay.',
         'paper_link': 'https://www.nature.com/articles/s41586-019-0919-7',
         'paper_name': 'Discrete attractor dynamics underlies persistent' +
         ' activity in the frontal cortex',
-        'stim_scale': 'Controls the difficulty of the experiment. (def: 1.)',
         'tags': ['perceptual', 'delayed response', 'two-alternative',
                  'supervised']
     }

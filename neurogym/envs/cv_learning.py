@@ -23,19 +23,8 @@ class CVLearning(ngym.PeriodEnv):
         perf_len: Number of trials used to compute instantaneous performance.
         (def: 20, int)
         stages: Stages used to train the agent. (def: [0, 1, 2, 3, 4], list)
-
-    Reference paper
-        `Discrete attractor dynamics underlies persistent
-        activity in the frontal cortex`_
-
-    .. _Discrete attractor dynamics underlies persistent
-        activity in the frontal cortex:
-        https://www.nature.com/articles/s41586-019-0919-7
     """
     metadata = {
-        'description': 'Implements shaping for the delay-response task,' +
-        ' in which agents have to integrate two stimuli and report' +
-        ' which one is larger on average after a delay.',
         'paper_link': 'https://www.nature.com/articles/s41586-019-0919-7',
         'paper_name': 'Discrete attractor dynamics underlies persistent' +
         ' activity in the frontal cortex',
