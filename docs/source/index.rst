@@ -14,14 +14,14 @@ Welcome to neurogym's documentation!
 
 .. toctree::
     :caption: Examples
-    :maxdepth: 2
+    :maxdepth: 1
 
-    examples/example_neurogym_rl
-    examples/example_neurogym_keras
-    examples/example_neurogym_pytorch
+    example_neurogym_rl
+    example_neurogym_keras
+    example_neurogym_pytorch
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     :caption: Environments
 
     envs
