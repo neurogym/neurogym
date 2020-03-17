@@ -69,7 +69,7 @@ Doc:
             R_FAIL: given when incorrect. (def: -0.1, float)  
         timing: Description and duration of periods forming a trial.  
           
-Reference paper:   
+Reference paper   
 [Visual perception as retrospective Bayesian decoding from high- to low-level features](https://www.pnas.org/content/114/43/E9115.short)  
   
 Period timing (ms)   
@@ -101,7 +101,7 @@ Doc:
             R_FAIL: given when incorrect. (def: -0.1, float)  
         timing: Description and duration of periods forming a trial.  
           
-Reference paper:   
+Reference paper   
 [Look away: the anti-saccade task and the voluntary control of eye movement](https://www.nature.com/articles/nrn1345)  
   
 Period timing (ms)   
@@ -130,7 +130,7 @@ Doc:
             R_CORRECT: given when correct. (def: +1., float)  
         timing: Description and duration of periods forming a trial.  
           
-Reference paper:   
+Reference paper   
 [Prefrontal cortex as a meta-reinforcement learning system](https://www.nature.com/articles/s41593-018-0147-8)  
   
 Reward structure   
@@ -161,7 +161,7 @@ Doc:
         th: Performance threshold needed to proceed to the following phase.  
         (def: 0.8, float)  
           
-Reference paper:   
+Reference paper   
 [Discrete attractor dynamics underlies persistent activity in the frontal cortex](https://www.nature.com/articles/s41586-019-0919-7)  
   
 Period timing (ms)   
@@ -195,7 +195,7 @@ Doc:
         cxt_ch_prob: Probability of changing context. (def: 0.01, float)  
         cxt_cue: Whether to show context as a cue. (def: False, bool)  
           
-Reference paper:   
+Reference paper   
 [Hierarchical decision processes that operate over distinct timescales underlie choice and changes in strategy](https://www.pnas.org/content/113/31/E4531)  
   
 Period timing (ms)   
@@ -224,7 +224,7 @@ Doc:
             R_CORRECT: given when correct. (def: +1., float)  
         timing: Description and duration of periods forming a trial.  
           
-Reference paper:   
+Reference paper   
 [Context-dependent computation by recurrent dynamics in prefrontal cortex](https://www.nature.com/articles/nature12742)  
   
 Period timing (ms)   
@@ -255,7 +255,7 @@ Doc:
             R_CORRECT: given when correct. (def: +1., float)  
         timing: Description and duration of periods forming a trial.  
           
-Reference paper:   
+Reference paper   
 [Model-Based Influences on Humans Choices and Striatal Prediction Errors](https://www.sciencedirect.com/science/article/pii/S0896627311001255)  
   
 Reward structure   
@@ -278,7 +278,7 @@ Doc:
         noise: Standard deviation of the Gaussian noise added to  
         the stimulus. (def: 0.01, float)  
           
-Reference paper:   
+Reference paper   
 [Active information maintenance in working memory by a sensory cortex](https://elifesciences.org/articles/43191)  
   
 Period timing (ms)   
@@ -313,7 +313,7 @@ Doc:
             R_FAIL: given when incorrect. (def: 0., float)  
         timing: Description and duration of periods forming a trial.  
           
-Reference paper:   
+Reference paper   
 [Neuronal Population Coding of Parametric Working Memory](https://www.jneurosci.org/content/30/28/9424)  
   
 Period timing (ms)   
@@ -345,7 +345,7 @@ Doc:
             R_FAIL: given when incorrect. (def: 0., float)  
         timing: Description and duration of periods forming a trial.  
           
-Reference paper:   
+Reference paper   
 [Experience-dependent representation of visual categories in parietal cortex](https://www.nature.com/articles/nature05078)  
   
 Period timing (ms)   
@@ -376,7 +376,7 @@ Doc:
             R_FAIL: given when incorrect. (def: 0., float)  
         timing: Description and duration of periods forming a trial.  
           
-Reference paper:   
+Reference paper   
 [Neural Mechanisms of Visual Working Memory in Prefrontal Cortex of the Macaque](https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf)  
   
 Period timing (ms)   
@@ -407,7 +407,7 @@ Doc:
             R_FAIL: given when incorrect. (def: -1., float)  
         timing: Description and duration of periods forming a trial.  
           
-Reference paper:   
+Reference paper   
 [Neural Mechanisms of Visual Working Memory in Prefrontal Cortex of the Macaque](https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf)  
   
 Period timing (ms)   
@@ -443,7 +443,7 @@ Doc:
         the delay is drawn from a uniform distribution. (def: None (ms), int)  
         stim_dur: Stimulus duration. (def: 100 (ms), int)  
           
-Reference paper:   
+Reference paper   
 Missing paper name  
 Missing paper link  
   
@@ -471,7 +471,7 @@ Doc:
         rewards: dictionary of rewards  
         timing: Description and duration of periods forming a trial.  
           
-Reference paper:   
+Reference paper   
 [Neurons in the orbitofrontal cortex encode economic value](https://www.nature.com/articles/nature04676)  
   
 Period timing (ms)   
@@ -497,7 +497,7 @@ Doc:
         rewards: reward dictionary  
         timing: Description and duration of periods forming a trial.  
           
-Reference paper:   
+Reference paper   
 [Active information maintenance in working memory by a sensory cortex](https://elifesciences.org/articles/43191)  
   
 Period timing (ms)   
@@ -526,7 +526,7 @@ Doc:
         rewards: dictionary of rewards  
         timing: Description and duration of periods forming a trial.  
           
-Reference paper:   
+Reference paper   
 [Feature- and Order-Based Timing Representations in the Frontal Cortex](https://www.sciencedirect.com/science/article/pii/S0896627309004887)  
   
 Period timing (ms)   
@@ -559,7 +559,7 @@ Doc:
         timing: Description and duration of periods forming a trial.  
         learning_rate: learning rate in the mean_action opponent  
           
-Reference paper:   
+Reference paper   
 [Prefrontal cortex and decision making in a mixed-strategy game](https://www.nature.com/articles/nn1209)  
   
 Reward structure   
@@ -585,7 +585,7 @@ Doc:
         prod_margin: controls the interval around the ground truth production  
                     time within which the agent receives proportional reward  
           
-Reference paper:   
+Reference paper   
 [Flexible timing by temporal scaling of cortical responses](https://www.nature.com/articles/s41593-017-0028-6)  
   
 Period timing (ms)   
@@ -617,7 +617,7 @@ Doc:
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)  
         n_ch: Number of choices. (def: 3, int)  
           
-Reference paper:   
+Reference paper   
 Missing paper name  
 Missing paper link  
   
@@ -651,7 +651,7 @@ Doc:
         timing: Description and duration of periods forming a trial.  
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)  
           
-Reference paper:   
+Reference paper   
 [The analysis of visual motion: a comparison of neuronal and psychophysical performance](https://www.jneurosci.org/content/12/12/4745)  
   
 Period timing (ms)   
@@ -682,7 +682,7 @@ Doc:
         timing: Description and duration of periods forming a trial.  
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)  
           
-Reference paper:   
+Reference paper   
 [Discrete attractor dynamics underlies persistent activity in the frontal cortex](https://www.nature.com/articles/s41586-019-0919-7)  
   
 Period timing (ms)   
@@ -718,7 +718,7 @@ Doc:
             R_FAIL: given when incorrect. (def: 0., float)  
         timing: Description and duration of periods forming a trial.  
           
-Reference paper:   
+Reference paper   
 [Representation of Confidence Associated with a Decision by Neurons in the Parietal Cortex](https://science.sciencemag.org/content/324/5928/759.long)  
   
 Period timing (ms)   
@@ -749,7 +749,7 @@ Doc:
             R_FAIL: given when incorrect. (def: -0.1, float)  
         timing: Description and duration of periods forming a trial.  
           
-Reference paper:   
+Reference paper   
 [Neuronal population coding of movement direction](https://science.sciencemag.org/content/233/4771/1416)  
   
 Period timing (ms)   
@@ -777,7 +777,7 @@ Doc:
             R_FAIL: given when incorrect. (def: -0.1, float)  
         timing: Description and duration of periods forming a trial.  
           
-Reference paper:   
+Reference paper   
 Missing paper name  
 Missing paper link  
   
@@ -803,7 +803,7 @@ Doc:
         rewards: dictionary of rewards  
         timing: Description and duration of periods forming a trial.  
           
-Reference paper:   
+Reference paper   
 Missing paper name  
 Missing paper link  
   
@@ -834,7 +834,7 @@ Doc:
         prod_margin: controls the interval around the ground truth production  
                     time within which the agent receives proportional reward  
           
-Reference paper:   
+Reference paper   
 [Flexible Sensorimotor Computations through Rapid Reconfiguration of Cortical Dynamics](https://www.sciencedirect.com/science/article/pii/S0896627318304185)  
   
 Period timing (ms)   

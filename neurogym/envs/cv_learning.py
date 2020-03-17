@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Nov  4 10:45:33 2019
-
-@author: molano
-"""
-
 
 import numpy as np
 from gym import spaces
@@ -13,6 +7,31 @@ import neurogym as ngym
 
 
 class CVLearning(ngym.PeriodEnv):
+    r"""Implements shaping for the delay-response task, in which agents
+    have to integrate two stimuli and report which one is larger on
+    average after a delay.
+
+    Args:
+        stim_scale: Controls the difficulty of the experiment. (def: 1., float)
+        max_num_reps: Maximum number of times that agent can go in a row
+        to the same side during phase 0. (def: 3, int)
+        th_stage: Performance threshold needed to proceed to the following
+        phase. (def: 0.7, float)
+        keep_days: Number of days that the agent will be kept in the same phase
+        once arrived to the goal performacance. (def: 1, int)
+        trials_day: Number of trials performed during one day. (def: 200, int)
+        perf_len: Number of trials used to compute instantaneous performance.
+        (def: 20, int)
+        stages: Stages used to train the agent. (def: [0, 1, 2, 3, 4], list)
+
+    Reference paper
+        `Discrete attractor dynamics underlies persistent
+        activity in the frontal cortex`_
+
+    .. _Discrete attractor dynamics underlies persistent
+        activity in the frontal cortex:
+        https://www.nature.com/articles/s41586-019-0919-7
+    """
     metadata = {
         'description': 'Implements shaping for the delay-response task,' +
         ' in which agents have to integrate two stimuli and report' +
@@ -27,22 +46,6 @@ class CVLearning(ngym.PeriodEnv):
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
                  max_num_reps=3, th_stage=0.7, keep_days=1,
                  trials_day=300, perf_len=20, stages=[0, 1, 2, 3, 4]):
-        """
-        Implements shaping for the delay-response task, in which agents
-        have to integrate two stimuli and report which one is larger on
-        average after a delay.
-        stim_scale: Controls the difficulty of the experiment. (def: 1., float)
-        max_num_reps: Maximum number of times that agent can go in a row
-        to the same side during phase 0. (def: 3, int)
-        th_stage: Performance threshold needed to proceed to the following
-        phase. (def: 0.7, float)
-        keep_days: Number of days that the agent will be kept in the same phase
-        once arrived to the goal performacance. (def: 1, int)
-        trials_day: Number of trials performed during one day. (def: 200, int)
-        perf_len: Number of trials used to compute instantaneous performance.
-        (def: 20, int)
-        stages: Stages used to train the agent. (def: [0, 1, 2, 3, 4], list)
-        """
         super().__init__(dt=dt)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence
@@ -101,9 +104,11 @@ class CVLearning(ngym.PeriodEnv):
         # stage 2
         # min performance to keep the agent in stage 2
         self.min_perf = 0.6  # TODO: no magic numbers
+        self.stage_reminder = False
         # stage 3
         self.delay_durs = self.timing['delay'][1]
         self.inc_delays = 0
+        self.delay_milestone = 0
         self.inc_factor = 0.25
         self.inc_delays_th = 0.75  # th perf to increase delays in stage 3
         self.dec_delays_th = 0.5  # th perf to decrease delays in stage 3
@@ -177,7 +182,7 @@ class CVLearning(ngym.PeriodEnv):
                    self.inc_delays < 1:
                     self.inc_delays += self.inc_factor
                     self.trials_delay = 0
-                elif self.inst_perf <= self.dec_delays_th and self.inc_delays > 0:
+                elif self.inst_perf <= self.dec_delays_th and self.inc_delays > self.delay_milestone:
                     self.inc_delays -= self.inc_factor
                     self.trials_delay = 0
             self.dur = [int(d*self.inc_delays) for d in self.delay_durs]
@@ -247,32 +252,43 @@ class CVLearning(ngym.PeriodEnv):
             self.inst_perf = np.mean(self.mov_perf)
             if self.inst_perf < self.min_perf and self.curr_ph == 2:
                 self.curr_ph = 1
+                self.stage_reminder = True
                 if 1 in self.stages:
                     self.ind -= 1
                 else:
                     self.stages = list(self.stages)
                     self.stages.insert(self.ind, 1)
                     self.w_keep.insert(self.ind, self.w_keep[self.ind])
+            elif self.inst_perf > self.th_perf and self.stage_reminder:
+                self.curr_ph = 2
+                self.ind += 1
+                self.stage_reminder = False
 
+        # End of the day
         if self.trials_counter >= self.trials_day:
             self.trials_counter = 0
             self.curr_perf = np.mean(self.day_perf)
             self.day_perf = np.empty(self.trials_day)
+            self.delay_milestone = self.inc_delays
             if self.curr_perf >= self.th_perf and self.max_delays:
                 self.keep_stage = True
+                print(self.curr_ph)
+                print(self.days_keep)
+                print('-------')
 
             else:
                 self.keep_stage = False
                 self.days_keep = self.w_keep[self.ind]
 
             if self.keep_stage:
-                self.days_keep -= 1
                 if self.days_keep <= 0 and\
                    self.curr_ph < self.stages[-1]:
                     self.ind += 1
                     self.curr_ph = self.stages[self.ind]
-                    self.days_keep = self.w_keep[self.ind]
+                    self.days_keep = self.w_keep[self.ind] + 1
                     self.keep_stage = False
+                self.days_keep -= 1
+
 
     def _step(self, action):
         # obs, reward, done, info = self.env._step(action)
@@ -312,14 +328,16 @@ class CVLearning(ngym.PeriodEnv):
 
         if new_trial and self.curr_ph == 0:
             self.action = action
+
         info = {'new_trial': new_trial, 'gt': gt, 'num_tr': self.num_tr,
                 'curr_ph': self.curr_ph, 'first_rew': self.rew,
                 'keep_stage': self.keep_stage, 'inst_perf': self.inst_perf,
-                'trials_day': self.trials_counter, 'dur': self.dur}
+                'trials_day': self.trials_counter, 'durs': self.dur,
+                'inc_delays': self.inc_delays, 'trials_count': self.trials_counter}
         return self.obs_now, reward, False, info
 
 
 if __name__ == '__main__':
-    env = CVLearning(stages=[3])
+    env = CVLearning(stages=[0,1,2],trials_day=1,keep_days=1)
     data = ngym.utils.plot_env(env, num_steps_env=100,
                                obs_traces=['Fixation Cue', 'Stim1', 'Stim2'])

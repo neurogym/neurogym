@@ -58,7 +58,7 @@ def info_wrapper(wrapper=None, show_code=False):
                                            None) or 'Missing description'
         string += "Logic: {:s}\n\n".format(wrapper_description)
         if paper_name is not None:
-            string += "Reference paper: \n\n"
+            string += "Reference paper \n\n"
             if paper_link is None:
                 string += "{:s}\n\n".format(paper_name)
             else:

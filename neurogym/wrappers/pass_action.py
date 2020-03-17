@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 26 08:53:05 2019
-
-@author: linux
-
-@author: molano
-"""
 
 import numpy as np
 import neurogym as ngym
@@ -14,6 +7,7 @@ from gym import spaces
 
 
 class PassAction(ngym.TrialWrapper):
+    """Modifies observation by adding the previous action."""
     metadata = {
         'description': 'Modifies observation by adding the previous action.',
         'paper_link': None,
@@ -21,9 +15,6 @@ class PassAction(ngym.TrialWrapper):
     }
 
     def __init__(self, env):
-        """
-        Modifies observation by adding the previous action.
-        """
         super().__init__(env)
         self.env = env
         # TODO: This is not adding one-hot

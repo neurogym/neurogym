@@ -1,5 +1,3 @@
-
-
 from __future__ import division
 
 import numpy as np
@@ -10,6 +8,17 @@ import neurogym as ngym
 
 # TODO: Getting duration is not intuitive, not clear to people
 class IntervalDiscrimination(ngym.PeriodEnv):
+    r"""Agents have to report which of two stimuli presented
+    sequentially is longer.
+
+    Reference paper
+        `Feature- and Order-Based Timing Representations
+        in the Frontal Cortex`_
+
+    .. _Feature- and Order-Based Timing Representations
+        in the Frontal Cortex:
+        https://www.sciencedirect.com/science/article/pii/S0896627309004887
+    """
     metadata = {
         'description': 'Agents have to report which of two stimuli presented' +
         ' sequentially is longer.',
@@ -22,10 +31,6 @@ class IntervalDiscrimination(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=80, rewards=None, timing=None):
-        """
-        Agents have to report which of two stimuli presented
-        sequentially is longer.
-        """
         super().__init__(dt=dt)
         # Rewards
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}

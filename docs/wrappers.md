@@ -38,7 +38,7 @@ ___
   
 Logic: Allows to combine two tasks, one of which working as the distractor task.  
   
-Reference paper:   
+Reference paper   
   
 [Response outcomes gate the impact of expectations on perceptual decisions](https://www.biorxiv.org/content/10.1101/433409v3)  
   
@@ -114,7 +114,7 @@ ___
   
 Logic: Change ground truth probability based on previousoutcome.  
   
-Reference paper:   
+Reference paper   
   
 [Response outcomes gate the impact of expectations on perceptual decisions](https://www.biorxiv.org/content/10.1101/433409v3)  
   

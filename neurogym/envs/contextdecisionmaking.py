@@ -1,10 +1,3 @@
-"""
-Context-dependent integration task, based on
-  Context-dependent computation by recurrent dynamics in prefrontal cortex.
-  V Mante, D Sussillo, KV Shinoy, & WT Newsome, Nature 2013.
-  http://dx.doi.org/10.1038/nature12742
-
-"""
 from __future__ import division
 
 import numpy as np
@@ -14,6 +7,19 @@ from neurogym.utils.inputs import GaussianNoise
 
 
 class ContextDecisionMaking(ngym.PeriodEnv):
+    """Context-dependent decision-making task.
+
+    Agent has to perform one of two different perceptual discriminations.
+    On every trial, a contextual cue indicates which one to perform.
+
+    Reference paper
+        `Context-dependent computation by recurrent
+        dynamics in prefrontal cortex`_
+
+    .. _Context-dependent computation by recurrent
+        dynamics in prefrontal cortex:
+        https://www.nature.com/articles/nature12742
+    """
     metadata = {
         'description': 'Agent has to perform one of two different perceptual' +
         ' discriminations. On every trial, a contextual cue indicates which' +
@@ -26,10 +32,6 @@ class ContextDecisionMaking(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None):
-        """
-        Agent has to perform one of two different perceptual discriminations.
-        On every trial, a contextual cue indicates which one to perform.
-        """
         super().__init__(dt=dt)
 
         # trial conditions
@@ -59,6 +61,7 @@ class ContextDecisionMaking(ngym.PeriodEnv):
 
         # set action and observation space
         self.action_space = spaces.Discrete(3)
+        self.act_dict = {'fixation': 0, 'choice1': 1, 'choice2': 2}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(7,),
                                             dtype=np.float32)
         names = ['fixation', 'stim1_mod1', 'stim2_mod1',

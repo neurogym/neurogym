@@ -26,7 +26,7 @@ def env_string(env):
     paper_name = _clean_string(paper_name)
     paper_link = metadata.get('paper_link', None)
     string += "Doc: {:s}\n".format(docstring)
-    string += "Reference paper: \n"
+    string += "Reference paper \n"
     if paper_link is None:
         string += "{:s}\n".format(paper_name)
         string += 'Missing paper link\n'
