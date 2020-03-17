@@ -13,9 +13,6 @@ class ContextDecisionMaking(ngym.PeriodEnv):
     On every trial, a contextual cue indicates which one to perform.
     """
     metadata = {
-        'description': 'Agent has to perform one of two different perceptual' +
-        ' discriminations. On every trial, a contextual cue indicates which' +
-        ' one to perform.',
         'paper_link': 'https://www.nature.com/articles/nature12742',
         'paper_name': '''Context-dependent computation by recurrent
          dynamics in prefrontal cortex''',
