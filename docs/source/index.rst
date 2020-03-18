@@ -8,9 +8,10 @@ Welcome to neurogym's documentation!
 
 .. toctree::
     :caption: Getting started
-    :maxdepth: 2
+    :maxdepth: 1
 
     installing
+    demo
 
 .. toctree::
     :caption: Examples
