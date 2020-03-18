@@ -19,18 +19,8 @@ class ChangingEnvironment(ngym.PeriodEnv):
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)
         cxt_ch_prob: Probability of changing context. (def: 0.01, float)
         cxt_cue: Whether to show context as a cue. (def: False, bool)
-
-    Reference paper
-        `Hierarchical decision processes that operate
-        over distinct timescales underlie choice and changes in strategy`_
-
-    .. _Hierarchical decision processes that operate
-        over distinct timescales underlie choice and changes in strategy:
-        https://www.pnas.org/content/113/31/E4531
     """
     metadata = {
-        'description': 'Random Dots Motion tasks in which the correct action' +
-        ' depends on a randomly changing context.',
         'paper_link': 'https://www.pnas.org/content/113/31/E4531',
         'paper_name': '''Hierarchical decision processes that operate
         over distinct timescales underlie choice and changes in strategy''',

@@ -19,7 +19,7 @@ def _clean_string(string):
 def env_string(env):
     string = ''
     metadata = env.metadata
-    docstring = env.__init__.__doc__
+    docstring = env.__doc__
     string += "### {:s}\n".format(type(env).__name__)
     paper_name = metadata.get('paper_name',
                               None) or 'Missing paper name'

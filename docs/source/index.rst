@@ -13,7 +13,15 @@ Welcome to neurogym's documentation!
     installing
 
 .. toctree::
-    :maxdepth: 2
+    :caption: Examples
+    :maxdepth: 1
+
+    example_neurogym_rl
+    example_neurogym_keras
+    example_neurogym_pytorch
+
+.. toctree::
+    :maxdepth: 1
     :caption: Environments
 
     envs

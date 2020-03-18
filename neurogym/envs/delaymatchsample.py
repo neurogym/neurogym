@@ -13,23 +13,12 @@ class DelayedMatchToSample(ngym.PeriodEnv):
 
     A sample stimulus is followed by a delay and test. Agents are required
     to indicate if the sample and test are the same stimulus.
-
-    Reference paper
-        `Neural Mechanisms of Visual Working Memory
-        in Prefrontal Cortex of the Macaque`_
-
-    .. _Neural Mechanisms of Visual Working Memory
-        in Prefrontal Cortex of the Macaque:
-        https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf
     """
     metadata = {
-        'description': 'A sample stimulus is followed by a delay and test.' +
-        ' Agents are required to indicate if the sample and test are the' +
-        ' same stimulus.',
         'paper_link': 'https://www.jneurosci.org/content/jneuro/16/16/' +
-        '5154.full.pdf',
+                      '5154.full.pdf',
         'paper_name': '''Neural Mechanisms of Visual Working Memory
-        in Prefrontal Cortex of the Macaque''',
+    in Prefrontal Cortex of the Macaque''',
         'tags': ['perceptual', 'working memory', 'two-alternative',
                  'supervised']
     }
@@ -130,18 +119,8 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
         dt: Timestep duration. (def: 100 (ms), int)
         rewards: dictionary of rewards
         timing: Description and duration of periods forming a trial.
-
-    Reference paper
-        `Neural Mechanisms of Visual Working Memory
-        in Prefrontal Cortex of the Macaque`_
-
-    .. _Neural Mechanisms of Visual Working Memory
-        in Prefrontal Cortex of the Macaque:
-        https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf
     """
     metadata = {
-        'description': '''Delay Match to sample with multiple,
-         potentially repeating distractors.''',
         'paper_link': 'https://www.jneurosci.org/content/jneuro/16/16/' +
         '5154.full.pdf',
         'paper_name': '''Neural Mechanisms of Visual Working Memory

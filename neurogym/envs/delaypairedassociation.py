@@ -10,20 +10,9 @@ import neurogym as ngym
 class DelayPairedAssociation(ngym.PeriodEnv):
     r"""A sample is followed by a delay and a test. Agents have to report if
     the pair sample-test is a rewarded pair or not.
-
-    Reference paper
-        `Active information maintenance in working memory
-        by a sensory cortex`_
-
-    .. _Active information maintenance in working memory
-        by a sensory cortex:
-        https://elifesciences.org/articles/43191
     """
 
     metadata = {
-        'description': 'A sample is followed by a delay and a test.' +
-        ' Agents have to report if the pair sample-test is a rewarded pair' +
-        ' or not.',
         'paper_link': 'https://elifesciences.org/articles/43191',
         'paper_name': 'Active information maintenance in working memory' +
         ' by a sensory cortex',

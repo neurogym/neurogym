@@ -11,19 +11,8 @@ class ContextDecisionMaking(ngym.PeriodEnv):
 
     Agent has to perform one of two different perceptual discriminations.
     On every trial, a contextual cue indicates which one to perform.
-
-    Reference paper
-        `Context-dependent computation by recurrent
-        dynamics in prefrontal cortex`_
-
-    .. _Context-dependent computation by recurrent
-        dynamics in prefrontal cortex:
-        https://www.nature.com/articles/nature12742
     """
     metadata = {
-        'description': 'Agent has to perform one of two different perceptual' +
-        ' discriminations. On every trial, a contextual cue indicates which' +
-        ' one to perform.',
         'paper_link': 'https://www.nature.com/articles/nature12742',
         'paper_name': '''Context-dependent computation by recurrent
          dynamics in prefrontal cortex''',

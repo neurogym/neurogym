@@ -12,12 +12,23 @@ Environments
 """
 
 for key, val in ALL_ENVS.items():
+    string += key + '\n'+'-'*50+'\n'
     string += '.. autoclass:: ' + val.split(':')[0] + '.' + val.split(':')[1] + '\n'
     string += '    :members:\n'
     string += '    :exclude-members: new_trial\n\n'
 
-    string += '    Tags\n'
     env = gym.make(key)
+    # Add paper
+    paper_name = env.metadata.get('paper_name', '')
+    paper_link = env.metadata.get('paper_link', '')
+    if paper_name:
+        string += '    Reference paper\n'
+        paper_name = paper_name.replace('\n', ' ')
+        string += '        `{:s} <{:s}>`__\n\n'.format(paper_name, paper_link)
+        # string += '    .. __{:s}:\n        {:s}\n\n'.format(paper_name, paper_link)
+
+    # Add tags
+    string += '    Tags\n'
     for tag in env.metadata.get('tags', []):
         string += '        :ref:`tag-{:s}`, '.format(tag)
     string = string[:-2]
@@ -54,6 +65,7 @@ Wrappers
 """
 
 for key, val in ALL_WRAPPERS.items():
+    string += key + '\n' + '-' * 50 + '\n'
     string += '.. autoclass:: ' + val.split(':')[0] + '.' + val.split(':')[1] + '\n'
     string += '    :members:\n'
     string += '    :exclude-members: new_trial\n\n'

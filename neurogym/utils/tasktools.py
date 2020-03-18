@@ -93,6 +93,7 @@ def random_number_name(dist, args):
             string += ', min ' + str(args[1])
         if len(args) > 2:
             string += ', max ' + str(args[2])
+        return string
     elif dist == 'constant':
         return dist + ' ' + str(args)
     else:

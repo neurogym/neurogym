@@ -14,21 +14,8 @@ class PostDecisionWager(ngym.PeriodEnv):
     random half of the trials, the agent is given the option to abort
     the direction discrimination and to choose instead a small but
     certain reward associated with a action.
-
-    Reference paper
-        `Representation of Confidence Associated with a
-        Decision by Neurons in the Parietal Cortex`_
-
-    .. _Representation of Confidence Associated with a
-        Decision by Neurons in the Parietal Cortex:
-        https://science.sciencemag.org/content/324/5928/759.long
     """
     metadata = {
-        'description': """Agents do a discrimination task(see
-         PerceptualDecisionMaking). On a random half of the trials,
-         the agent is given the option to abort the direction discrimination
-         and to choose instead a small but certain reward associated with
-         a action.""",
         'paper_link': 'https://science.sciencemag.org/content/324/5928/' +
         '759.long',
         'paper_name': '''Representation of Confidence Associated with a
@@ -39,8 +26,6 @@ class PostDecisionWager(ngym.PeriodEnv):
     def __init__(self, dt=100, rewards=None, timing=None):
         super().__init__(dt=dt)
 #        # Actions
-#        self.actions = tasktools.to_map('FIXATE', 'CHOOSE-LEFT',
-#                                        'CHOOSE-RIGHT', 'CHOOSE-SURE')
         # Actions (fixate, left, right, sure)
         self.actions = [0, -1, 1, 2]
         # trial conditions

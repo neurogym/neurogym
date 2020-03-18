@@ -15,20 +15,8 @@ class DawTwoStep(ngym.TrialEnv):
     to either of two, second-stage states. In turn, these both
     demand another two-option choice, each of which is associated
     with a different chance of receiving reward.
-
-    Reference paper
-        `Model-Based Influences on Humans
-        Choices and Striatal Prediction Errors`_
-
-    .. _Model-Based Influences on Humans
-        Choices and Striatal Prediction Errors:
-        https://www.sciencedirect.com/science/article/pii/S0896627311001255
     """
     metadata = {
-        'description': 'On each trial, an initial choice between two options' +
-        ' lead to either of two, second-stage states. In turn, these both ' +
-        'demand another two-option choice, each of which is associated with ' +
-        ' a different chance of receiving reward.',
         'paper_link': 'https://www.sciencedirect.com/science/article/' +
         'pii/S0896627311001255',
         'paper_name': 'Model-Based Influences on Humans' +

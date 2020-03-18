@@ -12,20 +12,9 @@ import neurogym as ngym
 class GoNogo(ngym.PeriodEnv):
     r"""Go/No-Go task in which the subject has either Go (e.g. lick)
     or not Go depending on which one of two stimuli is presented with.
-
-    Reference paper
-        `Active information maintenance in working memory
-        by a sensory cortex`_
-
-    .. _Active information maintenance in working memory
-        by a sensory cortex:
-        https://elifesciences.org/articles/43191
     """
     # TODO: Find the original go-no-go paper
     metadata = {
-        'description': 'Go/No-Go task in which the subject has either Go' +
-        ' (e.g. lick) or not Go depending on which one of two stimuli is' +
-        ' presented with.',
         'paper_link': 'https://elifesciences.org/articles/43191',
         'paper_name': 'Active information maintenance in working memory' +
         ' by a sensory cortex',

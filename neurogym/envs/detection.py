@@ -23,7 +23,6 @@ class Detection(ngym.PeriodEnv):
         stim_dur: Stimulus duration. (def: 100 (ms), int)
     """
     metadata = {
-            'description': 'The agent has to GO if a stimulus is presented.',
             'paper_link': None,
             'paper_name': None,
             'tags': ['perceptual', 'reaction time', 'go-no-go',
