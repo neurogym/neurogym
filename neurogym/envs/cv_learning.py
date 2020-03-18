@@ -103,14 +103,14 @@ class CVLearning(ngym.PeriodEnv):
         self.action_counter = 0
         # stage 2
         # min performance to keep the agent in stage 2
-        self.min_perf = 0.6  # TODO: no magic numbers
+        self.min_perf = 0.5  # TODO: no magic numbers
         self.stage_reminder = False
         # stage 3
         self.delay_durs = self.timing['delay'][1]
         self.inc_delays = 0
         self.delay_milestone = 0
         self.inc_factor = 0.25
-        self.inc_delays_th = 0.75  # th perf to increase delays in stage 3
+        self.inc_delays_th = th_stage  # th perf to increase delays in stage 3
         self.dec_delays_th = 0.5  # th perf to decrease delays in stage 3
         self.trials_delay = 0
         self.max_delays = True
