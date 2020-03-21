@@ -106,3 +106,4 @@ venv.bak/
 # added by robert
 # Pycharm related
 .idea/
+*tmp.py

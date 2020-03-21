@@ -132,15 +132,28 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
 
 
 class PerceptualDecisionMaking1D(ngym.PeriodEnv):
-    metadata = {}
+    """Two-alternative forced choice task in which the subject has to
+    integrate two stimuli to decide which one is higher on average.
 
-    def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.):
+    Args:
+        stim_scale: Controls the difficulty of the experiment. (def: 1., float)
+        dim_ring: int, dimension of ring input and output
+    """
+    metadata = {
+        'paper_link': 'https://www.jneurosci.org/content/12/12/4745',
+        'paper_name': '''The analysis of visual motion: a comparison of
+        neuronal and psychophysical performance''',
+        'tags': ['perceptual', 'two-alternative', 'supervised']
+    }
+
+    def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
+                 dim_ring=2):
         """"""
         super().__init__(dt=dt)
         # cohs specifies the amount of evidence (which is modulated by stim_scale)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stim_scale
         # Input noise
-        sigma = np.sqrt(2 * 100 * 0.01)
+        sigma = np.sqrt(2 * 100 * 0.01) * 0
         self.sigma_dt = sigma / np.sqrt(self.dt)
 
         # Rewards
@@ -156,33 +169,17 @@ class PerceptualDecisionMaking1D(ngym.PeriodEnv):
             self.timing.update(timing)
 
         self.abort = False
-        
-        
-        if False:
-            self.choices = [1, 2]  # [left, right]
-            self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
-                                                dtype=np.float32)
-            self.ob_dict = {'fixation': 0,
-                            'stimulus1': 1,
-                            'stimulus2': 2}
-    
-            self.action_space = spaces.Discrete(3)
-            self.act_dict = {'fixation': 0,
-                             'choice1': 1,
-                             'choice2': 2}
-        
-        if True:
-            dim_ring = 16
-            self.theta = np.arange(0, 2*np.pi, 2*np.pi/dim_ring)
-            self.choices = np.linspace(0, 2*np.pi, 33)[:-1]
-            self.observation_space = spaces.Box(-np.inf, np.inf, shape=(1+dim_ring,),
-                                    dtype=np.float32)
-            self.ob_dict = {'fixation': 0,
-                            'stimulus': range(1, dim_ring+1)}
-    
-            self.action_space = spaces.Discrete(1+dim_ring)
-            self.act_dict = {'fixation': 0,
-                             'choice': range(1, dim_ring+1)}
+
+        self.theta = np.linspace(0, 2*np.pi, dim_ring+1)[:-1]
+        self.choices = np.linspace(0, 2*np.pi, dim_ring+1)[:-1]
+
+        self.observation_space = spaces.Box(
+            -np.inf, np.inf, shape=(1+dim_ring,), dtype=np.float32)
+        self.ob_dict = {'fixation': 0,
+                        'stimulus': range(1, dim_ring+1)}
+        self.action_space = spaces.Discrete(1+dim_ring)
+        self.act_dict = {'fixation': 0,
+                         'choice': range(1, dim_ring+1)}
             
     def new_trial(self, **kwargs):
         """
@@ -214,20 +211,8 @@ class PerceptualDecisionMaking1D(ngym.PeriodEnv):
         # Observations
         # ---------------------------------------------------------------------
         self.add_ob(1, period=['fixation', 'stimulus'], where='fixation')
-        
-        if False:
-            signed_coh = coh if ground_truth == 1 else -coh
-            self.add_ob((1 + signed_coh / 100) / 2, period='stimulus',
-                        where='stimulus1')
-            self.add_ob((1 - signed_coh / 100) / 2, period='stimulus',
-                        where='stimulus2')
-        if True:
-            stim1 = np.cos(self.theta - self.trial['ground_truth'])
-            self.add_ob(stim1 * (0.5 + signed_coh / 200), 'stimulus',
-                        where='stimulus')
-            stim2 = np.cos(self.theta - self.trial['ground_truth'] + np.pi)
-            self.add_ob(stim2 * (0.5 - signed_coh / 200), 'stimulus',
-                        where='stimulus')            
+        stim = np.cos(self.theta - ground_truth) * (coh/200) + 0.5
+        self.add_ob(stim, 'stimulus', where='stimulus')
         self.add_randn(0, self.sigma_dt, 'stimulus')
         # ---------------------------------------------------------------------
         # Ground truth
