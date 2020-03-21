@@ -13,129 +13,6 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
     integrate two stimuli to decide which one is higher on average.
 
     Args:
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards: reward dictionary
-        timing: Description and duration of periods forming a trial.
-        stim_scale: Controls the difficulty of the experiment. (def: 1., float)
-    """
-    metadata = {
-        'paper_link': 'https://www.jneurosci.org/content/12/12/4745',
-        'paper_name': '''The analysis of visual motion: a comparison of
-        neuronal and psychophysical performance''',
-        'tags': ['perceptual', 'two-alternative', 'supervised']
-    }
-
-    def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.):
-        super().__init__(dt=dt)
-        self.choices = [1, 2]  # [left, right]
-        # cohs specifies the amount of evidence (which is modulated by stim_scale)
-        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stim_scale
-        # Input noise
-        sigma = np.sqrt(2 * 100 * 0.01)
-        self.sigma_dt = sigma / np.sqrt(self.dt)
-
-        # Rewards
-        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
-        if rewards:
-            self.rewards.update(rewards)
-
-        self.timing = {
-            'fixation': ('constant', 100),  # TODO: depends on subject
-            'stimulus': ('constant', 2000),
-            'decision': ('constant', 100)}  # XXX: not specified
-        if timing:
-            self.timing.update(timing)
-
-        self.abort = False
-
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0,
-                        'stimulus1': 1,
-                        'stimulus2': 2}
-
-        self.action_space = spaces.Discrete(3)
-        self.act_dict = {'fixation': 0,
-                         'choice1': 1,
-                         'choice2': 2}
-
-    def new_trial(self, **kwargs):
-        """
-        new_trial() is called when a trial ends to generate the next trial.
-        The following variables are created:
-            durations, which stores the duration of the different periods (in
-            the case of perceptualDecisionMaking: fixation, stimulus and
-            decision periods)
-            ground truth: correct response for the trial
-            coh: stimulus coherence (evidence) for the trial
-            obs: observation
-        """
-        # ---------------------------------------------------------------------
-        # Trial
-        # ---------------------------------------------------------------------
-        self.trial = {
-            'ground_truth': self.rng.choice(self.choices),
-            'coh': self.rng.choice(self.cohs),
-        }
-        self.trial.update(kwargs)
-        coh = self.trial['coh']
-        ground_truth = self.trial['ground_truth']
-        # ---------------------------------------------------------------------
-        # Periods
-        # ---------------------------------------------------------------------
-        self.add_period(['fixation', 'stimulus', 'decision'], after=0,
-                        last_period=True)
-        # ---------------------------------------------------------------------
-        # Observations
-        # ---------------------------------------------------------------------
-        signed_coh = coh if ground_truth == 1 else -coh
-        self.add_ob(1, period=['fixation', 'stimulus'], where='fixation')
-        self.add_ob((1 + signed_coh / 100) / 2, period='stimulus',
-                    where='stimulus1')
-        self.add_ob((1 - signed_coh / 100) / 2, period='stimulus',
-                    where='stimulus2')
-        self.add_randn(0, self.sigma_dt, 'stimulus')
-        # ---------------------------------------------------------------------
-        # Ground truth
-        # ---------------------------------------------------------------------
-        self.set_groundtruth(ground_truth, 'decision')
-
-    def _step(self, action):
-        """
-        _step receives an action and returns:
-            a new observation, obs
-            reward associated with the action, reward
-            a boolean variable indicating whether the experiment has end, done
-            a dictionary with extra information:
-                ground truth correct response, info['gt']
-                boolean indicating the end of the trial, info['new_trial']
-        """
-        new_trial = False
-        # rewards
-        reward = 0
-        gt = self.gt_now
-        # observations
-        if self.in_period('fixation'):
-            if action != 0:  # action = 0 means fixating
-                new_trial = self.abort
-                reward += self.rewards['abort']
-        elif self.in_period('decision'):
-            if action != 0:
-                new_trial = True
-                if action == gt:
-                    reward += self.rewards['correct']
-                    self.performance = 1
-                else:
-                    reward += self.rewards['fail']
-
-        return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
-
-
-class PerceptualDecisionMaking1D(ngym.PeriodEnv):
-    """Two-alternative forced choice task in which the subject has to
-    integrate two stimuli to decide which one is higher on average.
-
-    Args:
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)
         dim_ring: int, dimension of ring input and output
     """
@@ -171,15 +48,13 @@ class PerceptualDecisionMaking1D(ngym.PeriodEnv):
         self.abort = False
 
         self.theta = np.linspace(0, 2*np.pi, dim_ring+1)[:-1]
-        self.choices = np.linspace(0, 2*np.pi, dim_ring+1)[:-1]
+        self.choices = np.arange(dim_ring)
 
         self.observation_space = spaces.Box(
             -np.inf, np.inf, shape=(1+dim_ring,), dtype=np.float32)
-        self.ob_dict = {'fixation': 0,
-                        'stimulus': range(1, dim_ring+1)}
+        self.ob_dict = {'fixation': 0, 'stimulus': range(1, dim_ring+1)}
         self.action_space = spaces.Discrete(1+dim_ring)
-        self.act_dict = {'fixation': 0,
-                         'choice': range(1, dim_ring+1)}
+        self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring+1)}
             
     def new_trial(self, **kwargs):
         """
@@ -202,6 +77,7 @@ class PerceptualDecisionMaking1D(ngym.PeriodEnv):
         self.trial.update(kwargs)
         coh = self.trial['coh']
         ground_truth = self.trial['ground_truth']
+        stim_theta = self.theta[ground_truth]
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
@@ -211,13 +87,13 @@ class PerceptualDecisionMaking1D(ngym.PeriodEnv):
         # Observations
         # ---------------------------------------------------------------------
         self.add_ob(1, period=['fixation', 'stimulus'], where='fixation')
-        stim = np.cos(self.theta - ground_truth) * (coh/200) + 0.5
+        stim = np.cos(self.theta - stim_theta) * (coh/200) + 0.5
         self.add_ob(stim, 'stimulus', where='stimulus')
         self.add_randn(0, self.sigma_dt, 'stimulus')
         # ---------------------------------------------------------------------
         # Ground truth
         # ---------------------------------------------------------------------
-        self.set_groundtruth(ground_truth, 'decision')
+        self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
 
     def _step(self, action):
         """
@@ -248,6 +124,7 @@ class PerceptualDecisionMaking1D(ngym.PeriodEnv):
                     reward += self.rewards['fail']
 
         return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
+
 
 #  TODO: there should be a timeout of 1000ms for incorrect trials
 class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
