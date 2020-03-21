@@ -14,7 +14,7 @@ mpl.rcParams['ps.fonttype'] = 42
 mpl.rcParams['font.family'] = 'arial'
 
 
-def plot_env(env, num_steps_env=200, def_act=None, model=None, show_fig=True,
+def plot_env(env, num_steps_env=200, def_act=None, model=None,
              name=None, legend=True, obs_traces=[], fig_kwargs={}, folder=''):
     """
     env: already built neurogym task or name of it
@@ -38,20 +38,17 @@ def plot_env(env, num_steps_env=200, def_act=None, model=None, show_fig=True,
         env = gym.make(env)
     if name is None:
         name = type(env).__name__
-    observations, obs_cum, rewards, actions, perf, actions_end_of_trial,\
-        gt, states = run_env(env=env, num_steps_env=num_steps_env,
-                             def_act=def_act, model=model)
-    obs_cum = np.array(obs_cum)
-    obs = np.array(observations)
-    if show_fig:
-        fig_(obs, actions, gt, rewards, legend=legend, performance=perf,
-             states=states, name=name, obs_traces=obs_traces,
-             fig_kwargs=fig_kwargs, env=env, folder=folder)
-    data = {'obs': obs, 'obs_cum': obs_cum, 'rewards': rewards,
-            'actions': actions, 'perf': perf,
-            'actions_end_of_trial': actions_end_of_trial, 'gt': gt,
-            'states': states}
-    return data
+    data = run_env(env=env, num_steps_env=num_steps_env, def_act=def_act, model=model)
+
+    fig = fig_(
+        data['obs'], data['actions'],
+        gt=data['gt'], rewards=data['rewards'],
+        legend=legend, performance=data['perf'],
+        states=data['states'], name=name, obs_traces=obs_traces,
+        fig_kwargs=fig_kwargs, env=env, folder=folder
+    )
+
+    return fig
 
 
 def run_env(env, num_steps_env=200, def_act=None, model=None):
@@ -109,8 +106,18 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
         states = states[:, 0, :]
     else:
         states = None
-    return observations, obs_cum, rewards, actions, perf,\
-        actions_end_of_trial, gt, states
+
+    data = {
+        'obs': np.array(observations),
+        'obs_cum': np.array(obs_cum),
+        'rewards': rewards,
+        'actions': actions,
+        'perf': perf,
+        'actions_end_of_trial': actions_end_of_trial,
+        'gt': gt,
+        'states': states
+    }
+    return data
 
 
 def fig_(obs, actions, gt=None, rewards=None, performance=None, states=None,
@@ -220,7 +227,7 @@ def fig_(obs, actions, gt=None, rewards=None, performance=None, states=None,
         ax.set_yticklabels(yticklabels)
 
     # rewards
-    if rewards:
+    if rewards is not None:
         if sv_data:
             data['rewards'] = rewards
         ax = axes[i_ax]
@@ -243,7 +250,7 @@ def fig_(obs, actions, gt=None, rewards=None, performance=None, states=None,
             ax.set_yticks(yticks)
             ax.set_yticklabels(yticklabels)
 
-    if performance:
+    if performance is not None:
         if sv_data:
             data['performance'] = performance
         ax = axes[i_ax]
