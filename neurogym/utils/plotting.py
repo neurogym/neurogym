@@ -1,9 +1,17 @@
 """Plotting functions."""
 
-import numpy as np
-import matplotlib.pyplot as plt
 import glob
+import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+
 import gym
+
+
+mpl.rcParams['font.size'] = 7
+mpl.rcParams['pdf.fonttype'] = 42
+mpl.rcParams['ps.fonttype'] = 42
+mpl.rcParams['font.family'] = 'arial'
 
 
 def plot_env(env, num_steps_env=200, def_act=None, model=None, show_fig=True,
@@ -105,22 +113,27 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
         actions_end_of_trial, gt, states
 
 
-def fig_(obs, actions, gt=None, rewards=None, states=None, performance=None,
+def fig_(obs, actions, gt=None, rewards=None, performance=None, states=None,
          legend=True, obs_traces=None, name='', folder='', fig_kwargs={},
          env=None, sv_data=False):
-    """
-    obs, actions: data to plot
-    gt, rewards, performance, states: if not None, data to plot
-    mean_perf: mean performance to show in the rewards panel
-    legend: whether to save the legend in actions panel
-    folder: if != '', where to save the figure
-    name: title to show on the rewards panel and name to save figure
-    legend: whether to show the legend for actions panel or not.
-    obs_traces: None or list.
-     If list, observations will be plot as traces, with the labels
-     specified by obs_traces
-    fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
-    env: environment class for extra information
+    """Visualize a run in a simple environment.
+
+    Args:
+        obs: np array of observation (n_step, n_unit)
+        actions: np array of action (n_step, n_unit)
+        gt: np array of groud truth
+        rewards: np array of rewards
+        performance: np array of performance
+        states: np array of network states
+        name: title to show on the rewards panel and name to save figure
+        folder: if != '', where to save the figure
+        legend: whether to show the legend for actions panel or not.
+        obs_traces: None or list.
+            If list, observations will be plot as traces, with the labels
+            specified by obs_traces
+        fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
+        env: environment class for extra information
+        sv_data: bool. If True, save data. Default False.
     """
     if sv_data:
         data = {'obs': obs, 'actions': actions}
@@ -132,15 +145,18 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, performance=None,
 
     n_row = 2  # observation and action
     n_row += rewards is not None
+    n_row += performance is not None
     n_row += states is not None
 
     gt_colors = 'gkmcry'
     if not fig_kwargs:
-        fig_kwargs = dict(sharex=True, figsize=(5, n_row*1.5))
+        fig_kwargs = dict(sharex=True, figsize=(5, n_row*1.2))
 
     f, axes = plt.subplots(n_row, 1, **fig_kwargs)
+    i_ax = 0
     # obs
-    ax = axes[0]
+    ax = axes[i_ax]
+    i_ax += 1
     if obs_traces:
         assert len(obs_traces) == obs.shape[1],\
             'Please provide label for each trace in the observations'
@@ -161,13 +177,17 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, performance=None,
             ax.set_yticklabels(yticklabels)
         else:
             ax.set_yticks([])
+        ax.spines['top'].set_visible(False)
+        ax.spines['bottom'].set_visible(False)
+        ax.spines['right'].set_visible(False)
 
     if name:
         ax.set_title(name + ' env')
     ax.set_ylabel('Observations')
 
     # actions
-    ax = axes[1]
+    ax = axes[i_ax]
+    i_ax += 1
     if len(actions.shape) > 1:
         # Changes not implemented yet
         ax.plot(steps, actions, marker='+', label='Actions')
@@ -185,6 +205,8 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, performance=None,
             ax.plot(steps, gt, '--'+gt_colors[0], label='Ground truth')
     ax.set_xlim([-0.5, len(steps)-0.5])
     ax.set_ylabel('Actions')
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
     if legend:
         ax.legend()
     if env and env.act_dict:
@@ -201,14 +223,12 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, performance=None,
     if rewards:
         if sv_data:
             data['rewards'] = rewards
-            data['performance'] = performance
-        ax = axes[2]
+        ax = axes[i_ax]
+        i_ax += 1
         ax.plot(steps, rewards, 'r', label='Rewards')
-        ax.plot(steps, performance, 'k', label='Performance')
-        ax.set_ylabel('Reward/Performance')
-        performance = np.array(performance)
-        mean_perf = np.mean(performance[performance != -1])
-        ax.set_title('Mean performance: ' + str(np.round(mean_perf, 2)))
+        ax.set_ylabel('Reward')
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
         if legend:
             ax.legend()
         ax.set_xlim([-0.5, len(steps)-0.5])
@@ -223,16 +243,35 @@ def fig_(obs, actions, gt=None, rewards=None, states=None, performance=None,
             ax.set_yticks(yticks)
             ax.set_yticklabels(yticklabels)
 
+    if performance:
+        if sv_data:
+            data['performance'] = performance
+        ax = axes[i_ax]
+        i_ax += 1
+        ax.plot(steps, performance, 'k', label='Performance')
+        ax.set_ylabel('Performance')
+        performance = np.array(performance)
+        mean_perf = np.mean(performance[performance != -1])
+        ax.set_title('Mean performance: ' + str(np.round(mean_perf, 2)))
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        if legend:
+            ax.legend()
+        ax.set_xlim([-0.5, len(steps)-0.5])
+
     # states
     if states is not None:
         if sv_data:
             data['states'] = states                
         ax.set_xticks([])
-        ax = axes[3]
+        ax = axes[i_ax]
+        i_ax += 1
         plt.imshow(states[:, int(states.shape[1]/2):].T,
                    aspect='auto')
         ax.set_title('Activity')
         ax.set_ylabel('Neurons')
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
 
     ax.set_xlabel('Steps')
     plt.tight_layout()
