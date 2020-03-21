@@ -25,12 +25,11 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
                  dim_ring=2):
-        """"""
         super().__init__(dt=dt)
-        # cohs specifies the amount of evidence (which is modulated by stim_scale)
+        # The strength of evidence, modulated by stim_scale
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stim_scale
         # Input noise
-        sigma = np.sqrt(2 * 100 * 0.01) * 0
+        sigma = np.sqrt(2 * 100 * 0.01)
         self.sigma_dt = sigma / np.sqrt(self.dt)
 
         # Rewards
@@ -67,32 +66,28 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
             coh: stimulus coherence (evidence) for the trial
             obs: observation
         """
-        # ---------------------------------------------------------------------
-        # Trial
-        # ---------------------------------------------------------------------
+        # Trial info
         self.trial = {
             'ground_truth': self.rng.choice(self.choices),
             'coh': self.rng.choice(self.cohs),
         }
         self.trial.update(kwargs)
+
         coh = self.trial['coh']
         ground_truth = self.trial['ground_truth']
         stim_theta = self.theta[ground_truth]
-        # ---------------------------------------------------------------------
+
         # Periods
-        # ---------------------------------------------------------------------
         self.add_period(['fixation', 'stimulus', 'decision'], after=0,
                         last_period=True)
-        # ---------------------------------------------------------------------
+
         # Observations
-        # ---------------------------------------------------------------------
         self.add_ob(1, period=['fixation', 'stimulus'], where='fixation')
         stim = np.cos(self.theta - stim_theta) * (coh/200) + 0.5
         self.add_ob(stim, 'stimulus', where='stimulus')
         self.add_randn(0, self.sigma_dt, 'stimulus')
-        # ---------------------------------------------------------------------
+
         # Ground truth
-        # ---------------------------------------------------------------------
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
 
     def _step(self, action):
