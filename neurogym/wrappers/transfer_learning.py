@@ -126,4 +126,4 @@ if __name__ == '__main__':
 
     env = TransferLearning([env1, env2], num_tr_per_task=[2],
                            task_cue=True)
-    ngym.utils.plot_env(env, num_steps_env=60)
+    ngym.utils.plot_env(env, num_steps=60)

@@ -123,4 +123,4 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = EconomicDecisionMaking()
-    ngym.utils.plot_env(env, num_steps_env=200, def_act=1)
+    ngym.utils.plot_env(env, num_steps=200, def_act=1)

@@ -178,4 +178,4 @@ if __name__ == '__main__':
     env = gym.make(task)
     env = Shaping(env, init_ph=1, perf_w=2, th=0.1)
     # env.seed(0)
-    ngym.utils.plot_env(env, num_steps_env=100)  # , def_act=0)
+    ngym.utils.plot_env(env, num_steps=100)  # , def_act=0)

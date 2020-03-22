@@ -93,7 +93,7 @@ def main(args):
         env2 = args.env2
         delay = args.delay
     plot_fig = args.plot
-    num_steps_env = args.n_steps  # [1e9]
+    num_steps = args.n_steps  # [1e9]
     dt = args.dt
 
     # task
@@ -133,7 +133,7 @@ def main(args):
     actions_end_of_trial = []
     gt = []
     config_mat = []
-    for stp in range(int(num_steps_env)):
+    for stp in range(int(num_steps)):
         action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
         if done:

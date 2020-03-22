@@ -138,4 +138,4 @@ class DelayedMatchCategory(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = DelayedMatchCategory()
-    ngym.utils.plot_env(env, num_steps_env=100)
+    ngym.utils.plot_env(env, num_steps=100)

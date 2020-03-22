@@ -14,11 +14,11 @@ mpl.rcParams['ps.fonttype'] = 42
 mpl.rcParams['font.family'] = 'arial'
 
 
-def plot_env(env, num_steps_env=200, def_act=None, model=None,
+def plot_env(env, num_steps=200, def_act=None, model=None,
              name=None, legend=True, obs_traces=[], fig_kwargs={}, folder=''):
     """
     env: already built neurogym task or name of it
-    num_steps_env: number of steps to run the task
+    num_steps: number of steps to run the task
     def_act: if not None (and model=None), the task will be run with the
              specified action
     model: if not None, the task will be run with the actions predicted by
@@ -38,7 +38,7 @@ def plot_env(env, num_steps_env=200, def_act=None, model=None,
         env = gym.make(env)
     if name is None:
         name = type(env).__name__
-    data = run_env(env=env, num_steps_env=num_steps_env, def_act=def_act, model=model)
+    data = run_env(env=env, num_steps=num_steps, def_act=def_act, model=model)
 
     fig = fig_(
         data['obs'], data['actions'],
@@ -51,7 +51,7 @@ def plot_env(env, num_steps_env=200, def_act=None, model=None,
     return fig
 
 
-def run_env(env, num_steps_env=200, def_act=None, model=None):
+def run_env(env, num_steps=200, def_act=None, model=None):
     observations = []
     obs_cum = []
     state_mat = []
@@ -62,7 +62,7 @@ def run_env(env, num_steps_env=200, def_act=None, model=None):
     perf = []
     obs = env.reset()  # TODO: not saving this first observation
     obs_cum_temp = obs
-    for stp in range(int(num_steps_env)):
+    for stp in range(int(num_steps)):
         if model is not None:
             action, _states = model.predict(obs)
             if isinstance(action, float) or isinstance(action, int):

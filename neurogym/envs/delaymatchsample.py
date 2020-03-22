@@ -217,6 +217,6 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
 if __name__ == '__main__':
     from neurogym.utils.plotting import plot_env
     env = DelayedMatchToSample()
-    plot_env(env, num_steps_env=200)
+    plot_env(env, num_steps=200)
     env = DelayedMatchToSampleDistractor1D()
-    plot_env(env, num_steps_env=200, def_act=0)
+    plot_env(env, num_steps=200, def_act=0)

@@ -138,4 +138,4 @@ class PostDecisionWager(ngym.PeriodEnv):
 if __name__ == '__main__':
     env = PostDecisionWager()
     env.seed(seed=0)
-    ngym.utils.plot_env(env, num_steps_env=100)  # , def_act=0)
+    ngym.utils.plot_env(env, num_steps=100)  # , def_act=0)

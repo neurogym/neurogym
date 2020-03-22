@@ -131,4 +131,4 @@ class DelayPairedAssociation(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = DelayPairedAssociation()
-    ngym.utils.plot_env(env, num_steps_env=1000, def_act=0)
+    ngym.utils.plot_env(env, num_steps=1000, def_act=0)

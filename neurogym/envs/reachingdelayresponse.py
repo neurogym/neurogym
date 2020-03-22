@@ -95,4 +95,4 @@ class ReachingDelayResponse(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = ReachingDelayResponse()
-    ngym.utils.plot_env(env, num_steps_env=100)
+    ngym.utils.plot_env(env, num_steps=100)

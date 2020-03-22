@@ -161,4 +161,4 @@ class Detection(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = Detection()
-    ngym.utils.plot_env(env, num_steps_env=50, def_act=0)
+    ngym.utils.plot_env(env, num_steps=50, def_act=0)

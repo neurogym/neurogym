@@ -122,7 +122,7 @@ class ContextDecisionMaking(ngym.PeriodEnv):
 if __name__ == '__main__':
     env = ContextDecisionMaking()
     env.seed(seed=0)
-    ngym.utils.plot_env(env, num_steps_env=100, def_act=0)
+    ngym.utils.plot_env(env, num_steps=100, def_act=0)
     env = ContextDecisionMaking()
     env.seed(seed=0)
-    ngym.utils.plot_env(env, num_steps_env=100, def_act=0)
+    ngym.utils.plot_env(env, num_steps=100, def_act=0)
