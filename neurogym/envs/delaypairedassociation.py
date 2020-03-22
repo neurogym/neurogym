@@ -109,7 +109,7 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         new_trial = False
         # rewards
         reward = 0
-        obs = self.obs_now
+        obs = self.ob_now
         gt = self.gt_now
         # observations
         if self.in_period('fixation'):

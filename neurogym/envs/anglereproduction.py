@@ -79,7 +79,7 @@ class AngleReproduction(ngym.PeriodEnv):
             (self.end_ind['go2'] - self.start_ind['go2'])
 
     def _step(self, action):
-        ob = self.obs_now
+        ob = self.ob_now
         ob[16:32] = np.cos(self.theta - self.state)
         if action == 1:
             self.state += 0.05

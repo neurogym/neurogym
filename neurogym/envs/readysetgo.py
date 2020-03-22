@@ -84,7 +84,7 @@ class ReadySetGo(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         trial = self.trial
         reward = 0
-        obs = self.obs_now
+        obs = self.ob_now
         gt = self.gt_now
         new_trial = False
         if self.in_period('fixation'):
@@ -181,7 +181,7 @@ class MotorTiming(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         trial = self.trial
         reward = 0
-        obs = self.obs_now
+        obs = self.ob_now
         gt = self.gt_now
         new_trial = False
         if self.in_period('fixation'):

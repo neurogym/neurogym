@@ -62,7 +62,7 @@ class Monitor(ngym.TrialWrapper):
         if self.sv_fig:
             self.num_stps_sv_fig = num_stps_sv_fig
             self.stp_counter = 0
-            self.obs_mat = []
+            self.ob_mat = []
             self.act_mat = []
             self.rew_mat = []
             self.gt_mat = []
@@ -115,7 +115,7 @@ class Monitor(ngym.TrialWrapper):
 
     def store_data(self, obs, action, rew, info):
         if self.stp_counter <= self.num_stps_sv_fig:
-            self.obs_mat.append(obs)
+            self.ob_mat.append(obs)
             self.act_mat.append(action)
             self.rew_mat.append(rew)
             if 'gt' in info.keys():
@@ -128,13 +128,13 @@ class Monitor(ngym.TrialWrapper):
                 self.perf_mat.append(-1)
             self.stp_counter += 1
         elif len(self.rew_mat) > 0:
-            obs_mat = np.array(self.obs_mat)
+            obs_mat = np.array(self.ob_mat)
             act_mat = np.array(self.act_mat)
             fig_(obs=obs_mat, actions=act_mat,
                  gt=self.gt_mat, rewards=self.rew_mat,
                  performance=self.perf_mat,
                  folder=self.sv_name+f'task_{self.num_tr:06}.'+self.fig_type)
-            self.obs_mat = []
+            self.ob_mat = []
             self.act_mat = []
             self.rew_mat = []
             self.gt_mat = []

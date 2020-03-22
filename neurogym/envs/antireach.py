@@ -69,7 +69,7 @@ class AntiReach1D(ngym.PeriodEnv):
         self.set_groundtruth(self.trial['ground_truth'], 'reach')
 
     def _step(self, action):
-        ob = self.obs_now
+        ob = self.ob_now
         ob[16:32] = np.cos(self.theta - self.state)
         if action == 1:
             self.state += 0.05

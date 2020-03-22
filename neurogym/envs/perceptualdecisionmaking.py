@@ -118,7 +118,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
                 else:
                     reward += self.rewards['fail']
 
-        return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
 #  TODO: there should be a timeout of 1000ms for incorrect trials
@@ -246,7 +246,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
                 reward = self.rewards['fail']
 
         info = {'new_trial': new_trial, 'gt': gt}
-        return self.obs_now, reward, False, info
+        return self.ob_now, reward, False, info
 
 
 if __name__ == '__main__':

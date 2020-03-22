@@ -90,7 +90,7 @@ class ReachingDelayResponse(ngym.PeriodEnv):
                 reward = self.rewards['correct']/((1+abs(action[1]-gt[1]))**2)
                 self.performance = reward/self.rewards['correct']
 
-        return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
 if __name__ == '__main__':

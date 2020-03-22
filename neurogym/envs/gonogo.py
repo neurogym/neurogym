@@ -72,7 +72,7 @@ class GoNogo(ngym.PeriodEnv):
     def _step(self, action):
         new_trial = False
         reward = 0
-        obs = self.obs_now
+        obs = self.ob_now
         gt = self.gt_now
         if self.in_period('fixation'):
             if action != 0:

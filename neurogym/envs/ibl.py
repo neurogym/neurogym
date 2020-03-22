@@ -50,7 +50,7 @@ class IBL(ngym.TrialEnv):
 
         # Add observation noise
         obs += self._rng.randn(*obs.shape) * self.sigma
-        self.obs = obs
+        self.ob = obs
 
     def new_trial(self, **kwargs):
         """
@@ -74,7 +74,7 @@ class IBL(ngym.TrialEnv):
     def _step(self, action):
         info = {'continue': True, 'gt': self.ground_truth[self.ind],
                 'coh': self.coh[self.ind], 'block': self.block}
-        obs = self.obs[self.ind]
+        obs = self.ob[self.ind]
 
         # reward of last trial
         reward = self.rewards['correct']  # TODO: need to be done

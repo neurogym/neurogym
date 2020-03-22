@@ -83,7 +83,7 @@ class IntervalDiscrimination(ngym.PeriodEnv):
                 else:
                     reward = self.rewards['fail']
 
-        return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
 if __name__ == '__main__':

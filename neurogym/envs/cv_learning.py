@@ -324,7 +324,7 @@ class CVLearning(ngym.PeriodEnv):
                 'trials_day': self.trials_counter, 'durs': self.dur,
                 'inc_delays': self.inc_delays, 'curr_perf': self.curr_perf,
                 'trials_count': self.trials_counter, 'th_perf': self.th_perf}
-        return self.obs_now, reward, False, info
+        return self.ob_now, reward, False, info
 
 
 if __name__ == '__main__':

@@ -230,7 +230,7 @@ class PeriodEnv(TrialEnv):
             after: (optional) str, name of period that this period is after
                 or float, time of period start
             last_period: bool, default False. If True, then this is last period
-                will generate self.tmax, self.tind, and self.obs
+                will generate self.tmax, self.tind, and self.ob
         """
         if isinstance(period, str):
             pass
@@ -278,15 +278,15 @@ class PeriodEnv(TrialEnv):
         """Initialize trial info with tmax, tind, obs"""
         tmax_ind = int(tmax/self.dt)
         self.tmax = tmax_ind * self.dt
-        self.obs = np.zeros([tmax_ind] + list(self.observation_space.shape))
+        self.ob = np.zeros([tmax_ind] + list(self.observation_space.shape))
         self.gt = np.zeros([tmax_ind] + list(self.action_space.shape))
 
     def view_ob(self, period=None):
         """View observation of an period."""
         if period is None:
-            return self.obs
+            return self.ob
         else:
-            return self.obs[self.start_ind[period]:self.end_ind[period]]
+            return self.ob[self.start_ind[period]:self.end_ind[period]]
 
     def _add_ob(self, value, period=None, where=None, reset=False):
         """Set observation in period to value.
@@ -305,7 +305,7 @@ class PeriodEnv(TrialEnv):
 
         assert self._trial_built, 'Trial was not succesfully built.' +\
             ' (Hint: make last_period=True when adding the last period)'
-        # self.obs[self.start_ind[period]:self.end_ind[period]] = value
+        # self.ob[self.start_ind[period]:self.end_ind[period]] = value
         ob = self.view_ob(period=period)
         if reset:
             ob *= 0
@@ -368,8 +368,8 @@ class PeriodEnv(TrialEnv):
         return self.start_t[period] <= t < self.end_t[period]
 
     @property
-    def obs_now(self):
-        return self.obs[self.t_ind]
+    def ob_now(self):
+        return self.ob[self.t_ind]
 
     @property
     def gt_now(self):

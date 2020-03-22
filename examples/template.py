@@ -113,4 +113,4 @@ class YourTask(ngym.PeriodEnv):  # TIP: if task has periods (alt.: ngym.TrialEnv
                 else:  # if incorrect
                     reward = self.rewards['fail']
 
-        return self.obs_now, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}

@@ -93,7 +93,7 @@ class DelayedMatchToSample(ngym.PeriodEnv):
         new_trial = False
         reward = 0
 
-        obs = self.obs_now
+        obs = self.ob_now
         gt = self.gt_now
 
         if self.in_period('fixation'):
@@ -195,7 +195,7 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
         new_trial = False
         reward = 0
 
-        obs = self.obs_now
+        obs = self.ob_now
         gt = self.gt_now
         if ((self.in_period('fixation') or self.in_period('sample'))
            and action != 0):

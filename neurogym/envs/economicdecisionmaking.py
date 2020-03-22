@@ -89,7 +89,7 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
 
         new_trial = False
 
-        obs = self.obs_now
+        obs = self.ob_now
 
         reward = 0
         if self.in_period('fixation') or self.in_period('offer_on'):

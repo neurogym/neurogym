@@ -116,7 +116,7 @@ class DelayedMatchCategory(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         new_trial = False
 
-        obs = self.obs_now
+        obs = self.ob_now
         gt = self.gt_now
 
         reward = 0

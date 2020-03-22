@@ -148,7 +148,7 @@ class ChangingEnvironment(ngym.PeriodEnv):
         # rewards
         reward = 0
         gt = self.gt_now
-        obs = self.obs_now
+        obs = self.ob_now
         # Example structure
         if self.in_period('fixation'):  # during fixation period
             if action != 0:  # if fixation break

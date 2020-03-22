@@ -97,7 +97,7 @@ class DelayedComparison(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         new_trial = False
         gt = self.gt_now
-        obs = self.obs_now
+        obs = self.ob_now
         # rewards
         reward = 0
         if self.in_period('fixation'):

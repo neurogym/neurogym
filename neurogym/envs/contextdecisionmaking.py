@@ -100,7 +100,7 @@ class ContextDecisionMaking(ngym.PeriodEnv):
         self.set_groundtruth(self.trial['ground_truth'], 'decision')
 
     def _step(self, action):
-        obs = self.obs_now
+        obs = self.ob_now
         gt = self.gt_now
 
         new_trial = False

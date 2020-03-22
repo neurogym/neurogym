@@ -39,10 +39,10 @@ class TransferLearning():
         self.num_act = num_act
         self.action_space = spaces.Discrete(self.num_act)
 
-        self.obs_sh = np.max([x.observation_space.shape[0] for x in envs]) +\
+        self.ob_sh = np.max([x.observation_space.shape[0] for x in envs]) +\
             1*self.task_cue
         self.observation_space = spaces.Box(-np.inf, np.inf,
-                                            shape=(self.obs_sh,),
+                                            shape=(self.ob_sh,),
                                             dtype=np.float32)
         # reward range
         self.reward_range = (rew_min, rew_max)
@@ -80,7 +80,7 @@ class TransferLearning():
         return obs, reward, done, info
 
     def modify_obs(self, obs):
-        extra_sh = self.obs_sh-obs.shape[0]-1*self.task_cue
+        extra_sh = self.ob_sh-obs.shape[0]-1*self.task_cue
         obs = np.concatenate((obs, np.zeros((extra_sh,))),
                              axis=0)
         if self.task_cue:

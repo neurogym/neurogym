@@ -107,3 +107,4 @@ venv.bak/
 # Pycharm related
 .idea/
 *tmp.py
+figures/

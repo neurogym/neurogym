@@ -67,7 +67,7 @@ class Reaching1D(ngym.PeriodEnv):
         self.dec_per_dur = (self.end_ind['reach'] - self.start_ind['reach'])
 
     def _step(self, action):
-        ob = self.obs_now
+        ob = self.ob_now
         ob[16:] = np.cos(self.theta - self.state)
         if action == 1:
             self.state += 0.05
@@ -151,7 +151,7 @@ class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
         self.dec_per_dur = (self.end_ind['reach'] - self.start_ind['reach'])
 
     def _step(self, action):
-        ob = self.obs_now + np.cos(self.theta - self.state)
+        ob = self.ob_now + np.cos(self.theta - self.state)
         if action == 1:
             self.state += 0.05
         elif action == 2:

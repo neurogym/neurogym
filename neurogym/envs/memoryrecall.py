@@ -135,7 +135,7 @@ class MemoryRecall(ngym.TrialEnv):
                         1 - X_stim_recall) * flip_matrix
 
         X = np.concatenate((X_stim, X_store_signal), axis=1)
-        self.obs = X
+        self.ob = X
         self.gt = Y
         self.mask = M
         self.tmax = T * self.dt
@@ -146,7 +146,7 @@ class MemoryRecall(ngym.TrialEnv):
         # ---------------------------------------------------------------------
         # Reward and observations
         # ---------------------------------------------------------------------
-        obs = self.obs_now
+        obs = self.ob_now
         gt = self.gt_now
         reward = np.mean(abs(gt - action)) * self.mask[self.t_ind]
         done = False

@@ -62,14 +62,14 @@ class MatchingPenny(ngym.TrialEnv):
             raise ValueError('Unknown opponent type {:s}'.format(ot))
 
         self.trial = {'opponent_action': opponent_action}
-        self.obs = np.zeros((1, self.observation_space.shape[0]))
-        self.obs[0, self.prev_opp_action] = 1
+        self.ob = np.zeros((1, self.observation_space.shape[0]))
+        self.ob[0, self.prev_opp_action] = 1
         self.prev_opp_action = self.trial['opponent_action']
         self.gt = np.array([opponent_action])
 
     def _step(self, action):
         trial = self.trial
-        obs = self.obs[0]
+        obs = self.ob[0]
         if self.opponent_type == 'mean_action':
             self.mean_action += self.lr*(action-self.mean_action)
         if action == trial['opponent_action']:
