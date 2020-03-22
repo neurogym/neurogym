@@ -108,3 +108,4 @@ venv.bak/
 .idea/
 *tmp.py
 figures/
+docs/source/images/
