@@ -14,31 +14,36 @@ mpl.rcParams['ps.fonttype'] = 42
 mpl.rcParams['font.family'] = 'arial'
 
 
-def plot_env(env, num_steps=200, def_act=None, model=None,
+def plot_env(env, num_steps=200, num_trials=None, def_act=None, model=None,
              name=None, legend=True, obs_traces=[], fig_kwargs={}, folder=''):
-    """
-    env: already built neurogym task or name of it
-    num_steps: number of steps to run the task
-    def_act: if not None (and model=None), the task will be run with the
-             specified action
-    model: if not None, the task will be run with the actions predicted by
-           model, which so far is assumed to be created and trained with the
-           stable-baselines toolbox:
-               (https://github.com/hill-a/stable-baselines)
-    name: title to show on the rewards panel
-    legend: whether to show the legend for actions panel or not.
-    obs_traces: if != [] observations will be plot as traces, with the labels
-                specified by obs_traces
-    fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
+    """Plot environment with agent.
+
+    Args:
+        env: already built neurogym task or name of it
+        num_steps: number of steps to run the task
+        num_trials: if not None, the number of trials to run
+        def_act: if not None (and model=None), the task will be run with the
+                 specified action
+        model: if not None, the task will be run with the actions predicted by
+               model, which so far is assumed to be created and trained with the
+               stable-baselines toolbox:
+                   (https://github.com/hill-a/stable-baselines)
+        name: title to show on the rewards panel
+        legend: whether to show the legend for actions panel or not.
+        obs_traces: if != [] observations will be plot as traces, with the labels
+                    specified by obs_traces
+        fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
     """
     # We don't use monitor here because:
     # 1) env could be already prewrapped with monitor
     # 2) monitor will save data and so the function will need a folder
+
     if isinstance(env, str):
         env = gym.make(env)
     if name is None:
         name = type(env).__name__
-    data = run_env(env=env, num_steps=num_steps, def_act=def_act, model=model)
+    data = run_env(env=env, num_steps=num_steps, num_trials=num_trials,
+                   def_act=def_act, model=model)
 
     fig = fig_(
         data['obs'], data['actions'],
@@ -51,7 +56,7 @@ def plot_env(env, num_steps=200, def_act=None, model=None,
     return fig
 
 
-def run_env(env, num_steps=200, def_act=None, model=None):
+def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     observations = []
     obs_cum = []
     state_mat = []
@@ -62,6 +67,11 @@ def run_env(env, num_steps=200, def_act=None, model=None):
     perf = []
     obs = env.reset()  # TODO: not saving this first observation
     obs_cum_temp = obs
+
+    if num_trials is not None:
+        num_steps = 1e5  # Overwrite num_steps value
+
+    trial_count = 0
     for stp in range(int(num_steps)):
         if model is not None:
             action, _states = model.predict(obs)
@@ -88,19 +98,24 @@ def run_env(env, num_steps=200, def_act=None, model=None):
         if done:
             env.reset()
         observations.append(obs_aux)
-        if info['new_trial']:
-            actions_end_of_trial.append(action)
-            perf.append(info['performance'])
-            obs_cum_temp = np.zeros_like(obs_cum_temp)
-        else:
-            actions_end_of_trial.append(-1)
-            perf.append(-1)
         rewards.append(rew)
         actions.append(action)
         if 'gt' in info.keys():
             gt.append(info['gt'])
         else:
             gt.append(0)
+
+        if info['new_trial']:
+            actions_end_of_trial.append(action)
+            perf.append(info['performance'])
+            obs_cum_temp = np.zeros_like(obs_cum_temp)
+            trial_count += 1
+            if num_trials is not None and trial_count >= num_trials:
+                break
+        else:
+            actions_end_of_trial.append(-1)
+            perf.append(-1)
+
     if model is not None and len(state_mat) > 0:
         states = np.array(state_mat)
         states = states[:, 0, :]
