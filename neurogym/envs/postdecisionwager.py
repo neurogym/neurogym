@@ -10,10 +10,15 @@ import neurogym as ngym
 
 
 class PostDecisionWager(ngym.PeriodEnv):
-    r"""Agents do a discrimination task (see PerceptualDecisionMaking). On a
+    r"""Post-decision wagering task assessing confidence.
+
+    Agents do a discrimination task (see PerceptualDecisionMaking). On a
     random half of the trials, the agent is given the option to abort
     the direction discrimination and to choose instead a small but
     certain reward associated with a action.
+
+    Args:
+        dim_ring: int, dimension of ring input and output
     """
     metadata = {
         'paper_link': 'https://science.sciencemag.org/content/324/5928/' +
@@ -23,14 +28,12 @@ class PostDecisionWager(ngym.PeriodEnv):
         'tags': ['perceptual', 'delayed response', 'confidence']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None, dim_ring=2):
         super().__init__(dt=dt)
-#        # Actions
-        # Actions (fixate, left, right, sure)
-        self.actions = [0, -1, 1, 2]
-        # trial conditions
+
         self.wagers = [True, False]
-        self.choices = [-1, 1]
+        self.theta = np.linspace(0, 2 * np.pi, dim_ring + 1)[:-1]
+        self.choices = np.arange(dim_ring)
         self.cohs = [0, 3.2, 6.4, 12.8, 25.6, 51.2]
 
         # Input noise
@@ -56,81 +59,80 @@ class PostDecisionWager(ngym.PeriodEnv):
 
         # set action and observation space
         self.action_space = spaces.Discrete(4)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(4, ),
+        self.act_dict = {'fixation': 0, 'choice': [1, 2], 'sure': 3}
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(4,),
                                             dtype=np.float32)
+        self.ob_dict = {'fixation': 0, 'stimulus': [1, 2], 'sure': 3}
 
     # Input scaling
     def scale(self, coh):
         return (1 + coh/100)/2
 
     def new_trial(self, **kwargs):
-        # ---------------------------------------------------------------------
-        # Wager or no wager?
-        # ---------------------------------------------------------------------
+        # Trial info
         self.trial = {
             'wager': self.rng.choice(self.wagers),
             'ground_truth': self.rng.choice(self.choices),
             'coh': self.rng.choice(self.cohs),
         }
         self.trial.update(kwargs)
-        # ---------------------------------------------------------------------
+        coh = self.trial['coh']
+        ground_truth = self.trial['ground_truth']
+        stim_theta = self.theta[ground_truth]
+
         # Periods
-        # ---------------------------------------------------------------------
-        periods = ['fixation', 'stimulus', 'delay', 'decision']
-        self.add_period(periods, after=0, last_period=True)
+        periods = ['fixation', 'stimulus', 'delay']
+        self.add_period(periods, after=0)
         if self.trial['wager']:
             self.add_period('pre_sure', after='stimulus')
             self.add_period('sure', duration=10000, after='pre_sure')
+        self.add_period('decision', after='delay', last_period=True)
+
+        # Observations
+        self.add_ob(1, ['fixation', 'stimulus', 'delay'], where='fixation')
+        stim = np.cos(self.theta - stim_theta) * (coh / 200) + 0.5
+        self.add_ob(stim, 'stimulus', where='stimulus')
+        self.add_randn(0, self.sigma_dt, 'stimulus')
+        if self.trial['wager']:
+            self.add_ob(1, 'sure', where='sure')
+
+        # Ground truth
+        self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
 
     def _step(self, action):
         # ---------------------------------------------------------------------
         # Reward and inputs
         # ---------------------------------------------------------------------
         trial = self.trial
-        info = {'new_trial': False}
-        # ground truth signal is not well defined in this task
-        info['gt'] = np.zeros((4,))
-        # rewards
+        new_trial = False
+
         reward = 0
-        # observations
-        obs = np.zeros((4,))
+        gt = self.gt_now
+
         if self.in_period('fixation'):
-            obs[0] = 1
-            if self.actions[int(action)] != 0:
-                info['new_trial'] = self.abort
+            if action != 0:
+                new_trial = self.abort
                 reward = self.rewards['abort']
         elif self.in_period('decision'):
-            if self.actions[int(action)] == 2:
+            new_trial = True
+            if action == 0:
+                new_trial = False
+            elif action == self.act_dict['sure']:
                 if trial['wager']:
                     reward = self.rewards['sure']
-                    norm_rew =\
-                        (reward-self.rewards['fail'])/(self.rewards['correct']-self.rewards['fail'])
+                    norm_rew = ((reward-self.rewards['fail'])/
+                                (self.rewards['correct']-self.rewards['fail']))
                     self.performance = norm_rew
                 else:
                     reward = self.rewards['abort']
             else:
-                gt_sign = np.sign(trial['ground_truth'])
-                action_sign = np.sign(self.actions[int(action)])
-                if gt_sign == action_sign:
+                if action == trial['ground_truth']:
                     reward = self.rewards['correct']
                     self.performance = 1
-                elif gt_sign == -action_sign:
+                else:
                     reward = self.rewards['fail']
-            info['new_trial'] = self.actions[int(action)] != 0
 
-        if self.in_period('delay'):
-            obs[0] = 1
-        elif self.in_period('stimulus'):
-            high = (trial['ground_truth'] > 0) + 1
-            low = (trial['ground_truth'] < 0) + 1
-            obs[high] = self.scale(+trial['coh']) +\
-                self.rng.randn()*self.sigma_dt
-            obs[low] = self.scale(-trial['coh']) +\
-                self.rng.randn()*self.sigma_dt
-        if trial['wager'] and self.in_period('sure'):
-            obs[3] = 1
-
-        return obs, reward, False, info
+        return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
 if __name__ == '__main__':
