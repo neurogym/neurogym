@@ -1,4 +1,3 @@
-
 Environments
 ===================================
 
@@ -14,6 +13,9 @@ ContextDecisionMaking-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-context dependent`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
+.. image:: images/ContextDecisionMaking-v0_examplerun.png
+    :width: 600
+
 DelayedComparison-v0
 --------------------------------------------------
 .. autoclass:: neurogym.envs.delayedcomparison.DelayedComparison
@@ -25,6 +27,9 @@ DelayedComparison-v0
 
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
+
+.. image:: images/DelayedComparison-v0_examplerun.png
+    :width: 600
 
 PerceptualDecisionMaking-v0
 --------------------------------------------------
@@ -38,6 +43,9 @@ PerceptualDecisionMaking-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
+.. image:: images/PerceptualDecisionMaking-v0_examplerun.png
+    :width: 600
+
 EconomicDecisionMaking-v0
 --------------------------------------------------
 .. autoclass:: neurogym.envs.economicdecisionmaking.EconomicDecisionMaking
@@ -49,6 +57,9 @@ EconomicDecisionMaking-v0
 
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-value-based`
+
+.. image:: images/EconomicDecisionMaking-v0_examplerun.png
+    :width: 600
 
 PostDecisionWager-v0
 --------------------------------------------------
@@ -62,6 +73,9 @@ PostDecisionWager-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-delayed response`,         :ref:`tag-confidence`
 
+.. image:: images/PostDecisionWager-v0_examplerun.png
+    :width: 600
+
 DelayPairedAssociation-v0
 --------------------------------------------------
 .. autoclass:: neurogym.envs.delaypairedassociation.DelayPairedAssociation
@@ -74,6 +88,9 @@ DelayPairedAssociation-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-go-no-go`,         :ref:`tag-supervised`
 
+.. image:: images/DelayPairedAssociation-v0_examplerun.png
+    :width: 600
+
 GoNogo-v0
 --------------------------------------------------
 .. autoclass:: neurogym.envs.gonogo.GoNogo
@@ -85,6 +102,9 @@ GoNogo-v0
 
     Tags
         :ref:`tag-delayed response`,         :ref:`tag-go-no-go`,         :ref:`tag-supervised`
+
+.. image:: images/GoNogo-v0_examplerun.png
+    :width: 600
 
 ReadySetGo-v0
 --------------------------------------------------
@@ -110,6 +130,9 @@ DelayedMatchSample-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
+.. image:: images/DelayedMatchSample-v0_examplerun.png
+    :width: 600
+
 DelayedMatchCategory-v0
 --------------------------------------------------
 .. autoclass:: neurogym.envs.delaymatchcategory.DelayedMatchCategory
@@ -121,6 +144,9 @@ DelayedMatchCategory-v0
 
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
+
+.. image:: images/DelayedMatchCategory-v0_examplerun.png
+    :width: 600
 
 DawTwoStep-v0
 --------------------------------------------------
@@ -134,6 +160,9 @@ DawTwoStep-v0
     Tags
         :ref:`tag-two-alternative`
 
+.. image:: images/DawTwoStep-v0_examplerun.png
+    :width: 600
+
 MatchingPenny-v0
 --------------------------------------------------
 .. autoclass:: neurogym.envs.matchingpenny.MatchingPenny
@@ -145,6 +174,9 @@ MatchingPenny-v0
 
     Tags
         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
+
+.. image:: images/MatchingPenny-v0_examplerun.png
+    :width: 600
 
 MotorTiming-v0
 --------------------------------------------------
@@ -158,6 +190,9 @@ MotorTiming-v0
     Tags
         :ref:`tag-timing`,         :ref:`tag-go-no-go`,         :ref:`tag-supervised`
 
+.. image:: images/MotorTiming-v0_examplerun.png
+    :width: 600
+
 MultiSensoryIntegration-v0
 --------------------------------------------------
 .. autoclass:: neurogym.envs.multisensory.MultiSensoryIntegration
@@ -166,6 +201,9 @@ MultiSensoryIntegration-v0
 
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
+
+.. image:: images/MultiSensoryIntegration-v0_examplerun.png
+    :width: 600
 
 Bandit-v0
 --------------------------------------------------
@@ -179,6 +217,9 @@ Bandit-v0
     Tags
         :ref:`tag-n-alternative`,         :ref:`tag-supervised`
 
+.. image:: images/Bandit-v0_examplerun.png
+    :width: 600
+
 PerceptualDecisionMakingDelayResponse-v0
 --------------------------------------------------
 .. autoclass:: neurogym.envs.perceptualdecisionmaking.PerceptualDecisionMakingDelayResponse
@@ -191,6 +232,9 @@ PerceptualDecisionMakingDelayResponse-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-delayed response`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
+.. image:: images/PerceptualDecisionMakingDelayResponse-v0_examplerun.png
+    :width: 600
+
 NAltPerceptualDecisionMaking-v0
 --------------------------------------------------
 .. autoclass:: neurogym.envs.nalt_perceptualdecisionmaking.nalt_PerceptualDecisionMaking
@@ -199,6 +243,9 @@ NAltPerceptualDecisionMaking-v0
 
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-n-alternative`,         :ref:`tag-supervised`
+
+.. image:: images/NAltPerceptualDecisionMaking-v0_examplerun.png
+    :width: 600
 
 Reaching1D-v0
 --------------------------------------------------
@@ -212,6 +259,9 @@ Reaching1D-v0
     Tags
         :ref:`tag-motor`,         :ref:`tag-steps action space`
 
+.. image:: images/Reaching1D-v0_examplerun.png
+    :width: 600
+
 Reaching1DWithSelfDistraction-v0
 --------------------------------------------------
 .. autoclass:: neurogym.envs.reaching.Reaching1DWithSelfDistraction
@@ -220,6 +270,9 @@ Reaching1DWithSelfDistraction-v0
 
     Tags
         :ref:`tag-motor`,         :ref:`tag-steps action space`
+
+.. image:: images/Reaching1DWithSelfDistraction-v0_examplerun.png
+    :width: 600
 
 AntiReach-v0
 --------------------------------------------------
@@ -233,6 +286,9 @@ AntiReach-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-steps action space`
 
+.. image:: images/AntiReach-v0_examplerun.png
+    :width: 600
+
 DelayedMatchToSampleDistractor1D-v0
 --------------------------------------------------
 .. autoclass:: neurogym.envs.delaymatchsample.DelayedMatchToSampleDistractor1D
@@ -244,6 +300,9 @@ DelayedMatchToSampleDistractor1D-v0
 
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
+
+.. image:: images/DelayedMatchToSampleDistractor1D-v0_examplerun.png
+    :width: 600
 
 IntervalDiscrimination-v0
 --------------------------------------------------
@@ -257,6 +316,9 @@ IntervalDiscrimination-v0
     Tags
         :ref:`tag-timing`,         :ref:`tag-working memory`,         :ref:`tag-delayed response`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
+.. image:: images/IntervalDiscrimination-v0_examplerun.png
+    :width: 600
+
 AngleReproduction-v0
 --------------------------------------------------
 .. autoclass:: neurogym.envs.anglereproduction.AngleReproduction
@@ -269,6 +331,9 @@ AngleReproduction-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-delayed response`,         :ref:`tag-steps action space`
 
+.. image:: images/AngleReproduction-v0_examplerun.png
+    :width: 600
+
 Detection-v0
 --------------------------------------------------
 .. autoclass:: neurogym.envs.detection.Detection
@@ -277,6 +342,9 @@ Detection-v0
 
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-reaction time`,         :ref:`tag-go-no-go`,         :ref:`tag-supervised`
+
+.. image:: images/Detection-v0_examplerun.png
+    :width: 600
 
 ReachingDelayResponse-v0
 --------------------------------------------------
@@ -299,6 +367,9 @@ CVLearning-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-delayed response`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
+.. image:: images/CVLearning-v0_examplerun.png
+    :width: 600
+
 ChangingEnvironment-v0
 --------------------------------------------------
 .. autoclass:: neurogym.envs.changingenvironment.ChangingEnvironment
@@ -310,4 +381,7 @@ ChangingEnvironment-v0
 
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`,         :ref:`tag-context dependent`
+
+.. image:: images/ChangingEnvironment-v0_examplerun.png
+    :width: 600
 
