@@ -28,17 +28,15 @@ class PostDecisionWager(ngym.PeriodEnv):
         'tags': ['perceptual', 'delayed response', 'confidence']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, dim_ring=2):
+    def __init__(self, dt=100, rewards=None, timing=None, dim_ring=2, sigma=1.5):
         super().__init__(dt=dt)
 
         self.wagers = [True, False]
         self.theta = np.linspace(0, 2 * np.pi, dim_ring + 1)[:-1]
         self.choices = np.arange(dim_ring)
         self.cohs = [0, 3.2, 6.4, 12.8, 25.6, 51.2]
+        self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
-        # Input noise
-        sigma = np.sqrt(2*100*0.01)
-        self.sigma_dt = sigma / np.sqrt(self.dt)
         # Rewards
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
         if rewards:
@@ -92,7 +90,7 @@ class PostDecisionWager(ngym.PeriodEnv):
         self.add_ob(1, ['fixation', 'stimulus', 'delay'], where='fixation')
         stim = np.cos(self.theta - stim_theta) * (coh / 200) + 0.5
         self.add_ob(stim, 'stimulus', where='stimulus')
-        self.add_randn(0, self.sigma_dt, 'stimulus')
+        self.add_randn(0, self.sigma, 'stimulus')
         if self.trial['wager']:
             self.add_ob(1, 'sure', where='sure')
 

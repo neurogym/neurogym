@@ -24,16 +24,15 @@ class ReachingDelayResponse(ngym.PeriodEnv):
                  'multidimensional action space', 'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, lowbound=0.,
-                 highbound=1.):
+    def __init__(self, dt=100, rewards=None, timing=None,
+                 lowbound=0., highbound=1.):
         super().__init__(dt=dt)
         self.lowbound = lowbound
         self.highbound = highbound
-        self.sigma = np.sqrt(2 * 100 * 0.01)
-        self.sigma_dt = self.sigma / np.sqrt(self.dt)
 
         # Rewards
-        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': -0., 'miss': -0.5}
+        self.rewards = {'abort': -0.1, 'correct': +1.,
+                        'fail': -0., 'miss': -0.5}
         if rewards:
             self.rewards.update(rewards)
 

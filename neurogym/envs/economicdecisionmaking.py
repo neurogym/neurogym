@@ -29,10 +29,6 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
         self.offers = [(0, 1), (1, 3), (1, 2), (1, 1), (2, 1),
                        (3, 1), (4, 1), (6, 1), (2, 0)]
 
-        # Input noise
-        sigma = np.sqrt(2*100*0.001)
-        self.sigma_dt = sigma/np.sqrt(self.dt)
-
         # Rewards
         self.rewards = {'abort': -0.1, 'correct': +0.22}
         if rewards:

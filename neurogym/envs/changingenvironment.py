@@ -29,7 +29,7 @@ class ChangingEnvironment(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
-                 cxt_ch_prob=0.001, cxt_cue=False):
+                 sigma=1.5, cxt_ch_prob=0.001, cxt_cue=False):
         super().__init__(dt=dt)
 
         # Possible contexts
@@ -42,9 +42,7 @@ class ChangingEnvironment(ngym.PeriodEnv):
         # cohs specifies the amount of evidence (which is modulated by stim_scale)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stim_scale
 
-        # Noise added to the observations
-        sigma = np.sqrt(2 * 100 * 0.01)
-        self.sigma_dt = sigma / np.sqrt(self.dt)
+        self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
         # Rewards
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
@@ -111,9 +109,9 @@ class ChangingEnvironment(ngym.PeriodEnv):
             stimulus[:, 1:] = (1 - coh / 100) / 2
             # coh for correct side
             stimulus[:, side] = (1 + coh / 100) / 2
-            # adding gaussian noise to stimulus with std = self.sigma_dt
+            # adding gaussian noise to stimulus with std = self.sigma
             stimulus[:, 1:] +=\
-                self.rng.randn(stimulus.shape[0], 2) * self.sigma_dt
+                self.rng.randn(stimulus.shape[0], 2) * self.sigma
         else:
             self.set_ob([self.curr_cxt, 0, 0, 0], 'fixation')
             self.set_ob([self.curr_cxt, 0, 0, 0], 'stimulus')
@@ -125,9 +123,9 @@ class ChangingEnvironment(ngym.PeriodEnv):
             stimulus[:, 2:] = (1 - coh / 100) / 2
             # coh for correct side
             stimulus[:, side] = (1 + coh / 100) / 2
-            # adding gaussian noise to stimulus with std = self.sigma_dt
+            # adding gaussian noise to stimulus with std = self.sigma
             stimulus[:, 2:] +=\
-                self.rng.randn(stimulus.shape[0], 2) * self.sigma_dt
+                self.rng.randn(stimulus.shape[0], 2) * self.sigma
 
         # ---------------------------------------------------------------------
         # Ground truth

@@ -29,14 +29,13 @@ class Detection(ngym.PeriodEnv):
                      'supervised']
             }
 
-    def __init__(self, dt=100, rewards=None, timing=None, noise=.5, delay=None,
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.5, delay=None,
                  stim_dur=100):
         super().__init__(dt=dt)
         # Possible decisions at the end of the trial
         self.choices = [0, 1]
 
-        # Noise added to the observations
-        self.sigma_dt = noise / np.sqrt(self.dt)
+        self.sigma = sigma / np.sqrt(self.dt)  # Input noise
         self.delay = delay
         self.stim_dur = int(stim_dur/self.dt)  # in steps should be greater
         # than 1 stp else it wont have enough time to respond within the window
@@ -96,10 +95,10 @@ class Detection(ngym.PeriodEnv):
         self.set_ob([1, 0], 'fixation')
         # stimulus:
         stim = self.view_ob('stimulus')
-        stim[:, 1:] += self.rng.randn(stim.shape[0], 1) * self.sigma_dt
+        stim[:, 1:] += self.rng.randn(stim.shape[0], 1) * self.sigma
         # delay
         # SET THE STIMULUS
-        # adding gaussian noise to stimulus with std = self.sigma_dt
+        # adding gaussian noise to stimulus with std = self.sigma
         if ground_truth == 1:
             if self.delay is None:
                 # there must be a step after the stim or the model will not
@@ -113,7 +112,7 @@ class Detection(ngym.PeriodEnv):
             self.performance = 0
         else:
             stim[:, 1:] +=\
-                self.rng.randn(stim.shape[0], 1) * self.sigma_dt
+                self.rng.randn(stim.shape[0], 1) * self.sigma
             delay = 0
             self.r_tmax = 0  # response omision is correct but not rewarded
             self.performance = 1

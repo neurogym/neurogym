@@ -42,7 +42,7 @@ class Shaping(ngym.TrialWrapper):
         self.short_dur = int(short_dur*self.env.dt)
         # self.ori_timing = self.env.timing
         self.ori_periods = self.env.timing.copy()
-        self.sigma_dt_ori = self.env.sigma_dt.copy()
+        self.sigma_ori = self.env.sigma.copy()
 
         self.set_parameters()
 
@@ -108,9 +108,9 @@ class Shaping(ngym.TrialWrapper):
             print('new: ', self.env.timing)
 
         if self.curr_ph <= 2:
-            self.env.sigma_dt = 0
+            self.env.sigma = 0
         else:
-            self.env.sigma_dt = self.sigma_dt_ori
+            self.env.sigma = self.sigma_ori
 
     def new_trial(self, **kwargs):
         self.set_phase()

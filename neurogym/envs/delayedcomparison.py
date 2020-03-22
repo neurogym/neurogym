@@ -20,15 +20,13 @@ class DelayedComparison(ngym.PeriodEnv):
                  'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.5):
         super().__init__(dt=dt)
 
         # trial conditions
         self.fpairs = [(18, 10), (22, 14), (26, 18), (30, 22), (34, 26)]
 
-        # Input noise
-        sigma = np.sqrt(2*100*0.001)
-        self.sigma_dt = sigma / np.sqrt(self.dt)
+        self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
         # Rewards
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
@@ -78,7 +76,7 @@ class DelayedComparison(ngym.PeriodEnv):
         self.add_ob(self.scale_p(f1), 'f1', where='stimulus')
         self.add_ob(self.scale_p(f2), 'f2', where='stimulus')
         self.set_ob(0, 'decision')
-        self.add_randn(0, self.sigma_dt, ['f1', 'f2'])
+        self.add_randn(0, self.sigma, ['f1', 'f2'])
 
         self.set_groundtruth(self.trial['ground_truth'], 'decision')
 

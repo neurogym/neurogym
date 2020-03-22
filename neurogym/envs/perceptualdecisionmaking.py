@@ -14,6 +14,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
 
     Args:
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)
+        sigma: float, input noise level
         dim_ring: int, dimension of ring input and output
     """
     metadata = {
@@ -24,13 +25,11 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
-                 dim_ring=2):
+                 sigma=1.5, dim_ring=2):
         super().__init__(dt=dt)
         # The strength of evidence, modulated by stim_scale
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stim_scale
-        # Input noise
-        sigma = np.sqrt(2 * 100 * 0.01)
-        self.sigma_dt = sigma / np.sqrt(self.dt)
+        self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
         # Rewards
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
@@ -85,7 +84,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         self.add_ob(1, period=['fixation', 'stimulus'], where='fixation')
         stim = np.cos(self.theta - stim_theta) * (coh/200) + 0.5
         self.add_ob(stim, 'stimulus', where='stimulus')
-        self.add_randn(0, self.sigma_dt, 'stimulus')
+        self.add_randn(0, self.sigma, 'stimulus')
 
         # Ground truth
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
@@ -139,14 +138,13 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
                  'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.):
+    def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
+                 sigma=1.5):
         super().__init__(dt=dt)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence (which is modulated by stim_scale)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stim_scale
-        # Input noise
-        sigma = np.sqrt(2*100*0.01)
-        self.sigma_dt = sigma / np.sqrt(self.dt)
+        self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
         # Rewards
         self.rewards = {'abort': -0.1, 'correct': +1.,
@@ -189,7 +187,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         self.trial = {
             'ground_truth': self.rng.choice(self.choices),
             'coh': self.rng.choice(self.cohs),
-            'sigma_dt': self.sigma_dt,
+            'sigma': self.sigma,
         }
         self.trial.update(kwargs)
 
@@ -208,7 +206,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         stim[:, 1:] = (1 - self.trial['coh']/100)/2
         stim[:, self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
         stim[:, 1:] +=\
-            self.rng.randn(stim.shape[0], 2) * self.trial['sigma_dt']
+            self.rng.randn(stim.shape[0], 2) * self.trial['sigma']
 
         self.set_ob([1, 0, 0], 'delay')
 

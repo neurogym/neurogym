@@ -21,15 +21,14 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         'tags': ['perceptual', 'n-alternative', 'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1., n_ch=3):
+    def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
+                 sigma=1.5, n_ch=3):
         super().__init__(dt=dt)
         self.n = n_ch
         self.choices = np.arange(n_ch) + 1
         # cohs specifies the amount of evidence (which is modulated by stim_scale)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stim_scale
-        # Input noise
-        sigma = np.sqrt(2*100*0.01)
-        self.sigma_dt = sigma / np.sqrt(self.dt)
+        self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
         # Rewards
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
@@ -72,7 +71,7 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         stim = np.ones(self.n) * (1 - self.trial['coh']/100)/2
         stim[self.trial['ground_truth'] - 1] = (1 + self.trial['coh']/100)/2
         self.add_ob(stim, 'stimulus', where='stimulus')
-        self.add_randn(0, self.sigma_dt, 'stimulus')
+        self.add_randn(0, self.sigma, 'stimulus')
 
         self.set_groundtruth(self.trial['ground_truth'], 'decision')
 

@@ -23,13 +23,11 @@ class DelayedMatchToSample(ngym.PeriodEnv):
                  'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.5):
         super().__init__(dt=dt)
         # TODO: Code a continuous space version
         self.choices = [1, 2]
-        # Input noise
-        sigma = np.sqrt(2*100*0.01)
-        self.sigma_dt = sigma/np.sqrt(self.dt)
+        self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
         # Rewards
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
@@ -84,8 +82,8 @@ class DelayedMatchToSample(ngym.PeriodEnv):
         self.add_ob(1, where='fixation')
         self.add_ob(stim_sample, 'sample', where='stimulus')
         self.add_ob(stim_test, 'test', where='stimulus')
-        self.add_randn(0, self.sigma_dt, 'sample')
-        self.add_randn(0, self.sigma_dt, 'test')
+        self.add_randn(0, self.sigma, 'sample')
+        self.add_randn(0, self.sigma, 'test')
 
         self.set_groundtruth(ground_truth, 'decision')
 
@@ -129,12 +127,10 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
                  'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.5):
         super().__init__(dt=dt)
         self.choices = [1, 2, 3]
-        # Input noise
-        sigma = np.sqrt(2*100*0.01)
-        self.sigma_dt = sigma/np.sqrt(self.dt)
+        self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
         # Rewards
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': -1.}

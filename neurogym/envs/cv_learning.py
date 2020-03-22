@@ -33,16 +33,14 @@ class CVLearning(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
-                 max_num_reps=3, th_stage=0.7, keep_days=1,
+                 sigma=1.5, max_num_reps=3, th_stage=0.7, keep_days=1,
                  trials_day=300, perf_len=20, stages=[0, 1, 2, 3, 4]):
         super().__init__(dt=dt)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence
         # (which is modulated by stim_scale)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stim_scale
-        # Input noise
-        sigma = np.sqrt(2*100*0.01)
-        self.sigma_dt = sigma / np.sqrt(self.dt)
+        self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
         # Rewards
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': -1.}
@@ -127,7 +125,7 @@ class CVLearning(ngym.PeriodEnv):
         self.trial = {
             'ground_truth': self.rng.choice(self.choices),
             'coh': self.rng.choice(self.cohs),
-            'sigma_dt': self.sigma_dt,
+            'sigma': self.sigma,
         }
 
         # init durations with None
@@ -145,7 +143,7 @@ class CVLearning(ngym.PeriodEnv):
                 self.rewards['fail'] = self.rewards['correct']
             self.durs.update({'stimulus': (0),
                              'delay': (0)})
-            self.trial.update({'sigma_dt': 0})
+            self.trial.update({'sigma': 0})
 
         elif self.curr_ph == 1:
             # stim introduced with no ambiguity
@@ -153,7 +151,7 @@ class CVLearning(ngym.PeriodEnv):
             # agent can keep exploring until finding the right answer
             self.durs.update({'delay': (0)})
             self.trial.update({'coh': 100})
-            self.trial.update({'sigma_dt': 0})
+            self.trial.update({'sigma': 0})
             self.rewards['fail'] = 0
             self.firstcounts = False
         elif self.curr_ph == 2:
@@ -161,7 +159,7 @@ class CVLearning(ngym.PeriodEnv):
             # wrong answer is penalized
             self.durs.update({'delay': (0)})
             self.trial.update({'coh': 100})
-            self.trial.update({'sigma_dt': 0})
+            self.trial.update({'sigma': 0})
             self.rewards['fail'] = self.r_fail
             self.firstcounts = True
         elif self.curr_ph == 3:
@@ -182,7 +180,7 @@ class CVLearning(ngym.PeriodEnv):
             self.durs.update({'delay': np.random.choice(self.dur)})
             # delay component is introduced
             self.trial.update({'coh': 100})
-            self.trial.update({'sigma_dt': 0})
+            self.trial.update({'sigma': 0})
         # phase 4: ambiguity component is introduced
         self.first_flag = False
 
@@ -209,7 +207,7 @@ class CVLearning(ngym.PeriodEnv):
         stim[:, 1:] = (1 - self.trial['coh']/100)/2
         stim[:, self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
         stim[:, 1:] +=\
-            self.rng.randn(stim.shape[0], 2) * self.trial['sigma_dt']
+            self.rng.randn(stim.shape[0], 2) * self.trial['sigma']
 
         self.set_ob([1, 0, 0], 'delay')
 

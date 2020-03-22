@@ -35,7 +35,7 @@ class YourTask(ngym.PeriodEnv):  # TIP: if task has periods (alt.: ngym.TrialEnv
 
         # Noise added to the observations
         sigma = np.sqrt(2 * 100 * 0.01)
-        self.sigma_dt = sigma / np.sqrt(self.dt)
+        self.sigma = sigma / np.sqrt(self.dt)
 
         # Rewards
         self.rewards['abort'] = -0.1  # reward given when break fixation
@@ -78,9 +78,9 @@ class YourTask(ngym.PeriodEnv):  # TIP: if task has periods (alt.: ngym.TrialEnv
         # view_ob return a pointer to observations during stimulus period:
         stimulus = self.view_ob('stimulus')  # (shape = time x obs-dim)
         # SET THE STIMULUS
-        # adding gaussian noise to stimulus with std = self.sigma_dt
+        # adding gaussian noise to stimulus with std = self.sigma
         stimulus[:, 1:] +=\
-            np.random.randn(stimulus.shape[0], 2) * self.sigma_dt
+            np.random.randn(stimulus.shape[0], 2) * self.sigma
         # ---------------------------------------------------------------------
         # Ground truth
         # ---------------------------------------------------------------------

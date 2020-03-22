@@ -20,15 +20,13 @@ class DelayPairedAssociation(ngym.PeriodEnv):
                  'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, noise=0.01):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.5):
         super().__init__(dt=dt)
         self.choices = [0, 1]
         # trial conditions
         self.pairs = [(1, 3), (1, 4), (2, 3), (2, 4)]
         self.association = 0  # GO if np.diff(self.pair)[0]%2==self.association
-        # Input noise
-        sigma = np.sqrt(2*100*noise)
-        self.sigma_dt = sigma / np.sqrt(self.dt)
+        self.sigma = sigma / np.sqrt(self.dt)  # Input noise
         # Durations (stimulus duration will be drawn from an exponential)
 
         # Rewards

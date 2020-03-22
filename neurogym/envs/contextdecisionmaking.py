@@ -20,17 +20,14 @@ class ContextDecisionMaking(ngym.PeriodEnv):
                  'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.5):
         super().__init__(dt=dt)
 
         # trial conditions
         self.contexts = [0, 1]  # index for context inputs
         self.choices = [1, 2]  # left, right choice
         self.cohs = [5, 15, 50]
-
-        # Input noise
-        sigma = np.sqrt(2*100*0.02)
-        self.sigma_dt = sigma/np.sqrt(self.dt)
+        self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
         # Rewards
         self.rewards = {'abort': -0.1, 'correct': +1.}
@@ -89,7 +86,7 @@ class ContextDecisionMaking(ngym.PeriodEnv):
         self.add_ob((1 - signed_coh_0 / 100) / 2, period='stimulus', where='stim2_mod1')
         self.add_ob((1 + signed_coh_1 / 100) / 2, period='stimulus', where='stim1_mod2')
         self.add_ob((1 - signed_coh_1 / 100) / 2, period='stimulus', where='stim2_mod2')
-        self.add_randn(0, self.sigma_dt, 'stimulus')
+        self.add_randn(0, self.sigma, 'stimulus')
         self.set_ob(0, 'decision')
 
         if self.trial['context'] == 0:

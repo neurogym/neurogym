@@ -6,7 +6,16 @@ from neurogym.envs import ALL_ENVS
 from neurogym.wrappers import ALL_WRAPPERS
 
 
+def make_env_images():
+    envs = ngym.all_envs()
+    for env_name in envs:
+        env = gym.make(env_name, **{'dt': 20})
+        f = ngym.utils.plot_env(env, num_trials=2, def_act=1)
+        f.savefig('images/' + env_name + '_examplerun.png', dpi=300)
+
+
 def main():
+    make_env_images()
     string = 'Environments\n'
     string += '===================================\n\n'
 
