@@ -12,6 +12,7 @@ ALL_ENVS = {'ContextDecisionMaking-v0': 'neurogym.envs.contextdecisionmaking:Con
                 'neurogym.envs.delaypairedassociation:DelayPairedAssociation',
             'GoNogo-v0': 'neurogym.envs.gonogo:GoNogo',
             'ReadySetGo-v0': 'neurogym.envs.readysetgo:ReadySetGo',
+            'OneTwoThreeGo-v0': 'neurogym.envs.readysetgo:OneTwoThreeGo',
             'DelayedMatchSample-v0':
                 'neurogym.envs.delaymatchsample:DelayedMatchToSample',
             'DelayedMatchCategory-v0':

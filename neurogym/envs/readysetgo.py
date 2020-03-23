@@ -205,6 +205,104 @@ class MotorTiming(ngym.PeriodEnv):
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
+class OneTwoThreeGo(ngym.PeriodEnv):
+    r"""Agents reproduce time intervals based on two samples.
+
+    Args:
+        prod_margin: controls the interval around the ground truth production
+                    time within which the agent receives proportional reward
+    """
+    metadata = {
+        'paper_link': 'https://www.nature.com/articles/s41593-019-0500-6',
+        'paper_name': "Internal models of sensorimotor integration "
+                      "regulate cortical dynamics",
+        'tags': ['timing', 'go-no-go', 'supervised']
+    }
+
+    def __init__(self, dt=80, rewards=None, timing=None, prod_margin=0.2):
+        super().__init__(dt=dt)
+
+        self.prod_margin = prod_margin
+
+        # Rewards
+        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
+        if rewards:
+            self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('truncated_exponential', [400, 100, 800]),
+            'target': ('truncated_exponential', [1000, 500, 1500]),
+            's1': ('constant', 100),
+            'interval1': ('choice', [600, 700, 800, 900, 1000]),
+            's2': ('constant', 100),
+            'interval2': ('constant', 0),
+            's3': ('constant', 100),
+            'interval3': ('constant', 0),
+            'response': ('constant', 1000)}
+        if timing:
+            self.timing.update(timing)
+
+        self.abort = False
+        # set action and observation space
+        self.action_space = spaces.Discrete(2)  # (fixate, go)
+        self.act_dict = {'fixation': 0, 'go': 1}
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
+                                            dtype=np.float32)
+        self.ob_dict = {'fixation': 0, 'stimulus': 1, 'target': 2}
+
+    def new_trial(self, **kwargs):
+        interval = self.sample_time('interval1')
+        self.trial = {
+            'interval': interval,
+        }
+        self.trial.update(kwargs)
+
+        self.add_period(['fixation', 'target', 's1'], after=0)
+        self.add_period('interval1', duration=interval, after='s1')
+        self.add_period('s2', after='interval1')
+        self.add_period('interval2', duration=interval, after='s2')
+        self.add_period('s3', after='interval2')
+        self.add_period('interval3', duration=interval, after='s3')
+        self.add_period('response', after='interval3', last_period=True)
+
+        self.add_ob(1, where='fixation')
+        self.add_ob(1, ['s1', 's2', 's3'], where='stimulus')
+        self.add_ob(1, where='target')
+        self.set_ob(0, 'fixation', where='target')
+
+        # set ground truth
+        self.set_groundtruth(self.act_dict['go'], period='response')
+
+    def _step(self, action):
+        # ---------------------------------------------------------------------
+        # Reward and inputs
+        # ---------------------------------------------------------------------
+        trial = self.trial
+        reward = 0
+        obs = self.ob_now
+        gt = self.gt_now
+        new_trial = False
+        if self.in_period('interval3') or self.in_period('response'):
+            if action == 1:
+                new_trial = True  # terminate
+                # time from end of measure:
+                t_prod = self.t - self.end_t['s3']
+                eps = abs(t_prod - trial['interval'])  # actual production time
+                eps_threshold = self.prod_margin*trial['interval']+25
+                if eps > eps_threshold:
+                    reward = self.rewards['fail']
+                else:
+                    reward = (1. - eps/eps_threshold)**1.5
+                    reward = max(reward, 0.1)
+                    reward *= self.rewards['correct']
+        else:
+            if action != 0:
+                new_trial = self.abort
+                reward = self.rewards['abort']
+
+        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+
+
 if __name__ == '__main__':
     env = ReadySetGo(dt=50)
     ngym.utils.plot_env(env, num_steps=100, def_act=0)
