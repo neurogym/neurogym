@@ -307,9 +307,9 @@ class PeriodEnv(TrialEnv):
             ' (Hint: make last_period=True when adding the last period)'
         # self.ob[self.start_ind[period]:self.end_ind[period]] = value
         ob = self.view_ob(period=period)
-        if reset:
-            ob *= 0
         if where is None:
+            if reset:
+                ob *= 0
             try:
                 ob += value(ob)
             except TypeError:
@@ -318,6 +318,8 @@ class PeriodEnv(TrialEnv):
             if isinstance(where, str):
                 where = self.ob_dict[where]
             # TODO: This only works if the slicing is one one-dimension
+            if reset:
+                ob[..., where] *= 0
             try:
                 ob[..., where] += value(ob[..., where])
             except TypeError:
