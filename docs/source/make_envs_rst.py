@@ -1,5 +1,8 @@
 import os
 
+import numpy as np
+import matplotlib.pyplot as plt
+
 import gym
 import neurogym as ngym
 from neurogym.envs import ALL_ENVS
@@ -10,8 +13,10 @@ def make_env_images():
     envs = ngym.all_envs()
     for env_name in envs:
         env = gym.make(env_name, **{'dt': 20})
-        f = ngym.utils.plot_env(env, num_trials=2, def_act=1)
+        action = np.zeros_like(env.action_space.sample())
+        f = ngym.utils.plot_env(env, num_trials=2, def_act=action)
         f.savefig('images/' + env_name + '_examplerun.png', dpi=300)
+        plt.close()
 
 
 def main():
@@ -44,9 +49,11 @@ def main():
 
 
         # Add image
+        string += '    Sample run\n'
         image_path = os.path.join('images', key+'_examplerun.png')
         if os.path.isfile(image_path):
-            string += '.. image:: {:s}\n    :width: 600\n\n'.format(image_path)
+            string += ' '*8 + '.. image:: {:s}\n'.format(image_path)
+            string += ' '*12 + ':width: 600\n\n'
 
     with open('envs.rst', 'w') as f:
         f.write(string)

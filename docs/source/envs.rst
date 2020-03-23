@@ -13,8 +13,9 @@ ContextDecisionMaking-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-context dependent`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
-.. image:: images/ContextDecisionMaking-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/ContextDecisionMaking-v0_examplerun.png
+            :width: 600
 
 DelayedComparison-v0
 --------------------------------------------------
@@ -28,8 +29,9 @@ DelayedComparison-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
-.. image:: images/DelayedComparison-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/DelayedComparison-v0_examplerun.png
+            :width: 600
 
 PerceptualDecisionMaking-v0
 --------------------------------------------------
@@ -43,8 +45,9 @@ PerceptualDecisionMaking-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
-.. image:: images/PerceptualDecisionMaking-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/PerceptualDecisionMaking-v0_examplerun.png
+            :width: 600
 
 EconomicDecisionMaking-v0
 --------------------------------------------------
@@ -58,8 +61,9 @@ EconomicDecisionMaking-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-value-based`
 
-.. image:: images/EconomicDecisionMaking-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/EconomicDecisionMaking-v0_examplerun.png
+            :width: 600
 
 PostDecisionWager-v0
 --------------------------------------------------
@@ -73,8 +77,9 @@ PostDecisionWager-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-delayed response`,         :ref:`tag-confidence`
 
-.. image:: images/PostDecisionWager-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/PostDecisionWager-v0_examplerun.png
+            :width: 600
 
 DelayPairedAssociation-v0
 --------------------------------------------------
@@ -88,8 +93,9 @@ DelayPairedAssociation-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-go-no-go`,         :ref:`tag-supervised`
 
-.. image:: images/DelayPairedAssociation-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/DelayPairedAssociation-v0_examplerun.png
+            :width: 600
 
 GoNogo-v0
 --------------------------------------------------
@@ -103,8 +109,9 @@ GoNogo-v0
     Tags
         :ref:`tag-delayed response`,         :ref:`tag-go-no-go`,         :ref:`tag-supervised`
 
-.. image:: images/GoNogo-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/GoNogo-v0_examplerun.png
+            :width: 600
 
 ReadySetGo-v0
 --------------------------------------------------
@@ -118,6 +125,26 @@ ReadySetGo-v0
     Tags
         :ref:`tag-timing`,         :ref:`tag-go-no-go`,         :ref:`tag-supervised`
 
+    Sample run
+        .. image:: images/ReadySetGo-v0_examplerun.png
+            :width: 600
+
+OneTwoThreeGo-v0
+--------------------------------------------------
+.. autoclass:: neurogym.envs.readysetgo.OneTwoThreeGo
+    :members:
+    :exclude-members: new_trial
+
+    Reference paper
+        `Internal models of sensorimotor integration regulate cortical dynamics <https://www.nature.com/articles/s41593-019-0500-6>`__
+
+    Tags
+        :ref:`tag-timing`,         :ref:`tag-go-no-go`,         :ref:`tag-supervised`
+
+    Sample run
+        .. image:: images/OneTwoThreeGo-v0_examplerun.png
+            :width: 600
+
 DelayedMatchSample-v0
 --------------------------------------------------
 .. autoclass:: neurogym.envs.delaymatchsample.DelayedMatchToSample
@@ -130,8 +157,9 @@ DelayedMatchSample-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
-.. image:: images/DelayedMatchSample-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/DelayedMatchSample-v0_examplerun.png
+            :width: 600
 
 DelayedMatchCategory-v0
 --------------------------------------------------
@@ -145,8 +173,9 @@ DelayedMatchCategory-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
-.. image:: images/DelayedMatchCategory-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/DelayedMatchCategory-v0_examplerun.png
+            :width: 600
 
 DawTwoStep-v0
 --------------------------------------------------
@@ -160,8 +189,9 @@ DawTwoStep-v0
     Tags
         :ref:`tag-two-alternative`
 
-.. image:: images/DawTwoStep-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/DawTwoStep-v0_examplerun.png
+            :width: 600
 
 MatchingPenny-v0
 --------------------------------------------------
@@ -175,8 +205,9 @@ MatchingPenny-v0
     Tags
         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
-.. image:: images/MatchingPenny-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/MatchingPenny-v0_examplerun.png
+            :width: 600
 
 MotorTiming-v0
 --------------------------------------------------
@@ -190,8 +221,9 @@ MotorTiming-v0
     Tags
         :ref:`tag-timing`,         :ref:`tag-go-no-go`,         :ref:`tag-supervised`
 
-.. image:: images/MotorTiming-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/MotorTiming-v0_examplerun.png
+            :width: 600
 
 MultiSensoryIntegration-v0
 --------------------------------------------------
@@ -202,8 +234,9 @@ MultiSensoryIntegration-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
-.. image:: images/MultiSensoryIntegration-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/MultiSensoryIntegration-v0_examplerun.png
+            :width: 600
 
 Bandit-v0
 --------------------------------------------------
@@ -217,8 +250,9 @@ Bandit-v0
     Tags
         :ref:`tag-n-alternative`,         :ref:`tag-supervised`
 
-.. image:: images/Bandit-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/Bandit-v0_examplerun.png
+            :width: 600
 
 PerceptualDecisionMakingDelayResponse-v0
 --------------------------------------------------
@@ -232,8 +266,9 @@ PerceptualDecisionMakingDelayResponse-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-delayed response`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
-.. image:: images/PerceptualDecisionMakingDelayResponse-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/PerceptualDecisionMakingDelayResponse-v0_examplerun.png
+            :width: 600
 
 NAltPerceptualDecisionMaking-v0
 --------------------------------------------------
@@ -241,11 +276,15 @@ NAltPerceptualDecisionMaking-v0
     :members:
     :exclude-members: new_trial
 
+    Reference paper
+        `Decision-making with multiple alternatives <https://www.nature.com/articles/nn.2123>`__
+
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-n-alternative`,         :ref:`tag-supervised`
 
-.. image:: images/NAltPerceptualDecisionMaking-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/NAltPerceptualDecisionMaking-v0_examplerun.png
+            :width: 600
 
 Reaching1D-v0
 --------------------------------------------------
@@ -259,8 +298,9 @@ Reaching1D-v0
     Tags
         :ref:`tag-motor`,         :ref:`tag-steps action space`
 
-.. image:: images/Reaching1D-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/Reaching1D-v0_examplerun.png
+            :width: 600
 
 Reaching1DWithSelfDistraction-v0
 --------------------------------------------------
@@ -271,8 +311,9 @@ Reaching1DWithSelfDistraction-v0
     Tags
         :ref:`tag-motor`,         :ref:`tag-steps action space`
 
-.. image:: images/Reaching1DWithSelfDistraction-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/Reaching1DWithSelfDistraction-v0_examplerun.png
+            :width: 600
 
 AntiReach-v0
 --------------------------------------------------
@@ -286,8 +327,9 @@ AntiReach-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-steps action space`
 
-.. image:: images/AntiReach-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/AntiReach-v0_examplerun.png
+            :width: 600
 
 DelayedMatchToSampleDistractor1D-v0
 --------------------------------------------------
@@ -301,8 +343,9 @@ DelayedMatchToSampleDistractor1D-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
-.. image:: images/DelayedMatchToSampleDistractor1D-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/DelayedMatchToSampleDistractor1D-v0_examplerun.png
+            :width: 600
 
 IntervalDiscrimination-v0
 --------------------------------------------------
@@ -316,8 +359,9 @@ IntervalDiscrimination-v0
     Tags
         :ref:`tag-timing`,         :ref:`tag-working memory`,         :ref:`tag-delayed response`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
-.. image:: images/IntervalDiscrimination-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/IntervalDiscrimination-v0_examplerun.png
+            :width: 600
 
 AngleReproduction-v0
 --------------------------------------------------
@@ -331,8 +375,9 @@ AngleReproduction-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-delayed response`,         :ref:`tag-steps action space`
 
-.. image:: images/AngleReproduction-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/AngleReproduction-v0_examplerun.png
+            :width: 600
 
 Detection-v0
 --------------------------------------------------
@@ -343,8 +388,9 @@ Detection-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-reaction time`,         :ref:`tag-go-no-go`,         :ref:`tag-supervised`
 
-.. image:: images/Detection-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/Detection-v0_examplerun.png
+            :width: 600
 
 ReachingDelayResponse-v0
 --------------------------------------------------
@@ -354,6 +400,10 @@ ReachingDelayResponse-v0
 
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-delayed response`,         :ref:`tag-continuous action space`,         :ref:`tag-multidimensional action space`,         :ref:`tag-supervised`
+
+    Sample run
+        .. image:: images/ReachingDelayResponse-v0_examplerun.png
+            :width: 600
 
 CVLearning-v0
 --------------------------------------------------
@@ -367,8 +417,9 @@ CVLearning-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-delayed response`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
-.. image:: images/CVLearning-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/CVLearning-v0_examplerun.png
+            :width: 600
 
 ChangingEnvironment-v0
 --------------------------------------------------
@@ -382,6 +433,7 @@ ChangingEnvironment-v0
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`,         :ref:`tag-context dependent`
 
-.. image:: images/ChangingEnvironment-v0_examplerun.png
-    :width: 600
+    Sample run
+        .. image:: images/ChangingEnvironment-v0_examplerun.png
+            :width: 600
 

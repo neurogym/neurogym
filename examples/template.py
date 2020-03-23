@@ -13,34 +13,35 @@ import neurogym as ngym
 
 class YourTask(ngym.PeriodEnv):  # TIP: if task has periods (alt.: ngym.TrialEnv)
     metadata = {
-        'description': '',
-        'paper_link': '',
-        'paper_name': '',
-        # alts.: 'constant', 'uniform', 'truncated_exponential' and 'choice'
-        # (see neurogym/utils/tasktools.random_number_fn)
-        self.timing = {
-            'period 1 (e.g. fixation)': ('constant', 'value'),
-            'period 2 (e.g. stimulus)': ('truncated_exponential',
-                                         ['mean', 'min', 'max']),
-            'period 3 (e.g. decision)': ('uniform', ('min', 'max'))},
-        'extra input parameter 1': 'value',
-        'extra input parameter 2': 'value',
+        'paper_link': 'your paper link',
+        'paper_name': 'your paper name',
         'tags': ['property 1', 'property 2']
     }
 
-    def __init__(self, dt=100, timing=None, extra_input_param=None):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1,
+                 extra_input_param=None):
         super().__init__(dt=dt)
         # Possible decisions at the end of the trial
         self.choices = [1, 2]  # e.g. [left, right]
 
-        # Noise added to the observations
-        sigma = np.sqrt(2 * 100 * 0.01)
-        self.sigma = sigma / np.sqrt(self.dt)
+        self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
         # Rewards
-        self.rewards['abort'] = -0.1  # reward given when break fixation
-        self.rewards['correct'] = +1.  # reward given when correct
-        self.rewards['fail'] = 0.  # reward given when incorrect
+        self.rewards = {
+            'abort': -0.1,  # reward given when break fixation
+            'correct': +1.,  # reward given when correct
+            'fail': 0.,  # reward given when incorrect
+        }
+        if rewards:
+            self.rewards.update(rewards)
+
+        self.timing = {
+            'period 1 (e.g. fixation)': ('constant', 'value'),
+            'period 2 (e.g. stimulus)': ('truncated_exponential',
+                                                  ['mean', 'min', 'max']),
+            'period 3 (e.g. decision)': ('uniform', ('min', 'max'))}
+        if timing:
+            self.timing.update(timing)
         # whether to abort (T) or not (F) the trial when breaking fixation:
         self.abort = False
         # action and observation spaces: [fixate, got left, got right]

@@ -16,8 +16,8 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         n_ch: Number of choices. (def: 3, int)
     """
     metadata = {
-        'paper_link': None,
-        'paper_name': None,
+        'paper_link': 'https://www.nature.com/articles/nn.2123',
+        'paper_name': 'Decision-making with multiple alternatives',
         'tags': ['perceptual', 'n-alternative', 'supervised']
     }
 

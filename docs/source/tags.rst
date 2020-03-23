@@ -40,6 +40,7 @@ go-no-go
     :class:`Detection-v0 <neurogym.envs.detection.Detection>`
     :class:`GoNogo-v0 <neurogym.envs.gonogo.GoNogo>`
     :class:`MotorTiming-v0 <neurogym.envs.readysetgo.MotorTiming>`
+    :class:`OneTwoThreeGo-v0 <neurogym.envs.readysetgo.OneTwoThreeGo>`
     :class:`ReadySetGo-v0 <neurogym.envs.readysetgo.ReadySetGo>`
 
 .. _tag-motor:
@@ -120,6 +121,7 @@ supervised
     :class:`MotorTiming-v0 <neurogym.envs.readysetgo.MotorTiming>`
     :class:`MultiSensoryIntegration-v0 <neurogym.envs.multisensory.MultiSensoryIntegration>`
     :class:`NAltPerceptualDecisionMaking-v0 <neurogym.envs.nalt_perceptualdecisionmaking.nalt_PerceptualDecisionMaking>`
+    :class:`OneTwoThreeGo-v0 <neurogym.envs.readysetgo.OneTwoThreeGo>`
     :class:`PerceptualDecisionMaking-v0 <neurogym.envs.perceptualdecisionmaking.PerceptualDecisionMaking>`
     :class:`PerceptualDecisionMakingDelayResponse-v0 <neurogym.envs.perceptualdecisionmaking.PerceptualDecisionMakingDelayResponse>`
     :class:`ReachingDelayResponse-v0 <neurogym.envs.reachingdelayresponse.ReachingDelayResponse>`
@@ -131,6 +133,7 @@ timing
 --------------------------------
     :class:`IntervalDiscrimination-v0 <neurogym.envs.intervaldiscrimination.IntervalDiscrimination>`
     :class:`MotorTiming-v0 <neurogym.envs.readysetgo.MotorTiming>`
+    :class:`OneTwoThreeGo-v0 <neurogym.envs.readysetgo.OneTwoThreeGo>`
     :class:`ReadySetGo-v0 <neurogym.envs.readysetgo.ReadySetGo>`
 
 .. _tag-two-alternative:
