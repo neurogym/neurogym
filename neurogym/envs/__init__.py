@@ -18,6 +18,7 @@ ALL_ENVS = {'ContextDecisionMaking-v0': 'neurogym.envs.contextdecisionmaking:Con
             'DelayedMatchCategory-v0':
                 'neurogym.envs.delaymatchcategory:DelayedMatchCategory',
             'DawTwoStep-v0': 'neurogym.envs.dawtwostep:DawTwoStep',
+            'HierarchicalReasoning-v0': 'neurogym.envs.hierarchicalreasoning:HierarchicalReasoning',
             'MatchingPenny-v0': 'neurogym.envs.matchingpenny:MatchingPenny',
             'MotorTiming-v0': 'neurogym.envs.readysetgo:MotorTiming',
             'MultiSensoryIntegration-v0': 'neurogym.envs.multisensory:MultiSensoryIntegration',
