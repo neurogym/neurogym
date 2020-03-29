@@ -50,6 +50,8 @@ ALL_ENVS = {'ContextDecisionMaking-v0': 'neurogym.envs.contextdecisionmaking:Con
                 'neurogym.envs.changingenvironment:ChangingEnvironment',
             'ProbabilisticReasoning-v0':
                 'neurogym.envs.weatherprediction:ProbabilisticReasoning',
+            'DualDelayedMatchSample-v0':
+                'neurogym.envs.dualdelaymatchsample:DualDelayedMatchToSample',
             }
 
 

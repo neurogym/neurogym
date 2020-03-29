@@ -73,11 +73,8 @@ class DelayedMatchToSample(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        self.add_period('fixation', after=0)
-        self.add_period('sample', after='fixation')
-        self.add_period('delay', after='sample')
-        self.add_period('test', after='delay')
-        self.add_period('decision', after='test', last_period=True)
+        self.add_period(['fixation', 'sample', 'delay', 'test', 'decision'],
+                        after=0, last_period=True)
 
         self.add_ob(1, where='fixation')
         self.add_ob(stim_sample, 'sample', where='stimulus')
