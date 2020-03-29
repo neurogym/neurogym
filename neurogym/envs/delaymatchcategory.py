@@ -24,7 +24,7 @@ class DelayedMatchCategory(ngym.PeriodEnv):
 
     def __init__(self, dt=100, rewards=None, timing=None, sigma=1.5):
         super().__init__(dt=dt)
-        self.choices = [1, 2]  # match, non-match
+        self.choices = ['match', 'non-match']  # match, non-match
 
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
@@ -54,18 +54,8 @@ class DelayedMatchCategory(ngym.PeriodEnv):
                                             dtype=np.float32)
         self.ob_dict = {'fixation': 0, 'stimulus': range(1, 3)}
 
-
     def new_trial(self, **kwargs):
-        """
-        new_trial() is called when a trial ends to generate the next trial.
-        The following variables are created:
-            ground truth: correct response for the trial
-            coh: stimulus coherence (evidence) for the trial
-            ob: observation
-        """
-        # ---------------------------------------------------------------------
-        # Trial
-        # ---------------------------------------------------------------------
+        # Trial info
         self.trial = {
             'ground_truth': self.rng.choice(self.choices),
             'sample_category': self.rng.choice([0, 1]),
@@ -74,19 +64,18 @@ class DelayedMatchCategory(ngym.PeriodEnv):
 
         ground_truth = self.trial['ground_truth']
         sample_category = self.trial['sample_category']
+        if ground_truth == 'match':
+            test_category = sample_category
+        else:
+            test_category = 1 - sample_category
 
         sample_theta = (sample_category + self.rng.random()) * np.pi
-
-        test_category = sample_category
-        if ground_truth == 2:
-            test_category = 1 - test_category
         test_theta = (test_category + self.rng.random()) * np.pi
+
         stim_sample = [np.cos(sample_theta), np.sin(sample_theta)]
         stim_test = [np.cos(test_theta), np.sin(test_theta)]
 
-        # ---------------------------------------------------------------------
         # Periods
-        # ---------------------------------------------------------------------
         periods = ['fixation', 'sample', 'first_delay', 'test']
         self.add_period(periods, after=0, last_period=True)
         # self.add_period('decision', after='test', last_period=True)
@@ -97,21 +86,9 @@ class DelayedMatchCategory(ngym.PeriodEnv):
         self.add_randn(0, self.sigma, 'sample')
         self.add_randn(0, self.sigma, 'test')
 
-        self.set_groundtruth(ground_truth, 'test')
+        self.set_groundtruth(self.act_dict[ground_truth], 'test')
 
     def _step(self, action, **kwargs):
-        """
-        _step receives an action and returns:
-            a new observation, obs
-            reward associated with the action, reward
-            a boolean variable indicating whether the experiment has end, done
-            a dictionary with extra information:
-                ground truth correct response, info['gt']
-                boolean indicating the end of the trial, info['new_trial']
-        """
-        # ---------------------------------------------------------------------
-        # Reward and observations
-        # ---------------------------------------------------------------------
         new_trial = False
 
         obs = self.ob_now

@@ -47,7 +47,9 @@ ALL_ENVS = {'ContextDecisionMaking-v0': 'neurogym.envs.contextdecisionmaking:Con
             'CVLearning-v0':
                 'neurogym.envs.cv_learning:CVLearning',
             'ChangingEnvironment-v0':
-                'neurogym.envs.changingenvironment:ChangingEnvironment'
+                'neurogym.envs.changingenvironment:ChangingEnvironment',
+            'ProbabilisticReasoning-v0':
+                'neurogym.envs.weatherprediction:ProbabilisticReasoning',
             }
 
 
