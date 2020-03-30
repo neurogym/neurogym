@@ -247,6 +247,104 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         return self.ob_now, reward, False, info
 
 
+class PulseDecisionMaking(ngym.PeriodEnv):
+    """Pulse-based decision making task.
+
+    Discrete stimuli are presented briefly as pulses.
+
+    Args:
+        p_pulse: array-like, probability of pulses for each choice
+        n_bin: int, number of stimulus bins
+    """
+    metadata = {
+        'paper_link': 'https://elifesciences.org/articles/11308',
+        'paper_name': '''Sources of noise during accumulation of evidence in 
+        unrestrained and voluntarily head-restrained rats''',
+        'tags': ['perceptual', 'two-alternative', 'supervised']
+    }
+
+    def __init__(self, dt=10, rewards=None, timing=None, p_pulse=(0.3, 0.7),
+                 n_bin=6):
+        super().__init__(dt=dt)
+        self.p_pulse = p_pulse
+        self.n_bin = n_bin
+
+        # Rewards
+        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
+        if rewards:
+            self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('constant', 500),
+            'decision': ('constant', 500)}
+        for i in range(n_bin):
+            self.timing['cue' + str(i)] = ('constant', 10)
+            self.timing['bin' + str(i)] = ('constant', 240)
+        if timing:
+            self.timing.update(timing)
+
+        self.abort = False
+
+        self.observation_space = spaces.Box(
+            -np.inf, np.inf, shape=(3,), dtype=np.float32)
+        self.ob_dict = {'fixation': 0, 'stimulus': [1, 2]}
+        self.action_space = spaces.Discrete(3)
+        self.act_dict = {'fixation': 0, 'choice': [1, 2]}
+
+    def new_trial(self, **kwargs):
+        # Trial info
+        p1, p2 = self.p_pulse
+        if self.rng.random() < 0.5:
+            p1, p2 = p2, p1
+        pulse1 = (self.rng.random(self.n_bin) < p1) * 1.0
+        pulse2 = (self.rng.random(self.n_bin) < p2) * 1.0
+        self.trial = {'pulse1': pulse1, 'pulse2': pulse2}
+        self.trial.update(kwargs)
+
+        n_pulse1 = sum(pulse1)
+        n_pulse2 = sum(pulse2) + self.rng.uniform(-0.1, 0.1)
+        ground_truth = int(n_pulse1 < n_pulse2)
+        self.trial['ground_truth'] = ground_truth
+
+        # Periods
+        periods = ['fixation']
+        for i in range(self.n_bin):
+            periods += ['cue' + str(i), 'bin' + str(i)]
+        periods += ['decision']
+        self.add_period(periods, after=0, last_period=True)
+
+        # Observations
+        self.add_ob(1, where='fixation')
+        for i in range(self.n_bin):
+            self.add_ob(pulse1[i], 'cue' + str(i), where=1)
+            self.add_ob(pulse2[i], 'cue' + str(i), where=2)
+        self.set_ob(0, 'decision')
+
+        # Ground truth
+        self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+
+    def _step(self, action):
+        new_trial = False
+        # rewards
+        reward = 0
+        gt = self.gt_now
+        # observations
+        if self.in_period('decision'):
+            if action != 0:
+                new_trial = True
+                if action == gt:
+                    reward += self.rewards['correct']
+                    self.performance = 1
+                else:
+                    reward += self.rewards['fail']
+        else:
+            if action != 0:  # action = 0 means fixating
+                new_trial = self.abort
+                reward += self.rewards['abort']
+
+        return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
+
+
 if __name__ == '__main__':
     env = PerceptualDecisionMaking(dt=20,
                                    timing={'stimulus': ('constant', 500)})
