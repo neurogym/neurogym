@@ -84,7 +84,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         self.add_ob(1, period=['fixation', 'stimulus'], where='fixation')
         stim = np.cos(self.theta - stim_theta) * (coh/200) + 0.5
         self.add_ob(stim, 'stimulus', where='stimulus')
-        self.add_randn(0, self.sigma, 'stimulus')
+        self.add_randn(0, self.sigma, 'stimulus', where='stimulus')
 
         # Ground truth
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')

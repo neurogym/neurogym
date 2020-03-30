@@ -69,7 +69,8 @@ class ReadySetGo(ngym.PeriodEnv):
         self.add_period('production', duration=2*self.trial['production'],
                         after='set', last_period=True)
 
-        self.add_ob(1, 'fixation', where='fixation')
+        self.add_ob(1, where='fixation')
+        self.set_ob(0, 'production', where='fixation')
         self.add_ob(1, 'ready', where='ready')
         self.add_ob(1, 'set', where='set')
 
