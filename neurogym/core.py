@@ -335,18 +335,22 @@ class PeriodEnv(TrialEnv):
         """
         self._add_ob(value, period, where, reset=False)
 
-    def add_randn(self, mu=0, sigma=1, period=None):
+    def add_randn(self, mu=0, sigma=1, period=None, where=None):
         if isinstance(period, str) or period is None:
             pass
         else:
             for p in period:
-                self.add_randn(mu, sigma, p)
+                self.add_randn(mu, sigma, p, where)
             return
 
         ob = self.view_ob(period=period)
-        if mu:
-            ob += mu
-        ob += self.rng.randn(*ob.shape) * sigma
+        if where is None:
+            ob += mu + self.rng.randn(*ob.shape) * sigma
+        else:
+            if isinstance(where, str):
+                where = self.ob_dict[where]
+            # TODO: This only works if the slicing is one one-dimension
+            ob[..., where] += mu + self.rng.randn(*ob[..., where].shape) * sigma
 
     def set_ob(self, value, period=None, where=None):
         self._add_ob(value, period, where, reset=True)
