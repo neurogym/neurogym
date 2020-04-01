@@ -238,14 +238,15 @@ class CVLearning(ngym.PeriodEnv):
         if self.trials_counter > self.perf_len:
             self.inst_perf = np.mean(self.mov_perf)
             if self.inst_perf < self.min_perf and self.curr_ph == 2:
-                self.curr_ph = 1
-                self.stage_reminder = True
                 if 1 in self.stages:
-                    self.ind -= 1
-                else:
-                    self.stages = list(self.stages)
-                    self.stages.insert(self.ind, 1)
-                    self.w_keep.insert(self.ind, self.w_keep[self.ind])
+                    self.curr_ph = 1
+                    self.stage_reminder = True
+                    if 1 in self.stages:
+                        self.ind -= 1
+                    else:
+                        self.stages = list(self.stages)
+                        self.stages.insert(self.ind, 1)
+                        self.w_keep.insert(self.ind, self.w_keep[self.ind])
             elif self.inst_perf > self.th_perf and self.stage_reminder:
                 self.curr_ph = 2
                 self.ind += 1
