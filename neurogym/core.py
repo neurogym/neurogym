@@ -389,6 +389,23 @@ class TrialWrapper(gym.Wrapper):
     def new_trial(self, **kwargs):
         raise NotImplementedError('_new_trial need to be implemented')
 
+
+    def reset(self):
+        """
+        restarts the experiment with the same parameters
+        """
+        self.task.num_tr = 0
+        self.task.t = self.task.t_ind = 0
+
+        # TODO: Check this works with wrapper
+        # XXX: this does not seem to call the wrapper new_trial function, why?
+        self.new_trial()
+        # obs, _, _, _ = self.step(0)
+        self.task.action_space.seed(0)
+        obs, _, _, _ = self.task.step(self.action_space.sample())
+        return obs
+
+
     def step(self, action):
         """Public interface for the environment."""
         # TODO: Relying on private interface will break some gym behavior
