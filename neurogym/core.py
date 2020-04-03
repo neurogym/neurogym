@@ -38,7 +38,8 @@ def env_string(env):
         string += '\nPeriod timing (ms) \n'
         for key, val in timing.items():
             dist, args = val
-            string += key + ' : ' + tasktools.random_number_name(dist, args) + '\n'
+            string +=\
+                key + ' : ' + tasktools.random_number_name(dist, args) + '\n'
 
     if env.rewards:
         string += '\nReward structure \n'
@@ -74,9 +75,9 @@ class BaseEnv(gym.Env):
         self.rng.seed(seed)
         return [seed]
 
-    def reset(self):
+    def reset(self, new_tr_fn=None):
         """Do nothing. Run one step"""
-        return self.step(self.action_space.sample())
+        return self.step(self.action_space.sample(), new_tr_fn=new_tr_fn)
 
 
 class TrialEnv(BaseEnv):
@@ -116,7 +117,7 @@ class TrialEnv(BaseEnv):
         """
         raise NotImplementedError('_step is not defined by user.')
 
-    def step(self, action):
+    def step(self, action, new_tr_fn=None):
         """Public interface for the environment."""
         obs, reward, done, info = self._step(action)
 
@@ -134,10 +135,13 @@ class TrialEnv(BaseEnv):
             self.performance = 0
             self.t = self.t_ind = 0  # Reset within trial time count
             self.num_tr += 1  # Increment trial count
-            self.new_trial(info=info)
+            if new_tr_fn is None:
+                self.new_trial()
+            else:
+                new_tr_fn()
         return obs, reward, done, info
 
-    def reset(self):
+    def reset(self, new_tr_fn=None, step_fn=None):
         """
         restarts the experiment with the same parameters
         """
@@ -145,11 +149,17 @@ class TrialEnv(BaseEnv):
         self.t = self.t_ind = 0
 
         # TODO: Check this works with wrapper
-        # XXX: this does not seem to call the wrapper new_trial function, why?
-        self.new_trial()
-        # obs, _, _, _ = self.step(0)
+        if new_tr_fn is None:
+            self.new_trial()
+        else:
+            new_tr_fn()
         self.action_space.seed(0)
-        obs, _, _, _ = self.step(self.action_space.sample())
+        if step_fn is None:
+            obs, _, _, _ = self.step(self.action_space.sample(),
+                                     new_tr_fn=new_tr_fn)
+        else:
+            obs, _, _, _ = step_fn(self.action_space.sample(),
+                                   new_tr_fn=new_tr_fn)
         return obs
 
     def render(self, mode='human'):
@@ -209,8 +219,10 @@ class PeriodEnv(TrialEnv):
                                                              self.rng)
             min_tmp, _ = tasktools.minmax_number(dist, args)
             if min_tmp < self.dt:
-                warnings.warn('Warning: Minimum time for period {:s} {:f} smaller than dt {:f}'.format(
-                    key, min_tmp, self.dt))
+                warnings.warn('Warning: Minimum time for period ' +
+                              '{:s} {:f} smaller than dt {:f}'.format(key,
+                                                                      min_tmp,
+                                                                      self.dt))
             if min_tmp == self.dt:
                 warnings.warn('Warning: Period {:s} is {:f}'.format(key,
                                                                     min_tmp)
@@ -238,7 +250,8 @@ class PeriodEnv(TrialEnv):
             if duration is None:
                 duration = [None] * len(period)
             else:
-                assert len(duration) == len(period), 'duration and period must have same length'
+                assert len(duration) == len(period),\
+                    'duration and period must have same length'
 
             # Recursively calling itself
             self.add_period(period[0], duration=duration[0], after=after)
@@ -381,48 +394,27 @@ class PeriodEnv(TrialEnv):
 # TODO: How to prevent the repeated typing here?
 class TrialWrapper(gym.Wrapper):
     """Base class for wrapping TrialEnv"""
+
     def __init__(self, env):
         super().__init__(env)
         self.env = env
         self.task = self.unwrapped
 
     def new_trial(self, **kwargs):
-        raise NotImplementedError('_new_trial need to be implemented')
+        self.env.new_trial()
 
-
-    def reset(self):
+    def reset(self, new_tr_fn=None, step_fn=None):
         """
         restarts the experiment with the same parameters
         """
-        self.task.num_tr = 0
-        self.task.t = self.task.t_ind = 0
-
-        # TODO: Check this works with wrapper
-        # XXX: this does not seem to call the wrapper new_trial function, why?
-        self.new_trial()
-        # obs, _, _, _ = self.step(0)
-        self.task.action_space.seed(0)
-        obs, _, _, _ = self.task.step(self.action_space.sample())
+        ntr_fn = new_tr_fn or self.new_trial
+        stp_fn = step_fn or self.step
+        obs = self.env.reset(new_tr_fn=ntr_fn, step_fn=stp_fn)
         return obs
 
-
-    def step(self, action):
+    def step(self, action, new_tr_fn=None):
         """Public interface for the environment."""
         # TODO: Relying on private interface will break some gym behavior
-        # TODO: Manually updating task.t here is bad shouldn't allow other
-        # things to change it
-        obs, reward, done, info = self.task._step(action)
-        self.task.t += self.task.dt  # increment within trial time count
-        self.task.t_ind += 1
-
-        if self.task.t > self.task.tmax - self.task.dt and not info['new_trial']:
-            info['new_trial'] = True
-            reward += self.task.r_tmax
-
-        if info['new_trial']:
-            info['performance'] = self.task.performance
-            self.task.performance = 0
-            self.task.t = self.task.t_ind = 0  # Reset within trial time count
-            self.task.num_tr += 1  # Increment trial count
-            self.new_trial(info=info)  # new_trial from wrapper
+        ntr_fn = new_tr_fn or self.new_trial
+        obs, reward, done, info = self.env.step(action, new_tr_fn=ntr_fn)
         return obs, reward, done, info
