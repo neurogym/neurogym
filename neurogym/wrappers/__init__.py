@@ -9,6 +9,7 @@ from neurogym.wrappers.side_bias import SideBias
 from neurogym.wrappers.trial_hist import TrialHistory
 from neurogym.wrappers.ttl_pulse import TTLPulse
 from neurogym.wrappers.combine import Combine
+from neurogym.wrappers.identity import Identity
 
 
 ALL_WRAPPERS = {'CatchTrials-v0': 'neurogym.wrappers.catch_trials:CatchTrials',
@@ -25,7 +26,9 @@ ALL_WRAPPERS = {'CatchTrials-v0': 'neurogym.wrappers.catch_trials:CatchTrials',
                 'TTLPulse-v0':
                     'neurogym.wrappers.ttl_pulse:TTLPulse',
                 'Combine-v0':
-                    'neurogym.wrappers.combine:Combine'
+                    'neurogym.wrappers.combine:Combine',
+                'Identity-v0':
+                    'neurogym.wrappers.identity:Identity'
                 }
 
 

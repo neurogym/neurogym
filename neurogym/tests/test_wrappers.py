@@ -9,6 +9,7 @@ import neurogym as ngym
 from neurogym.wrappers import TrialHistory
 from neurogym.wrappers import SideBias
 from neurogym.wrappers import PassAction
+from neurogym.wrappers import Identity
 
 
 def test_sidebias(env_name, verbose=False):
@@ -42,11 +43,25 @@ def test_passaction(env_name, verbose=False):
             env.reset()
 
 
-def test_trialhist(env_name):
+def test_trialhist(env_name, num_steps=10000):
     env = gym.make(env_name)
-    env = TrialHistory(env, rep_prob=(.1, .9), block_dur=50)
+    env = TrialHistory(env, probs=.9, block_dur=50)
     env.reset()
-    for stp in range(10000):
+    for stp in range(num_steps):
+        action = env.action_space.sample()
+        obs, rew, done, info = env.step(action)
+        if done:
+            env.reset()
+
+
+def test_identity(env_name, num_steps=10000):
+    env = gym.make(env_name, **{'timing': {'fixation': ('constant', 100),
+                                           'stimulus': ('constant', 100),
+                                           'decision': ('constant', 100)}})
+    env = Identity(env)
+    env = Identity(env, id_='1')
+    env.reset()
+    for stp in range(num_steps):
         action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
         if done:
@@ -75,4 +90,6 @@ def test_all(test_fn):
 if __name__ == '__main__':
     # test_all(test_sidebias)
     # test_all(test_passaction)
-    test_all(test_trialhist)
+    # test_all(test_trialhist)
+    # test_trialhist('PerceptualDecisionMaking-v0', num_steps=100)
+    test_identity('Nothing-v0', num_steps=5)
