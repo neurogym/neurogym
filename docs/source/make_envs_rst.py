@@ -24,7 +24,7 @@ def main():
     string = 'Environments\n'
     string += '===================================\n\n'
 
-    for key, val in ALL_ENVS.items():
+    for key, val in sorted(ALL_ENVS.items()):
         string += key + '\n'+'-'*50+'\n'
         string += '.. autoclass:: ' + val.split(':')[0] + '.' + val.split(':')[1] + '\n'
         string += '    :members:\n'
