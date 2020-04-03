@@ -54,6 +54,8 @@ ALL_ENVS = {'ContextDecisionMaking-v0': 'neurogym.envs.contextdecisionmaking:Con
                 'neurogym.envs.dualdelaymatchsample:DualDelayedMatchToSample',
             'PulseDecisionMaking-v0':
                 'neurogym.envs.perceptualdecisionmaking:PulseDecisionMaking',
+            'Nothing-v0':
+                'neurogym.envs.nothing:Nothing'
             }
 
 
