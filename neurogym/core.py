@@ -181,13 +181,6 @@ class PeriodEnv(TrialEnv):
         self.gt = None
 
         self.timing = {}
-        # default_timing = self.metadata['timing'].copy()
-        # if timing is not None:
-        #     default_timing.update(timing)
-        # self.timing = default_timing
-        # self.timing_fn = dict()
-        # self.build_timing_fns()
-
         self.start_t = dict()
         self.end_t = dict()
         self.start_ind = dict()
@@ -272,8 +265,10 @@ class PeriodEnv(TrialEnv):
         """Initialize trial info with tmax, tind, obs"""
         tmax_ind = int(tmax/self.dt)
         self.tmax = tmax_ind * self.dt
-        self.ob = np.zeros([tmax_ind] + list(self.observation_space.shape))
-        self.gt = np.zeros([tmax_ind] + list(self.action_space.shape))
+        self.ob = np.zeros([tmax_ind] + list(self.observation_space.shape),
+                           dtype=self.observation_space.dtype)
+        self.gt = np.zeros([tmax_ind] + list(self.action_space.shape),
+                           dtype=self.action_space.dtype)
 
     def view_ob(self, period=None):
         """View observation of an period."""
