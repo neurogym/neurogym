@@ -26,13 +26,15 @@ class Nothing(ngym.TrialEnv):
         'tags': ['n-alternative', 'supervised']
     }
 
-    def __init__(self, dt=100, timing=None):
+    def __init__(self, dt=100, timing=None, verbose=False):
         super().__init__(dt=dt)
         # Rewards
         self.rewards = {'correct': +1.}
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(1,),
                                             dtype=np.float32)
+
+        self.verbose = verbose
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
@@ -46,7 +48,8 @@ class Nothing(ngym.TrialEnv):
         self.trial.update(kwargs)
         self.ob = np.zeros((1, self.observation_space.shape[0]))
         self.gt = np.array([0])
-        print('task new trial')
+        if self.verbose:
+            print('task new trial')
 
     def _step(self, action):
         trial = self.trial
@@ -58,5 +61,6 @@ class Nothing(ngym.TrialEnv):
             self.performance = 1
         else:
             reward = trial['rew_low_reward_arm']
-        print('task step')
+        if self.verbose:
+            print('task step')
         return obs, reward, False, info

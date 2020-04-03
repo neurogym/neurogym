@@ -8,7 +8,7 @@ import neurogym as ngym
 from .psychopy_env import PsychopyEnv
 
 
-class PerceptualDecisionMaking(PsychopyEnv):
+class RandomDotMotion(PsychopyEnv):
     """Two-alternative forced choice task in which the subject has to
     integrate two stimuli to decide which one is higher on average.
 
@@ -23,7 +23,7 @@ class PerceptualDecisionMaking(PsychopyEnv):
         'tags': ['perceptual', 'two-alternative', 'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None,
+    def __init__(self, dt=16, rewards=None, timing=None,
                  stim_scale=1., dim_ring=2, win_size=(100, 100)):
         super().__init__(dt=dt, win_size=win_size)
         # The strength of evidence, modulated by stim_scale
