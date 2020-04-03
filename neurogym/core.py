@@ -211,25 +211,6 @@ class PeriodEnv(TrialEnv):
             raise ValueError('Unknown dist:', str(dist))
         return (t // self.dt) * self.dt
 
-    def build_timing_fns_obsolete(self, **kwargs):
-        self.timing.update(kwargs)
-        for key, val in self.timing.items():
-            dist, args = val
-            self.timing_fn[key] = tasktools.random_number_fn(dist, args,
-                                                             self.rng)
-            min_tmp, _ = tasktools.minmax_number(dist, args)
-            if min_tmp < self.dt:
-                warnings.warn('Warning: Minimum time for period ' +
-                              '{:s} {:f} smaller than dt {:f}'.format(key,
-                                                                      min_tmp,
-                                                                      self.dt))
-            if min_tmp == self.dt:
-                warnings.warn('Warning: Period {:s} is {:f}'.format(key,
-                                                                    min_tmp)
-                              + ' and  lasts only one timestep. Agents will' +
-                              ' not have time to respond (e.g. make a choice)' +
-                              ' on time.')
-
     def add_period(self, period, duration=None, before=None, after=None,
                    last_period=False):
         """Add an period.
