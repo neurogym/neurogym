@@ -19,7 +19,7 @@ class PsychopyEnv(ngym.PeriodEnv):
         if sys.platform == 'darwin':
             # TODO: Check if this works across platform
             win_size = (int(win_size[0]/2), int(win_size[1]/2))
-        self.win = visual.Window(size=win_size)
+        self.win = visual.Window(size=win_size, color='black')
         self.win.backend.winHandle.set_visible(False)
         self.win.flip()
         im = self.win._getFrame()
@@ -48,7 +48,7 @@ class PsychopyEnv(ngym.PeriodEnv):
                     value.draw()
                     self.win.flip()
                     im = self.win._getFrame()
-                    ob[i] = np.array(im)
+                    ob[i] += np.array(im)
             else:
                 # Static stimuli
                 value.draw()
