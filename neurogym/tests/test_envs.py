@@ -111,6 +111,7 @@ def test_print_all():
 
     print('Success {:d}/{:d} envs'.format(success_count, total_count))
 
+
 def test_run_all(verbose_success=False):
     """Test if all environments can at least be run."""
     success_count = 0
@@ -160,16 +161,16 @@ def test_trialenv_all():
             print(e)
 
     print('Success {:d}/{:d} envs'.format(success_count, total_count))
-    print('{:d}/{:d} envs have self.trial after new_trial'.format(hastrial_count, success_count))
+    print('{:d}/{:d} envs have self.trial after new_trial'.format(hastrial_count,
+                                                                  success_count))
 
 
-def test_plot(env_name):
-    kwargs = {'dt': 13}
+def test_plot(env_name, num_steps=500, kwargs={'dt': 100}):
     env = gym.make(env_name, **kwargs)
 
     env.reset()
     observations = []
-    for stp in range(500):
+    for stp in range(num_steps):
         action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
         observations.append(obs)
@@ -238,19 +239,23 @@ def test_seeding(env, seed):
 
 
 if __name__ == '__main__':
+    plt.close('all')
     # test_seeding_all()
-    test_run_all()
+    # test_run_all()
     # test_speed_all()
     # test_trialenv_all()
     # test_print_all()
-    env_name = 'GoNogo-v0'
-    # env_name = 'PerceptualDecisionMaking-v0'
+    # env_name = 'GoNogo-v0'
+    env_name = 'PerceptualDecisionMaking-v0'
     # env_name = 'ContextDecisionMaking-v0'
     # env_name = 'NAltPerceptualDecisionMaking-v0'
     # env_name = 'DelayedMatchCategory-v0'
     # env_name = 'MemoryRecall-v0'
     # env_name = 'ReachingDelayResponse-v0'
     # test_run(env_name)
-    # test_plot(env_name)
+    kwargs = {'dt': 100, 'timing': {'fixation': ('constant', 200),
+                                    'stimulus': ('constant', 200),
+                                    'decision': ('constant', 200)}}
+    test_plot(env_name, kwargs=kwargs, num_steps=20)
     # test_speed(env_name)
     # plot_env(env_name)

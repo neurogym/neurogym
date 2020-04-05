@@ -25,24 +25,12 @@ class ReactionTime(ngym.TrialWrapper):
     def __init__(self, env):
         super().__init__(env)
         self.env = env
-        raise ValueError('Broken right now')
 
-    def new_trial(self, **kwargs):
-        # ---------------------------------------------------------------------
-        # Periods
-        # ---------------------------------------------------------------------
-        trial = self.env._new_trial()
-        trial['durations']['decision'] = (trial['durations']['fixation'][1],
-                                          trial['durations']['decision'][1])
-        return trial
-
-    def reset(self):
-        return self.env.reset()
-
-    def step(self, action):
-        obs, reward, done, info = self.env._step(action)
-
-        if info['new_trial']:
-            self.env.trial = self._new_trial()
-
+    def step(self, action, new_tr_fn=None):
+        assert 'stimulus' in self.env.start_t.keys(),\
+            'Reaction time wrapper requires a stimulus period'
+        if self.t_ind == 0:
+            self.env.start_t['response'] = self.env.start_t['stimulus']
+        ntr_fn = new_tr_fn or self.new_trial
+        obs, reward, done, info = self.env.step(action, new_tr_fn=ntr_fn)
         return obs, reward, done, info

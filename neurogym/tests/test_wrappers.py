@@ -2,8 +2,8 @@
 
 import numpy as np
 import gym
-from gym import spaces
-from gym.core import Wrapper
+# from gym import spaces
+# from gym.core import Wrapper
 import matplotlib.pyplot as plt
 import neurogym as ngym
 from neurogym.wrappers import TrialHistory
@@ -13,6 +13,7 @@ from neurogym.wrappers import PassReward
 from neurogym.wrappers import Identity
 from neurogym.wrappers import Noise
 from neurogym.wrappers import CatchTrials
+from neurogym.wrappers import ReactionTime
 
 
 def test_sidebias(env_name, num_steps=10000, verbose=False,
@@ -131,6 +132,46 @@ def test_catchtrials(env_name, num_steps=10000, verbose=False, catch_prob=0.1,
             env.reset()
 
 
+def test_reactiontime(env_name, num_steps=500, kwargs={'dt': 100},
+                      ths=[-1, 1]):
+    env = gym.make(env_name, **kwargs)
+    env = ReactionTime(env)
+    env.reset()
+    observations = []
+    obs_cum_mat = []
+    actions = []
+    new_trials = []
+    obs_cum = 0
+    for stp in range(num_steps):
+        if obs_cum > ths[1]:
+            action = 1
+        elif obs_cum < ths[0]:
+            action = 2
+        else:
+            action = 0
+        obs, rew, done, info = env.step(action)
+        if info['new_trial']:
+            obs_cum = 0
+        else:
+            obs_cum += obs[1] - obs[2]
+        observations.append(obs)
+        actions.append(action)
+        obs_cum_mat.append(obs_cum)
+        new_trials.append(info['new_trial'])
+
+    observations = np.array(observations)
+    plt.figure()
+    plt.subplot(3, 1, 1)
+    plt.imshow(observations.T, aspect='auto')
+    plt.subplot(3, 1, 2)
+    plt.plot(actions)
+    plt.subplot(3, 1, 3)
+    plt.plot(obs_cum_mat)
+    plt.plot([0, len(obs_cum_mat)], [ths[1], ths[1]], '--')
+    plt.plot([0, len(obs_cum_mat)], [ths[0], ths[0]], '--')
+    plt.show()
+
+
 def test_identity(env_name, num_steps=10000, **envArgs):
     env = gym.make(env_name, **envArgs)
     env = Identity(env)
@@ -179,5 +220,6 @@ if __name__ == '__main__':
     #                verbose=True, probs=0.99)
     # test_sidebias('NAltPerceptualDecisionMaking-v0', num_steps=10000,
     #               verbose=True, probs=[(0, 0, 1), (0, 1, 0), (1, 0, 0)])
-    test_catchtrials('PerceptualDecisionMaking-v0', num_steps=10000,
-                     verbose=True, catch_prob=0.5, alt_rew=0)
+    # test_catchtrials('PerceptualDecisionMaking-v0', num_steps=10000,
+    #                  verbose=True, catch_prob=0.5, alt_rew=0)
+    test_reactiontime('PerceptualDecisionMaking-v0', num_steps=100)
