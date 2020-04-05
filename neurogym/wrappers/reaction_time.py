@@ -30,7 +30,7 @@ class ReactionTime(ngym.TrialWrapper):
         assert 'stimulus' in self.env.start_t.keys(),\
             'Reaction time wrapper requires a stimulus period'
         if self.t_ind == 0:
-            self.env.start_t['response'] = self.env.start_t['stimulus']
+            self.env.start_t['decision'] = self.env.start_t['stimulus']
         ntr_fn = new_tr_fn or self.new_trial
         obs, reward, done, info = self.env.step(action, new_tr_fn=ntr_fn)
         return obs, reward, done, info

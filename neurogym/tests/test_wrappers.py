@@ -165,10 +165,12 @@ def test_reactiontime(env_name, num_steps=500, kwargs={'dt': 100},
     plt.imshow(observations.T, aspect='auto')
     plt.subplot(3, 1, 2)
     plt.plot(actions)
+    plt.xlim([-.5, len(actions)-0.5])
     plt.subplot(3, 1, 3)
     plt.plot(obs_cum_mat)
     plt.plot([0, len(obs_cum_mat)], [ths[1], ths[1]], '--')
     plt.plot([0, len(obs_cum_mat)], [ths[0], ths[0]], '--')
+    plt.xlim([-.5, len(actions)-0.5])
     plt.show()
 
 

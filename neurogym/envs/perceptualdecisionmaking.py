@@ -108,7 +108,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
             if action != 0:  # action = 0 means fixating
                 new_trial = self.abort
                 reward += self.rewards['abort']
-        elif self.in_period('response'):
+        elif self.in_period('decision'):
             if action != 0:
                 new_trial = True
                 if action == gt:

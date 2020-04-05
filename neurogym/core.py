@@ -283,9 +283,6 @@ class PeriodEnv(TrialEnv):
         if last_period:
             self._trial_built = True
             self._init_trial(start + duration)
-            # by default, response period is the last period added
-            self.start_t['response'] = self.start_t[period]
-            self.end_t['response'] = self.end_t[period]
         else:
             self._trial_built = False
 
