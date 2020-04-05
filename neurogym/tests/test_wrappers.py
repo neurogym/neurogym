@@ -12,6 +12,7 @@ from neurogym.wrappers import PassAction
 from neurogym.wrappers import PassReward
 from neurogym.wrappers import Identity
 from neurogym.wrappers import Noise
+from neurogym.wrappers import CatchTrials
 
 
 def test_sidebias(env_name, num_steps=10000, verbose=False,
@@ -24,16 +25,10 @@ def test_sidebias(env_name, num_steps=10000, verbose=False,
     for stp in range(num_steps):
         action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
-        if info['new_trial']:
-            if verbose:
-                print('Ground truth', info['gt'])
-                print('----------')
-                print('Block', env.curr_block)
-        # print(env.env.t)
-        # print('')
-        # print('Trial', env.unwrapped.num_tr)
-        # print('Within trial time', env.unwrapped.t_ind)
-        # print('Observation', obs)
+        if info['new_trial'] and verbose:
+            print('Ground truth', info['gt'])
+            print('----------')
+            print('Block', env.curr_block)
         if done:
             env.reset()
 
@@ -113,11 +108,27 @@ def test_trialhist(env_name, num_steps=10000, probs=0.8, verbose=False):
         obs, rew, done, info = env.step(action)
         if done:
             env.reset()
-        if info['new_trial']:
-            if verbose:
-                print('Ground truth', info['gt'])
-                print('------------')
-                print('Block', env.curr_block)
+        if info['new_trial'] and verbose:
+            print('Ground truth', info['gt'])
+            print('------------')
+            print('Block', env.curr_block)
+
+
+def test_catchtrials(env_name, num_steps=10000, verbose=False, catch_prob=0.1,
+                     alt_rew=0):
+    env = gym.make(env_name)
+    env = CatchTrials(env, catch_prob=catch_prob, alt_rew=alt_rew)
+    env.reset()
+    for stp in range(num_steps):
+        action = env.action_space.sample()
+        obs, rew, done, info = env.step(action)
+        if info['new_trial'] and verbose:
+            print('Perfomance', (info['gt']-action) < 0.00001)
+            print('catch-trial', info['catch_trial'])
+            print('Reward', rew)
+            print('-------------')
+        if done:
+            env.reset()
 
 
 def test_identity(env_name, num_steps=10000, **envArgs):
@@ -168,3 +179,5 @@ if __name__ == '__main__':
     #                verbose=True, probs=0.99)
     # test_sidebias('NAltPerceptualDecisionMaking-v0', num_steps=10000,
     #               verbose=True, probs=[(0, 0, 1), (0, 1, 0), (1, 0, 0)])
+    test_catchtrials('PerceptualDecisionMaking-v0', num_steps=10000,
+                     verbose=True, catch_prob=0.5, alt_rew=0)
