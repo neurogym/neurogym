@@ -14,17 +14,21 @@ from neurogym.wrappers import Identity
 from neurogym.wrappers import Noise
 
 
-def test_sidebias(env_name, verbose=False):
+def test_sidebias(env_name, num_steps=10000, verbose=False,
+                  probs=[(.005, .005, .99),
+                         (.005, .99, .005),
+                         (.99, .005, .005)]):
     env = gym.make(env_name)
-    env = SideBias(env, prob=[(0, 1), (1, 0)], block_dur=10)
+    env = SideBias(env, probs=probs, block_dur=10)
     env.reset()
-    for stp in range(10000):
+    for stp in range(num_steps):
         action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
         if info['new_trial']:
             if verbose:
-                print('Block', env.curr_block)
                 print('Ground truth', info['gt'])
+                print('----------')
+                print('Block', env.curr_block)
         # print(env.env.t)
         # print('')
         # print('Trial', env.unwrapped.num_tr)
@@ -100,15 +104,20 @@ def test_noise(env_name, random_bhvr=0., wrapper=None, perf_th=None,
         plt.plot(std_mat)
 
 
-def test_trialhist(env_name, num_steps=10000):
+def test_trialhist(env_name, num_steps=10000, probs=0.8, verbose=False):
     env = gym.make(env_name)
-    env = TrialHistory(env, probs=.9, block_dur=50)
+    env = TrialHistory(env, probs=probs, block_dur=50)
     env.reset()
     for stp in range(num_steps):
         action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
         if done:
             env.reset()
+        if info['new_trial']:
+            if verbose:
+                print('Ground truth', info['gt'])
+                print('------------')
+                print('Block', env.curr_block)
 
 
 def test_identity(env_name, num_steps=10000, **envArgs):
@@ -147,16 +156,15 @@ if __name__ == '__main__':
     env_args = {'timing': {'fixation': ('constant', 100),
                            'stimulus': ('constant', 100),
                            'decision': ('constant', 100)}}
-    # test_all(test_sidebias)
-    # test_all(test_passaction)
-    # test_all(test_trialhist)
-    # test_trialhist('PerceptualDecisionMaking-v0', num_steps=100)
+    # test_identity('Nothing-v0', num_steps=5)
     # test_passreward('PerceptualDecisionMaking-v0', num_steps=10, verbose=True,
     #                 **env_args)
     # test_passaction('PerceptualDecisionMaking-v0', num_steps=10, verbose=True,
     #                 **env_args)
-    test_noise('PerceptualDecisionMaking-v0', random_bhvr=0.,
-               wrapper=PassAction, perf_th=0.7, num_steps=100000,
-               verbose=True, **env_args)
-
-    # test_identity('Nothing-v0', num_steps=5)
+    # test_noise('PerceptualDecisionMaking-v0', random_bhvr=0.,
+    #            wrapper=PassAction, perf_th=0.7, num_steps=100000,
+    #            verbose=True, **env_args)
+    # test_trialhist('NAltPerceptualDecisionMaking-v0', num_steps=10000,
+    #                verbose=True, probs=0.99)
+    # test_sidebias('NAltPerceptualDecisionMaking-v0', num_steps=10000,
+    #               verbose=True, probs=[(0, 0, 1), (0, 1, 0), (1, 0, 0)])
