@@ -241,12 +241,7 @@ class CVLearning(ngym.PeriodEnv):
                 if 1 in self.stages:
                     self.curr_ph = 1
                     self.stage_reminder = True
-                    if 1 in self.stages:
-                        self.ind -= 1
-                    else:
-                        self.stages = list(self.stages)
-                        self.stages.insert(self.ind, 1)
-                        self.w_keep.insert(self.ind, self.w_keep[self.ind])
+                    self.ind -= 1
             elif self.inst_perf > self.th_perf and self.stage_reminder:
                 self.curr_ph = 2
                 self.ind += 1
