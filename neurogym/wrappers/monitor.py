@@ -68,7 +68,8 @@ class Monitor(ngym.TrialWrapper):
             self.gt_mat = []
             self.perf_mat = []
 
-    def step(self, action):
+    def step(self, action, new_tr_fn=None):
+        ntr_fn = new_tr_fn or self.new_trial
         obs, rew, done, info = self.env.step(action)
         self.cum_obs += obs
         self.cum_rew += rew

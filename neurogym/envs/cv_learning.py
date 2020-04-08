@@ -169,7 +169,8 @@ class CVLearning(ngym.PeriodEnv):
                    self.inc_delays < 1:
                     self.inc_delays += self.inc_factor
                     self.trials_delay = 0
-                elif self.inst_perf <= self.dec_delays_th and self.inc_delays > self.delay_milestone:
+                elif (self.inst_perf <= self.dec_delays_th and
+                      self.inc_delays > self.delay_milestone):
                     self.inc_delays -= self.inc_factor
                     self.trials_delay = 0
             self.dur = [int(d*self.inc_delays) for d in self.delay_durs]
@@ -262,7 +263,6 @@ class CVLearning(ngym.PeriodEnv):
             else:
                 self.keep_stage = False
                 self.days_keep = self.w_keep[self.ind]
-
             if self.keep_stage:
                 if self.days_keep <= 0 and\
                    self.curr_ph < self.stages[-1]:
@@ -271,7 +271,6 @@ class CVLearning(ngym.PeriodEnv):
                     self.days_keep = self.w_keep[self.ind] + 1
                     self.keep_stage = False
                 self.days_keep -= 1
-
 
     def _step(self, action):
         # obs, reward, done, info = self.env._step(action)
@@ -322,6 +321,6 @@ class CVLearning(ngym.PeriodEnv):
 
 
 if __name__ == '__main__':
-    env = CVLearning(stages=[0,1,2],trials_day=1,keep_days=1)
+    env = CVLearning(stages=[0, 1, 2], trials_day=1, keep_days=1)
     data = ngym.utils.plot_env(env, num_steps=100,
                                obs_traces=['Fixation Cue', 'Stim1', 'Stim2'])
