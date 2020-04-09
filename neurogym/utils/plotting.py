@@ -137,6 +137,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     return data
 
 
+# TODO: Change name, fig_ not a good name
 def fig_(obs, actions, gt=None, rewards=None, performance=None, states=None,
          legend=True, obs_traces=None, name='', fname=None, fig_kwargs={},
          env=None):
@@ -162,21 +163,21 @@ def fig_(obs, actions, gt=None, rewards=None, performance=None, states=None,
     actions = np.array(actions)
 
     if len(obs.shape) == 2:
-        return _plot_env_1dbox(
+        return plot_env_1dbox(
             obs, actions, gt=gt, rewards=rewards,
             performance=performance, states=states, legend=legend,
             obs_traces=obs_traces, name=name, fname=fname,
             fig_kwargs=fig_kwargs, env=env
         )
     elif len(obs.shape) == 4:
-        return _plot_env_3dbox(
+        return plot_env_3dbox(
             obs, actions, fname=fname, env=env
         )
     else:
         raise ValueError('obs shape {} not supported'.format(str(obs.shape)))
 
 
-def _plot_env_1dbox(
+def plot_env_1dbox(
         obs, actions, gt=None, rewards=None, performance=None, states=None,
         legend=True, obs_traces=None, name='', fname=None, fig_kwargs={},
         env=None):
@@ -317,7 +318,7 @@ def _plot_env_1dbox(
     return f
 
 
-def _plot_env_3dbox(obs, actions=None, fname='', env=None):
+def plot_env_3dbox(obs, actions=None, fname='', env=None):
     """Plot environment with 3-D Box observation space."""
     fig = plt.figure()
     ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
