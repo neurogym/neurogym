@@ -4,6 +4,7 @@ import glob
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 import gym
 
@@ -15,7 +16,7 @@ mpl.rcParams['font.family'] = 'arial'
 
 
 def plot_env(env, num_steps=200, num_trials=None, def_act=None, model=None,
-             name=None, legend=True, obs_traces=[], fig_kwargs={}, folder=''):
+             name=None, legend=True, obs_traces=[], fig_kwargs={}, fname=None):
     """Plot environment with agent.
 
     Args:
@@ -33,6 +34,7 @@ def plot_env(env, num_steps=200, num_trials=None, def_act=None, model=None,
         obs_traces: if != [] observations will be plot as traces, with the labels
                     specified by obs_traces
         fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
+        fname: if not None, save fig or movie to fname
     """
     # We don't use monitor here because:
     # 1) env could be already prewrapped with monitor
@@ -50,7 +52,7 @@ def plot_env(env, num_steps=200, num_trials=None, def_act=None, model=None,
         gt=data['gt'], rewards=data['rewards'],
         legend=legend, performance=data['perf'],
         states=data['states'], name=name, obs_traces=obs_traces,
-        fig_kwargs=fig_kwargs, env=env, folder=folder
+        fig_kwargs=fig_kwargs, env=env, fname=fname
     )
 
     return fig
@@ -136,7 +138,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
 
 
 def fig_(obs, actions, gt=None, rewards=None, performance=None, states=None,
-         legend=True, obs_traces=None, name='', folder='', fig_kwargs={},
+         legend=True, obs_traces=None, name='', fname=None, fig_kwargs={},
          env=None):
     """Visualize a run in a simple environment.
 
@@ -148,7 +150,7 @@ def fig_(obs, actions, gt=None, rewards=None, performance=None, states=None,
         performance: np array of performance
         states: np array of network states
         name: title to show on the rewards panel and name to save figure
-        folder: if != '', where to save the figure
+        fname: if != '', where to save the figure
         legend: whether to show the legend for actions panel or not.
         obs_traces: None or list.
             If list, observations will be plot as traces, with the labels
@@ -159,17 +161,24 @@ def fig_(obs, actions, gt=None, rewards=None, performance=None, states=None,
     obs = np.array(obs)
     actions = np.array(actions)
 
-    return _plot_env_1dbox(
-        obs, actions, gt=gt, rewards=rewards,
-        performance=performance, states=states, legend=legend,
-        obs_traces=obs_traces, name=name, folder=folder,
-        fig_kwargs=fig_kwargs, env=env
-    )
+    if len(obs.shape) == 2:
+        return _plot_env_1dbox(
+            obs, actions, gt=gt, rewards=rewards,
+            performance=performance, states=states, legend=legend,
+            obs_traces=obs_traces, name=name, fname=fname,
+            fig_kwargs=fig_kwargs, env=env
+        )
+    elif len(obs.shape) == 4:
+        return _plot_env_3dbox(
+            obs, actions, fname=fname, env=env
+        )
+    else:
+        raise ValueError('obs shape {} not supported'.format(str(obs.shape)))
 
 
 def _plot_env_1dbox(
         obs, actions, gt=None, rewards=None, performance=None, states=None,
-        legend=True, obs_traces=None, name='', folder='', fig_kwargs={},
+        legend=True, obs_traces=None, name='', fname=None, fig_kwargs={},
         env=None):
     """Plot environment with 1-D Box observation space."""
     if len(obs.shape) != 2:
@@ -300,13 +309,36 @@ def _plot_env_1dbox(
 
     ax.set_xlabel('Steps')
     plt.tight_layout()
-    if folder is not None and folder != '':
-        if folder.endswith('.png') or folder.endswith('.svg'):
-            f.savefig(folder)
-        else:
-            f.savefig(folder + name + 'env_struct.png')
+    if fname:
+        if not (fname.endswith('.png') or fname.endswith('.svg')):
+            fname += '.png'
+        f.savefig(fname, dpi=300)
         plt.close(f)
     return f
+
+
+def _plot_env_3dbox(obs, actions=None, fname='', env=None):
+    """Plot environment with 3-D Box observation space."""
+    fig = plt.figure()
+    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+    ax.axis('off')
+    im = ax.imshow(obs[0], animated=True)
+
+    def animate(i, *args, **kwargs):
+        im.set_array(obs[i])
+        return im,
+
+    if env is not None:
+        interval = env.dt
+    else:
+        interval = 50
+    ani = animation.FuncAnimation(fig, animate, frames=obs.shape[0],
+                                  interval=interval)
+    writer = animation.writers['ffmpeg'](fps=int(1000/interval))
+    if fname:
+        if not fname.endswith('.mp4'):
+            fname += '.mp4'
+        ani.save(fname, writer=writer, dpi=300)
 
 
 def plot_rew_across_training(folder, window=500, ax=None,
