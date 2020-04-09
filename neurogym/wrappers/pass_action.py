@@ -23,12 +23,8 @@ class PassAction(ngym.TrialWrapper):
                                             shape=(env_oss+1,),
                                             dtype=np.float32)
 
-    def reset(self):
-        obs = self.env.reset()
-        return np.concatenate((obs, np.array([0])))
-
-    def step(self, action):
-        # TODO: Need to turn action into one-hot
-        obs, reward, done, info = self.env.step(action)
+    def step(self, action, new_tr_fn=None):
+        ntr_fn = new_tr_fn or self.new_trial
+        obs, reward, done, info = self.env.step(action, new_tr_fn=ntr_fn)
         obs = np.concatenate((obs, np.array([action])))
         return obs, reward, done, info

@@ -247,8 +247,7 @@ class PeriodEnv(TrialEnv):
         elif before is not None:
             start = self.start_t[before] - duration
         else:
-            #  XXX: after or before?
-            raise ValueError('''before or start can not be both None''')
+            raise ValueError('''before and after can not be both None''')
 
         self.start_t[period] = start
         self.end_t[period] = start + duration

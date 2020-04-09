@@ -20,7 +20,7 @@ class SideBias(ngym.TrialWrapper):
         'paper_name': None
     }
 
-    def __init__(self, env, prob=None, block_dur=200):
+    def __init__(self, env, probs=None, block_dur=200):
         super().__init__(env)
         try:
             self.choices = self.task.choices
@@ -28,8 +28,8 @@ class SideBias(ngym.TrialWrapper):
             raise AttributeError('''SideBias requires task
                                  to have attribute choices''')
         assert isinstance(self.task, ngym.TrialEnv), 'Task has to be TrialEnv'
-        assert prob is not None, 'Please provide choices probabilities'
-        self.choice_prob = np.array(prob)
+        assert probs is not None, 'Please provide choices probabilities'
+        self.choice_prob = np.array(probs)
         assert self.choice_prob.shape[1] == len(self.choices),\
             'The number of choices {:d} inferred from prob mismatchs {:d} inferred from choices'.format(
                 self.choice_prob.shape[1], len(self.choices))
@@ -46,8 +46,7 @@ class SideBias(ngym.TrialWrapper):
                 curr_block = self.task.rng.choice(range(self.n_block))
             self.curr_block = curr_block
         probs = self.choice_prob[self.curr_block]
-
         kwargs = dict()
-        kwargs['ground_truth'] = self.task.rng.choices(self.choices,
-                                                       weights=probs)[0]
+        kwargs['ground_truth'] = self.task.rng.choice(self.choices,
+                                                      p=probs)
         return self.env.new_trial(**kwargs)

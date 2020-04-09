@@ -53,7 +53,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         self.ob_dict = {'fixation': 0, 'stimulus': range(1, dim_ring+1)}
         self.action_space = spaces.Discrete(1+dim_ring)
         self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring+1)}
-            
+
     def new_trial(self, **kwargs):
         """
         new_trial() is called when a trial ends to generate the next trial.
@@ -142,7 +142,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
                  sigma=1.5):
         super().__init__(dt=dt)
         self.choices = [1, 2]
-        # cohs specifies the amount of evidence (which is modulated by stim_scale)
+        # cohs specifies the amount of evidence (modulated by stim_scale)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stim_scale
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
@@ -258,7 +258,7 @@ class PulseDecisionMaking(ngym.PeriodEnv):
     """
     metadata = {
         'paper_link': 'https://elifesciences.org/articles/11308',
-        'paper_name': '''Sources of noise during accumulation of evidence in 
+        'paper_name': '''Sources of noise during accumulation of evidence in
         unrestrained and voluntarily head-restrained rats''',
         'tags': ['perceptual', 'two-alternative', 'supervised']
     }
