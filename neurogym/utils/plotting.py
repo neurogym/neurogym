@@ -137,7 +137,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
 
 def fig_(obs, actions, gt=None, rewards=None, performance=None, states=None,
          legend=True, obs_traces=None, name='', folder='', fig_kwargs={},
-         env=None, sv_data=False):
+         env=None):
     """Visualize a run in a simple environment.
 
     Args:
@@ -155,12 +155,23 @@ def fig_(obs, actions, gt=None, rewards=None, performance=None, states=None,
             specified by obs_traces
         fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
         env: environment class for extra information
-        sv_data: bool. If True, save data. Default False.
     """
-    if sv_data:
-        data = {'obs': obs, 'actions': actions}
     obs = np.array(obs)
     actions = np.array(actions)
+
+    return _plot_env_1dbox(
+        obs, actions, gt=gt, rewards=rewards,
+        performance=performance, states=states, legend=legend,
+        obs_traces=obs_traces, name=name, folder=folder,
+        fig_kwargs=fig_kwargs, env=env
+    )
+
+
+def _plot_env_1dbox(
+        obs, actions, gt=None, rewards=None, performance=None, states=None,
+        legend=True, obs_traces=None, name='', folder='', fig_kwargs={},
+        env=None):
+    """Plot environment with 1-D Box observation space."""
     if len(obs.shape) != 2:
         raise ValueError('obs has to be 2-dimensional.')
     steps = np.arange(obs.shape[0])  # XXX: +1? 1st obs doesn't have action/gt
@@ -217,8 +228,6 @@ def fig_(obs, actions, gt=None, rewards=None, performance=None, states=None,
         ax.plot(steps, actions, marker='+', label='Actions')
     if gt is not None:
         gt = np.array(gt)
-        if sv_data:
-            data['gt'] = gt
         if len(gt.shape) > 1:
             for ind_gt in range(gt.shape[1]):
                 ax.plot(steps, gt[:, ind_gt], '--'+gt_colors[ind_gt],
@@ -243,8 +252,6 @@ def fig_(obs, actions, gt=None, rewards=None, performance=None, states=None,
 
     # rewards
     if rewards is not None:
-        if sv_data:
-            data['rewards'] = rewards
         ax = axes[i_ax]
         i_ax += 1
         ax.plot(steps, rewards, 'r', label='Rewards')
@@ -266,8 +273,6 @@ def fig_(obs, actions, gt=None, rewards=None, performance=None, states=None,
             ax.set_yticklabels(yticklabels)
 
     if performance is not None:
-        if sv_data:
-            data['performance'] = performance
         ax = axes[i_ax]
         i_ax += 1
         ax.plot(steps, performance, 'k', label='Performance')
@@ -283,8 +288,6 @@ def fig_(obs, actions, gt=None, rewards=None, performance=None, states=None,
 
     # states
     if states is not None:
-        if sv_data:
-            data['states'] = states                
         ax.set_xticks([])
         ax = axes[i_ax]
         i_ax += 1
@@ -303,8 +306,6 @@ def fig_(obs, actions, gt=None, rewards=None, performance=None, states=None,
         else:
             f.savefig(folder + name + 'env_struct.png')
         plt.close(f)
-        if sv_data:
-            np.savez(folder + name + 'env_struct.npz', **data)
     return f
 
 

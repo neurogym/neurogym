@@ -23,8 +23,8 @@ class RandomDotMotion(PsychopyEnv):
         'tags': ['perceptual', 'two-alternative', 'supervised']
     }
 
-    def __init__(self, dt=16, rewards=None, timing=None,
-                 stim_scale=1., dim_ring=2, win_size=(100, 100)):
+    def __init__(self, dt=16, win_size=(100, 100), rewards=None, timing=None,
+                 stim_scale=1., dim_ring=2):
         super().__init__(dt=dt, win_size=win_size)
         # The strength of evidence, modulated by stim_scale
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stim_scale

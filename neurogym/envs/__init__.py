@@ -75,8 +75,10 @@ ALL_NATIVE_ENVS = {
 }
 
 ALL_PSYPY_ENVS = {
-    'psypy.RandomDotMotion-v0':
+    'psychopy.RandomDotMotion-v0':
         'neurogym.envs.psychopy.perceptualdecisionmaking:RandomDotMotion',
+    'psychopy.VisualSearch-v0':
+        'neurogym.envs.psychopy.visualsearch:VisualSearch',
 }
 
 ALL_ENVS = {**ALL_NATIVE_ENVS, **ALL_PSYPY_ENVS}
