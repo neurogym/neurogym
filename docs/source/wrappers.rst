@@ -67,3 +67,9 @@ Combine-v0
     :members:
     :exclude-members: new_trial
 
+Identity-v0
+--------------------------------------------------
+.. autoclass:: neurogym.wrappers.identity.Identity
+    :members:
+    :exclude-members: new_trial
+

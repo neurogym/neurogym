@@ -109,3 +109,4 @@ venv.bak/
 *tmp.py
 figures/
 docs/source/images/
+.DS_Store

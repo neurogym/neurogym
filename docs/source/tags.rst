@@ -62,6 +62,7 @@ n-alternative
 --------------------------------
     :class:`Bandit-v0 <neurogym.envs.bandit.Bandit>`
     :class:`NAltPerceptualDecisionMaking-v0 <neurogym.envs.nalt_perceptualdecisionmaking.nalt_PerceptualDecisionMaking>`
+    :class:`Nothing-v0 <neurogym.envs.nothing.Nothing>`
 
 .. _tag-perceptual:
 
@@ -89,6 +90,8 @@ perceptual
     :class:`ProbabilisticReasoning-v0 <neurogym.envs.weatherprediction.ProbabilisticReasoning>`
     :class:`PulseDecisionMaking-v0 <neurogym.envs.perceptualdecisionmaking.PulseDecisionMaking>`
     :class:`ReachingDelayResponse-v0 <neurogym.envs.reachingdelayresponse.ReachingDelayResponse>`
+    :class:`psychopy.RandomDotMotion-v0 <neurogym.envs.psychopy.perceptualdecisionmaking.RandomDotMotion>`
+    :class:`psychopy.VisualSearch-v0 <neurogym.envs.psychopy.visualsearch.VisualSearch>`
 
 .. _tag-reaction time:
 
@@ -127,6 +130,7 @@ supervised
     :class:`MotorTiming-v0 <neurogym.envs.readysetgo.MotorTiming>`
     :class:`MultiSensoryIntegration-v0 <neurogym.envs.multisensory.MultiSensoryIntegration>`
     :class:`NAltPerceptualDecisionMaking-v0 <neurogym.envs.nalt_perceptualdecisionmaking.nalt_PerceptualDecisionMaking>`
+    :class:`Nothing-v0 <neurogym.envs.nothing.Nothing>`
     :class:`OneTwoThreeGo-v0 <neurogym.envs.readysetgo.OneTwoThreeGo>`
     :class:`PerceptualDecisionMaking-v0 <neurogym.envs.perceptualdecisionmaking.PerceptualDecisionMaking>`
     :class:`PerceptualDecisionMakingDelayResponse-v0 <neurogym.envs.perceptualdecisionmaking.PerceptualDecisionMakingDelayResponse>`
@@ -134,6 +138,8 @@ supervised
     :class:`PulseDecisionMaking-v0 <neurogym.envs.perceptualdecisionmaking.PulseDecisionMaking>`
     :class:`ReachingDelayResponse-v0 <neurogym.envs.reachingdelayresponse.ReachingDelayResponse>`
     :class:`ReadySetGo-v0 <neurogym.envs.readysetgo.ReadySetGo>`
+    :class:`psychopy.RandomDotMotion-v0 <neurogym.envs.psychopy.perceptualdecisionmaking.RandomDotMotion>`
+    :class:`psychopy.VisualSearch-v0 <neurogym.envs.psychopy.visualsearch.VisualSearch>`
 
 .. _tag-timing:
 
@@ -165,6 +171,7 @@ two-alternative
     :class:`PerceptualDecisionMakingDelayResponse-v0 <neurogym.envs.perceptualdecisionmaking.PerceptualDecisionMakingDelayResponse>`
     :class:`ProbabilisticReasoning-v0 <neurogym.envs.weatherprediction.ProbabilisticReasoning>`
     :class:`PulseDecisionMaking-v0 <neurogym.envs.perceptualdecisionmaking.PulseDecisionMaking>`
+    :class:`psychopy.RandomDotMotion-v0 <neurogym.envs.psychopy.perceptualdecisionmaking.RandomDotMotion>`
 
 .. _tag-value-based:
 
