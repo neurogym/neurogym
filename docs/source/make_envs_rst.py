@@ -14,8 +14,8 @@ def make_env_images():
     for env_name in envs:
         env = gym.make(env_name, **{'dt': 20})
         action = np.zeros_like(env.action_space.sample())
-        f = ngym.utils.plot_env(env, num_trials=2, def_act=action)
-        f.savefig('images/' + env_name + '_examplerun.png', dpi=300)
+        fname = os.path.join('images', env_name + '_examplerun')
+        ngym.utils.plot_env(env, num_trials=2, def_act=action, fname=fname)
         plt.close()
 
 

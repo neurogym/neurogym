@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import division
-from sklearn.linear_model import LogisticRegression
 import numpy as np
 from gym import spaces
 import neurogym as ngym

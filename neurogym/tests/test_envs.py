@@ -239,9 +239,9 @@ def test_seeding(env, seed):
 
 
 if __name__ == '__main__':
-    plt.close('all')
+    # plt.close('all')
     # test_seeding_all()
-    # test_run_all()
+    test_run_all()
     # test_speed_all()
     # test_trialenv_all()
     # test_print_all()
@@ -256,6 +256,6 @@ if __name__ == '__main__':
     kwargs = {'dt': 100, 'timing': {'fixation': ('constant', 200),
                                     'stimulus': ('constant', 200),
                                     'decision': ('constant', 200)}}
-    test_plot(env_name, kwargs=kwargs, num_steps=20)
+    # test_plot(env_name, kwargs=kwargs, num_steps=20)
     # test_speed(env_name)
     # plot_env(env_name)

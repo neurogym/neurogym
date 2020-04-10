@@ -347,6 +347,22 @@ NAltPerceptualDecisionMaking-v0
         .. image:: images/NAltPerceptualDecisionMaking-v0_examplerun.png
             :width: 600
 
+Nothing-v0
+--------------------------------------------------
+.. autoclass:: neurogym.envs.nothing.Nothing
+    :members:
+    :exclude-members: new_trial
+
+    Reference paper
+        `Prefrontal cortex as a meta-reinforcement learning system <https://www.nature.com/articles/s41593-018-0147-8>`__
+
+    Tags
+        :ref:`tag-n-alternative`,         :ref:`tag-supervised`
+
+    Sample run
+        .. image:: images/Nothing-v0_examplerun.png
+            :width: 600
+
 OneTwoThreeGo-v0
 --------------------------------------------------
 .. autoclass:: neurogym.envs.readysetgo.OneTwoThreeGo
@@ -434,7 +450,7 @@ PulseDecisionMaking-v0
     :exclude-members: new_trial
 
     Reference paper
-        `Sources of noise during accumulation of evidence in          unrestrained and voluntarily head-restrained rats <https://elifesciences.org/articles/11308>`__
+        `Sources of noise during accumulation of evidence in         unrestrained and voluntarily head-restrained rats <https://elifesciences.org/articles/11308>`__
 
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
@@ -501,3 +517,29 @@ ReadySetGo-v0
         .. image:: images/ReadySetGo-v0_examplerun.png
             :width: 600
 
+psychopy.RandomDotMotion-v0
+--------------------------------------------------
+.. autoclass:: neurogym.envs.psychopy.perceptualdecisionmaking.RandomDotMotion
+    :members:
+    :exclude-members: new_trial
+
+    Reference paper
+        `The analysis of visual motion: a comparison of         neuronal and psychophysical performance <https://www.jneurosci.org/content/12/12/4745>`__
+
+    Tags
+        :ref:`tag-perceptual`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
+
+    Sample run
+psychopy.VisualSearch-v0
+--------------------------------------------------
+.. autoclass:: neurogym.envs.psychopy.visualsearch.VisualSearch
+    :members:
+    :exclude-members: new_trial
+
+    Reference paper
+        `Top-down versus bottom-up control of attention          in the prefrontal and posterior parietal cortices <https://science.sciencemag.org/content/315/5820/1860>`__
+
+    Tags
+        :ref:`tag-perceptual`,         :ref:`tag-supervised`
+
+    Sample run
