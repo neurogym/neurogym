@@ -20,6 +20,11 @@ extras = {
 # Meta dependency groups.
 extras['all'] = [item for group in extras.values() for item in group]
 
+# For developers
+extras['dev'] = extras['all'] + [
+    'jupyter', 'sphinx', 'sphinx_rtd_theme', 'sphinxcontrib.katex', 'nbsphinx'
+]
+
 setup(name='neurogym',
       packages=[package for package in find_packages()
                 if package.startswith('neurogym')],
