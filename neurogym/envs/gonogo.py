@@ -93,4 +93,5 @@ class GoNogo(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = GoNogo()
+    env.reset()
     ngym.utils.plot_env(env, def_act=0)

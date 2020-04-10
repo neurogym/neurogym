@@ -14,6 +14,8 @@ from neurogym.wrappers import Identity
 from neurogym.wrappers import Noise
 from neurogym.wrappers import CatchTrials
 from neurogym.wrappers import ReactionTime
+from neurogym.wrappers import TTLPulse
+from neurogym.wrappers import TransferLearning
 
 
 def test_sidebias(env_name, num_steps=10000, verbose=False,
@@ -63,6 +65,73 @@ def test_passreward(env_name, num_steps=10000, verbose=False, **envArgs):
             print('--------')
         if done:
             env.reset()
+
+
+def test_ttlpulse(env_name, num_steps=10000, verbose=False, **envArgs):
+    env = gym.make(env_name, **envArgs)
+    env = TTLPulse(env, periods=[['stimulus'], ['decision']])
+    env.reset()
+    obs_mat = []
+    signals = []
+    for stp in range(num_steps):
+        action = env.action_space.sample()
+        obs, rew, done, info = env.step(action)
+        if verbose:
+            obs_mat.append(obs)
+            signals.append([info['signal_0'], info['signal_1']])
+            print('--------')
+
+        if done:
+            env.reset()
+    if verbose:
+        plt.figure()
+        plt.subplot(2, 1, 1)
+        plt.title('Observations')
+        plt.imshow(np.array(obs_mat).T, aspect='auto')
+        plt.subplot(2, 1, 2)
+        plt.title('Pulses')
+        plt.plot(signals)
+        plt.xlim([-.5, num_steps-.5])
+
+
+def test_transferLearning(env_names, num_steps=10000, verbose=False, **envArgs):
+    task = 'GoNogo-v0'
+    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
+                                    'stimulus': ('constant', 100),
+                                    'resp_delay': ('constant', 100),
+                                    'decision': ('constant', 100)}}
+    env1 = gym.make(task, **KWARGS)
+
+    task = 'PerceptualDecisionMaking-v0'
+    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 100),
+                                    'stimulus': ('constant', 100),
+                                    'decision': ('constant', 100)}}
+    env2 = gym.make(task, **KWARGS)
+
+    env = TransferLearning([env1, env2], num_tr_per_task=[10], task_cue=True)
+
+    env.reset()
+    obs_mat = []
+    signals = []
+    for stp in range(num_steps):
+        action = env.action_space.sample()
+        obs, rew, done, info = env.step(action)
+        if verbose:
+            obs_mat.append(obs)
+            signals.append([info['signal_0'], info['signal_1']])
+            print('--------')
+
+        if done:
+            env.reset()
+    if verbose:
+        plt.figure()
+        plt.subplot(2, 1, 1)
+        plt.title('Observations')
+        plt.imshow(np.array(obs_mat).T, aspect='auto')
+        plt.subplot(2, 1, 2)
+        plt.title('Pulses')
+        plt.plot(signals)
+        plt.xlim([-.5, num_steps-.5])
 
 
 def test_noise(env_name, random_bhvr=0., wrapper=None, perf_th=None,
@@ -208,13 +277,15 @@ def test_all(test_fn):
 if __name__ == '__main__':
     plt.close('all')
     env_args = {'timing': {'fixation': ('constant', 100),
-                           'stimulus': ('constant', 100),
-                           'decision': ('constant', 100)}}
+                           'stimulus': ('constant', 200),
+                           'decision': ('constant', 200)}}
     # test_identity('Nothing-v0', num_steps=5)
     # test_passreward('PerceptualDecisionMaking-v0', num_steps=10, verbose=True,
     #                 **env_args)
     # test_passaction('PerceptualDecisionMaking-v0', num_steps=10, verbose=True,
     #                 **env_args)
+    # test_ttlpulse('PerceptualDecisionMaking-v0', num_steps=20, verbose=True,
+    #               **env_args)
     # test_noise('PerceptualDecisionMaking-v0', random_bhvr=0.,
     #            wrapper=PassAction, perf_th=0.7, num_steps=100000,
     #            verbose=True, **env_args)
@@ -224,4 +295,6 @@ if __name__ == '__main__':
     #               verbose=True, probs=[(0, 0, 1), (0, 1, 0), (1, 0, 0)])
     # test_catchtrials('PerceptualDecisionMaking-v0', num_steps=10000,
     #                  verbose=True, catch_prob=0.5, alt_rew=0)
-    test_reactiontime('PerceptualDecisionMaking-v0', num_steps=100)
+    # test_reactiontime('PerceptualDecisionMaking-v0', num_steps=100)
+    test_transferLearning(['PerceptualDecisionMaking-v0', 'GoNogo-v0-v0'],
+                          num_steps=2000, verbose=True)

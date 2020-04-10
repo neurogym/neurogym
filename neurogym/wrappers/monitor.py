@@ -70,7 +70,7 @@ class Monitor(ngym.TrialWrapper):
 
     def step(self, action, new_tr_fn=None):
         ntr_fn = new_tr_fn or self.new_trial
-        obs, rew, done, info = self.env.step(action)
+        obs, rew, done, info = self.env.step(action, new_tr_fn=ntr_fn)
         self.cum_obs += obs
         self.cum_rew += rew
         if self.sv_fig:

@@ -28,12 +28,15 @@ class TTLPulse(ngym.TrialWrapper):
 
         self.periods = periods
 
-    def step(self, action):
-        obs, reward, done, info = self.env.step(action)
+    def step(self, action, new_tr_fn=None):
+        info_tmp = {}
         for ind_p, periods in enumerate(self.periods):
-            info['signal_' + str(ind_p)] = 0
+            info_tmp['signal_' + str(ind_p)] = 0
             for per in periods:
                 if self.env.in_period(per):
-                    info['signal_' + str(ind_p)] = 1
+                    info_tmp['signal_' + str(ind_p)] = 1
 
+        ntr_fn = new_tr_fn or self.new_trial
+        obs, reward, done, info = self.env.step(action, new_tr_fn=ntr_fn)
+        info.update(info_tmp)
         return obs, reward, done, info

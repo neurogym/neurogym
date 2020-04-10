@@ -4,10 +4,11 @@
 from gym import spaces
 import numpy as np
 import gym
+import neurogym as ngym
 # XXX: implemented without relying on core.trTrialWrapper
 
 
-class TransferLearning():
+class TransferLearning(ngym.TrialWrapper):
     """Allows training on several tasks sequencially.
 
     Args:
@@ -49,32 +50,25 @@ class TransferLearning():
         # start trials
         self.env_counter = 0
         self.tr_counter = 1
-        self.current_env = self.envs[self.env_counter]
+        self.env = self.envs[self.env_counter]
         self.metadata = self.envs[0].metadata
         for ind_env in range(1, len(self.envs)):
             self.metadata.update(self.envs[ind_env].metadata)
 
     def new_trial(self):
         # decide type of trial
-        if self.tr_counter >= self.num_tr_per_task[self.env_counter]:
+        task_done = self.tr_counter >= self.num_tr_per_task[self.env_counter]
+        final_task = self.env_counter == len(self.num_tr_per_task)
+        if task_done and not final_task:
             self.env_counter += 1
-            self.current_env = self.envs[self.env_counter]
+            self.env = self.envs[self.env_counter]
             self.tr_counter = 1
             self.reset()
-            if self.env_counter == len(self.num_tr_per_task):
-                self.final_task = True
         self.tr_counter += 1
 
-    def reset(self):
-        obs = self.current_env.reset()
-        obs = self.modify_obs(obs)
-
-        return obs
-
-    def step(self, action):
-        obs, reward, done, info = self.current_env.step(action)
-        if info['new_trial'] and not self.final_task:
-            self.new_trial()
+    def step(self, action, new_tr_fn=None):
+        ntr_fn = new_tr_fn or self.new_trial
+        obs, reward, done, info = self.env.step(action, new_tr_fn=ntr_fn)
         obs = self.modify_obs(obs)
         info['task'] = self.env_counter
         return obs, reward, done, info
@@ -87,43 +81,3 @@ class TransferLearning():
             cue = np.array([self.env_counter])
             obs = np.concatenate((cue, obs), axis=0)
         return obs
-
-
-if __name__ == '__main__':
-    import neurogym as ngym
-    #    task = 'DelayPairedAssociation-v0'
-    #    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
-    #                                    'stim1': ('constant', 100),
-    #                                    'delay_btw_stim': ('constant', 500),
-    #                                    'stim2': ('constant', 100),
-    #                                    'delay_aft_stim': ('constant', 100),
-    #                                    'decision': ('constant', 200)}}
-    #    env = gym.make(task, **KWARGS)
-    task = 'GoNogo-v0'
-    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
-                                    'stimulus': ('constant', 100),
-                                    'resp_delay': ('constant', 100),
-                                    'decision': ('constant', 100)}}
-    env1 = gym.make(task, **KWARGS)
-
-#    task = 'DelayPairedAssociation-v0'
-#    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
-#                                    'stim1': ('constant', 100),
-#                                    'delay_btw_stim': ('constant', 500),
-#                                    'stim2': ('constant', 100),
-#                                    'delay_aft_stim': ('constant', 100),
-#                                    'decision': ('constant', 200)}}
-#    env2 = gym.make(task, **KWARGS)
-#    task = 'Reaching1D-v0'
-#    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 500),
-#                                    'reach': ('constant', 500)}}
-#    env2 = gym.make(task, **KWARGS)
-
-    task = 'Detection-v0'
-    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 100),
-                                    'stimulus': ('constant', 500)}}
-    env2 = gym.make(task, **KWARGS)
-
-    env = TransferLearning([env1, env2], num_tr_per_task=[2],
-                           task_cue=True)
-    ngym.utils.plot_env(env, num_steps=60)
