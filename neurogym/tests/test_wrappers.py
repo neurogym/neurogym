@@ -101,36 +101,47 @@ def test_transferLearning(env_names, num_steps=10000, verbose=False, **envArgs):
                                     'resp_delay': ('constant', 100),
                                     'decision': ('constant', 100)}}
     env1 = gym.make(task, **KWARGS)
-
     task = 'PerceptualDecisionMaking-v0'
     KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 100),
                                     'stimulus': ('constant', 100),
                                     'decision': ('constant', 100)}}
     env2 = gym.make(task, **KWARGS)
-
-    env = TransferLearning([env1, env2], num_tr_per_task=[10], task_cue=True)
+    env = TransferLearning([env1, env2], num_tr_per_task=[30], task_cue=True)
 
     env.reset()
     obs_mat = []
     signals = []
+    rew_mat = []
+    action_mat = []
     for stp in range(num_steps):
-        action = env.action_space.sample()
+        # action = env.action_space.sample()
+        action = 1
         obs, rew, done, info = env.step(action)
         if verbose:
+            action_mat.append(action)
+            rew_mat.append(rew)
             obs_mat.append(obs)
-            signals.append([info['signal_0'], info['signal_1']])
+            signals.append([info['task']])
             print('--------')
 
         if done:
             env.reset()
     if verbose:
         plt.figure()
-        plt.subplot(2, 1, 1)
+        plt.subplot(4, 1, 1)
         plt.title('Observations')
         plt.imshow(np.array(obs_mat).T, aspect='auto')
-        plt.subplot(2, 1, 2)
+        plt.subplot(4, 1, 4)
         plt.title('Pulses')
         plt.plot(signals)
+        plt.xlim([-.5, num_steps-.5])
+        plt.subplot(4, 1, 3)
+        plt.title('Actions')
+        plt.plot(action_mat)
+        plt.xlim([-.5, num_steps-.5])
+        plt.subplot(4, 1, 2)
+        plt.title('Reward')
+        plt.plot(rew_mat)
         plt.xlim([-.5, num_steps-.5])
 
 
@@ -276,9 +287,9 @@ def test_all(test_fn):
 
 if __name__ == '__main__':
     plt.close('all')
-    env_args = {'timing': {'fixation': ('constant', 100),
-                           'stimulus': ('constant', 200),
-                           'decision': ('constant', 200)}}
+    env_args = {'stim_scale': 10, 'timing': {'fixation': ('constant', 100),
+                                             'stimulus': ('constant', 200),
+                                             'decision': ('constant', 200)}}
     # test_identity('Nothing-v0', num_steps=5)
     # test_passreward('PerceptualDecisionMaking-v0', num_steps=10, verbose=True,
     #                 **env_args)
@@ -297,4 +308,4 @@ if __name__ == '__main__':
     #                  verbose=True, catch_prob=0.5, alt_rew=0)
     # test_reactiontime('PerceptualDecisionMaking-v0', num_steps=100)
     test_transferLearning(['PerceptualDecisionMaking-v0', 'GoNogo-v0-v0'],
-                          num_steps=2000, verbose=True)
+                          num_steps=200, verbose=True)

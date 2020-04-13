@@ -23,9 +23,11 @@ class TransferLearning(ngym.TrialWrapper):
         }
 
     def __init__(self, envs, num_tr_per_task, task_cue=False):
+        super().__init__(envs[0])
         self.t = 0
         self.envs = envs
         self.num_tr_per_task = num_tr_per_task
+        self.num_tr_per_task.append(10**9)
         self.task_cue = task_cue
         self.final_task = False
         # sub-tasks probabilities
@@ -55,7 +57,7 @@ class TransferLearning(ngym.TrialWrapper):
         for ind_env in range(1, len(self.envs)):
             self.metadata.update(self.envs[ind_env].metadata)
 
-    def new_trial(self):
+    def new_trial(self, **kwargs):
         # decide type of trial
         task_done = self.tr_counter >= self.num_tr_per_task[self.env_counter]
         final_task = self.env_counter == len(self.num_tr_per_task)
@@ -65,6 +67,7 @@ class TransferLearning(ngym.TrialWrapper):
             self.tr_counter = 1
             self.reset()
         self.tr_counter += 1
+        self.env.new_trial(**kwargs)
 
     def step(self, action, new_tr_fn=None):
         ntr_fn = new_tr_fn or self.new_trial
