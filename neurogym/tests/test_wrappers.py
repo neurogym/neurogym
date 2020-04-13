@@ -16,6 +16,7 @@ from neurogym.wrappers import CatchTrials
 from neurogym.wrappers import ReactionTime
 from neurogym.wrappers import TTLPulse
 from neurogym.wrappers import TransferLearning
+from neurogym.wrappers import Combine
 
 
 def test_sidebias(env_name, num_steps=10000, verbose=False,
@@ -94,7 +95,7 @@ def test_ttlpulse(env_name, num_steps=10000, verbose=False, **envArgs):
         plt.xlim([-.5, num_steps-.5])
 
 
-def test_transferLearning(env_names, num_steps=10000, verbose=False, **envArgs):
+def test_transferLearning(num_steps=10000, verbose=False, **envArgs):
     task = 'GoNogo-v0'
     KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
                                     'stimulus': ('constant', 100),
@@ -122,7 +123,6 @@ def test_transferLearning(env_names, num_steps=10000, verbose=False, **envArgs):
             rew_mat.append(rew)
             obs_mat.append(obs)
             signals.append([info['task']])
-            print('--------')
 
         if done:
             env.reset()
@@ -134,6 +134,60 @@ def test_transferLearning(env_names, num_steps=10000, verbose=False, **envArgs):
         plt.subplot(4, 1, 4)
         plt.title('Pulses')
         plt.plot(signals)
+        plt.xlim([-.5, num_steps-.5])
+        plt.subplot(4, 1, 3)
+        plt.title('Actions')
+        plt.plot(action_mat)
+        plt.xlim([-.5, num_steps-.5])
+        plt.subplot(4, 1, 2)
+        plt.title('Reward')
+        plt.plot(rew_mat)
+        plt.xlim([-.5, num_steps-.5])
+
+
+def test_combine(num_steps=10000, verbose=False, **envArgs):
+    task = 'GoNogo-v0'
+    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
+                                    'stimulus': ('constant', 100),
+                                    'resp_delay': ('constant', 100),
+                                    'decision': ('constant', 100)}}
+    env1 = gym.make(task, **KWARGS)
+    task = 'DelayPairedAssociation-v0'
+    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
+                                    'stim1': ('constant', 100),
+                                    'delay_btw_stim': ('constant', 500),
+                                    'stim2': ('constant', 100),
+                                    'delay_aft_stim': ('constant', 100),
+                                    'decision': ('constant', 200)}}
+    env2 = gym.make(task, **KWARGS)
+    env = Combine(env=env1, distractor=env2, delay=100, dt=100, mix=(.3, .3, .4),
+                  share_action_space=True, defaults=[0, 0], trial_cue=True)
+
+    env.reset()
+    obs_mat = []
+    config_mat = []
+    rew_mat = []
+    action_mat = []
+    for stp in range(num_steps):
+        action = env.action_space.sample()
+        # action = 1
+        obs, rew, done, info = env.step(action)
+        if verbose:
+            action_mat.append(action)
+            rew_mat.append(rew)
+            obs_mat.append(obs)
+            config_mat.append(info['task_type'])
+
+        if done:
+            env.reset()
+    if verbose:
+        plt.figure()
+        plt.subplot(4, 1, 1)
+        plt.title('Observations')
+        plt.imshow(np.array(obs_mat).T, aspect='auto')
+        plt.subplot(4, 1, 4)
+        plt.title('Trial configuration')
+        plt.plot(config_mat)
         plt.xlim([-.5, num_steps-.5])
         plt.subplot(4, 1, 3)
         plt.title('Actions')
@@ -307,5 +361,6 @@ if __name__ == '__main__':
     # test_catchtrials('PerceptualDecisionMaking-v0', num_steps=10000,
     #                  verbose=True, catch_prob=0.5, alt_rew=0)
     # test_reactiontime('PerceptualDecisionMaking-v0', num_steps=100)
-    test_transferLearning(['PerceptualDecisionMaking-v0', 'GoNogo-v0-v0'],
-                          num_steps=200, verbose=True)
+    # test_transferLearning(num_steps=200, verbose=True)
+    test_combine(num_steps=200, verbose=True)
+    

@@ -185,32 +185,3 @@ class Combine():
         gt = 0
         info = {'new_trial': False, 'gt': gt}
         return obs, done, info
-
-
-if __name__ == '__main__':
-    import neurogym as ngym
-    #    task = 'DelayPairedAssociation-v0'
-    #    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
-    #                                    'stim1': ('constant', 100),
-    #                                    'delay_btw_stim': ('constant', 500),
-    #                                    'stim2': ('constant', 100),
-    #                                    'delay_aft_stim': ('constant', 100),
-    #                                    'decision': ('constant', 200)}}
-    #    env = gym.make(task, **KWARGS)
-    task = 'GoNogo-v0'
-    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
-                                    'stimulus': ('constant', 100),
-                                    'resp_delay': ('constant', 1200),
-                                    'decision': ('constant', 300)}}
-    env = gym.make(task, **KWARGS)
-
-    task = 'GoNogo-v0'
-    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
-                                    'stimulus': ('constant', 100),
-                                    'resp_delay': ('constant', 100),
-                                    'decision': ('constant', 300)}}
-    distractor = gym.make(task, **KWARGS)
-    env = Combine(env, distractor, delay=300, mix=(.3, .3, .4),
-                  share_action_space=True, defaults=[0, 0],
-                  trial_cue=True)
-    ngym.utils.plot_env(env, num_steps=100, def_act=0)
