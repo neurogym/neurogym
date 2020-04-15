@@ -3,7 +3,7 @@
 import numpy as np
 import gym
 
-# TODO: There is a bug somewhere, generated batches are all the same
+
 class Dataset(object):
     """Make an environment into an iterable dataset for supervised learning.
 
@@ -63,13 +63,13 @@ class Dataset(object):
             while seq_end < self._cache_len:
                 env.new_trial()
                 # TODO: Increment trial number here
-                obs, gt = env.obs, env.gt
-                seq_len = obs.shape[0]
+                ob, gt = env.ob, env.gt
+                seq_len = ob.shape[0]
                 seq_end = seq_start + seq_len
                 if seq_end > self._cache_len:
                     seq_end = self._cache_len
                     seq_len = seq_end - seq_start
-                self._inputs[i, seq_start:seq_end, ...] = obs[:seq_len]
+                self._inputs[i, seq_start:seq_end, ...] = ob[:seq_len]
                 self._target[i, seq_start:seq_end, ...] = gt[:seq_len]
                 seq_start = seq_end
 
@@ -103,8 +103,9 @@ if __name__ == '__main__':
     dataset = ngym.Dataset(
         'PerceptualDecisionMaking-v0', env_kwargs={'dt': 100}, batch_size=32,
         seq_len=40)
-    for i in range(100):
+    inputs_list = list()
+    for i in range(2):
         inputs, target = dataset()
-        print(target[:, 21, 0])
+        inputs_list.append(inputs)
     # print(inputs.shape)
     # print(target.shape)
