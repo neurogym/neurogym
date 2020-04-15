@@ -50,12 +50,12 @@ class Dataset(object):
         self._cache_inputs_shape = [batch_size, cache_len] + list(obs_shape)
         self._cache_target_shape = [batch_size, cache_len] + list(action_shape)
 
-        self._cache()
-
-    def _cache(self):
         self._inputs = np.zeros(self._cache_inputs_shape)
         self._target = np.zeros(self._cache_target_shape)
 
+        self._cache()
+
+    def _cache(self):
         for i in range(self.batch_size):
             env = self.envs[i]
             seq_start = 0
@@ -75,9 +75,6 @@ class Dataset(object):
 
         self._seq_start = 0
         self._seq_end = self._seq_start + self.seq_len
-
-        if self._expand_action:
-            self._target = self._target[..., np.newaxis]
 
     def __iter__(self):
         return self
