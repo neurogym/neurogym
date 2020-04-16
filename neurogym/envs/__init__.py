@@ -1,3 +1,6 @@
+import importlib
+from inspect import getmembers, isfunction
+
 import gym
 from gym.envs.registration import register
 
@@ -74,17 +77,39 @@ ALL_NATIVE_ENVS = {
         'neurogym.envs.nothing:Nothing'
 }
 
-ALL_PSYPY_ENVS = {
+ALL_PSYCHOPY_ENVS = {
     'psychopy.RandomDotMotion-v0':
         'neurogym.envs.psychopy.perceptualdecisionmaking:RandomDotMotion',
     'psychopy.VisualSearch-v0':
         'neurogym.envs.psychopy.visualsearch:VisualSearch',
 }
 
-ALL_ENVS = {**ALL_NATIVE_ENVS, **ALL_PSYPY_ENVS}
+
+# Automatically register all tasks in collections
+def _get_collection_envs():
+    # TODO: keep making this more general
+    derived_envs = {}
+    collection_libs = ['cogneuro', 'yang19']
+    for l in collection_libs:
+        lib = 'neurogym.envs.collections.' + l
+        module = importlib.import_module(lib)
+        envs = [name for name, val in getmembers(module) if isfunction(val)]
+        envs = [env for env in envs if env[0] != '_']  # ignore private members
+        derived_envs.update({env+'-v0': lib + ':' + env for env in envs})
+    return derived_envs
+
+
+ALL_COLLECTIONS_ENVS = _get_collection_envs()
+
+ALL_ENVS = {
+    **ALL_NATIVE_ENVS, **ALL_PSYCHOPY_ENVS
+}
+
+ALL_EXTENDED_ENVS = {**ALL_ENVS, **ALL_COLLECTIONS_ENVS}
 
 
 def all_envs(tag=None):
+    """Return a list of all envs in neurogym."""
     env_list = sorted(list(ALL_ENVS.keys()))
     if tag is None:
         return env_list
@@ -103,9 +128,9 @@ def all_envs(tag=None):
 
 
 _all_gym_envs = [env.id for env in gym.envs.registry.all()]
-for env_id in ALL_ENVS.keys():
+for env_id, entry_point in ALL_EXTENDED_ENVS.items():
     if env_id not in _all_gym_envs:
-        register(id=env_id, entry_point=ALL_ENVS[env_id])
+        register(id=env_id, entry_point=entry_point)
 
 
 def all_tags():

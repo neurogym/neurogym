@@ -14,25 +14,9 @@ import gym
 import neurogym as ngym
 
 
-def test_run(env, verbose=False):
-    """Main function for testing if an environment is healthy."""
-    # TODO: consider removing this function and using directly _test_run()
-    if isinstance(env, str):
-        kwargs = {'dt': 20}
-        env = gym.make(env, **kwargs)
-    else:
-        if not isinstance(env, gym.Env):
-            raise ValueError('env must be a string or a gym.Env')
-    _test_run(env)
-    if verbose:
-        print(env)
-    return env
-
-
-def _test_run(env):
+def test_run(env, verbose=False, **kwargs):
     """Test if one environment can at least be run."""
     if isinstance(env, str):
-        kwargs = {'dt': 20}
         env = gym.make(env, **kwargs)
     else:
         if not isinstance(env, gym.Env):
@@ -50,6 +34,9 @@ def _test_run(env):
     for t in tags:
         if t not in all_tags:
             print('Warning: env has tag {:s} not in all_tags'.format(t))
+
+    if verbose:
+        print(env)
 
     return env
 
