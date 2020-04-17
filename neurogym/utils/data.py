@@ -3,7 +3,7 @@
 import numpy as np
 import gym
 
-# TODO: There is a bug somewhere, generated batches are all the same
+
 class Dataset(object):
     """Make an environment into an iterable dataset for supervised learning.
 
@@ -37,10 +37,10 @@ class Dataset(object):
 
         if cache_len is None:
             # Infer cache len
-            cache_len = 1e5
+            cache_len = 1e5  # Probably too low
             cache_len /= (np.prod(obs_shape) + np.prod(action_shape))
             cache_len /= batch_size
-        cache_len = int((cache_len // seq_len) * seq_len)
+        cache_len = int(1 + (cache_len // seq_len) * seq_len)
 
         self.seq_len = seq_len
         self.inputs_shape = [batch_size, seq_len] + list(obs_shape)
@@ -50,12 +50,12 @@ class Dataset(object):
         self._cache_inputs_shape = [batch_size, cache_len] + list(obs_shape)
         self._cache_target_shape = [batch_size, cache_len] + list(action_shape)
 
-        self._cache()
-
-    def _cache(self):
         self._inputs = np.zeros(self._cache_inputs_shape)
         self._target = np.zeros(self._cache_target_shape)
 
+        self._cache()
+
+    def _cache(self):
         for i in range(self.batch_size):
             env = self.envs[i]
             seq_start = 0
@@ -63,21 +63,18 @@ class Dataset(object):
             while seq_end < self._cache_len:
                 env.new_trial()
                 # TODO: Increment trial number here
-                obs, gt = env.obs, env.gt
-                seq_len = obs.shape[0]
+                ob, gt = env.ob, env.gt
+                seq_len = ob.shape[0]
                 seq_end = seq_start + seq_len
                 if seq_end > self._cache_len:
                     seq_end = self._cache_len
                     seq_len = seq_end - seq_start
-                self._inputs[i, seq_start:seq_end, ...] = obs[:seq_len]
+                self._inputs[i, seq_start:seq_end, ...] = ob[:seq_len]
                 self._target[i, seq_start:seq_end, ...] = gt[:seq_len]
                 seq_start = seq_end
 
         self._seq_start = 0
         self._seq_end = self._seq_start + self.seq_len
-
-        if self._expand_action:
-            self._target = self._target[..., np.newaxis]
 
     def __iter__(self):
         return self
@@ -103,8 +100,9 @@ if __name__ == '__main__':
     dataset = ngym.Dataset(
         'PerceptualDecisionMaking-v0', env_kwargs={'dt': 100}, batch_size=32,
         seq_len=40)
-    for i in range(100):
+    inputs_list = list()
+    for i in range(2):
         inputs, target = dataset()
-        print(target[:, 21, 0])
+        inputs_list.append(inputs)
     # print(inputs.shape)
     # print(target.shape)

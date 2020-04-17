@@ -1,12 +1,24 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
-from neurogym.utils.plotting import fig_
-
-
-obs = np.random.randn(20, 3)
-actions = np.random.randint(0, 5, size=(20,))
-gt = np.random.randint(0, 5, size=(20,))
-rewards = np.random.randn(20)
+import gym
 
 
-fig_(obs, actions, gt, rewards)
+def test_plot(env_name, num_steps=500, kwargs={'dt': 100}):
+    env = gym.make(env_name, **kwargs)
+
+    env.reset()
+    observations = []
+    for stp in range(num_steps):
+        action = env.action_space.sample()
+        obs, rew, done, info = env.step(action)
+        observations.append(obs)
+
+        # print(state)
+        # print(info)
+        # print(rew)
+        # print(info)
+    observations = np.array(observations)
+    plt.figure()
+    plt.imshow(observations.T, aspect='auto')
+    plt.show()

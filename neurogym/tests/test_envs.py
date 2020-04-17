@@ -1,34 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Test environments"""
+"""Test environments.
 
-import time
+All tests in this file can be run by running in command line
+py.test test_envs.py
+"""
+
+import pytest
+
 import numpy as np
-import matplotlib.pyplot as plt
 
 import gym
 import neurogym as ngym
 
 
-def test_run(env, verbose=False):
-    """Main function for testing if an environment is healthy."""
-    # TODO: consider removing this function and using directly _test_run()
-    if isinstance(env, str):
-        kwargs = {'dt': 20}
-        env = gym.make(env, **kwargs)
-    else:
-        if not isinstance(env, gym.Env):
-            raise ValueError('env must be a string or a gym.Env')
-    _test_run(env)
-    if verbose:
-        print(env)
-    return env
-
-
-def _test_run(env):
+def test_run(env, verbose=False, **kwargs):
     """Test if one environment can at least be run."""
     if isinstance(env, str):
-        kwargs = {'dt': 20}
         env = gym.make(env, **kwargs)
     else:
         if not isinstance(env, gym.Env):
@@ -47,49 +35,10 @@ def _test_run(env):
         if t not in all_tags:
             print('Warning: env has tag {:s} not in all_tags'.format(t))
 
+    if verbose:
+        print(env)
+
     return env
-
-
-def test_speed(env):
-    """Test speed of an environment."""
-    n_steps = 100000
-    warmup_steps = 10000
-    kwargs = {'dt': 20}
-
-    if isinstance(env, str):
-        env = gym.make(env, **kwargs)
-
-    env.reset()
-    for stp in range(warmup_steps):
-        action = env.action_space.sample()
-        state, rew, done, info = env.step(action)  # env.action_space.sample())
-        if done:
-            env.reset()
-
-    total_time = 0
-    env.reset()
-    for stp in range(n_steps):
-        action = env.action_space.sample()
-        start_time = time.time()
-        state, rew, done, info = env.step(action)  # env.action_space.sample())
-        total_time += time.time() - start_time
-        if done:
-            env.reset()
-
-    print('Time per step {:0.3f}us'.format(total_time/n_steps*1e6))
-    return env
-
-
-def test_speed_all():
-    """Test speed of all experiments."""
-    for env_name in sorted(ngym.all_envs()):
-        print('Running env: {:s}'.format(env_name))
-        try:
-            test_speed(env_name)
-            print('Success')
-        except BaseException as e:
-            print('Failure at running env: {:s}'.format(env_name))
-            print(e)
 
 
 def test_print_all():
@@ -165,26 +114,6 @@ def test_trialenv_all():
                                                                   success_count))
 
 
-def test_plot(env_name, num_steps=500, kwargs={'dt': 100}):
-    env = gym.make(env_name, **kwargs)
-
-    env.reset()
-    observations = []
-    for stp in range(num_steps):
-        action = env.action_space.sample()
-        obs, rew, done, info = env.step(action)
-        observations.append(obs)
-
-        # print(state)
-        # print(info)
-        # print(rew)
-        # print(info)
-    observations = np.array(observations)
-    plt.figure()
-    plt.imshow(observations.T, aspect='auto')
-    plt.show()
-
-
 def test_seeding_all():
     """Test if all environments can at least be run."""
     success_count = 0
@@ -239,23 +168,4 @@ def test_seeding(env, seed):
 
 
 if __name__ == '__main__':
-    # plt.close('all')
-    # test_seeding_all()
     test_run_all()
-    # test_speed_all()
-    # test_trialenv_all()
-    # test_print_all()
-    # env_name = 'GoNogo-v0'
-    env_name = 'PerceptualDecisionMaking-v0'
-    # env_name = 'ContextDecisionMaking-v0'
-    # env_name = 'NAltPerceptualDecisionMaking-v0'
-    # env_name = 'DelayedMatchCategory-v0'
-    # env_name = 'MemoryRecall-v0'
-    # env_name = 'ReachingDelayResponse-v0'
-    # test_run(env_name)
-    kwargs = {'dt': 100, 'timing': {'fixation': ('constant', 200),
-                                    'stimulus': ('constant', 200),
-                                    'decision': ('constant', 200)}}
-    # test_plot(env_name, kwargs=kwargs, num_steps=20)
-    # test_speed(env_name)
-    # plot_env(env_name)
