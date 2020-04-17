@@ -87,9 +87,8 @@ ALL_PSYCHOPY_ENVS = {
 
 # Automatically register all tasks in collections
 def _get_collection_envs():
-    # TODO: keep making this more general
     derived_envs = {}
-    collection_libs = ['cogneuro', 'yang19']
+    collection_libs = ['perceptualdecisionmaking', 'yang19']
     for l in collection_libs:
         lib = 'neurogym.envs.collections.' + l
         module = importlib.import_module(lib)
