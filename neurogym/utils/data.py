@@ -13,7 +13,7 @@ class Dataset(object):
     """
 
     def __init__(self, env_name, env_kwargs=None,
-                 batch_size=1, seq_len=None, cache_len=None):
+                 batch_size=1, seq_len=None, max_batch=np.inf, cache_len=None):
         if env_kwargs is None:
             env_kwargs = {}
         self.envs = [gym.make(env_name, **env_kwargs)
@@ -40,7 +40,7 @@ class Dataset(object):
             cache_len = 1e5  # Probably too low
             cache_len /= (np.prod(obs_shape) + np.prod(action_shape))
             cache_len /= batch_size
-        cache_len = int(1 + (cache_len // seq_len) * seq_len)
+        cache_len = int((1 + (cache_len // seq_len)) * seq_len)
 
         self.seq_len = seq_len
         self.inputs_shape = [batch_size, seq_len] + list(obs_shape)
@@ -55,12 +55,16 @@ class Dataset(object):
 
         self._cache()
 
+        self._i_batch = 0
+        self.max_batch = max_batch
+
     def _cache(self):
         for i in range(self.batch_size):
             env = self.envs[i]
             seq_start = 0
             seq_end = 0
             while seq_end < self._cache_len:
+                # TODO: Right now this only works for env with new_trial
                 env.new_trial()
                 # TODO: Increment trial number here
                 ob, gt = env.ob, env.gt
@@ -83,6 +87,10 @@ class Dataset(object):
         return self.__next__()
 
     def __next__(self):
+        self._i_batch += 1
+        if self._i_batch > self.max_batch:
+            raise StopIteration
+
         self._seq_end = self._seq_start + self.seq_len
 
         if self._seq_end > self._cache_len:
