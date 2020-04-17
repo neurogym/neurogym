@@ -37,10 +37,10 @@ class Dataset(object):
 
         if cache_len is None:
             # Infer cache len
-            cache_len = 1e5
+            cache_len = 1e5  # Probably too low
             cache_len /= (np.prod(obs_shape) + np.prod(action_shape))
             cache_len /= batch_size
-        cache_len = int((cache_len // seq_len) * seq_len)
+        cache_len = int(1 + (cache_len // seq_len) * seq_len)
 
         self.seq_len = seq_len
         self.inputs_shape = [batch_size, seq_len] + list(obs_shape)
