@@ -81,10 +81,10 @@ class DelayMatchCategory(ngym.PeriodEnv):
         # self.add_period('decision', after='test', last_period=True)
 
         self.add_ob(1, where='fixation')
+        self.set_ob(0, 'test', where='fixation')
         self.add_ob(stim_sample, 'sample', where='stimulus')
         self.add_ob(stim_test, 'test', where='stimulus')
-        self.add_randn(0, self.sigma, 'sample', where='stimulus')
-        self.add_randn(0, self.sigma, 'test', where='stimulus')
+        self.add_randn(0, self.sigma, ['sample', 'test'], where='stimulus')
 
         self.set_groundtruth(self.act_dict[ground_truth], 'test')
 
