@@ -5,8 +5,8 @@ from gym import spaces
 import neurogym as ngym
 
 
-class DelayedComparison(ngym.PeriodEnv):
-    """Delayed comparison.
+class DelayComparison(ngym.PeriodEnv):
+    """Delay comparison.
 
     Two-alternative forced choice task in which the subject
     has to compare two stimuli separated by a delay to decide
@@ -115,5 +115,5 @@ class DelayedComparison(ngym.PeriodEnv):
 
 
 if __name__ == '__main__':
-    env = DelayedComparison()
+    env = DelayComparison()
     ngym.utils.plot_env(env, num_steps=100)

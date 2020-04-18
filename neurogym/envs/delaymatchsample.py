@@ -8,8 +8,8 @@ from gym import spaces
 import neurogym as ngym
 
 
-class DelayedMatchToSample(ngym.PeriodEnv):
-    r"""Delayed-match-to-sample.
+class DelayMatchSample(ngym.PeriodEnv):
+    r"""Delay-match-to-sample.
 
     A sample stimulus is followed by a delay and test. Agents are required
     to indicate if the sample and test are the same stimulus.
@@ -107,7 +107,7 @@ class DelayedMatchToSample(ngym.PeriodEnv):
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
-class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
+class DelayMatchSampleDistractor1D(ngym.PeriodEnv):
     r"""Delay Match to sample with multiple, potentially repeating distractors.
 
     Args:
@@ -209,7 +209,7 @@ class DelayedMatchToSampleDistractor1D(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     from neurogym.utils.plotting import plot_env
-    env = DelayedMatchToSample()
+    env = DelayMatchSample()
     plot_env(env, num_steps=200)
-    env = DelayedMatchToSampleDistractor1D()
+    env = DelayMatchSampleDistractor1D()
     plot_env(env, num_steps=200, def_act=0)

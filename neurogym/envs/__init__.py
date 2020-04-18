@@ -8,8 +8,8 @@ from gym.envs.registration import register
 ALL_NATIVE_ENVS = {
     'ContextDecisionMaking-v0':
         'neurogym.envs.contextdecisionmaking:ContextDecisionMaking',
-    'DelayedComparison-v0':
-        'neurogym.envs.delayedcomparison:DelayedComparison',
+    'DelayComparison-v0':
+        'neurogym.envs.delayedcomparison:DelayComparison',
     'PerceptualDecisionMaking-v0':
         'neurogym.envs.perceptualdecisionmaking:PerceptualDecisionMaking',
     'EconomicDecisionMaking-v0':
@@ -24,10 +24,10 @@ ALL_NATIVE_ENVS = {
         'neurogym.envs.readysetgo:ReadySetGo',
     'OneTwoThreeGo-v0':
         'neurogym.envs.readysetgo:OneTwoThreeGo',
-    'DelayedMatchSample-v0':
-        'neurogym.envs.delaymatchsample:DelayedMatchToSample',
-    'DelayedMatchCategory-v0':
-        'neurogym.envs.delaymatchcategory:DelayedMatchCategory',
+    'DelayMatchSample-v0':
+        'neurogym.envs.delaymatchsample:DelayMatchSample',
+    'DelayMatchCategory-v0':
+        'neurogym.envs.delaymatchcategory:DelayMatchCategory',
     'DawTwoStep-v0':
         'neurogym.envs.dawtwostep:DawTwoStep',
     'HierarchicalReasoning-v0':
@@ -53,8 +53,8 @@ ALL_NATIVE_ENVS = {
         'neurogym.envs.reaching:Reaching1DWithSelfDistraction',
     'AntiReach-v0':
         'neurogym.envs.antireach:AntiReach1D',
-    'DelayedMatchToSampleDistractor1D-v0':
-        'neurogym.envs.delaymatchsample:DelayedMatchToSampleDistractor1D',
+    'DelayMatchSampleDistractor1D-v0':
+        'neurogym.envs.delaymatchsample:DelayMatchSampleDistractor1D',
     'IntervalDiscrimination-v0':
         'neurogym.envs.intervaldiscrimination:IntervalDiscrimination',
     'AngleReproduction-v0':
@@ -69,8 +69,8 @@ ALL_NATIVE_ENVS = {
         'neurogym.envs.changingenvironment:ChangingEnvironment',
     'ProbabilisticReasoning-v0':
         'neurogym.envs.weatherprediction:ProbabilisticReasoning',
-    'DualDelayedMatchSample-v0':
-        'neurogym.envs.dualdelaymatchsample:DualDelayedMatchToSample',
+    'DualDelayMatchSample-v0':
+        'neurogym.envs.dualdelaymatchsample:DualDelayMatchSample',
     'PulseDecisionMaking-v0':
         'neurogym.envs.perceptualdecisionmaking:PulseDecisionMaking',
     'Nothing-v0':

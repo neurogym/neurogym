@@ -8,8 +8,8 @@ from gym import spaces
 import neurogym as ngym
 
 
-class DelayedMatchCategory(ngym.PeriodEnv):
-    r"""Delayed match-to-category task.
+class DelayMatchCategory(ngym.PeriodEnv):
+    r"""Delay match-to-category task.
 
     A sample stimulus is followed by a delay and test. Agents are required
     to indicate if the sample and test are in the same category.
@@ -112,5 +112,5 @@ class DelayedMatchCategory(ngym.PeriodEnv):
 
 
 if __name__ == '__main__':
-    env = DelayedMatchCategory()
+    env = DelayMatchCategory()
     ngym.utils.plot_env(env, num_steps=100)

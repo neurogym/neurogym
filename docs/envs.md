@@ -18,13 +18,13 @@
 
 [DelayPairedAssociation-v0](#delaypairedassociation)
 
-[DelayedComparison-v0](#delayedcomparison)
+[DelayComparison-v0](#delayedcomparison)
 
-[DelayedMatchCategory-v0](#delayedmatchcategory)
+[DelayMatchCategory-v0](#delayedmatchcategory)
 
-[DelayedMatchSample-v0](#delayedmatchtosample)
+[DelayMatchSample-v0](#delayedmatchtosample)
 
-[DelayedMatchToSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
+[DelayMatchSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
 
 [Detection-v0](#detection)
 
@@ -301,7 +301,7 @@ Tags: [perceptual](#perceptual), [working memory](#working-memory), [go-no-go](#
 
 ___
 
-### DelayedComparison  
+### DelayComparison  
 Doc:   
         Two-alternative forced choice task in which the subject  
         has to compare two stimuli separated by a delay to decide  
@@ -334,7 +334,7 @@ Tags: [perceptual](#perceptual), [working memory](#working-memory), [two-alterna
 
 ___
 
-### DelayedMatchCategory  
+### DelayMatchCategory  
 Doc:   
         A sample stimulus is followed by a delay and test. Agents are required  
         to indicate if the sample and test are in the same category.  
@@ -365,7 +365,7 @@ Tags: [perceptual](#perceptual), [working memory](#working-memory), [two-alterna
 
 ___
 
-### DelayedMatchToSample  
+### DelayMatchSample  
 Doc:   
         A sample stimulus is followed by a delay and test. Agents are required  
         to indicate if the sample and test are the same stimulus.  
@@ -397,7 +397,7 @@ Tags: [perceptual](#perceptual), [working memory](#working-memory), [two-alterna
 
 ___
 
-### DelayedMatchToSampleDistractor1D  
+### DelayMatchSampleDistractor1D  
 Doc:   
         Delay Match to sample with multiple, potentially repeating distractors.  
         dt: Timestep duration. (def: 100 (ms), int)  
@@ -928,13 +928,13 @@ ___
 
 [DelayPairedAssociation-v0](#delaypairedassociation)
 
-[DelayedComparison-v0](#delayedcomparison)
+[DelayComparison-v0](#delayedcomparison)
 
-[DelayedMatchCategory-v0](#delayedmatchcategory)
+[DelayMatchCategory-v0](#delayedmatchcategory)
 
-[DelayedMatchSample-v0](#delayedmatchtosample)
+[DelayMatchSample-v0](#delayedmatchtosample)
 
-[DelayedMatchToSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
+[DelayMatchSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
 
 [Detection-v0](#detection)
 
@@ -976,13 +976,13 @@ ___
 
 [DelayPairedAssociation-v0](#delaypairedassociation)
 
-[DelayedComparison-v0](#delayedcomparison)
+[DelayComparison-v0](#delayedcomparison)
 
-[DelayedMatchCategory-v0](#delayedmatchcategory)
+[DelayMatchCategory-v0](#delayedmatchcategory)
 
-[DelayedMatchSample-v0](#delayedmatchtosample)
+[DelayMatchSample-v0](#delayedmatchtosample)
 
-[DelayedMatchToSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
+[DelayMatchSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
 
 [Detection-v0](#detection)
 
@@ -1022,13 +1022,13 @@ ___
 
 [DawTwoStep-v0](#dawtwostep)
 
-[DelayedComparison-v0](#delayedcomparison)
+[DelayComparison-v0](#delayedcomparison)
 
-[DelayedMatchCategory-v0](#delayedmatchcategory)
+[DelayMatchCategory-v0](#delayedmatchcategory)
 
-[DelayedMatchSample-v0](#delayedmatchtosample)
+[DelayMatchSample-v0](#delayedmatchtosample)
 
-[DelayedMatchToSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
+[DelayMatchSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
 
 [IntervalDiscrimination-v0](#intervaldiscrimination)
 
@@ -1048,13 +1048,13 @@ ___
 
 [DelayPairedAssociation-v0](#delaypairedassociation)
 
-[DelayedComparison-v0](#delayedcomparison)
+[DelayComparison-v0](#delayedcomparison)
 
-[DelayedMatchCategory-v0](#delayedmatchcategory)
+[DelayMatchCategory-v0](#delayedmatchcategory)
 
-[DelayedMatchSample-v0](#delayedmatchtosample)
+[DelayMatchSample-v0](#delayedmatchtosample)
 
-[DelayedMatchToSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
+[DelayMatchSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
 
 [IntervalDiscrimination-v0](#intervaldiscrimination)
 

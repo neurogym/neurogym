@@ -19,17 +19,17 @@ def yang19multidm(**kwargs):
 
 
 def yang19dlydm(**kwargs):
-    env = gym.make('DelayedComparison-v0', **kwargs)
+    env = gym.make('DelayComparison-v0', **kwargs)
     return env
 
 
 def yang19dlymatchsample(**kwargs):
-    env = gym.make('DelayedMatchSample-v0', **kwargs)
+    env = gym.make('DelayMatchSample-v0', **kwargs)
     return env
 
 
 def yang19dlymatchcategory(**kwargs):
-    env = gym.make('DelayedMatchCategory-v0', **kwargs)
+    env = gym.make('DelayMatchCategory-v0', **kwargs)
     return env
 
 

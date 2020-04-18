@@ -5,8 +5,8 @@ from gym import spaces
 import neurogym as ngym
 
 
-class DualDelayedMatchToSample(ngym.PeriodEnv):
-    r"""Two-item Delayed-match-to-sample.
+class DualDelayMatchSample(ngym.PeriodEnv):
+    r"""Two-item Delay-match-to-sample.
 
     Two sample stimuli are shown simultaneously. Sample 1 and 2 are tested
     sequentially. Whether sample 1 or 2 is tested first is indicated by a cue.

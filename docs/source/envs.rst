@@ -129,9 +129,9 @@ DelayPairedAssociation-v0
         .. image:: images/DelayPairedAssociation-v0_examplerun.png
             :width: 600
 
-DelayedComparison-v0
+DelayComparison-v0
 --------------------------------------------------
-.. autoclass:: neurogym.envs.delayedcomparison.DelayedComparison
+.. autoclass:: neurogym.envs.delayedcomparison.DelayComparison
     :members:
     :exclude-members: new_trial
 
@@ -142,12 +142,12 @@ DelayedComparison-v0
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/DelayedComparison-v0_examplerun.png
+        .. image:: images/DelayComparison-v0_examplerun.png
             :width: 600
 
-DelayedMatchCategory-v0
+DelayMatchCategory-v0
 --------------------------------------------------
-.. autoclass:: neurogym.envs.delaymatchcategory.DelayedMatchCategory
+.. autoclass:: neurogym.envs.delaymatchcategory.DelayMatchCategory
     :members:
     :exclude-members: new_trial
 
@@ -158,12 +158,12 @@ DelayedMatchCategory-v0
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/DelayedMatchCategory-v0_examplerun.png
+        .. image:: images/DelayMatchCategory-v0_examplerun.png
             :width: 600
 
-DelayedMatchSample-v0
+DelayMatchSample-v0
 --------------------------------------------------
-.. autoclass:: neurogym.envs.delaymatchsample.DelayedMatchToSample
+.. autoclass:: neurogym.envs.delaymatchsample.DelayMatchSample
     :members:
     :exclude-members: new_trial
 
@@ -174,12 +174,12 @@ DelayedMatchSample-v0
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/DelayedMatchSample-v0_examplerun.png
+        .. image:: images/DelayMatchSample-v0_examplerun.png
             :width: 600
 
-DelayedMatchToSampleDistractor1D-v0
+DelayMatchSampleDistractor1D-v0
 --------------------------------------------------
-.. autoclass:: neurogym.envs.delaymatchsample.DelayedMatchToSampleDistractor1D
+.. autoclass:: neurogym.envs.delaymatchsample.DelayMatchSampleDistractor1D
     :members:
     :exclude-members: new_trial
 
@@ -190,7 +190,7 @@ DelayedMatchToSampleDistractor1D-v0
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/DelayedMatchToSampleDistractor1D-v0_examplerun.png
+        .. image:: images/DelayMatchSampleDistractor1D-v0_examplerun.png
             :width: 600
 
 Detection-v0
@@ -206,9 +206,9 @@ Detection-v0
         .. image:: images/Detection-v0_examplerun.png
             :width: 600
 
-DualDelayedMatchSample-v0
+DualDelayMatchSample-v0
 --------------------------------------------------
-.. autoclass:: neurogym.envs.dualdelaymatchsample.DualDelayedMatchToSample
+.. autoclass:: neurogym.envs.dualdelaymatchsample.DualDelayMatchSample
     :members:
     :exclude-members: new_trial
 
@@ -219,7 +219,7 @@ DualDelayedMatchSample-v0
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/DualDelayedMatchSample-v0_examplerun.png
+        .. image:: images/DualDelayMatchSample-v0_examplerun.png
             :width: 600
 
 EconomicDecisionMaking-v0
