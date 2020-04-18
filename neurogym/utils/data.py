@@ -109,6 +109,7 @@ class Dataset(object):
     def __next__(self):
         self._i_batch += 1
         if self._i_batch > self.max_batch:
+            self._i_batch = 0
             raise StopIteration
 
         self._seq_end = self._seq_start + self.seq_len
