@@ -16,7 +16,7 @@ mpl.rcParams['font.family'] = 'arial'
 
 
 def plot_env(env, num_steps=200, num_trials=None, def_act=None, model=None,
-             name=None, legend=True, obs_traces=[], fig_kwargs={}, fname=None):
+             name=None, legend=True, ob_traces=[], fig_kwargs={}, fname=None):
     """Plot environment with agent.
 
     Args:
@@ -31,8 +31,8 @@ def plot_env(env, num_steps=200, num_trials=None, def_act=None, model=None,
                    (https://github.com/hill-a/stable-baselines)
         name: title to show on the rewards panel
         legend: whether to show the legend for actions panel or not.
-        obs_traces: if != [] observations will be plot as traces, with the labels
-                    specified by obs_traces
+        ob_traces: if != [] observations will be plot as traces, with the labels
+                    specified by ob_traces
         fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
         fname: if not None, save fig or movie to fname
     """
@@ -48,10 +48,10 @@ def plot_env(env, num_steps=200, num_trials=None, def_act=None, model=None,
                    def_act=def_act, model=model)
 
     fig = fig_(
-        data['obs'], data['actions'],
+        data['ob'], data['actions'],
         gt=data['gt'], rewards=data['rewards'],
         legend=legend, performance=data['perf'],
-        states=data['states'], name=name, obs_traces=obs_traces,
+        states=data['states'], name=name, ob_traces=ob_traces,
         fig_kwargs=fig_kwargs, env=env, fname=fname
     )
 
@@ -60,15 +60,15 @@ def plot_env(env, num_steps=200, num_trials=None, def_act=None, model=None,
 
 def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     observations = []
-    obs_cum = []
+    ob_cum = []
     state_mat = []
     rewards = []
     actions = []
     actions_end_of_trial = []
     gt = []
     perf = []
-    obs = env.reset()  # TODO: not saving this first observation
-    obs_cum_temp = obs
+    ob = env.reset()  # TODO: not saving this first observation
+    ob_cum_temp = ob
 
     if num_trials is not None:
         num_steps = 1e5  # Overwrite num_steps value
@@ -76,7 +76,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     trial_count = 0
     for stp in range(int(num_steps)):
         if model is not None:
-            action, _states = model.predict(obs)
+            action, _states = model.predict(ob)
             if isinstance(action, float) or isinstance(action, int):
                 action = [action]
             if len(_states) > 0:
@@ -85,21 +85,21 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
             action = def_act
         else:
             action = env.action_space.sample()
-        obs, rew, done, info = env.step(action)
-        obs_cum_temp += obs
-        obs_cum.append(obs_cum_temp.copy())
+        ob, rew, done, info = env.step(action)
+        ob_cum_temp += ob
+        ob_cum.append(ob_cum_temp.copy())
         if isinstance(info, list):
             info = info[0]
-            obs_aux = obs[0]
+            ob_aux = ob[0]
             rew = rew[0]
             done = done[0]
             action = action[0]
         else:
-            obs_aux = obs
+            ob_aux = ob
 
         if done:
             env.reset()
-        observations.append(obs_aux)
+        observations.append(ob_aux)
         rewards.append(rew)
         actions.append(action)
         if 'gt' in info.keys():
@@ -110,7 +110,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         if info['new_trial']:
             actions_end_of_trial.append(action)
             perf.append(info['performance'])
-            obs_cum_temp = np.zeros_like(obs_cum_temp)
+            ob_cum_temp = np.zeros_like(ob_cum_temp)
             trial_count += 1
             if num_trials is not None and trial_count >= num_trials:
                 break
@@ -125,8 +125,8 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         states = None
 
     data = {
-        'obs': np.array(observations),
-        'obs_cum': np.array(obs_cum),
+        'ob': np.array(observations),
+        'ob_cum': np.array(ob_cum),
         'rewards': rewards,
         'actions': actions,
         'perf': perf,
@@ -138,13 +138,13 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
 
 
 # TODO: Change name, fig_ not a good name
-def fig_(obs, actions, gt=None, rewards=None, performance=None, states=None,
-         legend=True, obs_traces=None, name='', fname=None, fig_kwargs={},
+def fig_(ob, actions, gt=None, rewards=None, performance=None, states=None,
+         legend=True, ob_traces=None, name='', fname=None, fig_kwargs={},
          env=None):
     """Visualize a run in a simple environment.
 
     Args:
-        obs: np array of observation (n_step, n_unit)
+        ob: np array of observation (n_step, n_unit)
         actions: np array of action (n_step, n_unit)
         gt: np array of groud truth
         rewards: np array of rewards
@@ -153,38 +153,38 @@ def fig_(obs, actions, gt=None, rewards=None, performance=None, states=None,
         name: title to show on the rewards panel and name to save figure
         fname: if != '', where to save the figure
         legend: whether to show the legend for actions panel or not.
-        obs_traces: None or list.
+        ob_traces: None or list.
             If list, observations will be plot as traces, with the labels
-            specified by obs_traces
+            specified by ob_traces
         fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
         env: environment class for extra information
     """
-    obs = np.array(obs)
+    ob = np.array(ob)
     actions = np.array(actions)
 
-    if len(obs.shape) == 2:
+    if len(ob.shape) == 2:
         return plot_env_1dbox(
-            obs, actions, gt=gt, rewards=rewards,
+            ob, actions, gt=gt, rewards=rewards,
             performance=performance, states=states, legend=legend,
-            obs_traces=obs_traces, name=name, fname=fname,
+            ob_traces=ob_traces, name=name, fname=fname,
             fig_kwargs=fig_kwargs, env=env
         )
-    elif len(obs.shape) == 4:
+    elif len(ob.shape) == 4:
         return plot_env_3dbox(
-            obs, actions, fname=fname, env=env
+            ob, actions, fname=fname, env=env
         )
     else:
-        raise ValueError('obs shape {} not supported'.format(str(obs.shape)))
+        raise ValueError('ob shape {} not supported'.format(str(ob.shape)))
 
 
 def plot_env_1dbox(
-        obs, actions, gt=None, rewards=None, performance=None, states=None,
-        legend=True, obs_traces=None, name='', fname=None, fig_kwargs={},
+        ob, actions, gt=None, rewards=None, performance=None, states=None,
+        legend=True, ob_traces=None, name='', fname=None, fig_kwargs={},
         env=None):
     """Plot environment with 1-D Box observation space."""
-    if len(obs.shape) != 2:
-        raise ValueError('obs has to be 2-dimensional.')
-    steps = np.arange(obs.shape[0])  # XXX: +1? 1st obs doesn't have action/gt
+    if len(ob.shape) != 2:
+        raise ValueError('ob has to be 2-dimensional.')
+    steps = np.arange(ob.shape[0])  # XXX: +1? 1st ob doesn't have action/gt
 
     n_row = 2  # observation and action
     n_row += rewards is not None
@@ -197,18 +197,18 @@ def plot_env_1dbox(
 
     f, axes = plt.subplots(n_row, 1, **fig_kwargs)
     i_ax = 0
-    # obs
+    # ob
     ax = axes[i_ax]
     i_ax += 1
-    if obs_traces:
-        assert len(obs_traces) == obs.shape[1],\
+    if ob_traces:
+        assert len(ob_traces) == ob.shape[1],\
             'Please provide label for each trace in the observations'
-        for ind_tr, tr in enumerate(obs_traces):
-            ax.plot(obs[:, ind_tr], label=obs_traces[ind_tr])
+        for ind_tr, tr in enumerate(ob_traces):
+            ax.plot(ob[:, ind_tr], label=ob_traces[ind_tr])
         ax.legend()
         ax.set_xlim([-0.5, len(steps)-0.5])
     else:
-        ax.imshow(obs.T, aspect='auto', origin='lower')
+        ax.imshow(ob.T, aspect='auto', origin='lower')
         if env and env.ob_dict:
             # Plot environment annotation
             yticks = []
@@ -318,22 +318,22 @@ def plot_env_1dbox(
     return f
 
 
-def plot_env_3dbox(obs, actions=None, fname='', env=None):
+def plot_env_3dbox(ob, actions=None, fname='', env=None):
     """Plot environment with 3-D Box observation space."""
     fig = plt.figure()
     ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
     ax.axis('off')
-    im = ax.imshow(obs[0], animated=True)
+    im = ax.imshow(ob[0], animated=True)
 
     def animate(i, *args, **kwargs):
-        im.set_array(obs[i])
+        im.set_array(ob[i])
         return im,
 
     if env is not None:
         interval = env.dt
     else:
         interval = 50
-    ani = animation.FuncAnimation(fig, animate, frames=obs.shape[0],
+    ani = animation.FuncAnimation(fig, animate, frames=ob.shape[0],
                                   interval=interval)
     writer = animation.writers['ffmpeg'](fps=int(1000/interval))
     if fname:
