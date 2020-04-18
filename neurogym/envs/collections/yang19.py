@@ -33,11 +33,6 @@ def yang19dlymatchcategory(**kwargs):
     return env
 
 
-def yang19dlygo(**kwargs):
-    env = gym.make('ReachingDelayResponse-v0', **kwargs)
-    return env
-
-
 def yang19antigo(**kwargs):
     env = gym.make('AntiReach-v0', **kwargs)
     return env
