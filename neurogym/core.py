@@ -141,9 +141,16 @@ class TrialEnv(BaseEnv):
                 new_tr_fn()
         return obs, reward, done, info
 
-    def reset(self, new_tr_fn=None, step_fn=None):
-        """
-        restarts the experiment with the same parameters
+    def reset(self, new_tr_fn=None, step_fn=None, no_step=False):
+        """Reset the environment.
+
+        Args:
+            new_tr_fn: function or None. If function, overwrite original
+                self.new_trial function
+            step_fn: function or None. If function, overwrite original
+                self.step function
+            no_step: bool. If True, no step is taken and observation randomly
+                sampled. Default False.
         """
         self.num_tr = 0
         self.t = self.t_ind = 0
@@ -154,6 +161,8 @@ class TrialEnv(BaseEnv):
         else:
             new_tr_fn()
         self.action_space.seed(0)
+        if no_step:
+            return self.observation_space.sample()
         if step_fn is None:
             obs, _, _, _ = self.step(self.action_space.sample(),
                                      new_tr_fn=new_tr_fn)
