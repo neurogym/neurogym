@@ -16,8 +16,10 @@ def _collection_from_file(fname):
 
 
 def get_collection(collection):
-    # if collection == ''
-    try:
-        return _collection_from_file(collection)
-    except ModuleNotFoundError:
-        raise ValueError('Unknown collection of envs, {}'.format(collection))
+    if collection == '':
+        return []  # placeholder for named collections
+    else:
+        try:
+            return _collection_from_file(collection)
+        except ModuleNotFoundError:
+            raise ValueError('Unknown collection of envs, {}'.format(collection))

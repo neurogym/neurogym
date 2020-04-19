@@ -107,9 +107,12 @@ ALL_ENVS = {
 ALL_EXTENDED_ENVS = {**ALL_ENVS, **ALL_COLLECTIONS_ENVS}
 
 
-def all_envs(tag=None):
+def all_envs(tag=None, psychopy=False):
     """Return a list of all envs in neurogym."""
-    env_list = sorted(list(ALL_ENVS.keys()))
+    envs = ALL_NATIVE_ENVS.copy()
+    if psychopy:
+        envs.update(ALL_PSYCHOPY_ENVS)
+    env_list = sorted(list(envs.keys()))
     if tag is None:
         return env_list
     else:
@@ -118,7 +121,7 @@ def all_envs(tag=None):
 
         new_env_list = list()
         for env in env_list:
-            from_, class_ = ALL_ENVS[env].split(':')
+            from_, class_ = envs[env].split(':')
             imported = getattr(__import__(from_, fromlist=[class_]), class_)
             env_tag = imported.metadata.get('tags', [])
             if tag in env_tag:

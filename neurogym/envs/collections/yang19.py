@@ -24,7 +24,10 @@ def yang19dlydm(**kwargs):
 
 
 def yang19dlymatchsample(**kwargs):
-    env = gym.make('DelayMatchSample-v0', **kwargs)
+    timing = {'delay': ('choice', [100, 200, 400, 800])}
+    env_kwargs = {'sigma': 0.5, 'timing': timing}
+    env_kwargs.update(kwargs)
+    env = gym.make('DelayMatchSample-v0', **env_kwargs)
     return env
 
 
