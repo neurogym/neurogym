@@ -106,6 +106,7 @@ class ReadySetGo(ngym.PeriodEnv):
                     reward = (1. - eps/eps_threshold)**1.5
                     reward = max(reward, 0.1)
                     reward *= self.rewards['correct']
+                    self.performance = 1
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
