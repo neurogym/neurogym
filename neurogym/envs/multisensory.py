@@ -97,6 +97,7 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
                 new_trial = True
                 if action == gt:
                     reward = self.rewards['correct']
+                    self.performance = 1
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 

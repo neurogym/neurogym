@@ -202,6 +202,7 @@ class MotorTiming(ngym.PeriodEnv):
                     reward = (1. - eps/eps_threshold)**1.5
                     reward = max(reward, 0.1)
                     reward *= self.rewards['correct']
+                    self.performance = 1
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
@@ -296,6 +297,7 @@ class OneTwoThreeGo(ngym.PeriodEnv):
                     reward = (1. - eps/eps_threshold)**1.5
                     reward = max(reward, 0.1)
                     reward *= self.rewards['correct']
+                    self.performance = 1
         else:
             if action != 0:
                 new_trial = self.abort
