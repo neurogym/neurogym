@@ -22,7 +22,7 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
-                 sigma=1.5, n_ch=3):
+                 sigma=1.0, n_ch=3):
         super().__init__(dt=dt)
         self.n = n_ch
         self.choices = np.arange(n_ch) + 1

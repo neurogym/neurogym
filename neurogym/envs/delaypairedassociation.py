@@ -20,7 +20,7 @@ class DelayPairedAssociation(ngym.PeriodEnv):
                  'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.5):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0):
         super().__init__(dt=dt)
         self.choices = [0, 1]
         # trial conditions
@@ -37,7 +37,7 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         self.timing = {
             'fixation': ('constant', 0),
             'stim1': ('constant', 1000),
-            'delay_btw_stim': ('constant', 13000),
+            'delay_btw_stim': ('constant', 1000),
             'stim2': ('constant', 1000),
             'delay_aft_stim': ('constant', 1000),
             'decision': ('constant', 500)}

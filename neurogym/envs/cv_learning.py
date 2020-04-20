@@ -33,7 +33,7 @@ class CVLearning(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
-                 sigma=1.5, max_num_reps=3, th_stage=0.7, keep_days=1,
+                 sigma=1.0, max_num_reps=3, th_stage=0.7, keep_days=1,
                  trials_day=300, perf_len=20, stages=[0, 1, 2, 3, 4]):
         super().__init__(dt=dt)
         self.choices = [1, 2]

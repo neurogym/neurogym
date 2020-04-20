@@ -29,7 +29,7 @@ class Detection(ngym.PeriodEnv):
                      'supervised']
             }
 
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.5, delay=None,
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0, delay=None,
                  stim_dur=100):
         super().__init__(dt=dt)
         # Possible decisions at the end of the trial

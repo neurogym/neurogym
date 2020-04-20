@@ -28,7 +28,7 @@ class PostDecisionWager(ngym.PeriodEnv):
         'tags': ['perceptual', 'delayed response', 'confidence']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, dim_ring=2, sigma=1.5):
+    def __init__(self, dt=100, rewards=None, timing=None, dim_ring=2, sigma=1.0):
         super().__init__(dt=dt)
 
         self.wagers = [True, False]

@@ -25,7 +25,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
-                 sigma=1.5, dim_ring=2):
+                 sigma=1.0, dim_ring=2):
         super().__init__(dt=dt)
         # The strength of evidence, modulated by stim_scale
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stim_scale
@@ -139,7 +139,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
-                 sigma=1.5):
+                 sigma=1.0):
         super().__init__(dt=dt)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence (modulated by stim_scale)

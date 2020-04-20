@@ -30,7 +30,7 @@ class ChangingEnvironment(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
-                 sigma=1.5, cxt_ch_prob=0.001, cxt_cue=False):
+                 sigma=1.0, cxt_ch_prob=0.001, cxt_cue=False):
         super().__init__(dt=dt)
 
         # Possible contexts

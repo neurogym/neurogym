@@ -23,7 +23,7 @@ class DelayMatchSample(ngym.PeriodEnv):
                  'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.5):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0):
         super().__init__(dt=dt)
         # TODO: Code a continuous space version
         self.choices = [1, 2]
@@ -124,7 +124,7 @@ class DelayMatchSampleDistractor1D(ngym.PeriodEnv):
                  'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.5):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0):
         super().__init__(dt=dt)
         self.choices = [1, 2, 3]
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise

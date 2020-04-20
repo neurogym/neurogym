@@ -15,7 +15,7 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
         'tags': ['perceptual', 'two-alternative', 'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.5):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0):
         super().__init__(dt=dt)
 
         # trial conditions
