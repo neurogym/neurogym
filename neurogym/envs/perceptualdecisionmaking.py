@@ -170,17 +170,6 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
                                             dtype=np.float32)
 
     def new_trial(self, **kwargs):
-        """
-        new_trial() is called when a trial ends to generate the next trial.
-        The following variables are created:
-            durations, which stores the duration of the different periods (in
-            the case of perceptualDecisionMaking: fixation, stimulus and
-            decision periods)
-            ground truth: correct response for the trial
-            coh: stimulus coherence (evidence) for the trial
-            obs: observation
-        """
-
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
@@ -194,10 +183,8 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        self.add_period('fixation', after=0)
-        self.add_period('stimulus', after='fixation')
-        self.add_period('delay', after='stimulus')
-        self.add_period('decision', after='delay', last_period=True)
+        periods = ['fixation', 'stimulus', 'delay', 'decision']
+        self.add_period(periods, after=0, last_period=True)
 
         # define observations
         self.set_ob([1, 0, 0], 'fixation')
@@ -213,15 +200,6 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         self.set_groundtruth(self.trial['ground_truth'], 'decision')
 
     def _step(self, action):
-        """
-        _step receives an action and returns:
-            a new observation, obs
-            reward associated with the action, reward
-            a boolean variable indicating whether the experiment has end, done
-            a dictionary with extra information:
-                ground truth correct response, info['gt']
-                boolean indicating the end of the trial, info['new_trial']
-        """
         # ---------------------------------------------------------------------
         # Reward and observations
         # ---------------------------------------------------------------------

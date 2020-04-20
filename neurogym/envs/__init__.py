@@ -9,7 +9,7 @@ ALL_NATIVE_ENVS = {
     'ContextDecisionMaking-v0':
         'neurogym.envs.contextdecisionmaking:ContextDecisionMaking',
     'DelayComparison-v0':
-        'neurogym.envs.delayedcomparison:DelayComparison',
+        'neurogym.envs.delaycomparison:DelayComparison',
     'PerceptualDecisionMaking-v0':
         'neurogym.envs.perceptualdecisionmaking:PerceptualDecisionMaking',
     'EconomicDecisionMaking-v0':

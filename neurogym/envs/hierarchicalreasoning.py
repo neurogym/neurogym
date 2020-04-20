@@ -102,15 +102,6 @@ class HierarchicalReasoning(ngym.PeriodEnv):
             self.new_block()
 
     def _step(self, action):
-        """
-        _step receives an action and returns:
-            a new observation, obs
-            reward associated with the action, reward
-            a boolean variable indicating whether the experiment has end, done
-            a dictionary with extra information:
-                ground truth correct response, info['gt']
-                boolean indicating the end of the trial, info['new_trial']
-        """
         new_trial = False
         # rewards
         reward = 0

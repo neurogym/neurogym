@@ -12,7 +12,6 @@ class ProbabilisticReasoning(ngym.PeriodEnv):
 
     Args:
         shape_weight: array-like, evidence weight of each shape
-        dim_shape: int, dimension of shape representation
         n_loc: int, number of location of show shapes
     """
     metadata = {
@@ -22,7 +21,7 @@ class ProbabilisticReasoning(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, shape_weight=None,
-                 dim_shape=5, n_loc=4):
+                 n_loc=4):
         super().__init__(dt=dt)
         # The evidence weight of each stimulus
         if shape_weight is not None:
@@ -32,8 +31,9 @@ class ProbabilisticReasoning(ngym.PeriodEnv):
                                  0.3, 0.5, 0.7, 0.9, 10]
             
         self.n_shape = len(self.shape_weight)
-        self.dim_shape = dim_shape
-        self.shapes = self.rng.randn(self.n_shape, dim_shape)
+        dim_shape = self.n_shape
+        # Shape representation needs to be fixed cross-platform
+        self.shapes = np.eye(self.n_shape, dim_shape)
         self.n_loc = n_loc
 
         # Rewards

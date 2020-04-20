@@ -11,6 +11,7 @@ from gym import spaces
 import neurogym as ngym
 
 
+# TODO: Need a more intuitive name
 class ChangingEnvironment(ngym.PeriodEnv):
     r"""Random Dots Motion tasks in which the correct action
     depends on a randomly changing context.
@@ -66,12 +67,6 @@ class ChangingEnvironment(ngym.PeriodEnv):
                                             dtype=np.float32)
 
     def new_trial(self, **kwargs):
-        """
-        new_trial() is called when a trial ends to generate the next trial.
-        Here you have to set (at least):
-        1. The ground truth: the correct answer for the created trial.
-        2. The trial periods: fixation, stimulus...
-            """
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
@@ -133,15 +128,6 @@ class ChangingEnvironment(ngym.PeriodEnv):
         self.set_groundtruth(ground_truth, 'decision')
 
     def _step(self, action):
-        """
-        _step receives an action and returns:
-            a new observation, obs
-            reward associated with the action, reward
-            a boolean variable indicating whether the experiment has end, done
-            a dictionary with extra information:
-                ground truth correct response, info['gt']
-                boolean indicating the end of the trial, info['new_trial']
-        """
         new_trial = False
         # rewards
         reward = 0

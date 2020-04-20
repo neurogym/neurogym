@@ -36,7 +36,7 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
             self.rewards.update(rewards)
         self.timing = {
             'fixation': ('constant', 500),
-            'stimulus': ('truncated_exponential', [330, 80, 1500]),
+            'stimulus': ('truncated_exponential', [330, 100, 1500]),
             'decision': ('constant', 500)}
         if timing:
             self.timing.update(timing)
@@ -67,7 +67,7 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
 
         self.add_period(['fixation', 'stimulus', 'decision'], after=0, last_period=True)
 
-        self.add_ob(1, 'fixation', where='fixation')
+        self.add_ob(1, ['fixation', 'stimulus'], where='fixation')
         stim = np.ones(self.n) * (1 - self.trial['coh']/100)/2
         stim[self.trial['ground_truth'] - 1] = (1 + self.trial['coh']/100)/2
         self.add_ob(stim, 'stimulus', where='stimulus')

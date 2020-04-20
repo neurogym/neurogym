@@ -53,16 +53,6 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         self.ob_dict = {'fixation': 0, 'stimulus': range(1, 5)}
 
     def new_trial(self, **kwargs):
-        """
-        new_trial() is called when a trial ends to generate the next trial.
-        The following variables are created:
-            durations, which stores the duration of the different periods (in
-            the case of perceptualDecisionMaking: fixation, stimulus
-            and decision periods)
-            ground truth: correct response for the trial
-            coh: stimulus coherence (evidence) for the trial
-            obs: observation
-        """
         pair = self.pairs[self.rng.choice(len(self.pairs))]
         self.trial = {
             'pair': pair,
@@ -92,15 +82,6 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         self.performance = 1-self.trial['ground_truth']
 
     def _step(self, action, **kwargs):
-        """
-        _step receives an action and returns:
-            a new observation, obs
-            reward associated with the action, reward
-            a boolean variable indicating whether the experiment has end, done
-            a dictionary with extra information:
-                ground truth correct response, info['gt']
-                boolean indicating the end of the trial, info['new_trial']
-        """
         # ---------------------------------------------------------------------
         # Reward and observations
         # ---------------------------------------------------------------------

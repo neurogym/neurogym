@@ -20,7 +20,7 @@ class MatchingPenny(ngym.TrialEnv):
         'paper_link': 'https://www.nature.com/articles/nn1209',
         'paper_name': '''Prefrontal cortex and decision making in a
          mixed-strategy game''',
-        'tags': ['two-alternative', 'supervised']
+        'tags': ['two-alternative']
     }
 
     def __init__(self, dt=100, rewards=None, timing=None,
