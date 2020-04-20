@@ -74,9 +74,9 @@ def test_speed_all():
 
 
 def test_speed_dataset(env):
-    batch_size = 32
+    batch_size = 16
     seq_len = 100
-    kwargs = {'dt': 20}
+    kwargs = {}
     dataset = ngym.Dataset(
         env, env_kwargs=kwargs, batch_size=batch_size, seq_len=seq_len)
     n_batch = 100
@@ -103,6 +103,4 @@ def test_speed_dataset_all():
 
 
 if __name__ == '__main__':
-    test_speed('PerceptualDecisionMaking-v0')
-    test_speed_with_new_trial('PerceptualDecisionMaking-v0')
-    test_speed_dataset('PerceptualDecisionMaking-v0')
+    pass
