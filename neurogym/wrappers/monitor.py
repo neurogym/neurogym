@@ -53,7 +53,7 @@ class Monitor(ngym.TrialWrapper):
         else:
             self.folder = "/tmp/"
         if not os.path.exists(self.folder):
-            os.mkdir(self.folder)
+            os.makedirs(self.folder)
         # seeding
         self.sv_name = self.folder +\
             self.env.__class__.__name__+'_bhvr_data_'+name+'_'
@@ -131,10 +131,10 @@ class Monitor(ngym.TrialWrapper):
         elif len(self.rew_mat) > 0:
             obs_mat = np.array(self.ob_mat)
             act_mat = np.array(self.act_mat)
-            fig_(obs=obs_mat, actions=act_mat,
+            fig_(ob=obs_mat, actions=act_mat,
                  gt=self.gt_mat, rewards=self.rew_mat,
                  performance=self.perf_mat,
-                 folder=self.sv_name+f'task_{self.num_tr:06}.'+self.fig_type)
+                 fname=self.sv_name+f'task_{self.num_tr:06}.'+self.fig_type)
             self.ob_mat = []
             self.act_mat = []
             self.rew_mat = []
