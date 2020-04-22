@@ -34,9 +34,10 @@ class CVLearning(ngym.PeriodEnv):
 
     def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
                  sigma=1.0, max_num_reps=3, th_stage=0.7, keep_days=1,
-                 trials_day=300, perf_len=20, stages=[0, 1, 2, 3, 4]):
+                 trials_day=300, perf_len=20, stages=[0, 1, 2, 3, 4], n_ch=10):
         super().__init__(dt=dt)
         self.choices = [1, 2]
+        self.n_ch = n_ch
         # cohs specifies the amount of evidence
         # (which is modulated by stim_scale)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stim_scale
@@ -104,8 +105,8 @@ class CVLearning(ngym.PeriodEnv):
         self.dur = [0]*len(self.delay_durs)
 
         # action and observation spaces
-        self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
+        self.action_space = spaces.Discrete(n_ch+1)
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(n_ch+1,),
                                             dtype=np.float32)
 
     def new_trial(self, **kwargs):
@@ -202,15 +203,15 @@ class CVLearning(ngym.PeriodEnv):
         self.add_period('decision', after='delay', last_period=True)
 
         # define observations
-        self.set_ob([1, 0, 0], 'fixation')
+        self.set_ob([1]+[0]*self.n_ch, 'fixation')
         stim = self.view_ob('stimulus')
         stim[:, 0] = 1
         stim[:, 1:] = (1 - self.trial['coh']/100)/2
         stim[:, self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
         stim[:, 1:] +=\
-            self.rng.randn(stim.shape[0], 2) * self.trial['sigma']
+            self.rng.randn(stim.shape[0], self.n_ch) * self.trial['sigma']
 
-        self.set_ob([1, 0, 0], 'delay')
+        self.set_ob([1]+[0]*self.n_ch, 'delay')
 
         self.set_groundtruth(self.trial['ground_truth'], 'decision')
 
@@ -323,5 +324,4 @@ class CVLearning(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = CVLearning(stages=[0, 1, 2], trials_day=1, keep_days=1)
-    data = ngym.utils.plot_env(env, num_steps=100,
-                               obs_traces=['Fixation Cue', 'Stim1', 'Stim2'])
+    data = ngym.utils.plot_env(env, num_steps=100)
