@@ -4,6 +4,7 @@
 import numpy as np
 from gym import spaces
 import neurogym as ngym
+import matplotlib.pyplot as plt
 
 
 class CVLearning(ngym.PeriodEnv):
@@ -206,11 +207,11 @@ class CVLearning(ngym.PeriodEnv):
         self.set_ob([1]+[0]*self.n_ch, 'fixation')
         stim = self.view_ob('stimulus')
         stim[:, 0] = 1
-        stim[:, 1:] = (1 - self.trial['coh']/100)/2
+        stim[:, 1:3] = (1 - self.trial['coh']/100)/2
         stim[:, self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
+        stim[:, 3:] = 0.5
         stim[:, 1:] +=\
             self.rng.randn(stim.shape[0], self.n_ch) * self.trial['sigma']
-
         self.set_ob([1]+[0]*self.n_ch, 'delay')
 
         self.set_groundtruth(self.trial['ground_truth'], 'decision')
@@ -257,9 +258,6 @@ class CVLearning(ngym.PeriodEnv):
             self.delay_milestone = self.inc_delays
             if self.curr_perf >= self.th_perf and self.max_delays:
                 self.keep_stage = True
-                print(self.curr_ph)
-                print(self.days_keep)
-                print('-------')
 
             else:
                 self.keep_stage = False
@@ -282,10 +280,9 @@ class CVLearning(ngym.PeriodEnv):
         reward = 0
         gt = self.gt_now
         first_choice = False
-        if self.in_period('fixation') or self.in_period('delay'):
-            if action != 0:
-                new_trial = self.abort
-                reward = self.rewards['abort']
+        if action != 0 and not self.in_period('decision'):
+            new_trial = self.abort
+            reward = self.rewards['abort']
         elif self.in_period('decision'):
             if action == gt:
                 reward = self.rewards['correct']
@@ -323,5 +320,6 @@ class CVLearning(ngym.PeriodEnv):
 
 
 if __name__ == '__main__':
-    env = CVLearning(stages=[0, 1, 2], trials_day=1, keep_days=1)
-    data = ngym.utils.plot_env(env, num_steps=100)
+    plt.close('all')
+    env = CVLearning(stages=[0, 1, 2, 3, 4], trials_day=5, keep_days=1)
+    data = ngym.utils.plot_env(env, num_steps=200)
