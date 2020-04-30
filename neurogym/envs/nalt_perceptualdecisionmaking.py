@@ -21,6 +21,9 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         history block to the observation space (from TrialHistory wrapper).
     """
     metadata = {
+        'description': '''N-alternative forced choice task in which the subject
+         has to integrate N stimuli to decide which one is higher
+          on average.''',
         'paper_link': 'https://www.nature.com/articles/nn.2123',
         'paper_name': 'Decision-making with multiple alternatives',
         'tags': ['perceptual', 'n-alternative', 'supervised']
