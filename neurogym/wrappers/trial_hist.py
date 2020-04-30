@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 import neurogym as ngym
 import numpy as np
 
@@ -27,36 +24,25 @@ class TrialHistory(ngym.TrialWrapper):
                  blk_ch_prob=None):
         super().__init__(env)
         try:
-            self.choices = self.task.choices
+            self.n_ch = len(self.task.choices) # max num of choices
+            self.th_choices = self.task.choices
+            self.curr_n_ch = self.n_ch
         except AttributeError:
             raise AttributeError('''SideBias requires task
                                  to have attribute choices''')
-        self.n_ch = len(self.choices)
         assert isinstance(self.task, ngym.TrialEnv), 'Task has to be TrialEnv'
         assert probs is not None, 'Please provide choices probabilities'
-        if isinstance(probs, float):
-            num_blocks = 2
-            tr_mat =\
-                np.zeros((num_blocks, self.n_ch, self.n_ch)) +\
-                (1-probs)/(self.n_ch-1)
-            for ind in range(self.n_ch-1):
-                tr_mat[0, ind, ind+1] = probs
-                tr_mat[1, ind, ind] = probs
-            tr_mat[0, self.n_ch-1, 0] = probs
-            tr_mat[1, self.n_ch-1, self.n_ch-1] = probs
-            probs = tr_mat
-        assert probs.shape[1] == self.n_ch,\
-            'The number of choices {:d}'.format(probs.shape[1]) +\
+        self.probs = probs
+        self.curr_tr_mat = self.trans_probs 
+        assert self.curr_tr_mat.shape[1] == self.n_ch,\
+            'The number of choices {:d}'.format(self.tr_mat.shape[1]) +\
             ' inferred from prob mismatchs {:d}'.format(self.n_ch) +\
             ' inferred from choices'
-
-        self.n_block = probs.shape[0]
+        self.n_block = self.curr_tr_mat.shape[0]
         self.curr_block = self.task.rng.choice(range(self.n_block))
-        self.probs = probs
         self.block_dur = block_dur
-        self.prev_trial = -1
+        self.prev_trial = self.rng.choice(self.n_ch) #random initialization
         self.blk_ch_prob = blk_ch_prob
-        print(self.probs.shape)
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
@@ -69,9 +55,47 @@ class TrialHistory(ngym.TrialWrapper):
         else:
             if self.task.rng.random() < self.blk_ch_prob:
                 self.curr_block = (self.curr_block + 1) % self.n_block
-        probs_curr_blk = self.probs[self.curr_block, self.prev_trial, :]
-        ground_truth = self.task.rng.choice(self.choices,
+
+        # Check if n_ch is passed and if it is different from previous value
+        if 'n_ch' in kwargs.keys() and kwargs['n_ch'] != self.curr_n_ch:
+            self.curr_n_ch = kwargs['n_ch']
+            self.prev_trial = self.rng.choice(self.th_choices[:self.curr_n_ch])
+            self.curr_tr_mat = self.trans_probs
+
+        probs_curr_blk = self.curr_tr_mat[self.curr_block, self.prev_trial, :]
+        ground_truth = self.task.rng.choice(self.th_choices[:self.curr_n_ch],
                                             p=probs_curr_blk)
-        self.prev_trial = np.where(self.choices == ground_truth)[0][0]
-        kwargs.update({'ground_truth': ground_truth})
+        self.prev_trial = np.where(self.th_choices[:self.curr_n_ch] == ground_truth)[0][0]
+        kwargs.update({'ground_truth': ground_truth,
+                       'curr_block': self.curr_block})
         self.env.new_trial(**kwargs)
+
+    @property
+    def trans_probs(self):
+        '''
+        Creates transition matrix if prob is float or if prob is already
+        the matrix it normalizes the probabilities and extracts a subset.
+        '''
+        if isinstance(self.probs, float):
+            num_blocks = 2
+            tr_mat =\
+                np.zeros((num_blocks, self.curr_n_ch, self.curr_n_ch)) +\
+                (1-self.probs)/(self.curr_n_ch-1)
+            for ind in range(self.curr_n_ch-1):
+                tr_mat[0, ind, ind+1] = self.probs
+                tr_mat[1, ind, ind] = self.probs
+            tr_mat[0, self.curr_n_ch-1, 0] = self.probs
+            tr_mat[1, self.curr_n_ch-1, self.curr_n_ch-1] = self.probs
+        else:
+            tr_mat = self.probs.copy()
+            scaled_tr_mat = tr_mat[:, :self.curr_n_ch, :self.curr_n_ch] 
+            scaled_tr_mat /= np.sum(scaled_tr_mat, axis=2, keepdims=True)
+            tr_mat = scaled_tr_mat
+        return tr_mat
+
+
+    def step(self, action, new_tr_fn=None):
+        ntr_fn = new_tr_fn or self.new_trial
+        obs, reward, done, info = self.env.step(action, new_tr_fn=ntr_fn)
+        info['curr_block'] = self.curr_block
+        return obs, reward, done, info
