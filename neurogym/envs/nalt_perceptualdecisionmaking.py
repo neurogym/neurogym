@@ -13,7 +13,12 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
 
     Args:
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)
+        sigma: float, input noise level
         n_ch: Number of choices. (def: 3, int)
+        ob_nch: bool, states whether we add number of choices
+        to the observation space. 
+        ob_histblock: bool, states whether we add number of current trial 
+        history block to the observation space (from TrialHistory wrapper).
     """
     metadata = {
         'paper_link': 'https://www.nature.com/articles/nn.2123',
@@ -21,12 +26,24 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         'tags': ['perceptual', 'n-alternative', 'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
-                 sigma=1.0, n_ch=3):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.5,
+                 stim_scale=1., n_ch=3, ob_nch=False,
+                 ob_histblock=False):
+
         super().__init__(dt=dt)
         self.n = n_ch
-        self.choices = np.arange(n_ch) + 1
-        # cohs specifies the amount of evidence (which is modulated by stim_scale)
+        self.choices = np.arange(n_ch)
+        self.ob_nch = ob_nch
+        self.ob_histblock = ob_histblock
+
+        assert isinstance(n_ch, int), 'n_ch must be integer'
+        assert n_ch > 1, 'n_ch must be at least 2'
+        assert isinstance(ob_histblock, bool), 'ob_histblock \
+                                                must be True/False'
+        assert isinstance(ob_nch, bool), 'ob_nch \
+                                                must be True/False'
+
+        # The strength of evidence, modulated by stim_scale.
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stim_scale
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
@@ -36,17 +53,27 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
             self.rewards.update(rewards)
         self.timing = {
             'fixation': ('constant', 500),
-            'stimulus': ('truncated_exponential', [330, 100, 1500]),
+            'stimulus': ('truncated_exponential', [330, 80, 1500]),
             'decision': ('constant', 500)}
         if timing:
             self.timing.update(timing)
 
         self.abort = False
-        # action and observation spaces
+
+        # Action and observation spaces
         self.action_space = spaces.Discrete(n_ch+1)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(n_ch+1,),
+        self.observation_space = spaces.Box(-np.inf, np.inf,
+                                            shape=(n_ch + ob_nch + 
+                                            ob_histblock + 1,),
                                             dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': range(1, n_ch+1)}
+        self.ob_dict = {'fixation': 0, 'stimulus': range(1, n_ch + 1)}
+        if ob_nch:
+            self.ob_dict.update({'Active choices': n_ch + ob_nch})
+        if ob_histblock:
+            self.ob_dict.update({'Current block': n_ch + ob_nch + ob_histblock})
+        
+        self.act_dict = {'fixation': 0, 'choice': range(1, n_ch + 1)}
+
 
     def new_trial(self, **kwargs):
         """
@@ -59,21 +86,39 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
+
+        #  Controling whether ground_truth and/or choices is passed.
+        if 'ground_truth' in kwargs.keys():
+            ground_truth = kwargs['ground_truth']
+        elif 'n_ch' in kwargs.keys():
+            ground_truth = self.rng.choice(np.arange(kwargs['n_ch']))
+        else:
+            ground_truth = self.rng.choice(self.choices)
+
         self.trial = {
-            'ground_truth': self.rng.choice(self.choices),
+            'ground_truth': ground_truth,
             'coh': self.rng.choice(self.cohs),
         }
         self.trial.update(kwargs)
+        self.add_period(['fixation', 'stimulus', 'decision'], after=0,
+                        last_period=True)
 
-        self.add_period(['fixation', 'stimulus', 'decision'], after=0, last_period=True)
-
-        self.add_ob(1, ['fixation', 'stimulus'], where='fixation')
+        self.add_ob(1, 'fixation', where='fixation')
         stim = np.ones(self.n) * (1 - self.trial['coh']/100)/2
-        stim[self.trial['ground_truth'] - 1] = (1 + self.trial['coh']/100)/2
+        stim[self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
         self.add_ob(stim, 'stimulus', where='stimulus')
-        self.add_randn(0, self.sigma, 'stimulus')
 
-        self.set_groundtruth(self.trial['ground_truth'], 'decision')
+        #  Adding active nch and/or current history block to observations.
+        if self.ob_nch and 'n_ch' in kwargs.keys():
+            self.add_ob(kwargs['n_ch'], where='Active choices')
+        if self.ob_histblock and 'curr_block' in kwargs.keys():
+            # We add 1 to make it visible in plots
+            self.add_ob(kwargs['curr_block']+1, where='Current block')
+
+        #  Adding noise to stimulus observations
+        self.add_randn(0, self.sigma, 'stimulus', where='stimulus')
+
+        self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
 
     def _step(self, action, **kwargs):
         """
@@ -106,7 +151,6 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
                     self.performance = 1
                 else:
                     reward = self.rewards['fail']
-
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
