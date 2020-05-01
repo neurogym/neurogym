@@ -30,7 +30,9 @@ ALL_WRAPPERS = {'CatchTrials-v0': 'neurogym.wrappers.catch_trials:CatchTrials',
                 'Identity-v0':
                     'neurogym.wrappers.identity:Identity',
                 'TransferLearning-v0':
-                    'neurogym.wrappers.transfer_learning:TransferLearning'
+                    'neurogym.wrappers.transfer_learning:TransferLearning',
+                'Variable_nch-v0':
+                    'neurogym.wrappers.variable_nch:Variable_nch'
                 }
 
 

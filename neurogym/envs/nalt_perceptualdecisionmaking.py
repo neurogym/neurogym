@@ -29,7 +29,7 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         'tags': ['perceptual', 'n-alternative', 'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.5,
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.,
                  stim_scale=1., n_ch=3, ob_nch=False,
                  ob_histblock=False):
 
@@ -112,8 +112,11 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         self.add_ob(stim, 'stimulus', where='stimulus')
 
         #  Adding active nch and/or current history block to observations.
-        if self.ob_nch and 'n_ch' in kwargs.keys():
-            self.add_ob(kwargs['n_ch'], where='Active choices')
+        if self.ob_nch:
+            if 'n_ch' in kwargs.keys():
+                self.add_ob(kwargs['n_ch'], where='Active choices')
+            else:
+                self.add_ob(len(self.choices), where='Active choices')
         if self.ob_histblock and 'curr_block' in kwargs.keys():
             # We add 1 to make it visible in plots
             self.add_ob(kwargs['curr_block']+1, where='Current block')
