@@ -63,14 +63,12 @@ class CVLearning(ngym.PeriodEnv):
         self.action = 0
         self.abort = False
         self.firstcounts = True
-        # if first try does not end trail, this variable indicates whether the
-        # action is not the first try
-        self.late_try = False
-        self.stage_ind = 0
+        self.first_flag = False
+        self.ind = 0
         if th_stage == -1:
             self.curr_ph = self.stages[-1]
         else:
-            self.curr_ph = self.stages[self.stage_ind]
+            self.curr_ph = self.stages[self.ind]
         self.rew = 0
 
         # PERFORMANCE VARIABLES
@@ -80,8 +78,8 @@ class CVLearning(ngym.PeriodEnv):
         self.trials_day = trials_day
         self.th_perf = th_stage
         self.day_perf = np.empty(trials_day)
-        self.w_keep = [keep_days]*len(self.stages)
-        self.days_keep = self.w_keep[self.stage_ind]
+        self.w_keep = [keep_days]*len(self.stages)  # TODO: simplify??
+        self.days_keep = self.w_keep[self.ind]
         self.keep_stage = False
         # Instantaneous performance
         self.inst_perf = 0
@@ -94,14 +92,14 @@ class CVLearning(ngym.PeriodEnv):
         self.action_counter = 0
         # stage 2
         # min performance to keep the agent in stage 2
-        self.min_perf = 0.5
+        self.min_perf = 0.5  # TODO: no magic numbers
         self.stage_reminder = False
         # stage 3
         self.delay_durs = self.timing['delay'][1]
         self.inc_delays = 0
         self.delay_milestone = 0
         self.inc_factor = 0.25
-        self.inc_delays_th = .0  # th perf to increase delays in stage 3
+        self.inc_delays_th = th_stage  # th perf to increase delays in stage 3
         self.dec_delays_th = 0.5  # th perf to decrease delays in stage 3
         self.trials_delay = 0
         self.max_delays = True
@@ -121,13 +119,6 @@ class CVLearning(ngym.PeriodEnv):
             coh: Stimulus coherence (evidence) for the trial.
             obs: Observation.
         """
-        self.day_perf[self.trials_counter] =\
-            1*(self.rew == self.rewards['correct'])
-        self.mov_perf[self.trials_counter % self.perf_len] =\
-            1*(self.rew == self.rewards['correct'])
-        self.trials_counter += 1
-        self.trials_delay += 1
-
         self.set_phase()
         if self.curr_ph == 0:
             # control that agent does not repeat side more than 3 times
@@ -194,7 +185,7 @@ class CVLearning(ngym.PeriodEnv):
             self.trial.update({'coh': 100})
             self.trial.update({'sigma': 0})
         # phase 4: ambiguity component is introduced
-        self.late_try = False
+        self.first_flag = False
 
         # ---------------------------------------------------------------------
         # Trial
@@ -239,6 +230,13 @@ class CVLearning(ngym.PeriodEnv):
 
     def set_phase(self):
         # print(self.curr_ph)
+        self.day_perf[self.trials_counter] =\
+            1*(self.rew == self.rewards['correct'])
+        self.mov_perf[self.trials_counter % self.perf_len] =\
+            1*(self.rew == self.rewards['correct'])
+        self.trials_counter += 1
+        self.trials_delay += 1
+
         # Instantaneous perfromace
         if self.trials_counter > self.perf_len:
             self.inst_perf = np.mean(self.mov_perf)
@@ -246,10 +244,10 @@ class CVLearning(ngym.PeriodEnv):
                 if 1 in self.stages:
                     self.curr_ph = 1
                     self.stage_reminder = True
-                    self.stage_ind -= 1
+                    self.ind -= 1
             elif self.inst_perf > self.th_perf and self.stage_reminder:
                 self.curr_ph = 2
-                self.stage_ind += 1
+                self.ind += 1
                 self.stage_reminder = False
 
         # End of the day
@@ -263,13 +261,13 @@ class CVLearning(ngym.PeriodEnv):
 
             else:
                 self.keep_stage = False
-                self.days_keep = self.w_keep[self.stage_ind]
+                self.days_keep = self.w_keep[self.ind]
             if self.keep_stage:
                 if self.days_keep <= 0 and\
                    self.curr_ph < self.stages[-1]:
-                    self.stage_ind += 1
-                    self.curr_ph = self.stages[self.stage_ind]
-                    self.days_keep = self.w_keep[self.stage_ind] + 1
+                    self.ind += 1
+                    self.curr_ph = self.stages[self.ind]
+                    self.days_keep = self.w_keep[self.ind] + 1
                     self.keep_stage = False
                 self.days_keep -= 1
 
@@ -289,16 +287,16 @@ class CVLearning(ngym.PeriodEnv):
             if action == gt:
                 reward = self.rewards['correct']
                 new_trial = True
-                if not self.late_try:
+                if not self.first_flag:
                     first_choice = True
-                    self.late_try = True
+                    self.first_flag = True
                     self.performance = 1
             elif action == 3 - gt:  # 3-action is the other act
                 reward = self.rewards['fail']
                 new_trial = self.firstcounts
-                if not self.late_try:
+                if not self.first_flag:
                     first_choice = True
-                    self.late_try = True
+                    self.first_flag = True
                     self.performance =\
                         self.rewards['fail'] == self.rewards['correct']
 
@@ -316,13 +314,14 @@ class CVLearning(ngym.PeriodEnv):
                 'keep_stage': self.keep_stage, 'inst_perf': self.inst_perf,
                 'trials_day': self.trials_counter, 'durs': self.dur,
                 'inc_delays': self.inc_delays, 'curr_perf': self.curr_perf,
-                'th_perf': self.th_perf, 'num_stps': self.t_ind}
+                'trials_count': self.trials_counter, 'th_perf': self.th_perf,
+                'num_stps': self.t_ind}
         return self.ob_now, reward, False, info
 
 
 if __name__ == '__main__':
     plt.close('all')
     env = CVLearning(stages=[0, 2, 3, 4], trials_day=2, keep_days=1)
-    data = ngym.utils.plot_env(env, num_steps=5000)
-    env = CVLearning(stages=[0, 3, 4], trials_day=2, keep_days=1)
-    data = ngym.utils.plot_env(env, num_steps=5000)
+    data = ngym.utils.plot_env(env, num_steps=200)
+    env = CVLearning(stages=[3, 4], trials_day=2, keep_days=1)
+    data = ngym.utils.plot_env(env, num_steps=200)
