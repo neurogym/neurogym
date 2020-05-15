@@ -132,6 +132,7 @@ class CVLearning(ngym.PeriodEnv):
 
         # init durations with None
         self.durs = {key: None for key in self.timing}
+        self.firstcounts = True
 
         self.first_choice_rew = None
         if self.curr_ph == 0:
@@ -163,7 +164,6 @@ class CVLearning(ngym.PeriodEnv):
             self.trial.update({'coh': 100})
             self.trial.update({'sigma': 0})
             self.rewards['fail'] = self.r_fail
-            self.firstcounts = True
         elif self.curr_ph == 3:
             self.rewards['fail'] = self.r_fail
             if self.trials_delay > self.perf_len:
