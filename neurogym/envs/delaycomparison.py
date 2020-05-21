@@ -66,6 +66,8 @@ class DelayComparison(ngym.PeriodEnv):
         f1, f2 = self.trial['fpair']
         if self.trial['ground_truth'] == 2:
             f1, f2 = f2, f1
+        self.trial['f1'] = f1
+        self.trial['f2'] = f2
         # -------------------------------------------------------------------------
         # Periods
         # --------------------------------------------------------------------------
