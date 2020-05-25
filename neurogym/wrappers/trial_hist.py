@@ -8,6 +8,8 @@ class TrialHistory(ngym.TrialWrapper):
         probs: matrix of probabilities of the current choice conditioned
             on the previous for each block. (def: None, np.array,
             num-blocks x num-choices x num-choices)
+        num_blocks: if 2, repeating and ascending blocks created; if 3,
+        an extra descending blocks is added
         block_dur: Number of trials per block. (def: 200 (int))
         blk_ch_prob: If not None, specifies the probability of changing block
             (randomly). (def: None, float)
@@ -20,7 +22,7 @@ class TrialHistory(ngym.TrialWrapper):
         'on perceptual decisions'
     }
 
-    def __init__(self, env, probs=None, block_dur=200,
+    def __init__(self, env, probs=None, block_dur=200, num_blocks=2,
                  blk_ch_prob=None):
         super().__init__(env)
         try:
@@ -33,6 +35,7 @@ class TrialHistory(ngym.TrialWrapper):
         assert isinstance(self.task, ngym.TrialEnv), 'Task has to be TrialEnv'
         assert probs is not None, 'Please provide choices probabilities'
         self.probs = probs
+        self.num_blocks = num_blocks
         self.curr_tr_mat = self.trans_probs 
         assert self.curr_tr_mat.shape[1] == self.n_ch,\
             'The number of choices {:d}'.format(self.tr_mat.shape[1]) +\
@@ -77,15 +80,20 @@ class TrialHistory(ngym.TrialWrapper):
         the matrix it normalizes the probabilities and extracts a subset.
         '''
         if isinstance(self.probs, float):
-            num_blocks = 2
+            num_blocks = self.num_blocks
             tr_mat =\
                 np.zeros((num_blocks, self.curr_n_ch, self.curr_n_ch)) +\
                 (1-self.probs)/(self.curr_n_ch-1)
             for ind in range(self.curr_n_ch-1):
-                tr_mat[0, ind, ind+1] = self.probs
-                tr_mat[1, ind, ind] = self.probs
+                tr_mat[0, ind, ind+1] = self.probs  # ascending block
+                tr_mat[1, ind, ind] = self.probs    # repeating block
+                if num_blocks == 3:
+                    tr_mat[2, ind, ind-1] = self.probs  # descending block
+            # Solving at the limits
             tr_mat[0, self.curr_n_ch-1, 0] = self.probs
             tr_mat[1, self.curr_n_ch-1, self.curr_n_ch-1] = self.probs
+            if num_blocks == 3:
+                tr_mat[2, self.curr_n_ch-1, self.curr_n_ch-2] = self.probs
         else:
             tr_mat = self.probs.copy()
             scaled_tr_mat = tr_mat[:, :self.curr_n_ch, :self.curr_n_ch] 
