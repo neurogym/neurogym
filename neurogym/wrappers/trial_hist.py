@@ -1,6 +1,7 @@
 import neurogym as ngym
 import numpy as np
 
+
 class TrialHistory(ngym.TrialWrapper):
     """Change ground truth probability based on previous outcome.
 
@@ -92,7 +93,6 @@ class TrialHistory(ngym.TrialWrapper):
             scaled_tr_mat /= np.sum(scaled_tr_mat, axis=2, keepdims=True)
             tr_mat = scaled_tr_mat
         return tr_mat
-
 
     def step(self, action, new_tr_fn=None):
         ntr_fn = new_tr_fn or self.new_trial
