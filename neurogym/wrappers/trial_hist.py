@@ -1,6 +1,7 @@
 import neurogym as ngym
 import numpy as np
 
+
 class TrialHistory(ngym.TrialWrapper):
     """Change ground truth probability based on previous outcome.
 
@@ -24,7 +25,7 @@ class TrialHistory(ngym.TrialWrapper):
                  blk_ch_prob=None):
         super().__init__(env)
         try:
-            self.n_ch = len(self.task.choices) # max num of choices
+            self.n_ch = len(self.task.choices)  # max num of choices
             self.th_choices = self.task.choices
             self.curr_n_ch = self.n_ch
         except AttributeError:
@@ -33,7 +34,7 @@ class TrialHistory(ngym.TrialWrapper):
         assert isinstance(self.task, ngym.TrialEnv), 'Task has to be TrialEnv'
         assert probs is not None, 'Please provide choices probabilities'
         self.probs = probs
-        self.curr_tr_mat = self.trans_probs 
+        self.curr_tr_mat = self.trans_probs
         assert self.curr_tr_mat.shape[1] == self.n_ch,\
             'The number of choices {:d}'.format(self.tr_mat.shape[1]) +\
             ' inferred from prob mismatchs {:d}'.format(self.n_ch) +\
@@ -41,7 +42,7 @@ class TrialHistory(ngym.TrialWrapper):
         self.n_block = self.curr_tr_mat.shape[0]
         self.curr_block = self.task.rng.choice(range(self.n_block))
         self.block_dur = block_dur
-        self.prev_trial = self.rng.choice(self.n_ch) #random initialization
+        self.prev_trial = self.rng.choice(self.n_ch)  # random initialization
         self.blk_ch_prob = blk_ch_prob
 
     def new_trial(self, **kwargs):
@@ -65,7 +66,8 @@ class TrialHistory(ngym.TrialWrapper):
         probs_curr_blk = self.curr_tr_mat[self.curr_block, self.prev_trial, :]
         ground_truth = self.task.rng.choice(self.th_choices[:self.curr_n_ch],
                                             p=probs_curr_blk)
-        self.prev_trial = np.where(self.th_choices[:self.curr_n_ch] == ground_truth)[0][0]
+        self.prev_trial =\
+            np.where(self.th_choices[:self.curr_n_ch] == ground_truth)[0][0]
         kwargs.update({'ground_truth': ground_truth,
                        'curr_block': self.curr_block})
         self.env.new_trial(**kwargs)
@@ -88,11 +90,10 @@ class TrialHistory(ngym.TrialWrapper):
             tr_mat[1, self.curr_n_ch-1, self.curr_n_ch-1] = self.probs
         else:
             tr_mat = self.probs.copy()
-            scaled_tr_mat = tr_mat[:, :self.curr_n_ch, :self.curr_n_ch] 
+            scaled_tr_mat = tr_mat[:, :self.curr_n_ch, :self.curr_n_ch]
             scaled_tr_mat /= np.sum(scaled_tr_mat, axis=2, keepdims=True)
             tr_mat = scaled_tr_mat
         return tr_mat
-
 
     def step(self, action, new_tr_fn=None):
         ntr_fn = new_tr_fn or self.new_trial

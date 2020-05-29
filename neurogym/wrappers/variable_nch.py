@@ -54,7 +54,7 @@ class Variable_nch(ngym.TrialWrapper):
         if self.task.num_tr % self.block_nch == 0:
             # We change number of active choices every 'block_nch'.
             self.nch = self.rng.choice(range(2, self.max_nch + 1),
-                                        p=self.prob)
+                                       p=self.prob)
 
         kwargs.update({'n_ch': self.nch})
         self.env.new_trial(**kwargs)
