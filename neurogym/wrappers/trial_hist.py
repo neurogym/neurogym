@@ -86,16 +86,11 @@ class TrialHistory(ngym.TrialWrapper):
             tr_mat =\
                 np.zeros((num_blocks, self.curr_n_ch, self.curr_n_ch)) +\
                 (1-self.probs)/(self.curr_n_ch-1)
-            for ind in range(self.curr_n_ch-1):
-                tr_mat[0, ind, ind+1] = self.probs  # ascending block
+            for ind in range(self.curr_n_ch):
+                tr_mat[0, ind, (ind+1) % self.curr_n_ch] = self.probs  # ascending
                 tr_mat[1, ind, ind] = self.probs    # repeating block
                 if num_blocks == 3:
                     tr_mat[2, ind, ind-1] = self.probs  # descending block
-            # Solving at the limits
-            tr_mat[0, self.curr_n_ch-1, 0] = self.probs
-            tr_mat[1, self.curr_n_ch-1, self.curr_n_ch-1] = self.probs
-            if num_blocks == 3:
-                tr_mat[2, self.curr_n_ch-1, self.curr_n_ch-2] = self.probs
         else:
             tr_mat = self.probs.copy()
             scaled_tr_mat = tr_mat[:, :self.curr_n_ch, :self.curr_n_ch]

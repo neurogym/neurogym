@@ -234,19 +234,37 @@ def test_noise(env_name, random_bhvr=0., wrapper=None, perf_th=None,
         plt.plot(std_mat)
 
 
-def test_trialhist(env_name, num_steps=10000, probs=0.8, verbose=False):
+def test_trialhist(env_name, num_steps=100000, probs=0.8, num_blocks=2,
+                   verbose=False):
     env = gym.make(env_name)
-    env = TrialHistory(env, probs=probs, block_dur=50)
+    env = TrialHistory(env, probs=probs, block_dur=50, num_blocks=num_blocks)
     env.reset()
+    blk = []
+    gt = []
+    prev_gt = 1
+    transitions = np.zeros((3, 3, 3))
     for stp in range(num_steps):
         action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
         if done:
             env.reset()
         if info['new_trial'] and verbose:
-            print('Ground truth', info['gt'])
-            print('------------')
-            print('Block', env.curr_block)
+            blk.append(info['curr_block'])
+            gt.append(info['gt'])
+            transitions[info['curr_block'], prev_gt, info['gt']-1] += 1
+            prev_gt = info['gt']-1
+    if verbose:
+        plt.figure()
+        plt.subplot(3, 1, 1)
+        plt.plot(blk, '-+')
+        plt.subplot(3, 1, 2)
+        plt.plot(gt, '-+')
+        plt.subplot(3, 3, 7)
+        plt.imshow(transitions[0, :, :])
+        plt.subplot(3, 3, 8)
+        plt.imshow(transitions[1, :, :])
+        plt.subplot(3, 3, 9)
+        plt.imshow(transitions[2, :, :])
 
 
 def test_catchtrials(env_name, num_steps=10000, verbose=False, catch_prob=0.1,
@@ -354,13 +372,12 @@ if __name__ == '__main__':
     # test_noise('PerceptualDecisionMaking-v0', random_bhvr=0.,
     #            wrapper=PassAction, perf_th=0.7, num_steps=100000,
     #            verbose=True, **env_args)
-    # test_trialhist('NAltPerceptualDecisionMaking-v0', num_steps=10000,
-    #                verbose=True, probs=0.99)
+    test_trialhist('NAltPerceptualDecisionMaking-v0', num_steps=10000,
+                   verbose=True, probs=0.99, num_blocks=3)
     # test_sidebias('NAltPerceptualDecisionMaking-v0', num_steps=10000,
     #               verbose=True, probs=[(0, 0, 1), (0, 1, 0), (1, 0, 0)])
     # test_catchtrials('PerceptualDecisionMaking-v0', num_steps=10000,
     #                  verbose=True, catch_prob=0.5, alt_rew=0)
     # test_reactiontime('PerceptualDecisionMaking-v0', num_steps=100)
     # test_transferLearning(num_steps=200, verbose=True)
-    test_combine(num_steps=200, verbose=True)
-    
+    # test_combine(num_steps=200, verbose=True)
