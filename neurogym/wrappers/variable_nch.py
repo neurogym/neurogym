@@ -22,7 +22,7 @@ class Variable_nch(ngym.TrialWrapper):
 
     def __init__(self, env, block_nch=100, prob_2=None):
         """
-        block_nch: duration of each blok containing an specific number
+        block_nch: duration of each block containing a specific number
         of active choices
         prob_2: probability of having only two active choices per block
         """
