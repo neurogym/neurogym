@@ -10,6 +10,10 @@ from neurogym.wrappers.ttl_pulse import TTLPulse
 from neurogym.wrappers.combine import Combine
 from neurogym.wrappers.identity import Identity
 from neurogym.wrappers.transfer_learning import TransferLearning
+from neurogym.wrappers.block import RandomGroundTruth
+from neurogym.wrappers.block import ScheduleAttr
+from neurogym.wrappers.block import ScheduleEnvs
+from neurogym.wrappers.block import TrialHistoryV2
 
 
 ALL_WRAPPERS = {'CatchTrials-v0': 'neurogym.wrappers.catch_trials:CatchTrials',
@@ -32,7 +36,9 @@ ALL_WRAPPERS = {'CatchTrials-v0': 'neurogym.wrappers.catch_trials:CatchTrials',
                 'TransferLearning-v0':
                     'neurogym.wrappers.transfer_learning:TransferLearning',
                 'Variable_nch-v0':
-                    'neurogym.wrappers.variable_nch:Variable_nch'
+                    'neurogym.wrappers.variable_nch:Variable_nch',
+                'Concat-v0':
+                    'neurogym.wrappers.concat:Concat'
                 }
 
 
