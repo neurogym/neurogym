@@ -45,8 +45,11 @@ class RandomSchedule(BaseSchedule):
         super().__init__(n)
 
     def __call__(self):
-        js = [j for j in range(self.n) if j != self.i]
-        self.i = np.random.choice(js)
+        if self.n > 1:
+            js = [j for j in range(self.n) if j != self.i]
+            self.i = np.random.choice(js)
+        else:
+            self.i = 0
         self.total_count += 1
         return self.i
 
@@ -86,8 +89,11 @@ class RandomBlockSchedule(BaseSchedule):
             self.count += 1
         else:
             self.count = 1
-            potential_i_envs = [i for i in range(self.n) if i != self.i]
-            self.i = np.random.choice(potential_i_envs)
+            if self.n > 1:
+                potential_i_envs = [i for i in range(self.n) if i != self.i]
+                self.i = np.random.choice(potential_i_envs)
+            else:
+                self.i = 0
         self.total_count += 1
         return self.i
 
