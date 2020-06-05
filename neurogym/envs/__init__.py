@@ -8,6 +8,8 @@ from gym.envs.registration import register
 ALL_NATIVE_ENVS = {
     'ContextDecisionMaking-v0':
         'neurogym.envs.contextdecisionmaking:ContextDecisionMaking',
+    'SingleContextDecisionMaking-v0':
+        'neurogym.envs.contextdecisionmaking:SingleContextDecisionMaking',
     'DelayComparison-v0':
         'neurogym.envs.delaycomparison:DelayComparison',
     'PerceptualDecisionMaking-v0':
