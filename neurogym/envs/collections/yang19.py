@@ -21,7 +21,7 @@ class _MultiModalityStimulus(TrialWrapperV2):
         len_stimulus = len(ind_stimulus)
         ob_space = self.task.observation_space
         ob_shape = ob_space.shape[0] + (n_modality - 1) * len_stimulus
-        self.task.observation_space = gym.spaces.Box(
+        self.observation_space = self.task.observation_space = gym.spaces.Box(
             -np.inf, np.inf, shape=(ob_shape,), dtype=ob_space.dtype)
         # Shift stimulus
         self.task.ob_dict['stimulus'] = ind_stimulus + len_stimulus * modality
@@ -133,29 +133,29 @@ class DelayComparison(ngym.PeriodEnv):
         return ob, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
-def yang19dm(modality=0, **kwargs):
+def dm(modality=0, **kwargs):
     env = gym.make('PerceptualDecisionMaking-v0', **kwargs)
     env = _MultiModalityStimulus(env, modality=modality, n_modality=2)
     return env
 
 
-def yang19ctxdm(context=0, **kwargs):
+def ctxdm(context=0, **kwargs):
     kwargs['context'] = context
     env = gym.make('SingleContextDecisionMaking-v0', **kwargs)
     return env
 
 
-def yang19multidm(**kwargs):
+def multidm(**kwargs):
     env = gym.make('MultiSensoryIntegration-v0', **kwargs)
     return env
 
 
-def yang19dlydm(**kwargs):
+def dlydm(**kwargs):
     env = gym.make('DelayComparison-v0', **kwargs)
     return env
 
 
-def yang19dlymatchsample(**kwargs):
+def dlymatchsample(**kwargs):
     envs = list()
     for modality in [0, 1]:
         timing = {'delay': ('choice', [100, 200, 400, 800])}
@@ -169,7 +169,7 @@ def yang19dlymatchsample(**kwargs):
     return env
 
 
-def yang19dlymatchcategory(**kwargs):
+def dlymatchcategory(**kwargs):
     envs = list()
     for modality in [0, 1]:
         env = gym.make('DelayMatchCategory-v0', **kwargs)
@@ -180,7 +180,7 @@ def yang19dlymatchcategory(**kwargs):
     return env
 
 
-def _yang19antigo(anti=True, **kwargs):
+def _antigo(anti=True, **kwargs):
     envs = list()
     for modality in [0, 1]:
         env_kwargs = {'anti': anti, 'dim_ring': 2}
@@ -193,42 +193,38 @@ def _yang19antigo(anti=True, **kwargs):
     return env
 
 
-def yang19go(**kwargs):
-    return _yang19antigo(anti=False, **kwargs)
+def go(**kwargs):
+    return _antigo(anti=False, **kwargs)
 
 
-def yang19anti(**kwargs):
-    return _yang19antigo(anti=True, **kwargs)
+def anti(**kwargs):
+    return _antigo(anti=True, **kwargs)
 
 
-def yang19dlygo(**kwargs):
-    kwargs['delay'] = ('constant', 500)
-    return _yang19antigo(anti=False, **kwargs)
+def dlygo(**kwargs):
+    kwargs['timing'] = {'delay': ('constant', 500)}
+    return _antigo(anti=False, **kwargs)
 
 
-def yang19dlyanti(**kwargs):
-    kwargs['delay'] = ('constant', 500)
-    return _yang19antigo(anti=True, **kwargs)
+def dlyanti(**kwargs):
+    kwargs['timing'] = {'delay': ('constant', 500)}
+    return _antigo(anti=True, **kwargs)
 
 
-def yang19multitask(**kwargs):
+def multitask(**kwargs):
     envs = [
-        yang19go(**kwargs),
-        yang19dlygo(**kwargs),
-        yang19anti(**kwargs),
-        yang19dlyanti(**kwargs),
-        yang19dm(modality=0, **kwargs),
-        yang19dm(modality=1, **kwargs),
-        yang19ctxdm(context=0, **kwargs),
-        yang19ctxdm(context=1, **kwargs),
-        yang19multidm(**kwargs),
-        yang19dlymatchcategory(**kwargs),
-        yang19dlymatchsample(**kwargs),
+        go(**kwargs),
+        dlygo(**kwargs),
+        anti(**kwargs),
+        dlyanti(**kwargs),
+        dm(modality=0, **kwargs),
+        dm(modality=1, **kwargs),
+        ctxdm(context=0, **kwargs),
+        ctxdm(context=1, **kwargs),
+        multidm(**kwargs),
+        dlymatchcategory(**kwargs),
+        dlymatchsample(**kwargs),
     ]
     schedule = scheduler.RandomSchedule(len(envs))
     env = ScheduleEnvs(envs, schedule, env_input=True)
     return env
-
-
-if __name__ == '__main__':
-    pass
