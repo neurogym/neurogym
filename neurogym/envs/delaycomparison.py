@@ -50,11 +50,11 @@ class DelayComparison(ngym.PeriodEnv):
         self.fmax = np.max(self.fall)
 
         # action and observation space
-        self.action_space = spaces.Discrete(3)
-        self.act_dict = {'fixation': 0, 'choice': [1, 2]}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,),
                                             dtype=np.float32)
         self.ob_dict = {'fixation': 0, 'stimulus': 1}
+        self.action_space = spaces.Discrete(3)
+        self.act_dict = {'fixation': 0, 'choice': [1, 2]}
 
     def new_trial(self, **kwargs):
         self.trial = {
@@ -68,9 +68,8 @@ class DelayComparison(ngym.PeriodEnv):
             f1, f2 = f2, f1
         self.trial['f1'] = f1
         self.trial['f2'] = f2
-        # -------------------------------------------------------------------------
+
         # Periods
-        # --------------------------------------------------------------------------
         periods = ['fixation', 'f1', 'delay', 'f2', 'decision']
         self.add_period(periods, after=0, last_period=True)
 
