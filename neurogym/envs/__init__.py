@@ -89,6 +89,10 @@ ALL_PSYCHOPY_ENVS = {
 
 # Automatically register all tasks in collections
 def _get_collection_envs():
+    """Register collection tasks in collections folder.
+
+    Each environment is named collection_name.env_name-v0
+    """
     derived_envs = {}
     collection_libs = ['perceptualdecisionmaking', 'yang19']
     for l in collection_libs:
@@ -96,7 +100,7 @@ def _get_collection_envs():
         module = importlib.import_module(lib)
         envs = [name for name, val in getmembers(module) if isfunction(val)]
         envs = [env for env in envs if env[0] != '_']  # ignore private members
-        derived_envs.update({env+'-v0': lib + ':' + env for env in envs})
+        derived_envs.update({l+'.'+env+'-v0': lib + ':' + env for env in envs})
     return derived_envs
 
 
