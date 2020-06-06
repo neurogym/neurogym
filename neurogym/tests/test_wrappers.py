@@ -240,7 +240,7 @@ def test_trialhist(env_name, num_steps=100000, probs=0.8, num_blocks=2,
     env = gym.make(env_name, **{'n_ch': num_ch})
     env = TrialHistory(env, probs=probs, block_dur=200, num_blocks=num_blocks)
     if variable_nch:
-        env = Variable_nch(env, block_nch=1000)
+        env = Variable_nch(env, block_nch=1000, blocks_probs=[0.1, 0.45, 0.45])
         transitions = np.zeros((num_ch-1, num_blocks, num_ch, num_ch))
     else:
         transitions = np.zeros((1, num_blocks, num_ch, num_ch))
@@ -268,9 +268,9 @@ def test_trialhist(env_name, num_steps=100000, probs=0.8, num_blocks=2,
             prev_gt = info['gt']-1
     if verbose:
         _, ax = plt.subplots(nrows=2, ncols=1, sharex=True)
-        ax[0].plot(blk[:4000], '-+')
-        ax[0].plot(nch[:4000], '-+')
-        ax[1].plot(gt[:4000], '-+')
+        ax[0].plot(blk[:20000], '-+')
+        ax[0].plot(nch[:20000], '-+')
+        ax[1].plot(gt[:20000], '-+')
         ch_mat = np.unique(nch)
         _, ax = plt.subplots(nrows=num_blocks, ncols=len(ch_mat))
         for ind_ch, ch in enumerate(ch_mat):

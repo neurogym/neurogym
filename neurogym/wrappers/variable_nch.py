@@ -20,7 +20,7 @@ class Variable_nch(ngym.TrialWrapper):
         'paper_name': None
     }
 
-    def __init__(self, env, block_nch=100, prob_2=None):
+    def __init__(self, env, block_nch=100, blocks_probs=None):
         """
         block_nch: duration of each block containing a specific number
         of active choices
@@ -35,15 +35,12 @@ class Variable_nch(ngym.TrialWrapper):
         self.max_nch = len(self.task.choices)  # Max number of choices
 
         # uniform distr. across choices unless prob(n_ch=2) (prob_2) is specified
-        if prob_2 is not None:
-            assert 0 <= prob_2 <= 1, 'Probability must be number within [0,1]'
-            p = (1-prob_2)/(self.max_nch-2)
-            self.prob = np.append(prob_2, [p]*(self.max_nch-2))
-            self.prob /= np.sum(self.prob)  # We ensure total 1 sum.
+        if blocks_probs is not None:
+            self.prob = blocks_probs
         else:
             self.prob = [1/(self.max_nch-1)]*(self.max_nch-1)
         # Initialize with a random number of active choices (never 1)
-        self.nch = self.rng.choice(range(2, self.max_nch + 1))
+        self.nch = self.rng.choice(range(2, self.max_nch + 1), p=self.prob)
 
     def new_trial(self, **kwargs):
 
@@ -53,8 +50,7 @@ class Variable_nch(ngym.TrialWrapper):
 
         if self.task.num_tr % self.block_nch == 0:
             # We change number of active choices every 'block_nch'.
-            self.nch = self.rng.choice(range(2, self.max_nch + 1),
-                                       p=self.prob)
+            self.nch = self.rng.choice(range(2, self.max_nch + 1), p=self.prob)
 
         kwargs.update({'n_ch': self.nch})
         self.env.new_trial(**kwargs)
