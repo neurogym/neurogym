@@ -20,7 +20,8 @@ class AntiReach(ngym.PeriodEnv):
         'tags': ['perceptual', 'steps action space']
     }
 
-    def __init__(self, dt=100, anti=True, rewards=None, timing=None, dim_ring=32):
+    def __init__(self, dt=100, anti=True, rewards=None, timing=None,
+                 dim_ring=32):
         super().__init__(dt=dt)
 
         self.anti = anti
@@ -32,6 +33,8 @@ class AntiReach(ngym.PeriodEnv):
 
         self.timing = {
             'fixation': ('constant', 500),
+            'stimulus': ('constant', 500),
+            'delay': ('constant', 0),
             'decision': ('constant', 500)}
         if timing:
             self.timing.update(timing)
@@ -65,12 +68,12 @@ class AntiReach(ngym.PeriodEnv):
             stim_theta = self.theta[ground_truth]
 
         # Periods
-        periods = ['fixation', 'decision']
+        periods = ['fixation', 'stimulus', 'delay', 'decision']
         self.add_period(periods, after=0, last_period=True)
 
-        self.add_ob(1, period='fixation', where='fixation')
+        self.add_ob(1, period=['fixation', 'stimulus', 'delay'], where='fixation')
         stim = np.cos(self.theta - stim_theta)
-        self.add_ob(stim, 'decision', where='stimulus')
+        self.add_ob(stim, 'stimulus', where='stimulus')
 
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
 
