@@ -54,7 +54,7 @@ ALL_NATIVE_ENVS = {
     'Reaching1DWithSelfDistraction-v0':
         'neurogym.envs.reaching:Reaching1DWithSelfDistraction',
     'AntiReach-v0':
-        'neurogym.envs.antireach:AntiReach1D',
+        'neurogym.envs.antireach:AntiReach',
     'DelayMatchSampleDistractor1D-v0':
         'neurogym.envs.delaymatchsample:DelayMatchSampleDistractor1D',
     'IntervalDiscrimination-v0':
