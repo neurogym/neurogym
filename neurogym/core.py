@@ -438,11 +438,15 @@ class TrialWrapperV2(gym.Wrapper):
     def __init__(self, env):
         super().__init__(env)
         self.env = env
-        self.task = self.unwrapped
         if not isinstance(self.unwrapped, TrialEnv):
             raise TypeError("Trial wrapper must be used on TrialEnv"
                             "Got instead", self.unwrapped)
         self.unwrapped.set_top(self)
+
+    @property
+    def task(self):
+        """Alias."""
+        return self.unwrapped
 
     def new_trial(self, **kwargs):
         raise NotImplementedError

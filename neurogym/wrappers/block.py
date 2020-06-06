@@ -45,6 +45,17 @@ class ScheduleAttr(TrialWrapperV2):
         return self.env.new_trial(**kwargs)
 
 
+def _have_equal_shape(envs):
+    """Check if environments have equal shape."""
+    env_shape = envs[0].observation_space.shape
+    for env in envs:
+        if env.observation_space.shape != env_shape:
+            raise ValueError(
+                'Env must have equal shape. Instead got' +
+                str(env.observation_space.shape) + ' for ' + str(env) +
+                ' and ' + str(env_shape) + ' for ' + str(envs[0]))
+
+
 class ScheduleEnvs(TrialWrapperV2):
     """Schedule environments.
 
@@ -66,9 +77,7 @@ class ScheduleEnvs(TrialWrapperV2):
             if len(env_shape) > 1:
                 raise ValueError('Env must have 1-D Box shape',
                                  'Instead got ' + str(env_shape))
-            for env in envs:
-                if env.observation_space.shape != env_shape:
-                    raise ValueError('Env must have equal shape.')
+            _have_equal_shape(envs)
             # self.observation_space = spaces.Box(
             #     env_shape[0] + len(self.envs)
             # )
@@ -81,10 +90,11 @@ class ScheduleEnvs(TrialWrapperV2):
         else:
             self.env.new_trial(**kwargs)
             # Expand observation
-            env_ob = np.zeros((self.task.ob.shape[0], len(self.envs)),
-                              dtype=self.task.ob.dtype)
+            env_ob = np.zeros((self.unwrapped.ob.shape[0], len(self.envs)),
+                              dtype=self.unwrapped.ob.dtype)
             env_ob[:, self.i_env] = 1.
-            self.task.ob = np.concatenate((self.task.ob, env_ob), axis=-1)
+            self.unwrapped.ob = np.concatenate(
+                (self.unwrapped.ob, env_ob), axis=-1)
 
 
 class TrialHistoryV2(TrialWrapperV2):
