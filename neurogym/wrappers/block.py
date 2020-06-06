@@ -47,13 +47,21 @@ class ScheduleAttr(TrialWrapperV2):
 
 def _have_equal_shape(envs):
     """Check if environments have equal shape."""
-    env_shape = envs[0].observation_space.shape
+    env_ob_shape = envs[0].observation_space.shape
     for env in envs:
-        if env.observation_space.shape != env_shape:
+        if env.observation_space.shape != env_ob_shape:
             raise ValueError(
                 'Env must have equal shape. Instead got' +
                 str(env.observation_space.shape) + ' for ' + str(env) +
-                ' and ' + str(env_shape) + ' for ' + str(envs[0]))
+                ' and ' + str(env_ob_shape) + ' for ' + str(envs[0]))
+
+    env_act_shape = envs[0].action_space.n
+    for env in envs:
+        if env.action_space.n != env_act_shape:
+            raise ValueError(
+                'Env must have equal shape. Instead got' +
+                str(env.action_space.n) + ' for ' + str(env) +
+                ' and ' + str(env_act_shape) + ' for ' + str(envs[0]))
 
 
 class ScheduleEnvs(TrialWrapperV2):
