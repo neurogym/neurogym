@@ -30,7 +30,106 @@ class _MultiModalityStimulus(TrialWrapperV2):
         return self.env.new_trial(**kwargs)
 
 
-class DelayComparison(ngym.PeriodEnv):
+class Reach(ngym.PeriodEnv):
+    """Anti-response task.
+
+    The agent has to move in the direction opposite to the one indicated
+    by the observation.
+    """
+    metadata = {
+        'paper_link': 'https://www.nature.com/articles/nrn1345',
+        'paper_name': """Look away: the anti-saccade task and
+        the voluntary control of eye movement""",
+        'tags': ['perceptual', 'steps action space']
+    }
+
+    def __init__(self, dt=100, anti=True, rewards=None, timing=None,
+                 dim_ring=32, reaction=False):
+        super().__init__(dt=dt)
+
+        self.anti = anti
+        self.reaction = reaction
+
+        # Rewards
+        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
+        if rewards:
+            self.rewards.update(rewards)
+
+        self.timing = {
+            'fixation': ('constant', 500),
+            'stimulus': ('constant', 500),
+            'delay': ('constant', 0),
+            'decision': ('constant', 500)}
+        if timing:
+            self.timing.update(timing)
+
+        self.abort = False
+
+        # action and observation spaces
+        self.dim_ring = dim_ring
+        self.theta = np.arange(0, 2 * np.pi, 2 * np.pi / dim_ring)
+        self.choices = np.arange(dim_ring)
+
+        self.observation_space = spaces.Box(
+            -np.inf, np.inf, shape=(1+dim_ring,), dtype=np.float32)
+        self.ob_dict = {'fixation': 0, 'stimulus': range(1, dim_ring + 1)}
+
+        self.action_space = spaces.Discrete(1+dim_ring)
+        self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring + 1)}
+
+    def new_trial(self, **kwargs):
+        # Trial info
+        self.trial = {
+            'ground_truth': self.rng.choice(self.choices),
+            'anti': self.anti,
+        }
+        self.trial.update(kwargs)
+
+        ground_truth = self.trial['ground_truth']
+        if self.trial['anti']:
+            stim_theta = np.mod(self.theta[ground_truth] + np.pi, 2*np.pi)
+        else:
+            stim_theta = self.theta[ground_truth]
+        stim = np.cos(self.theta - stim_theta)
+
+        if not self.reaction:
+            periods = ['fixation', 'stimulus', 'delay', 'decision']
+            self.add_period(periods, after=0, last_period=True)
+
+            self.add_ob(1, period=['fixation', 'stimulus', 'delay'], where='fixation')
+            self.add_ob(stim, 'stimulus', where='stimulus')
+        else:
+            periods = ['fixation', 'decision']
+            self.add_period(periods, after=0, last_period=True)
+
+            self.add_ob(1, period='fixation', where='fixation')
+            self.add_ob(stim, 'decision', where='stimulus')
+
+        self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+
+    def _step(self, action):
+        new_trial = False
+        # rewards
+        reward = 0
+        gt = self.gt_now
+        # observations
+        if self.in_period('fixation'):
+            if action != 0:  # action = 0 means fixating
+                new_trial = self.abort
+                reward += self.rewards['abort']
+        elif self.in_period('decision'):
+            if action != 0:
+                new_trial = True
+                if action == gt:
+                    reward += self.rewards['correct']
+                    self.performance = 1
+                else:
+                    reward += self.rewards['fail']
+
+        return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
+
+
+class DelayComparison1DResponse(ngym.PeriodEnv):
     """Delay comparison.
 
     Two-alternative forced choice task in which the subject
@@ -38,11 +137,13 @@ class DelayComparison(ngym.PeriodEnv):
     which one has a higher frequency.
     """
     def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0,
-                 dim_ring=1):
+                 dim_ring=16, w_mod=(1, 1), stim_mod=(True, True)):
         super().__init__(dt=dt)
 
         # trial conditions
-        self.fpairs = [(18, 10), (22, 14), (26, 18), (30, 22), (34, 26)]
+        self.cohs = np.array([8, 16, 32])
+        self.w_mod1, self.w_mod2 = w_mod
+        self.stim_mod1, self.stim_mod2 = stim_mod
 
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
@@ -52,61 +153,72 @@ class DelayComparison(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('uniform', (1500, 3000)),
-            'f1': ('constant', 500),
-            'delay': ('constant', 3000),
-            'f2': ('constant', 500),
-            'decision': ('constant', 100)}
+            'fixation': ('uniform', (200, 500)),
+            'stim1': ('constant', 500),
+            'delay': ('constant', 1000),
+            'stim2': ('constant', 500),
+            'decision': ('constant', 200)}
         if timing:
             self.timing.update(timing)
 
         self.abort = False
 
-        # Input scaling
-        self.fall = np.ravel(self.fpairs)
-        self.fmin = np.min(self.fall)
-        self.fmax = np.max(self.fall)
-
         # action and observation space
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': 1}
-        self.action_space = spaces.Discrete(3)
-        self.act_dict = {'fixation': 0, 'choice': [1, 2]}
+        self.theta = np.linspace(0, 2*np.pi, dim_ring+1)[:-1]
+        self.choices = np.arange(dim_ring)
+
+        if dim_ring < 2:
+            raise ValueError('dim ring can not be smaller than 2')
+        self.observation_space = spaces.Box(
+            -np.inf, np.inf, shape=(1 + 2 * dim_ring,), dtype=np.float32)
+        self.ob_dict = {'fixation': 0,
+                        'stimulus_mod1': range(1, dim_ring + 1),
+                        'stimulus_mod2': range(dim_ring + 1, 2 * dim_ring + 1)}
+        self.action_space = spaces.Discrete(1+dim_ring)
+        self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring+1)}
+
+    def _add_singlemod(self, mod=1):
+        """Add stimulus to modality."""
+        mod = '_mod' + str(mod)
+
+        self.trial['coh1'+mod] = coh1 = self.rng.choice(self.cohs)
+        self.trial['coh2'+mod] = coh2 = self.rng.choice(self.cohs)
+
+        stim = np.cos(self.theta - self.trial['theta1']) * (coh1 / 200) + 0.5
+        self.add_ob(stim, 'stim1', where='stimulus' + mod)
+        stim = np.cos(self.theta - self.trial['theta2']) * (coh2 / 200) + 0.5
+        self.add_ob(stim, 'stim2', where='stimulus' + mod)
 
     def new_trial(self, **kwargs):
-        self.trial = {
-            'ground_truth': self.rng.choice(self.act_dict['choice']),
-            'fpair': self.fpairs[self.rng.choice(len(self.fpairs))]
-        }
-        self.trial.update(kwargs)
-
-        f1, f2 = self.trial['fpair']
-        if self.trial['ground_truth'] == 2:
-            f1, f2 = f2, f1
-        self.trial['f1'] = f1
-        self.trial['f2'] = f2
+        self.trial = {}
+        i_theta1 = self.rng.choice(self.choices)
+        while True:
+            i_theta2 = self.rng.choice(self.choices)
+            if i_theta2 != i_theta1:
+                break
+        self.trial['theta1'] = self.theta[i_theta1]
+        self.trial['theta2'] = self.theta[i_theta2]
 
         # Periods
-        periods = ['fixation', 'f1', 'delay', 'f2', 'decision']
+        periods = ['fixation', 'stim1', 'delay', 'stim2', 'decision']
         self.add_period(periods, after=0, last_period=True)
 
         self.add_ob(1, where='fixation')
-        self.add_ob(self.scale_p(f1), 'f1', where='stimulus')
-        self.add_ob(self.scale_p(f2), 'f2', where='stimulus')
         self.set_ob(0, 'decision')
-        self.add_randn(0, self.sigma, ['f1', 'f2'])
+        self.add_randn(0, self.sigma, ['stim1', 'stim2'])
 
-        self.set_groundtruth(self.trial['ground_truth'], 'decision')
+        coh1, coh2 = 0, 0
+        if self.stim_mod1:
+            self._add_singlemod(mod=1)
+            coh1 += self.w_mod1 * self.trial['coh1_mod1']
+            coh2 += self.w_mod1 * self.trial['coh2_mod1']
+        if self.stim_mod2:
+            self._add_singlemod(mod=2)
+            coh1 += self.w_mod2 * self.trial['coh1_mod2']
+            coh2 += self.w_mod2 * self.trial['coh2_mod2']
 
-    def scale(self, f):
-        return (f - self.fmin)/(self.fmax - self.fmin)
-
-    def scale_p(self, f):
-        return (1 + self.scale(f))/2
-
-    def scale_n(self, f):
-        return (1 - self.scale(f))/2
+        i_target = i_theta1 if coh1 + self.rng.uniform(-1e6, 1e6) > coh2 else i_theta2
+        self.set_groundtruth(self.act_dict['choice'][i_target], 'decision')
 
     def _step(self, action):
         # ---------------------------------------------------------------------
@@ -184,9 +296,6 @@ class DelayMatch1DResponse(ngym.PeriodEnv):
         self.dim_ring = dim_ring
         self.half_ring = int(self.dim_ring/2)
         self.theta = np.linspace(0, 2 * np.pi, dim_ring + 1)[:-1]
-        # Category 0 and 1
-        self.i_theta0 = np.arange(int(dim_ring / 2))
-        self.theta1 = self.theta[int(dim_ring / 2):]
 
         self.observation_space = spaces.Box(
             -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32)
@@ -242,7 +351,7 @@ class DelayMatch1DResponse(ngym.PeriodEnv):
     def _step(self, action, **kwargs):
         new_trial = False
 
-        obs = self.ob_now
+        ob = self.ob_now
         gt = self.gt_now
 
         reward = 0
@@ -259,7 +368,52 @@ class DelayMatch1DResponse(ngym.PeriodEnv):
                 else:
                     reward = self.rewards['fail']
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return ob, reward, False, {'new_trial': new_trial, 'gt': gt}
+
+
+def _reach(**kwargs):
+    envs = list()
+    for modality in [0, 1]:
+        env = Reach(**kwargs)
+        env = _MultiModalityStimulus(env, modality=modality, n_modality=2)
+        envs.append(env)
+    schedule = scheduler.RandomSchedule(len(envs))
+    env = ScheduleEnvs(envs, schedule, env_input=False)
+    return env
+
+
+def go(**kwargs):
+    kwargs['anti'] = False
+    return _reach(**kwargs)
+
+
+def anti(**kwargs):
+    kwargs['anti'] = True
+    return _reach(**kwargs)
+
+
+def rtgo(**kwargs):
+    kwargs['anti'] = False
+    kwargs['reaction'] = True
+    return _reach(**kwargs)
+
+
+def rtanti(**kwargs):
+    kwargs['anti'] = True
+    kwargs['reaction'] = True
+    return _reach(**kwargs)
+
+
+def dlygo(**kwargs):
+    kwargs['anti'] = False
+    kwargs['timing'] = {'delay': ('constant', 500)}
+    return _reach(**kwargs)
+
+
+def dlyanti(**kwargs):
+    kwargs['anti'] = True
+    kwargs['timing'] = {'delay': ('constant', 500)}
+    return _reach(**kwargs)
 
 
 def dm(modality=0, **kwargs):
@@ -279,9 +433,34 @@ def multidm(**kwargs):
     return env
 
 
-def dlydm(**kwargs):
-    env = gym.make('DelayComparison-v0', **kwargs)
-    return env
+def dlydm1(**kwargs):
+    env_kwargs = {'w_mod': (1, 1), 'stim_mod': (True, False)}
+    env_kwargs.update(kwargs)
+    return DelayComparison1DResponse(**env_kwargs)
+
+
+def dlydm2(**kwargs):
+    env_kwargs = {'w_mod': (1, 1), 'stim_mod': (False, True)}
+    env_kwargs.update(kwargs)
+    return DelayComparison1DResponse(**env_kwargs)
+
+
+def ctxdlydm1(**kwargs):
+    env_kwargs = {'w_mod': (1, 0), 'stim_mod': (True, True)}
+    env_kwargs.update(kwargs)
+    return DelayComparison1DResponse(**env_kwargs)
+
+
+def ctxdlydm2(**kwargs):
+    env_kwargs = {'w_mod': (0, 1), 'stim_mod': (True, True)}
+    env_kwargs.update(kwargs)
+    return DelayComparison1DResponse(**env_kwargs)
+
+
+def multidlydm(**kwargs):
+    env_kwargs = {'w_mod': (1, 1), 'stim_mod': (True, True)}
+    env_kwargs.update(kwargs)
+    return DelayComparison1DResponse(**env_kwargs)
 
 
 def _dlymatch(matchto, matchgo, **kwargs):
@@ -313,49 +492,25 @@ def dnmc(**kwargs):
     return _dlymatch(matchto='category', matchgo=False, **kwargs)
 
 
-def _antigo(anti=True, **kwargs):
-    envs = list()
-    for modality in [0, 1]:
-        env_kwargs = {'anti': anti}
-        env_kwargs.update(kwargs)
-        env = gym.make('AntiReach-v0', **env_kwargs)
-        env = _MultiModalityStimulus(env, modality=modality, n_modality=2)
-        envs.append(env)
-    schedule = scheduler.RandomSchedule(len(envs))
-    env = ScheduleEnvs(envs, schedule, env_input=False)
-    return env
-
-
-def go(**kwargs):
-    return _antigo(anti=False, **kwargs)
-
-
-def anti(**kwargs):
-    return _antigo(anti=True, **kwargs)
-
-
-def dlygo(**kwargs):
-    kwargs['timing'] = {'delay': ('constant', 500)}
-    return _antigo(anti=False, **kwargs)
-
-
-def dlyanti(**kwargs):
-    kwargs['timing'] = {'delay': ('constant', 500)}
-    return _antigo(anti=True, **kwargs)
-
-
 def multitask(**kwargs):
     kwargs['dim_ring'] = 16
     envs = [
         go(**kwargs),
+        rtgo(**kwargs),
         dlygo(**kwargs),
         anti(**kwargs),
+        rtanti(**kwargs),
         dlyanti(**kwargs),
         dm(modality=0, **kwargs),
         dm(modality=1, **kwargs),
         ctxdm(context=0, **kwargs),
         ctxdm(context=1, **kwargs),
         multidm(**kwargs),
+        dlydm1(**kwargs),
+        dlydm2(**kwargs),
+        ctxdlydm1(**kwargs),
+        ctxdlydm2(**kwargs),
+        multidlydm(**kwargs),
         dms(**kwargs),
         dnms(**kwargs),
         dmc(**kwargs),
