@@ -51,7 +51,7 @@ def _have_equal_shape(envs):
     for env in envs:
         if env.observation_space.shape != env_ob_shape:
             raise ValueError(
-                'Env must have equal shape. Instead got' +
+                'Env must have equal observation shape. Instead got' +
                 str(env.observation_space.shape) + ' for ' + str(env) +
                 ' and ' + str(env_ob_shape) + ' for ' + str(envs[0]))
 
@@ -59,7 +59,7 @@ def _have_equal_shape(envs):
     for env in envs:
         if env.action_space.n != env_act_shape:
             raise ValueError(
-                'Env must have equal shape. Instead got' +
+                'Env must have equal action shape. Instead got ' +
                 str(env.action_space.n) + ' for ' + str(env) +
                 ' and ' + str(env_act_shape) + ' for ' + str(envs[0]))
 
