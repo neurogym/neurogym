@@ -160,6 +160,7 @@ class TrialEnv(BaseEnv):
             no_step: bool. If True, no step is taken and observation randomly
                 sampled. Default False.
         """
+        # TODO: Why are we stepping during reset?
         self.num_tr = 0
         self.t = self.t_ind = 0
 
@@ -169,7 +170,8 @@ class TrialEnv(BaseEnv):
         if no_step:
             return self.observation_space.sample()
         if step_fn is None:
-            obs, _, _, _ = self.step(self.action_space.sample())
+            # obs, _, _, _ = self.step(self.action_space.sample())
+            obs, _, _, _ = self._top.step(self.action_space.sample())
         else:
             obs, _, _, _ = step_fn(self.action_space.sample())
         return obs
