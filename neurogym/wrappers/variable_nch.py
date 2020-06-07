@@ -36,7 +36,8 @@ class Variable_nch(ngym.TrialWrapper):
 
         # uniform distr. across choices unless prob(n_ch=2) (prob_2) is specified
         if blocks_probs is not None:
-            self.prob = blocks_probs
+            self.prob = blocks_probs[:self.max_nch-1]
+            self.prob = self.prob/np.sum(self.prob)
         else:
             self.prob = [1/(self.max_nch-1)]*(self.max_nch-1)
         # Initialize with a random number of active choices (never 1)
