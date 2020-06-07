@@ -1,5 +1,5 @@
 import importlib
-from inspect import getmembers, isfunction
+from inspect import getmembers, isfunction, isclass
 
 import gym
 from gym.envs.registration import register
@@ -98,7 +98,7 @@ def _get_collection_envs():
     for l in collection_libs:
         lib = 'neurogym.envs.collections.' + l
         module = importlib.import_module(lib)
-        envs = [name for name, val in getmembers(module) if isfunction(val)]
+        envs = [name for name, val in getmembers(module) if isfunction(val) or isclass(val)]
         envs = [env for env in envs if env[0] != '_']  # ignore private members
         derived_envs.update({l+'.'+env+'-v0': lib + ':' + env for env in envs})
     return derived_envs
