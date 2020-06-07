@@ -129,7 +129,7 @@ class Reach(ngym.PeriodEnv):
         return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
-class DelayComparison1DResponse(ngym.PeriodEnv):
+class DMFamily(ngym.PeriodEnv):
     """Delay comparison.
 
     Two-alternative forced choice task in which the subject
@@ -137,13 +137,15 @@ class DelayComparison1DResponse(ngym.PeriodEnv):
     which one has a higher frequency.
     """
     def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0,
-                 dim_ring=16, w_mod=(1, 1), stim_mod=(True, True)):
+                 dim_ring=16, w_mod=(1, 1), stim_mod=(True, True),
+                 delaycomparison=True):
         super().__init__(dt=dt)
 
         # trial conditions
         self.cohs = np.array([8, 16, 32])
         self.w_mod1, self.w_mod2 = w_mod
         self.stim_mod1, self.stim_mod2 = stim_mod
+        self.delaycomparison = delaycomparison
 
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
@@ -152,12 +154,18 @@ class DelayComparison1DResponse(ngym.PeriodEnv):
         if rewards:
             self.rewards.update(rewards)
 
-        self.timing = {
-            'fixation': ('uniform', (200, 500)),
-            'stim1': ('constant', 500),
-            'delay': ('constant', 1000),
-            'stim2': ('constant', 500),
-            'decision': ('constant', 200)}
+        if self.delaycomparison:
+            self.timing = {
+                'fixation': ('uniform', (200, 500)),
+                'stim1': ('constant', 500),
+                'delay': ('constant', 1000),
+                'stim2': ('constant', 500),
+                'decision': ('constant', 200)}
+        else:
+            self.timing = {
+                'fixation': ('uniform', (200, 500)),
+                'stimulus': ('constant', 500),
+                'decision': ('constant', 200)}
         if timing:
             self.timing.update(timing)
 
@@ -181,13 +189,19 @@ class DelayComparison1DResponse(ngym.PeriodEnv):
         """Add stimulus to modality."""
         mod = '_mod' + str(mod)
 
-        self.trial['coh1'+mod] = coh1 = self.rng.choice(self.cohs)
-        self.trial['coh2'+mod] = coh2 = self.rng.choice(self.cohs)
-
+        if self.delaycomparison:
+            period1, period2 = 'stim1', 'stim2'
+            self.trial['coh1' + mod] = coh1 = self.rng.choice(self.cohs)
+            self.trial['coh2' + mod] = coh2 = self.rng.choice(self.cohs)
+        else:
+            period1, period2 = 'stimulus', 'stimulus'
+            coh = self.rng.choice(self.cohs)
+            self.trial['coh1' + mod] = coh1 = 0.5 + coh
+            self.trial['coh2' + mod] = coh2 = 0.5 - coh
         stim = np.cos(self.theta - self.trial['theta1']) * (coh1 / 200) + 0.5
-        self.add_ob(stim, 'stim1', where='stimulus' + mod)
+        self.add_ob(stim, period1, where='stimulus' + mod)
         stim = np.cos(self.theta - self.trial['theta2']) * (coh2 / 200) + 0.5
-        self.add_ob(stim, 'stim2', where='stimulus' + mod)
+        self.add_ob(stim, period2, where='stimulus' + mod)
 
     def new_trial(self, **kwargs):
         self.trial = {}
@@ -200,12 +214,18 @@ class DelayComparison1DResponse(ngym.PeriodEnv):
         self.trial['theta2'] = self.theta[i_theta2]
 
         # Periods
-        periods = ['fixation', 'stim1', 'delay', 'stim2', 'decision']
+        if self.delaycomparison:
+            periods = ['fixation', 'stim1', 'delay', 'stim2', 'decision']
+        else:
+            periods = ['fixation', 'stimulus', 'decision']
         self.add_period(periods, after=0, last_period=True)
 
         self.add_ob(1, where='fixation')
         self.set_ob(0, 'decision')
-        self.add_randn(0, self.sigma, ['stim1', 'stim2'])
+        if self.delaycomparison:
+            self.add_randn(0, self.sigma, ['stim1', 'stim2'])
+        else:
+            self.add_randn(0, self.sigma, ['stimulus'])
 
         coh1, coh2 = 0, 0
         if self.stim_mod1:
@@ -383,84 +403,113 @@ def _reach(**kwargs):
 
 
 def go(**kwargs):
-    kwargs['anti'] = False
-    return _reach(**kwargs)
+    env_kwargs = kwargs.copy()
+    env_kwargs['anti'] = False
+    return _reach(**env_kwargs)
 
 
 def anti(**kwargs):
-    kwargs['anti'] = True
-    return _reach(**kwargs)
+    env_kwargs = kwargs.copy()
+    env_kwargs['anti'] = True
+    return _reach(**env_kwargs)
 
 
 def rtgo(**kwargs):
-    kwargs['anti'] = False
-    kwargs['reaction'] = True
-    return _reach(**kwargs)
+    env_kwargs = kwargs.copy()
+    env_kwargs['anti'] = False
+    env_kwargs['reaction'] = True
+    return _reach(**env_kwargs)
 
 
 def rtanti(**kwargs):
-    kwargs['anti'] = True
-    kwargs['reaction'] = True
-    return _reach(**kwargs)
+    env_kwargs = kwargs.copy()
+    env_kwargs['anti'] = True
+    env_kwargs['reaction'] = True
+    return _reach(**env_kwargs)
 
 
 def dlygo(**kwargs):
-    kwargs['anti'] = False
-    kwargs['timing'] = {'delay': ('constant', 500)}
-    return _reach(**kwargs)
+    env_kwargs = kwargs.copy()
+    env_kwargs['anti'] = False
+    env_kwargs['timing'] = {'delay': ('constant', 500)}
+    return _reach(**env_kwargs)
 
 
 def dlyanti(**kwargs):
-    kwargs['anti'] = True
-    kwargs['timing'] = {'delay': ('constant', 500)}
-    return _reach(**kwargs)
+    env_kwargs = kwargs.copy()
+    env_kwargs['anti'] = True
+    env_kwargs['timing'] = {'delay': ('constant', 500)}
+    return _reach(**env_kwargs)
 
 
-def dm(modality=0, **kwargs):
-    env = gym.make('PerceptualDecisionMaking-v0', **kwargs)
-    env = _MultiModalityStimulus(env, modality=modality, n_modality=2)
-    return env
+def dm1(**kwargs):
+    env_kwargs = {'w_mod': (1, 1), 'stim_mod': (True, False),
+                  'delaycomparison': False}
+    env_kwargs.update(kwargs)
+    return DMFamily(**env_kwargs)
 
 
-def ctxdm(context=0, **kwargs):
-    kwargs['context'] = context
-    env = gym.make('SingleContextDecisionMaking-v0', **kwargs)
-    return env
+def dm2(**kwargs):
+    env_kwargs = {'w_mod': (1, 1), 'stim_mod': (False, True),
+                  'delaycomparison': False}
+    env_kwargs.update(kwargs)
+    return DMFamily(**env_kwargs)
+
+
+def ctxdm1(**kwargs):
+    env_kwargs = {'w_mod': (1, 0), 'stim_mod': (True, True),
+                  'delaycomparison': False}
+    env_kwargs.update(kwargs)
+    return DMFamily(**env_kwargs)
+
+
+def ctxdm2(**kwargs):
+    env_kwargs = {'w_mod': (0, 1), 'stim_mod': (True, True),
+                  'delaycomparison': False}
+    env_kwargs.update(kwargs)
+    return DMFamily(**env_kwargs)
 
 
 def multidm(**kwargs):
-    env = gym.make('MultiSensoryIntegration-v0', **kwargs)
-    return env
+    env_kwargs = {'w_mod': (1, 1), 'stim_mod': (True, True),
+                  'delaycomparison': False}
+    env_kwargs.update(kwargs)
+    return DMFamily(**env_kwargs)
 
 
 def dlydm1(**kwargs):
-    env_kwargs = {'w_mod': (1, 1), 'stim_mod': (True, False)}
+    env_kwargs = {'w_mod': (1, 1), 'stim_mod': (True, False),
+                  'delaycomparison': True}
     env_kwargs.update(kwargs)
-    return DelayComparison1DResponse(**env_kwargs)
+    return DMFamily(**env_kwargs)
 
 
 def dlydm2(**kwargs):
-    env_kwargs = {'w_mod': (1, 1), 'stim_mod': (False, True)}
+    env_kwargs = {'w_mod': (1, 1), 'stim_mod': (False, True),
+                  'delaycomparison': True}
     env_kwargs.update(kwargs)
-    return DelayComparison1DResponse(**env_kwargs)
+    return DMFamily(**env_kwargs)
 
 
 def ctxdlydm1(**kwargs):
-    env_kwargs = {'w_mod': (1, 0), 'stim_mod': (True, True)}
+    env_kwargs = {'w_mod': (1, 0), 'stim_mod': (True, True),
+                  'delaycomparison': True}
     env_kwargs.update(kwargs)
-    return DelayComparison1DResponse(**env_kwargs)
+    return DMFamily(**env_kwargs)
 
 
 def ctxdlydm2(**kwargs):
-    env_kwargs = {'w_mod': (0, 1), 'stim_mod': (True, True)}
+    env_kwargs = {'w_mod': (0, 1), 'stim_mod': (True, True),
+                  'delaycomparison': True}
     env_kwargs.update(kwargs)
-    return DelayComparison1DResponse(**env_kwargs)
+    return DMFamily(**env_kwargs)
 
 
 def multidlydm(**kwargs):
-    env_kwargs = {'w_mod': (1, 1), 'stim_mod': (True, True)}
+    env_kwargs = {'w_mod': (1, 1), 'stim_mod': (True, True),
+                  'delaycomparison': True}
     env_kwargs.update(kwargs)
-    return DelayComparison1DResponse(**env_kwargs)
+    return DMFamily(**env_kwargs)
 
 
 def _dlymatch(matchto, matchgo, **kwargs):
@@ -501,10 +550,10 @@ def multitask(**kwargs):
         anti(**kwargs),
         rtanti(**kwargs),
         dlyanti(**kwargs),
-        dm(modality=0, **kwargs),
-        dm(modality=1, **kwargs),
-        ctxdm(context=0, **kwargs),
-        ctxdm(context=1, **kwargs),
+        dm1(**kwargs),
+        dm2(**kwargs),
+        ctxdm1(**kwargs),
+        ctxdm2(**kwargs),
         multidm(**kwargs),
         dlydm1(**kwargs),
         dlydm2(**kwargs),
