@@ -278,7 +278,7 @@ def test_trialhist(env_name, num_steps=100000, probs=0.8, num_blocks=2,
                 norm_counts = transitions[ind_ch, ind_blk, :, :]
                 nxt_tr_counts = np.sum(norm_counts, axis=1).reshape((-1, 1))
                 norm_counts = norm_counts / nxt_tr_counts
-                ax[ind_ch][ind_blk].imshow(norm_counts)
+                ax[ind_blk][ind_ch].imshow(norm_counts)
 
 
 def test_catchtrials(env_name, num_steps=10000, verbose=False, catch_prob=0.1,
