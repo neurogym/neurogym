@@ -10,6 +10,21 @@ from neurogym.utils import scheduler
 from neurogym.core import TrialWrapperV2
 
 
+def get_dist(original_dist):
+    '''Get the distance in periodic boundary conditions'''
+    return np.minimum(abs(original_dist), 2 * np.pi - abs(original_dist))
+
+
+def gaussianbump(loc, theta, strength):
+    dist = get_dist(loc - theta)  # periodic boundary
+    dist /= np.pi / 8
+    return 0.8 * np.exp(-dist ** 2 / 2) * strength
+
+
+def cosinebump(loc, theta, strength):
+    return np.cos(theta - loc) * strength / 2 + 0.5
+
+
 class _MultiModalityStimulus(TrialWrapperV2):
     """Move observation to specific modality."""
     def __init__(self, env, modality=0, n_modality=1):
@@ -90,7 +105,7 @@ class Reach(ngym.PeriodEnv):
             stim_theta = np.mod(self.theta[ground_truth] + np.pi, 2*np.pi)
         else:
             stim_theta = self.theta[ground_truth]
-        stim = np.cos(self.theta - stim_theta)
+        stim = gaussianbump(stim_theta, self.theta, 1)
 
         if not self.reaction:
             periods = ['fixation', 'stimulus', 'delay', 'decision']
@@ -142,7 +157,7 @@ class DMFamily(ngym.PeriodEnv):
         super().__init__(dt=dt)
 
         # trial conditions
-        self.cohs = np.array([8, 16, 32])
+        self.cohs = np.array([0.08, 0.16, 0.32])
         self.w_mod1, self.w_mod2 = w_mod
         self.stim_mod1, self.stim_mod2 = stim_mod
         self.delaycomparison = delaycomparison
@@ -198,9 +213,12 @@ class DMFamily(ngym.PeriodEnv):
             coh = self.rng.choice(self.cohs)
             self.trial['coh1' + mod] = coh1 = 0.5 + coh
             self.trial['coh2' + mod] = coh2 = 0.5 - coh
-        stim = np.cos(self.theta - self.trial['theta1']) * (coh1 / 200) + 0.5
+
+        # stim = cosinebump(self.trial['theta1'], self.theta, coh1)
+        stim = gaussianbump(self.trial['theta1'], self.theta, coh1)
         self.add_ob(stim, period1, where='stimulus' + mod)
-        stim = np.cos(self.theta - self.trial['theta2']) * (coh2 / 200) + 0.5
+        # stim = cosinebump(self.trial['theta2'], self.theta, coh2)
+        stim = gaussianbump(self.trial['theta2'], self.theta, coh2)
         self.add_ob(stim, period2, where='stimulus' + mod)
 
     def new_trial(self, **kwargs):
@@ -351,8 +369,8 @@ class DelayMatch1DResponse(ngym.PeriodEnv):
         self.trial['sample_theta'] = sample_theta = self.theta[i_sample_theta]
         self.trial['test_theta'] = test_theta = self.theta[i_test_theta]
 
-        stim_sample = np.cos(self.theta - sample_theta) * 0.5 + 0.5
-        stim_test = np.cos(self.theta - test_theta) * 0.5 + 0.5
+        stim_sample = gaussianbump(sample_theta, self.theta, 1)
+        stim_test = gaussianbump(test_theta, self.theta, 1)
 
         # Periods
         self.add_period(['fixation', 'sample', 'delay', 'test', 'decision'],

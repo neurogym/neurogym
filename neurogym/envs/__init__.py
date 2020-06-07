@@ -100,6 +100,7 @@ def _get_collection_envs():
         module = importlib.import_module(lib)
         envs = [name for name, val in getmembers(module) if isfunction(val) or isclass(val)]
         envs = [env for env in envs if env[0] != '_']  # ignore private members
+        # TODO: check is instance gym.env
         derived_envs.update({l+'.'+env+'-v0': lib + ':' + env for env in envs})
     return derived_envs
 
