@@ -9,6 +9,7 @@ import matplotlib.animation as animation
 import gym
 
 
+# TODO: This is changing user's plotting behavior for non-neurogym plots
 mpl.rcParams['font.size'] = 7
 mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['ps.fonttype'] = 42

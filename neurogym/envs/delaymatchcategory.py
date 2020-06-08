@@ -22,7 +22,8 @@ class DelayMatchCategory(ngym.PeriodEnv):
                  'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0,
+                 dim_ring=2):
         super().__init__(dt=dt)
         self.choices = ['match', 'non-match']  # match, non-match
 
@@ -45,14 +46,12 @@ class DelayMatchCategory(ngym.PeriodEnv):
 
         self.abort = False
 
-        # Fixation + Match + Non-match
+        self.theta = np.linspace(0, 2 * np.pi, dim_ring + 1)[:-1]
+        self.observation_space = spaces.Box(
+            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32)
+        self.ob_dict = {'fixation': 0, 'stimulus': range(1, dim_ring + 1)}
         self.action_space = spaces.Discrete(3)
         self.act_dict = {'fixation': 0, 'match': 1, 'non-match': 2}
-
-        # Fixation + cos(theta) + sin(theta)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': range(1, 3)}
 
     def new_trial(self, **kwargs):
         # Trial info
@@ -72,8 +71,8 @@ class DelayMatchCategory(ngym.PeriodEnv):
         sample_theta = (sample_category + self.rng.random()) * np.pi
         test_theta = (test_category + self.rng.random()) * np.pi
 
-        stim_sample = [np.cos(sample_theta), np.sin(sample_theta)]
-        stim_test = [np.cos(test_theta), np.sin(test_theta)]
+        stim_sample = np.cos(self.theta - sample_theta) * 0.5 + 0.5
+        stim_test = np.cos(self.theta - test_theta) * 0.5 + 0.5
 
         # Periods
         periods = ['fixation', 'sample', 'first_delay', 'test']
