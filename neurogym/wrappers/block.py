@@ -76,6 +76,8 @@ class ScheduleEnvs(TrialWrapperV2):
     """
     def __init__(self, envs, schedule, env_input=False):
         super().__init__(envs[0])
+        for env in envs:
+            env.unwrapped.set_top(self)
         self.envs = envs
         self.schedule = schedule
         self.i_env = 0
@@ -87,13 +89,14 @@ class ScheduleEnvs(TrialWrapperV2):
                 raise ValueError('Env must have 1-D Box shape',
                                  'Instead got ' + str(env_shape))
             _have_equal_shape(envs)
-            # self.observation_space = spaces.Box(
-            #     env_shape[0] + len(self.envs)
-            # )
+            self.observation_space = spaces.Box(
+                -np.inf, np.inf, shape=(env_shape[0] + len(self.envs),),
+                dtype=self.observation_space.dtype
+            )
 
     def new_trial(self, **kwargs):
         self.i_env = self.schedule()
-        super().__init__(self.envs[self.i_env])
+        self.env = self.envs[self.i_env]
         if not self.env_input:
             return self.env.new_trial(**kwargs)
         else:
