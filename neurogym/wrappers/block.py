@@ -5,6 +5,7 @@ import numpy as np
 
 
 class RandomGroundTruth(TrialWrapperV2):
+    # TODO: A better name?
     """"""
     def __init__(self, env, p=None):
         super().__init__(env)
