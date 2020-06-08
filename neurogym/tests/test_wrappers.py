@@ -17,6 +17,7 @@ from neurogym.wrappers import ReactionTime
 from neurogym.wrappers import TTLPulse
 from neurogym.wrappers import TransferLearning
 from neurogym.wrappers import Combine
+from neurogym.wrappers import Variable_nch
 
 
 def test_sidebias(env_name, num_steps=10000, verbose=False,
@@ -234,19 +235,50 @@ def test_noise(env_name, random_bhvr=0., wrapper=None, perf_th=None,
         plt.plot(std_mat)
 
 
-def test_trialhist(env_name, num_steps=10000, probs=0.8, verbose=False):
-    env = gym.make(env_name)
-    env = TrialHistory(env, probs=probs, block_dur=50)
+def test_trialhist(env_name, num_steps=100000, probs=0.8, num_blocks=2,
+                   verbose=False, num_ch=4, variable_nch=True):
+    env = gym.make(env_name, **{'n_ch': num_ch})
+    env = TrialHistory(env, probs=probs, block_dur=200, num_blocks=num_blocks)
+    if variable_nch:
+        env = Variable_nch(env, block_nch=1000, blocks_probs=[0.1, 0.45, 0.45])
+        transitions = np.zeros((num_ch-1, num_blocks, num_ch, num_ch))
+    else:
+        transitions = np.zeros((1, num_blocks, num_ch, num_ch))
     env.reset()
+    blk = []
+    gt = []
+    nch = []
+    prev_gt = 1
     for stp in range(num_steps):
         action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
         if done:
             env.reset()
         if info['new_trial'] and verbose:
-            print('Ground truth', info['gt'])
-            print('------------')
-            print('Block', env.curr_block)
+            blk.append(info['curr_block'])
+            gt.append(info['gt'])
+            if variable_nch:
+                nch.append(info['nch'])
+                if len(nch) > 1 and nch[-1] == nch[-2] and blk[-1] == blk[-2]:
+                    transitions[info['nch']-2, info['curr_block'], prev_gt,
+                                info['gt']-1] += 1
+            else:
+                nch.append(num_ch)
+                transitions[0, info['curr_block'], prev_gt, info['gt']-1] += 1
+            prev_gt = info['gt']-1
+    if verbose:
+        _, ax = plt.subplots(nrows=2, ncols=1, sharex=True)
+        ax[0].plot(blk[:20000], '-+')
+        ax[0].plot(nch[:20000], '-+')
+        ax[1].plot(gt[:20000], '-+')
+        ch_mat = np.unique(nch)
+        _, ax = plt.subplots(nrows=num_blocks, ncols=len(ch_mat))
+        for ind_ch, ch in enumerate(ch_mat):
+            for ind_blk in range(num_blocks):
+                norm_counts = transitions[ind_ch, ind_blk, :, :]
+                nxt_tr_counts = np.sum(norm_counts, axis=1).reshape((-1, 1))
+                norm_counts = norm_counts / nxt_tr_counts
+                ax[ind_blk][ind_ch].imshow(norm_counts)
 
 
 def test_catchtrials(env_name, num_steps=10000, verbose=False, catch_prob=0.1,
@@ -354,13 +386,12 @@ if __name__ == '__main__':
     # test_noise('PerceptualDecisionMaking-v0', random_bhvr=0.,
     #            wrapper=PassAction, perf_th=0.7, num_steps=100000,
     #            verbose=True, **env_args)
-    # test_trialhist('NAltPerceptualDecisionMaking-v0', num_steps=10000,
-    #                verbose=True, probs=0.99)
+    test_trialhist('NAltPerceptualDecisionMaking-v0', num_steps=100000,
+                   verbose=True, probs=0.99, num_blocks=3)
     # test_sidebias('NAltPerceptualDecisionMaking-v0', num_steps=10000,
     #               verbose=True, probs=[(0, 0, 1), (0, 1, 0), (1, 0, 0)])
     # test_catchtrials('PerceptualDecisionMaking-v0', num_steps=10000,
     #                  verbose=True, catch_prob=0.5, alt_rew=0)
     # test_reactiontime('PerceptualDecisionMaking-v0', num_steps=100)
     # test_transferLearning(num_steps=200, verbose=True)
-    test_combine(num_steps=200, verbose=True)
-    
+    # test_combine(num_steps=200, verbose=True)

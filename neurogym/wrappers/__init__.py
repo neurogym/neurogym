@@ -10,6 +10,7 @@ from neurogym.wrappers.ttl_pulse import TTLPulse
 from neurogym.wrappers.combine import Combine
 from neurogym.wrappers.identity import Identity
 from neurogym.wrappers.transfer_learning import TransferLearning
+from neurogym.wrappers.variable_nch import Variable_nch
 from neurogym.wrappers.block import RandomGroundTruth
 from neurogym.wrappers.block import ScheduleAttr
 from neurogym.wrappers.block import ScheduleEnvs

@@ -14,7 +14,7 @@ import gym
 import neurogym as ngym
 
 
-def test_run(env, verbose=False, **kwargs):
+def test_run(env, num_steps=100, verbose=False, **kwargs):
     """Test if one environment can at least be run."""
     if isinstance(env, str):
         env = gym.make(env, **kwargs)
@@ -23,7 +23,7 @@ def test_run(env, verbose=False, **kwargs):
             raise ValueError('env must be a string or a gym.Env')
 
     env.reset()
-    for stp in range(100):
+    for stp in range(num_steps):
         action = env.action_space.sample()
         state, rew, done, info = env.step(action)  # env.action_space.sample())
         if done:
