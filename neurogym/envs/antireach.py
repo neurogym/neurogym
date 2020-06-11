@@ -7,7 +7,7 @@ import neurogym as ngym
 from neurogym.utils import tasktools
 
 
-class AntiReach1D(ngym.PeriodEnv):
+class AntiReach(ngym.PeriodEnv):
     """Anti-response task.
 
     The agent has to move in the direction opposite to the one indicated
@@ -20,76 +20,81 @@ class AntiReach1D(ngym.PeriodEnv):
         'tags': ['perceptual', 'steps action space']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None):
+    def __init__(self, dt=100, anti=True, rewards=None, timing=None,
+                 dim_ring=32):
         super().__init__(dt=dt)
-        self.contexts = [0, 1]
-        # action and observation spaces
-        self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(32+2,),
-                                            dtype=np.float32)
-        self.theta = np.arange(0, 2*np.pi, 2*np.pi/16)
-        self.state = np.pi
+
+        self.anti = anti
 
         # Rewards
-        self.rewards = {'correct': +1., 'fail': -0.1}
+        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
         if rewards:
             self.rewards.update(rewards)
 
         self.timing = {
             'fixation': ('constant', 500),
-            'reach': ('constant', 500)}
+            'stimulus': ('constant', 500),
+            'delay': ('constant', 0),
+            'decision': ('constant', 500)}
         if timing:
             self.timing.update(timing)
 
+        self.abort = False
+
+        # action and observation spaces
+        self.dim_ring = dim_ring
+        self.theta = np.arange(0, 2 * np.pi, 2 * np.pi / dim_ring)
+        self.choices = np.arange(dim_ring)
+
+        self.observation_space = spaces.Box(
+            -np.inf, np.inf, shape=(1+dim_ring,), dtype=np.float32)
+        self.ob_dict = {'fixation': 0, 'stimulus': range(1, dim_ring + 1)}
+
+        self.action_space = spaces.Discrete(1+dim_ring)
+        self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring + 1)}
+
     def new_trial(self, **kwargs):
-        # ---------------------------------------------------------------------
-        # Trial
-        # ---------------------------------------------------------------------
-        self.state = np.pi
+        # Trial info
         self.trial = {
-            'ground_truth': self.rng.uniform(0, np.pi*2),
-            'context': self.rng.choice(self.contexts)
+            'ground_truth': self.rng.choice(self.choices),
+            'anti': self.anti,
         }
         self.trial.update(kwargs)
-        # ---------------------------------------------------------------------
+
+        ground_truth = self.trial['ground_truth']
+        if self.trial['anti']:
+            stim_theta = np.mod(self.theta[ground_truth] + np.pi, 2*np.pi)
+        else:
+            stim_theta = self.theta[ground_truth]
+
         # Periods
-        # ---------------------------------------------------------------------
-        periods = ['fixation', 'reach']
+        periods = ['fixation', 'stimulus', 'delay', 'decision']
         self.add_period(periods, after=0, last_period=True)
 
-        ob = self.view_ob('fixation')
-        ob[:, 32 + self.trial['context']] += 1
+        self.add_ob(1, period=['fixation', 'stimulus', 'delay'], where='fixation')
+        stim = np.cos(self.theta - stim_theta)
+        self.add_ob(stim, 'stimulus', where='stimulus')
 
-        ob = self.view_ob('reach')
-        # Actual stimulus pi away
-        shift = 0 if self.trial['context'] == 0 else np.pi
-        ob[:, :16] = np.cos(self.theta - (self.trial['ground_truth'] + shift))
-
-        self.set_groundtruth(np.pi, 'fixation')
-        self.set_groundtruth(self.trial['ground_truth'], 'reach')
+        self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
 
     def _step(self, action):
-        ob = self.ob_now
-        ob[16:32] = np.cos(self.theta - self.state)
-        if action == 1:
-            self.state += 0.05
-        elif action == 2:
-            self.state -= 0.05
-        self.state = np.mod(self.state, 2*np.pi)
-
+        new_trial = False
+        # rewards
+        reward = 0
         gt = self.gt_now
+        # observations
         if self.in_period('fixation'):
-            reward = 0
-        else:
-            reward =\
-                np.max((self.rewards['correct']-tasktools.circular_dist(self.state-gt),
-                        self.rewards['fail']))
+            if action != 0:  # action = 0 means fixating
+                new_trial = self.abort
+                reward += self.rewards['abort']
+        elif self.in_period('decision'):
+            if action != 0:
+                new_trial = True
+                if action == gt:
+                    reward += self.rewards['correct']
+                    self.performance = 1
+                else:
+                    reward += self.rewards['fail']
 
-        return ob, reward, False, {'new_trial': False}
+        return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 
-
-if __name__ == '__main__':
-    from neurogym.tests import test_run
-    env = AntiReach1D()
-    test_run(env)
-    ngym.utils.plot_env(env)

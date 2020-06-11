@@ -39,6 +39,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         self.timing = {
             'fixation': ('constant', 100),  # TODO: depends on subject
             'stimulus': ('constant', 2000),
+            'delay': ('constant', 0),
             'decision': ('constant', 100)}  # XXX: not specified
         if timing:
             self.timing.update(timing)
@@ -77,11 +78,11 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         stim_theta = self.theta[ground_truth]
 
         # Periods
-        self.add_period(['fixation', 'stimulus', 'decision'], after=0,
+        self.add_period(['fixation', 'stimulus', 'delay', 'decision'], after=0,
                         last_period=True)
 
         # Observations
-        self.add_ob(1, period=['fixation', 'stimulus'], where='fixation')
+        self.add_ob(1, period=['fixation', 'stimulus', 'delay'], where='fixation')
         stim = np.cos(self.theta - stim_theta) * (coh/200) + 0.5
         self.add_ob(stim, 'stimulus', where='stimulus')
         self.add_randn(0, self.sigma, 'stimulus', where='stimulus')

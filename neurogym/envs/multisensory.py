@@ -5,7 +5,7 @@ import numpy as np
 from gym import spaces
 import neurogym as ngym
 
-# TODO: This is not finished yet
+# TODO: This is not finished yet. Need to compare with original paper
 class MultiSensoryIntegration(ngym.PeriodEnv):
     r"""Multi-sensory integration."""
     metadata = {
@@ -15,13 +15,13 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
         'tags': ['perceptual', 'two-alternative', 'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0,
+                 dim_ring=2):
         super().__init__(dt=dt)
 
         # trial conditions
         self.choices = [1, 2]  # left, right choice
         self.cohs = [5, 15, 50]
-        self.coh_diffs = [-50, -15, -5, 0, 5, 15, 50]
 
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
@@ -41,46 +41,45 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
         self.abort = False
 
         # set action and observation space
-        self.action_space = spaces.Discrete(3)
-        self.act_dict = {'fixation': 0, 'choice1': 1, 'choice2': 2}
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(5,),
-                                            dtype=np.float32)
-        names = ['fixation', 'stim1_mod1', 'stim2_mod1',
-                 'stim1_mod2', 'stim2_mod2']
-        self.ob_dict = {name: i for i, name in enumerate(names)}
+        self.theta = np.linspace(0, 2 * np.pi, dim_ring + 1)[:-1]
+        self.choices = np.arange(dim_ring)
+
+        self.observation_space = spaces.Box(
+            -np.inf, np.inf, shape=(1 + 2 * dim_ring,), dtype=np.float32)
+        self.ob_dict = {'fixation': 0,
+                        'stimulus_mod1': range(1, dim_ring + 1),
+                        'stimulus_mod2': range(dim_ring + 1, 2 * dim_ring + 1)}
+
+        self.action_space = spaces.Discrete(1+dim_ring)
+        self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring+1)}
 
     def new_trial(self, **kwargs):
-        # -------------------------------------------------------------------------
-        # Trial
-        # -------------------------------------------------------------------------
+        # Trial info
         self.trial = {
             'ground_truth': self.rng.choice(self.choices),
             'coh': self.rng.choice(self.cohs),
-            'coh_diff': self.rng.choice(self.coh_diffs),
+            'coh_prop': self.rng.rand(),
         }
         self.trial.update(kwargs)
 
-        if self.trial['ground_truth'] == 1:
-            signed_coh = self.trial['coh']
-        else:
-            signed_coh = -self.trial['coh']
-        signed_coh_0 = (signed_coh + self.trial['coh_diff']) / 2
-        signed_coh_1 = (signed_coh - self.trial['coh_diff']) / 2
-        # -----------------------------------------------------------------------
+        coh_0 = self.trial['coh'] * self.trial['coh_prop']
+        coh_1 = self.trial['coh'] * (1 - self.trial['coh_prop'])
+        ground_truth = self.trial['ground_truth']
+        stim_theta = self.theta[ground_truth]
+
         # Periods
-        # -----------------------------------------------------------------------
         periods = ['fixation', 'stimulus', 'decision']
         self.add_period(periods, after=0, last_period=True)
 
         self.add_ob(1, where='fixation')
-        self.add_ob((1 + signed_coh_0 / 100) / 2, period='stimulus', where='stim1_mod1')
-        self.add_ob((1 - signed_coh_0 / 100) / 2, period='stimulus', where='stim2_mod1')
-        self.add_ob((1 + signed_coh_1 / 100) / 2, period='stimulus', where='stim1_mod2')
-        self.add_ob((1 - signed_coh_1 / 100) / 2, period='stimulus', where='stim2_mod2')
+        stim = np.cos(self.theta - stim_theta) * (coh_0 / 200) + 0.5
+        self.add_ob(stim, 'stimulus', where='stimulus_mod1')
+        stim = np.cos(self.theta - stim_theta) * (coh_1 / 200) + 0.5
+        self.add_ob(stim, 'stimulus', where='stimulus_mod2')
         self.add_randn(0, self.sigma, 'stimulus')
         self.set_ob(0, 'decision')
 
-        self.set_groundtruth(self.trial['ground_truth'], 'decision')
+        self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
 
     def _step(self, action):
         obs = self.ob_now
@@ -100,9 +99,3 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
                     self.performance = 1
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
-
-
-if __name__ == '__main__':
-    env = MultiSensoryIntegration()
-    env.seed(seed=0)
-    ngym.utils.plot_env(env, num_steps=100, def_act=0)

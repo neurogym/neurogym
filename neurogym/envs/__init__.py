@@ -1,5 +1,5 @@
 import importlib
-from inspect import getmembers, isfunction
+from inspect import getmembers, isfunction, isclass
 
 import gym
 from gym.envs.registration import register
@@ -8,6 +8,8 @@ from gym.envs.registration import register
 ALL_NATIVE_ENVS = {
     'ContextDecisionMaking-v0':
         'neurogym.envs.contextdecisionmaking:ContextDecisionMaking',
+    'SingleContextDecisionMaking-v0':
+        'neurogym.envs.contextdecisionmaking:SingleContextDecisionMaking',
     'DelayComparison-v0':
         'neurogym.envs.delaycomparison:DelayComparison',
     'PerceptualDecisionMaking-v0':
@@ -52,7 +54,7 @@ ALL_NATIVE_ENVS = {
     'Reaching1DWithSelfDistraction-v0':
         'neurogym.envs.reaching:Reaching1DWithSelfDistraction',
     'AntiReach-v0':
-        'neurogym.envs.antireach:AntiReach1D',
+        'neurogym.envs.antireach:AntiReach',
     'DelayMatchSampleDistractor1D-v0':
         'neurogym.envs.delaymatchsample:DelayMatchSampleDistractor1D',
     'IntervalDiscrimination-v0':
@@ -87,14 +89,19 @@ ALL_PSYCHOPY_ENVS = {
 
 # Automatically register all tasks in collections
 def _get_collection_envs():
+    """Register collection tasks in collections folder.
+
+    Each environment is named collection_name.env_name-v0
+    """
     derived_envs = {}
     collection_libs = ['perceptualdecisionmaking', 'yang19']
     for l in collection_libs:
         lib = 'neurogym.envs.collections.' + l
         module = importlib.import_module(lib)
-        envs = [name for name, val in getmembers(module) if isfunction(val)]
+        envs = [name for name, val in getmembers(module) if isfunction(val) or isclass(val)]
         envs = [env for env in envs if env[0] != '_']  # ignore private members
-        derived_envs.update({env+'-v0': lib + ':' + env for env in envs})
+        # TODO: check is instance gym.env
+        derived_envs.update({l+'.'+env+'-v0': lib + ':' + env for env in envs})
     return derived_envs
 
 

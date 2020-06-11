@@ -75,9 +75,9 @@ class BaseEnv(gym.Env):
         self.rng.seed(seed)
         return [seed]
 
-    def reset(self, new_tr_fn=None):
+    def reset(self):
         """Do nothing. Run one step"""
-        return self.step(self.action_space.sample(), new_tr_fn=new_tr_fn)
+        return self.step(self.action_space.sample())
 
 
 class TrialEnv(BaseEnv):
@@ -99,17 +99,27 @@ class TrialEnv(BaseEnv):
         self.rewards = {}
         self.seed()
 
+        self._top = self
+
     def new_trial(self, **kwargs):
         """Public interface for starting a new trial.
 
         This function can typically update the self.trial
         dictionary that contains information about current trial
         TODO: Need to clearly define the expected behavior
+        
+        Args:
+
+        Returns:
+            observation: numpy array of agent's observation during the trial
+            target: numpy array of target action of the agent
+            trial: dict of trial information. Available to step function as
+                self.trial
         """
         raise NotImplementedError('new_trial is not defined by user.')
 
     def _step(self, action):
-        """Private interface for the environment.n_cpu_tf_sess
+        """Private interface for the environment.
 
         Receives an action and returns a new state, a reward, a flag variable
         indicating whether the experiment has ended and a dictionary with
@@ -117,7 +127,7 @@ class TrialEnv(BaseEnv):
         """
         raise NotImplementedError('_step is not defined by user.')
 
-    def step(self, action, new_tr_fn=None):
+    def step(self, action):
         """Public interface for the environment."""
         obs, reward, done, info = self._step(action)
 
@@ -135,13 +145,11 @@ class TrialEnv(BaseEnv):
             self.performance = 0
             self.t = self.t_ind = 0  # Reset within trial time count
             self.num_tr += 1  # Increment trial count
-            if new_tr_fn is None:
-                self.new_trial()
-            else:
-                new_tr_fn()
+            self._top.new_trial()
+            info.update(self.trial)
         return obs, reward, done, info
 
-    def reset(self, new_tr_fn=None, step_fn=None, no_step=False):
+    def reset(self, step_fn=None, no_step=False):
         """Reset the environment.
 
         Args:
@@ -152,23 +160,20 @@ class TrialEnv(BaseEnv):
             no_step: bool. If True, no step is taken and observation randomly
                 sampled. Default False.
         """
+        # TODO: Why are we stepping during reset?
         self.num_tr = 0
         self.t = self.t_ind = 0
 
         # TODO: Check this works with wrapper
-        if new_tr_fn is None:
-            self.new_trial()
-        else:
-            new_tr_fn()
+        self._top.new_trial()
         self.action_space.seed(0)
         if no_step:
             return self.observation_space.sample()
         if step_fn is None:
-            obs, _, _, _ = self.step(self.action_space.sample(),
-                                     new_tr_fn=new_tr_fn)
+            # obs, _, _, _ = self.step(self.action_space.sample())
+            obs, _, _, _ = self._top.step(self.action_space.sample())
         else:
-            obs, _, _, _ = step_fn(self.action_space.sample(),
-                                   new_tr_fn=new_tr_fn)
+            obs, _, _, _ = step_fn(self.action_space.sample())
         return obs
 
     def render(self, mode='human'):
@@ -176,6 +181,10 @@ class TrialEnv(BaseEnv):
         plots relevant variables/parameters
         """
         pass
+
+    def set_top(self, wrapper):
+        """Set top to be wrapper."""
+        self._top = wrapper
 
 
 class PeriodEnv(TrialEnv):
@@ -198,6 +207,24 @@ class PeriodEnv(TrialEnv):
     def __str__(self):
         """Information about task."""
         return env_string(self)
+
+    def new_trial(self, **kwargs):
+        """Public interface for starting a new trial.
+
+        This function can typically update the self.trial
+        dictionary that contains information about current trial
+        TODO: Need to clearly define the expected behavior
+        """
+        raise NotImplementedError('new_trial is not defined by user.')
+
+    def _step(self, action):
+        """Private interface for the environment.
+
+        Receives an action and returns a new state, a reward, a flag variable
+        indicating whether the experiment has ended and a dictionary with
+        useful information
+        """
+        raise NotImplementedError('_step is not defined by user.')
 
     def sample_time(self, period):
         dist, args = self.timing[period]
@@ -391,18 +418,37 @@ class TrialWrapper(gym.Wrapper):
     def new_trial(self, **kwargs):
         self.env.new_trial()
 
-    def reset(self, new_tr_fn=None, step_fn=None):
+    def reset(self, step_fn=None):
         """
         restarts the experiment with the same parameters
         """
-        ntr_fn = new_tr_fn or self.new_trial
         stp_fn = step_fn or self.step
-        obs = self.env.reset(new_tr_fn=ntr_fn, step_fn=stp_fn)
+        obs = self.env.reset(step_fn=stp_fn)
         return obs
 
-    def step(self, action, new_tr_fn=None):
+    def step(self, action):
         """Public interface for the environment."""
         # TODO: Relying on private interface will break some gym behavior
-        ntr_fn = new_tr_fn or self.new_trial
-        obs, reward, done, info = self.env.step(action, new_tr_fn=ntr_fn)
+        obs, reward, done, info = self.env.step(action)
         return obs, reward, done, info
+
+
+# TODO: How to prevent the repeated typing here?
+class TrialWrapperV2(gym.Wrapper):
+    """Base class for wrapping TrialEnv"""
+
+    def __init__(self, env):
+        super().__init__(env)
+        self.env = env
+        if not isinstance(self.unwrapped, TrialEnv):
+            raise TypeError("Trial wrapper must be used on TrialEnv"
+                            "Got instead", self.unwrapped)
+        self.unwrapped.set_top(self)
+
+    @property
+    def task(self):
+        """Alias."""
+        return self.unwrapped
+
+    def new_trial(self, **kwargs):
+        raise NotImplementedError
