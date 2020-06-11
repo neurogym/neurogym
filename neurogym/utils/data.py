@@ -1,5 +1,7 @@
 """Utilities for data."""
 
+import copy
+
 import numpy as np
 import gym
 
@@ -12,8 +14,8 @@ class Dataset(object):
         target: numpy array (sequence_length, batch_size, output_units)
 
     Args:
-        env_name: str, environment name
-        env_kwargs: dict, additional kwargs for environment
+        env: str for env id or gym.Env objects
+        env_kwargs: dict, additional kwargs for environment, if env is str
         batch_size: int, batch size
         seq_len: int, sequence length
         max_batch: int, maximum number of batch for iterator, default infinite
@@ -21,13 +23,17 @@ class Dataset(object):
         cache_len: int, default length of caching
     """
 
-    def __init__(self, env_name, env_kwargs=None,
+    def __init__(self, env, env_kwargs=None,
                  batch_size=1, seq_len=None, max_batch=np.inf,
                  batch_first=False, cache_len=None):
-        if env_kwargs is None:
-            env_kwargs = {}
-        self.envs = [gym.make(env_name, **env_kwargs)
-                     for _ in range(batch_size)]
+        if isinstance(env, gym.Env):
+            self.envs = [copy.deepcopy(env) for _ in range(batch_size)]
+        else:
+            assert isinstance(env, str), 'env must be gym.Env or str'
+            if env_kwargs is None:
+                env_kwargs = {}
+            self.envs = [gym.make(env, **env_kwargs)
+                         for _ in range(batch_size)]
         for env in self.envs:
             env.reset()
         env = self.envs[0]
