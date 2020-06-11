@@ -9,10 +9,11 @@ Created on  Feb  2020
 
 import neurogym as ngym
 import numpy as np
+from neurogym.core import TrialWrapperV2
 import warnings
 
 
-class Variable_nch(ngym.TrialWrapper):
+class Variable_nch(TrialWrapperV2):
     metadata = {
         'description': 'Change number of active choices every ' +
         'block_nch trials. Always less or equal than original number.',
@@ -37,7 +38,10 @@ class Variable_nch(ngym.TrialWrapper):
         # uniform distr. across choices unless prob(n_ch=2) (prob_2) is specified
         if blocks_probs is not None:
             self.prob = blocks_probs[:self.max_nch-1]
-            self.prob = self.prob/np.sum(self.prob)
+            if np.sum(self.prob) == 0:
+                self.prob = [1/(self.max_nch-1)]*(self.max_nch-1)
+            else:
+                self.prob = self.prob/np.sum(self.prob)
         else:
             self.prob = [1/(self.max_nch-1)]*(self.max_nch-1)
         # Initialize with a random number of active choices (never 1)
@@ -56,8 +60,7 @@ class Variable_nch(ngym.TrialWrapper):
         kwargs.update({'n_ch': self.nch})
         self.env.new_trial(**kwargs)
 
-    def step(self, action, new_tr_fn=None):
-        ntr_fn = new_tr_fn or self.new_trial
-        obs, reward, done, info = self.env.step(action, new_tr_fn=ntr_fn)
+    def step(self, action):
+        obs, reward, done, info = self.env.step(action)
         info['nch'] = self.nch
         return obs, reward, done, info

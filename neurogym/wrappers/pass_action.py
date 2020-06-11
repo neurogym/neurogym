@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import neurogym as ngym
+from neurogym.core import TrialWrapperV2
 from gym import spaces
 
 
-class PassAction(ngym.TrialWrapper):
+class PassAction(TrialWrapperV2):
     """Modifies observation by adding the previous action."""
     metadata = {
         'description': 'Modifies observation by adding the previous action.',
@@ -23,8 +23,7 @@ class PassAction(ngym.TrialWrapper):
                                             shape=(env_oss+1,),
                                             dtype=np.float32)
 
-    def step(self, action, new_tr_fn=None):
-        ntr_fn = new_tr_fn or self.new_trial
-        obs, reward, done, info = self.env.step(action, new_tr_fn=ntr_fn)
+    def step(self, action):
+        obs, reward, done, info = self.env.step(action)
         obs = np.concatenate((obs, np.array([action])))
         return obs, reward, done, info

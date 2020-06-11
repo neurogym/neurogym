@@ -1,8 +1,9 @@
 import neurogym as ngym
+from neurogym.core import TrialWrapperV2
 import numpy as np
 
 
-class TrialHistory(ngym.TrialWrapper):
+class TrialHistory(TrialWrapperV2):
     """Change ground truth probability based on previous outcome.
 
     Args:
@@ -99,8 +100,7 @@ class TrialHistory(ngym.TrialWrapper):
         self.curr_block = self.task.rng.choice(range(self.curr_n_blocks))
         return tr_mat
 
-    def step(self, action, new_tr_fn=None):
-        ntr_fn = new_tr_fn or self.new_trial
-        obs, reward, done, info = self.env.step(action, new_tr_fn=ntr_fn)
+    def step(self, action):
+        obs, reward, done, info = self.env.step(action)
         info['curr_block'] = self.curr_block
         return obs, reward, done, info

@@ -386,7 +386,7 @@ if __name__ == '__main__':
     # test_noise('PerceptualDecisionMaking-v0', random_bhvr=0.,
     #            wrapper=PassAction, perf_th=0.7, num_steps=100000,
     #            verbose=True, **env_args)
-    test_trialhist('NAltPerceptualDecisionMaking-v0', num_steps=100000,
+    test_trialhist('NAltPerceptualDecisionMaking-v0', num_steps=1000000,
                    verbose=True, probs=0.99, num_blocks=3)
     # test_sidebias('NAltPerceptualDecisionMaking-v0', num_steps=10000,
     #               verbose=True, probs=[(0, 0, 1), (0, 1, 0), (1, 0, 0)])
