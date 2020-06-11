@@ -2,7 +2,7 @@
 
 Each collection is a list of envs.
 """
-from inspect import getmembers, isfunction
+from inspect import getmembers, isfunction, isclass
 import importlib
 
 
@@ -11,7 +11,7 @@ def _collection_from_file(fname):
     lib = 'neurogym.envs.collections.' + fname
     module = importlib.import_module(lib)
     envs = [name for name, val in getmembers(module) if isfunction(val)]
-    envs = [env + '-v0' for env in envs if env[0] != '_']
+    envs = [fname + '.' + env + '-v0' for env in envs if env[0] != '_']
     return envs
 
 
