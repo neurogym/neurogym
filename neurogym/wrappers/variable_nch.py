@@ -12,7 +12,7 @@ import numpy as np
 import warnings
 
 
-class Variable_nch(ngym.TrialWrapper):
+class Variable_nch(ngym.TrialWrapperV2):
     metadata = {
         'description': 'Change number of active choices every ' +
         'block_nch trials. Always less or equal than original number.',
@@ -59,8 +59,7 @@ class Variable_nch(ngym.TrialWrapper):
         kwargs.update({'n_ch': self.nch})
         self.env.new_trial(**kwargs)
 
-    def step(self, action, new_tr_fn=None):
-        ntr_fn = new_tr_fn or self.new_trial
-        obs, reward, done, info = self.env.step(action, new_tr_fn=ntr_fn)
+    def step(self, action):
+        obs, reward, done, info = self.env.step(action)
         info['nch'] = self.nch
         return obs, reward, done, info
