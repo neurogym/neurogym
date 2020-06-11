@@ -1,8 +1,9 @@
 import neurogym as ngym
+from neurogym.core import TrialWrapperV2
 import numpy as np
 
 
-class TrialHistory(ngym.TrialWrapperV2):
+class TrialHistory(TrialWrapperV2):
     """Change ground truth probability based on previous outcome.
 
     Args:
