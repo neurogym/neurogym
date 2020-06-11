@@ -146,7 +146,8 @@ class TrialEnv(BaseEnv):
             self.t = self.t_ind = 0  # Reset within trial time count
             self.num_tr += 1  # Increment trial count
             self._top.new_trial()
-            info.update(self.trial)
+            if self.trial:
+                info.update(self.trial)
         return obs, reward, done, info
 
     def reset(self, step_fn=None, no_step=False):
