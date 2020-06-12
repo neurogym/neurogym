@@ -10,18 +10,18 @@ from neurogym.utils import scheduler
 from neurogym.core import TrialWrapperV2
 
 
-def get_dist(original_dist):
+def _get_dist(original_dist):
     '''Get the distance in periodic boundary conditions'''
     return np.minimum(abs(original_dist), 2 * np.pi - abs(original_dist))
 
 
-def gaussianbump(loc, theta, strength):
-    dist = get_dist(loc - theta)  # periodic boundary
+def _gaussianbump(loc, theta, strength):
+    dist = _get_dist(loc - theta)  # periodic boundary
     dist /= np.pi / 8
     return 0.8 * np.exp(-dist ** 2 / 2) * strength
 
 
-def cosinebump(loc, theta, strength):
+def _cosinebump(loc, theta, strength):
     return np.cos(theta - loc) * strength / 2 + 0.5
 
 
@@ -45,7 +45,7 @@ class _MultiModalityStimulus(TrialWrapperV2):
         return self.env.new_trial(**kwargs)
 
 
-class Reach(ngym.PeriodEnv):
+class _Reach(ngym.PeriodEnv):
     """Anti-response task.
 
     The agent has to move in the direction opposite to the one indicated
@@ -59,7 +59,7 @@ class Reach(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, anti=True, rewards=None, timing=None,
-                 dim_ring=32, reaction=False):
+                 dim_ring=16, reaction=False):
         super().__init__(dt=dt)
 
         self.anti = anti
@@ -105,7 +105,7 @@ class Reach(ngym.PeriodEnv):
             stim_theta = np.mod(self.theta[ground_truth] + np.pi, 2*np.pi)
         else:
             stim_theta = self.theta[ground_truth]
-        stim = gaussianbump(stim_theta, self.theta, 1)
+        stim = _gaussianbump(stim_theta, self.theta, 1)
 
         if not self.reaction:
             periods = ['fixation', 'stimulus', 'delay', 'decision']
@@ -144,7 +144,7 @@ class Reach(ngym.PeriodEnv):
         return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
-class DMFamily(ngym.PeriodEnv):
+class _DMFamily(ngym.PeriodEnv):
     """Delay comparison.
 
     Two-alternative forced choice task in which the subject
@@ -215,10 +215,10 @@ class DMFamily(ngym.PeriodEnv):
             self.trial['coh2' + mod] = coh2 = 0.5 - coh
 
         # stim = cosinebump(self.trial['theta1'], self.theta, coh1)
-        stim = gaussianbump(self.trial['theta1'], self.theta, coh1)
+        stim = _gaussianbump(self.trial['theta1'], self.theta, coh1)
         self.add_ob(stim, period1, where='stimulus' + mod)
         # stim = cosinebump(self.trial['theta2'], self.theta, coh2)
-        stim = gaussianbump(self.trial['theta2'], self.theta, coh2)
+        stim = _gaussianbump(self.trial['theta2'], self.theta, coh2)
         self.add_ob(stim, period2, where='stimulus' + mod)
 
     def new_trial(self, **kwargs):
@@ -283,7 +283,7 @@ class DMFamily(ngym.PeriodEnv):
         return ob, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
-class DelayMatch1DResponse(ngym.PeriodEnv):
+class _DelayMatch1DResponse(ngym.PeriodEnv):
     r"""Delay match-to-sample or category task.
 
     A sample stimulus is followed by a delay and test. Agents are required
@@ -303,7 +303,7 @@ class DelayMatch1DResponse(ngym.PeriodEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0,
-                 dim_ring=2, matchto='sample', matchgo=True):
+                 dim_ring=16, matchto='sample', matchgo=True):
         super().__init__(dt=dt)
         self.matchto = matchto
         if self.matchto not in ['sample', 'category']:
@@ -369,8 +369,8 @@ class DelayMatch1DResponse(ngym.PeriodEnv):
         self.trial['sample_theta'] = sample_theta = self.theta[i_sample_theta]
         self.trial['test_theta'] = test_theta = self.theta[i_test_theta]
 
-        stim_sample = gaussianbump(sample_theta, self.theta, 1)
-        stim_test = gaussianbump(test_theta, self.theta, 1)
+        stim_sample = _gaussianbump(sample_theta, self.theta, 1)
+        stim_test = _gaussianbump(test_theta, self.theta, 1)
 
         # Periods
         self.add_period(['fixation', 'sample', 'delay', 'test', 'decision'],
@@ -412,7 +412,7 @@ class DelayMatch1DResponse(ngym.PeriodEnv):
 def _reach(**kwargs):
     envs = list()
     for modality in [0, 1]:
-        env = Reach(**kwargs)
+        env = _Reach(**kwargs)
         env = _MultiModalityStimulus(env, modality=modality, n_modality=2)
         envs.append(env)
     schedule = scheduler.RandomSchedule(len(envs))
@@ -464,70 +464,70 @@ def dm1(**kwargs):
     env_kwargs = {'w_mod': (1, 1), 'stim_mod': (True, False),
                   'delaycomparison': False}
     env_kwargs.update(kwargs)
-    return DMFamily(**env_kwargs)
+    return _DMFamily(**env_kwargs)
 
 
 def dm2(**kwargs):
     env_kwargs = {'w_mod': (1, 1), 'stim_mod': (False, True),
                   'delaycomparison': False}
     env_kwargs.update(kwargs)
-    return DMFamily(**env_kwargs)
+    return _DMFamily(**env_kwargs)
 
 
 def ctxdm1(**kwargs):
     env_kwargs = {'w_mod': (1, 0), 'stim_mod': (True, True),
                   'delaycomparison': False}
     env_kwargs.update(kwargs)
-    return DMFamily(**env_kwargs)
+    return _DMFamily(**env_kwargs)
 
 
 def ctxdm2(**kwargs):
     env_kwargs = {'w_mod': (0, 1), 'stim_mod': (True, True),
                   'delaycomparison': False}
     env_kwargs.update(kwargs)
-    return DMFamily(**env_kwargs)
+    return _DMFamily(**env_kwargs)
 
 
 def multidm(**kwargs):
     env_kwargs = {'w_mod': (1, 1), 'stim_mod': (True, True),
                   'delaycomparison': False}
     env_kwargs.update(kwargs)
-    return DMFamily(**env_kwargs)
+    return _DMFamily(**env_kwargs)
 
 
 def dlydm1(**kwargs):
     env_kwargs = {'w_mod': (1, 1), 'stim_mod': (True, False),
                   'delaycomparison': True}
     env_kwargs.update(kwargs)
-    return DMFamily(**env_kwargs)
+    return _DMFamily(**env_kwargs)
 
 
 def dlydm2(**kwargs):
     env_kwargs = {'w_mod': (1, 1), 'stim_mod': (False, True),
                   'delaycomparison': True}
     env_kwargs.update(kwargs)
-    return DMFamily(**env_kwargs)
+    return _DMFamily(**env_kwargs)
 
 
 def ctxdlydm1(**kwargs):
     env_kwargs = {'w_mod': (1, 0), 'stim_mod': (True, True),
                   'delaycomparison': True}
     env_kwargs.update(kwargs)
-    return DMFamily(**env_kwargs)
+    return _DMFamily(**env_kwargs)
 
 
 def ctxdlydm2(**kwargs):
     env_kwargs = {'w_mod': (0, 1), 'stim_mod': (True, True),
                   'delaycomparison': True}
     env_kwargs.update(kwargs)
-    return DMFamily(**env_kwargs)
+    return _DMFamily(**env_kwargs)
 
 
 def multidlydm(**kwargs):
     env_kwargs = {'w_mod': (1, 1), 'stim_mod': (True, True),
                   'delaycomparison': True}
     env_kwargs.update(kwargs)
-    return DMFamily(**env_kwargs)
+    return _DMFamily(**env_kwargs)
 
 
 def _dlymatch(matchto, matchgo, **kwargs):
@@ -535,7 +535,7 @@ def _dlymatch(matchto, matchgo, **kwargs):
     for modality in [0, 1]:
         env_kwargs = {'matchto': matchto, 'matchgo': matchgo}
         env_kwargs.update(kwargs)
-        env = DelayMatch1DResponse(**env_kwargs)
+        env = _DelayMatch1DResponse(**env_kwargs)
         env = _MultiModalityStimulus(env, modality=modality, n_modality=2)
         envs.append(env)
     schedule = scheduler.RandomSchedule(len(envs))
@@ -557,32 +557,3 @@ def dmc(**kwargs):
 
 def dnmc(**kwargs):
     return _dlymatch(matchto='category', matchgo=False, **kwargs)
-
-
-def multitask(**kwargs):
-    kwargs['dim_ring'] = 16
-    envs = [
-        go(**kwargs),
-        rtgo(**kwargs),
-        dlygo(**kwargs),
-        anti(**kwargs),
-        rtanti(**kwargs),
-        dlyanti(**kwargs),
-        dm1(**kwargs),
-        dm2(**kwargs),
-        ctxdm1(**kwargs),
-        ctxdm2(**kwargs),
-        multidm(**kwargs),
-        dlydm1(**kwargs),
-        dlydm2(**kwargs),
-        ctxdlydm1(**kwargs),
-        ctxdlydm2(**kwargs),
-        multidlydm(**kwargs),
-        dms(**kwargs),
-        dnms(**kwargs),
-        dmc(**kwargs),
-        dnmc(**kwargs),
-    ]
-    schedule = scheduler.RandomSchedule(len(envs))
-    env = ScheduleEnvs(envs, schedule, env_input=True)
-    return env

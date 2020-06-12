@@ -65,6 +65,51 @@ def _have_equal_shape(envs):
                 ' and ' + str(env_act_shape) + ' for ' + str(envs[0]))
 
 
+class MultiEnvs(TrialWrapperV2):
+    """Wrap multiple environments.
+
+    Args:
+        envs: list of env object
+        env_input: bool, if True, add scalar inputs indicating current
+            envinronment. default False.
+    """
+    def __init__(self, envs, env_input=False):
+        super().__init__(envs[0])
+        for env in envs:
+            env.unwrapped.set_top(self)
+        self.envs = envs
+        self.i_env = 0
+
+        self.env_input = env_input
+        if env_input:
+            env_shape = envs[0].observation_space.shape
+            if len(env_shape) > 1:
+                raise ValueError('Env must have 1-D Box shape',
+                                 'Instead got ' + str(env_shape))
+            _have_equal_shape(envs)
+            self.observation_space = spaces.Box(
+                -np.inf, np.inf, shape=(env_shape[0] + len(self.envs),),
+                dtype=self.observation_space.dtype
+            )
+
+    def set_i(self, i):
+        """Set the i-th environment."""
+        self.i_env = i
+        self.env = self.envs[self.i_env]
+
+    def new_trial(self, **kwargs):
+        if not self.env_input:
+            return self.env.new_trial(**kwargs)
+        else:
+            self.env.new_trial(**kwargs)
+            # Expand observation
+            env_ob = np.zeros((self.unwrapped.ob.shape[0], len(self.envs)),
+                              dtype=self.unwrapped.ob.dtype)
+            env_ob[:, self.i_env] = 1.
+            self.unwrapped.ob = np.concatenate(
+                (self.unwrapped.ob, env_ob), axis=-1)
+
+
 class ScheduleEnvs(TrialWrapperV2):
     """Schedule environments.
 
