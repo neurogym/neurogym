@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from neurogym.core import TrialWrapperV2
+from gym import Wrapper
 import os
 import numpy as np
 from neurogym.utils.plotting import fig_
 
 
-class Monitor(TrialWrapperV2):
+class Monitor(Wrapper):
     """Monitor task.
 
     Saves relevant behavioral information: rewards,actions, observations,

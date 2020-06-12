@@ -30,10 +30,10 @@ class Variable_nch(TrialWrapperV2):
         super().__init__(env)
 
         assert isinstance(block_nch, int), 'block_nch must be integer'
-        assert isinstance(self.task, ngym.TrialEnv), 'Task has to be TrialEnv'
+        assert isinstance(self.unwrapped, ngym.TrialEnv), 'Task has to be TrialEnv'
 
         self.block_nch = block_nch
-        self.max_nch = len(self.task.choices)  # Max number of choices
+        self.max_nch = len(self.unwrapped.choices)  # Max number of choices
 
         # uniform distr. across choices unless prob(n_ch=2) (prob_2) is specified
         if blocks_probs is not None:
@@ -53,7 +53,7 @@ class Variable_nch(TrialWrapperV2):
             warnings.warn('Variable_nch wrapper ' +
                           'will ignore passed ground truth')
 
-        if self.task.num_tr % self.block_nch == 0:
+        if self.unwrapped.num_tr % self.block_nch == 0:
             # We change number of active choices every 'block_nch'.
             self.nch = self.rng.choice(range(2, self.max_nch + 1), p=self.prob)
 

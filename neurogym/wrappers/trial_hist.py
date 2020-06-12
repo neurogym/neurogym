@@ -28,13 +28,13 @@ class TrialHistory(TrialWrapperV2):
                  blk_ch_prob=None):
         super().__init__(env)
         try:
-            self.n_ch = len(self.task.choices)  # max num of choices
-            self.th_choices = self.task.choices
+            self.n_ch = len(self.unwrapped.choices)  # max num of choices
+            self.th_choices = self.unwrapped.choices
             self.curr_n_ch = self.n_ch
         except AttributeError:
             raise AttributeError('''SideBias requires task
                                  to have attribute choices''')
-        assert isinstance(self.task, ngym.TrialEnv), 'Task has to be TrialEnv'
+        assert isinstance(self.unwrapped, ngym.TrialEnv), 'Task has to be TrialEnv'
         assert probs is not None, 'Please provide choices probabilities'
         self.probs = probs
         self.n_blocks = num_blocks
@@ -53,10 +53,10 @@ class TrialHistory(TrialWrapperV2):
         # ---------------------------------------------------------------------
         # change rep. prob. every self.block_dur trials
         if self.blk_ch_prob is None:
-            if self.task.num_tr % self.block_dur == 0:
+            if self.unwrapped.num_tr % self.block_dur == 0:
                 self.curr_block = (self.curr_block + 1) % self.curr_n_blocks
         else:
-            if self.task.rng.random() < self.blk_ch_prob:
+            if self.unwrapped.rng.random() < self.blk_ch_prob:
                 self.curr_block = (self.curr_block + 1) % self.curr_n_blocks
 
         # Check if n_ch is passed and if it is different from previous value
@@ -66,8 +66,8 @@ class TrialHistory(TrialWrapperV2):
             self.curr_tr_mat = self.trans_probs
 
         probs_curr_blk = self.curr_tr_mat[self.curr_block, self.prev_trial, :]
-        ground_truth = self.task.rng.choice(self.th_choices[:self.curr_n_ch],
-                                            p=probs_curr_blk)
+        ground_truth = self.unwrapped.rng.choice(self.th_choices[:self.curr_n_ch],
+                                                 p=probs_curr_blk)
         self.prev_trial =\
             np.where(self.th_choices[:self.curr_n_ch] == ground_truth)[0][0]
         kwargs.update({'ground_truth': ground_truth,
@@ -97,7 +97,7 @@ class TrialHistory(TrialWrapperV2):
             tr_mat = scaled_tr_mat
         tr_mat = np.unique(tr_mat, axis=0)
         self.curr_n_blocks = tr_mat.shape[0]
-        self.curr_block = self.task.rng.choice(range(self.curr_n_blocks))
+        self.curr_block = self.unwrapped.rng.choice(range(self.curr_n_blocks))
         return tr_mat
 
     def step(self, action):

@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from neurogym.core import TrialWrapperV2
+from gym import Wrapper
 from gym import spaces
 
 
-class PassAction(TrialWrapperV2):
+class PassAction(Wrapper):
     """Modifies observation by adding the previous action."""
     metadata = {
         'description': 'Modifies observation by adding the previous action.',
