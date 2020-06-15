@@ -151,13 +151,16 @@ class _DMFamily(ngym.PeriodEnv):
     has to compare two stimuli separated by a delay to decide
     which one has a higher frequency.
     """
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0,
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0, cohs=None,
                  dim_ring=16, w_mod=(1, 1), stim_mod=(True, True),
                  delaycomparison=True):
         super().__init__(dt=dt)
 
         # trial conditions
-        self.cohs = np.array([0.08, 0.16, 0.32])
+        if cohs is None:
+            self.cohs = np.array([0.08, 0.16, 0.32])
+        else:
+            self.cohs = cohs
         self.w_mod1, self.w_mod2 = w_mod
         self.stim_mod1, self.stim_mod2 = stim_mod
         self.delaycomparison = delaycomparison
@@ -211,8 +214,8 @@ class _DMFamily(ngym.PeriodEnv):
         else:
             period1, period2 = 'stimulus', 'stimulus'
             coh = self.rng.choice(self.cohs)
-            self.trial['coh1' + mod] = coh1 = 0.5 + coh
-            self.trial['coh2' + mod] = coh2 = 0.5 - coh
+            self.trial['coh1' + mod] = coh1 = 0.5 + coh / 2
+            self.trial['coh2' + mod] = coh2 = 0.5 - coh / 2
 
         # stim = cosinebump(self.trial['theta1'], self.theta, coh1)
         stim = _gaussianbump(self.trial['theta1'], self.theta, coh1)
@@ -255,7 +258,7 @@ class _DMFamily(ngym.PeriodEnv):
             coh1 += self.w_mod2 * self.trial['coh1_mod2']
             coh2 += self.w_mod2 * self.trial['coh2_mod2']
 
-        i_target = i_theta1 if coh1 + self.rng.uniform(-1e6, 1e6) > coh2 else i_theta2
+        i_target = i_theta1 if coh1 + self.rng.uniform(-1e-6, 1e-6) > coh2 else i_theta2
         self.set_groundtruth(self.act_dict['choice'][i_target], 'decision')
 
     def _step(self, action):
