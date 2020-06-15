@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import neurogym as ngym
+from gym import Wrapper
 import os
 import numpy as np
 from neurogym.utils.plotting import fig_
 
 
-class Monitor(ngym.TrialWrapper):
+class Monitor(Wrapper):
     """Monitor task.
 
     Saves relevant behavioral information: rewards,actions, observations,
@@ -68,9 +68,8 @@ class Monitor(ngym.TrialWrapper):
             self.gt_mat = []
             self.perf_mat = []
 
-    def step(self, action, new_tr_fn=None):
-        ntr_fn = new_tr_fn or self.new_trial
-        obs, rew, done, info = self.env.step(action, new_tr_fn=ntr_fn)
+    def step(self, action):
+        obs, rew, done, info = self.env.step(action)
         self.cum_obs += obs
         self.cum_rew += rew
         if self.sv_fig:

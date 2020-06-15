@@ -38,7 +38,7 @@ class CVLearning(ngym.PeriodEnv):
                  trials_day=300, perf_len=20, stages=[0, 1, 2, 3, 4], n_ch=10):
         super().__init__(dt=dt)
         self.choices = [1, 2]
-        self.n_ch = n_ch
+        self.n_ch = n_ch  # number of obs and actions different from fixation
         # cohs specifies the amount of evidence
         # (which is modulated by stim_scale)
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stim_scale
@@ -62,9 +62,9 @@ class CVLearning(ngym.PeriodEnv):
         self.r_fail = self.rewards['fail']
         self.action = 0
         self.abort = False
-        self.firstcounts = True
-        self.first_flag = False
-        self.ind = 0
+        self.firstcounts = True  # whether trial ends at first attempt
+        self.first_flag = False  # whether first attempt has been done
+        self.ind = 0   # index of the current stage
         if th_stage == -1:
             self.curr_ph = self.stages[-1]
         else:
@@ -73,36 +73,44 @@ class CVLearning(ngym.PeriodEnv):
 
         # PERFORMANCE VARIABLES
         self.trials_counter = 0
-        # Day performance
+        # Day/session performance
         self.curr_perf = 0
         self.trials_day = trials_day
         self.th_perf = th_stage
         self.day_perf = np.empty(trials_day)
         self.w_keep = [keep_days]*len(self.stages)  # TODO: simplify??
+        # number of days to keep an agent on a stage
+        # once it has reached th_perf
         self.days_keep = self.w_keep[self.ind]
-        self.keep_stage = False
-        # Instantaneous performance
+        self.keep_stage = False  # wether the agent can move to the next stage
+        # Instantaneous performance (moving window)
         self.inst_perf = 0
-        self.perf_len = perf_len
+        self.perf_len = perf_len  # window length
         self.mov_perf = np.zeros(perf_len)
 
         # STAGE VARIABLES
         # stage 0
+        # max number of consecutive times that an agent can repeat an action
+        # receiving positive reward on stage 0
         self.max_num_reps = max_num_reps
+        # counter of consecutive actions at the same side
         self.action_counter = 0
         # stage 2
         # min performance to keep the agent in stage 2
         self.min_perf = 0.5  # TODO: no magic numbers
-        self.stage_reminder = False
+        self.stage_reminder = False  # control if a stage has been explored
         # stage 3
         self.delay_durs = self.timing['delay'][1]
-        self.inc_delays = 0
-        self.delay_milestone = 0
+        self.inc_delays = 0  # proportion of the total delays dur to keep
+        self.delay_milestone = 0  # delays durs at the beggining of a day
+        # proportion of the total delays dur to incease every time that the
+        # agent reaches a threshold performance
         self.inc_factor = 0.25
         self.inc_delays_th = th_stage  # th perf to increase delays in stage 3
         self.dec_delays_th = 0.5  # th perf to decrease delays in stage 3
+        # number of trials spent on a specific delays duration
         self.trials_delay = 0
-        self.max_delays = True
+        self.max_delays = True  # wheter delays have reached their max dur
         self.dur = [0]*len(self.delay_durs)
 
         # action and observation spaces
@@ -166,6 +174,7 @@ class CVLearning(ngym.PeriodEnv):
             self.rewards['fail'] = self.r_fail
         elif self.curr_ph == 3:
             self.rewards['fail'] = self.r_fail
+            # increasing or decreasing delays durs
             if self.trials_delay > self.perf_len:
                 if self.inst_perf >= self.inc_delays_th and\
                    self.inc_delays < 1:
@@ -185,6 +194,7 @@ class CVLearning(ngym.PeriodEnv):
             self.trial.update({'coh': 100})
             self.trial.update({'sigma': 0})
         # phase 4: ambiguity component is introduced
+
         self.first_flag = False
 
         # ---------------------------------------------------------------------
@@ -256,6 +266,7 @@ class CVLearning(ngym.PeriodEnv):
             self.curr_perf = np.mean(self.day_perf)
             self.day_perf = np.empty(self.trials_day)
             self.delay_milestone = self.inc_delays
+            # Keeping or changing stage
             if self.curr_perf >= self.th_perf and self.max_delays:
                 self.keep_stage = True
 
