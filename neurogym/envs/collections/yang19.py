@@ -464,37 +464,43 @@ def dlyanti(**kwargs):
     return _reach(**env_kwargs)
 
 
-def dm1(**kwargs):
-    env_kwargs = {'w_mod': (1, 1), 'stim_mod': (True, False),
+def _dm_kwargs():
+    env_kwargs = {'cohs': [0.08, 0.16, 0.32, 0.64],
                   'delaycomparison': False}
+    return env_kwargs
+
+
+def dm1(**kwargs):
+    env_kwargs = _dm_kwargs()
+    env_kwargs.update({'w_mod': (1, 1), 'stim_mod': (True, False)})
     env_kwargs.update(kwargs)
     return _DMFamily(**env_kwargs)
 
 
 def dm2(**kwargs):
-    env_kwargs = {'w_mod': (1, 1), 'stim_mod': (False, True),
-                  'delaycomparison': False}
+    env_kwargs = _dm_kwargs()
+    env_kwargs.update({'w_mod': (1, 1), 'stim_mod': (False, True)})
     env_kwargs.update(kwargs)
     return _DMFamily(**env_kwargs)
 
 
 def ctxdm1(**kwargs):
-    env_kwargs = {'w_mod': (1, 0), 'stim_mod': (True, True),
-                  'delaycomparison': False}
+    env_kwargs = _dm_kwargs()
+    env_kwargs.update({'w_mod': (1, 0), 'stim_mod': (True, True)})
     env_kwargs.update(kwargs)
     return _DMFamily(**env_kwargs)
 
 
 def ctxdm2(**kwargs):
-    env_kwargs = {'w_mod': (0, 1), 'stim_mod': (True, True),
-                  'delaycomparison': False}
+    env_kwargs = _dm_kwargs()
+    env_kwargs.update({'w_mod': (0, 1), 'stim_mod': (True, True)})
     env_kwargs.update(kwargs)
     return _DMFamily(**env_kwargs)
 
 
 def multidm(**kwargs):
-    env_kwargs = {'w_mod': (1, 1), 'stim_mod': (True, True),
-                  'delaycomparison': False}
+    env_kwargs = _dm_kwargs()
+    env_kwargs.update({'w_mod': (1, 1), 'stim_mod': (True, True)})
     env_kwargs.update(kwargs)
     return _DMFamily(**env_kwargs)
 
