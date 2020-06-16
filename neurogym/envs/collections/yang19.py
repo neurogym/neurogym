@@ -209,11 +209,12 @@ class _DMFamily(ngym.PeriodEnv):
 
         if self.delaycomparison:
             period1, period2 = 'stim1', 'stim2'
-            self.trial['coh1' + mod] = coh1 = self.rng.choice(self.cohs)
-            self.trial['coh2' + mod] = coh2 = self.rng.choice(self.cohs)
+            coh1, coh2 = self.rng.choice(self.cohs, 2, replace=False)
+            self.trial['coh1' + mod] = coh1
+            self.trial['coh2' + mod] = coh2
         else:
             period1, period2 = 'stimulus', 'stimulus'
-            coh = self.rng.choice(self.cohs)
+            coh = self.rng.choice(self.cohs) * self.rng.choice([-1, +1])
             self.trial['coh1' + mod] = coh1 = 0.5 + coh / 2
             self.trial['coh2' + mod] = coh2 = 0.5 - coh / 2
 
@@ -498,37 +499,43 @@ def multidm(**kwargs):
     return _DMFamily(**env_kwargs)
 
 
-def dlydm1(**kwargs):
-    env_kwargs = {'w_mod': (1, 1), 'stim_mod': (True, False),
+def _dlydm_kwargs():
+    env_kwargs = {'cohs': [0.3, 0.6, 1.0],
                   'delaycomparison': True}
+    return env_kwargs
+
+
+def dlydm1(**kwargs):
+    env_kwargs = _dlydm_kwargs()
+    env_kwargs.update({'w_mod': (1, 1), 'stim_mod': (True, False)})
     env_kwargs.update(kwargs)
     return _DMFamily(**env_kwargs)
 
 
 def dlydm2(**kwargs):
-    env_kwargs = {'w_mod': (1, 1), 'stim_mod': (False, True),
-                  'delaycomparison': True}
+    env_kwargs = _dlydm_kwargs()
+    env_kwargs.update({'w_mod': (1, 1), 'stim_mod': (False, True)})
     env_kwargs.update(kwargs)
     return _DMFamily(**env_kwargs)
 
 
 def ctxdlydm1(**kwargs):
-    env_kwargs = {'w_mod': (1, 0), 'stim_mod': (True, True),
-                  'delaycomparison': True}
+    env_kwargs = _dlydm_kwargs()
+    env_kwargs.update({'w_mod': (1, 0), 'stim_mod': (True, True)})
     env_kwargs.update(kwargs)
     return _DMFamily(**env_kwargs)
 
 
 def ctxdlydm2(**kwargs):
-    env_kwargs = {'w_mod': (0, 1), 'stim_mod': (True, True),
-                  'delaycomparison': True}
+    env_kwargs = _dlydm_kwargs()
+    env_kwargs.update({'w_mod': (0, 1), 'stim_mod': (True, True)})
     env_kwargs.update(kwargs)
     return _DMFamily(**env_kwargs)
 
 
 def multidlydm(**kwargs):
-    env_kwargs = {'w_mod': (1, 1), 'stim_mod': (True, True),
-                  'delaycomparison': True}
+    env_kwargs = _dlydm_kwargs()
+    env_kwargs.update({'w_mod': (1, 1), 'stim_mod': (True, True)})
     env_kwargs.update(kwargs)
     return _DMFamily(**env_kwargs)
 
