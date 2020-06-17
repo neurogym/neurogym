@@ -68,6 +68,9 @@ class Monitor(Wrapper):
             self.gt_mat = []
             self.perf_mat = []
 
+    def reset(self):
+        return self.env.reset(step_fn=self.step)
+
     def step(self, action):
         obs, rew, done, info = self.env.step(action)
         self.cum_obs += obs
