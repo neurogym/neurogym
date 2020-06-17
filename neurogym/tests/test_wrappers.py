@@ -57,7 +57,7 @@ def test_passaction(env_name, num_steps=10000, verbose=False, **envArgs):
 def test_passreward(env_name, num_steps=10000, verbose=False, **envArgs):
     env = gym.make(env_name, **envArgs)
     env = PassReward(env)
-    env.reset()
+    obs = env.reset()
     for stp in range(num_steps):
         action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
@@ -235,8 +235,9 @@ def test_noise(env_name, random_bhvr=0., wrapper=None, perf_th=None,
         plt.plot(std_mat)
 
 
-def test_trialhist(env_name, num_steps=100000, probs=0.8, num_blocks=2,
-                   verbose=False, num_ch=4, variable_nch=True):
+def test_trialhist_and_variable_nch(env_name, num_steps=100000, probs=0.8,
+                                    num_blocks=2, verbose=False, num_ch=4,
+                                    variable_nch=True):
     env = gym.make(env_name, **{'n_ch': num_ch})
     env = TrialHistory(env, probs=probs, block_dur=200, num_blocks=num_blocks)
     if variable_nch:
@@ -371,6 +372,57 @@ def test_all(test_fn):
     print('Success {:d}/{:d} envs'.format(success_count, total_count))
 
 
+def test_wrappers_concat(env_name, num_steps=100000, probs=0.8, num_blocks=2,
+                         verbose=False, num_ch=4, variable_nch=True):
+    env = gym.make(env_name, **{'n_ch': num_ch})
+    env = TrialHistory(env, probs=probs, block_dur=200, num_blocks=num_blocks)  # , rand_blcks=True)
+    if variable_nch:
+        env = Variable_nch(env, block_nch=1000, blocks_probs=[0.1, 0.45, 0.45])
+        transitions = np.zeros((num_ch-1, num_blocks, num_ch, num_ch))
+    else:
+        transitions = np.zeros((1, num_blocks, num_ch, num_ch))
+    env = PassReward(env)
+    env = PassAction(env)
+    env.reset()
+    blk = []
+    gt = []
+    nch = []
+    prev_gt = 1
+    for stp in range(num_steps):
+        action = env.action_space.sample()
+        obs, rew, done, info = env.step(action)
+        print(action)
+        print(obs)
+        print('--------------------')
+        if done:
+            env.reset()
+        if info['new_trial'] and verbose:
+            blk.append(info['curr_block'])
+            gt.append(info['gt'])
+            if variable_nch:
+                nch.append(info['nch'])
+                if len(nch) > 1 and nch[-1] == nch[-2] and blk[-1] == blk[-2]:
+                    transitions[info['nch']-2, info['curr_block'], prev_gt,
+                                info['gt']-1] += 1
+            else:
+                nch.append(num_ch)
+                transitions[0, info['curr_block'], prev_gt, info['gt']-1] += 1
+            prev_gt = info['gt']-1
+    if verbose:
+        _, ax = plt.subplots(nrows=2, ncols=1, sharex=True)
+        ax[0].plot(blk[:20000], '-+')
+        ax[0].plot(nch[:20000], '-+')
+        ax[1].plot(gt[:20000], '-+')
+        ch_mat = np.unique(nch)
+        _, ax = plt.subplots(nrows=num_blocks, ncols=len(ch_mat))
+        for ind_ch, ch in enumerate(ch_mat):
+            for ind_blk in range(num_blocks):
+                norm_counts = transitions[ind_ch, ind_blk, :, :]
+                nxt_tr_counts = np.sum(norm_counts, axis=1).reshape((-1, 1))
+                norm_counts = norm_counts / nxt_tr_counts
+                ax[ind_blk][ind_ch].imshow(norm_counts)
+
+
 if __name__ == '__main__':
     plt.close('all')
     env_args = {'stim_scale': 10, 'timing': {'fixation': ('constant', 100),
@@ -386,8 +438,9 @@ if __name__ == '__main__':
     # test_noise('PerceptualDecisionMaking-v0', random_bhvr=0.,
     #            wrapper=PassAction, perf_th=0.7, num_steps=100000,
     #            verbose=True, **env_args)
-    test_trialhist('NAltPerceptualDecisionMaking-v0', num_steps=1000000,
-                   verbose=True, probs=0.99, num_blocks=3)
+    # test_trialhist_and_variable_nch('NAltPerceptualDecisionMaking-v0',
+    #                                 num_steps=1000000, verbose=True, probs=0.99,
+    #                                 num_blocks=3)
     # test_sidebias('NAltPerceptualDecisionMaking-v0', num_steps=10000,
     #               verbose=True, probs=[(0, 0, 1), (0, 1, 0), (1, 0, 0)])
     # test_catchtrials('PerceptualDecisionMaking-v0', num_steps=10000,
@@ -395,3 +448,5 @@ if __name__ == '__main__':
     # test_reactiontime('PerceptualDecisionMaking-v0', num_steps=100)
     # test_transferLearning(num_steps=200, verbose=True)
     # test_combine(num_steps=200, verbose=True)
+    test_wrappers_concat('NAltPerceptualDecisionMaking-v0', num_steps=1000000,
+                         verbose=True, probs=0.99, num_blocks=3)
