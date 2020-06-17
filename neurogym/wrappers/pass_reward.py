@@ -23,8 +23,10 @@ class PassReward(Wrapper):
                                             shape=(env_oss+1,),
                                             dtype=np.float32)
 
-    def reset(self):
-        return self.env.reset(step_fn=self.step)
+    def reset(self, step_fn=None):
+        if step_fn is None:
+            step_fn = self.step
+        return self.env.reset(step_fn=step_fn)
 
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
