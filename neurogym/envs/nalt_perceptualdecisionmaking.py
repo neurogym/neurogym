@@ -66,17 +66,16 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         # Action and observation spaces
         self.action_space = spaces.Discrete(n_ch+1)
         self.observation_space = spaces.Box(-np.inf, np.inf,
-                                            shape=(n_ch + ob_nch + 
-                                            ob_histblock + 1,),
+                                            shape=(n_ch + ob_nch +
+                                                   ob_histblock + 1,),
                                             dtype=np.float32)
         self.ob_dict = {'fixation': 0, 'stimulus': range(1, n_ch + 1)}
         if ob_nch:
             self.ob_dict.update({'Active choices': n_ch + ob_nch})
         if ob_histblock:
             self.ob_dict.update({'Current block': n_ch + ob_nch + ob_histblock})
-        
-        self.act_dict = {'fixation': 0, 'choice': range(1, n_ch + 1)}
 
+        self.act_dict = {'fixation': 0, 'choice': range(1, n_ch + 1)}
 
     def new_trial(self, **kwargs):
         """
@@ -89,7 +88,6 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-
         #  Controling whether ground_truth and/or choices is passed.
         if 'ground_truth' in kwargs.keys():
             ground_truth = kwargs['ground_truth']

@@ -376,7 +376,7 @@ def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
                                         num_blocks=16, verbose=False, num_ch=6,
                                         variable_nch=True):
     env = gym.make(env_name, **{'n_ch': num_ch})
-    env = TrialHistory(env, probs=probs, num_blocks=num_blocks,
+    env = TrialHistory(env, probs=probs,
                        rand_blcks=True, blk_ch_prob=0.001)  # using random blocks!
     if variable_nch:
         env = Variable_nch(env, block_nch=1000, blocks_probs=[0.2, 0.2, 0.2,
