@@ -372,18 +372,22 @@ def test_all(test_fn):
     print('Success {:d}/{:d} envs'.format(success_count, total_count))
 
 
-def test_wrappers_concat(env_name, num_steps=100000, probs=0.8, num_blocks=2,
-                         verbose=False, num_ch=4, variable_nch=True):
+def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
+                                        num_blocks=16, verbose=False, num_ch=6,
+                                        variable_nch=True):
     env = gym.make(env_name, **{'n_ch': num_ch})
-    env = TrialHistory(env, probs=probs, block_dur=200, num_blocks=num_blocks)  # , rand_blcks=True)
+    env = TrialHistory(env, probs=probs, block_dur=1000, num_blocks=num_blocks,
+                       rand_blcks=True)  # using random blocks!
     if variable_nch:
-        env = Variable_nch(env, block_nch=1000, blocks_probs=[0.1, 0.45, 0.45])
-        transitions = np.zeros((num_ch-1, num_blocks, num_ch, num_ch))
+        env = Variable_nch(env, block_nch=1000, blocks_probs=[0.2, 0.2, 0.2,
+                                                              0.2, 0.2])
+        transitions = np.zeros((num_blocks, num_ch, num_ch))
     else:
-        transitions = np.zeros((1, num_blocks, num_ch, num_ch))
+        transitions = np.zeros((num_blocks, num_ch, num_ch))
     env = PassReward(env)
     env = PassAction(env)
     env.reset()
+    blk_id = []
     blk = []
     gt = []
     nch = []
@@ -391,36 +395,49 @@ def test_wrappers_concat(env_name, num_steps=100000, probs=0.8, num_blocks=2,
     for stp in range(num_steps):
         action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
-        print(action)
-        print(obs)
-        print('--------------------')
         if done:
             env.reset()
         if info['new_trial'] and verbose:
+            blk_id, indx = check_blk_id(blk_id, info['curr_block'], num_blocks)
+            # print(info['curr_block'])
+            # print('-------------')
             blk.append(info['curr_block'])
             gt.append(info['gt'])
             if variable_nch:
                 nch.append(info['nch'])
-                if len(nch) > 1 and nch[-1] == nch[-2] and blk[-1] == blk[-2]:
-                    transitions[info['nch']-2, info['curr_block'], prev_gt,
-                                info['gt']-1] += 1
+                if len(nch) > 1 and nch[-1] == nch[-2] and blk[-1] == blk[-2] and\
+                   indx != -1:
+                    transitions[indx, prev_gt, info['gt']-1] += 1
             else:
                 nch.append(num_ch)
-                transitions[0, info['curr_block'], prev_gt, info['gt']-1] += 1
+                if indx != -1:
+                    transitions[indx, prev_gt, info['gt']-1] += 1
             prev_gt = info['gt']-1
     if verbose:
+        print(blk_id)
         _, ax = plt.subplots(nrows=2, ncols=1, sharex=True)
         ax[0].plot(blk[:20000], '-+')
         ax[0].plot(nch[:20000], '-+')
         ax[1].plot(gt[:20000], '-+')
-        ch_mat = np.unique(nch)
-        _, ax = plt.subplots(nrows=num_blocks, ncols=len(ch_mat))
-        for ind_ch, ch in enumerate(ch_mat):
-            for ind_blk in range(num_blocks):
-                norm_counts = transitions[ind_ch, ind_blk, :, :]
-                nxt_tr_counts = np.sum(norm_counts, axis=1).reshape((-1, 1))
-                norm_counts = norm_counts / nxt_tr_counts
-                ax[ind_blk][ind_ch].imshow(norm_counts)
+        num_cols_rows = int(np.sqrt(num_blocks))
+        _, ax = plt.subplots(ncols=num_cols_rows, nrows=num_cols_rows)
+        ax = ax.flatten()
+        for ind_blk in range(num_blocks):
+            norm_counts = transitions[ind_blk, :, :]
+            # nxt_tr_counts = np.sum(norm_counts, axis=1).reshape((-1, 1))
+            # norm_counts = norm_counts / nxt_tr_counts
+            ax[ind_blk].imshow(norm_counts)
+            # ax[ind_blk].set_title(str(ch) + ' ' + str(ind_blk))
+
+
+def check_blk_id(blk_id_mat, curr_blk, num_blk):
+    if curr_blk in blk_id_mat:
+        return blk_id_mat, np.argwhere(np.array(blk_id_mat) == curr_blk)
+    elif len(blk_id_mat) < num_blk:
+        blk_id_mat.append(curr_blk)
+        return blk_id_mat, len(blk_id_mat)-1
+    else:
+        return blk_id_mat, -1
 
 
 if __name__ == '__main__':
@@ -448,5 +465,6 @@ if __name__ == '__main__':
     # test_reactiontime('PerceptualDecisionMaking-v0', num_steps=100)
     # test_transferLearning(num_steps=200, verbose=True)
     # test_combine(num_steps=200, verbose=True)
-    test_wrappers_concat('NAltPerceptualDecisionMaking-v0', num_steps=1000000,
-                         verbose=True, probs=0.99, num_blocks=3)
+    test_concat_wrpprs_th_vch_pssr_pssa('NAltPerceptualDecisionMaking-v0',
+                                        num_steps=10000000, verbose=True,
+                                        probs=0.99, num_blocks=10)
