@@ -387,6 +387,7 @@ def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
     env = PassReward(env)
     env = PassAction(env)
     env.reset()
+    num_tr_blks = np.zeros((num_blocks,))
     blk_id = []
     blk = []
     gt = []
@@ -405,29 +406,46 @@ def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
             gt.append(info['gt'])
             if variable_nch:
                 nch.append(info['nch'])
-                if len(nch) > 1 and nch[-1] == nch[-2] and blk[-1] == blk[-2] and\
+                if len(nch) > 2 and 2*[nch[-1]] == nch[-3:-1] and\
+                   2*[blk[-1]] == blk[-3:-1] and\
                    indx != -1:
+                    num_tr_blks[indx] += 1
                     transitions[indx, prev_gt, info['gt']-1] += 1
+                    if prev_gt > info['nch'] or info['gt']-1 > info['nch']:
+                        pass
+
             else:
                 nch.append(num_ch)
-                if indx != -1:
+                if blk[-1] == blk[-2] and indx != -1:
+                    num_tr_blks[indx] += 1
                     transitions[indx, prev_gt, info['gt']-1] += 1
             prev_gt = info['gt']-1
     if verbose:
         print(blk_id)
         _, ax = plt.subplots(nrows=2, ncols=1, sharex=True)
-        ax[0].plot(blk[:20000], '-+')
+        ax[0].plot(np.array(blk[:20000])/(10**(num_ch-1)), '-+')
         ax[0].plot(nch[:20000], '-+')
         ax[1].plot(gt[:20000], '-+')
         num_cols_rows = int(np.sqrt(num_blocks))
-        _, ax = plt.subplots(ncols=num_cols_rows, nrows=num_cols_rows)
-        ax = ax.flatten()
+        _, ax1 = plt.subplots(ncols=num_cols_rows, nrows=num_cols_rows)
+        ax1 = ax1.flatten()
+        _, ax2 = plt.subplots(ncols=num_cols_rows, nrows=num_cols_rows)
+        ax2 = ax2.flatten()
         for ind_blk in range(num_blocks):
             norm_counts = transitions[ind_blk, :, :]
-            # nxt_tr_counts = np.sum(norm_counts, axis=1).reshape((-1, 1))
-            # norm_counts = norm_counts / nxt_tr_counts
-            ax[ind_blk].imshow(norm_counts)
-            # ax[ind_blk].set_title(str(ch) + ' ' + str(ind_blk))
+            ax1[ind_blk].imshow(norm_counts)
+            ax1[ind_blk].set_title(str(blk_id[ind_blk]) +
+                                   ' (N='+str(num_tr_blks[ind_blk])+')',
+                                   fontsize=6)
+            nxt_tr_counts = np.sum(norm_counts, axis=1).reshape((-1, 1))
+            norm_counts = norm_counts / nxt_tr_counts
+            ax2[ind_blk].imshow(norm_counts)
+            ax2[ind_blk].set_title(str(blk_id[ind_blk]) +
+                                   ' (N='+str(num_tr_blks[ind_blk])+')',
+                                   fontsize=6)
+    data = {'transitions': transitions, 'blk': blk, 'blk_id': blk_id, 'gt': gt,
+            'nch': nch}
+    return data
 
 
 def check_blk_id(blk_id_mat, curr_blk, num_blk):
@@ -465,6 +483,6 @@ if __name__ == '__main__':
     # test_reactiontime('PerceptualDecisionMaking-v0', num_steps=100)
     # test_transferLearning(num_steps=200, verbose=True)
     # test_combine(num_steps=200, verbose=True)
-    test_concat_wrpprs_th_vch_pssr_pssa('NAltPerceptualDecisionMaking-v0',
-                                        num_steps=10000000, verbose=True,
-                                        probs=0.99, num_blocks=16)
+    data = test_concat_wrpprs_th_vch_pssr_pssa('NAltPerceptualDecisionMaking-v0',
+                                               num_steps=1000000, verbose=True,
+                                               probs=0.99, num_blocks=16)
