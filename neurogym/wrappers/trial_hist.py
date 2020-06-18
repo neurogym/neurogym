@@ -25,7 +25,7 @@ class TrialHistory(TrialWrapperV2):
     }
 
     def __init__(self, env, probs=None, block_dur=200, num_blocks=2,
-                 blk_ch_prob=None):
+                 blk_ch_prob=None, rand_blcks=False, balanced_probs=True):
         super().__init__(env)
         try:
             self.n_ch = len(self.unwrapped.choices)  # max num of choices
@@ -37,7 +37,9 @@ class TrialHistory(TrialWrapperV2):
         assert isinstance(self.unwrapped, ngym.TrialEnv), 'Task has to be TrialEnv'
         assert probs is not None, 'Please provide choices probabilities'
         self.probs = probs
+        self.balanced_probs = balanced_probs
         self.n_blocks = num_blocks
+        self.rand_blcks = rand_blcks
         self.curr_tr_mat = self.trans_probs
         assert self.curr_tr_mat.shape[1] == self.n_ch,\
             'The number of choices {:d}'.format(self.tr_mat.shape[1]) +\
@@ -51,19 +53,25 @@ class TrialHistory(TrialWrapperV2):
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        # change rep. prob. every self.block_dur trials
-        if self.blk_ch_prob is None:
-            if self.unwrapped.num_tr % self.block_dur == 0:
-                self.curr_block = (self.curr_block + 1) % self.curr_n_blocks
-        else:
-            if self.unwrapped.rng.random() < self.blk_ch_prob:
-                self.curr_block = (self.curr_block + 1) % self.curr_n_blocks
-
+        block_already_changed = False
         # Check if n_ch is passed and if it is different from previous value
         if 'n_ch' in kwargs.keys() and kwargs['n_ch'] != self.curr_n_ch:
             self.curr_n_ch = kwargs['n_ch']
             self.prev_trial = self.rng.choice(self.th_choices[:self.curr_n_ch])
             self.curr_tr_mat = self.trans_probs
+            block_already_changed = True
+
+        # change rep. prob. every self.block_dur trials
+        if not block_already_changed:
+            if self.blk_ch_prob is None:
+                block_change = self.unwrapped.num_tr % self.block_dur == 0
+            else:
+                block_change = self.unwrapped.rng.random() < self.blk_ch_prob
+            if block_change:
+                if self.rand_blcks:
+                    self.curr_tr_mat = self.trans_probs
+                else:
+                    self.curr_block = (self.curr_block + 1) % self.curr_n_blocks
 
         probs_curr_blk = self.curr_tr_mat[self.curr_block, self.prev_trial, :]
         ground_truth = self.unwrapped.rng.choice(self.th_choices[:self.curr_n_ch],
@@ -82,14 +90,27 @@ class TrialHistory(TrialWrapperV2):
         the subset corresponding to the current number of choices
         '''
         if isinstance(self.probs, float):
-            tr_mat =\
-                np.zeros((self.n_blocks, self.curr_n_ch, self.curr_n_ch)) +\
-                (1-self.probs)/(self.curr_n_ch-1)
-            for ind in range(self.curr_n_ch):
-                tr_mat[0, ind, (ind+1) % self.curr_n_ch] = self.probs  # ascending
-                tr_mat[1, ind, ind] = self.probs    # repeating block
-                if self.n_blocks == 3:
-                    tr_mat[2, ind, ind-1] = self.probs  # descending block
+            if self.rand_blcks:
+                if self.balanced_probs:
+                    indx = np.arange(self.curr_n_ch)
+                    np.random.shuffle(indx)
+                else:
+                    indx = np.random.choice(self.curr_n_ch, size=(self.curr_n_ch,))
+                tr_mat = np.eye(self.curr_n_ch)*self.probs
+                tr_mat[tr_mat == 0] = (1-self.probs)/(self.curr_n_ch-1)
+                tr_mat = tr_mat[indx, :]
+                tr_mat = np.expand_dims(tr_mat, axis=0)
+            else:
+                tr_mat =\
+                    np.zeros((self.n_blocks, self.curr_n_ch, self.curr_n_ch)) +\
+                    (1-self.probs)/(self.curr_n_ch-1)
+                for ind in range(self.curr_n_ch):
+                    # ascending
+                    tr_mat[0, ind, (ind+1) % self.curr_n_ch] = self.probs
+                    # repeating block
+                    tr_mat[1, ind, ind] = self.probs
+                    if self.n_blocks == 3:
+                        tr_mat[2, ind, ind-1] = self.probs  # descending block
         else:
             tr_mat = self.probs.copy()
             scaled_tr_mat = tr_mat[:, :self.curr_n_ch, :self.curr_n_ch]
@@ -98,9 +119,11 @@ class TrialHistory(TrialWrapperV2):
         tr_mat = np.unique(tr_mat, axis=0)
         self.curr_n_blocks = tr_mat.shape[0]
         self.curr_block = self.unwrapped.rng.choice(range(self.curr_n_blocks))
+        self.blk_id = int(''.join([str(x+1) for x in indx])) if self.rand_blcks\
+            else self.curr_block
         return tr_mat
 
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
-        info['curr_block'] = self.curr_block
+        info['curr_block'] = self.blk_id
         return obs, reward, done, info
