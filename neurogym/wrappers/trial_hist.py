@@ -38,7 +38,7 @@ class TrialHistory(TrialWrapperV2):
         assert probs is not None, 'Please provide choices probabilities'
         self.probs = probs
         self.balanced_probs = balanced_probs
-        self.n_blocks = num_blocks
+        self.num_blocks = num_blocks
         self.rand_blcks = rand_blcks
         self.curr_tr_mat = self.trans_probs
         assert self.curr_tr_mat.shape[1] == self.n_ch,\
@@ -102,14 +102,14 @@ class TrialHistory(TrialWrapperV2):
                 tr_mat = np.expand_dims(tr_mat, axis=0)
             else:
                 tr_mat =\
-                    np.zeros((self.n_blocks, self.curr_n_ch, self.curr_n_ch)) +\
+                    np.zeros((self.num_blocks, self.curr_n_ch, self.curr_n_ch)) +\
                     (1-self.probs)/(self.curr_n_ch-1)
                 for ind in range(self.curr_n_ch):
                     # ascending
                     tr_mat[0, ind, (ind+1) % self.curr_n_ch] = self.probs
                     # repeating block
                     tr_mat[1, ind, ind] = self.probs
-                    if self.n_blocks == 3:
+                    if self.num_blocks == 3:
                         tr_mat[2, ind, ind-1] = self.probs  # descending block
         else:
             tr_mat = self.probs.copy()
