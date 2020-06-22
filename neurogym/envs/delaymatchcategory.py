@@ -68,8 +68,8 @@ class DelayMatchCategory(ngym.PeriodEnv):
         else:
             test_category = 1 - sample_category
 
-        sample_theta = (sample_category + self.rng.random()) * np.pi
-        test_theta = (test_category + self.rng.random()) * np.pi
+        sample_theta = (sample_category + self.rng.rand()) * np.pi
+        test_theta = (test_category + self.rng.rand()) * np.pi
 
         stim_sample = np.cos(self.theta - sample_theta) * 0.5 + 0.5
         stim_test = np.cos(self.theta - test_theta) * 0.5 + 0.5

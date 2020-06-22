@@ -71,7 +71,7 @@ class ChangingEnvironment(ngym.PeriodEnv):
         # Trial
         # ---------------------------------------------------------------------
 
-        if self.rng.random() < self.cxt_ch_prob:
+        if self.rng.rand() < self.cxt_ch_prob:
             self.curr_cxt = 1*(not self.curr_cxt)
 
         side = self.rng.choice(self.choices)

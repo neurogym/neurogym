@@ -273,7 +273,7 @@ class PulseDecisionMaking(ngym.PeriodEnv):
     def new_trial(self, **kwargs):
         # Trial info
         p1, p2 = self.p_pulse
-        if self.rng.random() < 0.5:
+        if self.rng.rand() < 0.5:
             p1, p2 = p2, p1
         pulse1 = (self.rng.random(self.n_bin) < p1) * 1.0
         pulse2 = (self.rng.random(self.n_bin) < p2) * 1.0

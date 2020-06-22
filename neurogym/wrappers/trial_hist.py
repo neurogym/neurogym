@@ -66,7 +66,7 @@ class TrialHistory(TrialWrapperV2):
             if self.blk_ch_prob is None:
                 block_change = self.unwrapped.num_tr % self.block_dur == 0
             else:
-                block_change = self.unwrapped.rng.random() < self.blk_ch_prob
+                block_change = self.unwrapped.rng.rand() < self.blk_ch_prob
             if block_change:
                 if self.rand_blcks:
                     self.curr_tr_mat = self.trans_probs

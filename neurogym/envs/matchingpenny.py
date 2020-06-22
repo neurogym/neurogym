@@ -41,7 +41,7 @@ class MatchingPenny(ngym.TrialEnv):
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,),
                                             dtype=np.float32)
-        self.prev_opp_action = int(self.rng.random() > 0.5)
+        self.prev_opp_action = int(self.rng.rand() > 0.5)
         if self.opponent_type == 'mean_action':
             self.mean_action = 0
             self.lr = learning_rate
@@ -53,7 +53,7 @@ class MatchingPenny(ngym.TrialEnv):
         # TODO: Add more types of opponents
         # determine the transitions
         if self.opponent_type == 'random':
-            opponent_action = int(self.rng.random() > 0.5)
+            opponent_action = int(self.rng.rand() > 0.5)
         elif self.opponent_type == 'mean_action':
             opponent_action = 1*(not np.round(self.mean_action))
         else:

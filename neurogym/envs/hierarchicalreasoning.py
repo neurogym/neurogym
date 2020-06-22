@@ -67,7 +67,7 @@ class HierarchicalReasoning(ngym.PeriodEnv):
         self.trial.update(kwargs)
 
         # Is interval long? When interval == mid_delay, randomly assign
-        long_interval = interval > self.mid_delay + (self.rng.random()-0.5)
+        long_interval = interval > self.mid_delay + (self.rng.rand()-0.5)
         # Is the response pro or anti?
         pro_choice = int(long_interval) == self.trial['rule']
         self.trial['long_interval'] = long_interval

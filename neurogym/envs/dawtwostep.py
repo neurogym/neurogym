@@ -57,13 +57,13 @@ class DawTwoStep(ngym.TrialEnv):
         transition = np.empty((3,))
         st1 = 1
         st2 = 2
-        tmp1 = st1 if self.rng.random() < self.p1 else st2
-        tmp2 = st2 if self.rng.random() < self.p2 else st1
+        tmp1 = st1 if self.rng.rand() < self.p1 else st2
+        tmp2 = st2 if self.rng.rand() < self.p2 else st1
         transition[self.actions[1]] = tmp1
         transition[self.actions[2]] = tmp2
 
         # swtich reward contingency
-        switch = self.rng.random() < self.p_switch
+        switch = self.rng.rand() < self.p_switch
         if switch:
             self.state1_high_reward = not self.state1_high_reward
         # which state to reward with more probability
@@ -73,9 +73,9 @@ class DawTwoStep(ngym.TrialEnv):
             hi_state, low_state = 1, 0
 
         reward = np.empty((2,))
-        reward[hi_state] = (self.rng.random() <
+        reward[hi_state] = (self.rng.rand() <
                             self.high_reward_p) * self.rewards['correct']
-        reward[low_state] = (self.rng.random() <
+        reward[low_state] = (self.rng.rand() <
                              self.low_reward_p) * self.rewards['correct']
         self.ground_truth = hi_state+1  # assuming p1, p2 >= 0.5
         self.trial = {

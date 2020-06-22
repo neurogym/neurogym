@@ -77,7 +77,7 @@ class ProbabilisticReasoning(ngym.PeriodEnv):
         shapes = self.trial['shapes']
         log_odd = sum([self.shape_weight[shape] for shape in shapes])
         p = 1. / (10**(-log_odd) + 1.)
-        ground_truth = int(self.rng.random() < p)
+        ground_truth = int(self.rng.rand() < p)
         self.trial['log_odd'] = log_odd
         self.trial['ground_truth'] = ground_truth
 

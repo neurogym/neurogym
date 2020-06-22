@@ -56,11 +56,11 @@ class CatchTrials(ngym.TrialWrapper):
         coh = self.task.rng.choice(self.task.cohs)
         if self.stim_th is not None:
             if coh <= self.stim_th:
-                self.catch_trial = self.task.rng.random() < self.catch_prob
+                self.catch_trial = self.task.rng.rand() < self.catch_prob
             else:
                 self.catch_trial = False
         else:
-            self.catch_trial = self.task.rng.random() < self.catch_prob
+            self.catch_trial = self.task.rng.rand() < self.catch_prob
         kwargs.update({'coh': coh})
         self.env.new_trial(**kwargs)
 
