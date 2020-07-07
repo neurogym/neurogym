@@ -93,7 +93,7 @@ class MemoryRecall(ngym.TrialEnv):
             string += name + ' : ' + str(getattr(self, key)) + '\n'
         return string
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         stim_dim = self.stim_dim
 
         T = self.generate_T()

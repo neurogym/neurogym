@@ -36,7 +36,7 @@ class Nothing(ngym.TrialEnv):
 
         self.verbose = verbose
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------

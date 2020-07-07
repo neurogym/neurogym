@@ -77,7 +77,7 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
 
         self.act_dict = {'fixation': 0, 'choice': range(1, n_ch + 1)}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         """
         new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:
@@ -101,8 +101,7 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
             'coh': self.rng.choice(self.cohs),
         }
         self.trial.update(kwargs)
-        self.add_period(['fixation', 'stimulus', 'decision'],
-                        last_period=True)
+        self.add_period(['fixation', 'stimulus', 'decision'])
 
         self.add_ob(1, 'fixation', where='fixation')
         stim = np.ones(self.n) * (1 - self.trial['coh']/100)/2

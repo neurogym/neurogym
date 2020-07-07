@@ -47,7 +47,7 @@ class AngleReproduction(ngym.PeriodEnv):
         if timing:
             self.timing.update(timing)
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
@@ -62,7 +62,7 @@ class AngleReproduction(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         periods = ['fixation', 'stim1', 'delay1', 'stim2',
                    'delay2', 'go1', 'go2']
-        self.add_period(periods, last_period=True)
+        self.add_period(periods)
 
         ob = self.view_ob('stim1')
         ob[:, :16] = np.cos(self.theta - self.trial['ground_truth1'])

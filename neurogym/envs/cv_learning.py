@@ -118,7 +118,7 @@ class CVLearning(ngym.PeriodEnv):
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(n_ch+1,),
                                             dtype=np.float32)
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         """
         new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:
@@ -211,7 +211,7 @@ class CVLearning(ngym.PeriodEnv):
                         after='fixation')
         self.add_period('delay', duration=self.durs['delay'],
                         after='stimulus')
-        self.add_period('decision', after='delay', last_period=True)
+        self.add_period('decision', after='delay')
 
         # define observations
         self.set_ob([1]+[0]*self.n_ch, 'fixation')

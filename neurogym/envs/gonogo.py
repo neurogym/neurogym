@@ -49,7 +49,7 @@ class GoNogo(ngym.PeriodEnv):
                                             dtype=np.float32)
         self.ob_dict = {'fixation': 0, 'nogo': 1, 'go': 2}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info
         self.trial = {
             'ground_truth': self.rng.choice(self.choices)
@@ -58,7 +58,7 @@ class GoNogo(ngym.PeriodEnv):
 
         # Period info
         periods = ['fixation', 'stimulus', 'resp_delay', 'decision']
-        self.add_period(periods, last_period=True)
+        self.add_period(periods)
         # set observations
         self.add_ob(1, where='fixation')
         self.add_ob(1, 'stimulus', where=self.trial['ground_truth']+1)

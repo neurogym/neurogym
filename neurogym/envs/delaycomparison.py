@@ -56,7 +56,7 @@ class DelayComparison(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(3)
         self.act_dict = {'fixation': 0, 'choice': [1, 2]}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         self.trial = {
             'ground_truth': self.rng.choice(self.act_dict['choice']),
             'fpair': self.fpairs[self.rng.choice(len(self.fpairs))]
@@ -71,7 +71,7 @@ class DelayComparison(ngym.PeriodEnv):
 
         # Periods
         periods = ['fixation', 'f1', 'delay', 'f2', 'decision']
-        self.add_period(periods, last_period=True)
+        self.add_period(periods)
 
         self.add_ob(1, where='fixation')
         self.add_ob(self.scale_p(f1), 'f1', where='stimulus')

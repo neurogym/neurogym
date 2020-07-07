@@ -52,7 +52,7 @@ class DelayMatchSample(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(3)
         self.act_dict = {'fixation': 0, 'match': 1, 'non-match': 2}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial
         self.trial = {
             'ground_truth': self.rng.choice(self.choices),
@@ -72,8 +72,7 @@ class DelayMatchSample(ngym.PeriodEnv):
         stim_test = np.cos(self.theta - test_theta) * 0.5 + 0.5
 
         # Periods
-        self.add_period(['fixation', 'sample', 'delay', 'test', 'decision'],
-                        last_period=True)
+        self.add_period(['fixation', 'sample', 'delay', 'test', 'decision'])
 
         self.add_ob(1, where='fixation')
         self.set_ob(0, 'decision', where='fixation')
@@ -153,7 +152,7 @@ class DelayMatchSampleDistractor1D(ngym.PeriodEnv):
         self.ob_dict = {'fixation': 0, 'stimulus': range(1, 33)}
         self.theta = np.arange(0, 2 * np.pi, 2 * np.pi / 32)
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
@@ -175,7 +174,7 @@ class DelayMatchSampleDistractor1D(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         periods = ['fixation', 'sample', 'delay1', 'test1',
                    'delay2', 'test2', 'delay3', 'test3']
-        self.add_period(periods, last_period=True)
+        self.add_period(periods)
 
         self.add_ob(1, 'fixation', where='fixation')
         for period in ['sample', 'test1', 'test2', 'test3']:

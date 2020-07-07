@@ -63,7 +63,7 @@ class ProbabilisticReasoning(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(3)
         self.act_dict = {'fixation': 0, 'choice': [1, 2]}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info
         self.trial = {
             'locs': self.rng.choice(range(self.n_loc),
@@ -85,7 +85,7 @@ class ProbabilisticReasoning(ngym.PeriodEnv):
         periods = ['fixation']
         periods += ['stimulus'+str(i) for i in range(self.n_loc)]
         periods += ['delay', 'decision']
-        self.add_period(periods, last_period=True)
+        self.add_period(periods)
 
         # Observations
         self.add_ob(1, where='fixation')

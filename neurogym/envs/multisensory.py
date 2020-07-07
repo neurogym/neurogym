@@ -53,7 +53,7 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(1+dim_ring)
         self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring+1)}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info
         self.trial = {
             'ground_truth': self.rng.choice(self.choices),
@@ -69,7 +69,7 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
 
         # Periods
         periods = ['fixation', 'stimulus', 'decision']
-        self.add_period(periods, last_period=True)
+        self.add_period(periods)
 
         self.add_ob(1, where='fixation')
         stim = np.cos(self.theta - stim_theta) * (coh_0 / 200) + 0.5

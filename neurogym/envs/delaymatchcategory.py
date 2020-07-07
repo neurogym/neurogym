@@ -53,7 +53,7 @@ class DelayMatchCategory(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(3)
         self.act_dict = {'fixation': 0, 'match': 1, 'non-match': 2}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info
         self.trial = {
             'ground_truth': self.rng.choice(self.choices),
@@ -76,8 +76,8 @@ class DelayMatchCategory(ngym.PeriodEnv):
 
         # Periods
         periods = ['fixation', 'sample', 'first_delay', 'test']
-        self.add_period(periods, last_period=True)
-        # self.add_period('decision', after='test', last_period=True)
+        self.add_period(periods)
+        # self.add_period('decision', after='test')
 
         self.add_ob(1, where='fixation')
         self.set_ob(0, 'test', where='fixation')

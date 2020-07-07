@@ -45,7 +45,7 @@ class Reaching1D(ngym.PeriodEnv):
         self.theta = np.arange(0, 2*np.pi, 2*np.pi/16)
         self.state = np.pi
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
@@ -57,7 +57,7 @@ class Reaching1D(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        self.add_period(['fixation', 'reach'], last_period=True)
+        self.add_period(['fixation', 'reach'])
 
         target = np.cos(self.theta - self.trial['ground_truth'])
         self.add_ob(target, 'reach', where='target')
@@ -127,7 +127,7 @@ class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
         self.theta = np.arange(0, 2*np.pi, 2*np.pi/32)
         self.state = np.pi
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
@@ -140,7 +140,7 @@ class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
         # Periods
         # ---------------------------------------------------------------------
         self.add_period('fixation')
-        self.add_period('reach', after='fixation', last_period=True)
+        self.add_period('reach', after='fixation')
 
         ob = self.view_ob('reach')
         # Signal is weaker than the self-distraction

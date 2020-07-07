@@ -49,7 +49,7 @@ class RandomDotMotion(PsychopyEnv):
         self.action_space = spaces.Discrete(1 + dim_ring)
         self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring + 1)}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info
         self.trial = {
             'ground_truth': self.rng.choice(self.choices),
@@ -62,8 +62,7 @@ class RandomDotMotion(PsychopyEnv):
         stim_theta = self.theta[ground_truth] * (180/np.pi)
 
         # Periods
-        self.add_period(['fixation', 'stimulus', 'decision'],
-                        last_period=True)
+        self.add_period(['fixation', 'stimulus', 'decision'])
 
         # Observations
         stim = visual.DotStim(self.win, nDots=30, dotSize=1, speed=0.05,

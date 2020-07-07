@@ -46,7 +46,7 @@ class MatchingPenny(ngym.TrialEnv):
             self.mean_action = 0
             self.lr = learning_rate
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial (trials are one step long)
         # ---------------------------------------------------------------------

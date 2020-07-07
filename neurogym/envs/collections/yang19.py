@@ -41,7 +41,7 @@ class _MultiModalityStimulus(TrialWrapperV2):
         # Shift stimulus
         self.task.ob_dict['stimulus'] = ind_stimulus + len_stimulus * modality
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         return self.env.new_trial(**kwargs)
 
 
@@ -92,7 +92,7 @@ class _Reach(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(1+dim_ring)
         self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring + 1)}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info
         self.trial = {
             'ground_truth': self.rng.choice(self.choices),
@@ -109,13 +109,13 @@ class _Reach(ngym.PeriodEnv):
 
         if not self.reaction:
             periods = ['fixation', 'stimulus', 'delay', 'decision']
-            self.add_period(periods, last_period=True)
+            self.add_period(periods)
 
             self.add_ob(1, period=['fixation', 'stimulus', 'delay'], where='fixation')
             self.add_ob(stim, 'stimulus', where='stimulus')
         else:
             periods = ['fixation', 'decision']
-            self.add_period(periods, last_period=True)
+            self.add_period(periods)
 
             self.add_ob(1, period='fixation', where='fixation')
             self.add_ob(stim, 'decision', where='stimulus')
@@ -225,7 +225,7 @@ class _DMFamily(ngym.PeriodEnv):
         stim = _gaussianbump(self.trial['theta2'], self.theta, coh2)
         self.add_ob(stim, period2, where='stimulus' + mod)
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         self.trial = {}
         i_theta1 = self.rng.choice(self.choices)
         while True:
@@ -240,7 +240,7 @@ class _DMFamily(ngym.PeriodEnv):
             periods = ['fixation', 'stim1', 'delay', 'stim2', 'decision']
         else:
             periods = ['fixation', 'stimulus', 'decision']
-        self.add_period(periods, last_period=True)
+        self.add_period(periods)
 
         self.add_ob(1, where='fixation')
         self.set_ob(0, 'decision')
@@ -345,7 +345,7 @@ class _DelayMatch1DResponse(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(1+dim_ring)
         self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring+1)}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info
         self.trial = {
             'ground_truth': self.rng.choice(self.choices),
@@ -377,8 +377,7 @@ class _DelayMatch1DResponse(ngym.PeriodEnv):
         stim_test = _gaussianbump(test_theta, self.theta, 1)
 
         # Periods
-        self.add_period(['fixation', 'sample', 'delay', 'test', 'decision'],
-                        last_period=True)
+        self.add_period(['fixation', 'sample', 'delay', 'test', 'decision'])
 
         self.add_ob(1, where='fixation')
         self.set_ob(0, 'decision', where='fixation')

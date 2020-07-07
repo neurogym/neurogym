@@ -52,7 +52,7 @@ class DualDelayMatchSample(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(3)
         self.act_dict = {'fixation': 0, 'match': 1, 'non-match': 2}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         self.trial = {
             'ground_truth1': self.rng.choice(self.choices),
             'ground_truth2': self.rng.choice(self.choices),
@@ -89,7 +89,7 @@ class DualDelayMatchSample(ngym.PeriodEnv):
 
         periods = ['fixation', 'sample', 'delay1', 'cue1', 'test1',
                    'delay2', 'cue2', 'test2']
-        self.add_period(periods, last_period=True)
+        self.add_period(periods)
 
         self.add_ob(1, where='fixation')
         self.add_ob(stim_sample1, 'sample', where='stimulus1')

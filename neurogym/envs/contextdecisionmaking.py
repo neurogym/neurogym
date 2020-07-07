@@ -58,7 +58,7 @@ class SingleContextDecisionMaking(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(1+dim_ring)
         self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring+1)}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial
         self.trial = {
             'ground_truth': self.rng.choice(self.choices),
@@ -81,7 +81,7 @@ class SingleContextDecisionMaking(ngym.PeriodEnv):
 
         # Periods
         periods = ['fixation', 'stimulus', 'delay', 'decision']
-        self.add_period(periods, last_period=True)
+        self.add_period(periods)
 
         self.add_ob(1, where='fixation')
         stim = np.cos(self.theta - stim_theta_0) * (coh_0 / 200) + 0.5
@@ -162,7 +162,7 @@ class ContextDecisionMaking(ngym.PeriodEnv):
                  'stim1_mod2', 'stim2_mod2', 'context1', 'context2']
         self.ob_dict = {name: i for i, name in enumerate(names)}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # -------------------------------------------------------------------------
         # Trial
         # -------------------------------------------------------------------------
@@ -187,7 +187,7 @@ class ContextDecisionMaking(ngym.PeriodEnv):
         # Periods
         # -----------------------------------------------------------------------
         periods = ['fixation', 'stimulus', 'delay', 'decision']
-        self.add_period(periods, last_period=True)
+        self.add_period(periods)
 
         self.add_ob(1, where='fixation')
         self.add_ob((1 + signed_coh_0 / 100) / 2, period='stimulus', where='stim1_mod1')

@@ -53,7 +53,7 @@ class ReadySetGo(ngym.PeriodEnv):
                                             dtype=np.float32)
         self.ob_dict = {'fixation': 0, 'ready': 1, 'set': 2}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         measure = self.sample_time('measure')
         self.trial = {
             'measure': measure,
@@ -67,7 +67,7 @@ class ReadySetGo(ngym.PeriodEnv):
         self.add_period('measure', duration=measure, after='fixation')
         self.add_period('set', after='measure')
         self.add_period('production', duration=2*self.trial['production'],
-                        after='set', last_period=True)
+                        after='set')
 
         self.add_ob(1, where='fixation')
         self.set_ob(0, 'production', where='fixation')
@@ -152,7 +152,7 @@ class MotorTiming(ngym.PeriodEnv):
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(4,),
                                             dtype=np.float32)
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         self.trial = {
             'production_ind': self.rng.choice(self.production_ind)
         }
@@ -162,7 +162,7 @@ class MotorTiming(ngym.PeriodEnv):
 
         self.add_period(['fixation', 'cue', 'set'])
         self.add_period('production', duration=2*self.trial['production'],
-                        after='set', last_period=True)
+                        after='set')
 
         self.set_ob([1, 0, 0, 0], 'fixation')
         ob = self.view_ob('cue')
@@ -253,7 +253,7 @@ class OneTwoThreeGo(ngym.PeriodEnv):
                                             dtype=np.float32)
         self.ob_dict = {'fixation': 0, 'stimulus': 1, 'target': 2}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         interval = self.sample_time('interval1')
         self.trial = {
             'interval': interval,
@@ -266,7 +266,7 @@ class OneTwoThreeGo(ngym.PeriodEnv):
         self.add_period('interval2', duration=interval, after='s2')
         self.add_period('s3', after='interval2')
         self.add_period('interval3', duration=interval, after='s3')
-        self.add_period('response', after='interval3', last_period=True)
+        self.add_period('response', after='interval3')
 
         self.add_ob(1, where='fixation')
         self.add_ob(1, ['s1', 's2', 's3'], where='stimulus')

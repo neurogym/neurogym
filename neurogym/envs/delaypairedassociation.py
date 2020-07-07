@@ -52,7 +52,7 @@ class DelayPairedAssociation(ngym.PeriodEnv):
                                             dtype=np.float32)
         self.ob_dict = {'fixation': 0, 'stimulus': range(1, 5)}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         pair = self.pairs[self.rng.choice(len(self.pairs))]
         self.trial = {
             'pair': pair,
@@ -65,7 +65,7 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         periods = ['fixation', 'stim1', 'delay_btw_stim', 'stim2',
                    'delay_aft_stim', 'decision']
-        self.add_period(periods, last_period=True)
+        self.add_period(periods)
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------

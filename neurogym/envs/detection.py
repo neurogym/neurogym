@@ -71,7 +71,7 @@ class Detection(ngym.PeriodEnv):
                                             dtype=np.float32)
         self.ob_dict = {'fixation': 0, 'stimulus': 1}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         """
         new_trial() is called when a trial ends to generate the next trial.
         Here you have to set (at least):
@@ -84,7 +84,7 @@ class Detection(ngym.PeriodEnv):
         ground_truth = self.trial['ground_truth']
 
         # Period
-        self.add_period(['fixation', 'stimulus'], last_period=True)
+        self.add_period(['fixation', 'stimulus'])
 
         # ---------------------------------------------------------------------
         # Observations

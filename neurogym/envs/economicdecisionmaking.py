@@ -57,7 +57,7 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
                         'n1': 5, 'n2': 6  # amount for choice 1 or 2
                         }
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         self.trial = {
             'juice': self.juices[self.rng.choice(len(self.juices))],
             'offer': self.offers[self.rng.choice(len(self.offers))]
@@ -72,7 +72,7 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
         else:
             n1, n2 = n_b, n_a
 
-        self.add_period(['fixation', 'offer_on', 'decision'], last_period=True)
+        self.add_period(['fixation', 'offer_on', 'decision'])
 
         self.add_ob(1, ['fixation', 'offer_on'], where='fixation')
         self.add_ob(1, 'offer_on', where=juice1 + '1')

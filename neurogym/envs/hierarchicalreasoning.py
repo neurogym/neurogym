@@ -57,7 +57,7 @@ class HierarchicalReasoning(ngym.PeriodEnv):
         self.rule = 1 - self.rule  # alternate rule
         self.trial_in_block = 0
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         interval = self.sample_time('delay')
         self.trial = {
             'interval': interval,
@@ -76,7 +76,7 @@ class HierarchicalReasoning(ngym.PeriodEnv):
         # Periods
         periods = ['fixation', 'rule_target', 'fixation2', 'flash1',
                    'delay', 'flash2', 'decision']
-        self.add_period(periods, last_period=True)
+        self.add_period(periods)
 
         # Observations
         stimulus = self.ob_dict['stimulus'][self.trial['stimulus']]

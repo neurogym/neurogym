@@ -66,7 +66,7 @@ class PostDecisionWager(ngym.PeriodEnv):
     def scale(self, coh):
         return (1 + coh/100)/2
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info
         self.trial = {
             'wager': self.rng.choice(self.wagers),
@@ -83,8 +83,7 @@ class PostDecisionWager(ngym.PeriodEnv):
         self.add_period(periods)
         if self.trial['wager']:
             self.add_period('pre_sure', after='stimulus')
-            self.add_period('sure', duration=10000, after='pre_sure')
-        self.add_period('decision', after='delay', last_period=True)
+        self.add_period('decision', after='delay')
 
         # Observations
         self.add_ob(1, ['fixation', 'stimulus', 'delay'], where='fixation')
@@ -92,7 +91,8 @@ class PostDecisionWager(ngym.PeriodEnv):
         self.add_ob(stim, 'stimulus', where='stimulus')
         self.add_randn(0, self.sigma, 'stimulus')
         if self.trial['wager']:
-            self.add_ob(1, 'sure', where='sure')
+            self.add_ob(1, ['delay', 'decision'], where='sure')
+            self.set_ob(0, 'pre_sure', where='sure')
 
         # Ground truth
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')

@@ -45,14 +45,14 @@ class IntervalDiscrimination(ngym.PeriodEnv):
                                             dtype=np.float32)
         self.ob_dict = {'fixation': 0, 'stim1': 1, 'stim2': 2}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         duration1 = self.sample_time('stim1')
         duration2 = self.sample_time('stim2')
         ground_truth = 1 if duration1 > duration2 else 2
 
         periods = ['fixation', 'stim1', 'delay1', 'stim2', 'delay2', 'decision']
         durations = [None, duration1, None, duration2, None, None]
-        self.add_period(periods, duration=durations, last_period=True)
+        self.add_period(periods, duration=durations)
 
         self.add_ob(1, where='fixation')
         self.add_ob(1, 'stim1', where='stim1')

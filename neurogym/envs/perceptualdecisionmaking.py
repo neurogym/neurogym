@@ -55,7 +55,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(1+dim_ring)
         self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring+1)}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         """
         new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:
@@ -78,8 +78,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         stim_theta = self.theta[ground_truth]
 
         # Periods
-        self.add_period(['fixation', 'stimulus', 'delay', 'decision'],
-                        last_period=True)
+        self.add_period(['fixation', 'stimulus', 'delay', 'decision'])
 
         # Observations
         self.add_ob(1, period=['fixation', 'stimulus', 'delay'], where='fixation')
@@ -170,7 +169,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
@@ -185,7 +184,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         # Periods
         # ---------------------------------------------------------------------
         periods = ['fixation', 'stimulus', 'delay', 'decision']
-        self.add_period(periods, last_period=True)
+        self.add_period(periods)
 
         # define observations
         self.set_ob([1, 0, 0], 'fixation')
@@ -270,7 +269,7 @@ class PulseDecisionMaking(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(3)
         self.act_dict = {'fixation': 0, 'choice': [1, 2]}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info
         p1, p2 = self.p_pulse
         if self.rng.rand() < 0.5:
@@ -290,7 +289,7 @@ class PulseDecisionMaking(ngym.PeriodEnv):
         for i in range(self.n_bin):
             periods += ['cue' + str(i), 'bin' + str(i)]
         periods += ['decision']
-        self.add_period(periods, last_period=True)
+        self.add_period(periods)
 
         # Observations
         self.add_ob(1, where='fixation')

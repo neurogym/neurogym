@@ -65,7 +65,7 @@ class VisualSearch(PsychopyEnv):
                center[1] + length * np.sin(angle))
         return start, end
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info. Default: 0th stimulus is also sample
         sample_angle = self.rng.uniform(0, 2*np.pi)
         sample_color = self.rng.uniform(0, 1, size=(3,))
@@ -94,7 +94,7 @@ class VisualSearch(PsychopyEnv):
 
         # Periods
         periods = ['fixation', 'sample', 'delay', 'decision']
-        self.add_period(periods, last_period=True)
+        self.add_period(periods)
 
         # Observations
         fixation = (0, 0)

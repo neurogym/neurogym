@@ -55,7 +55,7 @@ class ReachingDelayResponse(ngym.PeriodEnv):
                                             dtype=np.float32)
         self.ob_dict = {'go': 0, 'stimulus': 1}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial
         self.trial = {
             'ground_truth': self.rng.uniform(self.lowbound, self.highbound)
@@ -64,7 +64,7 @@ class ReachingDelayResponse(ngym.PeriodEnv):
         ground_truth_stim = self.trial['ground_truth']
 
         # Periods
-        self.add_period(['stimulus', 'delay', 'decision'], last_period=True)
+        self.add_period(['stimulus', 'delay', 'decision'])
 
         self.add_ob(ground_truth_stim, 'stimulus', where='stimulus')
         self.set_ob([0, -0.5], 'delay')

@@ -66,7 +66,7 @@ class ChangingEnvironment(ngym.PeriodEnv):
                                             shape=(3+1*cxt_cue,),
                                             dtype=np.float32)
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
@@ -90,7 +90,7 @@ class ChangingEnvironment(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        self.add_period(['fixation', 'stimulus', 'decision'], last_period=True)
+        self.add_period(['fixation', 'stimulus', 'decision'])
         # ---------------------------------------------------------------------
         # Observations
         # ---------------------------------------------------------------------
