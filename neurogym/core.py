@@ -91,6 +91,8 @@ class TrialEnv(BaseEnv):
         self.num_tr = 0
         self.num_tr_exp = num_trials_before_reset
         self.trial = None
+        self._trial_built = False
+
         self.performance = 0
         # Annotations of observation space and action space
         self.ob_dict = {}
@@ -100,8 +102,8 @@ class TrialEnv(BaseEnv):
 
         self._top = self
 
-    def new_trial(self, **kwargs):
-        """Public interface for starting a new trial.
+    def _new_trial(self, **kwargs):
+        """Private interface for starting a new trial.
 
         This function can typically update the self.trial
         dictionary that contains information about current trial
@@ -126,6 +128,21 @@ class TrialEnv(BaseEnv):
         """
         raise NotImplementedError('_step is not defined by user.')
 
+    def new_trial(self, **kwargs):
+        """Public interface for starting a new trial.
+
+        Args:
+
+        Returns:
+            observation: numpy array of agent's observation during the trial
+            target: numpy array of target action of the agent
+            trial: dict of trial information. Available to step function as
+                self.trial
+        """
+        self._new_trial(**kwargs)
+        self.num_tr += 1  # Increment trial count
+        self._trial_built = False
+
     def step(self, action):
         """Public interface for the environment."""
         obs, reward, done, info = self._step(action)
@@ -143,7 +160,6 @@ class TrialEnv(BaseEnv):
             info['performance'] = self.performance
             self.performance = 0
             self.t = self.t_ind = 0  # Reset within trial time count
-            self.num_tr += 1  # Increment trial count
             self._top.new_trial()
             if self.trial:
                 info.update(self.trial)
@@ -204,12 +220,14 @@ class PeriodEnv(TrialEnv):
         self.start_ind = dict()
         self.end_ind = dict()
 
+        self._tmax = 0  # Length of each trial
+
     def __str__(self):
         """Information about task."""
         return env_string(self)
 
-    def new_trial(self, **kwargs):
-        """Public interface for starting a new trial.
+    def _new_trial(self, **kwargs):
+        """Private interface for starting a new trial.
 
         This function can typically update the self.trial
         dictionary that contains information about current trial
@@ -254,6 +272,8 @@ class PeriodEnv(TrialEnv):
             last_period: bool, default False. If True, then this is last period
                 will generate self.tmax, self.tind, and self.ob
         """
+        assert not self._trial_built, 'Cannot add period after trial ' \
+                                      'is built, i.e. after running add_ob'
         if isinstance(period, str):
             pass
         else:
@@ -290,23 +310,23 @@ class PeriodEnv(TrialEnv):
         self.start_ind[period] = int(start/self.dt)
         self.end_ind[period] = int((start + duration)/self.dt)
 
-        if last_period:
-            self._trial_built = True
-            self._init_trial(start + duration)
-        else:
-            self._trial_built = False
+        self._tmax = max(self._tmax, start + duration)
 
-    def _init_trial(self, tmax):
-        """Initialize trial info with tmax, tind, obs"""
-        tmax_ind = int(tmax/self.dt)
+    def _init_trial(self):
+        """Initialize trial info with tmax, tind, ob"""
+        tmax_ind = int(self._tmax/self.dt)
         self.tmax = tmax_ind * self.dt
         self.ob = np.zeros([tmax_ind] + list(self.observation_space.shape),
                            dtype=self.observation_space.dtype)
         self.gt = np.zeros([tmax_ind] + list(self.action_space.shape),
                            dtype=self.action_space.dtype)
+        self._trial_built = True
 
     def view_ob(self, period=None):
         """View observation of an period."""
+        if not self._trial_built:
+            self._init_trial()
+
         if period is None:
             return self.ob
         else:
@@ -327,8 +347,6 @@ class PeriodEnv(TrialEnv):
                 self._add_ob(value, p, where, reset=reset)
             return
 
-        assert self._trial_built, 'Trial was not succesfully built.' +\
-            ' (Hint: make last_period=True when adding the last period)'
         # self.ob[self.start_ind[period]:self.end_ind[period]] = value
         ob = self.view_ob(period=period)
         if where is None:
