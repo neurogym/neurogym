@@ -78,7 +78,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         stim_theta = self.theta[ground_truth]
 
         # Periods
-        self.add_period(['fixation', 'stimulus', 'delay', 'decision'], after=0,
+        self.add_period(['fixation', 'stimulus', 'delay', 'decision'],
                         last_period=True)
 
         # Observations
@@ -185,7 +185,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         # Periods
         # ---------------------------------------------------------------------
         periods = ['fixation', 'stimulus', 'delay', 'decision']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods, last_period=True)
 
         # define observations
         self.set_ob([1, 0, 0], 'fixation')
@@ -290,7 +290,7 @@ class PulseDecisionMaking(ngym.PeriodEnv):
         for i in range(self.n_bin):
             periods += ['cue' + str(i), 'bin' + str(i)]
         periods += ['decision']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods, last_period=True)
 
         # Observations
         self.add_ob(1, where='fixation')

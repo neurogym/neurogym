@@ -90,7 +90,7 @@ class ChangingEnvironment(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        self.add_period(['fixation', 'stimulus', 'decision'], after=0, last_period=True)
+        self.add_period(['fixation', 'stimulus', 'decision'], last_period=True)
         # ---------------------------------------------------------------------
         # Observations
         # ---------------------------------------------------------------------

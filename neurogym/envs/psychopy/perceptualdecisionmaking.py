@@ -62,7 +62,7 @@ class RandomDotMotion(PsychopyEnv):
         stim_theta = self.theta[ground_truth] * (180/np.pi)
 
         # Periods
-        self.add_period(['fixation', 'stimulus', 'decision'], after=0,
+        self.add_period(['fixation', 'stimulus', 'decision'],
                         last_period=True)
 
         # Observations

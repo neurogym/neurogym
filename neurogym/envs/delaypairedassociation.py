@@ -65,7 +65,7 @@ class DelayPairedAssociation(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         periods = ['fixation', 'stim1', 'delay_btw_stim', 'stim2',
                    'delay_aft_stim', 'decision']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods, last_period=True)
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------

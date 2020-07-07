@@ -58,7 +58,7 @@ class GoNogo(ngym.PeriodEnv):
 
         # Period info
         periods = ['fixation', 'stimulus', 'resp_delay', 'decision']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods, last_period=True)
         # set observations
         self.add_ob(1, where='fixation')
         self.add_ob(1, 'stimulus', where=self.trial['ground_truth']+1)

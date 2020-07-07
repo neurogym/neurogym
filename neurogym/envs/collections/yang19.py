@@ -109,13 +109,13 @@ class _Reach(ngym.PeriodEnv):
 
         if not self.reaction:
             periods = ['fixation', 'stimulus', 'delay', 'decision']
-            self.add_period(periods, after=0, last_period=True)
+            self.add_period(periods, last_period=True)
 
             self.add_ob(1, period=['fixation', 'stimulus', 'delay'], where='fixation')
             self.add_ob(stim, 'stimulus', where='stimulus')
         else:
             periods = ['fixation', 'decision']
-            self.add_period(periods, after=0, last_period=True)
+            self.add_period(periods, last_period=True)
 
             self.add_ob(1, period='fixation', where='fixation')
             self.add_ob(stim, 'decision', where='stimulus')
@@ -240,7 +240,7 @@ class _DMFamily(ngym.PeriodEnv):
             periods = ['fixation', 'stim1', 'delay', 'stim2', 'decision']
         else:
             periods = ['fixation', 'stimulus', 'decision']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods, last_period=True)
 
         self.add_ob(1, where='fixation')
         self.set_ob(0, 'decision')
@@ -378,7 +378,7 @@ class _DelayMatch1DResponse(ngym.PeriodEnv):
 
         # Periods
         self.add_period(['fixation', 'sample', 'delay', 'test', 'decision'],
-                        after=0, last_period=True)
+                        last_period=True)
 
         self.add_ob(1, where='fixation')
         self.set_ob(0, 'decision', where='fixation')

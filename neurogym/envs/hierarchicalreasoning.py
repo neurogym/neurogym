@@ -76,7 +76,7 @@ class HierarchicalReasoning(ngym.PeriodEnv):
         # Periods
         periods = ['fixation', 'rule_target', 'fixation2', 'flash1',
                    'delay', 'flash2', 'decision']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods, last_period=True)
 
         # Observations
         stimulus = self.ob_dict['stimulus'][self.trial['stimulus']]

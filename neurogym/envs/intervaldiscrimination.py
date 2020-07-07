@@ -52,7 +52,7 @@ class IntervalDiscrimination(ngym.PeriodEnv):
 
         periods = ['fixation', 'stim1', 'delay1', 'stim2', 'delay2', 'decision']
         durations = [None, duration1, None, duration2, None, None]
-        self.add_period(periods, duration=durations, after=0, last_period=True)
+        self.add_period(periods, duration=durations, last_period=True)
 
         self.add_ob(1, where='fixation')
         self.add_ob(1, 'stim1', where='stim1')

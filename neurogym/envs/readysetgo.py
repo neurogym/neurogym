@@ -63,7 +63,7 @@ class ReadySetGo(ngym.PeriodEnv):
 
         self.trial['production'] = measure * self.trial['gain']
 
-        self.add_period(['fixation', 'ready'], after=0)
+        self.add_period(['fixation', 'ready'])
         self.add_period('measure', duration=measure, after='fixation')
         self.add_period('set', after='measure')
         self.add_period('production', duration=2*self.trial['production'],
@@ -160,7 +160,7 @@ class MotorTiming(ngym.PeriodEnv):
 
         self.trial['production'] = self.intervals[self.trial['production_ind']]
 
-        self.add_period(['fixation', 'cue', 'set'], after=0)
+        self.add_period(['fixation', 'cue', 'set'])
         self.add_period('production', duration=2*self.trial['production'],
                         after='set', last_period=True)
 
@@ -260,7 +260,7 @@ class OneTwoThreeGo(ngym.PeriodEnv):
         }
         self.trial.update(kwargs)
 
-        self.add_period(['fixation', 'target', 's1'], after=0)
+        self.add_period(['fixation', 'target', 's1'])
         self.add_period('interval1', duration=interval, after='s1')
         self.add_period('s2', after='interval1')
         self.add_period('interval2', duration=interval, after='s2')

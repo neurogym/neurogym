@@ -73,7 +73,7 @@ class DelayMatchSample(ngym.PeriodEnv):
 
         # Periods
         self.add_period(['fixation', 'sample', 'delay', 'test', 'decision'],
-                        after=0, last_period=True)
+                        last_period=True)
 
         self.add_ob(1, where='fixation')
         self.set_ob(0, 'decision', where='fixation')
@@ -175,7 +175,7 @@ class DelayMatchSampleDistractor1D(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         periods = ['fixation', 'sample', 'delay1', 'test1',
                    'delay2', 'test2', 'delay3', 'test3']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods, last_period=True)
 
         self.add_ob(1, 'fixation', where='fixation')
         for period in ['sample', 'test1', 'test2', 'test3']:

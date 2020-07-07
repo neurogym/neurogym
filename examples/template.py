@@ -66,7 +66,7 @@ class YourTask(ngym.PeriodEnv):  # TIP: if task has periods (alt.: ngym.TrialEnv
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        self.add_period('fixation', after=0)
+        self.add_period('fixation')
         self.add_period('stimulus', after='fixation')
         self.add_period('decision', after='stimulus', last_period=True)
         # ---------------------------------------------------------------------

@@ -80,7 +80,7 @@ class PostDecisionWager(ngym.PeriodEnv):
 
         # Periods
         periods = ['fixation', 'stimulus', 'delay']
-        self.add_period(periods, after=0)
+        self.add_period(periods)
         if self.trial['wager']:
             self.add_period('pre_sure', after='stimulus')
             self.add_period('sure', duration=10000, after='pre_sure')

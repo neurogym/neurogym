@@ -206,7 +206,7 @@ class CVLearning(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        self.add_period('fixation', after=0)
+        self.add_period('fixation')
         self.add_period('stimulus', duration=self.durs['stimulus'],
                         after='fixation')
         self.add_period('delay', duration=self.durs['delay'],

@@ -57,7 +57,7 @@ class Reaching1D(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        self.add_period(['fixation', 'reach'], after=0, last_period=True)
+        self.add_period(['fixation', 'reach'], last_period=True)
 
         target = np.cos(self.theta - self.trial['ground_truth'])
         self.add_ob(target, 'reach', where='target')
@@ -139,7 +139,7 @@ class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        self.add_period('fixation', after=0)
+        self.add_period('fixation')
         self.add_period('reach', after='fixation', last_period=True)
 
         ob = self.view_ob('reach')

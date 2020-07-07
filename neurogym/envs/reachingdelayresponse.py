@@ -64,7 +64,7 @@ class ReachingDelayResponse(ngym.PeriodEnv):
         ground_truth_stim = self.trial['ground_truth']
 
         # Periods
-        self.add_period(['stimulus', 'delay', 'decision'], after=0, last_period=True)
+        self.add_period(['stimulus', 'delay', 'decision'], last_period=True)
 
         self.add_ob(ground_truth_stim, 'stimulus', where='stimulus')
         self.set_ob([0, -0.5], 'delay')

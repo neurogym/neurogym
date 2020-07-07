@@ -89,7 +89,7 @@ class DualDelayMatchSample(ngym.PeriodEnv):
 
         periods = ['fixation', 'sample', 'delay1', 'cue1', 'test1',
                    'delay2', 'cue2', 'test2']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods, last_period=True)
 
         self.add_ob(1, where='fixation')
         self.add_ob(stim_sample1, 'sample', where='stimulus1')

@@ -69,7 +69,7 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
 
         # Periods
         periods = ['fixation', 'stimulus', 'decision']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods, last_period=True)
 
         self.add_ob(1, where='fixation')
         stim = np.cos(self.theta - stim_theta) * (coh_0 / 200) + 0.5

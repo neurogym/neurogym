@@ -84,7 +84,7 @@ class Detection(ngym.PeriodEnv):
         ground_truth = self.trial['ground_truth']
 
         # Period
-        self.add_period(['fixation', 'stimulus'], after=0, last_period=True)
+        self.add_period(['fixation', 'stimulus'], last_period=True)
 
         # ---------------------------------------------------------------------
         # Observations

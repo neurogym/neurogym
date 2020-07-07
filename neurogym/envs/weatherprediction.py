@@ -85,7 +85,7 @@ class ProbabilisticReasoning(ngym.PeriodEnv):
         periods = ['fixation']
         periods += ['stimulus'+str(i) for i in range(self.n_loc)]
         periods += ['delay', 'decision']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods, last_period=True)
 
         # Observations
         self.add_ob(1, where='fixation')

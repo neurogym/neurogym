@@ -69,7 +69,7 @@ class AntiReach(ngym.PeriodEnv):
 
         # Periods
         periods = ['fixation', 'stimulus', 'delay', 'decision']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods, last_period=True)
 
         self.add_ob(1, period=['fixation', 'stimulus', 'delay'], where='fixation')
         stim = np.cos(self.theta - stim_theta)

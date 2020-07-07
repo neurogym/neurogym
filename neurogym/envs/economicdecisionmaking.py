@@ -72,7 +72,7 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
         else:
             n1, n2 = n_b, n_a
 
-        self.add_period(['fixation', 'offer_on', 'decision'], after=0, last_period=True)
+        self.add_period(['fixation', 'offer_on', 'decision'], last_period=True)
 
         self.add_ob(1, ['fixation', 'offer_on'], where='fixation')
         self.add_ob(1, 'offer_on', where=juice1 + '1')
