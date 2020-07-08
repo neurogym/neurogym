@@ -288,8 +288,12 @@ class TrialEnv(BaseEnv):
         """Initialize trial info with tmax, tind, ob"""
         tmax_ind = int(self._tmax/self.dt)
         self.tmax = tmax_ind * self.dt
-        self.ob = np.zeros([tmax_ind] + list(self.observation_space.shape),
-                           dtype=self.observation_space.dtype)
+        ob_shape = [tmax_ind] + list(self.observation_space.shape)
+        if self._default_ob_value:
+            self.ob = np.full(ob_shape, self._default_ob_value,
+                              dtype=self.observation_space.dtype)
+        else:
+            self.ob = np.zeros(ob_shape, dtype=self.observation_space.dtype)
         self.gt = np.zeros([tmax_ind] + list(self.action_space.shape),
                            dtype=self.action_space.dtype)
         self._trial_built = True

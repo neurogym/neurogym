@@ -57,15 +57,3 @@ class PsychopyEnv(ngym.TrialEnv):
                 super().add_ob(np.array(im), period, where)
         else:
             super().add_ob(value, period, where)
-
-    def _init_trial(self):
-        """Initialize trial info with tmax, tind, obs"""
-        tmax_ind = int(self._tmax/self.dt)
-        self.tmax = tmax_ind * self.dt
-        self.ob = np.full([tmax_ind] + list(self.observation_space.shape),
-                          self._default_ob_value,
-                          dtype=self.observation_space.dtype)
-        self.gt = np.zeros([tmax_ind] + list(self.action_space.shape),
-                           dtype=self.action_space.dtype)
-        self._trial_built = True
-
