@@ -156,6 +156,7 @@ class TrialEnv(BaseEnv):
         self._new_trial(**kwargs)
         self.num_tr += 1  # Increment trial count
         self._trial_built = False
+        self._tmax = 0  # re-initialize
 
     def step(self, action):
         """Public interface for the environment."""
