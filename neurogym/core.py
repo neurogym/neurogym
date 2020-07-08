@@ -155,6 +155,7 @@ class TrialEnv(BaseEnv):
         """
         self._new_trial(**kwargs)
         self.num_tr += 1  # Increment trial count
+        # Reset for next trial
         self._trial_built = False
         self._tmax = 0  # re-initialize
 
@@ -357,8 +358,8 @@ class TrialEnv(BaseEnv):
         """Add value to observation.
 
         Args:
+            value: array-like (ob_space.shape, ...)
             period: string, must be name of an added period
-            value: np array (ob_space.shape, ...)
             where: string or np array, location of stimulus to be added
         """
         self._add_ob(value, period, where, reset=False)
