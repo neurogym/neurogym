@@ -54,12 +54,12 @@ class DelayPairedAssociation(ngym.TrialEnv):
 
     def _new_trial(self, **kwargs):
         pair = self.pairs[self.rng.choice(len(self.pairs))]
-        self.trial = {
+        trial = {
             'pair': pair,
             'ground_truth': int(np.diff(pair)[0] % 2 == self.association),
         }
-        self.trial.update(kwargs)
-        pair = self.trial['pair']
+        trial.update(kwargs)
+        pair = trial['pair']
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
@@ -75,11 +75,13 @@ class DelayPairedAssociation(ngym.TrialEnv):
         self.add_ob(1, 'stim2', where=pair[1])
         self.set_ob(0, 'decision')
         # set ground truth
-        self.set_groundtruth(self.trial['ground_truth'], 'decision')
+        self.set_groundtruth(trial['ground_truth'], 'decision')
 
         # if trial is GO the reward is set to R_MISS and  to 0 otherwise
-        self.r_tmax = self.rewards['miss']*self.trial['ground_truth']
-        self.performance = 1-self.trial['ground_truth']
+        self.r_tmax = self.rewards['miss']*trial['ground_truth']
+        self.performance = 1-trial['ground_truth']
+
+        return trial
 
     def _step(self, action, **kwargs):
         # ---------------------------------------------------------------------

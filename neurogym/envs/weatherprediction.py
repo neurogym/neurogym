@@ -65,21 +65,21 @@ class ProbabilisticReasoning(ngym.TrialEnv):
 
     def _new_trial(self, **kwargs):
         # Trial info
-        self.trial = {
+        trial = {
             'locs': self.rng.choice(range(self.n_loc),
                                     size=self.n_loc, replace=False),
             'shapes': self.rng.choice(range(self.n_shape),
                                       size=self.n_loc, replace=True),
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
-        locs = self.trial['locs']
-        shapes = self.trial['shapes']
+        locs = trial['locs']
+        shapes = trial['shapes']
         log_odd = sum([self.shape_weight[shape] for shape in shapes])
         p = 1. / (10**(-log_odd) + 1.)
         ground_truth = int(self.rng.rand() < p)
-        self.trial['log_odd'] = log_odd
-        self.trial['ground_truth'] = ground_truth
+        trial['log_odd'] = log_odd
+        trial['ground_truth'] = ground_truth
 
         # Periods
         periods = ['fixation']
@@ -99,6 +99,8 @@ class ProbabilisticReasoning(ngym.TrialEnv):
 
         # Ground truth
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+
+        return trial
 
     def _step(self, action):
         new_trial = False

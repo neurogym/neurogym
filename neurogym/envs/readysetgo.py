@@ -55,18 +55,18 @@ class ReadySetGo(ngym.TrialEnv):
 
     def _new_trial(self, **kwargs):
         measure = self.sample_time('measure')
-        self.trial = {
+        trial = {
             'measure': measure,
             'gain': self.gain
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
-        self.trial['production'] = measure * self.trial['gain']
+        trial['production'] = measure * trial['gain']
 
         self.add_period(['fixation', 'ready'])
         self.add_period('measure', duration=measure, after='fixation')
         self.add_period('set', after='measure')
-        self.add_period('production', duration=2*self.trial['production'],
+        self.add_period('production', duration=2*trial['production'],
                         after='set')
 
         self.add_ob(1, where='fixation')
@@ -75,9 +75,11 @@ class ReadySetGo(ngym.TrialEnv):
         self.add_ob(1, 'set', where='set')
 
         # set ground truth
-        gt = np.zeros((int(2*self.trial['production']/self.dt),))
-        gt[int(self.trial['production']/self.dt)] = 1
+        gt = np.zeros((int(2*trial['production']/self.dt),))
+        gt[int(trial['production']/self.dt)] = 1
         self.set_groundtruth(gt, 'production')
+
+        return trial
 
     def _step(self, action):
         # ---------------------------------------------------------------------
@@ -153,29 +155,31 @@ class MotorTiming(ngym.TrialEnv):
                                             dtype=np.float32)
 
     def _new_trial(self, **kwargs):
-        self.trial = {
+        trial = {
             'production_ind': self.rng.choice(self.production_ind)
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
-        self.trial['production'] = self.intervals[self.trial['production_ind']]
+        trial['production'] = self.intervals[trial['production_ind']]
 
         self.add_period(['fixation', 'cue', 'set'])
-        self.add_period('production', duration=2*self.trial['production'],
+        self.add_period('production', duration=2*trial['production'],
                         after='set')
 
         self.set_ob([1, 0, 0, 0], 'fixation')
         ob = self.view_ob('cue')
         ob[:, 0] = 1
-        ob[:, self.trial['production_ind']+1] = 1
+        ob[:, trial['production_ind']+1] = 1
         ob = self.view_ob('set')
         ob[:, 0] = 1
-        ob[:, self.trial['production_ind'] + 1] = 1
+        ob[:, trial['production_ind'] + 1] = 1
         ob[:, 3] = 1
         # set ground truth
-        gt = np.zeros((int(2*self.trial['production']/self.dt),))
-        gt[int(self.trial['production']/self.dt)] = 1
+        gt = np.zeros((int(2*trial['production']/self.dt),))
+        gt[int(trial['production']/self.dt)] = 1
         self.set_groundtruth(gt, 'production')
+
+        return trial
 
     def _step(self, action):
         # ---------------------------------------------------------------------
@@ -255,10 +259,10 @@ class OneTwoThreeGo(ngym.TrialEnv):
 
     def _new_trial(self, **kwargs):
         interval = self.sample_time('interval1')
-        self.trial = {
+        trial = {
             'interval': interval,
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
         self.add_period(['fixation', 'target', 's1'])
         self.add_period('interval1', duration=interval, after='s1')
@@ -275,6 +279,8 @@ class OneTwoThreeGo(ngym.TrialEnv):
 
         # set ground truth
         self.set_groundtruth(self.act_dict['go'], period='response')
+
+        return trial
 
     def _step(self, action):
         # ---------------------------------------------------------------------

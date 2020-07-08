@@ -54,14 +54,16 @@ class Bandit(ngym.TrialEnv):
         rew_high_reward_arm = (self.rng.rand() <
                                self.p_high) * self.rewards['correct']
         rew_low_reward_arm = (self.rng.rand() < self.p_low) * self.rewards['correct']
-        self.trial = {
+        trial = {
             'rew_high_reward_arm': rew_high_reward_arm,
             'rew_low_reward_arm': rew_low_reward_arm,
             'high_reward_arm': self.gt_arm,
             }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
         self.ob = np.zeros((1, self.observation_space.shape[0]))
         self.gt = np.array([self.gt_arm])
+
+        return trial
 
     def _step(self, action):
         trial = self.trial

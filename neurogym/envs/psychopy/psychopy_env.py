@@ -24,7 +24,7 @@ class PsychopyEnv(ngym.TrialEnv):
         self.win.flip()
         im = self.win._getFrame()
         value = np.array(im)
-        self._default_ob_value = value[0, 0]
+        self._default_ob_value = value[0, 0]  # corner pixel, array 3-channels
 
         ob_shape = (self.win.size[0], self.win.size[1], 3)
         self.observation_space = spaces.Box(0, 255, shape=ob_shape,

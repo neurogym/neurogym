@@ -96,16 +96,16 @@ class nalt_PerceptualDecisionMaking(ngym.TrialEnv):
         else:
             ground_truth = self.rng.choice(self.choices)
 
-        self.trial = {
+        trial = {
             'ground_truth': ground_truth,
             'coh': self.rng.choice(self.cohs),
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
         self.add_period(['fixation', 'stimulus', 'decision'])
 
         self.add_ob(1, 'fixation', where='fixation')
-        stim = np.ones(self.n) * (1 - self.trial['coh']/100)/2
-        stim[self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
+        stim = np.ones(self.n) * (1 - trial['coh']/100)/2
+        stim[trial['ground_truth']] = (1 + trial['coh']/100)/2
         self.add_ob(stim, 'stimulus', where='stimulus')
 
         #  Adding active nch and/or current history block to observations.
@@ -127,6 +127,8 @@ class nalt_PerceptualDecisionMaking(ngym.TrialEnv):
         else:
             self.add_randn(0, self.sigma, 'stimulus', where='stimulus')
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+
+        return trial
 
     def _step(self, action, **kwargs):
         """

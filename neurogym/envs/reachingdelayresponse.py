@@ -57,11 +57,11 @@ class ReachingDelayResponse(ngym.TrialEnv):
 
     def _new_trial(self, **kwargs):
         # Trial
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.uniform(self.lowbound, self.highbound)
         }
-        self.trial.update(kwargs)
-        ground_truth_stim = self.trial['ground_truth']
+        trial.update(kwargs)
+        ground_truth_stim = trial['ground_truth']
 
         # Periods
         self.add_period(['stimulus', 'delay', 'decision'])
@@ -72,6 +72,8 @@ class ReachingDelayResponse(ngym.TrialEnv):
 
         self.set_groundtruth([-1, -0.5], ['stimulus', 'delay'])
         self.set_groundtruth([1, ground_truth_stim], 'decision')
+
+        return trial
 
     def _step(self, action):
         new_trial = False

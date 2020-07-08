@@ -57,17 +57,17 @@ class DelayComparison(ngym.TrialEnv):
         self.act_dict = {'fixation': 0, 'choice': [1, 2]}
 
     def _new_trial(self, **kwargs):
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.act_dict['choice']),
             'fpair': self.fpairs[self.rng.choice(len(self.fpairs))]
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
-        f1, f2 = self.trial['fpair']
-        if self.trial['ground_truth'] == 2:
+        f1, f2 = trial['fpair']
+        if trial['ground_truth'] == 2:
             f1, f2 = f2, f1
-        self.trial['f1'] = f1
-        self.trial['f2'] = f2
+        trial['f1'] = f1
+        trial['f2'] = f2
 
         # Periods
         periods = ['fixation', 'f1', 'delay', 'f2', 'decision']
@@ -79,7 +79,9 @@ class DelayComparison(ngym.TrialEnv):
         self.set_ob(0, 'decision')
         self.add_randn(0, self.sigma, ['f1', 'f2'])
 
-        self.set_groundtruth(self.trial['ground_truth'], 'decision')
+        self.set_groundtruth(trial['ground_truth'], 'decision')
+
+        return trial
 
     def scale(self, f):
         return (f - self.fmin)/(self.fmax - self.fmin)

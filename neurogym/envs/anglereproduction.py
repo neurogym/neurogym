@@ -52,11 +52,11 @@ class AngleReproduction(ngym.TrialEnv):
         # Trial
         # ---------------------------------------------------------------------
         self.state = np.pi
-        self.trial = {
+        trial = {
             'ground_truth1': self.rng.uniform(0, np.pi * 2),
             'ground_truth2': self.rng.uniform(0, np.pi * 2)
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
@@ -65,18 +65,20 @@ class AngleReproduction(ngym.TrialEnv):
         self.add_period(periods)
 
         ob = self.view_ob('stim1')
-        ob[:, :16] = np.cos(self.theta - self.trial['ground_truth1'])
+        ob[:, :16] = np.cos(self.theta - trial['ground_truth1'])
         ob = self.view_ob('stim2')
-        ob[:, :16] = np.cos(self.theta - self.trial['ground_truth2'])
+        ob[:, :16] = np.cos(self.theta - trial['ground_truth2'])
         ob = self.view_ob('go1')
         ob[:, 32] = 1
         ob = self.view_ob('go2')
         ob[:, 33] = 1
 
-        self.set_groundtruth(self.trial['ground_truth1'], 'go1')
-        self.set_groundtruth(self.trial['ground_truth2'], 'go2')
+        self.set_groundtruth(trial['ground_truth1'], 'go1')
+        self.set_groundtruth(trial['ground_truth2'], 'go2')
         self.dec_per_dur = (self.end_ind['go1'] - self.start_ind['go1']) +\
             (self.end_ind['go2'] - self.start_ind['go2'])
+
+        return trial
 
     def _step(self, action):
         ob = self.ob_now

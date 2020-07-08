@@ -65,7 +65,7 @@ def test_run_all(verbose_success=False):
     """Test if all environments can at least be run."""
     success_count = 0
     total_count = 0
-    for env_name in sorted(ngym.all_envs()):
+    for env_name in sorted(ngym.all_envs(psychopy=True, collections=True)):
         total_count += 1
 
         # print('Running env: {:s}'.format(env_name))
@@ -99,7 +99,7 @@ def test_trialenv_all():
         try:
             env.new_trial()
             if env.trial is None:
-                print('No self.trial is available after new_trial()')
+                print('No trial is available after new_trial()')
             else:
                 print('Success')
                 hastrial_count += 1
@@ -110,7 +110,7 @@ def test_trialenv_all():
             print(e)
 
     print('Success {:d}/{:d} envs'.format(success_count, total_count))
-    print('{:d}/{:d} envs have self.trial after new_trial'.format(hastrial_count,
+    print('{:d}/{:d} envs have trial after new_trial'.format(hastrial_count,
                                                                   success_count))
 
 

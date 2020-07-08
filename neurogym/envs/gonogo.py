@@ -51,23 +51,25 @@ class GoNogo(ngym.TrialEnv):
 
     def _new_trial(self, **kwargs):
         # Trial info
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices)
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
         # Period info
         periods = ['fixation', 'stimulus', 'resp_delay', 'decision']
         self.add_period(periods)
         # set observations
         self.add_ob(1, where='fixation')
-        self.add_ob(1, 'stimulus', where=self.trial['ground_truth']+1)
+        self.add_ob(1, 'stimulus', where=trial['ground_truth']+1)
         self.set_ob(0, 'decision')
         # if trial is GO the reward is set to R_MISS and  to 0 otherwise
-        self.r_tmax = self.rewards['miss']*self.trial['ground_truth']
-        self.performance = 1-self.trial['ground_truth']
+        self.r_tmax = self.rewards['miss']*trial['ground_truth']
+        self.performance = 1-trial['ground_truth']
         # set ground truth during decision period
-        self.set_groundtruth(self.trial['ground_truth'], 'decision')
+        self.set_groundtruth(trial['ground_truth'], 'decision')
+
+        return trial
 
     def _step(self, action):
         new_trial = False

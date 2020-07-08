@@ -76,16 +76,16 @@ class ChangingEnvironment(ngym.TrialEnv):
 
         side = self.rng.choice(self.choices)
 
-        self.trial = {
+        trial = {
             'side': side,
             'ground_truth': (side + 2 * self.curr_cxt),
             'coh': self.rng.choice(self.cohs),
         }
 
-        self.trial.update(kwargs)  # allows wrappers to modify the trial
+        trial.update(kwargs)  # allows wrappers to modify the trial
 
-        coh = self.trial['coh']
-        ground_truth = self.trial['ground_truth']
+        coh = trial['coh']
+        ground_truth = trial['ground_truth']
 
         # ---------------------------------------------------------------------
         # Periods
@@ -126,6 +126,8 @@ class ChangingEnvironment(ngym.TrialEnv):
         # Ground truth
         # ---------------------------------------------------------------------
         self.set_groundtruth(ground_truth, 'decision')
+
+        return trial
 
     def _step(self, action):
         new_trial = False

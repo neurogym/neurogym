@@ -58,14 +58,14 @@ class EconomicDecisionMaking(ngym.TrialEnv):
                         }
 
     def _new_trial(self, **kwargs):
-        self.trial = {
+        trial = {
             'juice': self.juices[self.rng.choice(len(self.juices))],
             'offer': self.offers[self.rng.choice(len(self.offers))]
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
-        juice1, juice2 = self.trial['juice']
-        n_b, n_a = self.trial['offer']
+        juice1, juice2 = trial['juice']
+        n_b, n_a = trial['offer']
 
         if juice1 == 'a':
             n1, n2 = n_a, n_b
@@ -79,6 +79,8 @@ class EconomicDecisionMaking(ngym.TrialEnv):
         self.add_ob(1, 'offer_on', where=juice2 + '2')
         self.add_ob(n1/5., 'offer_on', where='n1')
         self.add_ob(n2/5., 'offer_on', where='n2')
+
+        return trial
 
     def _step(self, action):
         trial = self.trial

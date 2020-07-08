@@ -4,6 +4,7 @@ from inspect import getmembers, isfunction, isclass
 import gym
 from gym.envs.registration import register
 
+from neurogym.envs.collections import get_collection
 
 ALL_NATIVE_ENVS = {
     'ContextDecisionMaking-v0':
@@ -101,7 +102,9 @@ def _get_collection_envs():
         envs = [name for name, val in getmembers(module) if isfunction(val) or isclass(val)]
         envs = [env for env in envs if env[0] != '_']  # ignore private members
         # TODO: check is instance gym.env
-        derived_envs.update({l+'.'+env+'-v0': lib + ':' + env for env in envs})
+        env_dict = {l+'.'+env+'-v0': lib + ':' + env for env in envs}
+        valid_envs = get_collection(l)
+        derived_envs.update({key: env_dict[key] for key in valid_envs})
     return derived_envs
 
 
@@ -114,11 +117,13 @@ ALL_ENVS = {
 ALL_EXTENDED_ENVS = {**ALL_ENVS, **ALL_COLLECTIONS_ENVS}
 
 
-def all_envs(tag=None, psychopy=False):
+def all_envs(tag=None, psychopy=False, collections=False):
     """Return a list of all envs in neurogym."""
     envs = ALL_NATIVE_ENVS.copy()
     if psychopy:
         envs.update(ALL_PSYCHOPY_ENVS)
+    if collections:
+        envs.update(ALL_COLLECTIONS_ENVS)
     env_list = sorted(list(envs.keys()))
     if tag is None:
         return env_list

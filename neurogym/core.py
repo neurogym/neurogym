@@ -98,7 +98,7 @@ class TrialEnv(BaseEnv):
         self.ob_dict = {}
         self.act_dict = {}
         self.rewards = {}
-        self._default_ob_value = False  # default to have no specific value
+        self._default_ob_value = None  # default to 0
 
         # For optional periods
         self.timing = {}
@@ -119,15 +119,7 @@ class TrialEnv(BaseEnv):
     def _new_trial(self, **kwargs):
         """Private interface for starting a new trial.
 
-        This function can typically update the self.trial
-        dictionary that contains information about current trial
-        TODO: Need to clearly define the expected behavior
-
-        Args:
-
         Returns:
-            observation: numpy array of agent's observation during the trial
-            target: numpy array of target action of the agent
             trial: dict of trial information. Available to step function as
                 self.trial
         """
@@ -145,19 +137,17 @@ class TrialEnv(BaseEnv):
     def new_trial(self, **kwargs):
         """Public interface for starting a new trial.
 
-        Args:
-
         Returns:
-            observation: numpy array of agent's observation during the trial
-            target: numpy array of target action of the agent
             trial: dict of trial information. Available to step function as
                 self.trial
         """
-        self._new_trial(**kwargs)
+        trial = self._new_trial(**kwargs)
+        self.trial = trial
         self.num_tr += 1  # Increment trial count
         # Reset for next trial
         self._trial_built = False
         self._tmax = 0  # re-initialize
+        return trial
 
     def step(self, action):
         """Public interface for the environment."""
@@ -176,9 +166,8 @@ class TrialEnv(BaseEnv):
             info['performance'] = self.performance
             self.performance = 0
             self.t = self.t_ind = 0  # Reset within trial time count
-            self._top.new_trial()
-            if self.trial:
-                info.update(self.trial)
+            trial = self._top.new_trial()
+            info['trial'] = trial
         return obs, reward, done, info
 
     def reset(self, step_fn=None, no_step=False):
@@ -300,11 +289,11 @@ class TrialEnv(BaseEnv):
         tmax_ind = int(self._tmax/self.dt)
         self.tmax = tmax_ind * self.dt
         ob_shape = [tmax_ind] + list(self.observation_space.shape)
-        if self._default_ob_value:
+        if self._default_ob_value is None:
+            self.ob = np.zeros(ob_shape, dtype=self.observation_space.dtype)
+        else:
             self.ob = np.full(ob_shape, self._default_ob_value,
                               dtype=self.observation_space.dtype)
-        else:
-            self.ob = np.zeros(ob_shape, dtype=self.observation_space.dtype)
         self.gt = np.zeros([tmax_ind] + list(self.action_space.shape),
                            dtype=self.action_space.dtype)
         self._trial_built = True

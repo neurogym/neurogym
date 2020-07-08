@@ -55,14 +55,14 @@ class AntiReach(ngym.TrialEnv):
 
     def _new_trial(self, **kwargs):
         # Trial info
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices),
             'anti': self.anti,
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
-        ground_truth = self.trial['ground_truth']
-        if self.trial['anti']:
+        ground_truth = trial['ground_truth']
+        if trial['anti']:
             stim_theta = np.mod(self.theta[ground_truth] + np.pi, 2*np.pi)
         else:
             stim_theta = self.theta[ground_truth]
@@ -76,6 +76,8 @@ class AntiReach(ngym.TrialEnv):
         self.add_ob(stim, 'stimulus', where='stimulus')
 
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+
+        return trial
 
     def _step(self, action):
         new_trial = False

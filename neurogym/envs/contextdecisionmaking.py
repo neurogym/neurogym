@@ -60,24 +60,24 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
 
     def _new_trial(self, **kwargs):
         # Trial
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices),
             'other_choice': self.rng.choice(self.choices),
             'context': self.context,
             'coh_0': self.rng.choice(self.cohs),
             'coh_1': self.rng.choice(self.cohs),
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
         choice_0, choice_1 =\
-            self.trial['ground_truth'], self.trial['other_choice']
-        if self.trial['context'] == 1:
+            trial['ground_truth'], trial['other_choice']
+        if trial['context'] == 1:
             choice_1, choice_0 = choice_0, choice_1
-        coh_0, coh_1 = self.trial['coh_0'], self.trial['coh_1']
+        coh_0, coh_1 = trial['coh_0'], trial['coh_1']
 
         stim_theta_0 = self.theta[choice_0]
         stim_theta_1 = self.theta[choice_1]
-        ground_truth = self.trial['ground_truth']
+        ground_truth = trial['ground_truth']
 
         # Periods
         periods = ['fixation', 'stimulus', 'delay', 'decision']
@@ -166,20 +166,20 @@ class ContextDecisionMaking(ngym.TrialEnv):
         # -------------------------------------------------------------------------
         # Trial
         # -------------------------------------------------------------------------
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices),
             'other_choice': self.rng.choice(self.choices),
             'context': self.rng.choice(self.contexts),
             'coh_0': self.rng.choice(self.cohs),
             'coh_1': self.rng.choice(self.cohs),
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
         choice_0, choice_1 =\
-            self.trial['ground_truth'], self.trial['other_choice']
-        if self.trial['context'] == 1:
+            trial['ground_truth'], trial['other_choice']
+        if trial['context'] == 1:
             choice_1, choice_0 = choice_0, choice_1
-        coh_0, coh_1 = self.trial['coh_0'], self.trial['coh_1']
+        coh_0, coh_1 = trial['coh_0'], trial['coh_1']
 
         signed_coh_0 = coh_0 if choice_0 == 1 else -coh_0
         signed_coh_1 = coh_1 if choice_1 == 1 else -coh_1
@@ -197,12 +197,14 @@ class ContextDecisionMaking(ngym.TrialEnv):
         self.add_randn(0, self.sigma, 'stimulus')
         self.set_ob(0, 'decision')
 
-        if self.trial['context'] == 0:
+        if trial['context'] == 0:
             self.add_ob(1, where='context1')
         else:
             self.add_ob(1, where='context2')
 
-        self.set_groundtruth(self.trial['ground_truth'], 'decision')
+        self.set_groundtruth(trial['ground_truth'], 'decision')
+
+        return trial
 
     def _step(self, action):
         obs = self.ob_now

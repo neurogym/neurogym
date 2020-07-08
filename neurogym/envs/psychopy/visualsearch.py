@@ -84,13 +84,13 @@ class VisualSearch(PsychopyEnv):
                 colors.append(new_color)
 
         centers = self.rng.permutation(self.target_centers)
-        self.trial = {
+        trial = {
             'angles': angles,
             'colors': colors,
             'centers': centers,
         }
-        self.trial.update(kwargs)
-        self.trial['ground_truth'] = centers[0]
+        trial.update(kwargs)
+        trial['ground_truth'] = centers[0]
 
         # Periods
         periods = ['fixation', 'sample', 'delay', 'decision']
@@ -99,9 +99,9 @@ class VisualSearch(PsychopyEnv):
         # Observations
         fixation = (0, 0)
         for i in range(self.n_target):
-            center = self.trial['centers'][i]
-            angle = self.trial['angles'][i]
-            color = tuple(self.trial['colors'][i])
+            center = trial['centers'][i]
+            angle = trial['angles'][i]
+            color = tuple(trial['colors'][i])
             start, end = self._line_startend(center, angle, self.length)
             stim = visual.Line(self.win, lineWidth=self.lw,
                                lineColor=color, start=start, end=end)
@@ -114,7 +114,9 @@ class VisualSearch(PsychopyEnv):
                 self.add_ob(stim, 'sample')
 
         # Ground truth
-        self.set_groundtruth(self.trial['ground_truth'], 'decision')
+        self.set_groundtruth(trial['ground_truth'], 'decision')
+
+        return trial
 
     def _step(self, action):
         new_trial = False

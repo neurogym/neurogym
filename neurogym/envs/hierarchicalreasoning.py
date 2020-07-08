@@ -59,19 +59,19 @@ class HierarchicalReasoning(ngym.TrialEnv):
 
     def _new_trial(self, **kwargs):
         interval = self.sample_time('delay')
-        self.trial = {
+        trial = {
             'interval': interval,
             'rule': self.rule,
             'stimulus': self.rng.choice(self.choices)
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
         # Is interval long? When interval == mid_delay, randomly assign
         long_interval = interval > self.mid_delay + (self.rng.rand()-0.5)
         # Is the response pro or anti?
-        pro_choice = int(long_interval) == self.trial['rule']
-        self.trial['long_interval'] = long_interval
-        self.trial['pro_choice'] = pro_choice
+        pro_choice = int(long_interval) == trial['rule']
+        trial['long_interval'] = long_interval
+        trial['pro_choice'] = pro_choice
 
         # Periods
         periods = ['fixation', 'rule_target', 'fixation2', 'flash1',
@@ -79,11 +79,11 @@ class HierarchicalReasoning(ngym.TrialEnv):
         self.add_period(periods)
 
         # Observations
-        stimulus = self.ob_dict['stimulus'][self.trial['stimulus']]
+        stimulus = self.ob_dict['stimulus'][trial['stimulus']]
         if pro_choice:
-            choice = self.trial['stimulus']
+            choice = trial['stimulus']
         else:
-            choice = 1 - self.trial['stimulus']
+            choice = 1 - trial['stimulus']
 
         self.add_ob(1, where='fixation')
         self.set_ob(0, 'decision', where='fixation')
@@ -94,12 +94,14 @@ class HierarchicalReasoning(ngym.TrialEnv):
         # Ground truth
         self.set_groundtruth(self.act_dict['choice'][choice], 'decision')
         self.set_groundtruth(
-            self.act_dict['rule'][self.trial['rule']], 'rule_target')
+            self.act_dict['rule'][trial['rule']], 'rule_target')
 
         # Start new block?
         self.trial_in_block += 1
         if self.trial_in_block >= self.block_size:
             self.new_block()
+
+        return trial
 
     def _step(self, action):
         new_trial = False

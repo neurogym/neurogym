@@ -41,7 +41,7 @@ class _MultiModalityStimulus(TrialWrapperV2):
         # Shift stimulus
         self.task.ob_dict['stimulus'] = ind_stimulus + len_stimulus * modality
 
-    def _new_trial(self, **kwargs):
+    def new_trial(self, **kwargs):
         return self.env.new_trial(**kwargs)
 
 
@@ -94,14 +94,14 @@ class _Reach(ngym.TrialEnv):
 
     def _new_trial(self, **kwargs):
         # Trial info
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices),
             'anti': self.anti,
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
-        ground_truth = self.trial['ground_truth']
-        if self.trial['anti']:
+        ground_truth = trial['ground_truth']
+        if trial['anti']:
             stim_theta = np.mod(self.theta[ground_truth] + np.pi, 2*np.pi)
         else:
             stim_theta = self.theta[ground_truth]
@@ -121,6 +121,8 @@ class _Reach(ngym.TrialEnv):
             self.add_ob(stim, 'decision', where='stimulus')
 
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+
+        return trial
 
     def _step(self, action):
         new_trial = False
@@ -203,37 +205,37 @@ class _DMFamily(ngym.TrialEnv):
         self.action_space = spaces.Discrete(1+dim_ring)
         self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring+1)}
 
-    def _add_singlemod(self, mod=1):
+    def _add_singlemod(self, trial, mod=1):
         """Add stimulus to modality."""
         mod = '_mod' + str(mod)
 
         if self.delaycomparison:
             period1, period2 = 'stim1', 'stim2'
             coh1, coh2 = self.rng.choice(self.cohs, 2, replace=False)
-            self.trial['coh1' + mod] = coh1
-            self.trial['coh2' + mod] = coh2
+            trial['coh1' + mod] = coh1
+            trial['coh2' + mod] = coh2
         else:
             period1, period2 = 'stimulus', 'stimulus'
             coh = self.rng.choice(self.cohs) * self.rng.choice([-1, +1])
-            self.trial['coh1' + mod] = coh1 = 0.5 + coh / 2
-            self.trial['coh2' + mod] = coh2 = 0.5 - coh / 2
+            trial['coh1' + mod] = coh1 = 0.5 + coh / 2
+            trial['coh2' + mod] = coh2 = 0.5 - coh / 2
 
-        # stim = cosinebump(self.trial['theta1'], self.theta, coh1)
-        stim = _gaussianbump(self.trial['theta1'], self.theta, coh1)
+        # stim = cosinebump(trial['theta1'], self.theta, coh1)
+        stim = _gaussianbump(trial['theta1'], self.theta, coh1)
         self.add_ob(stim, period1, where='stimulus' + mod)
-        # stim = cosinebump(self.trial['theta2'], self.theta, coh2)
-        stim = _gaussianbump(self.trial['theta2'], self.theta, coh2)
+        # stim = cosinebump(trial['theta2'], self.theta, coh2)
+        stim = _gaussianbump(trial['theta2'], self.theta, coh2)
         self.add_ob(stim, period2, where='stimulus' + mod)
 
     def _new_trial(self, **kwargs):
-        self.trial = {}
+        trial = {}
         i_theta1 = self.rng.choice(self.choices)
         while True:
             i_theta2 = self.rng.choice(self.choices)
             if i_theta2 != i_theta1:
                 break
-        self.trial['theta1'] = self.theta[i_theta1]
-        self.trial['theta2'] = self.theta[i_theta2]
+        trial['theta1'] = self.theta[i_theta1]
+        trial['theta2'] = self.theta[i_theta2]
 
         # Periods
         if self.delaycomparison:
@@ -251,16 +253,18 @@ class _DMFamily(ngym.TrialEnv):
 
         coh1, coh2 = 0, 0
         if self.stim_mod1:
-            self._add_singlemod(mod=1)
-            coh1 += self.w_mod1 * self.trial['coh1_mod1']
-            coh2 += self.w_mod1 * self.trial['coh2_mod1']
+            self._add_singlemod(trial, mod=1)
+            coh1 += self.w_mod1 * trial['coh1_mod1']
+            coh2 += self.w_mod1 * trial['coh2_mod1']
         if self.stim_mod2:
-            self._add_singlemod(mod=2)
-            coh1 += self.w_mod2 * self.trial['coh1_mod2']
-            coh2 += self.w_mod2 * self.trial['coh2_mod2']
+            self._add_singlemod(trial, mod=2)
+            coh1 += self.w_mod2 * trial['coh1_mod2']
+            coh2 += self.w_mod2 * trial['coh2_mod2']
 
         i_target = i_theta1 if coh1 + self.rng.uniform(-1e-6, 1e-6) > coh2 else i_theta2
         self.set_groundtruth(self.act_dict['choice'][i_target], 'decision')
+
+        return trial
 
     def _step(self, action):
         # ---------------------------------------------------------------------
@@ -347,12 +351,12 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
 
     def _new_trial(self, **kwargs):
         # Trial info
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices),
         }
-        self.trial.update(**kwargs)
+        trial.update(**kwargs)
 
-        ground_truth = self.trial['ground_truth']
+        ground_truth = trial['ground_truth']
         i_sample_theta = self.rng.choice(self.dim_ring)
         if self.matchto == 'category':
             sample_category = (i_sample_theta > self.half_ring) * 1
@@ -370,8 +374,8 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
                 i_test_theta = np.mod(
                     i_sample_theta + self.half_ring, self.dim_ring)
 
-        self.trial['sample_theta'] = sample_theta = self.theta[i_sample_theta]
-        self.trial['test_theta'] = test_theta = self.theta[i_test_theta]
+        trial['sample_theta'] = sample_theta = self.theta[i_sample_theta]
+        trial['test_theta'] = test_theta = self.theta[i_test_theta]
 
         stim_sample = _gaussianbump(sample_theta, self.theta, 1)
         stim_test = _gaussianbump(test_theta, self.theta, 1)
@@ -388,6 +392,8 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
         if ((ground_truth == 'match' and self.matchgo) or
                 (ground_truth == 'non-match' and not self.matchgo)):
             self.set_groundtruth(self.act_dict['choice'][i_test_theta], 'decision')
+
+        return trial
 
     def _step(self, action, **kwargs):
         new_trial = False

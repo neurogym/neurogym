@@ -55,14 +55,14 @@ class DelayMatchCategory(ngym.TrialEnv):
 
     def _new_trial(self, **kwargs):
         # Trial info
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices),
             'sample_category': self.rng.choice([0, 1]),
         }
-        self.trial.update(**kwargs)
+        trial.update(**kwargs)
 
-        ground_truth = self.trial['ground_truth']
-        sample_category = self.trial['sample_category']
+        ground_truth = trial['ground_truth']
+        sample_category = trial['sample_category']
         if ground_truth == 'match':
             test_category = sample_category
         else:
@@ -86,6 +86,8 @@ class DelayMatchCategory(ngym.TrialEnv):
         self.add_randn(0, self.sigma, ['sample', 'test'], where='stimulus')
 
         self.set_groundtruth(self.act_dict[ground_truth], 'test')
+
+        return trial
 
     def _step(self, action, **kwargs):
         new_trial = False

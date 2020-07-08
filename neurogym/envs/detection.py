@@ -79,9 +79,9 @@ class Detection(ngym.TrialEnv):
         2. The trial periods: fixation, stimulus...
         """
         # Trial
-        self.trial = {'ground_truth': self.rng.choice(self.choices)}
-        self.trial.update(kwargs)  # allows wrappers to modify the trial
-        ground_truth = self.trial['ground_truth']
+        trial = {'ground_truth': self.rng.choice(self.choices)}
+        trial.update(kwargs)  # allows wrappers to modify the trial
+        ground_truth = trial['ground_truth']
 
         # Period
         self.add_period(['fixation', 'stimulus'])
@@ -124,6 +124,8 @@ class Detection(ngym.TrialEnv):
         if ground_truth == 1:
             dec = self.view_groundtruth('stimulus')
             dec[delay:] = 1
+
+        return trial
 
     def _step(self, action):
         """

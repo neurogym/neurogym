@@ -436,7 +436,7 @@ class FullInput(gym.Wrapper):
     def step(self, action):
         obs, reward, done, info, new_trial = self._step(action)
         if new_trial:
-            self.trial = self._new_trial()
+            trial = self._new_trial()
         return obs, reward, done, info
 
     def reset(self):

@@ -43,7 +43,7 @@ class YourTask(ngym.TrialEnv):
         self._new_trial() is called internally to generate a next trial.
 
         Typically, you need to
-            set self.trial: a dictionary of trial information
+            set trial: a dictionary of trial information
             run self.add_period():
                 will add time periods to the trial
                 accesible through dict self.start_t and self.end_t
@@ -51,12 +51,15 @@ class YourTask(ngym.TrialEnv):
                 will add observation to np array self.ob
             run self.set_groundtruth():
                 will set groundtruth to np array self.gt
+
+        Returns:
+            trial: dictionary of trial information
         """
 
         # Setting trial information
-        self.trial = {'ground_truth': self.rng.choice(self.choices)}
-        self.trial.update(kwargs)  # allows wrappers to modify the trial
-        ground_truth = self.trial['ground_truth']
+        trial = {'ground_truth': self.rng.choice(self.choices)}
+        trial.update(kwargs)  # allows wrappers to modify the trial
+        ground_truth = trial['ground_truth']
 
         # Adding periods sequentially
         self.add_period(['fixation', 'stimulus', 'delay', 'decision'])
@@ -74,6 +77,8 @@ class YourTask(ngym.TrialEnv):
 
         # Setting ground-truth value for supervised learning
         self.set_groundtruth(ground_truth, 'decision')
+
+        return trial
 
     def _step(self, action):
         """
@@ -107,7 +112,8 @@ class YourTask(ngym.TrialEnv):
 if __name__ == '__main__':
     # Instantiate the task
     env = YourTask()
-    env.new_trial()
+    trial = env.new_trial()
+    print('Trial info', trial)
     print('Trial observation shape', env.ob.shape)
     print('Trial action shape', env.gt.shape)
     env.reset()

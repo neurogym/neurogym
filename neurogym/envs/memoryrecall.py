@@ -94,6 +94,7 @@ class MemoryRecall(ngym.TrialEnv):
         return string
 
     def _new_trial(self, **kwargs):
+        # TODO: Need to be updated
         stim_dim = self.stim_dim
 
         T = self.generate_T()

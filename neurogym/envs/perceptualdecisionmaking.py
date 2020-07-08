@@ -67,14 +67,14 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
             obs: observation
         """
         # Trial info
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices),
             'coh': self.rng.choice(self.cohs),
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
-        coh = self.trial['coh']
-        ground_truth = self.trial['ground_truth']
+        coh = trial['coh']
+        ground_truth = trial['ground_truth']
         stim_theta = self.theta[ground_truth]
 
         # Periods
@@ -88,6 +88,8 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
 
         # Ground truth
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+
+        return trial
 
     def _step(self, action):
         """
@@ -173,12 +175,12 @@ class PerceptualDecisionMakingDelayResponse(ngym.TrialEnv):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices),
             'coh': self.rng.choice(self.cohs),
             'sigma': self.sigma,
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
         # ---------------------------------------------------------------------
         # Periods
@@ -190,14 +192,14 @@ class PerceptualDecisionMakingDelayResponse(ngym.TrialEnv):
         self.set_ob([1, 0, 0], 'fixation')
         stim = self.view_ob('stimulus')
         stim[:, 0] = 1
-        stim[:, 1:] = (1 - self.trial['coh']/100)/2
-        stim[:, self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
+        stim[:, 1:] = (1 - trial['coh']/100)/2
+        stim[:, trial['ground_truth']] = (1 + trial['coh']/100)/2
         stim[:, 1:] +=\
-            self.rng.randn(stim.shape[0], 2) * self.trial['sigma']
+            self.rng.randn(stim.shape[0], 2) * trial['sigma']
 
         self.set_ob([1, 0, 0], 'delay')
 
-        self.set_groundtruth(self.trial['ground_truth'], 'decision')
+        self.set_groundtruth(trial['ground_truth'], 'decision')
 
     def _step(self, action):
         # ---------------------------------------------------------------------
@@ -276,13 +278,13 @@ class PulseDecisionMaking(ngym.TrialEnv):
             p1, p2 = p2, p1
         pulse1 = (self.rng.random(self.n_bin) < p1) * 1.0
         pulse2 = (self.rng.random(self.n_bin) < p2) * 1.0
-        self.trial = {'pulse1': pulse1, 'pulse2': pulse2}
-        self.trial.update(kwargs)
+        trial = {'pulse1': pulse1, 'pulse2': pulse2}
+        trial.update(kwargs)
 
         n_pulse1 = sum(pulse1)
         n_pulse2 = sum(pulse2) + self.rng.uniform(-0.1, 0.1)
         ground_truth = int(n_pulse1 < n_pulse2)
-        self.trial['ground_truth'] = ground_truth
+        trial['ground_truth'] = ground_truth
 
         # Periods
         periods = ['fixation']

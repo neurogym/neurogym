@@ -55,16 +55,16 @@ class MultiSensoryIntegration(ngym.TrialEnv):
 
     def _new_trial(self, **kwargs):
         # Trial info
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices),
             'coh': self.rng.choice(self.cohs),
             'coh_prop': self.rng.rand(),
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
-        coh_0 = self.trial['coh'] * self.trial['coh_prop']
-        coh_1 = self.trial['coh'] * (1 - self.trial['coh_prop'])
-        ground_truth = self.trial['ground_truth']
+        coh_0 = trial['coh'] * trial['coh_prop']
+        coh_1 = trial['coh'] * (1 - trial['coh_prop'])
+        ground_truth = trial['ground_truth']
         stim_theta = self.theta[ground_truth]
 
         # Periods
@@ -80,6 +80,8 @@ class MultiSensoryIntegration(ngym.TrialEnv):
         self.set_ob(0, 'decision')
 
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+
+        return trial
 
     def _step(self, action):
         obs = self.ob_now

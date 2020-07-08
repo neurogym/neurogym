@@ -132,7 +132,7 @@ class CVLearning(ngym.TrialEnv):
             # control that agent does not repeat side more than 3 times
             self.count(self.action)
 
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices),
             'coh': self.rng.choice(self.cohs),
             'sigma': self.sigma,
@@ -148,29 +148,29 @@ class CVLearning(ngym.TrialEnv):
             # agent cannot go N times in a row to the same side
             if np.abs(self.action_counter) >= self.max_num_reps:
                 ground_truth = 1 if self.action == 2 else 2
-                self.trial.update({'ground_truth': ground_truth})
+                trial.update({'ground_truth': ground_truth})
                 self.rewards['fail'] = 0
             else:
                 self.rewards['fail'] = self.rewards['correct']
             self.durs.update({'stimulus': 0,
                              'delay': 0})
-            self.trial.update({'sigma': 0})
+            trial.update({'sigma': 0})
 
         elif self.curr_ph == 1:
             # stim introduced with no ambiguity
             # wrong answer is not penalized
             # agent can keep exploring until finding the right answer
             self.durs.update({'delay': 0})
-            self.trial.update({'coh': 100})
-            self.trial.update({'sigma': 0})
+            trial.update({'coh': 100})
+            trial.update({'sigma': 0})
             self.rewards['fail'] = 0
             self.firstcounts = False
         elif self.curr_ph == 2:
             # first answer counts
             # wrong answer is penalized
             self.durs.update({'delay': (0)})
-            self.trial.update({'coh': 100})
-            self.trial.update({'sigma': 0})
+            trial.update({'coh': 100})
+            trial.update({'sigma': 0})
             self.rewards['fail'] = self.r_fail
         elif self.curr_ph == 3:
             self.rewards['fail'] = self.r_fail
@@ -191,8 +191,8 @@ class CVLearning(ngym.TrialEnv):
                 self.max_delays = False
             self.durs.update({'delay': np.random.choice(self.dur)})
             # delay component is introduced
-            self.trial.update({'coh': 100})
-            self.trial.update({'sigma': 0})
+            trial.update({'coh': 100})
+            trial.update({'sigma': 0})
         # phase 4: ambiguity component is introduced
 
         self.first_flag = False
@@ -201,7 +201,7 @@ class CVLearning(ngym.TrialEnv):
         # Trial
         # ---------------------------------------------------------------------
 
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
         # ---------------------------------------------------------------------
         # Periods
@@ -217,14 +217,16 @@ class CVLearning(ngym.TrialEnv):
         self.set_ob([1]+[0]*self.n_ch, 'fixation')
         stim = self.view_ob('stimulus')
         stim[:, 0] = 1
-        stim[:, 1:3] = (1 - self.trial['coh']/100)/2
-        stim[:, self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
+        stim[:, 1:3] = (1 - trial['coh']/100)/2
+        stim[:, trial['ground_truth']] = (1 + trial['coh']/100)/2
         stim[:, 3:] = 0.5
         stim[:, 1:] +=\
-            self.rng.randn(stim.shape[0], self.n_ch) * self.trial['sigma']
+            self.rng.randn(stim.shape[0], self.n_ch) * trial['sigma']
         self.set_ob([1]+[0]*self.n_ch, 'delay')
 
-        self.set_groundtruth(self.trial['ground_truth'], 'decision')
+        self.set_groundtruth(trial['ground_truth'], 'decision')
+
+        return trial
 
     def count(self, action):
         '''
