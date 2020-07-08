@@ -36,7 +36,7 @@ class AngleReproduction(ngym.PeriodEnv):
         if rewards:
             self.rewards.update(rewards)
 
-        self.timing = {  # TODO: Timing not from paper yet
+        self.timing = {
             'fixation': ('constant', 500),
             'stim1': ('constant', 500),
             'delay1': ('constant', 500),

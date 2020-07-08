@@ -37,10 +37,10 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 100),  # TODO: depends on subject
+            'fixation': ('constant', 100),
             'stimulus': ('constant', 2000),
             'delay': ('constant', 0),
-            'decision': ('constant', 100)}  # XXX: not specified
+            'decision': ('constant', 100)}
         if timing:
             self.timing.update(timing)
 
