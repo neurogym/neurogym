@@ -7,7 +7,7 @@ import neurogym as ngym
 import matplotlib.pyplot as plt
 
 
-class CVLearning(ngym.PeriodEnv):
+class CVLearning(ngym.TrialEnv):
     r"""Implements shaping for the delay-response task, in which agents
     have to integrate two stimuli and report which one is larger on
     average after a delay.

@@ -6,7 +6,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class ProbabilisticReasoning(ngym.PeriodEnv):
+class ProbabilisticReasoning(ngym.TrialEnv):
     """The subject makes two-alternative forced choice based on sequentially
     presented stimuli.
 

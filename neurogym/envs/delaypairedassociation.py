@@ -7,7 +7,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class DelayPairedAssociation(ngym.PeriodEnv):
+class DelayPairedAssociation(ngym.TrialEnv):
     r"""A sample is followed by a delay and a test. Agents have to report if
     the pair sample-test is a rewarded pair or not.
     """

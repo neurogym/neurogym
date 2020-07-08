@@ -6,7 +6,7 @@ from gym import spaces
 import neurogym as ngym
 
 # TODO: This is not finished yet. Need to compare with original paper
-class MultiSensoryIntegration(ngym.PeriodEnv):
+class MultiSensoryIntegration(ngym.TrialEnv):
     r"""Multi-sensory integration."""
     metadata = {
         'description': None,

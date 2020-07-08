@@ -7,7 +7,7 @@ import neurogym as ngym
 from neurogym.utils import tasktools
 
 
-class AntiReach(ngym.PeriodEnv):
+class AntiReach(ngym.TrialEnv):
     """Anti-response task.
 
     The agent has to move in the direction opposite to the one indicated

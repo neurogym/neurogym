@@ -10,7 +10,7 @@ from neurogym.utils import tasktools
 
 # TODO: Ground truth and action have different space,
 # making it difficult for SL and RL to work together
-class Reaching1D(ngym.PeriodEnv):
+class Reaching1D(ngym.TrialEnv):
     r"""The agent has to reproduce the angle indicated by the observation.
     """
     metadata = {
@@ -89,7 +89,7 @@ class Reaching1D(ngym.PeriodEnv):
         return ob, reward, False, {'new_trial': False}
 
 
-class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
+class Reaching1DWithSelfDistraction(ngym.TrialEnv):
     r"""Reaching with self distraction.
 
     In this task, the reaching state itself generates strong inputs that

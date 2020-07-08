@@ -9,7 +9,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class GoNogo(ngym.PeriodEnv):
+class GoNogo(ngym.TrialEnv):
     r"""Go/No-Go task in which the subject has either Go (e.g. lick)
     or not Go depending on which one of two stimuli is presented with.
     """

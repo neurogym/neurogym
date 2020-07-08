@@ -8,7 +8,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class ReachingDelayResponse(ngym.PeriodEnv):
+class ReachingDelayResponse(ngym.TrialEnv):
     r"""Working memory visual spatial task ~ Funahashi et al. 1991 adapted to
     freely moving mice in a continous choice-space.
 

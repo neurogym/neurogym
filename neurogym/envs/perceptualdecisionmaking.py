@@ -8,7 +8,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class PerceptualDecisionMaking(ngym.PeriodEnv):
+class PerceptualDecisionMaking(ngym.TrialEnv):
     """Two-alternative forced choice task in which the subject has to
     integrate two stimuli to decide which one is higher on average.
 
@@ -121,7 +121,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
 
 
 #  TODO: there should be a timeout of 1000ms for incorrect trials
-class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
+class PerceptualDecisionMakingDelayResponse(ngym.TrialEnv):
     """Perceptual decision-making with delayed responses.
 
     Agents have to integrate two stimuli and report which one is
@@ -225,7 +225,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         return self.ob_now, reward, False, info
 
 
-class PulseDecisionMaking(ngym.PeriodEnv):
+class PulseDecisionMaking(ngym.TrialEnv):
     """Pulse-based decision making task.
 
     Discrete stimuli are presented briefly as pulses.

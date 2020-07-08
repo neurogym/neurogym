@@ -8,7 +8,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class DelayMatchCategory(ngym.PeriodEnv):
+class DelayMatchCategory(ngym.TrialEnv):
     r"""Delay match-to-category task.
 
     A sample stimulus is followed by a delay and test. Agents are required

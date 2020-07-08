@@ -9,7 +9,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class ReadySetGo(ngym.PeriodEnv):
+class ReadySetGo(ngym.TrialEnv):
     r"""Agents have to measure and produce different time intervals.
 
     Args:
@@ -111,7 +111,7 @@ class ReadySetGo(ngym.PeriodEnv):
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
-class MotorTiming(ngym.PeriodEnv):
+class MotorTiming(ngym.TrialEnv):
     """Agents have to produce different time intervals
     using different effectors (actions).
 
@@ -208,7 +208,7 @@ class MotorTiming(ngym.PeriodEnv):
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
-class OneTwoThreeGo(ngym.PeriodEnv):
+class OneTwoThreeGo(ngym.TrialEnv):
     r"""Agents reproduce time intervals based on two samples.
 
     Args:

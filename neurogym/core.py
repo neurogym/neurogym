@@ -33,7 +33,7 @@ def env_string(env):
     else:
         string += "[{:s}]({:s})\n".format(paper_name, paper_link)
     # add timing info
-    if isinstance(env, PeriodEnv):
+    if isinstance(env, TrialEnv):
         timing = env.timing
         string += '\nPeriod timing (ms) \n'
         for key, val in timing.items():
@@ -98,9 +98,23 @@ class TrialEnv(BaseEnv):
         self.ob_dict = {}
         self.act_dict = {}
         self.rewards = {}
-        self.seed()
+        self._default_ob_value = False  # default to have no specific value
+
+        # For optional periods
+        self.timing = {}
+        self.start_t = dict()
+        self.end_t = dict()
+        self.start_ind = dict()
+        self.end_ind = dict()
+        self._tmax = 0  # Length of each trial
 
         self._top = self
+
+        self.seed()
+
+    def __str__(self):
+        """Information about task."""
+        return env_string(self)  # TODO: simplify, too long now
 
     def _new_trial(self, **kwargs):
         """Private interface for starting a new trial.
@@ -108,7 +122,7 @@ class TrialEnv(BaseEnv):
         This function can typically update the self.trial
         dictionary that contains information about current trial
         TODO: Need to clearly define the expected behavior
-        
+
         Args:
 
         Returns:
@@ -201,48 +215,6 @@ class TrialEnv(BaseEnv):
     def set_top(self, wrapper):
         """Set top to be wrapper."""
         self._top = wrapper
-
-
-class PeriodEnv(TrialEnv):
-    """Environment class with trial/period structure."""
-
-    def __init__(self, dt=100, num_trials_before_reset=10000000,
-                 r_tmax=0):
-        super(PeriodEnv, self).__init__(
-            dt=dt, num_trials_before_reset=num_trials_before_reset,
-            r_tmax=r_tmax)
-
-        self.gt = None
-
-        self.timing = {}
-        self.start_t = dict()
-        self.end_t = dict()
-        self.start_ind = dict()
-        self.end_ind = dict()
-
-        self._tmax = 0  # Length of each trial
-
-    def __str__(self):
-        """Information about task."""
-        return env_string(self)
-
-    def _new_trial(self, **kwargs):
-        """Private interface for starting a new trial.
-
-        This function can typically update the self.trial
-        dictionary that contains information about current trial
-        TODO: Need to clearly define the expected behavior
-        """
-        raise NotImplementedError('new_trial is not defined by user.')
-
-    def _step(self, action):
-        """Private interface for the environment.
-
-        Receives an action and returns a new state, a reward, a flag variable
-        indicating whether the experiment has ended and a dictionary with
-        useful information
-        """
-        raise NotImplementedError('_step is not defined by user.')
 
     def sample_time(self, period):
         dist, args = self.timing[period]

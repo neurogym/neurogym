@@ -9,7 +9,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class PostDecisionWager(ngym.PeriodEnv):
+class PostDecisionWager(ngym.TrialEnv):
     r"""Post-decision wagering task assessing confidence.
 
     Agents do a discrimination task (see PerceptualDecisionMaking). On a

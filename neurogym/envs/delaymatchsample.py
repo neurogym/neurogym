@@ -8,7 +8,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class DelayMatchSample(ngym.PeriodEnv):
+class DelayMatchSample(ngym.TrialEnv):
     r"""Delay-match-to-sample.
 
     A sample stimulus is followed by a delay and test. Agents are required
@@ -105,7 +105,7 @@ class DelayMatchSample(ngym.PeriodEnv):
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
-class DelayMatchSampleDistractor1D(ngym.PeriodEnv):
+class DelayMatchSampleDistractor1D(ngym.TrialEnv):
     r"""Delay Match to sample with multiple, potentially repeating distractors.
 
     Args:

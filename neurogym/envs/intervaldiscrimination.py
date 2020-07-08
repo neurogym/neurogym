@@ -7,7 +7,7 @@ import neurogym as ngym
 
 
 # TODO: Getting duration is not intuitive, not clear to people
-class IntervalDiscrimination(ngym.PeriodEnv):
+class IntervalDiscrimination(ngym.TrialEnv):
     r"""Agents have to report which of two stimuli presented
     sequentially is longer.
     """

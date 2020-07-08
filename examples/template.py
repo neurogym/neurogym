@@ -7,7 +7,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class YourTask(ngym.PeriodEnv):  # TIP: if task has periods (alt.: ngym.TrialEnv)
+class YourTask(ngym.TrialEnv):
     def __init__(self, dt=100, rewards=None, timing=None, sigma=1):
         super().__init__(dt=dt)
         # Possible decisions at the end of the trial

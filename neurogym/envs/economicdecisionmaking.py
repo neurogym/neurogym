@@ -9,7 +9,7 @@ import neurogym as ngym
 from gym import spaces
 
 
-class EconomicDecisionMaking(ngym.PeriodEnv):
+class EconomicDecisionMaking(ngym.TrialEnv):
     r"""Agents choose between two stimuli (A and B; where A is preferred)
     offered in different amounts.
     """

@@ -45,7 +45,7 @@ class _MultiModalityStimulus(TrialWrapperV2):
         return self.env.new_trial(**kwargs)
 
 
-class _Reach(ngym.PeriodEnv):
+class _Reach(ngym.TrialEnv):
     """Anti-response task.
 
     The agent has to move in the direction opposite to the one indicated
@@ -144,7 +144,7 @@ class _Reach(ngym.PeriodEnv):
         return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
-class _DMFamily(ngym.PeriodEnv):
+class _DMFamily(ngym.TrialEnv):
     """Delay comparison.
 
     Two-alternative forced choice task in which the subject
@@ -287,7 +287,7 @@ class _DMFamily(ngym.PeriodEnv):
         return ob, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
-class _DelayMatch1DResponse(ngym.PeriodEnv):
+class _DelayMatch1DResponse(ngym.TrialEnv):
     r"""Delay match-to-sample or category task.
 
     A sample stimulus is followed by a delay and test. Agents are required

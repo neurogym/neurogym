@@ -12,7 +12,7 @@ import neurogym as ngym
 import warnings
 
 
-class Detection(ngym.PeriodEnv):
+class Detection(ngym.TrialEnv):
     r"""The agent has to GO if a stimulus is presented.
 
     Args:

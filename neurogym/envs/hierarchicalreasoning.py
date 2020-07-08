@@ -6,7 +6,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class HierarchicalReasoning(ngym.PeriodEnv):
+class HierarchicalReasoning(ngym.TrialEnv):
     """Hierarchical reasoning of rules.
 
 

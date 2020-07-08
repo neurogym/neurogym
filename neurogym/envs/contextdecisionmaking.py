@@ -5,7 +5,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class SingleContextDecisionMaking(ngym.PeriodEnv):
+class SingleContextDecisionMaking(ngym.TrialEnv):
     """Context-dependent decision-making task.
 
     Agent has to perform one of two different perceptual discriminations.
@@ -113,7 +113,7 @@ class SingleContextDecisionMaking(ngym.PeriodEnv):
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
-class ContextDecisionMaking(ngym.PeriodEnv):
+class ContextDecisionMaking(ngym.TrialEnv):
     """Context-dependent decision-making task.
 
     Agent has to perform one of two different perceptual discriminations.

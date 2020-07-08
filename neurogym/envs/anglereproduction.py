@@ -6,7 +6,7 @@ from neurogym.utils import tasktools
 import neurogym as ngym
 
 
-class AngleReproduction(ngym.PeriodEnv):
+class AngleReproduction(ngym.TrialEnv):
     r"""Angle reproduction.
 
     The agent has to reproduce to two angles separated

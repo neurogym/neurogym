@@ -12,7 +12,7 @@ import neurogym as ngym
 
 
 # TODO: Need a more intuitive name
-class ChangingEnvironment(ngym.PeriodEnv):
+class ChangingEnvironment(ngym.TrialEnv):
     r"""Random Dots Motion tasks in which the correct action
     depends on a randomly changing context.
 

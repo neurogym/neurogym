@@ -5,7 +5,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class DelayComparison(ngym.PeriodEnv):
+class DelayComparison(ngym.TrialEnv):
     """Delay comparison.
 
     Two-alternative forced choice task in which the subject
