@@ -37,13 +37,13 @@ class AngleReproduction(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),
-            'stim1': ('constant', 500),
-            'delay1': ('constant', 500),
-            'stim2': ('constant', 500),
-            'delay2': ('constant', 500),
-            'go1': ('constant', 500),
-            'go2': ('constant', 500)}
+            'fixation': 500,
+            'stim1': 500,
+            'delay1': 500,
+            'stim2': 500,
+            'delay2': 500,
+            'go1': 500,
+            'go2': 500}
         if timing:
             self.timing.update(timing)
 

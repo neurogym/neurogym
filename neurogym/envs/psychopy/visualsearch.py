@@ -35,10 +35,10 @@ class VisualSearch(PsychopyEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),
-            'sample': ('constant', 1000),
-            'delay': ('constant', 500),
-            'decision': ('constant', 500)}
+            'fixation': 500,
+            'sample': 1000,
+            'delay': 500,
+            'decision': 500}
         if timing:
             self.timing.update(timing)
 

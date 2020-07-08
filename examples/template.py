@@ -22,10 +22,10 @@ class YourTask(ngym.TrialEnv):
         # Optional timing dictionary
         # if provided, self.add_period can infer timing directly
         self.timing = {
-            'fixation': ('constant', 100),
-            'stimulus': ('constant', 2000),
-            'delay': ('constant', 0),
-            'decision': ('constant', 100)}
+            'fixation': 100,
+            'stimulus': 2000,
+            'delay': 0,
+            'decision': 100}
         if timing:
             self.timing.update(timing)
 

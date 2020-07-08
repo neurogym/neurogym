@@ -51,9 +51,9 @@ class ChangingEnvironment(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),
+            'fixation': 500,
             'stimulus': ('truncated_exponential', [1000, 500, 1500]),
-            'decision': ('constant', 500)}
+            'decision': 500}
         if timing:
             self.timing.update(timing)
 

@@ -34,10 +34,10 @@ class GoNogo(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 0),
-            'stimulus': ('constant', 500),
-            'resp_delay': ('constant', 500),
-            'decision': ('constant', 500)}
+            'fixation': 0,
+            'stimulus': 500,
+            'resp_delay': 500,
+            'decision': 500}
         if timing:
             self.timing.update(timing)
 

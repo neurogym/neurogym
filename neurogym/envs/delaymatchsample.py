@@ -35,11 +35,11 @@ class DelayMatchSample(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 300),
-            'sample': ('constant', 500),
-            'delay': ('constant', 1000),
-            'test': ('constant', 500),
-            'decision': ('constant', 900)}
+            'fixation': 300,
+            'sample': 500,
+            'delay': 1000,
+            'test': 500,
+            'decision': 900}
         if timing:
             self.timing.update(timing)
 
@@ -133,14 +133,14 @@ class DelayMatchSampleDistractor1D(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 300),
-            'sample': ('constant', 500),
-            'delay1': ('constant', 1000),
-            'test1': ('constant', 500),
-            'delay2': ('constant', 1000),
-            'test2': ('constant', 500),
-            'delay3': ('constant', 1000),
-            'test3': ('constant', 500)}
+            'fixation': 300,
+            'sample': 500,
+            'delay1': 1000,
+            'test1': 500,
+            'delay2': 1000,
+            'test2': 500,
+            'delay3': 1000,
+            'test3': 500}
         if timing:
             self.timing.update(timing)
 

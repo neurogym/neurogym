@@ -27,12 +27,12 @@ class HierarchicalReasoning(ngym.TrialEnv):
 
         self.timing = {
             'fixation': ('truncated_exponential', [600, 400, 800]),
-            'rule_target': ('constant', 1000),
+            'rule_target': 1000,
             'fixation2': ('truncated_exponential', [600, 400, 900]),
-            'flash1': ('constant', 100),
+            'flash1': 100,
             'delay': ('choice', [530, 610, 690, 770, 850, 930, 1010, 1090, 1170]),
-            'flash2': ('constant', 100),
-            'decision': ('constant', 700),
+            'flash2': 100,
+            'decision': 700,
         }
         if timing:
             self.timing.update(timing)

@@ -217,17 +217,26 @@ class TrialEnv(BaseEnv):
         self._top = wrapper
 
     def sample_time(self, period):
-        dist, args = self.timing[period]
-        if dist == 'uniform':
-            t = self.rng.uniform(*args)
-        elif dist == 'choice':
-            t = self.rng.choice(args)
-        elif dist == 'truncated_exponential':
-            t = tasktools.trunc_exp_new(self.rng, *args)
-        elif dist == 'constant':
-            t = args
+        timing = self.timing[period]
+        if isinstance(timing, (int, float)):
+            t = timing
+        elif callable(timing):
+            t = timing()
+        elif isinstance(timing[0], (int, float)):
+            # Expect list of int/float, and use random choice
+            t = self.rng.choice(timing)
         else:
-            raise ValueError('Unknown dist:', str(dist))
+            dist, args = timing
+            if dist == 'uniform':
+                t = self.rng.uniform(*args)
+            elif dist == 'choice':
+                t = self.rng.choice(args)
+            elif dist == 'truncated_exponential':
+                t = tasktools.trunc_exp_new(self.rng, *args)
+            elif dist == 'constant':
+                t = args
+            else:
+                raise ValueError('Unknown dist:', str(dist))
         return (t // self.dt) * self.dt
 
     def add_period(self, period, duration=None, before=None, after=None,

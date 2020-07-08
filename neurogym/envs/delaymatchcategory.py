@@ -35,12 +35,12 @@ class DelayMatchCategory(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),
-            'sample': ('constant', 650),
-            'first_delay': ('constant', 1000),
-            'test': ('constant', 650)}
-        # 'second_delay': ('constant', 250),  # TODO: not implemented
-        # 'decision': ('constant', 650)},  # TODO: not implemented}
+            'fixation': 500,
+            'sample': 650,
+            'first_delay': 1000,
+            'test': 650}
+        # 'second_delay': 250,  # TODO: not implemented
+        # 'decision': 650},  # TODO: not implemented}
         if timing:
             self.timing.update(timing)
 

@@ -38,10 +38,10 @@ class ReadySetGo(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 100),
-            'ready': ('constant', 83),
+            'fixation': 100,
+            'ready': 83,
             'measure': ('choice', [800, 1500]),
-            'set': ('constant', 83)}
+            'set': 83}
         if timing:
             self.timing.update(timing)
 
@@ -139,9 +139,9 @@ class MotorTiming(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),  # XXX: not specified
+            'fixation': 500,  # XXX: not specified
             'cue': ('uniform', [1000, 3000]),
-            'set': ('constant', 50)}
+            'set': 50}
         if timing:
             self.timing.update(timing)
 
@@ -235,13 +235,13 @@ class OneTwoThreeGo(ngym.TrialEnv):
         self.timing = {
             'fixation': ('truncated_exponential', [400, 100, 800]),
             'target': ('truncated_exponential', [1000, 500, 1500]),
-            's1': ('constant', 100),
+            's1': 100,
             'interval1': ('choice', [600, 700, 800, 900, 1000]),
-            's2': ('constant', 100),
-            'interval2': ('constant', 0),
-            's3': ('constant', 100),
-            'interval3': ('constant', 0),
-            'response': ('constant', 1000)}
+            's2': 100,
+            'interval2': 0,
+            's3': 100,
+            'interval3': 0,
+            'response': 1000}
         if timing:
             self.timing.update(timing)
 

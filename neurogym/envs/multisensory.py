@@ -31,11 +31,11 @@ class MultiSensoryIntegration(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 300),
-            # 'target': ('constant', 350),  # TODO: not implemented
-            'stimulus': ('constant', 750),
+            'fixation': 300,
+            # 'target': 350,  # TODO: not implemented
+            'stimulus': 750,
             # 'delay': ('truncated_exponential', [600, 300, 3000]),
-            'decision': ('constant', 100)}  # XXX: not specified
+            'decision': 100}  # XXX: not specified
         if timing:
             self.timing.update(timing)
         self.abort = False

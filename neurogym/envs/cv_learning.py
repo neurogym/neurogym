@@ -50,10 +50,10 @@ class CVLearning(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 200),
-            'stimulus': ('constant', 1150),
+            'fixation': 200,
+            'stimulus': 1150,
             'delay': ('choice', [0, 1000, 3000]),
-            'decision': ('constant', 1500)}
+            'decision': 1500}
         if timing:
             self.timing.update(timing)
 
@@ -152,15 +152,15 @@ class CVLearning(ngym.TrialEnv):
                 self.rewards['fail'] = 0
             else:
                 self.rewards['fail'] = self.rewards['correct']
-            self.durs.update({'stimulus': (0),
-                             'delay': (0)})
+            self.durs.update({'stimulus': 0,
+                             'delay': 0})
             self.trial.update({'sigma': 0})
 
         elif self.curr_ph == 1:
             # stim introduced with no ambiguity
             # wrong answer is not penalized
             # agent can keep exploring until finding the right answer
-            self.durs.update({'delay': (0)})
+            self.durs.update({'delay': 0})
             self.trial.update({'coh': 100})
             self.trial.update({'sigma': 0})
             self.rewards['fail'] = 0

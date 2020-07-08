@@ -32,10 +32,10 @@ class AntiReach(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),
-            'stimulus': ('constant', 500),
-            'delay': ('constant', 0),
-            'decision': ('constant', 500)}
+            'fixation': 500,
+            'stimulus': 500,
+            'delay': 0,
+            'decision': 500}
         if timing:
             self.timing.update(timing)
 

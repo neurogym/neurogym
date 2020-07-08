@@ -41,12 +41,12 @@ class ProbabilisticReasoning(ngym.TrialEnv):
         if rewards:
             self.rewards.update(rewards)
 
-        self.timing = {'fixation': ('constant', 500),
+        self.timing = {'fixation': 500,
                        'delay': ('uniform', [450, 550]),
-                       'decision': ('constant', 500)
+                       'decision': 500
                        }
         for i_loc in range(n_loc):
-            self.timing['stimulus'+str(i_loc)] = ('constant', 500)
+            self.timing['stimulus'+str(i_loc)] = 500
         if timing:
             self.timing.update(timing)
 

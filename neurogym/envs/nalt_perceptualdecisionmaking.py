@@ -55,9 +55,9 @@ class nalt_PerceptualDecisionMaking(ngym.TrialEnv):
         if rewards:
             self.rewards.update(rewards)
         self.timing = {
-            'fixation': ('constant', 500),
+            'fixation': 500,
             'stimulus': ('truncated_exponential', [330, 80, 1500]),
-            'decision': ('constant', 500)}
+            'decision': 500}
         if timing:
             self.timing.update(timing)
 

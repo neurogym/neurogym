@@ -32,14 +32,14 @@ class DualDelayMatchSample(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),
-            'sample': ('constant', 500),
-            'delay1': ('constant', 500),
-            'cue1': ('constant', 500),
-            'test1': ('constant', 500),
-            'delay2': ('constant', 500),
-            'cue2': ('constant', 500),
-            'test2': ('constant', 500)}
+            'fixation': 500,
+            'sample': 500,
+            'delay1': 500,
+            'cue1': 500,
+            'test1': 500,
+            'delay2': 500,
+            'cue2': 500,
+            'test2': 500}
         if timing:
             self.timing.update(timing)
 

@@ -37,10 +37,10 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 100),
-            'stimulus': ('constant', 2000),
-            'delay': ('constant', 0),
-            'decision': ('constant', 100)}
+            'fixation': 100,
+            'stimulus': 2000,
+            'delay': 0,
+            'decision': 100}
         if timing:
             self.timing.update(timing)
 
@@ -153,12 +153,12 @@ class PerceptualDecisionMakingDelayResponse(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 0),
-            'stimulus': ('constant', 1150),
+            'fixation': 0,
+            'stimulus': 1150,
             #  TODO: sampling of delays follows exponential
             'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
-            # 'go_cue': ('constant', 100), # TODO: Not implemented
-            'decision': ('constant', 1500)}
+            # 'go_cue': 100, # TODO: Not implemented
+            'decision': 1500}
         if timing:
             self.timing.update(timing)
 
@@ -253,11 +253,11 @@ class PulseDecisionMaking(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),
-            'decision': ('constant', 500)}
+            'fixation': 500,
+            'decision': 500}
         for i in range(n_bin):
-            self.timing['cue' + str(i)] = ('constant', 10)
-            self.timing['bin' + str(i)] = ('constant', 240)
+            self.timing['cue' + str(i)] = 10
+            self.timing['bin' + str(i)] = 240
         if timing:
             self.timing.update(timing)
 
@@ -325,7 +325,7 @@ class PulseDecisionMaking(ngym.TrialEnv):
 
 if __name__ == '__main__':
     env = PerceptualDecisionMaking(dt=20,
-                                   timing={'stimulus': ('constant', 500)})
+                                   timing={'stimulus': 500})
     ngym.utils.plot_env(env, num_steps=100, def_act=1)
     # env = PerceptualDecisionMakingDelayResponse()
     # ngym.utils.plot_env(env, num_steps=100, def_act=1)

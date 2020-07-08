@@ -37,9 +37,9 @@ class ReachingDelayResponse(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'stimulus': ('constant', 500),
+            'stimulus': 500,
             'delay': ('choice', [0, 1000, 2000]),
-            'decision': ('constant', 5000)}
+            'decision': 5000}
         if timing:
             self.timing.update(timing)
 

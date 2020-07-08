@@ -27,8 +27,8 @@ class Reaching1D(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),
-            'reach': ('constant', 500)}
+            'fixation': 500,
+            'reach': 500}
         if timing:
             self.timing.update(timing)
 
@@ -115,8 +115,8 @@ class Reaching1DWithSelfDistraction(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),
-            'reach': ('constant', 500)}
+            'fixation': 500,
+            'reach': 500}
         if timing:
             self.timing.update(timing)
 

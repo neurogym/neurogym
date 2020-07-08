@@ -28,12 +28,12 @@ class IntervalDiscrimination(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 300),
+            'fixation': 300,
             'stim1': ('uniform', (300, 600)),
             'delay1': ('choice', [800, 1500]),
             'stim2': ('uniform', (300, 600)),
-            'delay2': ('constant', 500),
-            'decision': ('constant', 300)}
+            'delay2': 500,
+            'decision': 300}
         if timing:
             self.timing.update(timing)
 

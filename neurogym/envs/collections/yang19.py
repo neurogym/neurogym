@@ -71,10 +71,10 @@ class _Reach(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),
-            'stimulus': ('constant', 500),
-            'delay': ('constant', 0),
-            'decision': ('constant', 500)}
+            'fixation': 500,
+            'stimulus': 500,
+            'delay': 0,
+            'decision': 500}
         if timing:
             self.timing.update(timing)
 
@@ -175,15 +175,15 @@ class _DMFamily(ngym.TrialEnv):
         if self.delaycomparison:
             self.timing = {
                 'fixation': ('uniform', (200, 500)),
-                'stim1': ('constant', 500),
-                'delay': ('constant', 1000),
-                'stim2': ('constant', 500),
-                'decision': ('constant', 200)}
+                'stim1': 500,
+                'delay': 1000,
+                'stim2': 500,
+                'decision': 200}
         else:
             self.timing = {
                 'fixation': ('uniform', (200, 500)),
-                'stimulus': ('constant', 500),
-                'decision': ('constant', 200)}
+                'stimulus': 500,
+                'decision': 200}
         if timing:
             self.timing.update(timing)
 
@@ -323,11 +323,11 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 300),
-            'sample': ('constant', 500),
-            'delay': ('constant', 1000),
-            'test': ('constant', 500),
-            'decision': ('constant', 900)}
+            'fixation': 300,
+            'sample': 500,
+            'delay': 1000,
+            'test': 500,
+            'decision': 900}
         if timing:
             self.timing.update(timing)
 
@@ -452,14 +452,14 @@ def rtanti(**kwargs):
 def dlygo(**kwargs):
     env_kwargs = kwargs.copy()
     env_kwargs['anti'] = False
-    env_kwargs['timing'] = {'delay': ('constant', 500)}
+    env_kwargs['timing'] = {'delay': 500}
     return _reach(**env_kwargs)
 
 
 def dlyanti(**kwargs):
     env_kwargs = kwargs.copy()
     env_kwargs['anti'] = True
-    env_kwargs['timing'] = {'delay': ('constant', 500)}
+    env_kwargs['timing'] = {'delay': 500}
     return _reach(**env_kwargs)
 
 

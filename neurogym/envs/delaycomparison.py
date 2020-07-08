@@ -35,10 +35,10 @@ class DelayComparison(ngym.TrialEnv):
 
         self.timing = {
             'fixation': ('uniform', (1500, 3000)),
-            'f1': ('constant', 500),
-            'delay': ('constant', 3000),
-            'f2': ('constant', 500),
-            'decision': ('constant', 100)}
+            'f1': 500,
+            'delay': 3000,
+            'f2': 500,
+            'decision': 100}
         if timing:
             self.timing.update(timing)
 

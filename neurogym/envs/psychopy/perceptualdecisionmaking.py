@@ -35,9 +35,9 @@ class RandomDotMotion(PsychopyEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 100),  # TODO: depends on subject
-            'stimulus': ('constant', 2000),
-            'decision': ('constant', 100)}  # XXX: not specified
+            'fixation': 100,  # TODO: depends on subject
+            'stimulus': 2000,
+            'decision': 100}  # XXX: not specified
         if timing:
             self.timing.update(timing)
 

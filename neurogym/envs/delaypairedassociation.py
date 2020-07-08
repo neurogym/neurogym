@@ -35,12 +35,12 @@ class DelayPairedAssociation(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 0),
-            'stim1': ('constant', 1000),
-            'delay_btw_stim': ('constant', 1000),
-            'stim2': ('constant', 1000),
-            'delay_aft_stim': ('constant', 1000),
-            'decision': ('constant', 500)}
+            'fixation': 0,
+            'stim1': 1000,
+            'delay_btw_stim': 1000,
+            'stim2': 1000,
+            'delay_aft_stim': 1000,
+            'decision': 500}
         if timing:
             self.timing.update(timing)
 
