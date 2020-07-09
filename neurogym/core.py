@@ -33,13 +33,14 @@ def env_string(env):
     else:
         string += "[{:s}]({:s})\n".format(paper_name, paper_link)
     # add timing info
-    if isinstance(env, TrialEnv):
-        timing = env.timing
-        string += '\nPeriod timing (ms) \n'
-        for key, val in timing.items():
-            dist, args = val
-            string +=\
-                key + ' : ' + tasktools.random_number_name(dist, args) + '\n'
+    # TODO: Add timing info back?
+    # if isinstance(env, TrialEnv):
+    #     timing = env.timing
+    #     string += '\nPeriod timing (ms) \n'
+    #     for key, val in timing.items():
+    #         dist, args = val
+    #         string +=\
+    #             key + ' : ' + tasktools.random_number_name(dist, args) + '\n'
 
     if env.rewards:
         string += '\nReward structure \n'
