@@ -34,7 +34,7 @@ class MultiSensoryIntegration(ngym.TrialEnv):
             'fixation': 300,
             # 'target': 350,  # TODO: not implemented
             'stimulus': 750,
-            # 'delay': ('truncated_exponential', [600, 300, 3000]),
+            # 'delay': ngym.random.TruncExp(600, 300, 3000, rng=self.rng),
             'decision': 100}  # XXX: not specified
         if timing:
             self.timing.update(timing)

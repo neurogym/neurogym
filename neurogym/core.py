@@ -6,7 +6,7 @@ import numpy as np
 import gym
 import warnings
 
-from neurogym.utils import tasktools
+from neurogym.utils.random import trunc_exp
 
 METADATA_DEF_KEYS = ['description', 'paper_name', 'paper_link', 'timing',
                      'tags']
@@ -224,7 +224,7 @@ class TrialEnv(BaseEnv):
             elif dist == 'choice':
                 t = self.rng.choice(args)
             elif dist == 'truncated_exponential':
-                t = tasktools.trunc_exp_new(self.rng, *args)
+                t = trunc_exp(self.rng, *args)
             elif dist == 'constant':
                 t = args
             else:

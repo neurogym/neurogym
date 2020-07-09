@@ -237,8 +237,8 @@ class OneTwoThreeGo(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('truncated_exponential', [400, 100, 800]),
-            'target': ('truncated_exponential', [1000, 500, 1500]),
+            'fixation': ngym.random.TruncExp(400, 100, 800, rng=self.rng),
+            'target': ngym.random.TruncExp(1000, 500, 1500, rng=self.rng),
             's1': 100,
             'interval1': (600, 700, 800, 900, 1000),
             's2': 100,

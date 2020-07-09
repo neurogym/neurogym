@@ -56,7 +56,7 @@ class nalt_PerceptualDecisionMaking(ngym.TrialEnv):
             self.rewards.update(rewards)
         self.timing = {
             'fixation': 500,
-            'stimulus': ('truncated_exponential', [330, 80, 1500]),
+            'stimulus': ngym.random.TruncExp(330, 80, 1500, rng=self.rng),
             'decision': 500}
         if timing:
             self.timing.update(timing)

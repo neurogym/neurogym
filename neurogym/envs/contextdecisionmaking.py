@@ -38,7 +38,7 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
             'fixation': 300,
             # 'target': 350,
             'stimulus': 750,
-            'delay': ('truncated_exponential', [600, 300, 3000]),
+            'delay': ngym.random.TruncExp(600, 300, 3000, rng=self.rng),
             'decision': 100}
         if timing:
             self.timing.update(timing)
@@ -146,7 +146,7 @@ class ContextDecisionMaking(ngym.TrialEnv):
             'fixation': 300,
             # 'target': 350,
             'stimulus': 750,
-            'delay': ('truncated_exponential', [600, 300, 3000]),
+            'delay': ngym.random.TruncExp(600, 300, 3000, rng=self.rng),
             'decision': 100}
         if timing:
             self.timing.update(timing)

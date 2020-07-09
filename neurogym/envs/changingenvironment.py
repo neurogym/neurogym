@@ -52,7 +52,7 @@ class ChangingEnvironment(ngym.TrialEnv):
 
         self.timing = {
             'fixation': 500,
-            'stimulus': ('truncated_exponential', [1000, 500, 1500]),
+            'stimulus': ngym.random.TruncExp(1000, 500, 1500, rng=self.rng),
             'decision': 500}
         if timing:
             self.timing.update(timing)
