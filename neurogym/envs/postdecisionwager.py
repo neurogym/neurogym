@@ -44,12 +44,12 @@ class PostDecisionWager(ngym.TrialEnv):
         self.rewards['sure'] = 0.7 * self.rewards['correct']
 
         self.timing = {
-            'fixation': 100,  # XXX: not specified
+            'fixation': 100,
             # 'target':  0, # XXX: not implemented, not specified
             'stimulus': ('truncated_exponential', [180, 100, 900]),
             'delay': ('truncated_exponential', [1350, 1200, 1800]),
-            'pre_sure': ('uniform', [500, 750]),
-            'decision': 100}  # XXX: not specified
+            'pre_sure': lambda: self.rng.uniform(500, 750),
+            'decision': 100}
         if timing:
             self.timing.update(timing)
 

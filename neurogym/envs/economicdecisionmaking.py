@@ -36,7 +36,7 @@ class EconomicDecisionMaking(ngym.TrialEnv):
 
         self.timing = {
             'fixation': 1500,
-            'offer_on': ('uniform', [1000, 2000]),
+            'offer_on': lambda: self.rng.uniform(1000, 2000),
             'decision': 750}
         if timing:
             self.timing.update(timing)

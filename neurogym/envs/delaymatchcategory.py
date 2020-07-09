@@ -39,8 +39,8 @@ class DelayMatchCategory(ngym.TrialEnv):
             'sample': 650,
             'first_delay': 1000,
             'test': 650}
-        # 'second_delay': 250,  # TODO: not implemented
-        # 'decision': 650},  # TODO: not implemented}
+        # 'second_delay': 250,
+        # 'decision': 650},
         if timing:
             self.timing.update(timing)
 

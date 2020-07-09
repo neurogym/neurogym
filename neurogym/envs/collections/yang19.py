@@ -176,14 +176,14 @@ class _DMFamily(ngym.TrialEnv):
 
         if self.delaycomparison:
             self.timing = {
-                'fixation': ('uniform', (200, 500)),
+                'fixation': lambda: self.rng.uniform(200, 500),
                 'stim1': 500,
                 'delay': 1000,
                 'stim2': 500,
                 'decision': 200}
         else:
             self.timing = {
-                'fixation': ('uniform', (200, 500)),
+                'fixation': lambda: self.rng.uniform(200, 500),
                 'stimulus': 500,
                 'decision': 200}
         if timing:

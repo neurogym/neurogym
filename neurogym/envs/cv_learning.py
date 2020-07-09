@@ -49,10 +49,11 @@ class CVLearning(ngym.TrialEnv):
         if rewards:
             self.rewards.update(rewards)
 
+        self.delay_durs = [1000, 3000]
         self.timing = {
             'fixation': 200,
             'stimulus': 1150,
-            'delay': ('choice', [0, 1000, 3000]),
+            'delay': lambda: self.rng.uniform(*self.delay_durs),
             'decision': 1500}
         if timing:
             self.timing.update(timing)
@@ -100,7 +101,6 @@ class CVLearning(ngym.TrialEnv):
         self.min_perf = 0.5  # TODO: no magic numbers
         self.stage_reminder = False  # control if a stage has been explored
         # stage 3
-        self.delay_durs = self.timing['delay'][1]
         self.inc_delays = 0  # proportion of the total delays dur to keep
         self.delay_milestone = 0  # delays durs at the beggining of a day
         # proportion of the total delays dur to incease every time that the

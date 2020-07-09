@@ -30,7 +30,7 @@ class HierarchicalReasoning(ngym.TrialEnv):
             'rule_target': 1000,
             'fixation2': ('truncated_exponential', [600, 400, 900]),
             'flash1': 100,
-            'delay': ('choice', [530, 610, 690, 770, 850, 930, 1010, 1090, 1170]),
+            'delay': (530, 610, 690, 770, 850, 930, 1010, 1090, 1170),
             'flash2': 100,
             'decision': 700,
         }

@@ -42,7 +42,7 @@ class ProbabilisticReasoning(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {'fixation': 500,
-                       'delay': ('uniform', [450, 550]),
+                       'delay': lambda: self.rng.uniform(450, 550),
                        'decision': 500
                        }
         for i_loc in range(n_loc):

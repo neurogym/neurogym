@@ -34,7 +34,7 @@ class DelayComparison(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('uniform', (1500, 3000)),
+            'fixation': lambda: self.rng.uniform(1500, 3000),
             'f1': 500,
             'delay': 3000,
             'f2': 500,

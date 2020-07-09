@@ -36,10 +36,10 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
 
         self.timing = {
             'fixation': 300,
-            # 'target': 350,  # TODO: not implemented
+            # 'target': 350,
             'stimulus': 750,
             'delay': ('truncated_exponential', [600, 300, 3000]),
-            'decision': 100}  # XXX: not specified
+            'decision': 100}
         if timing:
             self.timing.update(timing)
 
@@ -144,10 +144,10 @@ class ContextDecisionMaking(ngym.TrialEnv):
 
         self.timing = {
             'fixation': 300,
-            # 'target': 350,  # TODO: not implemented
+            # 'target': 350,
             'stimulus': 750,
             'delay': ('truncated_exponential', [600, 300, 3000]),
-            'decision': 100}  # XXX: not specified
+            'decision': 100}
         if timing:
             self.timing.update(timing)
 

@@ -29,9 +29,9 @@ class IntervalDiscrimination(ngym.TrialEnv):
 
         self.timing = {
             'fixation': 300,
-            'stim1': ('uniform', (300, 600)),
-            'delay1': ('choice', [800, 1500]),
-            'stim2': ('uniform', (300, 600)),
+            'stim1': lambda: self.rng.uniform(300, 600),
+            'delay1': lambda: self.rng.uniform(800, 1500),
+            'stim2': lambda: self.rng.uniform(300, 600),
             'delay2': 500,
             'decision': 300}
         if timing:
