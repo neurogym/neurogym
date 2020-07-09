@@ -201,6 +201,8 @@ class PerceptualDecisionMakingDelayResponse(ngym.TrialEnv):
 
         self.set_groundtruth(trial['ground_truth'], 'decision')
 
+        return trial
+
     def _step(self, action):
         # ---------------------------------------------------------------------
         # Reward and observations
@@ -302,6 +304,8 @@ class PulseDecisionMaking(ngym.TrialEnv):
 
         # Ground truth
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+
+        return trial
 
     def _step(self, action):
         new_trial = False
