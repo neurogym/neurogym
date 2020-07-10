@@ -203,7 +203,8 @@ def plot_env_1dbox(
     i_ax += 1
     if ob_traces:
         assert len(ob_traces) == ob.shape[1],\
-            'Please provide label for each trace in the observations'
+            'Please provide label for each of the '+str(ob.shape[1]) +\
+            ' traces in the observations'
         for ind_tr, tr in enumerate(ob_traces):
             ax.plot(ob[:, ind_tr], label=ob_traces[ind_tr])
         ax.legend()
