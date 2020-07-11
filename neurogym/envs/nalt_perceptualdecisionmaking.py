@@ -123,8 +123,6 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
         if 'n_ch' in kwargs.keys():
             self.add_randn(0, self.sigma, 'stimulus',
                            where=np.arange(kwargs['n_ch'])+1)
-            stim = self.view_ob()
-            stim[:, kwargs['n_ch']+1:] = 0
         else:
             self.add_randn(0, self.sigma, 'stimulus', where='stimulus')
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
