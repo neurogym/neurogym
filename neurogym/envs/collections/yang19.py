@@ -45,7 +45,7 @@ class _MultiModalityStimulus(TrialWrapperV2):
         return self.env.new_trial(**kwargs)
 
 
-class _Reach(ngym.PeriodEnv):
+class _Reach(ngym.TrialEnv):
     """Anti-response task.
 
     The agent has to move in the direction opposite to the one indicated
@@ -71,10 +71,10 @@ class _Reach(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),
-            'stimulus': ('constant', 500),
-            'delay': ('constant', 0),
-            'decision': ('constant', 500)}
+            'fixation': 500,
+            'stimulus': 500,
+            'delay': 0,
+            'decision': 500}
         if timing:
             self.timing.update(timing)
 
@@ -92,16 +92,16 @@ class _Reach(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(1+dim_ring)
         self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring + 1)}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices),
             'anti': self.anti,
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
-        ground_truth = self.trial['ground_truth']
-        if self.trial['anti']:
+        ground_truth = trial['ground_truth']
+        if trial['anti']:
             stim_theta = np.mod(self.theta[ground_truth] + np.pi, 2*np.pi)
         else:
             stim_theta = self.theta[ground_truth]
@@ -109,18 +109,20 @@ class _Reach(ngym.PeriodEnv):
 
         if not self.reaction:
             periods = ['fixation', 'stimulus', 'delay', 'decision']
-            self.add_period(periods, after=0, last_period=True)
+            self.add_period(periods)
 
             self.add_ob(1, period=['fixation', 'stimulus', 'delay'], where='fixation')
             self.add_ob(stim, 'stimulus', where='stimulus')
         else:
             periods = ['fixation', 'decision']
-            self.add_period(periods, after=0, last_period=True)
+            self.add_period(periods)
 
             self.add_ob(1, period='fixation', where='fixation')
             self.add_ob(stim, 'decision', where='stimulus')
 
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+
+        return trial
 
     def _step(self, action):
         new_trial = False
@@ -144,7 +146,7 @@ class _Reach(ngym.PeriodEnv):
         return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
-class _DMFamily(ngym.PeriodEnv):
+class _DMFamily(ngym.TrialEnv):
     """Delay comparison.
 
     Two-alternative forced choice task in which the subject
@@ -174,16 +176,16 @@ class _DMFamily(ngym.PeriodEnv):
 
         if self.delaycomparison:
             self.timing = {
-                'fixation': ('uniform', (200, 500)),
-                'stim1': ('constant', 500),
-                'delay': ('constant', 1000),
-                'stim2': ('constant', 500),
-                'decision': ('constant', 200)}
+                'fixation': lambda: self.rng.uniform(200, 500),
+                'stim1': 500,
+                'delay': 1000,
+                'stim2': 500,
+                'decision': 200}
         else:
             self.timing = {
-                'fixation': ('uniform', (200, 500)),
-                'stimulus': ('constant', 500),
-                'decision': ('constant', 200)}
+                'fixation': lambda: self.rng.uniform(200, 500),
+                'stimulus': 500,
+                'decision': 200}
         if timing:
             self.timing.update(timing)
 
@@ -203,44 +205,44 @@ class _DMFamily(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(1+dim_ring)
         self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring+1)}
 
-    def _add_singlemod(self, mod=1):
+    def _add_singlemod(self, trial, mod=1):
         """Add stimulus to modality."""
         mod = '_mod' + str(mod)
 
         if self.delaycomparison:
             period1, period2 = 'stim1', 'stim2'
             coh1, coh2 = self.rng.choice(self.cohs, 2, replace=False)
-            self.trial['coh1' + mod] = coh1
-            self.trial['coh2' + mod] = coh2
+            trial['coh1' + mod] = coh1
+            trial['coh2' + mod] = coh2
         else:
             period1, period2 = 'stimulus', 'stimulus'
             coh = self.rng.choice(self.cohs) * self.rng.choice([-1, +1])
-            self.trial['coh1' + mod] = coh1 = 0.5 + coh / 2
-            self.trial['coh2' + mod] = coh2 = 0.5 - coh / 2
+            trial['coh1' + mod] = coh1 = 0.5 + coh / 2
+            trial['coh2' + mod] = coh2 = 0.5 - coh / 2
 
-        # stim = cosinebump(self.trial['theta1'], self.theta, coh1)
-        stim = _gaussianbump(self.trial['theta1'], self.theta, coh1)
+        # stim = cosinebump(trial['theta1'], self.theta, coh1)
+        stim = _gaussianbump(trial['theta1'], self.theta, coh1)
         self.add_ob(stim, period1, where='stimulus' + mod)
-        # stim = cosinebump(self.trial['theta2'], self.theta, coh2)
-        stim = _gaussianbump(self.trial['theta2'], self.theta, coh2)
+        # stim = cosinebump(trial['theta2'], self.theta, coh2)
+        stim = _gaussianbump(trial['theta2'], self.theta, coh2)
         self.add_ob(stim, period2, where='stimulus' + mod)
 
-    def new_trial(self, **kwargs):
-        self.trial = {}
+    def _new_trial(self, **kwargs):
+        trial = {}
         i_theta1 = self.rng.choice(self.choices)
         while True:
             i_theta2 = self.rng.choice(self.choices)
             if i_theta2 != i_theta1:
                 break
-        self.trial['theta1'] = self.theta[i_theta1]
-        self.trial['theta2'] = self.theta[i_theta2]
+        trial['theta1'] = self.theta[i_theta1]
+        trial['theta2'] = self.theta[i_theta2]
 
         # Periods
         if self.delaycomparison:
             periods = ['fixation', 'stim1', 'delay', 'stim2', 'decision']
         else:
             periods = ['fixation', 'stimulus', 'decision']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods)
 
         self.add_ob(1, where='fixation')
         self.set_ob(0, 'decision')
@@ -251,16 +253,18 @@ class _DMFamily(ngym.PeriodEnv):
 
         coh1, coh2 = 0, 0
         if self.stim_mod1:
-            self._add_singlemod(mod=1)
-            coh1 += self.w_mod1 * self.trial['coh1_mod1']
-            coh2 += self.w_mod1 * self.trial['coh2_mod1']
+            self._add_singlemod(trial, mod=1)
+            coh1 += self.w_mod1 * trial['coh1_mod1']
+            coh2 += self.w_mod1 * trial['coh2_mod1']
         if self.stim_mod2:
-            self._add_singlemod(mod=2)
-            coh1 += self.w_mod2 * self.trial['coh1_mod2']
-            coh2 += self.w_mod2 * self.trial['coh2_mod2']
+            self._add_singlemod(trial, mod=2)
+            coh1 += self.w_mod2 * trial['coh1_mod2']
+            coh2 += self.w_mod2 * trial['coh2_mod2']
 
         i_target = i_theta1 if coh1 + self.rng.uniform(-1e-6, 1e-6) > coh2 else i_theta2
         self.set_groundtruth(self.act_dict['choice'][i_target], 'decision')
+
+        return trial
 
     def _step(self, action):
         # ---------------------------------------------------------------------
@@ -287,7 +291,7 @@ class _DMFamily(ngym.PeriodEnv):
         return ob, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
-class _DelayMatch1DResponse(ngym.PeriodEnv):
+class _DelayMatch1DResponse(ngym.TrialEnv):
     r"""Delay match-to-sample or category task.
 
     A sample stimulus is followed by a delay and test. Agents are required
@@ -323,11 +327,11 @@ class _DelayMatch1DResponse(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 300),
-            'sample': ('constant', 500),
-            'delay': ('constant', 1000),
-            'test': ('constant', 500),
-            'decision': ('constant', 900)}
+            'fixation': 300,
+            'sample': 500,
+            'delay': 1000,
+            'test': 500,
+            'decision': 900}
         if timing:
             self.timing.update(timing)
 
@@ -345,14 +349,14 @@ class _DelayMatch1DResponse(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(1+dim_ring)
         self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring+1)}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices),
         }
-        self.trial.update(**kwargs)
+        trial.update(**kwargs)
 
-        ground_truth = self.trial['ground_truth']
+        ground_truth = trial['ground_truth']
         i_sample_theta = self.rng.choice(self.dim_ring)
         if self.matchto == 'category':
             sample_category = (i_sample_theta > self.half_ring) * 1
@@ -370,15 +374,14 @@ class _DelayMatch1DResponse(ngym.PeriodEnv):
                 i_test_theta = np.mod(
                     i_sample_theta + self.half_ring, self.dim_ring)
 
-        self.trial['sample_theta'] = sample_theta = self.theta[i_sample_theta]
-        self.trial['test_theta'] = test_theta = self.theta[i_test_theta]
+        trial['sample_theta'] = sample_theta = self.theta[i_sample_theta]
+        trial['test_theta'] = test_theta = self.theta[i_test_theta]
 
         stim_sample = _gaussianbump(sample_theta, self.theta, 1)
         stim_test = _gaussianbump(test_theta, self.theta, 1)
 
         # Periods
-        self.add_period(['fixation', 'sample', 'delay', 'test', 'decision'],
-                        after=0, last_period=True)
+        self.add_period(['fixation', 'sample', 'delay', 'test', 'decision'])
 
         self.add_ob(1, where='fixation')
         self.set_ob(0, 'decision', where='fixation')
@@ -389,6 +392,8 @@ class _DelayMatch1DResponse(ngym.PeriodEnv):
         if ((ground_truth == 'match' and self.matchgo) or
                 (ground_truth == 'non-match' and not self.matchgo)):
             self.set_groundtruth(self.act_dict['choice'][i_test_theta], 'decision')
+
+        return trial
 
     def _step(self, action, **kwargs):
         new_trial = False
@@ -453,14 +458,14 @@ def rtanti(**kwargs):
 def dlygo(**kwargs):
     env_kwargs = kwargs.copy()
     env_kwargs['anti'] = False
-    env_kwargs['timing'] = {'delay': ('constant', 500)}
+    env_kwargs['timing'] = {'delay': 500}
     return _reach(**env_kwargs)
 
 
 def dlyanti(**kwargs):
     env_kwargs = kwargs.copy()
     env_kwargs['anti'] = True
-    env_kwargs['timing'] = {'delay': ('constant', 500)}
+    env_kwargs['timing'] = {'delay': 500}
     return _reach(**env_kwargs)
 
 

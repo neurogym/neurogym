@@ -9,7 +9,7 @@ import neurogym as ngym
 from gym import spaces
 
 
-class EconomicDecisionMaking(ngym.PeriodEnv):
+class EconomicDecisionMaking(ngym.TrialEnv):
     r"""Agents choose between two stimuli (A and B; where A is preferred)
     offered in different amounts.
     """
@@ -35,9 +35,9 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 1500),
-            'offer_on': ('uniform', [1000, 2000]),
-            'decision': ('constant', 750)}
+            'fixation': 1500,
+            'offer_on': lambda: self.rng.uniform(1000, 2000),
+            'decision': 750}
         if timing:
             self.timing.update(timing)
 
@@ -57,28 +57,30 @@ class EconomicDecisionMaking(ngym.PeriodEnv):
                         'n1': 5, 'n2': 6  # amount for choice 1 or 2
                         }
 
-    def new_trial(self, **kwargs):
-        self.trial = {
+    def _new_trial(self, **kwargs):
+        trial = {
             'juice': self.juices[self.rng.choice(len(self.juices))],
             'offer': self.offers[self.rng.choice(len(self.offers))]
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
-        juice1, juice2 = self.trial['juice']
-        n_b, n_a = self.trial['offer']
+        juice1, juice2 = trial['juice']
+        n_b, n_a = trial['offer']
 
         if juice1 == 'a':
             n1, n2 = n_a, n_b
         else:
             n1, n2 = n_b, n_a
 
-        self.add_period(['fixation', 'offer_on', 'decision'], after=0, last_period=True)
+        self.add_period(['fixation', 'offer_on', 'decision'])
 
         self.add_ob(1, ['fixation', 'offer_on'], where='fixation')
         self.add_ob(1, 'offer_on', where=juice1 + '1')
         self.add_ob(1, 'offer_on', where=juice2 + '2')
         self.add_ob(n1/5., 'offer_on', where='n1')
         self.add_ob(n2/5., 'offer_on', where='n2')
+
+        return trial
 
     def _step(self, action):
         trial = self.trial

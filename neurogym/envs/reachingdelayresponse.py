@@ -8,7 +8,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class ReachingDelayResponse(ngym.PeriodEnv):
+class ReachingDelayResponse(ngym.TrialEnv):
     r"""Working memory visual spatial task ~ Funahashi et al. 1991 adapted to
     freely moving mice in a continous choice-space.
 
@@ -37,9 +37,9 @@ class ReachingDelayResponse(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'stimulus': ('constant', 500),
-            'delay': ('choice', [0, 1000, 2000]),
-            'decision': ('constant', 5000)}
+            'stimulus': 500,
+            'delay': (0, 1000, 2000),
+            'decision': 5000}
         if timing:
             self.timing.update(timing)
 
@@ -55,16 +55,16 @@ class ReachingDelayResponse(ngym.PeriodEnv):
                                             dtype=np.float32)
         self.ob_dict = {'go': 0, 'stimulus': 1}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.uniform(self.lowbound, self.highbound)
         }
-        self.trial.update(kwargs)
-        ground_truth_stim = self.trial['ground_truth']
+        trial.update(kwargs)
+        ground_truth_stim = trial['ground_truth']
 
         # Periods
-        self.add_period(['stimulus', 'delay', 'decision'], after=0, last_period=True)
+        self.add_period(['stimulus', 'delay', 'decision'])
 
         self.add_ob(ground_truth_stim, 'stimulus', where='stimulus')
         self.set_ob([0, -0.5], 'delay')
@@ -72,6 +72,8 @@ class ReachingDelayResponse(ngym.PeriodEnv):
 
         self.set_groundtruth([-1, -0.5], ['stimulus', 'delay'])
         self.set_groundtruth([1, ground_truth_stim], 'decision')
+
+        return trial
 
     def _step(self, action):
         new_trial = False

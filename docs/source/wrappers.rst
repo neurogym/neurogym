@@ -73,3 +73,21 @@ Identity-v0
     :members:
     :exclude-members: new_trial
 
+TransferLearning-v0
+--------------------------------------------------
+.. autoclass:: neurogym.wrappers.transfer_learning.TransferLearning
+    :members:
+    :exclude-members: new_trial
+
+Variable_nch-v0
+--------------------------------------------------
+.. autoclass:: neurogym.wrappers.variable_nch.Variable_nch
+    :members:
+    :exclude-members: new_trial
+
+Concat-v0
+--------------------------------------------------
+.. autoclass:: neurogym.wrappers.concat.Concat
+    :members:
+    :exclude-members: new_trial
+
