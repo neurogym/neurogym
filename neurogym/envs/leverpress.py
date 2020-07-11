@@ -425,18 +425,12 @@ class FullInput(gym.Wrapper):
         high = np.array(list(orig_ob_space.high) + [1] + [1] * self.action_space.n)
         self.observation_space = spaces.Box(low, high, dtype=np.float32)
 
-    def _step(self, action):
+    def step(self, action):
         obs, reward, done, info = self.env.step(action)
         # include reward and action information
         one_hot_action = [0.] * self.action_space.n
         one_hot_action[action] = 1.
         obs = np.array(list(obs) + [reward] + one_hot_action)
-        return obs, reward, done, info, new_trial
-
-    def step(self, action):
-        obs, reward, done, info, new_trial = self._step(action)
-        if new_trial:
-            trial = self._new_trial()
         return obs, reward, done, info
 
     def reset(self):
