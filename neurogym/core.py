@@ -124,7 +124,7 @@ class TrialEnv(BaseEnv):
             trial: dict of trial information. Available to step function as
                 self.trial
         """
-        raise NotImplementedError('new_trial is not defined by user.')
+        raise NotImplementedError('_new_trial is not defined by user.')
 
     def _step(self, action):
         """Private interface for the environment.
