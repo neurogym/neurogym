@@ -3,7 +3,7 @@
 """Test environments.
 
 All tests in this file can be run by running in command line
-py.test test_envs.py
+pytest test_envs.py
 """
 
 import pytest
@@ -14,8 +14,20 @@ import gym
 import neurogym as ngym
 
 
-def test_run(env, num_steps=100, verbose=False, **kwargs):
+try:
+    import psychopy
+    _have_psychopy = True
+except ImportError as e:
+    _have_psychopy = False
+
+ENVS = ngym.all_envs(psychopy=_have_psychopy, collections=True)
+
+
+def test_run(env=None, num_steps=100, verbose=False, **kwargs):
     """Test if one environment can at least be run."""
+    if env is None:
+        env = ngym.all_envs()[0]
+
     if isinstance(env, str):
         env = gym.make(env, **kwargs)
     else:
@@ -41,31 +53,11 @@ def test_run(env, num_steps=100, verbose=False, **kwargs):
     return env
 
 
-def test_print_all():
-    """Test printing of all experiments."""
-    success_count = 0
-    total_count = 0
-    for env_name in sorted(ngym.all_envs()):
-        total_count += 1
-        print('')
-        print('Test printing env: {:s}'.format(env_name))
-        try:
-            env = gym.make(env_name)
-            print(env)
-            print('Success')
-            success_count += 1
-        except BaseException as e:
-            print('Failure')
-            print(e)
-
-    print('Success {:d}/{:d} envs'.format(success_count, total_count))
-
-
 def test_run_all(verbose_success=False):
     """Test if all environments can at least be run."""
     success_count = 0
     total_count = 0
-    for env_name in sorted(ngym.all_envs()):
+    for env_name in sorted(ENVS):
         total_count += 1
 
         # print('Running env: {:s}'.format(env_name))
@@ -82,14 +74,32 @@ def test_run_all(verbose_success=False):
     print('Success {:d}/{:d} envs'.format(success_count, total_count))
 
 
+def test_print_all():
+    """Test printing of all experiments."""
+    success_count = 0
+    total_count = 0
+    for env_name in sorted(ENVS):
+        total_count += 1
+        print('')
+        print('Test printing env: {:s}'.format(env_name))
+        try:
+            env = gym.make(env_name)
+            print(env)
+            print('Success')
+            success_count += 1
+        except BaseException as e:
+            print('Failure')
+            print(e)
+
+    print('Success {:d}/{:d} envs'.format(success_count, total_count))
+
+
 def test_trialenv_all():
     """Test if all environments can at least be run."""
     success_count = 0
     total_count = 0
     hastrial_count = 0
-    for env_name in sorted(ngym.all_envs()):
-        if env_name in ['Combine-v0']:
-            continue
+    for env_name in sorted(ENVS):
         env = gym.make(env_name)
         if not isinstance(env, ngym.TrialEnv):
             continue
@@ -99,7 +109,7 @@ def test_trialenv_all():
         try:
             env.new_trial()
             if env.trial is None:
-                print('No self.trial is available after new_trial()')
+                print('No trial is available after new_trial()')
             else:
                 print('Success')
                 hastrial_count += 1
@@ -110,41 +120,15 @@ def test_trialenv_all():
             print(e)
 
     print('Success {:d}/{:d} envs'.format(success_count, total_count))
-    print('{:d}/{:d} envs have self.trial after new_trial'.format(hastrial_count,
+    print('{:d}/{:d} envs have trial after new_trial'.format(hastrial_count,
                                                                   success_count))
 
 
-def test_seeding_all():
-    """Test if all environments can at least be run."""
-    success_count = 0
-    total_count = 0
-    for env_name in sorted(ngym.all_envs()):
-        total_count += 1
-
-        # print('Running env: {:s}'.format(env_name))
-        # env = test_run(env_name)
-        try:
-            states1, rews1 = test_seeding(env_name, seed=0)
-            states2, rews2 = test_seeding(env_name, seed=0)
-            assert (states1 == states2).all(), 'states are not identical'
-            assert (rews1 == rews2).all(), 'rewards are not identical'
-            states1, rews1 = test_seeding(env_name, seed=0)
-            states2, rews2 = test_seeding(env_name, seed=0)
-            assert (states1 == states2).all(), 'states are not identical'
-            assert (rews1 == rews2).all(), 'rewards are not identical'
-
-            # print('Success')
-            # print(env)
-            success_count += 1
-        except BaseException as e:
-            print('Failure at running env: {:s}'.format(env_name))
-            print(e)
-
-    print('Success {:d}/{:d} envs'.format(success_count, total_count))
-
-
-def test_seeding(env, seed):
+def test_seeding(env=None, seed=0):
     """Test if environments are replicable."""
+    if env is None:
+        env = ngym.all_envs()[0]
+
     if isinstance(env, str):
         kwargs = {'dt': 20}
         env = gym.make(env, **kwargs)
@@ -167,5 +151,30 @@ def test_seeding(env, seed):
     return states_mat, rew_mat
 
 
-if __name__ == '__main__':
-    test_run_all()
+def test_seeding_all():
+    """Test if all environments can at least be run."""
+    success_count = 0
+    total_count = 0
+    for env_name in sorted(ENVS):
+        total_count += 1
+
+        # print('Running env: {:s}'.format(env_name))
+        # env = test_run(env_name)
+        try:
+            states1, rews1 = test_seeding(env_name, seed=0)
+            states2, rews2 = test_seeding(env_name, seed=0)
+            assert (states1 == states2).all(), 'states are not identical'
+            assert (rews1 == rews2).all(), 'rewards are not identical'
+            states1, rews1 = test_seeding(env_name, seed=0)
+            states2, rews2 = test_seeding(env_name, seed=0)
+            assert (states1 == states2).all(), 'states are not identical'
+            assert (rews1 == rews2).all(), 'rewards are not identical'
+
+            # print('Success')
+            # print(env)
+            success_count += 1
+        except BaseException as e:
+            print('Failure at running env: {:s}'.format(env_name))
+            print(e)
+
+    print('Success {:d}/{:d} envs'.format(success_count, total_count))

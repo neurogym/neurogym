@@ -5,7 +5,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class DualDelayMatchSample(ngym.PeriodEnv):
+class DualDelayMatchSample(ngym.TrialEnv):
     r"""Two-item Delay-match-to-sample.
 
     Two sample stimuli are shown simultaneously. Sample 1 and 2 are tested
@@ -32,14 +32,14 @@ class DualDelayMatchSample(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),
-            'sample': ('constant', 500),
-            'delay1': ('constant', 500),
-            'cue1': ('constant', 500),
-            'test1': ('constant', 500),
-            'delay2': ('constant', 500),
-            'cue2': ('constant', 500),
-            'test2': ('constant', 500)}
+            'fixation': 500,
+            'sample': 500,
+            'delay1': 500,
+            'cue1': 500,
+            'test1': 500,
+            'delay2': 500,
+            'cue2': 500,
+            'test2': 500}
         if timing:
             self.timing.update(timing)
 
@@ -52,27 +52,27 @@ class DualDelayMatchSample(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(3)
         self.act_dict = {'fixation': 0, 'match': 1, 'non-match': 2}
 
-    def new_trial(self, **kwargs):
-        self.trial = {
+    def _new_trial(self, **kwargs):
+        trial = {
             'ground_truth1': self.rng.choice(self.choices),
             'ground_truth2': self.rng.choice(self.choices),
             'sample1': self.rng.choice([0, 0.5]),
             'sample2': self.rng.choice([0, 0.5]),
             'test_order': self.rng.choice([0, 1]),
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
-        ground_truth1 = self.trial['ground_truth1']
-        ground_truth2 = self.trial['ground_truth2']
-        sample1 = self.trial['sample1']
-        sample2 = self.trial['sample2']
+        ground_truth1 = trial['ground_truth1']
+        ground_truth2 = trial['ground_truth2']
+        sample1 = trial['sample1']
+        sample2 = trial['sample2']
 
         test1 = sample1 if ground_truth1 == 1 else 0.5 - sample1
         test2 = sample2 if ground_truth2 == 1 else 0.5 - sample2
-        self.trial['test1'] = test1
-        self.trial['test2'] = test2
+        trial['test1'] = test1
+        trial['test2'] = test2
 
-        if self.trial['test_order'] == 0:
+        if trial['test_order'] == 0:
             stim_test1_period, stim_test2_period = 'test1', 'test2'
             cue1_period, cue2_period = 'cue1', 'cue2'
         else:
@@ -89,7 +89,7 @@ class DualDelayMatchSample(ngym.PeriodEnv):
 
         periods = ['fixation', 'sample', 'delay1', 'cue1', 'test1',
                    'delay2', 'cue2', 'test2']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods)
 
         self.add_ob(1, where='fixation')
         self.add_ob(stim_sample1, 'sample', where='stimulus1')
@@ -104,6 +104,8 @@ class DualDelayMatchSample(ngym.PeriodEnv):
 
         self.set_groundtruth(ground_truth1, stim_test1_period)
         self.set_groundtruth(ground_truth2, stim_test2_period)
+
+        return trial
 
     def _step(self, action):
         new_trial = False

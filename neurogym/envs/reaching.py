@@ -10,7 +10,7 @@ from neurogym.utils import tasktools
 
 # TODO: Ground truth and action have different space,
 # making it difficult for SL and RL to work together
-class Reaching1D(ngym.PeriodEnv):
+class Reaching1D(ngym.TrialEnv):
     r"""The agent has to reproduce the angle indicated by the observation.
     """
     metadata = {
@@ -27,8 +27,8 @@ class Reaching1D(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),
-            'reach': ('constant', 500)}
+            'fixation': 500,
+            'reach': 500}
         if timing:
             self.timing.update(timing)
 
@@ -45,25 +45,25 @@ class Reaching1D(ngym.PeriodEnv):
         self.theta = np.arange(0, 2*np.pi, 2*np.pi/16)
         self.state = np.pi
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
         self.state = np.pi
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.uniform(0, np.pi*2)
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        self.add_period(['fixation', 'reach'], after=0, last_period=True)
+        self.add_period(['fixation', 'reach'])
 
-        target = np.cos(self.theta - self.trial['ground_truth'])
+        target = np.cos(self.theta - trial['ground_truth'])
         self.add_ob(target, 'reach', where='target')
 
         self.set_groundtruth(np.pi, 'fixation')
-        self.set_groundtruth(self.trial['ground_truth'], 'reach')
+        self.set_groundtruth(trial['ground_truth'], 'reach')
         self.dec_per_dur = (self.end_ind['reach'] - self.start_ind['reach'])
 
     def _step(self, action):
@@ -89,7 +89,7 @@ class Reaching1D(ngym.PeriodEnv):
         return ob, reward, False, {'new_trial': False}
 
 
-class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
+class Reaching1DWithSelfDistraction(ngym.TrialEnv):
     r"""Reaching with self distraction.
 
     In this task, the reaching state itself generates strong inputs that
@@ -115,8 +115,8 @@ class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),
-            'reach': ('constant', 500)}
+            'fixation': 500,
+            'reach': 500}
         if timing:
             self.timing.update(timing)
 
@@ -127,28 +127,30 @@ class Reaching1DWithSelfDistraction(ngym.PeriodEnv):
         self.theta = np.arange(0, 2*np.pi, 2*np.pi/32)
         self.state = np.pi
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
         self.state = np.pi
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.uniform(0, np.pi*2)
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        self.add_period('fixation', after=0)
-        self.add_period('reach', after='fixation', last_period=True)
+        self.add_period('fixation')
+        self.add_period('reach', after='fixation')
 
         ob = self.view_ob('reach')
         # Signal is weaker than the self-distraction
-        ob += np.cos(self.theta - self.trial['ground_truth']) * 0.3
+        ob += np.cos(self.theta - trial['ground_truth']) * 0.3
 
         self.set_groundtruth(np.pi, 'fixation')
-        self.set_groundtruth(self.trial['ground_truth'], 'reach')
+        self.set_groundtruth(trial['ground_truth'], 'reach')
         self.dec_per_dur = (self.end_ind['reach'] - self.start_ind['reach'])
+
+        return trial
 
     def _step(self, action):
         ob = self.ob_now + np.cos(self.theta - self.state)

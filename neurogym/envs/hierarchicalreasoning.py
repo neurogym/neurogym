@@ -6,7 +6,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class HierarchicalReasoning(ngym.PeriodEnv):
+class HierarchicalReasoning(ngym.TrialEnv):
     """Hierarchical reasoning of rules.
 
 
@@ -26,13 +26,13 @@ class HierarchicalReasoning(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('truncated_exponential', [600, 400, 800]),
-            'rule_target': ('constant', 1000),
-            'fixation2': ('truncated_exponential', [600, 400, 900]),
-            'flash1': ('constant', 100),
-            'delay': ('choice', [530, 610, 690, 770, 850, 930, 1010, 1090, 1170]),
-            'flash2': ('constant', 100),
-            'decision': ('constant', 700),
+            'fixation': ngym.random.TruncExp(600, 400, 800, rng=self.rng),
+            'rule_target': 1000,
+            'fixation2': ngym.random.TruncExp(600, 400, 900, rng=self.rng),
+            'flash1': 100,
+            'delay': (530, 610, 690, 770, 850, 930, 1010, 1090, 1170),
+            'flash2': 100,
+            'decision': 700,
         }
         if timing:
             self.timing.update(timing)
@@ -57,33 +57,33 @@ class HierarchicalReasoning(ngym.PeriodEnv):
         self.rule = 1 - self.rule  # alternate rule
         self.trial_in_block = 0
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         interval = self.sample_time('delay')
-        self.trial = {
+        trial = {
             'interval': interval,
             'rule': self.rule,
             'stimulus': self.rng.choice(self.choices)
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
         # Is interval long? When interval == mid_delay, randomly assign
         long_interval = interval > self.mid_delay + (self.rng.rand()-0.5)
         # Is the response pro or anti?
-        pro_choice = int(long_interval) == self.trial['rule']
-        self.trial['long_interval'] = long_interval
-        self.trial['pro_choice'] = pro_choice
+        pro_choice = int(long_interval) == trial['rule']
+        trial['long_interval'] = long_interval
+        trial['pro_choice'] = pro_choice
 
         # Periods
         periods = ['fixation', 'rule_target', 'fixation2', 'flash1',
                    'delay', 'flash2', 'decision']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods)
 
         # Observations
-        stimulus = self.ob_dict['stimulus'][self.trial['stimulus']]
+        stimulus = self.ob_dict['stimulus'][trial['stimulus']]
         if pro_choice:
-            choice = self.trial['stimulus']
+            choice = trial['stimulus']
         else:
-            choice = 1 - self.trial['stimulus']
+            choice = 1 - trial['stimulus']
 
         self.add_ob(1, where='fixation')
         self.set_ob(0, 'decision', where='fixation')
@@ -94,12 +94,14 @@ class HierarchicalReasoning(ngym.PeriodEnv):
         # Ground truth
         self.set_groundtruth(self.act_dict['choice'][choice], 'decision')
         self.set_groundtruth(
-            self.act_dict['rule'][self.trial['rule']], 'rule_target')
+            self.act_dict['rule'][trial['rule']], 'rule_target')
 
         # Start new block?
         self.trial_in_block += 1
         if self.trial_in_block >= self.block_size:
             self.new_block()
+
+        return trial
 
     def _step(self, action):
         new_trial = False

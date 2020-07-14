@@ -19,7 +19,7 @@ AngleReproduction-v0
 
 AntiReach-v0
 --------------------------------------------------
-.. autoclass:: neurogym.envs.antireach.AntiReach1D
+.. autoclass:: neurogym.envs.antireach.AntiReach
     :members:
     :exclude-members: new_trial
 
@@ -113,25 +113,9 @@ DawTwoStep-v0
         .. image:: images/DawTwoStep-v0_examplerun.png
             :width: 600
 
-DelayPairedAssociation-v0
---------------------------------------------------
-.. autoclass:: neurogym.envs.delaypairedassociation.DelayPairedAssociation
-    :members:
-    :exclude-members: new_trial
-
-    Reference paper
-        `Active information maintenance in working memory by a sensory cortex <https://elifesciences.org/articles/43191>`__
-
-    Tags
-        :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-go-no-go`,         :ref:`tag-supervised`
-
-    Sample run
-        .. image:: images/DelayPairedAssociation-v0_examplerun.png
-            :width: 600
-
 DelayComparison-v0
 --------------------------------------------------
-.. autoclass:: neurogym.envs.delayedcomparison.DelayComparison
+.. autoclass:: neurogym.envs.delaycomparison.DelayComparison
     :members:
     :exclude-members: new_trial
 
@@ -191,6 +175,22 @@ DelayMatchSampleDistractor1D-v0
 
     Sample run
         .. image:: images/DelayMatchSampleDistractor1D-v0_examplerun.png
+            :width: 600
+
+DelayPairedAssociation-v0
+--------------------------------------------------
+.. autoclass:: neurogym.envs.delaypairedassociation.DelayPairedAssociation
+    :members:
+    :exclude-members: new_trial
+
+    Reference paper
+        `Active information maintenance in working memory by a sensory cortex <https://elifesciences.org/articles/43191>`__
+
+    Tags
+        :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-go-no-go`,         :ref:`tag-supervised`
+
+    Sample run
+        .. image:: images/DelayPairedAssociation-v0_examplerun.png
             :width: 600
 
 Detection-v0
@@ -296,7 +296,7 @@ MatchingPenny-v0
         `Prefrontal cortex and decision making in a          mixed-strategy game <https://www.nature.com/articles/nn1209>`__
 
     Tags
-        :ref:`tag-two-alternative`,         :ref:`tag-supervised`
+        :ref:`tag-two-alternative`
 
     Sample run
         .. image:: images/MatchingPenny-v0_examplerun.png
@@ -515,6 +515,22 @@ ReadySetGo-v0
 
     Sample run
         .. image:: images/ReadySetGo-v0_examplerun.png
+            :width: 600
+
+SingleContextDecisionMaking-v0
+--------------------------------------------------
+.. autoclass:: neurogym.envs.contextdecisionmaking.SingleContextDecisionMaking
+    :members:
+    :exclude-members: new_trial
+
+    Reference paper
+        `Context-dependent computation by recurrent          dynamics in prefrontal cortex <https://www.nature.com/articles/nature12742>`__
+
+    Tags
+        :ref:`tag-perceptual`,         :ref:`tag-context dependent`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
+
+    Sample run
+        .. image:: images/SingleContextDecisionMaking-v0_examplerun.png
             :width: 600
 
 psychopy.RandomDotMotion-v0

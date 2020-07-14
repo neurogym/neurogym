@@ -46,7 +46,7 @@ class MatchingPenny(ngym.TrialEnv):
             self.mean_action = 0
             self.lr = learning_rate
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial (trials are one step long)
         # ---------------------------------------------------------------------
@@ -60,11 +60,13 @@ class MatchingPenny(ngym.TrialEnv):
             ot = self.opponent_type
             raise ValueError('Unknown opponent type {:s}'.format(ot))
 
-        self.trial = {'opponent_action': opponent_action}
+        trial = {'opponent_action': opponent_action}
         self.ob = np.zeros((1, self.observation_space.shape[0]))
         self.ob[0, self.prev_opp_action] = 1
-        self.prev_opp_action = self.trial['opponent_action']
+        self.prev_opp_action = trial['opponent_action']
         self.gt = np.array([opponent_action])
+
+        return trial
 
     def _step(self, action):
         trial = self.trial

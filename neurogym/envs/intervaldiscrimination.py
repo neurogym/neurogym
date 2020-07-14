@@ -7,7 +7,7 @@ import neurogym as ngym
 
 
 # TODO: Getting duration is not intuitive, not clear to people
-class IntervalDiscrimination(ngym.PeriodEnv):
+class IntervalDiscrimination(ngym.TrialEnv):
     r"""Agents have to report which of two stimuli presented
     sequentially is longer.
     """
@@ -28,12 +28,12 @@ class IntervalDiscrimination(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 300),
-            'stim1': ('uniform', (300, 600)),
-            'delay1': ('choice', [800, 1500]),
-            'stim2': ('uniform', (300, 600)),
-            'delay2': ('constant', 500),
-            'decision': ('constant', 300)}
+            'fixation': 300,
+            'stim1': lambda: self.rng.uniform(300, 600),
+            'delay1': lambda: self.rng.uniform(800, 1500),
+            'stim2': lambda: self.rng.uniform(300, 600),
+            'delay2': 500,
+            'decision': 300}
         if timing:
             self.timing.update(timing)
 
@@ -45,14 +45,14 @@ class IntervalDiscrimination(ngym.PeriodEnv):
                                             dtype=np.float32)
         self.ob_dict = {'fixation': 0, 'stim1': 1, 'stim2': 2}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         duration1 = self.sample_time('stim1')
         duration2 = self.sample_time('stim2')
         ground_truth = 1 if duration1 > duration2 else 2
 
         periods = ['fixation', 'stim1', 'delay1', 'stim2', 'delay2', 'decision']
         durations = [None, duration1, None, duration2, None, None]
-        self.add_period(periods, duration=durations, after=0, last_period=True)
+        self.add_period(periods, duration=durations)
 
         self.add_ob(1, where='fixation')
         self.add_ob(1, 'stim1', where='stim1')

@@ -88,7 +88,6 @@ class Dataset(object):
             while seq_end < self._cache_len:
                 # TODO: Right now this only works for env with new_trial
                 env.new_trial()
-                # TODO: Increment trial number here
                 ob, gt = env.ob, env.gt
                 seq_len = ob.shape[0]
                 seq_end = seq_start + seq_len

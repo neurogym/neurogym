@@ -9,7 +9,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class GoNogo(ngym.PeriodEnv):
+class GoNogo(ngym.TrialEnv):
     r"""Go/No-Go task in which the subject has either Go (e.g. lick)
     or not Go depending on which one of two stimuli is presented with.
     """
@@ -34,10 +34,10 @@ class GoNogo(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 0),
-            'stimulus': ('constant', 500),
-            'resp_delay': ('constant', 500),
-            'decision': ('constant', 500)}
+            'fixation': 0,
+            'stimulus': 500,
+            'resp_delay': 500,
+            'decision': 500}
         if timing:
             self.timing.update(timing)
 
@@ -49,25 +49,27 @@ class GoNogo(ngym.PeriodEnv):
                                             dtype=np.float32)
         self.ob_dict = {'fixation': 0, 'nogo': 1, 'go': 2}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices)
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
         # Period info
         periods = ['fixation', 'stimulus', 'resp_delay', 'decision']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods)
         # set observations
         self.add_ob(1, where='fixation')
-        self.add_ob(1, 'stimulus', where=self.trial['ground_truth']+1)
+        self.add_ob(1, 'stimulus', where=trial['ground_truth']+1)
         self.set_ob(0, 'decision')
         # if trial is GO the reward is set to R_MISS and  to 0 otherwise
-        self.r_tmax = self.rewards['miss']*self.trial['ground_truth']
-        self.performance = 1-self.trial['ground_truth']
+        self.r_tmax = self.rewards['miss']*trial['ground_truth']
+        self.performance = 1-trial['ground_truth']
         # set ground truth during decision period
-        self.set_groundtruth(self.trial['ground_truth'], 'decision')
+        self.set_groundtruth(trial['ground_truth'], 'decision')
+
+        return trial
 
     def _step(self, action):
         new_trial = False

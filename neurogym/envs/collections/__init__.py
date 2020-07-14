@@ -30,5 +30,5 @@ def get_collection(collection):
     else:
         try:
             return _collection_from_file(collection)
-        except ModuleNotFoundError:
+        except ImportError:
             raise ValueError('Unknown collection of envs, {}'.format(collection))

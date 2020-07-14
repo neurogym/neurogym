@@ -7,7 +7,7 @@ import neurogym as ngym
 import matplotlib.pyplot as plt
 
 
-class CVLearning(ngym.PeriodEnv):
+class CVLearning(ngym.TrialEnv):
     r"""Implements shaping for the delay-response task, in which agents
     have to integrate two stimuli and report which one is larger on
     average after a delay.
@@ -49,11 +49,12 @@ class CVLearning(ngym.PeriodEnv):
         if rewards:
             self.rewards.update(rewards)
 
+        self.delay_durs = [1000, 3000]
         self.timing = {
-            'fixation': ('constant', 200),
-            'stimulus': ('constant', 1150),
-            'delay': ('choice', [0, 1000, 3000]),
-            'decision': ('constant', 1500)}
+            'fixation': 200,
+            'stimulus': 1150,
+            'delay': lambda: self.rng.uniform(*self.delay_durs),
+            'decision': 1500}
         if timing:
             self.timing.update(timing)
 
@@ -100,7 +101,6 @@ class CVLearning(ngym.PeriodEnv):
         self.min_perf = 0.5  # TODO: no magic numbers
         self.stage_reminder = False  # control if a stage has been explored
         # stage 3
-        self.delay_durs = self.timing['delay'][1]
         self.inc_delays = 0  # proportion of the total delays dur to keep
         self.delay_milestone = 0  # delays durs at the beggining of a day
         # proportion of the total delays dur to incease every time that the
@@ -118,7 +118,7 @@ class CVLearning(ngym.PeriodEnv):
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(n_ch+1,),
                                             dtype=np.float32)
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         """
         new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:
@@ -132,7 +132,7 @@ class CVLearning(ngym.PeriodEnv):
             # control that agent does not repeat side more than 3 times
             self.count(self.action)
 
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices),
             'coh': self.rng.choice(self.cohs),
             'sigma': self.sigma,
@@ -148,29 +148,29 @@ class CVLearning(ngym.PeriodEnv):
             # agent cannot go N times in a row to the same side
             if np.abs(self.action_counter) >= self.max_num_reps:
                 ground_truth = 1 if self.action == 2 else 2
-                self.trial.update({'ground_truth': ground_truth})
+                trial.update({'ground_truth': ground_truth})
                 self.rewards['fail'] = 0
             else:
                 self.rewards['fail'] = self.rewards['correct']
-            self.durs.update({'stimulus': (0),
-                             'delay': (0)})
-            self.trial.update({'sigma': 0})
+            self.durs.update({'stimulus': 0,
+                             'delay': 0})
+            trial.update({'sigma': 0})
 
         elif self.curr_ph == 1:
             # stim introduced with no ambiguity
             # wrong answer is not penalized
             # agent can keep exploring until finding the right answer
-            self.durs.update({'delay': (0)})
-            self.trial.update({'coh': 100})
-            self.trial.update({'sigma': 0})
+            self.durs.update({'delay': 0})
+            trial.update({'coh': 100})
+            trial.update({'sigma': 0})
             self.rewards['fail'] = 0
             self.firstcounts = False
         elif self.curr_ph == 2:
             # first answer counts
             # wrong answer is penalized
             self.durs.update({'delay': (0)})
-            self.trial.update({'coh': 100})
-            self.trial.update({'sigma': 0})
+            trial.update({'coh': 100})
+            trial.update({'sigma': 0})
             self.rewards['fail'] = self.r_fail
         elif self.curr_ph == 3:
             self.rewards['fail'] = self.r_fail
@@ -191,8 +191,8 @@ class CVLearning(ngym.PeriodEnv):
                 self.max_delays = False
             self.durs.update({'delay': np.random.choice(self.dur)})
             # delay component is introduced
-            self.trial.update({'coh': 100})
-            self.trial.update({'sigma': 0})
+            trial.update({'coh': 100})
+            trial.update({'sigma': 0})
         # phase 4: ambiguity component is introduced
 
         self.first_flag = False
@@ -201,30 +201,32 @@ class CVLearning(ngym.PeriodEnv):
         # Trial
         # ---------------------------------------------------------------------
 
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        self.add_period('fixation', after=0)
+        self.add_period('fixation')
         self.add_period('stimulus', duration=self.durs['stimulus'],
                         after='fixation')
         self.add_period('delay', duration=self.durs['delay'],
                         after='stimulus')
-        self.add_period('decision', after='delay', last_period=True)
+        self.add_period('decision', after='delay')
 
         # define observations
         self.set_ob([1]+[0]*self.n_ch, 'fixation')
         stim = self.view_ob('stimulus')
         stim[:, 0] = 1
-        stim[:, 1:3] = (1 - self.trial['coh']/100)/2
-        stim[:, self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
+        stim[:, 1:3] = (1 - trial['coh']/100)/2
+        stim[:, trial['ground_truth']] = (1 + trial['coh']/100)/2
         stim[:, 3:] = 0.5
         stim[:, 1:] +=\
-            self.rng.randn(stim.shape[0], self.n_ch) * self.trial['sigma']
+            self.rng.randn(stim.shape[0], self.n_ch) * trial['sigma']
         self.set_ob([1]+[0]*self.n_ch, 'delay')
 
-        self.set_groundtruth(self.trial['ground_truth'], 'decision')
+        self.set_groundtruth(trial['ground_truth'], 'decision')
+
+        return trial
 
     def count(self, action):
         '''

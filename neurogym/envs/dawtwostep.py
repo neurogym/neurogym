@@ -49,7 +49,7 @@ class DawTwoStep(ngym.TrialEnv):
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
@@ -78,11 +78,13 @@ class DawTwoStep(ngym.TrialEnv):
         reward[low_state] = (self.rng.rand() <
                              self.low_reward_p) * self.rewards['correct']
         self.ground_truth = hi_state+1  # assuming p1, p2 >= 0.5
-        self.trial = {
+        trial = {
             'transition':  transition,
             'reward': reward,
             'hi_state': hi_state,
             }
+
+        return trial
 
     def _step(self, action):
         trial = self.trial

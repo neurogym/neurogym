@@ -6,13 +6,10 @@ import gym
 import neurogym as ngym
 
 
-def test_speed(env):
+def test_speed(env, n_steps=100000, warmup_steps=10000):
     """Test speed of an environment."""
-    n_steps = 100000
-    warmup_steps = 10000
-    kwargs = {'dt': 20}
-
     if isinstance(env, str):
+        kwargs = {'dt': 20}
         env = gym.make(env, **kwargs)
 
     env.reset()

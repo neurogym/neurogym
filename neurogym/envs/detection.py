@@ -12,7 +12,7 @@ import neurogym as ngym
 import warnings
 
 
-class Detection(ngym.PeriodEnv):
+class Detection(ngym.TrialEnv):
     r"""The agent has to GO if a stimulus is presented.
 
     Args:
@@ -57,8 +57,8 @@ class Detection(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),
-            'stimulus': ('truncated_exponential', [1000, 500, 1500])}
+            'fixation': 500,
+            'stimulus': ngym.random.TruncExp(1000, 500, 1500, rng=self.rng)}
         if timing:
             self.timing.update(timing)
 
@@ -71,7 +71,7 @@ class Detection(ngym.PeriodEnv):
                                             dtype=np.float32)
         self.ob_dict = {'fixation': 0, 'stimulus': 1}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         """
         new_trial() is called when a trial ends to generate the next trial.
         Here you have to set (at least):
@@ -79,12 +79,12 @@ class Detection(ngym.PeriodEnv):
         2. The trial periods: fixation, stimulus...
         """
         # Trial
-        self.trial = {'ground_truth': self.rng.choice(self.choices)}
-        self.trial.update(kwargs)  # allows wrappers to modify the trial
-        ground_truth = self.trial['ground_truth']
+        trial = {'ground_truth': self.rng.choice(self.choices)}
+        trial.update(kwargs)  # allows wrappers to modify the trial
+        ground_truth = trial['ground_truth']
 
         # Period
-        self.add_period(['fixation', 'stimulus'], after=0, last_period=True)
+        self.add_period(['fixation', 'stimulus'])
 
         # ---------------------------------------------------------------------
         # Observations
@@ -124,6 +124,8 @@ class Detection(ngym.PeriodEnv):
         if ground_truth == 1:
             dec = self.view_groundtruth('stimulus')
             dec[delay:] = 1
+
+        return trial
 
     def _step(self, action):
         """

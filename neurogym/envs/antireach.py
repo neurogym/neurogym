@@ -7,7 +7,7 @@ import neurogym as ngym
 from neurogym.utils import tasktools
 
 
-class AntiReach(ngym.PeriodEnv):
+class AntiReach(ngym.TrialEnv):
     """Anti-response task.
 
     The agent has to move in the direction opposite to the one indicated
@@ -32,10 +32,10 @@ class AntiReach(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),
-            'stimulus': ('constant', 500),
-            'delay': ('constant', 0),
-            'decision': ('constant', 500)}
+            'fixation': 500,
+            'stimulus': 500,
+            'delay': 0,
+            'decision': 500}
         if timing:
             self.timing.update(timing)
 
@@ -53,29 +53,31 @@ class AntiReach(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(1+dim_ring)
         self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring + 1)}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices),
             'anti': self.anti,
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
-        ground_truth = self.trial['ground_truth']
-        if self.trial['anti']:
+        ground_truth = trial['ground_truth']
+        if trial['anti']:
             stim_theta = np.mod(self.theta[ground_truth] + np.pi, 2*np.pi)
         else:
             stim_theta = self.theta[ground_truth]
 
         # Periods
         periods = ['fixation', 'stimulus', 'delay', 'decision']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods)
 
         self.add_ob(1, period=['fixation', 'stimulus', 'delay'], where='fixation')
         stim = np.cos(self.theta - stim_theta)
         self.add_ob(stim, 'stimulus', where='stimulus')
 
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+
+        return trial
 
     def _step(self, action):
         new_trial = False

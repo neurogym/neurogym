@@ -10,7 +10,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class PsychopyEnv(ngym.PeriodEnv):
+class PsychopyEnv(ngym.TrialEnv):
     """Superclass for environments with psychopy stimuli."""
 
     def __init__(self, win_size=(100, 100), *args, **kwargs):
@@ -24,7 +24,7 @@ class PsychopyEnv(ngym.PeriodEnv):
         self.win.flip()
         im = self.win._getFrame()
         value = np.array(im)
-        self._default_ob_value = value[0, 0]
+        self._default_ob_value = value[0, 0]  # corner pixel, array 3-channels
 
         ob_shape = (self.win.size[0], self.win.size[1], 3)
         self.observation_space = spaces.Box(0, 255, shape=ob_shape,
@@ -57,15 +57,3 @@ class PsychopyEnv(ngym.PeriodEnv):
                 super().add_ob(np.array(im), period, where)
         else:
             super().add_ob(value, period, where)
-
-    def _init_trial(self, tmax):
-        """Initialize trial info with tmax, tind, obs"""
-        tmax_ind = int(tmax/self.dt)
-        self.tmax = tmax_ind * self.dt
-        self.ob = np.full([tmax_ind] + list(self.observation_space.shape),
-                          self._default_ob_value,
-                          dtype=self.observation_space.dtype)
-        self.gt = np.zeros([tmax_ind] + list(self.action_space.shape),
-                           dtype=self.action_space.dtype)
-
-

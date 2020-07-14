@@ -9,7 +9,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class PostDecisionWager(ngym.PeriodEnv):
+class PostDecisionWager(ngym.TrialEnv):
     r"""Post-decision wagering task assessing confidence.
 
     Agents do a discrimination task (see PerceptualDecisionMaking). On a
@@ -44,12 +44,12 @@ class PostDecisionWager(ngym.PeriodEnv):
         self.rewards['sure'] = 0.7 * self.rewards['correct']
 
         self.timing = {
-            'fixation': ('constant', 100),  # XXX: not specified
-            # 'target':  ('constant', 0), # XXX: not implemented, not specified
-            'stimulus': ('truncated_exponential', [180, 100, 900]),
-            'delay': ('truncated_exponential', [1350, 1200, 1800]),
-            'pre_sure': ('uniform', [500, 750]),
-            'decision': ('constant', 100)}  # XXX: not specified
+            'fixation': 100,
+            # 'target':  0,
+            'stimulus': ngym.random.TruncExp(180, 100, 900, rng=self.rng),
+            'delay': ngym.random.TruncExp(1350, 1200, 1800, rng=self.rng),
+            'pre_sure': lambda: self.rng.uniform(500, 750),
+            'decision': 100}
         if timing:
             self.timing.update(timing)
 
@@ -66,36 +66,38 @@ class PostDecisionWager(ngym.PeriodEnv):
     def scale(self, coh):
         return (1 + coh/100)/2
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info
-        self.trial = {
+        trial = {
             'wager': self.rng.choice(self.wagers),
             'ground_truth': self.rng.choice(self.choices),
             'coh': self.rng.choice(self.cohs),
         }
-        self.trial.update(kwargs)
-        coh = self.trial['coh']
-        ground_truth = self.trial['ground_truth']
+        trial.update(kwargs)
+        coh = trial['coh']
+        ground_truth = trial['ground_truth']
         stim_theta = self.theta[ground_truth]
 
         # Periods
         periods = ['fixation', 'stimulus', 'delay']
-        self.add_period(periods, after=0)
-        if self.trial['wager']:
+        self.add_period(periods)
+        if trial['wager']:
             self.add_period('pre_sure', after='stimulus')
-            self.add_period('sure', duration=10000, after='pre_sure')
-        self.add_period('decision', after='delay', last_period=True)
+        self.add_period('decision', after='delay')
 
         # Observations
         self.add_ob(1, ['fixation', 'stimulus', 'delay'], where='fixation')
         stim = np.cos(self.theta - stim_theta) * (coh / 200) + 0.5
         self.add_ob(stim, 'stimulus', where='stimulus')
         self.add_randn(0, self.sigma, 'stimulus')
-        if self.trial['wager']:
-            self.add_ob(1, 'sure', where='sure')
+        if trial['wager']:
+            self.add_ob(1, ['delay', 'decision'], where='sure')
+            self.set_ob(0, 'pre_sure', where='sure')
 
         # Ground truth
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+
+        return trial
 
     def _step(self, action):
         # ---------------------------------------------------------------------
