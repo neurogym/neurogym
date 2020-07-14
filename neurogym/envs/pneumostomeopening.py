@@ -6,7 +6,6 @@ import math
 from gym import spaces
 import neurogym as ngym
 
-
 class Pneumostomeopening(ngym.BaseEnv):
     metadata = {
         'paper_link': 'https://jeb.biologists.org/content/199/3/683.long',
@@ -29,18 +28,18 @@ class Pneumostomeopening(ngym.BaseEnv):
         ## swim actions: [up, down, left, right]
         ## make it 3D (forward/backward) or 2D is enough ?
         self.action_space = spaces.Discrete(4)
+        # self.action_space = spaces.MultiDiscrete([(0, 2), (0, 2)])
         self.act_dict = {'breathingpneumostome':0,
                          'breathingskin':1,
                          'up':2,
                          'down':3}
         ## observation space
-        ## Discretizing beaker into level of depth and left/right
-        self.observation_space = spaces.Discrete(5)
+        ## Discretizing beaker into level of depth
+        self.observation_space = spaces.Discrete(4)
         self.ob_dict = {'depth1':0,
                         'depth2':1,
-                        'depth3':2,
-                        'depth4':3,
-                        'depth5':4}
+                        'depth2':2,
+                        'depth2':3}
 
 
         ## TODO: can do breathingpneumostome only when at the surface ==depth 1
@@ -80,25 +79,25 @@ class Pneumostomeopening(ngym.BaseEnv):
         """
         ## Rewards
         if phase == 'set_default_behavior':
-            self.rewards = {
+            rewards = {
                 'swim': +0.1,  # reward given for anything else
                 'skin': +0.5,  # reward given when breathing through the skin
                 'pneumostome': +1.  # reward given when breathing through the pneumostome
                 #'miss': # to force some type of trial duration limit if implementing trials in this task ?
             }
         elif phase == 'training_session':
-            self.rewards = {
+            rewards = {
                 'swim': +0.1,
                 'skin': +1.,
                 'pneumostome': -1.
             }
         elif phase == 'testing_session':
-            self.rewards = {
+            rewards = {
                 'swim': 0.,
                 'skin': 0.,
                 'pneumostome': 0.
             }
-        return self.rewards
+        return rewards
 
     def reset(self):
         self.agent_pos = np.random.randint(7)
@@ -108,13 +107,10 @@ class Pneumostomeopening(ngym.BaseEnv):
     def step(self, action):
         new_trial = False
 
-        # rewards
-        # reward = 0
-
         # define the phase of the behavior
         self.rewards = self.phase('set_default_behavior')
 
-        # update reward depending on action and phase
+        # update reward depending on action and phase of behavioral training
         # update agent position
         if action == 0: #breathingpneumostome
             self.reward = self.rewards['pneumostome']
@@ -122,7 +118,7 @@ class Pneumostomeopening(ngym.BaseEnv):
         elif action == 1: #breathingskin
             self.reward = self.rewards['skin']
             self.agent_pos = self.agent_pos
-        else: #up #down #left #right
+        else: #up #down
             self.reward = self.rewards['swim']
             if action == 2:
                 self.agent_pos = self.agent_pos + 1
@@ -131,17 +127,12 @@ class Pneumostomeopening(ngym.BaseEnv):
 
         self.agent_pos = np.clip(self.agent_pos, 0, len(self.ob_dict))
 
-
         # updating oxygen level according to action taken
         self.oxygen_level = self._get_new_oxygen_level(action)
 
-        # if oxygen level drop at 0 or below OR reward is more than 30
-        # then end of experiment
-        if self.oxygen_level == 0:
+        # if oxygen level drop at 0 or below then end experiment
+        if self.oxygen_level <= 0:
             self.done = True
-            new_trial = True
-        # self.done = (self.oxygen_level == 0) | (self.rewards == 30)
-
 
         self.t = self.t + 1
 
@@ -151,7 +142,7 @@ class Pneumostomeopening(ngym.BaseEnv):
                 ## by using breathing even only when below threshold of O2 ?
                 ## or use refractory period ?
 
-        print(self.agent_pos, self.reward, self.done, {'new_trial': new_trial})
+        print([self.agent_pos], self.reward, self.done, {'new_trial': new_trial})
         return np.array([self.agent_pos]), self.reward, self.done, {'new_trial': new_trial}
 
     def render(self,mode='human'):
@@ -163,15 +154,17 @@ class Pneumostomeopening(ngym.BaseEnv):
 
 
 if __name__ == '__main__':
+    import matplotlib.pyplot as plt
     from neurogym.tests import test_run, test_speed
     env = Pneumostomeopening()
-    test_run(env)
-
+    # test_run(env)
     # test_speed(env)
-
-
+    from neurogym.utils.plotting import plot_env
+    from neurogym.utils.test_plotting import test_plot
     # ngym.utils.plotting.run_env(env, num_steps=200)
-    # ngym.utils.plotting.plot_env(env, num_steps=20)
+    plot = plot_env(env, num_steps=100)
+    plt.show(plot)
+    # test_plot(env)
 
     # ob = data['ob']
     # ob.shape

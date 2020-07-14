@@ -76,7 +76,9 @@ ALL_NATIVE_ENVS = {
     'PulseDecisionMaking-v0':
         'neurogym.envs.perceptualdecisionmaking:PulseDecisionMaking',
     'Nothing-v0':
-        'neurogym.envs.nothing:Nothing'
+        'neurogym.envs.nothing:Nothing',
+    'Pneumostomeopening-v0':
+        'neurogym.envs.pneumostomeopening:Pneumostomeopening',
 }
 
 ALL_PSYCHOPY_ENVS = {
