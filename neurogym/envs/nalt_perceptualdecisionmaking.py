@@ -45,7 +45,7 @@ class nalt_PerceptualDecisionMaking(ngym.PeriodEnv):
                                                 must be True/False'
         assert isinstance(ob_nch, bool), 'ob_nch \
                                                 must be True/False'
-        n_ch_factor = *1.84665761*np.log(n_ch)-0.04102044
+        n_ch_factor = 1.84665761*np.log(n_ch)-0.04102044
         # The strength of evidence, modulated by stim_scale.
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*n_ch_factor*stim_scale
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
