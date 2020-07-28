@@ -68,7 +68,11 @@ class TrialHistoryEvolution(TrialWrapperV2):
         self.probs = probs
         self.balanced_probs = balanced_probs
         self.num_contexts = num_contexts
-        self.death_prob = death_prob
+        self.ctx_ch_prob = ctx_ch_prob
+        if ctx_ch_prob is None:
+            self.death_prob = death_prob*ctx_dur
+        else:
+            self.death_prob = death_prob/ctx_ch_prob
         self.curr_contexts = self.contexts
         self.curr_tr_mat = self.trans_probs
         assert self.curr_tr_mat.shape[1] == self.n_ch,\
@@ -77,7 +81,6 @@ class TrialHistoryEvolution(TrialWrapperV2):
             ' inferred from choices'
         self.ctx_dur = ctx_dur
         self.prev_trial = self.rng.choice(self.n_ch)  # random initialization
-        self.ctx_ch_prob = ctx_ch_prob
 
     def new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
@@ -116,7 +119,7 @@ class TrialHistoryEvolution(TrialWrapperV2):
         if prob is already a matrix it normalizes the probabilities and extracts
         the subset corresponding to the current number of choices
         '''
-        if self.unwrapped.rng.rand() < self.death_prob/self.ctx_ch_prob:
+        if self.unwrapped.rng.rand() < self.death_prob:
             self.curr_contexts = self.contexts
         context = self.curr_contexts[self.rng.choice(range(self.num_contexts))]
         tr_mat = np.eye(self.curr_n_ch)*self.probs

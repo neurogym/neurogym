@@ -462,7 +462,7 @@ def check_blk_id(blk_id_mat, curr_blk, num_blk):
 def test_trialhistEv(env_name, num_steps=10000, probs=0.8, num_blocks=2,
                      verbose=True, num_ch=4):
     env = gym.make(env_name, **{'n_ch': num_ch})
-    env = TrialHistoryEvolution(env, probs=probs, ctx_dur=200, death_prob=0.01,
+    env = TrialHistoryEvolution(env, probs=probs, ctx_dur=200, death_prob=0.0001,
                                 num_contexts=num_blocks)
     transitions = []
     env.reset()
