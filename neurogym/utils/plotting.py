@@ -313,7 +313,8 @@ def plot_env_1dbox(
     ax.set_xlabel('Steps')
     plt.tight_layout()
     if fname:
-        if not (fname.endswith('.png') or fname.endswith('.svg')):
+        if isinstance(fname, str) and \
+                (not (fname.endswith('.png') or fname.endswith('.svg'))):
             fname += '.png'
         f.savefig(fname, dpi=300)
         plt.close(f)

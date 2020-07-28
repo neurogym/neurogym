@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,13 +15,13 @@ def make_env_images():
     for env_name in envs:
         env = gym.make(env_name, **{'dt': 20})
         action = np.zeros_like(env.action_space.sample())
-        fname = os.path.join('images', env_name + '_examplerun')
+        fname = Path(__file__).parent / 'images' / (env_name + '_examplerun.png')
+        # fname = os.path.join('.', 'images', env_name + '_examplerun')
         ngym.utils.plot_env(env, num_trials=2, def_act=action, fname=fname)
         plt.close()
 
 
-def main():
-    make_env_images()
+def make_envs():
     string = 'Environments\n'
     string += '===================================\n\n'
 
@@ -47,17 +48,18 @@ def main():
         string = string[:-2]
         string += '\n\n'
 
-
         # Add image
         string += '    Sample run\n'
-        image_path = os.path.join('images', key+'_examplerun.png')
-        if os.path.isfile(image_path):
-            string += ' '*8 + '.. image:: {:s}\n'.format(image_path)
+        image_path = Path('images') / (key + '_examplerun.png')
+        if (Path(__file__).parent / image_path).exists():
+            string += ' '*8 + '.. image:: {:s}\n'.format(str(image_path))
             string += ' '*12 + ':width: 600\n\n'
 
-    with open('envs.rst', 'w') as f:
+    with open(Path(__file__).parent / 'envs.rst', 'w') as f:
         f.write(string)
 
+
+def make_tags():
     string = 'Tags\n'
     string += '===================================\n\n'
 
@@ -67,23 +69,30 @@ def main():
         string += '.. _tag-{:s}:\n\n'.format(tag)
         string += tag + '\n--------------------------------\n'
         for env in ngym.all_envs(tag=tag):
-            string += '    :class:`{:s} <{:s}>`\n'.format(env, ALL_ENVS[env].replace(':', '.'))
+            string += '    :class:`{:s} <{:s}>`\n'.format(env, ALL_ENVS[
+                env].replace(':', '.'))
         string += '\n'
-    with open('tags.rst', 'w') as f:
+    with open(Path(__file__).parent / 'tags.rst', 'w') as f:
         f.write(string)
-
 
     string = 'Wrappers\n'
     string += '===================================\n\n'
 
     for key, val in ALL_WRAPPERS.items():
         string += key + '\n' + '-' * 50 + '\n'
-        string += '.. autoclass:: ' + val.split(':')[0] + '.' + val.split(':')[1] + '\n'
+        string += '.. autoclass:: ' + val.split(':')[0] + '.' + val.split(':')[
+            1] + '\n'
         string += '    :members:\n'
         string += '    :exclude-members: new_trial\n\n'
 
-    with open('wrappers.rst', 'w') as f:
+    with open(Path(__file__).parent / 'wrappers.rst', 'w') as f:
         f.write(string)
+
+
+def main():
+    # make_env_images()
+    make_envs()
+    make_tags()
 
 
 if __name__ == '__main__':
