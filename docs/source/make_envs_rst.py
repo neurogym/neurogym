@@ -22,10 +22,18 @@ def make_env_images():
 
 
 def make_envs():
+    # Make envs/index.rst
     string = 'Environments\n'
     string += '===================================\n\n'
+    string += '.. toctree::\n'
+    string += '    :maxdepth: 1\n\n'
+    for key, val in sorted(ALL_ENVS.items()):
+        string += ' ' * 4 + '{:s}\n'.format(key)
+    with open(Path(__file__).parent / 'envs' / 'index.rst', 'w') as f:
+        f.write(string)
 
     for key, val in sorted(ALL_ENVS.items()):
+        string = ''
         string += key + '\n'+'-'*50+'\n'
         string += '.. autoclass:: ' + val.split(':')[0] + '.' + val.split(':')[1] + '\n'
         string += '    :members:\n'
@@ -51,12 +59,12 @@ def make_envs():
         # Add image
         string += '    Sample run\n'
         image_path = Path('images') / (key + '_examplerun.png')
-        if (Path(__file__).parent / image_path).exists():
+        if (Path(__file__).parent / 'envs' / image_path).exists():
             string += ' '*8 + '.. image:: {:s}\n'.format(str(image_path))
             string += ' '*12 + ':width: 600\n\n'
 
-    with open(Path(__file__).parent / 'envs.rst', 'w') as f:
-        f.write(string)
+        with open(Path(__file__).parent / 'envs' / (key + '.rst'), 'w') as f:
+            f.write(string)
 
 
 def make_tags():

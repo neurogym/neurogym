@@ -25,7 +25,7 @@ Welcome to neurogym's documentation!
     :maxdepth: 1
     :caption: Environments
 
-    envs
+    envs/index
     tags
     wrappers
 

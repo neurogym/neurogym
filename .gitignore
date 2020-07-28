@@ -108,5 +108,5 @@ venv.bak/
 .idea/
 *tmp.py
 figures/
-docs/source/images/
+docs/source/envs/images/
 .DS_Store
