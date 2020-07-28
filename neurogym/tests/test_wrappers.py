@@ -18,6 +18,7 @@ from neurogym.wrappers import TTLPulse
 from neurogym.wrappers import TransferLearning
 from neurogym.wrappers import Combine
 from neurogym.wrappers import Variable_nch
+from neurogym.wrappers import TrialHistoryEvolution
 
 
 def test_sidebias(env_name, num_steps=10000, verbose=False,
@@ -458,6 +459,26 @@ def check_blk_id(blk_id_mat, curr_blk, num_blk):
         return blk_id_mat, -1
 
 
+def test_trialhistEv(env_name, num_steps=10000, probs=0.8, num_blocks=2,
+                     verbose=True, num_ch=4):
+    env = gym.make(env_name, **{'n_ch': num_ch})
+    env = TrialHistoryEvolution(env, probs=probs, ctx_dur=200, death_prob=0.01,
+                                num_contexts=num_blocks)
+    transitions = []
+    env.reset()
+    for stp in range(num_steps):
+        action = env.action_space.sample()
+        obs, rew, done, info = env.step(action)
+        if done:
+            env.reset()
+        if info['new_trial'] and verbose:
+            # print(info['curr_block'])
+            transitions.append(np.array([np.where(x==0.8)[0][0]
+                                         for x in env.curr_tr_mat[0, :, :]]))
+    plt.figure()
+    plt.imshow(np.array(transitions), aspect='auto')
+
+
 if __name__ == '__main__':
     plt.close('all')
     env_args = {'stim_scale': 10, 'timing': {'fixation': ('constant', 100),
@@ -483,6 +504,8 @@ if __name__ == '__main__':
     # test_reactiontime('PerceptualDecisionMaking-v0', num_steps=100)
     # test_transferLearning(num_steps=200, verbose=True)
     # test_combine(num_steps=200, verbose=True)
-    data = test_concat_wrpprs_th_vch_pssr_pssa('NAltPerceptualDecisionMaking-v0',
-                                               num_steps=1000000, verbose=True,
-                                               probs=0.99, num_blocks=16)
+    # data = test_concat_wrpprs_th_vch_pssr_pssa('NAltPerceptualDecisionMaking-v0',
+    #                                            num_steps=1000000, verbose=True,
+    #                                            probs=0.99, num_blocks=16)
+    test_trialhistEv('NAltPerceptualDecisionMaking-v0', num_steps=50000,
+                     probs=0.8, num_blocks=3, verbose=True, num_ch=4)
