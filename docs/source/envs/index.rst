@@ -26,11 +26,9 @@ Environments
     MotorTiming-v0
     MultiSensoryIntegration-v0
     NAltPerceptualDecisionMaking-v0
-    Nothing-v0
     OneTwoThreeGo-v0
     PerceptualDecisionMaking-v0
     PerceptualDecisionMakingDelayResponse-v0
-    Pneumostomeopening-v0
     PostDecisionWager-v0
     ProbabilisticReasoning-v0
     PulseDecisionMaking-v0

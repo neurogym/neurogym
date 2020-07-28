@@ -8,6 +8,6 @@ ReachingDelayResponse-v0
         :ref:`tag-perceptual`,         :ref:`tag-delayed response`,         :ref:`tag-continuous action space`,         :ref:`tag-multidimensional action space`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/ReachingDelayResponse-v0_examplerun.png
+        .. image:: ../_static/ReachingDelayResponse-v0_examplerun.png
             :width: 600
 

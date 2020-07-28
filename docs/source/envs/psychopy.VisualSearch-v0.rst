@@ -11,3 +11,7 @@ psychopy.VisualSearch-v0
         :ref:`tag-perceptual`,         :ref:`tag-supervised`
 
     Sample run
+        .. video:: ../_static/psychopy.VisualSearch-v0_examplerun.mp4
+            :width: 300
+            :height: 300
+            :loop:

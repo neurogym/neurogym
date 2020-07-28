@@ -11,6 +11,6 @@ EconomicDecisionMaking-v0
         :ref:`tag-perceptual`,         :ref:`tag-value-based`
 
     Sample run
-        .. image:: images/EconomicDecisionMaking-v0_examplerun.png
+        .. image:: ../_static/EconomicDecisionMaking-v0_examplerun.png
             :width: 600
 

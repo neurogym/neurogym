@@ -11,6 +11,6 @@ IntervalDiscrimination-v0
         :ref:`tag-timing`,         :ref:`tag-working memory`,         :ref:`tag-delayed response`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/IntervalDiscrimination-v0_examplerun.png
+        .. image:: ../_static/IntervalDiscrimination-v0_examplerun.png
             :width: 600
 

@@ -11,6 +11,6 @@ SingleContextDecisionMaking-v0
         :ref:`tag-perceptual`,         :ref:`tag-context dependent`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/SingleContextDecisionMaking-v0_examplerun.png
+        .. image:: ../_static/SingleContextDecisionMaking-v0_examplerun.png
             :width: 600
 

@@ -11,6 +11,6 @@ GoNogo-v0
         :ref:`tag-delayed response`,         :ref:`tag-go-no-go`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/GoNogo-v0_examplerun.png
+        .. image:: ../_static/GoNogo-v0_examplerun.png
             :width: 600
 

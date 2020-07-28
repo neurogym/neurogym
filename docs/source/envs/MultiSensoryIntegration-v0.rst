@@ -8,6 +8,6 @@ MultiSensoryIntegration-v0
         :ref:`tag-perceptual`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/MultiSensoryIntegration-v0_examplerun.png
+        .. image:: ../_static/MultiSensoryIntegration-v0_examplerun.png
             :width: 600
 

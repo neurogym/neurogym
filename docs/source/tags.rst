@@ -63,7 +63,6 @@ n-alternative
 --------------------------------
     :class:`Bandit-v0 <neurogym.envs.bandit.Bandit>`
     :class:`NAltPerceptualDecisionMaking-v0 <neurogym.envs.nalt_perceptualdecisionmaking.nalt_PerceptualDecisionMaking>`
-    :class:`Nothing-v0 <neurogym.envs.nothing.Nothing>`
 
 .. _tag-perceptual:
 
@@ -129,7 +128,6 @@ supervised
     :class:`MotorTiming-v0 <neurogym.envs.readysetgo.MotorTiming>`
     :class:`MultiSensoryIntegration-v0 <neurogym.envs.multisensory.MultiSensoryIntegration>`
     :class:`NAltPerceptualDecisionMaking-v0 <neurogym.envs.nalt_perceptualdecisionmaking.nalt_PerceptualDecisionMaking>`
-    :class:`Nothing-v0 <neurogym.envs.nothing.Nothing>`
     :class:`OneTwoThreeGo-v0 <neurogym.envs.readysetgo.OneTwoThreeGo>`
     :class:`PerceptualDecisionMaking-v0 <neurogym.envs.perceptualdecisionmaking.PerceptualDecisionMaking>`
     :class:`PerceptualDecisionMakingDelayResponse-v0 <neurogym.envs.perceptualdecisionmaking.PerceptualDecisionMakingDelayResponse>`

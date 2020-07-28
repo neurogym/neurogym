@@ -11,6 +11,6 @@ DelayMatchSample-v0
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/DelayMatchSample-v0_examplerun.png
+        .. image:: ../_static/DelayMatchSample-v0_examplerun.png
             :width: 600
 

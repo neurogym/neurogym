@@ -11,3 +11,7 @@ psychopy.RandomDotMotion-v0
         :ref:`tag-perceptual`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
     Sample run
+        .. video:: ../_static/psychopy.RandomDotMotion-v0_examplerun.mp4
+            :width: 300
+            :height: 300
+            :loop:

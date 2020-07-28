@@ -11,6 +11,6 @@ ProbabilisticReasoning-v0
         :ref:`tag-perceptual`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/ProbabilisticReasoning-v0_examplerun.png
+        .. image:: ../_static/ProbabilisticReasoning-v0_examplerun.png
             :width: 600
 

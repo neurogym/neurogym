@@ -11,6 +11,6 @@ ReadySetGo-v0
         :ref:`tag-timing`,         :ref:`tag-go-no-go`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/ReadySetGo-v0_examplerun.png
+        .. image:: ../_static/ReadySetGo-v0_examplerun.png
             :width: 600
 

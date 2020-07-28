@@ -11,6 +11,6 @@ DawTwoStep-v0
         :ref:`tag-two-alternative`
 
     Sample run
-        .. image:: images/DawTwoStep-v0_examplerun.png
+        .. image:: ../_static/DawTwoStep-v0_examplerun.png
             :width: 600
 

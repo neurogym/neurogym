@@ -11,6 +11,6 @@ MatchingPenny-v0
         :ref:`tag-two-alternative`
 
     Sample run
-        .. image:: images/MatchingPenny-v0_examplerun.png
+        .. image:: ../_static/MatchingPenny-v0_examplerun.png
             :width: 600
 

@@ -11,6 +11,6 @@ OneTwoThreeGo-v0
         :ref:`tag-timing`,         :ref:`tag-go-no-go`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/OneTwoThreeGo-v0_examplerun.png
+        .. image:: ../_static/OneTwoThreeGo-v0_examplerun.png
             :width: 600
 

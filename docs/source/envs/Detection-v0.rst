@@ -8,6 +8,6 @@ Detection-v0
         :ref:`tag-perceptual`,         :ref:`tag-reaction time`,         :ref:`tag-go-no-go`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/Detection-v0_examplerun.png
+        .. image:: ../_static/Detection-v0_examplerun.png
             :width: 600
 

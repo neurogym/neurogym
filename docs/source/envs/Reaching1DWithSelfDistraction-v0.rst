@@ -8,6 +8,6 @@ Reaching1DWithSelfDistraction-v0
         :ref:`tag-motor`,         :ref:`tag-steps action space`
 
     Sample run
-        .. image:: images/Reaching1DWithSelfDistraction-v0_examplerun.png
+        .. image:: ../_static/Reaching1DWithSelfDistraction-v0_examplerun.png
             :width: 600
 

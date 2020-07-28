@@ -11,6 +11,6 @@ ContextDecisionMaking-v0
         :ref:`tag-perceptual`,         :ref:`tag-context dependent`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/ContextDecisionMaking-v0_examplerun.png
+        .. image:: ../_static/ContextDecisionMaking-v0_examplerun.png
             :width: 600
 

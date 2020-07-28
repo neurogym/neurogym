@@ -11,6 +11,6 @@ PerceptualDecisionMakingDelayResponse-v0
         :ref:`tag-perceptual`,         :ref:`tag-delayed response`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/PerceptualDecisionMakingDelayResponse-v0_examplerun.png
+        .. image:: ../_static/PerceptualDecisionMakingDelayResponse-v0_examplerun.png
             :width: 600
 

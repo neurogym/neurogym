@@ -11,6 +11,6 @@ DelayPairedAssociation-v0
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-go-no-go`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/DelayPairedAssociation-v0_examplerun.png
+        .. image:: ../_static/DelayPairedAssociation-v0_examplerun.png
             :width: 600
 

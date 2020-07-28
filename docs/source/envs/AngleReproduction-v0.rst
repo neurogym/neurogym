@@ -11,6 +11,6 @@ AngleReproduction-v0
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-delayed response`,         :ref:`tag-steps action space`
 
     Sample run
-        .. image:: images/AngleReproduction-v0_examplerun.png
+        .. image:: ../_static/AngleReproduction-v0_examplerun.png
             :width: 600
 

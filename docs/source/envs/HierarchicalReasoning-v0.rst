@@ -11,6 +11,6 @@ HierarchicalReasoning-v0
         :ref:`tag-perceptual`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/HierarchicalReasoning-v0_examplerun.png
+        .. image:: ../_static/HierarchicalReasoning-v0_examplerun.png
             :width: 600
 

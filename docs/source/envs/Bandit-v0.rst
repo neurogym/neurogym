@@ -11,6 +11,6 @@ Bandit-v0
         :ref:`tag-n-alternative`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/Bandit-v0_examplerun.png
+        .. image:: ../_static/Bandit-v0_examplerun.png
             :width: 600
 

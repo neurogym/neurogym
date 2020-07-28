@@ -11,6 +11,6 @@ CVLearning-v0
         :ref:`tag-perceptual`,         :ref:`tag-delayed response`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/CVLearning-v0_examplerun.png
+        .. image:: ../_static/CVLearning-v0_examplerun.png
             :width: 600
 

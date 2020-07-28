@@ -11,6 +11,6 @@ PostDecisionWager-v0
         :ref:`tag-perceptual`,         :ref:`tag-delayed response`,         :ref:`tag-confidence`
 
     Sample run
-        .. image:: images/PostDecisionWager-v0_examplerun.png
+        .. image:: ../_static/PostDecisionWager-v0_examplerun.png
             :width: 600
 

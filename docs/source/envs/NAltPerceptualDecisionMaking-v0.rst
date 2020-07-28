@@ -11,6 +11,6 @@ NAltPerceptualDecisionMaking-v0
         :ref:`tag-perceptual`,         :ref:`tag-n-alternative`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/NAltPerceptualDecisionMaking-v0_examplerun.png
+        .. image:: ../_static/NAltPerceptualDecisionMaking-v0_examplerun.png
             :width: 600
 

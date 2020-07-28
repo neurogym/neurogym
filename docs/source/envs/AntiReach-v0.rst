@@ -11,6 +11,6 @@ AntiReach-v0
         :ref:`tag-perceptual`,         :ref:`tag-steps action space`
 
     Sample run
-        .. image:: images/AntiReach-v0_examplerun.png
+        .. image:: ../_static/AntiReach-v0_examplerun.png
             :width: 600
 

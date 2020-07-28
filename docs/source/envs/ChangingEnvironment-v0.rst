@@ -11,6 +11,6 @@ ChangingEnvironment-v0
         :ref:`tag-perceptual`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`,         :ref:`tag-context dependent`
 
     Sample run
-        .. image:: images/ChangingEnvironment-v0_examplerun.png
+        .. image:: ../_static/ChangingEnvironment-v0_examplerun.png
             :width: 600
 

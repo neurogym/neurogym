@@ -11,6 +11,6 @@ DelayComparison-v0
         :ref:`tag-perceptual`,         :ref:`tag-working memory`,         :ref:`tag-two-alternative`,         :ref:`tag-supervised`
 
     Sample run
-        .. image:: images/DelayComparison-v0_examplerun.png
+        .. image:: ../_static/DelayComparison-v0_examplerun.png
             :width: 600
 
