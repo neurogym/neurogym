@@ -462,19 +462,24 @@ def check_blk_id(blk_id_mat, curr_blk, num_blk):
 def test_trialhistEv(env_name, num_steps=10000, probs=0.8, num_blocks=2,
                      verbose=True, num_ch=4):
     env = gym.make(env_name, **{'n_ch': num_ch})
-    env = TrialHistoryEvolution(env, probs=probs, ctx_dur=200, death_prob=0.0001,
+    env = TrialHistoryEvolution(env, probs=probs, ctx_dur=200, death_prob=0.001,
                                 num_contexts=num_blocks)
     transitions = []
     env.reset()
+    num_tr = 0
     for stp in range(num_steps):
         action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
         if done:
             env.reset()
         if info['new_trial'] and verbose:
+            num_tr += 1
             # print(info['curr_block'])
-            transitions.append(np.array([np.where(x==0.8)[0][0]
+            transitions.append(np.array([np.where(x == 0.8)[0][0]
                                          for x in env.curr_tr_mat[0, :, :]]))
+        if info['new_generation'] and verbose:
+            print('New generation')
+            print(num_tr)
     plt.figure()
     plt.imshow(np.array(transitions), aspect='auto')
 
@@ -507,5 +512,5 @@ if __name__ == '__main__':
     # data = test_concat_wrpprs_th_vch_pssr_pssa('NAltPerceptualDecisionMaking-v0',
     #                                            num_steps=1000000, verbose=True,
     #                                            probs=0.99, num_blocks=16)
-    test_trialhistEv('NAltPerceptualDecisionMaking-v0', num_steps=50000,
+    test_trialhistEv('NAltPerceptualDecisionMaking-v0', num_steps=100000,
                      probs=0.8, num_blocks=3, verbose=True, num_ch=4)
