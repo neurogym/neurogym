@@ -91,6 +91,7 @@ class TrialHistoryEvolution(TrialWrapperV2):
         if 'n_ch' in kwargs.keys() and kwargs['n_ch'] != self.curr_n_ch:
             self.curr_n_ch = kwargs['n_ch']
             self.prev_trial = self.rng.choice(self.th_choices[:self.curr_n_ch])
+            self.curr_contexts = self.contexts
             self.curr_tr_mat = self.trans_probs
             block_already_changed = True
 
@@ -135,7 +136,7 @@ class TrialHistoryEvolution(TrialWrapperV2):
     @property
     def contexts(self):
         self.new_generation = True
-        contexts = np.empty((self.num_contexts, self.n_ch))
+        contexts = np.empty((self.num_contexts, self.curr_n_ch))
         for i_ctx in range(self.num_contexts):
             if self.balanced_probs:
                 indx = np.arange(self.curr_n_ch)
