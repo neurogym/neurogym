@@ -134,6 +134,7 @@ class TrialHistoryEvolution(TrialWrapperV2):
 
     @property
     def contexts(self):
+        self.new_generation = True
         contexts = np.empty((self.num_contexts, self.n_ch))
         for i_ctx in range(self.num_contexts):
             if self.balanced_probs:
@@ -147,4 +148,6 @@ class TrialHistoryEvolution(TrialWrapperV2):
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
         info['curr_block'] = self.blk_id
+        info['new_generation'] = self.new_generation
+        self.new_generation = False
         return obs, reward, done, info
