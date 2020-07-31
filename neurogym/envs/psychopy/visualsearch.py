@@ -24,10 +24,10 @@ class VisualSearch(PsychopyEnv):
         'tags': ['perceptual', 'supervised']
     }
 
-    def __init__(self, dt=16, win_size=(100, 100), rewards=None, timing=None,
+    def __init__(self, dt=16, win_kwargs={'size': (100, 100)}, rewards=None, timing=None,
                  target_centers=None, length=0.3, delta_angle=None,
                  delta_color=None, line_width=3):
-        super().__init__(dt=dt, win_size=win_size)
+        super().__init__(dt=dt, win_kwargs=win_kwargs)
 
         # Rewards
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
