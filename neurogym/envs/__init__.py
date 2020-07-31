@@ -85,6 +85,8 @@ ALL_PSYCHOPY_ENVS = {
         'neurogym.envs.psychopy.perceptualdecisionmaking:RandomDotMotion',
     'psychopy.VisualSearch-v0':
         'neurogym.envs.psychopy.visualsearch:VisualSearch',
+    'psychopy.spatialsuppressmotion-v0':
+        'neurogym.envs.psychopy.spatialsuppressmotion:SpatialSuppressMotion',
 }
 
 

@@ -72,22 +72,22 @@ class Dataset(object):
         self._cache_inputs_shape = shape2 + list(obs_shape)
         self._cache_target_shape = shape2 + list(action_shape)
 
-        self._inputs = np.zeros(self._cache_inputs_shape)
-        self._target = np.zeros(self._cache_target_shape)
+        self._inputs = np.zeros(self._cache_inputs_shape, dtype=env.observation_space.dtype)
+        self._target = np.zeros(self._cache_target_shape, dtype=env.action_space.dtype)
 
         self._cache()
 
         self._i_batch = 0
         self.max_batch = max_batch
 
-    def _cache(self):
+    def _cache(self, **kwargs):
         for i in range(self.batch_size):
             env = self.envs[i]
             seq_start = 0
             seq_end = 0
             while seq_end < self._cache_len:
                 # TODO: Right now this only works for env with new_trial
-                env.new_trial()
+                env.new_trial(**kwargs)
                 ob, gt = env.ob, env.gt
                 seq_len = ob.shape[0]
                 seq_end = seq_start + seq_len
@@ -109,9 +109,9 @@ class Dataset(object):
         return self
 
     def __call__(self, *args, **kwargs):
-        return self.__next__()
+        return self.__next__(**kwargs)
 
-    def __next__(self):
+    def __next__(self, **kwargs):
         self._i_batch += 1
         if self._i_batch > self.max_batch:
             self._i_batch = 0
@@ -119,8 +119,8 @@ class Dataset(object):
 
         self._seq_end = self._seq_start + self.seq_len
 
-        if self._seq_end > self._cache_len:
-            self._cache()
+        if self._seq_end >= self._cache_len:
+            self._cache(**kwargs)
 
         if self.batch_first:
             inputs = self._inputs[:, self._seq_start:self._seq_end, ...]
