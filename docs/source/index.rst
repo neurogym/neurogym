@@ -6,26 +6,28 @@
 Welcome to neurogym's documentation!
 ====================================
 
+NeuroGym is a curated collection of neuroscience tasks with a common interface.
+The goal is to facilitate training of neural network models on neuroscience tasks.
+
 .. toctree::
     :caption: Getting started
     :maxdepth: 1
 
     installing
-    demo
 
 .. toctree::
     :caption: Examples
     :maxdepth: 1
 
     example_neurogym_rl
-    example_neurogym_keras
     example_neurogym_pytorch
+    example_neurogym_keras
 
 .. toctree::
     :maxdepth: 1
     :caption: Environments
 
-    envs
+    envs/index
     tags
     wrappers
 

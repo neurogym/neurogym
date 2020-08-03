@@ -313,6 +313,7 @@ def plot_env_1dbox(
     ax.set_xlabel('Steps')
     plt.tight_layout()
     if fname:
+        fname = str(fname)
         if not (fname.endswith('.png') or fname.endswith('.svg')):
             fname += '.png'
         f.savefig(fname, dpi=300)
@@ -337,8 +338,9 @@ def plot_env_3dbox(ob, actions=None, fname='', env=None):
         interval = 50
     ani = animation.FuncAnimation(fig, animate, frames=ob.shape[0],
                                   interval=interval)
-    writer = animation.writers['ffmpeg'](fps=int(1000/interval))
     if fname:
+        writer = animation.writers['ffmpeg'](fps=int(1000 / interval))
+        fname = str(fname)
         if not fname.endswith('.mp4'):
             fname += '.mp4'
         ani.save(fname, writer=writer, dpi=300)
