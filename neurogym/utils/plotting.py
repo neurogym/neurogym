@@ -203,7 +203,8 @@ def plot_env_1dbox(
     i_ax += 1
     if ob_traces:
         assert len(ob_traces) == ob.shape[1],\
-            'Please provide label for each trace in the observations'
+            'Please provide label for each of the '+str(ob.shape[1]) +\
+            ' traces in the observations'
         for ind_tr, tr in enumerate(ob_traces):
             ax.plot(ob[:, ind_tr], label=ob_traces[ind_tr])
         ax.legend()
@@ -251,7 +252,7 @@ def plot_env_1dbox(
     ax.spines['right'].set_visible(False)
     if legend:
         ax.legend()
-    if env and env.act_dict:
+    if env and hasattr(env, 'act_dict') and env.act_dict:
         # Plot environment annotation
         yticks = []
         yticklabels = []
@@ -273,7 +274,7 @@ def plot_env_1dbox(
             ax.legend()
         ax.set_xlim([-0.5, len(steps)-0.5])
 
-        if env and env.rewards:
+        if env and hasattr(env, 'act_dict') and env.rewards:
             # Plot environment annotation
             yticks = []
             yticklabels = []

@@ -20,7 +20,7 @@ class MemoryRecall(ngym.TrialEnv):
             p_recall=0.1,
             chance=0.7,
             balanced=True,
-            **kwargs,
+            **kwargs
     ):
         """
         Args:

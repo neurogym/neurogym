@@ -14,7 +14,13 @@ import gym
 import neurogym as ngym
 
 
-ENVS = ngym.all_envs(psychopy=True, collections=True)
+try:
+    import psychopy
+    _have_psychopy = True
+except ImportError as e:
+    _have_psychopy = False
+
+ENVS = ngym.all_envs(psychopy=_have_psychopy, collections=True)
 
 
 def test_run(env=None, num_steps=100, verbose=False, **kwargs):

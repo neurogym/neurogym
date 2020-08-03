@@ -77,7 +77,9 @@ ALL_NATIVE_ENVS = {
     'PulseDecisionMaking-v0':
         'neurogym.envs.perceptualdecisionmaking:PulseDecisionMaking',
     'Nothing-v0':
-        'neurogym.envs.nothing:Nothing'
+        'neurogym.envs.nothing:Nothing',
+    'Pneumostomeopening-v0':
+        'neurogym.envs.pneumostomeopening:Pneumostomeopening',
 }
 
 ALL_PSYCHOPY_ENVS = {
@@ -85,6 +87,8 @@ ALL_PSYCHOPY_ENVS = {
         'neurogym.envs.psychopy.perceptualdecisionmaking:RandomDotMotion',
     'psychopy.VisualSearch-v0':
         'neurogym.envs.psychopy.visualsearch:VisualSearch',
+    'psychopy.spatialsuppressmotion-v0':
+        'neurogym.envs.psychopy.spatialsuppressmotion:SpatialSuppressMotion',
 }
 
 
