@@ -463,7 +463,8 @@ def test_trialhistEv(env_name, num_steps=10000, probs=0.8, num_blocks=2,
                      verbose=True, num_ch=4):
     env = gym.make(env_name, **{'n_ch': num_ch})
     env = TrialHistoryEvolution(env, probs=probs, ctx_dur=200, death_prob=0.001,
-                                num_contexts=num_blocks)
+                                num_contexts=num_blocks, fix_2AFC=True,
+                                balanced_probs=True)
     transitions = []
     env.reset()
     num_tr = 0
@@ -513,4 +514,4 @@ if __name__ == '__main__':
     #                                            num_steps=1000000, verbose=True,
     #                                            probs=0.99, num_blocks=16)
     test_trialhistEv('NAltPerceptualDecisionMaking-v0', num_steps=100000,
-                     probs=0.8, num_blocks=3, verbose=True, num_ch=4)
+                     probs=0.8, num_blocks=3, verbose=True, num_ch=8)

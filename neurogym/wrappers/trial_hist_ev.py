@@ -54,7 +54,8 @@ class TrialHistoryEvolution(TrialWrapperV2):
     }
 
     def __init__(self, env, probs=None, ctx_dur=200, num_contexts=3,
-                 death_prob=0.0001, ctx_ch_prob=None, balanced_probs=False):
+                 fix_2AFC=False, death_prob=0.0001, ctx_ch_prob=None,
+                 balanced_probs=False):
         super().__init__(env)
         try:
             self.n_ch = len(self.unwrapped.choices)  # max num of choices
@@ -65,6 +66,7 @@ class TrialHistoryEvolution(TrialWrapperV2):
                                  to have attribute choices''')
         assert isinstance(self.unwrapped, ngym.TrialEnv), 'Task has to be TrialEnv'
         assert probs is not None, 'Please provide choices probabilities'
+        self.fix_2AFC = fix_2AFC
         self.probs = probs
         self.balanced_probs = balanced_probs
         self.num_contexts = num_contexts
@@ -136,13 +138,19 @@ class TrialHistoryEvolution(TrialWrapperV2):
     @property
     def contexts(self):
         self.new_generation = True
+        num_ch = self.curr_n_ch-2 if self.fix_2AFC else self.curr_n_ch
         contexts = np.empty((self.num_contexts, self.curr_n_ch))
         for i_ctx in range(self.num_contexts):
             if self.balanced_probs:
-                indx = np.arange(self.curr_n_ch)
+                indx = np.arange(num_ch)
                 np.random.shuffle(indx)
             else:
-                indx = np.random.choice(self.curr_n_ch, size=(self.curr_n_ch,))
+                indx = np.random.choice(num_ch, size=(num_ch,))
+            if self.fix_2AFC:
+                indx = [x+2 for x in indx]
+                indx_2afc = np.arange(2)
+                np.random.shuffle(indx_2afc)
+                indx = list(indx_2afc)+indx
             contexts[i_ctx, :] = indx
         return contexts.astype(int)
 
