@@ -149,7 +149,8 @@ class TrialHistoryEvolution(TrialWrapperV2):
             if self.fix_2AFC:
                 indx = [x+2 for x in indx]
                 indx_2afc = np.arange(2)
-                np.random.shuffle(indx_2afc)
+                if i_ctx < self.num_contexts/2:
+                    indx_2afc = np.flip(indx_2afc)
                 indx = list(indx_2afc)+indx
             contexts[i_ctx, :] = indx
         return contexts.astype(int)
