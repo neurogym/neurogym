@@ -124,7 +124,8 @@ class TrialHistoryEvolution(TrialWrapperV2):
         '''
         if self.unwrapped.rng.rand() < self.death_prob:
             self.curr_contexts = self.contexts
-        context = self.curr_contexts[self.rng.choice(range(self.num_contexts))]
+        context =\
+            self.curr_contexts[self.unwrapped.rng.choice(range(self.num_contexts))]
         tr_mat = np.eye(self.curr_n_ch)*self.probs
         tr_mat[tr_mat == 0] = (1-self.probs)/(self.curr_n_ch-1)
         tr_mat = tr_mat[context, :]
@@ -143,9 +144,9 @@ class TrialHistoryEvolution(TrialWrapperV2):
         for i_ctx in range(self.num_contexts):
             if self.balanced_probs:
                 indx = np.arange(num_ch)
-                np.random.shuffle(indx)
+                self.unwrapped.rng.shuffle(indx)
             else:
-                indx = np.random.choice(num_ch, size=(num_ch,))
+                indx = self.unwrapped.rng.choice(num_ch, size=(num_ch,))
             if self.fix_2AFC:
                 indx = [x+2 for x in indx]
                 indx_2afc = np.arange(2)
