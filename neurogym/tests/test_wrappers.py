@@ -378,8 +378,8 @@ def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
                                         variable_nch=True):
     env = gym.make(env_name, **{'n_ch': num_ch})
     env = TrialHistoryEvolution(env, probs=probs, ctx_dur=0.001,
-                                balanced_probs=True)
-    env = Variable_nch(env, block_nch=1000,
+                                balanced_probs=True, num_contexts=1)
+    env = Variable_nch(env, block_nch=1000, prob_12=0.5,
                        blocks_probs=[0.2, 0.2, 0.2, 0.2, 0.2], sorted_ch=False)
     transitions = np.zeros((num_blocks, num_ch, num_ch))
     env = PassReward(env)
@@ -387,7 +387,7 @@ def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
     env.reset()
     num_tr_blks = np.zeros((num_blocks,))
     blk_id = []
-    sel_chs = []
+    s_chs = []
     blk = []
     gt = []
     nch = []
@@ -406,7 +406,7 @@ def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
             sel_chs = [int(x)-1 for x in sel_chs]
             blk_id, indx = check_blk_id(blk_id, info['curr_block'], num_blocks,
                                         sel_chs)
-            sel_chs.append(info['sel_chs'])
+            s_chs.append(info['sel_chs'])
             nch.append(info['nch'])
             if len(nch) > 2 and 2*[nch[-1]] == nch[-3:-1] and\
                2*[blk[-1]] == blk[-3:-1] and\
@@ -418,8 +418,18 @@ def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
             prev_gt = info['gt']-1
     if verbose:
         print(blk_id)
+        sel_choices, counts = np.unique(s_chs, return_counts=1)
+        print('Selected choices and counts:')
+        print(sel_choices)
+        print(counts/np.sum(counts))
+        tr_blks, counts =\
+            np.unique(np.array(blk)[np.array(s_chs) == '1-2'],
+                      return_counts=1)
+        print('2AFC task transition matrices and counts:')
+        print(tr_blks)
+        print(counts/np.sum(counts))
         _, ax = plt.subplots(nrows=2, ncols=1, sharex=True)
-        blk =[int(x.replace('-', '')) for x in blk]
+        blk = [int(x.replace('-', '')) for x in blk]
         ax[0].plot(np.array(blk[:20000])/(10**(num_ch-1)), '-+', label='tr-blck')
         ax[0].plot(nch[:20000], '-+', label='num choices')
         ax[1].plot(gt[:20000], '-+', label='correct side')
@@ -444,7 +454,7 @@ def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
                                    ' (N='+str(num_tr_blks[ind_blk])+')',
                                    fontsize=6)
     data = {'transitions': transitions, 'blk': blk, 'blk_id': blk_id, 'gt': gt,
-            'nch': nch}
+            'nch': nch, 's_ch': s_chs}
     return data
 
 
