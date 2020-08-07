@@ -377,19 +377,17 @@ def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
                                         num_blocks=16, verbose=False, num_ch=6,
                                         variable_nch=True):
     env = gym.make(env_name, **{'n_ch': num_ch})
-    env = TrialHistory(env, probs=probs,
-                       rand_blcks=True, blk_ch_prob=0.001)  # using random blocks!
-    if variable_nch:
-        env = Variable_nch(env, block_nch=1000, blocks_probs=[0.2, 0.2, 0.2,
-                                                              0.2, 0.2])
-        transitions = np.zeros((num_blocks, num_ch, num_ch))
-    else:
-        transitions = np.zeros((num_blocks, num_ch, num_ch))
+    env = TrialHistoryEvolution(env, probs=probs, ctx_dur=0.001,
+                                balanced_probs=True)
+    env = Variable_nch(env, block_nch=1000,
+                       blocks_probs=[0.2, 0.2, 0.2, 0.2, 0.2], sorted_ch=False)
+    transitions = np.zeros((num_blocks, num_ch, num_ch))
     env = PassReward(env)
     env = PassAction(env)
     env.reset()
     num_tr_blks = np.zeros((num_blocks,))
     blk_id = []
+    sel_chs = []
     blk = []
     gt = []
     nch = []
@@ -400,33 +398,34 @@ def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
         if done:
             env.reset()
         if info['new_trial'] and verbose:
-            blk_id, indx = check_blk_id(blk_id, info['curr_block'], num_blocks)
             # print(info['curr_block'])
             # print('-------------')
             blk.append(info['curr_block'])
             gt.append(info['gt'])
-            if variable_nch:
-                nch.append(info['nch'])
-                if len(nch) > 2 and 2*[nch[-1]] == nch[-3:-1] and\
-                   2*[blk[-1]] == blk[-3:-1] and\
-                   indx != -1:
-                    num_tr_blks[indx] += 1
-                    transitions[indx, prev_gt, info['gt']-1] += 1
-                    if prev_gt > info['nch'] or info['gt']-1 > info['nch']:
-                        pass
-
-            else:
-                nch.append(num_ch)
-                if blk[-1] == blk[-2] and indx != -1:
-                    num_tr_blks[indx] += 1
-                    transitions[indx, prev_gt, info['gt']-1] += 1
+            sel_chs = list(info['sel_chs'].replace('-', ''))
+            sel_chs = [int(x)-1 for x in sel_chs]
+            blk_id, indx = check_blk_id(blk_id, info['curr_block'], num_blocks,
+                                        sel_chs)
+            sel_chs.append(info['sel_chs'])
+            nch.append(info['nch'])
+            if len(nch) > 2 and 2*[nch[-1]] == nch[-3:-1] and\
+               2*[blk[-1]] == blk[-3:-1] and\
+               indx != -1:
+                num_tr_blks[indx] += 1
+                transitions[indx, prev_gt, info['gt']-1] += 1
+                if prev_gt > info['nch'] or info['gt']-1 > info['nch']:
+                    pass
             prev_gt = info['gt']-1
     if verbose:
         print(blk_id)
         _, ax = plt.subplots(nrows=2, ncols=1, sharex=True)
-        ax[0].plot(np.array(blk[:20000])/(10**(num_ch-1)), '-+')
-        ax[0].plot(nch[:20000], '-+')
-        ax[1].plot(gt[:20000], '-+')
+        blk =[int(x.replace('-', '')) for x in blk]
+        ax[0].plot(np.array(blk[:20000])/(10**(num_ch-1)), '-+', label='tr-blck')
+        ax[0].plot(nch[:20000], '-+', label='num choices')
+        ax[1].plot(gt[:20000], '-+', label='correct side')
+        ax[1].set_xlabel('Trials')
+        ax[0].legend()
+        ax[1].legend()
         num_cols_rows = int(np.sqrt(num_blocks))
         _, ax1 = plt.subplots(ncols=num_cols_rows, nrows=num_cols_rows)
         ax1 = ax1.flatten()
@@ -449,7 +448,11 @@ def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
     return data
 
 
-def check_blk_id(blk_id_mat, curr_blk, num_blk):
+def check_blk_id(blk_id_mat, curr_blk, num_blk, sel_chs):
+    # translate transitions t.i.a. selected choices
+    curr_blk_indx = list(curr_blk.replace('-', ''))
+    curr_blk_indx = [sel_chs[int(x)-1] for x in curr_blk_indx]
+    curr_blk = '-'.join([str(x) for x in curr_blk_indx])
     if curr_blk in blk_id_mat:
         return blk_id_mat, np.argwhere(np.array(blk_id_mat) == curr_blk)
     elif len(blk_id_mat) < num_blk:
@@ -510,8 +513,8 @@ if __name__ == '__main__':
     # test_reactiontime('PerceptualDecisionMaking-v0', num_steps=100)
     # test_transferLearning(num_steps=200, verbose=True)
     # test_combine(num_steps=200, verbose=True)
-    # data = test_concat_wrpprs_th_vch_pssr_pssa('NAltPerceptualDecisionMaking-v0',
-    #                                            num_steps=1000000, verbose=True,
-    #                                            probs=0.99, num_blocks=16)
-    test_trialhistEv('NAltPerceptualDecisionMaking-v0', num_steps=100000,
-                     probs=0.8, num_blocks=3, verbose=True, num_ch=8)
+    data = test_concat_wrpprs_th_vch_pssr_pssa('NAltPerceptualDecisionMaking-v0',
+                                               num_steps=1000000, verbose=True,
+                                               probs=0.99, num_blocks=16)
+    # test_trialhistEv('NAltPerceptualDecisionMaking-v0', num_steps=100000,
+    #                  probs=0.8, num_blocks=3, verbose=True, num_ch=8)

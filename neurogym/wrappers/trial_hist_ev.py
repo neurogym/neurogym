@@ -59,7 +59,7 @@ class TrialHistoryEvolution(TrialWrapperV2):
         super().__init__(env)
         try:
             self.n_ch = len(self.unwrapped.choices)  # max num of choices
-            self.th_choices = self.unwrapped.choices
+            self.curr_chs = self.unwrapped.choices
             self.curr_n_ch = self.n_ch
         except AttributeError:
             raise AttributeError('''SideBias requires task
@@ -90,9 +90,11 @@ class TrialHistoryEvolution(TrialWrapperV2):
         # ---------------------------------------------------------------------
         block_already_changed = False
         # Check if n_ch is passed and if it is different from previous value
-        if 'n_ch' in kwargs.keys() and kwargs['n_ch'] != self.curr_n_ch:
-            self.curr_n_ch = kwargs['n_ch']
-            self.prev_trial = self.rng.choice(self.th_choices[:self.curr_n_ch])
+        if 'sel_chs' in kwargs.keys() and\
+           set(kwargs['sel_chs']) != set(self.curr_chs):
+            self.curr_chs = kwargs['sel_chs']
+            self.curr_n_ch = len(self.curr_chs)
+            self.prev_trial = self.rng.choice(np.arange(self.curr_n_ch))
             self.curr_contexts = self.contexts
             self.curr_tr_mat = self.trans_probs
             block_already_changed = True
@@ -107,10 +109,9 @@ class TrialHistoryEvolution(TrialWrapperV2):
                 self.curr_tr_mat = self.trans_probs
 
         probs_curr_blk = self.curr_tr_mat[self.curr_block, self.prev_trial, :]
-        ground_truth = self.unwrapped.rng.choice(self.th_choices[:self.curr_n_ch],
-                                                 p=probs_curr_blk)
+        ground_truth = self.unwrapped.rng.choice(self.curr_chs, p=probs_curr_blk)
         self.prev_trial =\
-            np.where(self.th_choices[:self.curr_n_ch] == ground_truth)[0][0]
+            np.where(self.curr_chs == ground_truth)[0][0]
         kwargs.update({'ground_truth': ground_truth,
                        'curr_block': self.curr_block})
         self.env.new_trial(**kwargs)
