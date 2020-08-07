@@ -419,13 +419,13 @@ def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
     if verbose:
         print(blk_id)
         sel_choices, counts = np.unique(s_chs, return_counts=1)
-        print('Selected choices and counts:')
+        print('\nSelected choices and frequencies:')
         print(sel_choices)
         print(counts/np.sum(counts))
         tr_blks, counts =\
             np.unique(np.array(blk)[np.array(s_chs) == '1-2'],
                       return_counts=1)
-        print('2AFC task transition matrices and counts:')
+        print('\n2AFC task transition matrices and frequencies:')
         print(tr_blks)
         print(counts/np.sum(counts))
         _, ax = plt.subplots(nrows=2, ncols=1, sharex=True)
