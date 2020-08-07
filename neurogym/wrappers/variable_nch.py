@@ -34,7 +34,7 @@ class Variable_nch(TrialWrapperV2):
         assert isinstance(self.unwrapped, ngym.TrialEnv), 'Task has to be TrialEnv'
         self.block_nch = block_nch
         self.max_nch = len(self.unwrapped.choices)  # Max number of choices
-        self.prob_12 = prob_12 if self.max_nch > 2 else None
+        self.prob_12 = prob_12 if self.max_nch > 2 else 1
         self.sorted_ch = sorted_ch
         # uniform distr. across choices unless prob(n_ch=2) (prob_2) is specified
         if blocks_probs is not None:
