@@ -460,9 +460,9 @@ def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
 
 def check_blk_id(blk_id_mat, curr_blk, num_blk, sel_chs):
     # translate transitions t.i.a. selected choices
-    curr_blk_indx = list(curr_blk.replace('-', ''))
-    curr_blk_indx = [sel_chs[int(x)-1] for x in curr_blk_indx]
-    curr_blk = '-'.join([str(x) for x in curr_blk_indx])
+    # curr_blk_indx = list(curr_blk.replace('-', ''))
+    # curr_blk_indx = [sel_chs[int(x)-1] for x in curr_blk_indx]
+    # curr_blk = '-'.join([str(x) for x in curr_blk_indx])
     if curr_blk in blk_id_mat:
         return blk_id_mat, np.argwhere(np.array(blk_id_mat) == curr_blk)
     elif len(blk_id_mat) < num_blk:

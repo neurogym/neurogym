@@ -134,7 +134,9 @@ class TrialHistoryEvolution(TrialWrapperV2):
         tr_mat = np.unique(tr_mat, axis=0)
         self.curr_n_blocks = tr_mat.shape[0]
         self.curr_block = self.unwrapped.rng.choice(range(self.curr_n_blocks))
-        self.blk_id = '-'.join([str(x+1) for x in context])
+        blk_id = np.zeros((self.n_ch))-1
+        blk_id[np.array(self.curr_chs)] = np.array(self.curr_chs)[np.array(context)]
+        self.blk_id = '-'.join([str(int(x)+1) for x in blk_id])
         return tr_mat
 
     @property
