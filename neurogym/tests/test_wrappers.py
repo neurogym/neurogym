@@ -376,7 +376,7 @@ def test_all(test_fn):
 def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
                                         num_blocks=16, verbose=False, num_ch=6,
                                         variable_nch=True):
-    env = gym.make(env_name, **{'n_ch': num_ch})
+    env = gym.make(env_name, **{'n_ch': num_ch, 'zero_irrelevant_stim': True})
     env = TrialHistoryEvolution(env, probs=probs, ctx_dur=0.001,
                                 balanced_probs=True, num_contexts=1)
     env = Variable_nch(env, block_nch=1000, prob_12=0.5,
@@ -389,12 +389,16 @@ def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
     blk_id = []
     s_chs = []
     blk = []
+    blk_stp = []
     gt = []
     nch = []
+    obs_mat = []
     prev_gt = 1
     for stp in range(num_steps):
         action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
+        obs_mat.append(obs)
+        blk_stp.append(info['curr_block'])
         if done:
             env.reset()
         if info['new_trial'] and verbose:
@@ -428,9 +432,13 @@ def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
         print('\n2AFC task transition matrices and frequencies:')
         print(tr_blks)
         print(counts/np.sum(counts))
+        _, ax = plt.subplots(nrows=1, ncols=1)
+        obs_mat = np.array(obs_mat)
+        ax.imshow(obs_mat[10000:20000, :].T, aspect='auto')
         _, ax = plt.subplots(nrows=2, ncols=1, sharex=True)
-        blk = [int(x.replace('-', '')) for x in blk]
-        ax[0].plot(np.array(blk[:20000])/(10**(num_ch-1)), '-+', label='tr-blck')
+        blk_int = [int(x.replace('-', '')) for x in blk]
+        ax[0].plot(np.array(blk_int[:20000])/(10**(num_ch-1)), '-+',
+                   label='tr-blck')
         ax[0].plot(nch[:20000], '-+', label='num choices')
         ax[1].plot(gt[:20000], '-+', label='correct side')
         ax[1].set_xlabel('Trials')
@@ -454,7 +462,7 @@ def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
                                    ' (N='+str(num_tr_blks[ind_blk])+')',
                                    fontsize=6)
     data = {'transitions': transitions, 'blk': blk, 'blk_id': blk_id, 'gt': gt,
-            'nch': nch, 's_ch': s_chs}
+            'nch': nch, 's_ch': s_chs, 'obs_mat': obs_mat, 'blk_stp': blk_stp}
     return data
 
 

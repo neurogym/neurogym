@@ -71,7 +71,7 @@ class Variable_nch(TrialWrapperV2):
                         self.sel_chs = sorted(self.rng.choice(range(self.max_nch),
                                                               self.nch,
                                                               replace=False))
-            kwargs.update({'sel_chs': self.sel_chs})
+        kwargs.update({'sel_chs': self.sel_chs})
         self.env.new_trial(**kwargs)
 
     def step(self, action):
