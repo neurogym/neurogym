@@ -374,13 +374,13 @@ def test_all(test_fn):
 
 
 def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
-                                        num_blocks=16, verbose=False, num_ch=6,
+                                        num_blocks=16, verbose=False, num_ch=8,
                                         variable_nch=True):
     env = gym.make(env_name, **{'n_ch': num_ch, 'zero_irrelevant_stim': True})
-    env = TrialHistoryEvolution(env, probs=probs, ctx_dur=0.001,
-                                balanced_probs=True, num_contexts=1)
-    env = Variable_nch(env, block_nch=1000, prob_12=0.5,
-                       blocks_probs=[0.2, 0.2, 0.2, 0.2, 0.2], sorted_ch=False)
+    env = TrialHistoryEvolution(env, probs=probs, ctx_ch_prob=0.005,
+                                predef_tr_mats=True, balanced_probs=True,
+                                num_contexts=1)
+    env = Variable_nch(env, block_nch=5000, prob_12=0.5, sorted_ch=False)
     transitions = np.zeros((num_blocks, num_ch, num_ch))
     env = PassReward(env)
     env = PassAction(env)
@@ -449,7 +449,7 @@ def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
         ax1 = ax1.flatten()
         _, ax2 = plt.subplots(ncols=num_cols_rows, nrows=num_cols_rows)
         ax2 = ax2.flatten()
-        for ind_blk in range(num_blocks):
+        for ind_blk in range(len(blk_id)):
             norm_counts = transitions[ind_blk, :, :]
             ax1[ind_blk].imshow(norm_counts)
             ax1[ind_blk].set_title(str(blk_id[ind_blk]) +

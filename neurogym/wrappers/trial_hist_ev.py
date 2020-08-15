@@ -55,7 +55,7 @@ class TrialHistoryEvolution(TrialWrapperV2):
 
     def __init__(self, env, probs=None, ctx_dur=200, num_contexts=3,
                  fix_2AFC=False, death_prob=0.0001, ctx_ch_prob=None,
-                 balanced_probs=False):
+                 balanced_probs=False, predef_tr_mats=False):
         super().__init__(env)
         try:
             self.n_ch = len(self.unwrapped.choices)  # max num of choices
@@ -69,7 +69,8 @@ class TrialHistoryEvolution(TrialWrapperV2):
         self.fix_2AFC = fix_2AFC
         self.probs = probs
         self.balanced_probs = balanced_probs
-        self.num_contexts = num_contexts
+        self.num_contexts = num_contexts if not predef_tr_mats else 3
+        self.predef_tr_mats = predef_tr_mats
         self.ctx_ch_prob = ctx_ch_prob
         if ctx_ch_prob is None:
             self.death_prob = death_prob*ctx_dur
@@ -98,7 +99,6 @@ class TrialHistoryEvolution(TrialWrapperV2):
             self.curr_contexts = self.contexts
             self.curr_tr_mat = self.trans_probs
             block_already_changed = True
-
         # change rep. prob. every self.ctx_dur trials
         if not block_already_changed:
             if self.ctx_ch_prob is None:
@@ -125,8 +125,8 @@ class TrialHistoryEvolution(TrialWrapperV2):
         '''
         if self.unwrapped.rng.rand() < self.death_prob:
             self.curr_contexts = self.contexts
-        context =\
-            self.curr_contexts[self.unwrapped.rng.choice(range(self.num_contexts))]
+        sel_cntxt = self.unwrapped.rng.choice(range(self.contexts.shape[0]))
+        context = self.curr_contexts[sel_cntxt]
         tr_mat = np.eye(self.curr_n_ch)*self.probs
         tr_mat[tr_mat == 0] = (1-self.probs)/(self.curr_n_ch-1)
         tr_mat = tr_mat[context, :]
@@ -135,7 +135,8 @@ class TrialHistoryEvolution(TrialWrapperV2):
         self.curr_n_blocks = tr_mat.shape[0]
         self.curr_block = self.unwrapped.rng.choice(range(self.curr_n_blocks))
         blk_id = np.zeros((self.n_ch))-1
-        blk_id[np.array(self.curr_chs)] = np.array(self.curr_chs)[np.array(context)]
+        blk_id[np.array(self.curr_chs)] =\
+            np.array(self.curr_chs)[np.array(context)]
         self.blk_id = '-'.join([str(int(x)+1) for x in blk_id])
         return tr_mat
 
@@ -144,19 +145,31 @@ class TrialHistoryEvolution(TrialWrapperV2):
         self.new_generation = True
         num_ch = self.curr_n_ch-2 if self.fix_2AFC else self.curr_n_ch
         contexts = np.empty((self.num_contexts, self.curr_n_ch))
-        for i_ctx in range(self.num_contexts):
-            if self.balanced_probs:
-                indx = np.arange(num_ch)
-                self.unwrapped.rng.shuffle(indx)
-            else:
-                indx = self.unwrapped.rng.choice(num_ch, size=(num_ch,))
-            if self.fix_2AFC:
-                indx = [x+2 for x in indx]
-                indx_2afc = np.arange(2)
-                if i_ctx < self.num_contexts/2:
-                    indx_2afc = np.flip(indx_2afc)
-                indx = list(indx_2afc)+indx
-            contexts[i_ctx, :] = indx
+        if self.predef_tr_mats:
+            # repeating context
+            indx = np.arange(num_ch)
+            contexts[0, :] = indx
+            # clockwise context
+            indx = np.append(np.arange(1, num_ch), 0)
+            contexts[1, :] = indx
+            # repeating context
+            indx = np.insert(np.arange(0, num_ch-1), 0, num_ch-1)
+            contexts[2, :] = indx
+            contexts = np.unique(contexts, axis=0)
+        else:
+            for i_ctx in range(self.num_contexts):
+                if self.balanced_probs:
+                    indx = np.arange(num_ch)
+                    self.unwrapped.rng.shuffle(indx)
+                else:
+                    indx = self.unwrapped.rng.choice(num_ch, size=(num_ch,))
+                if self.fix_2AFC:
+                    indx = [x+2 for x in indx]
+                    indx_2afc = np.arange(2)
+                    if i_ctx < self.num_contexts/2:
+                        indx_2afc = np.flip(indx_2afc)
+                    indx = list(indx_2afc)+indx
+                contexts[i_ctx, :] = indx
         return contexts.astype(int)
 
     def step(self, action):
