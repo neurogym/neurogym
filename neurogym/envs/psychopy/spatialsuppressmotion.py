@@ -133,7 +133,7 @@ class SpatialSuppressMotion(PsychopyEnv):
             
             # Here we did not use .add_ob function of psychopyEnv object
             ob[i] = im.copy()  # we switch the add, which seems wrong for image
-            #self.add_ob(stim, 'decision')
+             
         # Ground truth
         self.set_groundtruth(trial['ground_truth'], 'stimulus')
 

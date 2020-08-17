@@ -5,11 +5,11 @@
 
 import numpy as np
 from gym import spaces
-from psychopy import visual
-from .psychopy_env import PsychopyEnv
+import neurogym as ngym
 import sys
 
-class SpatialSuppressMotion(PsychopyEnv):
+
+class SpatialSuppressMotion2(ngym.TrialEnv):
     '''
     Spatial suppression motion task. This task is useful to study center-surround interaction in monkey MT and human psychophysical performance in motion perception.
 
@@ -31,8 +31,8 @@ class SpatialSuppressMotion(PsychopyEnv):
         'tags': ['perceptual', 'plaid', 'motion', 'center-surround']
     }
 
-    def __init__(self, dt=8.3, win_kwargs={'size':(100, 100)}, timing={'stimulus':300}, rewards=None):
-        super().__init__(dt=dt, win_kwargs=win_kwargs)
+    def __init__(self, dt=8.3, timing={'stimulus':300}, rewards=None):
+        super().__init__(dt=dt)
 
         # Rewards
         self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
@@ -45,16 +45,17 @@ class SpatialSuppressMotion(PsychopyEnv):
             }
         if timing:
             self.timing.update(timing)
-
-        self.win.color = 0  # set it to gray background, -1, black;1,white
-
+            
         self.abort = False
 
-        # four directions 
+        # define action space four directions 
         self.action_space = spaces.Box(0, 1, shape=(4,), dtype=np.float32) # the probabilities for four direction
+        
+        # define observation space
+        self.observation_space = spaces.Box(
+            0, np.inf, shape=(6,), dtype=np.float32) # action space, 4 directions + diameter and contrast
 
         self.directions = [1, 2, 3, 4] # motion direction left/right/up/down
-        self.directions_component = [(-1, 1),(1,-1),(-1,-1),(1, 1)] # direction of two grating component to control plaid direction left/right/up/down
         self.directions_anti = [2, 1, 4, 3]
         self.directions_ortho = [[3, 4], [3, 4], [1, 2], [1, 2]]
 
@@ -67,12 +68,14 @@ class SpatialSuppressMotion(PsychopyEnv):
         <direction>: int(1/2/3/4), left/right/up/down
 
         '''
+        #import ipdb;ipdb.set_trace();import matplotlib.pyplot as plt;
+        
         # if no stimulus information provided, we random sample stimulus parameters  
         if direction is None:
             direction = self.rng.choice(self.directions)
         if diameter is None:
             #diameter = self.rng.uniform(0.125, 1)  # proportion of the window size
-            diameter = 1 # we fixed for now
+            diameter = 16 # we fixed for now
         if contrast is None:
             #contrast = self.rng.uniform(0, 1) # stimlus contrast
             contrast = self.rng.choice([0.05, 0.99])  # Low contrast, and high contrast
@@ -83,17 +86,6 @@ class SpatialSuppressMotion(PsychopyEnv):
             'direction': direction,
         }
 
-        # define some motion parameters.
-        # We assume 16 deg for the full FOV (8 deg radius) 
-        degPerfov = 16
-        SF = 0.8 # cycles / degree
-        speed = 4 # deg / sec
-        SF_fov = SF * degPerfov # cycles per fov
-        TF = SF * speed # temporal frequency cycles / sec
-        comp_direct = self.directions_component[trial['direction']-1]
-        
-        # obtain the temporal contrast profile and mv_length
-        profile, _ = self.envelope(0.1) # 0.1 sec
 
         # Periods and Timing
         # we only need stimulus period for this psychophysical task
@@ -104,44 +96,26 @@ class SpatialSuppressMotion(PsychopyEnv):
         # We need ground_truth
         # the probablities to choose four directions given stimulus parameters
         trial['ground_truth'] = self.getgroundtruth(trial)
-
-        # Observation
-        if sys.platform == 'darwin': # trick for darwin mac window
-            diameter = trial['diameter'] * 2
-        
-        grating1 = visual.GratingStim(self.win, mask="raisedCos", opacity=1.0,
-                                      size=diameter, sf=(SF_fov, 0), ori=45, contrast=trial['contrast'])
-        grating2 = visual.GratingStim(self.win, mask="raisedCos", opacity=0.5,
-                                      size=diameter, sf=(SF_fov, 0), ori=135, contrast=trial['contrast'])
-        
-        # create the movie
+        # create the stimulus
         ob = self.view_ob(period='stimulus')
-        for i in range(ob.shape[0]):
-            grating1.contrast = trial['contrast'] * profile[i]
-            # drift it, comp_direct control the direction
-            grating1.phase = comp_direct[0] * TF * i * self.dt / 1000
-            grating1.draw()
+        ob = np.zeros((ob.shape[0], ob.shape[1]))
+        #ob[:, -1] = trial['contrast']
+        if trial['contrast'] == 0.99:
+            ob[:, -2] = 1
+        else:
+            ob[:, -1] = 1
+        
+        ob[:, trial['direction']-1] = 1
 
-            grating2.contrast = trial['contrast'] * profile[i]
-            grating2.phase = comp_direct[1] * TF * i * self.dt / 1000
-            grating2.draw()
-
-            self.win.flip()
-            im = self.win._getFrame() #
-            im = np.array(im) # convert it to numpy array, it is a nPix x nPix x 3 array 
-            #import ipdb;ipdb.set_trace();import matplotlib.pyplot as plt;
-            
-            # Here we did not use .add_ob function of psychopyEnv object
-            ob[i] = im.copy()  # we switch the add, which seems wrong for image
-            #self.add_ob(stim, 'decision')
-        # Ground truth
+        # set observation and groundtruth
+        self.set_ob(ob, 'stimulus')
         self.set_groundtruth(trial['ground_truth'], 'stimulus')
 
         return trial
 
     def _step(self, action):
         '''
-        We only need output at very end, no need to check action every step and calculate reward. Just let this function complete all steps.
+        We need output for every single step until to the end, no need to check action every step and calculate reward. Just let this function complete all steps.
         
         The _step function is useful for making a choice early in a trial or the situation when breaking the fixation.
  
@@ -155,94 +129,12 @@ class SpatialSuppressMotion(PsychopyEnv):
         #          new_trial = True
         return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
     
-
-    @staticmethod
-    def envelope(time_sigma, frame_rate=120, cut_off=True, amplitude=128):
-        '''
-        envelope(time_sigma, frame_rate=120, cut_off=True):
-
-        Create a temporal profile and mv_length to motion stimulus in the spatial suppression task. This function is modified fron Duje Tadin's code. 
-        
-        Not critical, we can use a square temporal profile
-        
-        Arg:
-            <time_sigma>: in secs, sigma of temporal envelope
-            <frame_rate>: int, hz, monitor frame rate
-            <cut_off>: default: True. Whether to cut 
-            <amplitude>: int, 128.
-
-        We return the tempora modulation <profile> and an int indicating <mv_length>.
-
-        This function is adoped from Duje Tadin. Some variables here are not clear.
-        '''
-        from numpy import arange, exp, sqrt, sum, empty, floor, ones
-        from numpy.polynomial.polynomial import polyfit
-
-        time_sigma = time_sigma * 1000  # convert it to millisecs
-        if cut_off:
-            gauss_only = 0
-        else:
-            gauss_only = 1
-
-        fr = round(frame_rate/20)  # this frame is determined arbitrarily
-        xx = arange(fr)+1
-
-        k = 0
-        tt = arange(7, 25 + 0.25, 0.25)
-        x1, cum1 = empty(tt.size), empty(tt.size)
-        for k, time1 in enumerate(tt):
-            x1[k] = time1
-            time = time1/(1000/frame_rate)
-            time_gauss = exp(-((xx)/(sqrt(2)*time))**2)
-            cum1[k] = sum(time_gauss) * 2
-
-        # we obtain a relation between underlying area and time
-        p, _ = polyfit(cum1, x1, deg=2, full=True)
-        area = time_sigma * frame_rate/400
-        if cut_off > -1:
-            uniform = int(floor(area - 3))
-            if time_sigma > cut_off & ~gauss_only:  # we provide Gaussian edges and a plateao part
-                remd = area - uniform
-                time = p[2]*remd**2 + p[1] * remd + p[0]
-                time = time/(1000/frame_rate)  # how many frame
-
-                # calculate the gaussian part
-                del xx
-                xx = arange(fr) + 1
-                time_gauss = exp(-((xx)/(sqrt(2)*time))**2)
-
-                # add time_gauss to both sides of the temporal profile
-                profile = ones(uniform + 2*fr)
-                profile[:fr] = time_gauss[::-1]
-                profile[-time_gauss.size:] = time_gauss
-
-            else:  # in this case, we provide a completely Gaussian profile, with no flat part
-                time = time_sigma/(1000/frame_rate)
-                mv_length = time*(1000/frame_rate)*6
-                mv_length = round(((round(mv_length/(1000/frame_rate)))/2))*2 + 1
-                xx = arange(mv_length) + 1
-                xx = xx-xx.mean()
-                profile = exp(-((xx)/(sqrt(2)*time))**2)
-
-            # we trim the frame that are very small
-            small = (amplitude * profile < .5).sum() / 2
-            profile = profile[int(small) : profile.size-int(small)]
-            mv_length = profile.size
-
-        else:  # in this case, only give a flat envelope
-            mv_length = round(area)
-            profile = ones(mv_length)
-
-        profile = profile
-
-        return profile, mv_length
-
-    
+  
     def getgroundtruth(self, trial):
         '''
         The utility function to obtain ground truth probabilities for four direction
 
-        Input trial is a dict, contains fields <duration>, <contrast>, <diameter>, and <direction>. 
+        Input trial is a dict, contains fields <duration>, <contrast>, <diameter>
 
         We output a (4,) tuple indicate the probabilities to perceive left/right/up/down direction. This label comes from emprically measured human performance 
         '''

@@ -80,6 +80,8 @@ ALL_NATIVE_ENVS = {
         'neurogym.envs.nothing:Nothing',
     'Pneumostomeopening-v0':
         'neurogym.envs.pneumostomeopening:Pneumostomeopening',
+    'spatialsuppressmotion2-v0':
+        'neurogym.envs.spatialsuppressmotion2:SpatialSuppressMotion2',
 }
 
 ALL_PSYCHOPY_ENVS = {
