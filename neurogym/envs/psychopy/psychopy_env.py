@@ -16,12 +16,14 @@ class PsychopyEnv(ngym.TrialEnv):
     def __init__(self, win_kwargs={'size':(100, 100)}, *args, **kwargs):
         super(PsychopyEnv, self).__init__(*args, **kwargs)
 
+        win_kwargs_tmp = win_kwargs.copy()  # avoid bug for multi env in a batch
         if sys.platform == 'darwin':
             # TODO: Check if this works across platform
-            win_size = (int(win_kwargs['size'][0]/2),
+            win_kwargs_tmp['size'] = (int(win_kwargs['size'][0]/2),
                         int(win_kwargs['size'][1]/2))
         # psychopy window kwargs can be supplied by 'win_kws'
-        self.win = visual.Window(**win_kwargs) # note that default is gray screen
+        # note that default is gray screen
+        self.win = visual.Window(**win_kwargs_tmp)
         self.win.backend.winHandle.set_visible(False)
         self.win.flip()
         im = self.win._getFrame()
