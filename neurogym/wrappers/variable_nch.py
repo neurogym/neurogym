@@ -55,19 +55,22 @@ class Variable_nch(TrialWrapperV2):
                           'will ignore passed ground truth')
         # We change number of active choices every 'block_nch'.
         if self.unwrapped.num_tr % self.block_nch == 0:
-            if self.prob_12 is not None and\
-               self.unwrapped.rng.rand() < self.prob_12:
+            fx_12 = self.prob_12 is not None
+            if fx_12 and self.unwrapped.rng.rand() < self.prob_12:
                 self.nch = 2
                 self.sel_chs = np.arange(self.nch)
             else:
-                self.nch = self.rng.choice(range(2, self.max_nch + 1), p=self.prob)
                 if self.sorted_ch:
+                    prb = self.prob[1*fx_12:]
+                    self.nch = self.rng.choice(range(2+1*fx_12, self.max_nch + 1),
+                                               p=prb/np.sum(prb))
                     self.sel_chs = np.arange(self.nch)
                 else:
+                    self.nch = self.rng.choice(range(2, self.max_nch + 1),
+                                               p=self.prob)
                     self.sel_chs = sorted(self.rng.choice(range(self.max_nch),
                                                           self.nch, replace=False))
-                    while (self.prob_12 is not None and
-                           set(self.sel_chs) == set(np.arange(2))):
+                    while (fx_12 and set(self.sel_chs) == set(np.arange(2))):
                         self.sel_chs = sorted(self.rng.choice(range(self.max_nch),
                                                               self.nch,
                                                               replace=False))

@@ -375,12 +375,14 @@ def test_all(test_fn):
 
 def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
                                         num_blocks=16, verbose=False, num_ch=8,
-                                        variable_nch=True):
-    env = gym.make(env_name, **{'n_ch': num_ch, 'zero_irrelevant_stim': True})
+                                        variable_nch=True, env_args={}):
+    env_args['n_ch'] = num_ch
+    env_args['zero_irrelevant_stim'] = True
+    env = gym.make(env_name, **env_args)
     env = TrialHistoryEvolution(env, probs=probs, ctx_ch_prob=0.005,
                                 predef_tr_mats=True, balanced_probs=True,
                                 num_contexts=1)
-    env = Variable_nch(env, block_nch=5000, prob_12=0.5, sorted_ch=False)
+    env = Variable_nch(env, block_nch=50, prob_12=0.05, sorted_ch=True)
     transitions = np.zeros((num_blocks, num_ch, num_ch))
     env = PassReward(env)
     env = PassAction(env)
@@ -532,7 +534,8 @@ if __name__ == '__main__':
     # test_transferLearning(num_steps=200, verbose=True)
     # test_combine(num_steps=200, verbose=True)
     data = test_concat_wrpprs_th_vch_pssr_pssa('NAltPerceptualDecisionMaking-v0',
-                                               num_steps=1000000, verbose=True,
-                                               probs=0.99, num_blocks=16)
+                                               num_steps=2000000, verbose=True,
+                                               probs=0.99, num_blocks=16,
+                                               env_args=env_args)
     # test_trialhistEv('NAltPerceptualDecisionMaking-v0', num_steps=100000,
     #                  probs=0.8, num_blocks=3, verbose=True, num_ch=8)
