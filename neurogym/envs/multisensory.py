@@ -6,7 +6,7 @@ from gym import spaces
 import neurogym as ngym
 
 # TODO: This is not finished yet. Need to compare with original paper
-class MultiSensoryIntegration(ngym.PeriodEnv):
+class MultiSensoryIntegration(ngym.TrialEnv):
     r"""Multi-sensory integration."""
     metadata = {
         'description': None,
@@ -31,11 +31,11 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 300),
-            # 'target': ('constant', 350),  # TODO: not implemented
-            'stimulus': ('constant', 750),
-            # 'delay': ('truncated_exponential', [600, 300, 3000]),
-            'decision': ('constant', 100)}  # XXX: not specified
+            'fixation': 300,
+            # 'target': 350,  # TODO: not implemented
+            'stimulus': 750,
+            # 'delay': ngym.random.TruncExp(600, 300, 3000, rng=self.rng),
+            'decision': 100}  # XXX: not specified
         if timing:
             self.timing.update(timing)
         self.abort = False
@@ -53,23 +53,23 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(1+dim_ring)
         self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring+1)}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices),
             'coh': self.rng.choice(self.cohs),
             'coh_prop': self.rng.rand(),
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
-        coh_0 = self.trial['coh'] * self.trial['coh_prop']
-        coh_1 = self.trial['coh'] * (1 - self.trial['coh_prop'])
-        ground_truth = self.trial['ground_truth']
+        coh_0 = trial['coh'] * trial['coh_prop']
+        coh_1 = trial['coh'] * (1 - trial['coh_prop'])
+        ground_truth = trial['ground_truth']
         stim_theta = self.theta[ground_truth]
 
         # Periods
         periods = ['fixation', 'stimulus', 'decision']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods)
 
         self.add_ob(1, where='fixation')
         stim = np.cos(self.theta - stim_theta) * (coh_0 / 200) + 0.5
@@ -80,6 +80,8 @@ class MultiSensoryIntegration(ngym.PeriodEnv):
         self.set_ob(0, 'decision')
 
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+
+        return trial
 
     def _step(self, action):
         obs = self.ob_now

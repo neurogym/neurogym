@@ -13,6 +13,7 @@ context dependent
 --------------------------------
     :class:`ChangingEnvironment-v0 <neurogym.envs.changingenvironment.ChangingEnvironment>`
     :class:`ContextDecisionMaking-v0 <neurogym.envs.contextdecisionmaking.ContextDecisionMaking>`
+    :class:`SingleContextDecisionMaking-v0 <neurogym.envs.contextdecisionmaking.SingleContextDecisionMaking>`
 
 .. _tag-continuous action space:
 
@@ -62,22 +63,21 @@ n-alternative
 --------------------------------
     :class:`Bandit-v0 <neurogym.envs.bandit.Bandit>`
     :class:`NAltPerceptualDecisionMaking-v0 <neurogym.envs.nalt_perceptualdecisionmaking.nalt_PerceptualDecisionMaking>`
-    :class:`Nothing-v0 <neurogym.envs.nothing.Nothing>`
 
 .. _tag-perceptual:
 
 perceptual
 --------------------------------
     :class:`AngleReproduction-v0 <neurogym.envs.anglereproduction.AngleReproduction>`
-    :class:`AntiReach-v0 <neurogym.envs.antireach.AntiReach1D>`
+    :class:`AntiReach-v0 <neurogym.envs.antireach.AntiReach>`
     :class:`CVLearning-v0 <neurogym.envs.cv_learning.CVLearning>`
     :class:`ChangingEnvironment-v0 <neurogym.envs.changingenvironment.ChangingEnvironment>`
     :class:`ContextDecisionMaking-v0 <neurogym.envs.contextdecisionmaking.ContextDecisionMaking>`
-    :class:`DelayPairedAssociation-v0 <neurogym.envs.delaypairedassociation.DelayPairedAssociation>`
-    :class:`DelayComparison-v0 <neurogym.envs.delayedcomparison.DelayComparison>`
+    :class:`DelayComparison-v0 <neurogym.envs.delaycomparison.DelayComparison>`
     :class:`DelayMatchCategory-v0 <neurogym.envs.delaymatchcategory.DelayMatchCategory>`
     :class:`DelayMatchSample-v0 <neurogym.envs.delaymatchsample.DelayMatchSample>`
     :class:`DelayMatchSampleDistractor1D-v0 <neurogym.envs.delaymatchsample.DelayMatchSampleDistractor1D>`
+    :class:`DelayPairedAssociation-v0 <neurogym.envs.delaypairedassociation.DelayPairedAssociation>`
     :class:`Detection-v0 <neurogym.envs.detection.Detection>`
     :class:`DualDelayMatchSample-v0 <neurogym.envs.dualdelaymatchsample.DualDelayMatchSample>`
     :class:`EconomicDecisionMaking-v0 <neurogym.envs.economicdecisionmaking.EconomicDecisionMaking>`
@@ -90,8 +90,7 @@ perceptual
     :class:`ProbabilisticReasoning-v0 <neurogym.envs.weatherprediction.ProbabilisticReasoning>`
     :class:`PulseDecisionMaking-v0 <neurogym.envs.perceptualdecisionmaking.PulseDecisionMaking>`
     :class:`ReachingDelayResponse-v0 <neurogym.envs.reachingdelayresponse.ReachingDelayResponse>`
-    :class:`psychopy.RandomDotMotion-v0 <neurogym.envs.psychopy.perceptualdecisionmaking.RandomDotMotion>`
-    :class:`psychopy.VisualSearch-v0 <neurogym.envs.psychopy.visualsearch.VisualSearch>`
+    :class:`SingleContextDecisionMaking-v0 <neurogym.envs.contextdecisionmaking.SingleContextDecisionMaking>`
 
 .. _tag-reaction time:
 
@@ -104,7 +103,7 @@ reaction time
 steps action space
 --------------------------------
     :class:`AngleReproduction-v0 <neurogym.envs.anglereproduction.AngleReproduction>`
-    :class:`AntiReach-v0 <neurogym.envs.antireach.AntiReach1D>`
+    :class:`AntiReach-v0 <neurogym.envs.antireach.AntiReach>`
     :class:`Reaching1D-v0 <neurogym.envs.reaching.Reaching1D>`
     :class:`Reaching1DWithSelfDistraction-v0 <neurogym.envs.reaching.Reaching1DWithSelfDistraction>`
 
@@ -116,21 +115,19 @@ supervised
     :class:`CVLearning-v0 <neurogym.envs.cv_learning.CVLearning>`
     :class:`ChangingEnvironment-v0 <neurogym.envs.changingenvironment.ChangingEnvironment>`
     :class:`ContextDecisionMaking-v0 <neurogym.envs.contextdecisionmaking.ContextDecisionMaking>`
-    :class:`DelayPairedAssociation-v0 <neurogym.envs.delaypairedassociation.DelayPairedAssociation>`
-    :class:`DelayComparison-v0 <neurogym.envs.delayedcomparison.DelayComparison>`
+    :class:`DelayComparison-v0 <neurogym.envs.delaycomparison.DelayComparison>`
     :class:`DelayMatchCategory-v0 <neurogym.envs.delaymatchcategory.DelayMatchCategory>`
     :class:`DelayMatchSample-v0 <neurogym.envs.delaymatchsample.DelayMatchSample>`
     :class:`DelayMatchSampleDistractor1D-v0 <neurogym.envs.delaymatchsample.DelayMatchSampleDistractor1D>`
+    :class:`DelayPairedAssociation-v0 <neurogym.envs.delaypairedassociation.DelayPairedAssociation>`
     :class:`Detection-v0 <neurogym.envs.detection.Detection>`
     :class:`DualDelayMatchSample-v0 <neurogym.envs.dualdelaymatchsample.DualDelayMatchSample>`
     :class:`GoNogo-v0 <neurogym.envs.gonogo.GoNogo>`
     :class:`HierarchicalReasoning-v0 <neurogym.envs.hierarchicalreasoning.HierarchicalReasoning>`
     :class:`IntervalDiscrimination-v0 <neurogym.envs.intervaldiscrimination.IntervalDiscrimination>`
-    :class:`MatchingPenny-v0 <neurogym.envs.matchingpenny.MatchingPenny>`
     :class:`MotorTiming-v0 <neurogym.envs.readysetgo.MotorTiming>`
     :class:`MultiSensoryIntegration-v0 <neurogym.envs.multisensory.MultiSensoryIntegration>`
     :class:`NAltPerceptualDecisionMaking-v0 <neurogym.envs.nalt_perceptualdecisionmaking.nalt_PerceptualDecisionMaking>`
-    :class:`Nothing-v0 <neurogym.envs.nothing.Nothing>`
     :class:`OneTwoThreeGo-v0 <neurogym.envs.readysetgo.OneTwoThreeGo>`
     :class:`PerceptualDecisionMaking-v0 <neurogym.envs.perceptualdecisionmaking.PerceptualDecisionMaking>`
     :class:`PerceptualDecisionMakingDelayResponse-v0 <neurogym.envs.perceptualdecisionmaking.PerceptualDecisionMakingDelayResponse>`
@@ -138,8 +135,7 @@ supervised
     :class:`PulseDecisionMaking-v0 <neurogym.envs.perceptualdecisionmaking.PulseDecisionMaking>`
     :class:`ReachingDelayResponse-v0 <neurogym.envs.reachingdelayresponse.ReachingDelayResponse>`
     :class:`ReadySetGo-v0 <neurogym.envs.readysetgo.ReadySetGo>`
-    :class:`psychopy.RandomDotMotion-v0 <neurogym.envs.psychopy.perceptualdecisionmaking.RandomDotMotion>`
-    :class:`psychopy.VisualSearch-v0 <neurogym.envs.psychopy.visualsearch.VisualSearch>`
+    :class:`SingleContextDecisionMaking-v0 <neurogym.envs.contextdecisionmaking.SingleContextDecisionMaking>`
 
 .. _tag-timing:
 
@@ -158,7 +154,7 @@ two-alternative
     :class:`ChangingEnvironment-v0 <neurogym.envs.changingenvironment.ChangingEnvironment>`
     :class:`ContextDecisionMaking-v0 <neurogym.envs.contextdecisionmaking.ContextDecisionMaking>`
     :class:`DawTwoStep-v0 <neurogym.envs.dawtwostep.DawTwoStep>`
-    :class:`DelayComparison-v0 <neurogym.envs.delayedcomparison.DelayComparison>`
+    :class:`DelayComparison-v0 <neurogym.envs.delaycomparison.DelayComparison>`
     :class:`DelayMatchCategory-v0 <neurogym.envs.delaymatchcategory.DelayMatchCategory>`
     :class:`DelayMatchSample-v0 <neurogym.envs.delaymatchsample.DelayMatchSample>`
     :class:`DelayMatchSampleDistractor1D-v0 <neurogym.envs.delaymatchsample.DelayMatchSampleDistractor1D>`
@@ -171,7 +167,7 @@ two-alternative
     :class:`PerceptualDecisionMakingDelayResponse-v0 <neurogym.envs.perceptualdecisionmaking.PerceptualDecisionMakingDelayResponse>`
     :class:`ProbabilisticReasoning-v0 <neurogym.envs.weatherprediction.ProbabilisticReasoning>`
     :class:`PulseDecisionMaking-v0 <neurogym.envs.perceptualdecisionmaking.PulseDecisionMaking>`
-    :class:`psychopy.RandomDotMotion-v0 <neurogym.envs.psychopy.perceptualdecisionmaking.RandomDotMotion>`
+    :class:`SingleContextDecisionMaking-v0 <neurogym.envs.contextdecisionmaking.SingleContextDecisionMaking>`
 
 .. _tag-value-based:
 
@@ -184,11 +180,11 @@ value-based
 working memory
 --------------------------------
     :class:`AngleReproduction-v0 <neurogym.envs.anglereproduction.AngleReproduction>`
-    :class:`DelayPairedAssociation-v0 <neurogym.envs.delaypairedassociation.DelayPairedAssociation>`
-    :class:`DelayComparison-v0 <neurogym.envs.delayedcomparison.DelayComparison>`
+    :class:`DelayComparison-v0 <neurogym.envs.delaycomparison.DelayComparison>`
     :class:`DelayMatchCategory-v0 <neurogym.envs.delaymatchcategory.DelayMatchCategory>`
     :class:`DelayMatchSample-v0 <neurogym.envs.delaymatchsample.DelayMatchSample>`
     :class:`DelayMatchSampleDistractor1D-v0 <neurogym.envs.delaymatchsample.DelayMatchSampleDistractor1D>`
+    :class:`DelayPairedAssociation-v0 <neurogym.envs.delaypairedassociation.DelayPairedAssociation>`
     :class:`DualDelayMatchSample-v0 <neurogym.envs.dualdelaymatchsample.DualDelayMatchSample>`
     :class:`IntervalDiscrimination-v0 <neurogym.envs.intervaldiscrimination.IntervalDiscrimination>`
 

@@ -133,12 +133,13 @@ class Monitor(Wrapper):
                 self.perf_mat.append(-1)
             self.stp_counter += 1
         elif len(self.rew_mat) > 0:
+            fname = self.sv_name + 'task_{0:06d}.'.format(self.num_tr)+self.fig_type
             obs_mat = np.array(self.ob_mat)
             act_mat = np.array(self.act_mat)
             fig_(ob=obs_mat, actions=act_mat,
                  gt=self.gt_mat, rewards=self.rew_mat,
                  performance=self.perf_mat,
-                 fname=self.sv_name+f'task_{self.num_tr:06}.'+self.fig_type)
+                 fname=fname)
             self.ob_mat = []
             self.act_mat = []
             self.rew_mat = []

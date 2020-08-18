@@ -62,7 +62,7 @@ class CatchTrials(ngym.TrialWrapper):
         else:
             self.catch_trial = self.task.rng.rand() < self.catch_prob
         kwargs.update({'coh': coh})
-        self.env.new_trial(**kwargs)
+        return self.env.new_trial(**kwargs)
 
     def step(self, action, new_tr_fn=None):
         ntr_fn = new_tr_fn or self.new_trial

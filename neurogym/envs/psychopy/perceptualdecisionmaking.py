@@ -23,9 +23,9 @@ class RandomDotMotion(PsychopyEnv):
         'tags': ['perceptual', 'two-alternative', 'supervised']
     }
 
-    def __init__(self, dt=16, win_size=(100, 100), rewards=None, timing=None,
+    def __init__(self, dt=16, win_kwargs={'size':(100, 100)}, rewards=None, timing=None,
                  stim_scale=1., dim_ring=2):
-        super().__init__(dt=dt, win_size=win_size)
+        super().__init__(dt=dt, win_kwargs=win_kwargs)
         # The strength of evidence, modulated by stim_scale
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stim_scale
 
@@ -35,9 +35,9 @@ class RandomDotMotion(PsychopyEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 100),  # TODO: depends on subject
-            'stimulus': ('constant', 2000),
-            'decision': ('constant', 100)}  # XXX: not specified
+            'fixation': 100,  # TODO: depends on subject
+            'stimulus': 2000,
+            'decision': 100}  # XXX: not specified
         if timing:
             self.timing.update(timing)
 
@@ -49,21 +49,20 @@ class RandomDotMotion(PsychopyEnv):
         self.action_space = spaces.Discrete(1 + dim_ring)
         self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring + 1)}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices),
             'coh': self.rng.choice(self.cohs),
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
-        coh = self.trial['coh']
-        ground_truth = self.trial['ground_truth']
+        coh = trial['coh']
+        ground_truth = trial['ground_truth']
         stim_theta = self.theta[ground_truth] * (180/np.pi)
 
         # Periods
-        self.add_period(['fixation', 'stimulus', 'decision'], after=0,
-                        last_period=True)
+        self.add_period(['fixation', 'stimulus', 'decision'])
 
         # Observations
         stim = visual.DotStim(self.win, nDots=30, dotSize=1, speed=0.05,
@@ -74,6 +73,8 @@ class RandomDotMotion(PsychopyEnv):
 
         # Ground truth
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+
+        return trial
 
     def _step(self, action):
         new_trial = False

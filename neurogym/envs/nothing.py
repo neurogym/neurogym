@@ -36,20 +36,22 @@ class Nothing(ngym.TrialEnv):
 
         self.verbose = verbose
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-        self.trial = {
+        trial = {
             'rew_high_reward_arm': 1,
             'rew_low_reward_arm': 0,
             'high_reward_arm': 0,
             }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
         self.ob = np.zeros((1, self.observation_space.shape[0]))
         self.gt = np.array([0])
         if self.verbose:
             print('task new trial')
+
+        return trial
 
     def _step(self, action):
         trial = self.trial

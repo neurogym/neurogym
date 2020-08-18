@@ -1,91 +1,84 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Jan 24 10:09:00 2020
-
-@author: manuel
-"""
+"""Example template for contributing new tasks."""
 
 import numpy as np
 from gym import spaces
 import neurogym as ngym
 
 
-class YourTask(ngym.PeriodEnv):  # TIP: if task has periods (alt.: ngym.TrialEnv)
-    metadata = {
-        'paper_link': 'your paper link',
-        'paper_name': 'your paper name',
-        'tags': ['property 1', 'property 2']
-    }
-
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1,
-                 extra_input_param=None):
+class YourTask(ngym.TrialEnv):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1):
         super().__init__(dt=dt)
         # Possible decisions at the end of the trial
         self.choices = [1, 2]  # e.g. [left, right]
-
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
-        # Rewards
-        self.rewards = {
-            'abort': -0.1,  # reward given when break fixation
-            'correct': +1.,  # reward given when correct
-            'fail': 0.,  # reward given when incorrect
-        }
+        # Optional rewards dictionary
+        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
         if rewards:
             self.rewards.update(rewards)
 
+        # Optional timing dictionary
+        # if provided, self.add_period can infer timing directly
         self.timing = {
-            'period 1 (e.g. fixation)': ('constant', 'value'),
-            'period 2 (e.g. stimulus)': ('truncated_exponential',
-                                                  ['mean', 'min', 'max']),
-            'period 3 (e.g. decision)': ('uniform', ('min', 'max'))}
+            'fixation': 100,
+            'stimulus': 2000,
+            'delay': 0,
+            'decision': 100}
         if timing:
             self.timing.update(timing)
-        # whether to abort (T) or not (F) the trial when breaking fixation:
-        self.abort = False
-        # action and observation spaces: [fixate, got left, got right]
-        self.action_space = spaces.Discrete(3)
-        # observation space: [fixation cue, left stim, right stim]
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
-                                            dtype=np.float32)
 
-    def new_trial(self, **kwargs):
+        # Similar to gym envs, define observations_space and action_space
+        self.observation_space = spaces.Box(
+            -np.inf, np.inf, shape=(3,), dtype=np.float32)
+        # Optional annotation of the observation space
+        self.ob_dict = {'fixation': 0, 'stimulus': [1, 2]}
+        self.action_space = spaces.Discrete(3)
+        # Optional annotation of the action space
+        self.act_dict = {'fixation': 0, 'choice': [1, 2]}
+
+    def _new_trial(self, **kwargs):
         """
-        new_trial() is called when a trial ends to generate the next trial.
-        Here you have to set (at least):
-        1. The ground truth: the correct answer for the created trial.
-        2. The trial periods: fixation, stimulus...
-            """
-        # ---------------------------------------------------------------------
-        # Trial
-        # ---------------------------------------------------------------------
-        self.trial = {'ground_truth': self.rng.choice(self.choices)}
-        self.trial.update(kwargs)  # allows wrappers to modify the trial
-        ground_truth = self.trial['ground_truth']
-        # ---------------------------------------------------------------------
-        # Periods
-        # ---------------------------------------------------------------------
-        self.add_period('fixation', after=0)
-        self.add_period('stimulus', after='fixation')
-        self.add_period('decision', after='stimulus', last_period=True)
-        # ---------------------------------------------------------------------
-        # Observations
-        # ---------------------------------------------------------------------
-        # all observation values are 0 by default
-        # FIXATION: setting fixation cue to 1 during fixation period
-        self.set_ob('fixation', [1, 0, 0])
-        # STIMULUS
-        # view_ob return a pointer to observations during stimulus period:
-        stimulus = self.view_ob('stimulus')  # (shape = time x obs-dim)
-        # SET THE STIMULUS
+        self._new_trial() is called internally to generate a next trial.
+
+        Typically, you need to
+            set trial: a dictionary of trial information
+            run self.add_period():
+                will add time periods to the trial
+                accesible through dict self.start_t and self.end_t
+            run self.add_ob():
+                will add observation to np array self.ob
+            run self.set_groundtruth():
+                will set groundtruth to np array self.gt
+
+        Returns:
+            trial: dictionary of trial information
+        """
+
+        # Setting trial information
+        trial = {'ground_truth': self.rng.choice(self.choices)}
+        trial.update(kwargs)  # allows wrappers to modify the trial
+        ground_truth = trial['ground_truth']
+
+        # Adding periods sequentially
+        self.add_period(['fixation', 'stimulus', 'delay', 'decision'])
+
+        # Setting observations, default all 0
+        # Setting fixation cue to 1 before decision period
+        self.add_ob(1, where='fixation')
+        self.set_ob(0, 'decision', where='fixation')
+        # Set the stimulus
+        stim = [0, 0, 0]
+        stim[ground_truth] = 1
+        self.add_ob(stim, 'stimulus')
         # adding gaussian noise to stimulus with std = self.sigma
-        stimulus[:, 1:] +=\
-            np.random.randn(stimulus.shape[0], 2) * self.sigma
-        # ---------------------------------------------------------------------
-        # Ground truth
-        # ---------------------------------------------------------------------
-        self.set_groundtruth('decision', ground_truth)
+        self.add_randn(0, self.sigma, 'stimulus', where='stimulus')
+
+        # Setting ground-truth value for supervised learning
+        self.set_groundtruth(ground_truth, 'decision')
+
+        return trial
 
     def _step(self, action):
         """
@@ -102,11 +95,10 @@ class YourTask(ngym.PeriodEnv):  # TIP: if task has periods (alt.: ngym.TrialEnv
         reward = 0
         gt = self.gt_now
         # Example structure
-        if self.in_period('fixation'):  # during fixation period
+        if not self.in_period('decision'):
             if action != 0:  # if fixation break
-                new_trial = self.abort
                 reward = self.rewards['abort']
-        elif self.in_period('decision'):  # during decision period
+        else:
             if action != 0:
                 new_trial = True
                 if action == gt:  # if correct
@@ -115,3 +107,15 @@ class YourTask(ngym.PeriodEnv):  # TIP: if task has periods (alt.: ngym.TrialEnv
                     reward = self.rewards['fail']
 
         return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
+
+
+if __name__ == '__main__':
+    # Instantiate the task
+    env = YourTask()
+    trial = env.new_trial()
+    print('Trial info', trial)
+    print('Trial observation shape', env.ob.shape)
+    print('Trial action shape', env.gt.shape)
+    env.reset()
+    ob, reward, done, info = env.step(env.action_space.sample())
+    print('Single time step observation shape', ob.shape)

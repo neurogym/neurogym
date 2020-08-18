@@ -13,6 +13,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../neurogym'))
+sys.path.append(os.path.abspath('./'))
 
 import sphinx_rtd_theme
 
@@ -45,6 +46,7 @@ extensions = [
     'sphinx.ext.autosectionlabel',
     'nbsphinx',
     'sphinx.ext.mathjax',
+    'video',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

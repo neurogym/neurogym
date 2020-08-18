@@ -8,7 +8,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class PerceptualDecisionMaking(ngym.PeriodEnv):
+class PerceptualDecisionMaking(ngym.TrialEnv):
     """Two-alternative forced choice task in which the subject has to
     integrate two stimuli to decide which one is higher on average.
 
@@ -37,10 +37,10 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 100),  # TODO: depends on subject
-            'stimulus': ('constant', 2000),
-            'delay': ('constant', 0),
-            'decision': ('constant', 100)}  # XXX: not specified
+            'fixation': 100,
+            'stimulus': 2000,
+            'delay': 0,
+            'decision': 100}
         if timing:
             self.timing.update(timing)
 
@@ -55,7 +55,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(1+dim_ring)
         self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring+1)}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         """
         new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:
@@ -67,19 +67,18 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
             obs: observation
         """
         # Trial info
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices),
             'coh': self.rng.choice(self.cohs),
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
-        coh = self.trial['coh']
-        ground_truth = self.trial['ground_truth']
+        coh = trial['coh']
+        ground_truth = trial['ground_truth']
         stim_theta = self.theta[ground_truth]
 
         # Periods
-        self.add_period(['fixation', 'stimulus', 'delay', 'decision'], after=0,
-                        last_period=True)
+        self.add_period(['fixation', 'stimulus', 'delay', 'decision'])
 
         # Observations
         self.add_ob(1, period=['fixation', 'stimulus', 'delay'], where='fixation')
@@ -89,6 +88,8 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
 
         # Ground truth
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+
+        return trial
 
     def _step(self, action):
         """
@@ -122,7 +123,7 @@ class PerceptualDecisionMaking(ngym.PeriodEnv):
 
 
 #  TODO: there should be a timeout of 1000ms for incorrect trials
-class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
+class PerceptualDecisionMakingDelayResponse(ngym.TrialEnv):
     """Perceptual decision-making with delayed responses.
 
     Agents have to integrate two stimuli and report which one is
@@ -154,12 +155,12 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 0),
-            'stimulus': ('constant', 1150),
+            'fixation': 0,
+            'stimulus': 1150,
             #  TODO: sampling of delays follows exponential
-            'delay': ('choice', [300, 500, 700, 900, 1200, 2000, 3200, 4000]),
-            # 'go_cue': ('constant', 100), # TODO: Not implemented
-            'decision': ('constant', 1500)}
+            'delay':(300, 500, 700, 900, 1200, 2000, 3200, 4000),
+            # 'go_cue': 100, # TODO: Not implemented
+            'decision': 1500}
         if timing:
             self.timing.update(timing)
 
@@ -170,35 +171,37 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
                                             dtype=np.float32)
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices),
             'coh': self.rng.choice(self.cohs),
             'sigma': self.sigma,
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
         periods = ['fixation', 'stimulus', 'delay', 'decision']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods)
 
         # define observations
         self.set_ob([1, 0, 0], 'fixation')
         stim = self.view_ob('stimulus')
         stim[:, 0] = 1
-        stim[:, 1:] = (1 - self.trial['coh']/100)/2
-        stim[:, self.trial['ground_truth']] = (1 + self.trial['coh']/100)/2
+        stim[:, 1:] = (1 - trial['coh']/100)/2
+        stim[:, trial['ground_truth']] = (1 + trial['coh']/100)/2
         stim[:, 1:] +=\
-            self.rng.randn(stim.shape[0], 2) * self.trial['sigma']
+            self.rng.randn(stim.shape[0], 2) * trial['sigma']
 
         self.set_ob([1, 0, 0], 'delay')
 
-        self.set_groundtruth(self.trial['ground_truth'], 'decision')
+        self.set_groundtruth(trial['ground_truth'], 'decision')
+
+        return trial
 
     def _step(self, action):
         # ---------------------------------------------------------------------
@@ -226,7 +229,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.PeriodEnv):
         return self.ob_now, reward, False, info
 
 
-class PulseDecisionMaking(ngym.PeriodEnv):
+class PulseDecisionMaking(ngym.TrialEnv):
     """Pulse-based decision making task.
 
     Discrete stimuli are presented briefly as pulses.
@@ -254,11 +257,11 @@ class PulseDecisionMaking(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),
-            'decision': ('constant', 500)}
+            'fixation': 500,
+            'decision': 500}
         for i in range(n_bin):
-            self.timing['cue' + str(i)] = ('constant', 10)
-            self.timing['bin' + str(i)] = ('constant', 240)
+            self.timing['cue' + str(i)] = 10
+            self.timing['bin' + str(i)] = 240
         if timing:
             self.timing.update(timing)
 
@@ -270,27 +273,27 @@ class PulseDecisionMaking(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(3)
         self.act_dict = {'fixation': 0, 'choice': [1, 2]}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info
         p1, p2 = self.p_pulse
         if self.rng.rand() < 0.5:
             p1, p2 = p2, p1
         pulse1 = (self.rng.random(self.n_bin) < p1) * 1.0
         pulse2 = (self.rng.random(self.n_bin) < p2) * 1.0
-        self.trial = {'pulse1': pulse1, 'pulse2': pulse2}
-        self.trial.update(kwargs)
+        trial = {'pulse1': pulse1, 'pulse2': pulse2}
+        trial.update(kwargs)
 
         n_pulse1 = sum(pulse1)
         n_pulse2 = sum(pulse2) + self.rng.uniform(-0.1, 0.1)
         ground_truth = int(n_pulse1 < n_pulse2)
-        self.trial['ground_truth'] = ground_truth
+        trial['ground_truth'] = ground_truth
 
         # Periods
         periods = ['fixation']
         for i in range(self.n_bin):
             periods += ['cue' + str(i), 'bin' + str(i)]
         periods += ['decision']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods)
 
         # Observations
         self.add_ob(1, where='fixation')
@@ -301,6 +304,8 @@ class PulseDecisionMaking(ngym.PeriodEnv):
 
         # Ground truth
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+
+        return trial
 
     def _step(self, action):
         new_trial = False
@@ -326,7 +331,7 @@ class PulseDecisionMaking(ngym.PeriodEnv):
 
 if __name__ == '__main__':
     env = PerceptualDecisionMaking(dt=20,
-                                   timing={'stimulus': ('constant', 500)})
+                                   timing={'stimulus': 500})
     ngym.utils.plot_env(env, num_steps=100, def_act=1)
     # env = PerceptualDecisionMakingDelayResponse()
     # ngym.utils.plot_env(env, num_steps=100, def_act=1)

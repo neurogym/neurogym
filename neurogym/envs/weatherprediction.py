@@ -6,7 +6,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class ProbabilisticReasoning(ngym.PeriodEnv):
+class ProbabilisticReasoning(ngym.TrialEnv):
     """The subject makes two-alternative forced choice based on sequentially
     presented stimuli.
 
@@ -41,12 +41,12 @@ class ProbabilisticReasoning(ngym.PeriodEnv):
         if rewards:
             self.rewards.update(rewards)
 
-        self.timing = {'fixation': ('constant', 500),
-                       'delay': ('uniform', [450, 550]),
-                       'decision': ('constant', 500)
+        self.timing = {'fixation': 500,
+                       'delay': lambda: self.rng.uniform(450, 550),
+                       'decision': 500
                        }
         for i_loc in range(n_loc):
-            self.timing['stimulus'+str(i_loc)] = ('constant', 500)
+            self.timing['stimulus'+str(i_loc)] = 500
         if timing:
             self.timing.update(timing)
 
@@ -63,29 +63,29 @@ class ProbabilisticReasoning(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(3)
         self.act_dict = {'fixation': 0, 'choice': [1, 2]}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info
-        self.trial = {
+        trial = {
             'locs': self.rng.choice(range(self.n_loc),
                                     size=self.n_loc, replace=False),
             'shapes': self.rng.choice(range(self.n_shape),
                                       size=self.n_loc, replace=True),
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
 
-        locs = self.trial['locs']
-        shapes = self.trial['shapes']
+        locs = trial['locs']
+        shapes = trial['shapes']
         log_odd = sum([self.shape_weight[shape] for shape in shapes])
         p = 1. / (10**(-log_odd) + 1.)
         ground_truth = int(self.rng.rand() < p)
-        self.trial['log_odd'] = log_odd
-        self.trial['ground_truth'] = ground_truth
+        trial['log_odd'] = log_odd
+        trial['ground_truth'] = ground_truth
 
         # Periods
         periods = ['fixation']
         periods += ['stimulus'+str(i) for i in range(self.n_loc)]
         periods += ['delay', 'decision']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods)
 
         # Observations
         self.add_ob(1, where='fixation')
@@ -99,6 +99,8 @@ class ProbabilisticReasoning(ngym.PeriodEnv):
 
         # Ground truth
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+
+        return trial
 
     def _step(self, action):
         new_trial = False

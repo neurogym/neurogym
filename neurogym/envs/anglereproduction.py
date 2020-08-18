@@ -6,7 +6,7 @@ from neurogym.utils import tasktools
 import neurogym as ngym
 
 
-class AngleReproduction(ngym.PeriodEnv):
+class AngleReproduction(ngym.TrialEnv):
     r"""Angle reproduction.
 
     The agent has to reproduce to two angles separated
@@ -36,47 +36,49 @@ class AngleReproduction(ngym.PeriodEnv):
         if rewards:
             self.rewards.update(rewards)
 
-        self.timing = {  # TODO: Timing not from paper yet
-            'fixation': ('constant', 500),
-            'stim1': ('constant', 500),
-            'delay1': ('constant', 500),
-            'stim2': ('constant', 500),
-            'delay2': ('constant', 500),
-            'go1': ('constant', 500),
-            'go2': ('constant', 500)}
+        self.timing = {
+            'fixation': 500,
+            'stim1': 500,
+            'delay1': 500,
+            'stim2': 500,
+            'delay2': 500,
+            'go1': 500,
+            'go2': 500}
         if timing:
             self.timing.update(timing)
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
         self.state = np.pi
-        self.trial = {
+        trial = {
             'ground_truth1': self.rng.uniform(0, np.pi * 2),
             'ground_truth2': self.rng.uniform(0, np.pi * 2)
         }
-        self.trial.update(kwargs)
+        trial.update(kwargs)
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
         periods = ['fixation', 'stim1', 'delay1', 'stim2',
                    'delay2', 'go1', 'go2']
-        self.add_period(periods, after=0, last_period=True)
+        self.add_period(periods)
 
         ob = self.view_ob('stim1')
-        ob[:, :16] = np.cos(self.theta - self.trial['ground_truth1'])
+        ob[:, :16] = np.cos(self.theta - trial['ground_truth1'])
         ob = self.view_ob('stim2')
-        ob[:, :16] = np.cos(self.theta - self.trial['ground_truth2'])
+        ob[:, :16] = np.cos(self.theta - trial['ground_truth2'])
         ob = self.view_ob('go1')
         ob[:, 32] = 1
         ob = self.view_ob('go2')
         ob[:, 33] = 1
 
-        self.set_groundtruth(self.trial['ground_truth1'], 'go1')
-        self.set_groundtruth(self.trial['ground_truth2'], 'go2')
+        self.set_groundtruth(trial['ground_truth1'], 'go1')
+        self.set_groundtruth(trial['ground_truth2'], 'go2')
         self.dec_per_dur = (self.end_ind['go1'] - self.start_ind['go1']) +\
             (self.end_ind['go2'] - self.start_ind['go2'])
+
+        return trial
 
     def _step(self, action):
         ob = self.ob_now

@@ -8,7 +8,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class DelayMatchCategory(ngym.PeriodEnv):
+class DelayMatchCategory(ngym.TrialEnv):
     r"""Delay match-to-category task.
 
     A sample stimulus is followed by a delay and test. Agents are required
@@ -35,12 +35,12 @@ class DelayMatchCategory(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),
-            'sample': ('constant', 650),
-            'first_delay': ('constant', 1000),
-            'test': ('constant', 650)}
-        # 'second_delay': ('constant', 250),  # TODO: not implemented
-        # 'decision': ('constant', 650)},  # TODO: not implemented}
+            'fixation': 500,
+            'sample': 650,
+            'first_delay': 1000,
+            'test': 650}
+        # 'second_delay': 250,
+        # 'decision': 650},
         if timing:
             self.timing.update(timing)
 
@@ -53,16 +53,16 @@ class DelayMatchCategory(ngym.PeriodEnv):
         self.action_space = spaces.Discrete(3)
         self.act_dict = {'fixation': 0, 'match': 1, 'non-match': 2}
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # Trial info
-        self.trial = {
+        trial = {
             'ground_truth': self.rng.choice(self.choices),
             'sample_category': self.rng.choice([0, 1]),
         }
-        self.trial.update(**kwargs)
+        trial.update(**kwargs)
 
-        ground_truth = self.trial['ground_truth']
-        sample_category = self.trial['sample_category']
+        ground_truth = trial['ground_truth']
+        sample_category = trial['sample_category']
         if ground_truth == 'match':
             test_category = sample_category
         else:
@@ -76,8 +76,8 @@ class DelayMatchCategory(ngym.PeriodEnv):
 
         # Periods
         periods = ['fixation', 'sample', 'first_delay', 'test']
-        self.add_period(periods, after=0, last_period=True)
-        # self.add_period('decision', after='test', last_period=True)
+        self.add_period(periods)
+        # self.add_period('decision', after='test')
 
         self.add_ob(1, where='fixation')
         self.set_ob(0, 'test', where='fixation')
@@ -86,6 +86,8 @@ class DelayMatchCategory(ngym.PeriodEnv):
         self.add_randn(0, self.sigma, ['sample', 'test'], where='stimulus')
 
         self.set_groundtruth(self.act_dict[ground_truth], 'test')
+
+        return trial
 
     def _step(self, action, **kwargs):
         new_trial = False

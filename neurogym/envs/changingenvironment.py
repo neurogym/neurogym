@@ -12,7 +12,7 @@ import neurogym as ngym
 
 
 # TODO: Need a more intuitive name
-class ChangingEnvironment(ngym.PeriodEnv):
+class ChangingEnvironment(ngym.TrialEnv):
     r"""Random Dots Motion tasks in which the correct action
     depends on a randomly changing context.
 
@@ -51,9 +51,9 @@ class ChangingEnvironment(ngym.PeriodEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': ('constant', 500),
-            'stimulus': ('truncated_exponential', [1000, 500, 1500]),
-            'decision': ('constant', 500)}
+            'fixation': 500,
+            'stimulus': ngym.random.TruncExp(1000, 500, 1500, rng=self.rng),
+            'decision': 500}
         if timing:
             self.timing.update(timing)
 
@@ -66,7 +66,7 @@ class ChangingEnvironment(ngym.PeriodEnv):
                                             shape=(3+1*cxt_cue,),
                                             dtype=np.float32)
 
-    def new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
         # ---------------------------------------------------------------------
@@ -76,21 +76,21 @@ class ChangingEnvironment(ngym.PeriodEnv):
 
         side = self.rng.choice(self.choices)
 
-        self.trial = {
+        trial = {
             'side': side,
             'ground_truth': (side + 2 * self.curr_cxt),
             'coh': self.rng.choice(self.cohs),
         }
 
-        self.trial.update(kwargs)  # allows wrappers to modify the trial
+        trial.update(kwargs)  # allows wrappers to modify the trial
 
-        coh = self.trial['coh']
-        ground_truth = self.trial['ground_truth']
+        coh = trial['coh']
+        ground_truth = trial['ground_truth']
 
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        self.add_period(['fixation', 'stimulus', 'decision'], after=0, last_period=True)
+        self.add_period(['fixation', 'stimulus', 'decision'])
         # ---------------------------------------------------------------------
         # Observations
         # ---------------------------------------------------------------------
@@ -126,6 +126,8 @@ class ChangingEnvironment(ngym.PeriodEnv):
         # Ground truth
         # ---------------------------------------------------------------------
         self.set_groundtruth(ground_truth, 'decision')
+
+        return trial
 
     def _step(self, action):
         new_trial = False

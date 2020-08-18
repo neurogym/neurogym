@@ -6,7 +6,7 @@ import numpy as np
 import gym
 import warnings
 
-from neurogym.utils import tasktools
+from neurogym.utils.random import trunc_exp
 
 METADATA_DEF_KEYS = ['description', 'paper_name', 'paper_link', 'timing',
                      'tags']
@@ -33,13 +33,14 @@ def env_string(env):
     else:
         string += "[{:s}]({:s})\n".format(paper_name, paper_link)
     # add timing info
-    if isinstance(env, PeriodEnv):
-        timing = env.timing
-        string += '\nPeriod timing (ms) \n'
-        for key, val in timing.items():
-            dist, args = val
-            string +=\
-                key + ' : ' + tasktools.random_number_name(dist, args) + '\n'
+    # TODO: Add timing info back?
+    # if isinstance(env, TrialEnv):
+    #     timing = env.timing
+    #     string += '\nPeriod timing (ms) \n'
+    #     for key, val in timing.items():
+    #         dist, args = val
+    #         string +=\
+    #             key + ' : ' + tasktools.random_number_name(dist, args) + '\n'
 
     if env.rewards:
         string += '\nReward structure \n'
@@ -91,31 +92,39 @@ class TrialEnv(BaseEnv):
         self.num_tr = 0
         self.num_tr_exp = num_trials_before_reset
         self.trial = None
+        self._trial_built = False
+
         self.performance = 0
         # Annotations of observation space and action space
         self.ob_dict = {}
         self.act_dict = {}
         self.rewards = {}
-        self.seed()
+        self._default_ob_value = None  # default to 0
+
+        # For optional periods
+        self.timing = {}
+        self.start_t = dict()
+        self.end_t = dict()
+        self.start_ind = dict()
+        self.end_ind = dict()
+        self._tmax = 0  # Length of each trial
 
         self._top = self
 
-    def new_trial(self, **kwargs):
-        """Public interface for starting a new trial.
+        self.seed()
 
-        This function can typically update the self.trial
-        dictionary that contains information about current trial
-        TODO: Need to clearly define the expected behavior
-        
-        Args:
+    def __str__(self):
+        """Information about task."""
+        return env_string(self)  # TODO: simplify, too long now
+
+    def _new_trial(self, **kwargs):
+        """Private interface for starting a new trial.
 
         Returns:
-            observation: numpy array of agent's observation during the trial
-            target: numpy array of target action of the agent
             trial: dict of trial information. Available to step function as
                 self.trial
         """
-        raise NotImplementedError('new_trial is not defined by user.')
+        raise NotImplementedError('_new_trial is not defined by user.')
 
     def _step(self, action):
         """Private interface for the environment.
@@ -125,6 +134,21 @@ class TrialEnv(BaseEnv):
         useful information
         """
         raise NotImplementedError('_step is not defined by user.')
+
+    def new_trial(self, **kwargs):
+        """Public interface for starting a new trial.
+
+        Returns:
+            trial: dict of trial information. Available to step function as
+                self.trial
+        """
+        trial = self._new_trial(**kwargs)
+        self.trial = trial
+        self.num_tr += 1  # Increment trial count
+        # Reset for next trial
+        self._trial_built = False
+        self._tmax = 0  # re-initialize
+        return trial
 
     def step(self, action):
         """Public interface for the environment."""
@@ -143,10 +167,8 @@ class TrialEnv(BaseEnv):
             info['performance'] = self.performance
             self.performance = 0
             self.t = self.t_ind = 0  # Reset within trial time count
-            self.num_tr += 1  # Increment trial count
-            self._top.new_trial()
-            if self.trial:
-                info.update(self.trial)
+            trial = self._top.new_trial()
+            info['trial'] = trial
         return obs, reward, done, info
 
     def reset(self, step_fn=None, no_step=False):
@@ -186,58 +208,27 @@ class TrialEnv(BaseEnv):
         """Set top to be wrapper."""
         self._top = wrapper
 
-
-class PeriodEnv(TrialEnv):
-    """Environment class with trial/period structure."""
-
-    def __init__(self, dt=100, num_trials_before_reset=10000000,
-                 r_tmax=0):
-        super(PeriodEnv, self).__init__(
-            dt=dt, num_trials_before_reset=num_trials_before_reset,
-            r_tmax=r_tmax)
-
-        self.gt = None
-
-        self.timing = {}
-        self.start_t = dict()
-        self.end_t = dict()
-        self.start_ind = dict()
-        self.end_ind = dict()
-
-    def __str__(self):
-        """Information about task."""
-        return env_string(self)
-
-    def new_trial(self, **kwargs):
-        """Public interface for starting a new trial.
-
-        This function can typically update the self.trial
-        dictionary that contains information about current trial
-        TODO: Need to clearly define the expected behavior
-        """
-        raise NotImplementedError('new_trial is not defined by user.')
-
-    def _step(self, action):
-        """Private interface for the environment.
-
-        Receives an action and returns a new state, a reward, a flag variable
-        indicating whether the experiment has ended and a dictionary with
-        useful information
-        """
-        raise NotImplementedError('_step is not defined by user.')
-
     def sample_time(self, period):
-        dist, args = self.timing[period]
-        if dist == 'uniform':
-            t = self.rng.uniform(*args)
-        elif dist == 'choice':
-            t = self.rng.choice(args)
-        elif dist == 'truncated_exponential':
-            t = tasktools.trunc_exp_new(self.rng, *args)
-        elif dist == 'constant':
-            t = args
+        timing = self.timing[period]
+        if isinstance(timing, (int, float)):
+            t = timing
+        elif callable(timing):
+            t = timing()
+        elif isinstance(timing[0], (int, float)):
+            # Expect list of int/float, and use random choice
+            t = self.rng.choice(timing)
         else:
-            raise ValueError('Unknown dist:', str(dist))
+            dist, args = timing
+            if dist == 'uniform':
+                t = self.rng.uniform(*args)
+            elif dist == 'choice':
+                t = self.rng.choice(args)
+            elif dist == 'truncated_exponential':
+                t = trunc_exp(self.rng, *args)
+            elif dist == 'constant':
+                t = args
+            else:
+                raise ValueError('Unknown dist:', str(dist))
         return (t // self.dt) * self.dt
 
     def add_period(self, period, duration=None, before=None, after=None,
@@ -254,6 +245,8 @@ class PeriodEnv(TrialEnv):
             last_period: bool, default False. If True, then this is last period
                 will generate self.tmax, self.tind, and self.ob
         """
+        assert not self._trial_built, 'Cannot add period after trial ' \
+                                      'is built, i.e. after running add_ob'
         if isinstance(period, str):
             pass
         else:
@@ -283,30 +276,34 @@ class PeriodEnv(TrialEnv):
         elif before is not None:
             start = self.start_t[before] - duration
         else:
-            raise ValueError('''before and after can not be both None''')
+            start = 0  # default start with 0
 
         self.start_t[period] = start
         self.end_t[period] = start + duration
         self.start_ind[period] = int(start/self.dt)
         self.end_ind[period] = int((start + duration)/self.dt)
 
-        if last_period:
-            self._trial_built = True
-            self._init_trial(start + duration)
-        else:
-            self._trial_built = False
+        self._tmax = max(self._tmax, start + duration)
 
-    def _init_trial(self, tmax):
-        """Initialize trial info with tmax, tind, obs"""
-        tmax_ind = int(tmax/self.dt)
+    def _init_trial(self):
+        """Initialize trial info with tmax, tind, ob"""
+        tmax_ind = int(self._tmax/self.dt)
         self.tmax = tmax_ind * self.dt
-        self.ob = np.zeros([tmax_ind] + list(self.observation_space.shape),
-                           dtype=self.observation_space.dtype)
+        ob_shape = [tmax_ind] + list(self.observation_space.shape)
+        if self._default_ob_value is None:
+            self.ob = np.zeros(ob_shape, dtype=self.observation_space.dtype)
+        else:
+            self.ob = np.full(ob_shape, self._default_ob_value,
+                              dtype=self.observation_space.dtype)
         self.gt = np.zeros([tmax_ind] + list(self.action_space.shape),
                            dtype=self.action_space.dtype)
+        self._trial_built = True
 
     def view_ob(self, period=None):
         """View observation of an period."""
+        if not self._trial_built:
+            self._init_trial()
+
         if period is None:
             return self.ob
         else:
@@ -327,8 +324,6 @@ class PeriodEnv(TrialEnv):
                 self._add_ob(value, p, where, reset=reset)
             return
 
-        assert self._trial_built, 'Trial was not succesfully built.' +\
-            ' (Hint: make last_period=True when adding the last period)'
         # self.ob[self.start_ind[period]:self.end_ind[period]] = value
         ob = self.view_ob(period=period)
         if where is None:
@@ -353,8 +348,8 @@ class PeriodEnv(TrialEnv):
         """Add value to observation.
 
         Args:
+            value: array-like (ob_space.shape, ...)
             period: string, must be name of an added period
-            value: np array (ob_space.shape, ...)
             where: string or np array, location of stimulus to be added
         """
         self._add_ob(value, period, where, reset=False)

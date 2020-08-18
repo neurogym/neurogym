@@ -99,15 +99,15 @@ def test_ttlpulse(env_name, num_steps=10000, verbose=False, **envArgs):
 
 def test_transferLearning(num_steps=10000, verbose=False, **envArgs):
     task = 'GoNogo-v0'
-    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
-                                    'stimulus': ('constant', 100),
-                                    'resp_delay': ('constant', 100),
-                                    'decision': ('constant', 100)}}
+    KWARGS = {'dt': 100, 'timing': {'fixation': 0,
+                                    'stimulus': 100,
+                                    'resp_delay': 100,
+                                    'decision': 100}}
     env1 = gym.make(task, **KWARGS)
     task = 'PerceptualDecisionMaking-v0'
-    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 100),
-                                    'stimulus': ('constant', 100),
-                                    'decision': ('constant', 100)}}
+    KWARGS = {'dt': 100, 'timing': {'fixation': 100,
+                                    'stimulus': 100,
+                                    'decision': 100}}
     env2 = gym.make(task, **KWARGS)
     env = TransferLearning([env1, env2], num_tr_per_task=[30], task_cue=True)
 
@@ -149,18 +149,18 @@ def test_transferLearning(num_steps=10000, verbose=False, **envArgs):
 
 def test_combine(num_steps=10000, verbose=False, **envArgs):
     task = 'GoNogo-v0'
-    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
-                                    'stimulus': ('constant', 100),
-                                    'resp_delay': ('constant', 100),
-                                    'decision': ('constant', 100)}}
+    KWARGS = {'dt': 100, 'timing': {'fixation': 0,
+                                    'stimulus': 100,
+                                    'resp_delay': 100,
+                                    'decision': 100}}
     env1 = gym.make(task, **KWARGS)
     task = 'DelayPairedAssociation-v0'
-    KWARGS = {'dt': 100, 'timing': {'fixation': ('constant', 0),
-                                    'stim1': ('constant', 100),
-                                    'delay_btw_stim': ('constant', 500),
-                                    'stim2': ('constant', 100),
-                                    'delay_aft_stim': ('constant', 100),
-                                    'decision': ('constant', 200)}}
+    KWARGS = {'dt': 100, 'timing': {'fixation': 0,
+                                    'stim1': 100,
+                                    'delay_btw_stim': 500,
+                                    'stim2': 100,
+                                    'delay_aft_stim': 100,
+                                    'decision': 200}}
     env2 = gym.make(task, **KWARGS)
     env = Combine(env=env1, distractor=env2, delay=100, dt=100, mix=(.3, .3, .4),
                   share_action_space=True, defaults=[0, 0], trial_cue=True)
@@ -510,9 +510,9 @@ def test_trialhistEv(env_name, num_steps=10000, probs=0.8, num_blocks=2,
 
 if __name__ == '__main__':
     plt.close('all')
-    env_args = {'stim_scale': 10, 'timing': {'fixation': ('constant', 100),
-                                             'stimulus': ('constant', 200),
-                                             'decision': ('constant', 200)}}
+    env_args = {'stim_scale': 10, 'timing': {'fixation': 100,
+                                             'stimulus': 200,
+                                             'decision': 200}}
     # test_identity('Nothing-v0', num_steps=5)
     # test_passreward('PerceptualDecisionMaking-v0', num_steps=10, verbose=True,
     #                 **env_args)
