@@ -30,7 +30,7 @@ class nalt_PerceptualDecisionMaking(ngym.TrialEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, sigma=1.,
-                 stim_scale=1., n_ch=3, ob_nch=False,
+                 stim_scale=1., n_ch=3, ob_nch=False, zero_irrelevant_stim=False,
                  ob_histblock=False):
 
         super().__init__(dt=dt)
@@ -38,16 +38,16 @@ class nalt_PerceptualDecisionMaking(ngym.TrialEnv):
         self.choices = np.arange(n_ch)
         self.ob_nch = ob_nch
         self.ob_histblock = ob_histblock
-
+        self.zero_irrelevant_stim = zero_irrelevant_stim
         assert isinstance(n_ch, int), 'n_ch must be integer'
         assert n_ch > 1, 'n_ch must be at least 2'
         assert isinstance(ob_histblock, bool), 'ob_histblock \
                                                 must be True/False'
         assert isinstance(ob_nch, bool), 'ob_nch \
                                                 must be True/False'
-
+        n_ch_factor = 1.84665761*np.log(n_ch)-0.04102044
         # The strength of evidence, modulated by stim_scale.
-        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*stim_scale
+        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*n_ch_factor*stim_scale
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
         # Rewards
@@ -91,8 +91,8 @@ class nalt_PerceptualDecisionMaking(ngym.TrialEnv):
         #  Controling whether ground_truth and/or choices is passed.
         if 'ground_truth' in kwargs.keys():
             ground_truth = kwargs['ground_truth']
-        elif 'n_ch' in kwargs.keys():
-            ground_truth = self.rng.choice(np.arange(kwargs['n_ch']))
+        elif 'sel_chs' in kwargs.keys():
+            ground_truth = self.rng.choice(kwargs['sel_chs'])
         else:
             ground_truth = self.rng.choice(self.choices)
 
@@ -110,8 +110,8 @@ class nalt_PerceptualDecisionMaking(ngym.TrialEnv):
 
         #  Adding active nch and/or current history block to observations.
         if self.ob_nch:
-            if 'n_ch' in kwargs.keys():
-                self.add_ob(kwargs['n_ch'], where='Active choices')
+            if 'sel_chs' in kwargs.keys():
+                self.add_ob(len(kwargs['sel_chs']), where='Active choices')
             else:
                 self.add_ob(len(self.choices), where='Active choices')
         if self.ob_histblock and 'curr_block' in kwargs.keys():
@@ -119,11 +119,14 @@ class nalt_PerceptualDecisionMaking(ngym.TrialEnv):
             self.add_ob(kwargs['curr_block']+1, where='Current block')
 
         #  Adding noise to stimulus observations
-        if 'n_ch' in kwargs.keys():
+        if 'sel_chs' in kwargs.keys() and self.zero_irrelevant_stim:
             self.add_randn(0, self.sigma, 'stimulus',
-                           where=np.arange(kwargs['n_ch'])+1)
+                           where=np.array(kwargs['sel_chs'])+1)
             stim = self.view_ob()
-            stim[:, kwargs['n_ch']+1:] = 0
+            irr_indx = np.array([int(x) for x in np.arange(self.n)
+                                 if x not in kwargs['sel_chs']])+1
+            if len(irr_indx) > 0:
+                stim[:, irr_indx] = 0
         else:
             self.add_randn(0, self.sigma, 'stimulus', where='stimulus')
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
