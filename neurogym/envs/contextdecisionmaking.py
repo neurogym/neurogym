@@ -93,6 +93,8 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
 
         self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
 
+        return trial
+
     def _step(self, action):
         obs = self.ob_now
         gt = self.gt_now

@@ -66,6 +66,8 @@ class Reaching1D(ngym.TrialEnv):
         self.set_groundtruth(trial['ground_truth'], 'reach')
         self.dec_per_dur = (self.end_ind['reach'] - self.start_ind['reach'])
 
+        return trial
+
     def _step(self, action):
         ob = self.ob_now
         ob[16:] = np.cos(self.theta - self.state)

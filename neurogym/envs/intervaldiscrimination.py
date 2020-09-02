@@ -49,6 +49,9 @@ class IntervalDiscrimination(ngym.TrialEnv):
         duration1 = self.sample_time('stim1')
         duration2 = self.sample_time('stim2')
         ground_truth = 1 if duration1 > duration2 else 2
+        trial = {'duration1': duration1,
+                 'duration2': duration2,
+                 'ground_truth': ground_truth}
 
         periods = ['fixation', 'stim1', 'delay1', 'stim2', 'delay2', 'decision']
         durations = [None, duration1, None, duration2, None, None]
@@ -60,6 +63,8 @@ class IntervalDiscrimination(ngym.TrialEnv):
         self.set_ob(0, 'decision')
 
         self.set_groundtruth(ground_truth, 'decision')
+
+        return trial
 
     def _step(self, action):
         # ---------------------------------------------------------------------

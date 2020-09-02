@@ -152,7 +152,7 @@ class TrialEnv(BaseEnv):
 
     def step(self, action):
         """Public interface for the environment."""
-        obs, reward, done, info = self._step(action)
+        ob, reward, done, info = self._step(action)
 
         self.t += self.dt  # increment within trial time count
         self.t_ind += 1
@@ -169,7 +169,7 @@ class TrialEnv(BaseEnv):
             self.t = self.t_ind = 0  # Reset within trial time count
             trial = self._top.new_trial()
             info['trial'] = trial
-        return obs, reward, done, info
+        return ob, reward, done, info
 
     def reset(self, step_fn=None, no_step=False):
         """Reset the environment.
