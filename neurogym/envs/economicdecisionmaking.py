@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from __future__ import division
-
 import numpy as np
-from neurogym.utils import tasktools
+
 import neurogym as ngym
-from gym import spaces
+from neurogym import spaces
 
 
 class EconomicDecisionMaking(ngym.TrialEnv):
@@ -47,15 +45,17 @@ class EconomicDecisionMaking(ngym.TrialEnv):
         # Increase initial policy -> baseline weights
         self.baseline_Win = 10
 
-        self.action_space = spaces.Discrete(3)
-        self.act_dict = {'fixation': 0, 'choice1': 1, 'choice2': 2}
+        name = {
+            'fixation': 0,
+            'a1': 1, 'b1': 2,  # a or b for choice 1
+            'a2': 3, 'b2': 4,  # a or b for choice 2
+            'n1': 5, 'n2': 6  # amount for choice 1 or 2
+        }
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(7, ),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0,
-                        'a1': 1, 'b1': 2,  # a or b for choice 1
-                        'a2': 3, 'b2': 4,  # a or b for choice 2
-                        'n1': 5, 'n2': 6  # amount for choice 1 or 2
-                        }
+                                            dtype=np.float32, name=name)
+
+        self.act_dict = {'fixation': 0, 'choice1': 1, 'choice2': 2}
+        self.action_space = spaces.Discrete(3, name=self.act_dict)
 
     def _new_trial(self, **kwargs):
         trial = {
@@ -117,8 +117,3 @@ class EconomicDecisionMaking(ngym.TrialEnv):
                     self.performance = r2 > r1
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': 0}
-
-
-if __name__ == '__main__':
-    env = EconomicDecisionMaking()
-    ngym.utils.plot_env(env, num_steps=200, def_act=1)

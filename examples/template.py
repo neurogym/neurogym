@@ -3,8 +3,9 @@
 """Example template for contributing new tasks."""
 
 import numpy as np
-from gym import spaces
+
 import neurogym as ngym
+from neurogym import spaces
 
 
 class YourTask(ngym.TrialEnv):
@@ -30,13 +31,14 @@ class YourTask(ngym.TrialEnv):
             self.timing.update(timing)
 
         # Similar to gym envs, define observations_space and action_space
-        self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3,), dtype=np.float32)
         # Optional annotation of the observation space
-        self.ob_dict = {'fixation': 0, 'stimulus': [1, 2]}
-        self.action_space = spaces.Discrete(3)
+        name = {'fixation': 0, 'stimulus': [1, 2]}
+        self.observation_space = spaces.Box(
+            -np.inf, np.inf, shape=(3,), dtype=np.float32, name=name)
         # Optional annotation of the action space
-        self.act_dict = {'fixation': 0, 'choice': [1, 2]}
+        name = {'fixation': 0, 'choice': [1, 2]}
+        self.action_space = spaces.Discrete(3, name=name)
+
 
     def _new_trial(self, **kwargs):
         """

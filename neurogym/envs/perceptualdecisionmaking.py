@@ -3,9 +3,9 @@
 """Random dot motion task."""
 
 import numpy as np
-from gym import spaces
 
 import neurogym as ngym
+from neurogym import spaces
 
 
 class PerceptualDecisionMaking(ngym.TrialEnv):
@@ -49,11 +49,11 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
         self.theta = np.linspace(0, 2*np.pi, dim_ring+1)[:-1]
         self.choices = np.arange(dim_ring)
 
+        name = {'fixation': 0, 'stimulus': range(1, dim_ring+1)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1+dim_ring,), dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': range(1, dim_ring+1)}
-        self.action_space = spaces.Discrete(1+dim_ring)
-        self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring+1)}
+            -np.inf, np.inf, shape=(1+dim_ring,), dtype=np.float32, name=name)
+        name = {'fixation': 0, 'choice': range(1, dim_ring+1)}
+        self.action_space = spaces.Discrete(1+dim_ring, name=name)
 
     def _new_trial(self, **kwargs):
         """
@@ -87,7 +87,7 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
         self.add_randn(0, self.sigma, 'stimulus', where='stimulus')
 
         # Ground truth
-        self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+        self.set_groundtruth(ground_truth, period='decision', where='choice')
 
         return trial
 
@@ -267,11 +267,12 @@ class PulseDecisionMaking(ngym.TrialEnv):
 
         self.abort = False
 
+        name = {'fixation': 0, 'stimulus': [1, 2]}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3,), dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': [1, 2]}
-        self.action_space = spaces.Discrete(3)
-        self.act_dict = {'fixation': 0, 'choice': [1, 2]}
+            -np.inf, np.inf, shape=(3,), dtype=np.float32, name=name)
+        name = {'fixation': 0, 'choice': [1, 2]}
+        self.action_space = spaces.Discrete(3, name=name)
+
 
     def _new_trial(self, **kwargs):
         # Trial info
@@ -303,7 +304,7 @@ class PulseDecisionMaking(ngym.TrialEnv):
         self.set_ob(0, 'decision')
 
         # Ground truth
-        self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+        self.set_groundtruth(ground_truth, period='decision', where='choice')
 
         return trial
 
@@ -327,11 +328,3 @@ class PulseDecisionMaking(ngym.TrialEnv):
                 reward += self.rewards['abort']
 
         return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
-
-
-if __name__ == '__main__':
-    env = PerceptualDecisionMaking(dt=20,
-                                   timing={'stimulus': 500})
-    ngym.utils.plot_env(env, num_steps=100, def_act=1)
-    # env = PerceptualDecisionMakingDelayResponse()
-    # ngym.utils.plot_env(env, num_steps=100, def_act=1)

@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from __future__ import division
-
 import numpy as np
-from gym import spaces
+
 import neurogym as ngym
+from neurogym import spaces
 
 
 class DelayMatchSample(ngym.TrialEnv):
@@ -46,11 +45,13 @@ class DelayMatchSample(ngym.TrialEnv):
         self.abort = False
 
         self.theta = np.linspace(0, 2 * np.pi, dim_ring + 1)[:-1]
+
+        name = {'fixation': 0, 'stimulus': range(1, dim_ring + 1)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': range(1, dim_ring + 1)}
-        self.action_space = spaces.Discrete(3)
-        self.act_dict = {'fixation': 0, 'match': 1, 'non-match': 2}
+            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name)
+
+        name = {'fixation': 0, 'match': 1, 'non-match': 2}
+        self.action_space = spaces.Discrete(3, name=name)
 
     def _new_trial(self, **kwargs):
         # Trial
@@ -147,17 +148,17 @@ class DelayMatchSampleDistractor1D(ngym.TrialEnv):
             self.timing.update(timing)
 
         self.abort = False
-        self.action_space = spaces.Discrete(2)
-        self.act_dict = {'fixation': 0, 'match': 1}
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(33,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': range(1, 33)}
+
         self.theta = np.arange(0, 2 * np.pi, 2 * np.pi / 32)
 
+        name = {'fixation': 0, 'stimulus': range(1, 33)}
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(33,),
+                                            dtype=np.float32, name=name)
+
+        name = {'fixation': 0, 'match': 1}
+        self.action_space = spaces.Discrete(2, name=name)
+
     def _new_trial(self, **kwargs):
-        # ---------------------------------------------------------------------
-        # Trial
-        # ---------------------------------------------------------------------
         trial = {
             # There is always a match, ground_truth is which test is a match
             'ground_truth': self.rng.choice(self.choices),
@@ -171,9 +172,6 @@ class DelayMatchSampleDistractor1D(ngym.TrialEnv):
             tmp = sample if i == ground_truth else self.rng.uniform(0, 2*np.pi)
             trial['test'+str(i)] = tmp
 
-        # ---------------------------------------------------------------------
-        # Periods
-        # ---------------------------------------------------------------------
         periods = ['fixation', 'sample', 'delay1', 'test1',
                    'delay2', 'test2', 'delay3', 'test3']
         self.add_period(periods)

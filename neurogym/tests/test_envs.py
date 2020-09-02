@@ -94,8 +94,17 @@ def test_print_all():
     print('Success {:d}/{:d} envs'.format(success_count, total_count))
 
 
-def test_trialenv(env):
+def test_trialenv(env=None, **kwargs):
     """Test if a TrialEnv is behaving correctly."""
+    if env is None:
+        env = ngym.all_envs()[0]
+
+    if isinstance(env, str):
+        env = gym.make(env, **kwargs)
+    else:
+        if not isinstance(env, gym.Env):
+            raise ValueError('env must be a string or a gym.Env')
+
     trial = env.new_trial()
     assert trial is not None, 'TrialEnv should return trial info dict ' + str(env)
 

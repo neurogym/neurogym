@@ -2,9 +2,9 @@
 
 import numpy as np
 import gym
-from gym import spaces
 
 import neurogym as ngym
+from neurogym import spaces
 from neurogym.wrappers.block import ScheduleEnvs
 from neurogym.utils import scheduler
 from neurogym.core import TrialWrapper
@@ -30,16 +30,16 @@ class _MultiModalityStimulus(TrialWrapper):
     def __init__(self, env, modality=0, n_modality=1):
         super().__init__(env)
         self.modality = modality
-        if 'stimulus' not in self.task.ob_dict:
-            raise KeyError('ob_dict does not have key stimulus')
-        ind_stimulus = np.array(self.task.ob_dict['stimulus'])
+        if 'stimulus' not in self.task.observation_space.name:
+            raise KeyError('observation_space does not have name stimulus')
+        ind_stimulus = np.array(self.task.observation_space.name['stimulus'])
         len_stimulus = len(ind_stimulus)
         ob_space = self.task.observation_space
         ob_shape = ob_space.shape[0] + (n_modality - 1) * len_stimulus
-        self.observation_space = self.task.observation_space = gym.spaces.Box(
-            -np.inf, np.inf, shape=(ob_shape,), dtype=ob_space.dtype)
         # Shift stimulus
-        self.task.ob_dict['stimulus'] = ind_stimulus + len_stimulus * modality
+        name = {'stimulus': ind_stimulus + len_stimulus * modality}
+        self.observation_space = self.task.observation_space = spaces.Box(
+            -np.inf, np.inf, shape=(ob_shape,), dtype=ob_space.dtype, name=name)
 
     def new_trial(self, **kwargs):
         return self.env.new_trial(**kwargs)
@@ -85,12 +85,12 @@ class _Reach(ngym.TrialEnv):
         self.theta = np.arange(0, 2 * np.pi, 2 * np.pi / dim_ring)
         self.choices = np.arange(dim_ring)
 
+        name = {'fixation': 0, 'stimulus': range(1, dim_ring + 1)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1+dim_ring,), dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': range(1, dim_ring + 1)}
+            -np.inf, np.inf, shape=(1+dim_ring,), dtype=np.float32, name=name)
 
-        self.action_space = spaces.Discrete(1+dim_ring)
-        self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring + 1)}
+        name = {'fixation': 0, 'choice': range(1, dim_ring + 1)}
+        self.action_space = spaces.Discrete(1+dim_ring, name=name)
 
     def _new_trial(self, **kwargs):
         # Trial info
@@ -120,7 +120,7 @@ class _Reach(ngym.TrialEnv):
             self.add_ob(1, period='fixation', where='fixation')
             self.add_ob(stim, 'decision', where='stimulus')
 
-        self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+        self.set_groundtruth(ground_truth, period='decision', where='choice')
 
         return trial
 
@@ -197,13 +197,16 @@ class _DMFamily(ngym.TrialEnv):
 
         if dim_ring < 2:
             raise ValueError('dim ring can not be smaller than 2')
+
+        name = {
+            'fixation': 0,
+            'stimulus_mod1': range(1, dim_ring + 1),
+            'stimulus_mod2': range(dim_ring + 1, 2 * dim_ring + 1)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + 2 * dim_ring,), dtype=np.float32)
-        self.ob_dict = {'fixation': 0,
-                        'stimulus_mod1': range(1, dim_ring + 1),
-                        'stimulus_mod2': range(dim_ring + 1, 2 * dim_ring + 1)}
-        self.action_space = spaces.Discrete(1+dim_ring)
-        self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring+1)}
+            -np.inf, np.inf, shape=(1 + 2 * dim_ring,),
+            dtype=np.float32, name=name)
+        name = {'fixation': 0, 'choice': range(1, dim_ring + 1)}
+        self.action_space = spaces.Discrete(1+dim_ring, name=name)
 
     def _add_singlemod(self, trial, mod=1):
         """Add stimulus to modality."""
@@ -262,7 +265,7 @@ class _DMFamily(ngym.TrialEnv):
             coh2 += self.w_mod2 * trial['coh2_mod2']
 
         i_target = i_theta1 if coh1 + self.rng.uniform(-1e-6, 1e-6) > coh2 else i_theta2
-        self.set_groundtruth(self.act_dict['choice'][i_target], 'decision')
+        self.set_groundtruth(i_target, period='decision', where='choice')
 
         return trial
 
@@ -343,11 +346,12 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
         self.half_ring = int(self.dim_ring/2)
         self.theta = np.linspace(0, 2 * np.pi, dim_ring + 1)[:-1]
 
+        name = {'fixation': 0, 'stimulus': range(1, dim_ring + 1)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': range(1, dim_ring + 1)}
-        self.action_space = spaces.Discrete(1+dim_ring)
-        self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring+1)}
+            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name)
+        name = {'fixation': 0, 'choice': range(1, dim_ring + 1)}
+        self.action_space = spaces.Discrete(1+dim_ring, name=name)
+
 
     def _new_trial(self, **kwargs):
         # Trial info
@@ -391,8 +395,7 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
 
         if ((ground_truth == 'match' and self.matchgo) or
                 (ground_truth == 'non-match' and not self.matchgo)):
-            self.set_groundtruth(self.act_dict['choice'][i_test_theta], 'decision')
-
+            self.set_groundtruth(i_test_theta, period='decision', where='choice')
         return trial
 
     def _step(self, action, **kwargs):

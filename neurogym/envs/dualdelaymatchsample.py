@@ -1,8 +1,7 @@
-from __future__ import division
-
 import numpy as np
-from gym import spaces
+
 import neurogym as ngym
+from neurogym import spaces
 
 
 class DualDelayMatchSample(ngym.TrialEnv):
@@ -45,12 +44,12 @@ class DualDelayMatchSample(ngym.TrialEnv):
 
         self.abort = False
 
+        name = {'fixation': 0, 'stimulus1': range(1, 3),
+                'stimulus2': range(3, 5), 'cue1': 5, 'cue2': 6}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(7,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus1': range(1, 3),
-                        'stimulus2': range(3, 5), 'cue1': 5, 'cue2': 6}
-        self.action_space = spaces.Discrete(3)
-        self.act_dict = {'fixation': 0, 'match': 1, 'non-match': 2}
+                                            dtype=np.float32, name=name)
+        name = {'fixation': 0, 'match': 1, 'non-match': 2}
+        self.action_space = spaces.Discrete(3, name=name)
 
     def _new_trial(self, **kwargs):
         trial = {

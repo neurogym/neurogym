@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from gym import spaces
+
 import neurogym as ngym
+from neurogym import spaces
 
 
 class DelayComparison(ngym.TrialEnv):
@@ -50,15 +51,17 @@ class DelayComparison(ngym.TrialEnv):
         self.fmax = np.max(self.fall)
 
         # action and observation space
+        name = {'fixation': 0, 'stimulus': 1}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': 1}
-        self.action_space = spaces.Discrete(3)
-        self.act_dict = {'fixation': 0, 'choice': [1, 2]}
+                                            dtype=np.float32, name=name)
+        name = {'fixation': 0, 'choice': [1, 2]}
+        self.action_space = spaces.Discrete(3, name=name)
+
+        self.choices = [1, 2]
 
     def _new_trial(self, **kwargs):
         trial = {
-            'ground_truth': self.rng.choice(self.act_dict['choice']),
+            'ground_truth': self.rng.choice(self.choices),
             'fpair': self.fpairs[self.rng.choice(len(self.fpairs))]
         }
         trial.update(kwargs)
@@ -115,8 +118,3 @@ class DelayComparison(ngym.TrialEnv):
                     reward = self.rewards['fail']
 
         return ob, reward, False, {'new_trial': new_trial, 'gt': gt}
-
-
-if __name__ == '__main__':
-    env = DelayComparison()
-    ngym.utils.plot_env(env, num_steps=100)

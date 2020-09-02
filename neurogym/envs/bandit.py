@@ -4,11 +4,10 @@
 Multi-arm Bandit task
 TODO: add the actual papers
 """
-from __future__ import division
-
 import numpy as np
-from gym import spaces
+
 import neurogym as ngym
+from neurogym import spaces
 
 
 class Bandit(ngym.TrialEnv):
@@ -43,9 +42,9 @@ class Bandit(ngym.TrialEnv):
         self.p_high = probs[0]
         self.p_low = probs[1]
 
-        self.action_space = spaces.Discrete(n_arm)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(1,),
                                             dtype=np.float32)
+        self.action_space = spaces.Discrete(n_arm)
 
     def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------

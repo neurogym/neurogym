@@ -1,9 +1,10 @@
 """Multi-Sensory Integration"""
-from __future__ import division
 
 import numpy as np
-from gym import spaces
+
 import neurogym as ngym
+from neurogym import spaces
+
 
 # TODO: This is not finished yet. Need to compare with original paper
 class MultiSensoryIntegration(ngym.TrialEnv):
@@ -44,14 +45,15 @@ class MultiSensoryIntegration(ngym.TrialEnv):
         self.theta = np.linspace(0, 2 * np.pi, dim_ring + 1)[:-1]
         self.choices = np.arange(dim_ring)
 
+        name = {
+            'fixation': 0,
+            'stimulus_mod1': range(1, dim_ring + 1),
+            'stimulus_mod2': range(dim_ring + 1, 2 * dim_ring + 1)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + 2 * dim_ring,), dtype=np.float32)
-        self.ob_dict = {'fixation': 0,
-                        'stimulus_mod1': range(1, dim_ring + 1),
-                        'stimulus_mod2': range(dim_ring + 1, 2 * dim_ring + 1)}
+            -np.inf, np.inf, shape=(1 + 2 * dim_ring,), dtype=np.float32, name=name)
 
-        self.action_space = spaces.Discrete(1+dim_ring)
-        self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring+1)}
+        name = {'fixation': 0, 'choice': range(1, dim_ring+1)}
+        self.action_space = spaces.Discrete(1+dim_ring, name=name)
 
     def _new_trial(self, **kwargs):
         # Trial info
@@ -79,7 +81,7 @@ class MultiSensoryIntegration(ngym.TrialEnv):
         self.add_randn(0, self.sigma, 'stimulus')
         self.set_ob(0, 'decision')
 
-        self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+        self.set_groundtruth(ground_truth, period='decision', where='choice')
 
         return trial
 

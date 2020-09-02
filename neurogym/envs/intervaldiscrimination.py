@@ -1,9 +1,9 @@
 from __future__ import division
 
 import numpy as np
-from gym import spaces
 
 import neurogym as ngym
+from neurogym import spaces
 
 
 # TODO: Getting duration is not intuitive, not clear to people
@@ -39,11 +39,11 @@ class IntervalDiscrimination(ngym.TrialEnv):
 
         self.abort = False
 
-        self.action_space = spaces.Discrete(3)
-        self.act_dict = {'fixation': 0, 'choice1': 1, 'choice2': 2}
+        name = {'fixation': 0, 'stim1': 1, 'stim2': 2}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stim1': 1, 'stim2': 2}
+                                            dtype=np.float32, name=name)
+        name = {'fixation': 0, 'choice1': 1, 'choice2': 2}
+        self.action_space = spaces.Discrete(3, name=name)
 
     def _new_trial(self, **kwargs):
         duration1 = self.sample_time('stim1')
@@ -89,10 +89,3 @@ class IntervalDiscrimination(ngym.TrialEnv):
                     reward = self.rewards['fail']
 
         return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
-
-
-if __name__ == '__main__':
-    from neurogym.tests import test_run
-    env = IntervalDiscrimination()
-    test_run(env)
-    ngym.utils.plot_env(env, def_act=0)

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import numpy as np
-from gym import spaces
+
 import neurogym as ngym
+from neurogym import spaces
 
 
 class nalt_PerceptualDecisionMaking(ngym.TrialEnv):
@@ -64,18 +65,17 @@ class nalt_PerceptualDecisionMaking(ngym.TrialEnv):
         self.abort = False
 
         # Action and observation spaces
-        self.action_space = spaces.Discrete(n_ch+1)
-        self.observation_space = spaces.Box(-np.inf, np.inf,
-                                            shape=(n_ch + ob_nch +
-                                                   ob_histblock + 1,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': range(1, n_ch + 1)}
+        name = {'fixation': 0, 'stimulus': range(1, n_ch + 1)}
         if ob_nch:
-            self.ob_dict.update({'Active choices': n_ch + ob_nch})
+            name.update({'Active choices': n_ch + ob_nch})
         if ob_histblock:
-            self.ob_dict.update({'Current block': n_ch + ob_nch + ob_histblock})
+            name.update({'Current block': n_ch + ob_nch + ob_histblock})
+        self.observation_space = spaces.Box(
+            -np.inf, np.inf, shape=(n_ch + ob_nch + ob_histblock + 1,),
+            dtype=np.float32, name=name)
 
-        self.act_dict = {'fixation': 0, 'choice': range(1, n_ch + 1)}
+        name = {'fixation': 0, 'choice': range(1, n_ch + 1)}
+        self.action_space = spaces.Discrete(n_ch + 1, name=name)
 
     def _new_trial(self, **kwargs):
         """
@@ -129,7 +129,7 @@ class nalt_PerceptualDecisionMaking(ngym.TrialEnv):
                 stim[:, irr_indx] = 0
         else:
             self.add_randn(0, self.sigma, 'stimulus', where='stimulus')
-        self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+        self.set_groundtruth(ground_truth, period='decision', where='choice')
 
         return trial
 
@@ -165,8 +165,3 @@ class nalt_PerceptualDecisionMaking(ngym.TrialEnv):
                 else:
                     reward = self.rewards['fail']
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
-
-
-if __name__ == '__main__':
-    env = nalt_PerceptualDecisionMaking()
-    ngym.utils.plot_env(env)

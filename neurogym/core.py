@@ -95,9 +95,6 @@ class TrialEnv(BaseEnv):
         self._trial_built = False
 
         self.performance = 0
-        # Annotations of observation space and action space
-        self.ob_dict = {}
-        self.act_dict = {}
         self.rewards = {}
         self._default_ob_value = None  # default to 0
 
@@ -335,7 +332,7 @@ class TrialEnv(BaseEnv):
                 ob += value
         else:
             if isinstance(where, str):
-                where = self.ob_dict[where]
+                where = self.observation_space.name[where]
             # TODO: This only works if the slicing is one one-dimension
             if reset:
                 ob[..., where] *= 0
@@ -367,17 +364,22 @@ class TrialEnv(BaseEnv):
             ob += mu + self.rng.randn(*ob.shape) * sigma
         else:
             if isinstance(where, str):
-                where = self.ob_dict[where]
+                where = self.observation_space.name[where]
             # TODO: This only works if the slicing is one one-dimension
             ob[..., where] += mu + self.rng.randn(*ob[..., where].shape) * sigma
 
     def set_ob(self, value, period=None, where=None):
         self._add_ob(value, period, where, reset=True)
 
-    def set_groundtruth(self, value, period):
+    def set_groundtruth(self, value, period=None, where=None):
         """Set groundtruth value."""
+        if where is not None:
+            # TODO: Only works for Discrete action_space, make it work for Box
+            value = self.action_space.name[where][value]
         if isinstance(period, str):
             self.gt[self.start_ind[period]: self.end_ind[period]] = value
+        elif period is None:
+            self.gt[:] = value
         else:
             for p in period:
                 self.set_groundtruth(value, p)
