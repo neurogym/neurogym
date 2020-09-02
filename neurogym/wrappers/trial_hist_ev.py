@@ -7,11 +7,11 @@ Created on Tue Jul 28 10:02:28 2020
 """
 
 import neurogym as ngym
-from neurogym.core import TrialWrapperV2
+from neurogym.core import TrialWrapper
 import numpy as np
 
 
-class TrialHistoryEvolution(TrialWrapperV2):
+class TrialHistoryEvolution(TrialWrapper):
     """
     This wrapper imposes specific probability transition matrices that are
     characterized by probs (the probability of the most likely next choice).

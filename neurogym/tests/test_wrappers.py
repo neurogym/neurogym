@@ -514,8 +514,8 @@ if __name__ == '__main__':
                                              'stimulus': 200,
                                              'decision': 200}}
     # test_identity('Nothing-v0', num_steps=5)
-    # test_passreward('PerceptualDecisionMaking-v0', num_steps=10, verbose=True,
-    #                 **env_args)
+    test_passreward('PerceptualDecisionMaking-v0', num_steps=10, verbose=True,
+                    **env_args)
     # test_passaction('PerceptualDecisionMaking-v0', num_steps=10, verbose=True,
     #                 **env_args)
     # test_ttlpulse('PerceptualDecisionMaking-v0', num_steps=20, verbose=True,

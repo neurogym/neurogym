@@ -7,7 +7,7 @@ from gym import spaces
 import neurogym as ngym
 from neurogym.wrappers.block import ScheduleEnvs
 from neurogym.utils import scheduler
-from neurogym.core import TrialWrapperV2
+from neurogym.core import TrialWrapper
 
 
 def _get_dist(original_dist):
@@ -25,7 +25,7 @@ def _cosinebump(loc, theta, strength):
     return np.cos(theta - loc) * strength / 2 + 0.5
 
 
-class _MultiModalityStimulus(TrialWrapperV2):
+class _MultiModalityStimulus(TrialWrapper):
     """Move observation to specific modality."""
     def __init__(self, env, modality=0, n_modality=1):
         super().__init__(env)
