@@ -92,7 +92,7 @@ class TrialEnv(BaseEnv):
         self.num_tr = 0
         self.num_tr_exp = num_trials_before_reset
         self.trial = None
-        self._trial_built = False
+        self._ob_built = False
 
         self.performance = 0
         self.rewards = {}
@@ -143,8 +143,8 @@ class TrialEnv(BaseEnv):
         self.trial = trial
         self.num_tr += 1  # Increment trial count
         # Reset for next trial
-        self._trial_built = False
-        self._tmax = 0  # re-initialize
+        self._ob_built = False
+        self._tmax = 0  # reset, self.tmax not reset so it can be used in step
         return trial
 
     def step(self, action):
@@ -154,7 +154,7 @@ class TrialEnv(BaseEnv):
         self.t += self.dt  # increment within trial time count
         self.t_ind += 1
 
-        if self.t > self.tmax - self.dt and not info['new_trial']:
+        if self.t + self.dt > self.tmax and not info['new_trial']:
             info['new_trial'] = True
             reward += self.r_tmax
 
@@ -189,11 +189,10 @@ class TrialEnv(BaseEnv):
         if no_step:
             return self.observation_space.sample()
         if step_fn is None:
-            # obs, _, _, _ = self.step(self.action_space.sample())
-            obs, _, _, _ = self._top.step(self.action_space.sample())
+            ob, _, _, _ = self._top.step(self.action_space.sample())
         else:
-            obs, _, _, _ = step_fn(self.action_space.sample())
-        return obs
+            ob, _, _, _ = step_fn(self.action_space.sample())
+        return ob
 
     def render(self, mode='human'):
         """
@@ -242,8 +241,8 @@ class TrialEnv(BaseEnv):
             last_period: bool, default False. If True, then this is last period
                 will generate self.tmax, self.tind, and self.ob
         """
-        assert not self._trial_built, 'Cannot add period after trial ' \
-                                      'is built, i.e. after running add_ob'
+        assert not self._ob_built, 'Cannot add period after ob ' \
+                                   'is built, i.e. after running add_ob'
         if isinstance(period, str):
             pass
         else:
@@ -281,25 +280,26 @@ class TrialEnv(BaseEnv):
         self.end_ind[period] = int((start + duration)/self.dt)
 
         self._tmax = max(self._tmax, start + duration)
+        self.tmax = int(self._tmax/self.dt) * self.dt
 
-    def _init_trial(self):
+    def _init_ob(self):
         """Initialize trial info with tmax, tind, ob"""
         tmax_ind = int(self._tmax/self.dt)
-        self.tmax = tmax_ind * self.dt
         ob_shape = [tmax_ind] + list(self.observation_space.shape)
         if self._default_ob_value is None:
             self.ob = np.zeros(ob_shape, dtype=self.observation_space.dtype)
         else:
             self.ob = np.full(ob_shape, self._default_ob_value,
                               dtype=self.observation_space.dtype)
+
         self.gt = np.zeros([tmax_ind] + list(self.action_space.shape),
                            dtype=self.action_space.dtype)
-        self._trial_built = True
+        self._ob_built = True
 
     def view_ob(self, period=None):
         """View observation of an period."""
-        if not self._trial_built:
-            self._init_trial()
+        if not self._ob_built:
+            self._init_ob()
 
         if period is None:
             return self.ob
