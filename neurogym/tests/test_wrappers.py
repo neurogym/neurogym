@@ -22,26 +22,59 @@ from neurogym.wrappers import TrialHistoryEvolution
 
 
 def test_sidebias(env_name='NAltPerceptualDecisionMaking-v0', num_steps=100000,
-                  verbose=True, num_ch=3, probs=[(.005, .005, .99),
-                                                 (.005, .99, .005),
-                                                 (.99, .005, .005)]):
+                  verbose=False, num_ch=3, eps=0.01, probs=[(.005, .005, .99),
+                                                            (.005, .99, .005),
+                                                            (.99, .005, .005)]):
+    """
+    test side_bias wrapper.
+
+    Parameters
+    ----------
+    env_name : ngym.env, optional
+        enviroment to wrap. The default is 'NAltPerceptualDecisionMaking-v0'.
+    num_steps : int, optional
+        number of steps to run the environment (1000000)
+    verbose : boolean, optional
+        whether to print ground truth and block (False)
+    num_ch : int, optional
+        number of choices (3)
+    eps : float, optional
+        margin allow when comparing provided and obtained ground truth
+        probabilities (0.01)
+    probs : list, optional
+        ground truth probabilities for each block.
+        For example: [(.005, .005, .99), (.005, .99, .005), (.99, .005, .005)],
+        corresponds to 3 blocks with each of them giving 0.99 probabilitiy to
+        ground truth 3, 2 and 1, respectively.
+
+    Returns
+    -------
+    None.
+
+    """
     env_args['n_ch'] = num_ch
     env = gym.make(env_name, **env_args)
     env = SideBias(env, probs=probs, block_dur=10)
     env.reset()
     probs_mat = np.zeros((len(probs), num_ch))
+    block = env.curr_block
     for stp in range(num_steps):
         action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
         if info['new_trial']:
-            probs_mat[env.curr_block, info['gt']-1] += 1
+            probs_mat[block, info['gt']-1] += 1
+            block = env.curr_block
             if verbose:
                 print('Ground truth', info['gt'])
                 print('----------')
-                print('Block', env.curr_block)
+                print('Block', block)
         if done:
             env.reset()
-    print('Expected ')
+    probs_mat = probs_mat/np.sum(probs_mat, axis=1)
+    assert np.mean(np.abs(probs-probs_mat)) < eps, 'Probs provided '+str(probs) +\
+        ' probs. obtained '+str(probs_mat)
+    print('-----')
+    print('Side bias wrapper OK')
 
 
 def test_passaction(env_name, num_steps=10000, verbose=False, **envArgs):
