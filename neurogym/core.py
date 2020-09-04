@@ -92,12 +92,9 @@ class TrialEnv(BaseEnv):
         self.num_tr = 0
         self.num_tr_exp = num_trials_before_reset
         self.trial = None
-        self._trial_built = False
+        self._ob_built = False
 
         self.performance = 0
-        # Annotations of observation space and action space
-        self.ob_dict = {}
-        self.act_dict = {}
         self.rewards = {}
         self._default_ob_value = None  # default to 0
 
@@ -146,18 +143,18 @@ class TrialEnv(BaseEnv):
         self.trial = trial
         self.num_tr += 1  # Increment trial count
         # Reset for next trial
-        self._trial_built = False
-        self._tmax = 0  # re-initialize
+        self._ob_built = False
+        self._tmax = 0  # reset, self.tmax not reset so it can be used in step
         return trial
 
     def step(self, action):
         """Public interface for the environment."""
-        obs, reward, done, info = self._step(action)
+        ob, reward, done, info = self._step(action)
 
         self.t += self.dt  # increment within trial time count
         self.t_ind += 1
 
-        if self.t > self.tmax - self.dt and not info['new_trial']:
+        if self.t + self.dt > self.tmax and not info['new_trial']:
             info['new_trial'] = True
             reward += self.r_tmax
 
@@ -169,7 +166,7 @@ class TrialEnv(BaseEnv):
             self.t = self.t_ind = 0  # Reset within trial time count
             trial = self._top.new_trial()
             info['trial'] = trial
-        return obs, reward, done, info
+        return ob, reward, done, info
 
     def reset(self, step_fn=None, no_step=False):
         """Reset the environment.
@@ -192,11 +189,10 @@ class TrialEnv(BaseEnv):
         if no_step:
             return self.observation_space.sample()
         if step_fn is None:
-            # obs, _, _, _ = self.step(self.action_space.sample())
-            obs, _, _, _ = self._top.step(self.action_space.sample())
+            ob, _, _, _ = self._top.step(self.action_space.sample())
         else:
-            obs, _, _, _ = step_fn(self.action_space.sample())
-        return obs
+            ob, _, _, _ = step_fn(self.action_space.sample())
+        return ob
 
     def render(self, mode='human'):
         """
@@ -245,8 +241,8 @@ class TrialEnv(BaseEnv):
             last_period: bool, default False. If True, then this is last period
                 will generate self.tmax, self.tind, and self.ob
         """
-        assert not self._trial_built, 'Cannot add period after trial ' \
-                                      'is built, i.e. after running add_ob'
+        assert not self._ob_built, 'Cannot add period after ob ' \
+                                   'is built, i.e. after running add_ob'
         if isinstance(period, str):
             pass
         else:
@@ -284,25 +280,26 @@ class TrialEnv(BaseEnv):
         self.end_ind[period] = int((start + duration)/self.dt)
 
         self._tmax = max(self._tmax, start + duration)
+        self.tmax = int(self._tmax/self.dt) * self.dt
 
-    def _init_trial(self):
+    def _init_ob(self):
         """Initialize trial info with tmax, tind, ob"""
         tmax_ind = int(self._tmax/self.dt)
-        self.tmax = tmax_ind * self.dt
         ob_shape = [tmax_ind] + list(self.observation_space.shape)
         if self._default_ob_value is None:
             self.ob = np.zeros(ob_shape, dtype=self.observation_space.dtype)
         else:
             self.ob = np.full(ob_shape, self._default_ob_value,
                               dtype=self.observation_space.dtype)
+
         self.gt = np.zeros([tmax_ind] + list(self.action_space.shape),
                            dtype=self.action_space.dtype)
-        self._trial_built = True
+        self._ob_built = True
 
     def view_ob(self, period=None):
         """View observation of an period."""
-        if not self._trial_built:
-            self._init_trial()
+        if not self._ob_built:
+            self._init_ob()
 
         if period is None:
             return self.ob
@@ -335,7 +332,7 @@ class TrialEnv(BaseEnv):
                 ob += value
         else:
             if isinstance(where, str):
-                where = self.ob_dict[where]
+                where = self.observation_space.name[where]
             # TODO: This only works if the slicing is one one-dimension
             if reset:
                 ob[..., where] *= 0
@@ -367,17 +364,22 @@ class TrialEnv(BaseEnv):
             ob += mu + self.rng.randn(*ob.shape) * sigma
         else:
             if isinstance(where, str):
-                where = self.ob_dict[where]
+                where = self.observation_space.name[where]
             # TODO: This only works if the slicing is one one-dimension
             ob[..., where] += mu + self.rng.randn(*ob[..., where].shape) * sigma
 
     def set_ob(self, value, period=None, where=None):
         self._add_ob(value, period, where, reset=True)
 
-    def set_groundtruth(self, value, period):
+    def set_groundtruth(self, value, period=None, where=None):
         """Set groundtruth value."""
+        if where is not None:
+            # TODO: Only works for Discrete action_space, make it work for Box
+            value = self.action_space.name[where][value]
         if isinstance(period, str):
             self.gt[self.start_ind[period]: self.end_ind[period]] = value
+        elif period is None:
+            self.gt[:] = value
         else:
             for p in period:
                 self.set_groundtruth(value, p)
@@ -401,35 +403,7 @@ class TrialEnv(BaseEnv):
         return self.gt[self.t_ind]
 
 
-# TODO: How to prevent the repeated typing here?
 class TrialWrapper(gym.Wrapper):
-    """Base class for wrapping TrialEnv"""
-
-    def __init__(self, env):
-        super().__init__(env)
-        self.env = env
-        self.task = self.unwrapped
-
-    def new_trial(self, **kwargs):
-        self.env.new_trial()
-
-    def reset(self, step_fn=None):
-        """
-        restarts the experiment with the same parameters
-        """
-        stp_fn = step_fn or self.step
-        obs = self.env.reset(step_fn=stp_fn)
-        return obs
-
-    def step(self, action):
-        """Public interface for the environment."""
-        # TODO: Relying on private interface will break some gym behavior
-        obs, reward, done, info = self.env.step(action)
-        return obs, reward, done, info
-
-
-# TODO: How to prevent the repeated typing here?
-class TrialWrapperV2(gym.Wrapper):
     """Base class for wrapping TrialEnv"""
 
     def __init__(self, env):

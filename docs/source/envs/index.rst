@@ -39,3 +39,4 @@ Environments
     SingleContextDecisionMaking-v0
     psychopy.RandomDotMotion-v0
     psychopy.VisualSearch-v0
+    psychopy.spatialsuppressmotion-v0

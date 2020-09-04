@@ -9,11 +9,11 @@ Created on  Feb  2020
 
 import neurogym as ngym
 import numpy as np
-from neurogym.core import TrialWrapperV2
+from neurogym.core import TrialWrapper
 import warnings
 
 
-class Variable_nch(TrialWrapperV2):
+class Variable_nch(TrialWrapper):
     metadata = {
         'description': 'Change number of active choices every ' +
         'block_nch trials. Always less or equal than original number.',

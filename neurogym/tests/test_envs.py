@@ -94,34 +94,28 @@ def test_print_all():
     print('Success {:d}/{:d} envs'.format(success_count, total_count))
 
 
+def test_trialenv(env=None, **kwargs):
+    """Test if a TrialEnv is behaving correctly."""
+    if env is None:
+        env = ngym.all_envs()[0]
+
+    if isinstance(env, str):
+        env = gym.make(env, **kwargs)
+    else:
+        if not isinstance(env, gym.Env):
+            raise ValueError('env must be a string or a gym.Env')
+
+    trial = env.new_trial()
+    assert trial is not None, 'TrialEnv should return trial info dict ' + str(env)
+
+
 def test_trialenv_all():
     """Test if all environments can at least be run."""
-    success_count = 0
-    total_count = 0
-    hastrial_count = 0
     for env_name in sorted(ENVS):
         env = gym.make(env_name)
         if not isinstance(env, ngym.TrialEnv):
             continue
-        total_count += 1
-
-        print('Running env: {:s}'.format(env_name))
-        try:
-            env.new_trial()
-            if env.trial is None:
-                print('No trial is available after new_trial()')
-            else:
-                print('Success')
-                hastrial_count += 1
-            # print(env)
-            success_count += 1
-        except BaseException as e:
-            print('Failure at running env: {:s}'.format(env_name))
-            print(e)
-
-    print('Success {:d}/{:d} envs'.format(success_count, total_count))
-    print('{:d}/{:d} envs have trial after new_trial'.format(hastrial_count,
-                                                                  success_count))
+        test_trialenv(env)
 
 
 def test_seeding(env=None, seed=0):

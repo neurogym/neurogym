@@ -49,6 +49,12 @@ TrialHistory-v0
     :members:
     :exclude-members: new_trial
 
+TrialHistoryEv-v0
+--------------------------------------------------
+.. autoclass:: neurogym.wrappers.trial_hist_ev.TrialHistoryEvolution
+    :members:
+    :exclude-members: new_trial
+
 MissTrialReward-v0
 --------------------------------------------------
 .. autoclass:: neurogym.wrappers.miss_trials_reward.MissTrialReward

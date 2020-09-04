@@ -1,9 +1,9 @@
 """Random dot motion task."""
 
 import numpy as np
-from gym import spaces
 
 import neurogym as ngym
+from neurogym import spaces
 
 
 class ProbabilisticReasoning(ngym.TrialEnv):
@@ -52,16 +52,17 @@ class ProbabilisticReasoning(ngym.TrialEnv):
 
         self.abort = False
 
-        self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + dim_shape*n_loc,), dtype=np.float32)
-        self.ob_dict = {'fixation': 0}
+        name = {'fixation': 0}
         start = 1
         for i_loc in range(n_loc):
-            self.ob_dict['loc'+str(i_loc)] = range(start, start+dim_shape)
+            name['loc' + str(i_loc)] = range(start, start + dim_shape)
             start += dim_shape
+        self.observation_space = spaces.Box(
+            -np.inf, np.inf, shape=(1 + dim_shape*n_loc,),
+            dtype=np.float32, name=name)
 
-        self.action_space = spaces.Discrete(3)
-        self.act_dict = {'fixation': 0, 'choice': [1, 2]}
+        name = {'fixation': 0, 'choice': [1, 2]}
+        self.action_space = spaces.Discrete(3, name=name)
 
     def _new_trial(self, **kwargs):
         # Trial info
@@ -98,7 +99,7 @@ class ProbabilisticReasoning(ngym.TrialEnv):
             self.add_ob(self.shapes[shape], periods, where='loc'+str(loc))
 
         # Ground truth
-        self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+        self.set_groundtruth(ground_truth, period='decision', where='choice')
 
         return trial
 

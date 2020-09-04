@@ -1,10 +1,9 @@
 """Anti-reach or anti-saccade task."""
 
 import numpy as np
-from gym import spaces
 
 import neurogym as ngym
-from neurogym.utils import tasktools
+from neurogym import spaces
 
 
 class AntiReach(ngym.TrialEnv):
@@ -46,12 +45,12 @@ class AntiReach(ngym.TrialEnv):
         self.theta = np.arange(0, 2 * np.pi, 2 * np.pi / dim_ring)
         self.choices = np.arange(dim_ring)
 
+        name = {'fixation': 0, 'stimulus': range(1, dim_ring + 1)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1+dim_ring,), dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': range(1, dim_ring + 1)}
+            -np.inf, np.inf, shape=(1+dim_ring,), dtype=np.float32, name=name)
 
-        self.action_space = spaces.Discrete(1+dim_ring)
-        self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring + 1)}
+        name = {'fixation': 0, 'choice': range(1, dim_ring + 1)}
+        self.action_space = spaces.Discrete(1+dim_ring, name=name)
 
     def _new_trial(self, **kwargs):
         # Trial info
@@ -75,7 +74,7 @@ class AntiReach(ngym.TrialEnv):
         stim = np.cos(self.theta - stim_theta)
         self.add_ob(stim, 'stimulus', where='stimulus')
 
-        self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+        self.set_groundtruth(ground_truth, period='decision', where='choice')
 
         return trial
 

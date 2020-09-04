@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from __future__ import division
-
 import numpy as np
-from gym import spaces
 
 import neurogym as ngym
+from neurogym import spaces
 
 
 class GoNogo(ngym.TrialEnv):
@@ -43,11 +41,10 @@ class GoNogo(ngym.TrialEnv):
 
         self.abort = False
         # set action and observation spaces
-        self.action_space = spaces.Discrete(2)
-        self.act_dict = {'fixation': 0, 'go': 1}
+        name = {'fixation': 0, 'nogo': 1, 'go': 2}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'nogo': 1, 'go': 2}
+                                            dtype=np.float32, name=name)
+        self.action_space = spaces.Discrete(2, {'fixation': 0, 'go': 1})
 
     def _new_trial(self, **kwargs):
         # Trial info
@@ -91,9 +88,3 @@ class GoNogo(ngym.TrialEnv):
                     self.performance = 0
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
-
-
-if __name__ == '__main__':
-    env = GoNogo()
-    env.reset()
-    ngym.utils.plot_env(env, def_act=0)

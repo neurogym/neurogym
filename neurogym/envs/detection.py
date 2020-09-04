@@ -7,8 +7,10 @@ Created on Mon Jan 27 11:00:26 2020
 """
 
 import numpy as np
-from gym import spaces
+
 import neurogym as ngym
+from neurogym import spaces
+
 import warnings
 
 
@@ -65,11 +67,11 @@ class Detection(ngym.TrialEnv):
         # whether to abort (T) or not (F) the trial when breaking fixation:
         self.abort = False
 
-        self.action_space = spaces.Discrete(2)
-        self.act_dict = {'fixation': 0, 'go': 1}
+        name = {'fixation': 0, 'stimulus': 1}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': 1}
+                                            dtype=np.float32, name=name)
+
+        self.action_space = spaces.Discrete(2, name={'fixation': 0, 'go': 1})
 
     def _new_trial(self, **kwargs):
         """
@@ -158,8 +160,3 @@ class Detection(ngym.TrialEnv):
                     self.performance = 0
 
         return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
-
-
-if __name__ == '__main__':
-    env = Detection()
-    ngym.utils.plot_env(env, num_steps=50, def_act=0)

@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from gym import spaces
 
 import neurogym as ngym
+from neurogym import spaces
 
 
 class DelayPairedAssociation(ngym.TrialEnv):
@@ -46,11 +46,11 @@ class DelayPairedAssociation(ngym.TrialEnv):
 
         self.abort = False
         # action and observation spaces
-        self.action_space = spaces.Discrete(2)
-        self.act_dict = {'fixation': 0, 'go': 1}
+        name = {'fixation': 0, 'stimulus': range(1, 5)}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(5,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': range(1, 5)}
+                                            dtype=np.float32, name=name)
+
+        self.action_space = spaces.Discrete(2, name={'fixation': 0, 'go': 1})
 
     def _new_trial(self, **kwargs):
         pair = self.pairs[self.rng.choice(len(self.pairs))]
@@ -108,8 +108,3 @@ class DelayPairedAssociation(ngym.TrialEnv):
                 new_trial = True
 
         return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
-
-
-if __name__ == '__main__':
-    env = DelayPairedAssociation()
-    ngym.utils.plot_env(env, num_steps=1000, def_act=0)

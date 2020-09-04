@@ -211,11 +211,11 @@ def plot_env_1dbox(
         ax.set_xlim([-0.5, len(steps)-0.5])
     else:
         ax.imshow(ob.T, aspect='auto', origin='lower')
-        if env and env.ob_dict:
+        if env and hasattr(env.observation_space, 'name'):
             # Plot environment annotation
             yticks = []
             yticklabels = []
-            for key, val in env.ob_dict.items():
+            for key, val in env.observation_space.name.items():
                 yticks.append((np.min(val)+np.max(val))/2)
                 yticklabels.append(key)
             ax.set_yticks(yticks)
@@ -252,11 +252,11 @@ def plot_env_1dbox(
     ax.spines['right'].set_visible(False)
     if legend:
         ax.legend()
-    if env and hasattr(env, 'act_dict') and env.act_dict:
+    if env and hasattr(env.action_space, 'name'):
         # Plot environment annotation
         yticks = []
         yticklabels = []
-        for key, val in env.act_dict.items():
+        for key, val in env.action_space.name.items():
             yticks.append((np.min(val) + np.max(val)) / 2)
             yticklabels.append(key)
         ax.set_yticks(yticks)
@@ -274,7 +274,7 @@ def plot_env_1dbox(
             ax.legend()
         ax.set_xlim([-0.5, len(steps)-0.5])
 
-        if env and hasattr(env, 'act_dict') and env.rewards:
+        if env and hasattr(env.action_space, 'name') and env.rewards:
             # Plot environment annotation
             yticks = []
             yticklabels = []

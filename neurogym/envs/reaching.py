@@ -1,9 +1,9 @@
 """Reaching to target."""
 
 import numpy as np
-from gym import spaces
 
 import neurogym as ngym
+from neurogym import spaces
 
 from neurogym.utils import tasktools
 
@@ -33,15 +33,12 @@ class Reaching1D(ngym.TrialEnv):
             self.timing.update(timing)
 
         # action and observation spaces
+        name = {'self': range(16, 32), 'target': range(16)}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(32,),
-                                            dtype=np.float32)
-        self.ob_dict = {'self': range(16, 32),
-                        'target': range(16)}
-        self.action_space = spaces.Discrete(3)
-        self.act_dict = {'fixation': 0,
-                         'left': 1,
-                         'right': 2,
-                         }
+                                            dtype=np.float32, name=name)
+        name = {'fixation': 0, 'left': 1, 'right': 2}
+        self.action_space = spaces.Discrete(3, name=name)
+
         self.theta = np.arange(0, 2*np.pi, 2*np.pi/16)
         self.state = np.pi
 
@@ -65,6 +62,8 @@ class Reaching1D(ngym.TrialEnv):
         self.set_groundtruth(np.pi, 'fixation')
         self.set_groundtruth(trial['ground_truth'], 'reach')
         self.dec_per_dur = (self.end_ind['reach'] - self.start_ind['reach'])
+
+        return trial
 
     def _step(self, action):
         ob = self.ob_now

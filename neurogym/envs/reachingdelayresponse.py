@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from __future__ import division
 import numpy as np
-from gym import spaces
 
 import neurogym as ngym
+from neurogym import spaces
 
 
 class ReachingDelayResponse(ngym.TrialEnv):
@@ -46,14 +45,14 @@ class ReachingDelayResponse(ngym.TrialEnv):
         self.r_tmax = self.rewards['miss']
         self.abort = False
 
+        name = {'go': 0, 'stimulus': 1}
+        self.observation_space = spaces.Box(low=np.array([0., -2]),
+                                            high=np.array([1, 2.]),
+                                            dtype=np.float32, name=name)
+
         self.action_space = spaces.Box(low=np.array((-1.0, -1.0)),
                                        high=np.array((1.0, 2.0)),
                                        dtype=np.float32)
-
-        self.observation_space = spaces.Box(low=np.array([0., -2]),
-                                            high=np.array([1, 2.]),
-                                            dtype=np.float32)
-        self.ob_dict = {'go': 0, 'stimulus': 1}
 
     def _new_trial(self, **kwargs):
         # Trial
@@ -92,8 +91,3 @@ class ReachingDelayResponse(ngym.TrialEnv):
                 self.performance = reward/self.rewards['correct']
 
         return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
-
-
-if __name__ == '__main__':
-    env = ReachingDelayResponse()
-    ngym.utils.plot_env(env, num_steps=100)
