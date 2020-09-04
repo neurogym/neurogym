@@ -21,22 +21,27 @@ from neurogym.wrappers import Variable_nch
 from neurogym.wrappers import TrialHistoryEvolution
 
 
-def test_sidebias(env_name, num_steps=10000, verbose=False,
-                  probs=[(.005, .005, .99),
-                         (.005, .99, .005),
-                         (.99, .005, .005)]):
-    env = gym.make(env_name)
+def test_sidebias(env_name='NAltPerceptualDecisionMaking-v0', num_steps=100000,
+                  verbose=True, num_ch=3, probs=[(.005, .005, .99),
+                                                 (.005, .99, .005),
+                                                 (.99, .005, .005)]):
+    env_args['n_ch'] = num_ch
+    env = gym.make(env_name, **env_args)
     env = SideBias(env, probs=probs, block_dur=10)
     env.reset()
+    probs_mat = np.zeros((len(probs), num_ch))
     for stp in range(num_steps):
         action = env.action_space.sample()
         obs, rew, done, info = env.step(action)
-        if info['new_trial'] and verbose:
-            print('Ground truth', info['gt'])
-            print('----------')
-            print('Block', env.curr_block)
+        if info['new_trial']:
+            probs_mat[env.curr_block, info['gt']-1] += 1
+            if verbose:
+                print('Ground truth', info['gt'])
+                print('----------')
+                print('Block', env.curr_block)
         if done:
             env.reset()
+    print('Expected ')
 
 
 def test_passaction(env_name, num_steps=10000, verbose=False, **envArgs):
@@ -514,25 +519,24 @@ if __name__ == '__main__':
                                              'stimulus': 200,
                                              'decision': 200}}
     # test_identity('Nothing-v0', num_steps=5)
-    # test_passreward('PerceptualDecisionMaking-v0', num_steps=10, verbose=True,
-    #                 **env_args)
-    # test_passaction('PerceptualDecisionMaking-v0', num_steps=10, verbose=True,
-    #                 **env_args)
-    # test_ttlpulse('PerceptualDecisionMaking-v0', num_steps=20, verbose=True,
-    #               **env_args)
-    # test_noise('PerceptualDecisionMaking-v0', random_bhvr=0.,
-    #            wrapper=PassAction, perf_th=0.7, num_steps=100000,
-    #            verbose=True, **env_args)
-    # test_trialhist_and_variable_nch('NAltPerceptualDecisionMaking-v0',
-    #                                 num_steps=1000000, verbose=True, probs=0.99,
-    #                                 num_blocks=3)
-    # test_sidebias('NAltPerceptualDecisionMaking-v0', num_steps=10000,
-    #               verbose=True, probs=[(0, 0, 1), (0, 1, 0), (1, 0, 0)])
-    # test_catchtrials('PerceptualDecisionMaking-v0', num_steps=10000,
-    #                  verbose=True, catch_prob=0.5, alt_rew=0)
-    # test_reactiontime('PerceptualDecisionMaking-v0', num_steps=100)
-    # test_transferLearning(num_steps=200, verbose=True)
-    # test_combine(num_steps=200, verbose=True)
+    test_sidebias()
+    test_passreward('PerceptualDecisionMaking-v0', num_steps=10, verbose=True,
+                    **env_args)
+    test_passaction('PerceptualDecisionMaking-v0', num_steps=10, verbose=True,
+                    **env_args)
+    test_ttlpulse('PerceptualDecisionMaking-v0', num_steps=20, verbose=True,
+                  **env_args)
+    test_noise('PerceptualDecisionMaking-v0', random_bhvr=0.,
+               wrapper=PassAction, perf_th=0.7, num_steps=100000,
+               verbose=True, **env_args)
+    test_trialhist_and_variable_nch('NAltPerceptualDecisionMaking-v0',
+                                    num_steps=1000000, verbose=True, probs=0.99,
+                                    num_blocks=3)
+    test_catchtrials('PerceptualDecisionMaking-v0', num_steps=10000,
+                     verbose=True, catch_prob=0.5, alt_rew=0)
+    test_reactiontime('PerceptualDecisionMaking-v0', num_steps=100)
+    test_transferLearning(num_steps=200, verbose=True)
+    test_combine(num_steps=200, verbose=True)
     data = test_concat_wrpprs_th_vch_pssr_pssa('NAltPerceptualDecisionMaking-v0',
                                                num_steps=2000000, verbose=True,
                                                probs=0.99, num_blocks=16,
