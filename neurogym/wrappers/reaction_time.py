@@ -35,9 +35,7 @@ class ReactionTime(gym.Wrapper):  # TODO: Make this a trial wrapper instead?
             'Reaction time wrapper requires a stimulus period'
         assert 'decision' in self.env.start_t.keys(),\
             'Reaction time wrapper requires a decision period'
-        assert 'fixation' in self.env.action_space.name.keys(),\
-            'Reaction time wrapper requires a fixation action'
-        if action != self.env.action_space.name['fixation']:
-            self.env.t = self.env.start_t['decision']
+        if self.t_ind == 0:
+            self.env.start_t['decision'] = self.env.start_t['stimulus']
         obs, reward, done, info = self.env.step(action)
         return obs, reward, done, info

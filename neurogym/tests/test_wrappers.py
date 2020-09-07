@@ -146,7 +146,7 @@ def test_passreward(env_name='PerceptualDecisionMaking-v0', num_steps=1000,
             env.reset()
 
 
-def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=1000,
+def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=100,
                       ths=[-.5, .5], verbose=True):
     """
     Test reaction-time wrapper.
