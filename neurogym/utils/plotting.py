@@ -126,8 +126,8 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         states = None
 
     data = {
-        'ob': np.array(observations),
-        'ob_cum': np.array(ob_cum),
+        'ob': np.array(observations).astype(np.float),
+        'ob_cum': np.array(ob_cum).astype(np.float),
         'rewards': rewards,
         'actions': actions,
         'perf': perf,
