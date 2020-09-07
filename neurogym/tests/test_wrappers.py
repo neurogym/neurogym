@@ -146,16 +146,37 @@ def test_passreward(env_name='PerceptualDecisionMaking-v0', num_steps=1000,
             env.reset()
 
 
-def test_reactiontime(env_name, num_steps=500, kwargs={'dt': 100},
-                      ths=[-1, 1]):
-    env = gym.make(env_name, **kwargs)
+def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=1000,
+                      ths=[-.5, .5], verbose=True):
+    """
+    Test reaction-time wrapper.
+
+    Parameters
+    ----------
+    env_name : str, optional
+        enviroment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
+    num_steps : int, optional
+        number of steps to run the environment (1000)
+    verbose : boolean, optional
+        whether to print observation and reward (False)
+    ths : list, optional
+        list containing the threholds to make a decision ([-.5, .5])
+
+    Returns
+    -------
+    None.
+
+    """
+    env = gym.make(env_name)
     env = ReactionTime(env)
     env.reset()
-    observations = []
-    obs_cum_mat = []
-    actions = []
-    new_trials = []
+    if verbose:
+        observations = []
+        obs_cum_mat = []
+        actions = []
+        new_trials = []
     obs_cum = 0
+    end_of_trial = False
     for stp in range(num_steps):
         if obs_cum > ths[1]:
             action = 1
@@ -163,29 +184,32 @@ def test_reactiontime(env_name, num_steps=500, kwargs={'dt': 100},
             action = 2
         else:
             action = 0
+        end_of_trial = True if action != 0 else False
         obs, rew, done, info = env.step(action)
         if info['new_trial']:
             obs_cum = 0
+            end_of_trial = False
         else:
+            assert not end_of_trial, 'Trial still on after making a decision'
             obs_cum += obs[1] - obs[2]
-        observations.append(obs)
-        actions.append(action)
-        obs_cum_mat.append(obs_cum)
-        new_trials.append(info['new_trial'])
-
-    observations = np.array(observations)
-    plt.figure()
-    plt.subplot(3, 1, 1)
-    plt.imshow(observations.T, aspect='auto')
-    plt.subplot(3, 1, 2)
-    plt.plot(actions)
-    plt.xlim([-.5, len(actions)-0.5])
-    plt.subplot(3, 1, 3)
-    plt.plot(obs_cum_mat)
-    plt.plot([0, len(obs_cum_mat)], [ths[1], ths[1]], '--')
-    plt.plot([0, len(obs_cum_mat)], [ths[0], ths[0]], '--')
-    plt.xlim([-.5, len(actions)-0.5])
-    plt.show()
+        if verbose:
+            observations.append(obs)
+            actions.append(action)
+            obs_cum_mat.append(obs_cum)
+            new_trials.append(info['new_trial'])
+    if verbose:
+        observations = np.array(observations)
+        _, ax = plt.subplots(nrows=3, ncols=1, sharex=True)
+        ax = ax.flatten()
+        ax[0].imshow(observations.T, aspect='auto')
+        ax[1].plot(actions, label='Actions')
+        ax[1].plot(new_trials, '--', label='New trial')
+        ax[1].set_xlim([-.5, len(actions)-0.5])
+        ax[1].legend()
+        ax[2].plot(obs_cum_mat)
+        ax[2].plot([0, len(obs_cum_mat)], [ths[1], ths[1]], '--')
+        ax[2].plot([0, len(obs_cum_mat)], [ths[0], ths[0]], '--')
+        ax[2].set_xlim([-.5, len(actions)-0.5])
 
 
 def test_noise(env_name, random_bhvr=0., wrapper=None, perf_th=None,
@@ -590,6 +614,7 @@ if __name__ == '__main__':
                                              'stimulus': 200,
                                              'decision': 200}}
     # test_identity('Nothing-v0', num_steps=5)
+    test_reactiontime()
     test_sidebias()
     test_passreward()
     test_passaction()
@@ -603,7 +628,6 @@ if __name__ == '__main__':
                                     num_blocks=3)
     test_catchtrials('PerceptualDecisionMaking-v0', num_steps=10000,
                      verbose=True, catch_prob=0.5, alt_rew=0)
-    test_reactiontime('PerceptualDecisionMaking-v0', num_steps=100)
     test_transferLearning(num_steps=200, verbose=True)
     test_combine(num_steps=200, verbose=True)
     data = test_concat_wrpprs_th_vch_pssr_pssa('NAltPerceptualDecisionMaking-v0',
