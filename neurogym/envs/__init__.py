@@ -80,6 +80,8 @@ ALL_NATIVE_ENVS = {
         'neurogym.envs.nothing:Nothing',
     'Pneumostomeopening-v0':
         'neurogym.envs.pneumostomeopening:Pneumostomeopening',
+    'nalt_ConditionalVisuomotor-v0':\
+        'neurogym.envs.nalt_ConditionalVisuomotor:nalt_ConditionalVisuomotor'
 }
 
 ALL_PSYCHOPY_ENVS = {

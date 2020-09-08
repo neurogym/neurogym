@@ -89,7 +89,7 @@ class TrialHistoryEvolution(TrialWrapper):
         # ---------------------------------------------------------------------
         # Periods
         # ---------------------------------------------------------------------
-        block_already_changed = False
+        block_change = False
         # Check if n_ch is passed and if it is different from previous value
         if 'sel_chs' in kwargs.keys() and\
            set(kwargs['sel_chs']) != set(self.curr_chs):
@@ -98,9 +98,9 @@ class TrialHistoryEvolution(TrialWrapper):
             self.prev_trial = self.rng.choice(np.arange(self.curr_n_ch))
             self.curr_contexts = self.contexts
             self.curr_tr_mat = self.trans_probs
-            block_already_changed = True
+            block_change = True
         # change rep. prob. every self.ctx_dur trials
-        if not block_already_changed:
+        if not block_change:
             if self.ctx_ch_prob is None:
                 block_change = self.unwrapped.num_tr % self.ctx_dur == 0
             else:
@@ -178,3 +178,51 @@ class TrialHistoryEvolution(TrialWrapper):
         info['new_generation'] = self.new_generation
         self.new_generation = False
         return obs, reward, done, info
+    
+
+class VariableMapping(TrialWrapper):
+    """Change ground truth probability based on previous outcome.
+
+    Args:
+        probs: matrix of probabilities of the current choice conditioned
+            on the previous. Shape, num-choices x num-choices
+    """
+    def __init__(self, env, probs=None):
+        super().__init__(env)
+        try:
+            self.n_ch = len(self.unwrapped.choices)  # max num of choices
+            self.curr_chs = self.unwrapped.choices
+            self.curr_n_ch = self.n_ch
+            
+        except AttributeError:
+            raise AttributeError('TrialHistory requires task to '
+                                 'have attribute choices')
+        if probs is None:
+            probs = np.ones((self.n_ch, self.n_ch)) / self.n_ch  # uniform
+        self.probs = probs
+        assert self.probs.shape == (self.n_ch, self.n_ch), \
+            'probs shape wrong, should be' + str((self.n_ch, self.n_ch))
+        self.prev_trial = self.rng.choice(self.n_ch)  # random initialization
+
+    def new_trial(self, **kwargs):
+        block_change = False
+        if 'sel_chs' in kwargs.keys() and\
+           set(kwargs['sel_chs']) != set(self.curr_chs):
+            self.curr_chs = kwargs['sel_chs']
+            self.curr_n_ch = len(self.curr_chs)
+            block_change = True
+        else:
+            block_change = self.unwrapped.rng.rand() < self.ctx_ch_prob
+        if block_change:
+            self.mapping = np.arange(self.curr_n_ch)
+            self.unwrapped.rng.shuffle(self.mapping)
+            self.mapping_id = '-'.join([str(int(x)+1) for x in self.mapping])
+        # Choose ground truth and update previous trial info
+        kwargs.update({'mapping': self.mapping})
+        return self.env.new_trial(**kwargs)
+
+    def step(self, action):
+        obs, reward, done, info = self.env.step(action)
+        info['mapping'] = self.mapping_id
+        return obs, reward, done, info
+
