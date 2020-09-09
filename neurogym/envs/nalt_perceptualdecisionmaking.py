@@ -179,10 +179,6 @@ class NAltConditionalVisuomotor(ngym.TrialEnv):
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)
         sigma: float, input noise level
         n_ch: Number of choices. (def: 3, int)
-        ob_nch: bool, states whether we add number of choices
-        to the observation space. 
-        ob_histblock: bool, states whether we add number of current trial 
-        history block to the observation space (from TrialHistory wrapper).
     """
     metadata = {
         'description': '''N-alternative forced choice task in which the subject has
@@ -195,20 +191,13 @@ class NAltConditionalVisuomotor(ngym.TrialEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, sigma=1.,
-                 stim_scale=1., n_ch=3, ob_nch=False,
-                 ob_histblock=False):
+                 stim_scale=1., n_ch=16, n_stims=2):
 
         super().__init__(dt=dt)
-        self.n = n_ch
-        self.choices = np.arange(n_ch)
-        self.ob_nch = ob_nch
-        self.ob_histblock = ob_histblock
+        self.n_ch = n_ch
+        self.stims = np.random.rand(n_ch, n_stims) > 0.5
         assert isinstance(n_ch, int), 'n_ch must be integer'
         assert n_ch > 1, 'n_ch must be at least 2'
-        assert isinstance(ob_histblock, bool), 'ob_histblock \
-                                                must be True/False'
-        assert isinstance(ob_nch, bool), 'ob_nch \
-                                                must be True/False'
         n_ch_factor = 1.84665761*np.log(n_ch)-0.04102044
         # The strength of evidence, modulated by stim_scale.
         self.cohs = np.array([51.2])*n_ch_factor*stim_scale
@@ -230,12 +219,8 @@ class NAltConditionalVisuomotor(ngym.TrialEnv):
 
         # Action and observation spaces
         name = {'fixation': 0, 'stimulus': range(1, n_ch + 1)}
-        if ob_nch:
-            name.update({'Active choices': n_ch + ob_nch})
-        if ob_histblock:
-            name.update({'Current block': n_ch + ob_nch + ob_histblock})
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(n_ch + ob_nch + ob_histblock + 1,),
+            -np.inf, np.inf, shape=(n_ch + 1,),
             dtype=np.float32, name=name)
         self.mapping = np.arange(n_ch)
         self.unwrapped.rng.shuffle(self.mapping)
@@ -256,10 +241,12 @@ class NAltConditionalVisuomotor(ngym.TrialEnv):
         #  Controling whether ground_truth and/or choices is passed.
         if 'ground_truth' in kwargs.keys():
             ground_truth = kwargs['ground_truth']
-        elif 'sel_chs' in kwargs.keys():
-            ground_truth = self.rng.choice(kwargs['sel_chs'])
+        elif 'stims' in kwargs.keys():
+            stims_temp = kwargs['stims']
+            ground_truth = self.rng.choice(np.arange(kwargs['stims'].shape[1]))
         else:
-            ground_truth = self.rng.choice(self.choices)
+            stims_temp = self.stims
+            ground_truth = self.rng.choice(np.arange(self.stims.shape[1]))
         if 'mapping' in kwargs.keys():
             mapping_temp = kwargs['mapping']
         else:
@@ -272,31 +259,15 @@ class NAltConditionalVisuomotor(ngym.TrialEnv):
         self.add_period(['fixation', 'stimulus', 'delay', 'decision'])
 
         self.add_ob(1, 'fixation', where='fixation')
-        stim = np.ones(self.n) * (1 - trial['coh']/100)/2
-        stim[trial['ground_truth']] = (1 + trial['coh']/100)/2
+        stim = np.ones(self.n_ch) * (1 - trial['coh']/100)/2
+        try:
+            stim[stims_temp[:, trial['ground_truth']]] = (1 + trial['coh']/100)/2
+        except:
+            print(trial['ground_truth'])
         self.add_ob(stim, 'stimulus', where='stimulus')
 
-        #  Adding active nch and/or current history block to observations.
-        if self.ob_nch:
-            if 'sel_chs' in kwargs.keys():
-                self.add_ob(len(kwargs['sel_chs']), where='Active choices')
-            else:
-                self.add_ob(len(self.choices), where='Active choices')
-        if self.ob_histblock and 'curr_block' in kwargs.keys():
-            # We add 1 to make it visible in plots
-            self.add_ob(kwargs['curr_block']+1, where='Current block')
-
         #  Adding noise to stimulus observations
-        if 'sel_chs' in kwargs.keys():
-            self.add_randn(0, self.sigma, 'stimulus',
-                           where=np.array(kwargs['sel_chs'])+1)
-            stim = self.view_ob()
-            irr_indx = np.array([int(x) for x in np.arange(self.n)
-                                 if x not in kwargs['sel_chs']])+1
-            if len(irr_indx) > 0:
-                stim[:, irr_indx] = 0
-        else:
-            self.add_randn(0, self.sigma, 'stimulus', where='stimulus')
+        self.add_randn(0, self.sigma, 'stimulus', where='stimulus')
         self.set_groundtruth(mapping_temp[ground_truth],
                              period='decision', where='choice')
 
@@ -338,7 +309,7 @@ class NAltConditionalVisuomotor(ngym.TrialEnv):
 
 if __name__ == '__main__':
     from neurogym.utils import plotting
-    env = nalt_ConditionalVisuomotor(n_ch=2)
+    env = NAltConditionalVisuomotor(n_stim=2)
     env.reset()
     plotting.plot_env(env, def_act=1)
     

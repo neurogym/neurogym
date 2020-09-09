@@ -149,7 +149,7 @@ def test_passreward(env_name='PerceptualDecisionMaking-v0', num_steps=1000,
 
 
 def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=100,
-                      ths=[-.5, .5], verbose=True):
+                      ths=[-.5, .5], verbose=False):
     """
     Test reaction-time wrapper.
 
@@ -215,8 +215,9 @@ def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=100,
 
 
 def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
-                         mapp_ch_prob=0.1, min_mapp_dur=3, def_act=1,
-                         num_steps=20000, n_ch=10, margin=2):
+                         mapp_ch_prob=0.2, min_mapp_dur=3, def_act=1,
+                         num_steps=2000, n_stims=4, margin=2,
+                         sess_end_prob=0.1):
     """
     Test variable-mapping wrapper.
 
@@ -232,10 +233,12 @@ def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
         probability of mapping change (0.1)
     min_mapp_dur : int, optional
          minimum number of trials for a mapping block (3)
+    sess_end_prob: float, optional,
+        probability of session to finish (0.0025)
     def_act : int, optional
         default action for the agent, if None an action will be randomly chosen (1)
-    n_ch : int, optional
-        number of choices (10)
+    n_stims : int, optional
+        number of stims (10)
     margin : float, optional
         margin allowed when comparing actual and expected mean block durations (2)
 
@@ -244,14 +247,14 @@ def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
     None.
 
     """
-    env_args = {'n_ch': n_ch, 'timing': {'fixation': 100,
-                                         'stimulus': 200,
-                                         'delay': 200,
-                                         'decision': 200}}
+    env_args = {'n_stims': n_stims, 'timing': {'fixation': 100,
+                                               'stimulus': 200,
+                                               'delay': 200,
+                                               'decision': 200}}
 
     env = gym.make(env, **env_args)
     env = VariableMapping(env, mapp_ch_prob=mapp_ch_prob,
-                          min_mapp_dur=min_mapp_dur)
+                          min_mapp_dur=min_mapp_dur, sess_end_prob=sess_end_prob)
     env.reset()
     if verbose:
         observations = []
@@ -260,7 +263,9 @@ def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
         gt = []
         new_trials = []
         mapping = []
+        new_session = []
     prev_mapp = env.curr_mapping[env.trial['ground_truth']] + 1
+    stims = env.stims.flatten()
     for stp in range(num_steps):
         action = def_act or env.action_space.sample()
         obs, rew, done, info = env.step(action)
@@ -268,6 +273,13 @@ def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
             mapping.append(info['mapping'])
             assert (action == prev_mapp and rew == 1.) or action != prev_mapp
             prev_mapp = env.curr_mapping[env.trial['ground_truth']] + 1
+            if info['sess_end']:
+                new_session.append(1)
+                assert (stims != env.stims.flatten()).any()
+                stims = env.stims.flatten()
+            else:
+                new_session.append(0)
+                assert (stims == env.stims.flatten()).all()
         if verbose:
             observations.append(obs)
             actions.append(action)
@@ -276,24 +288,36 @@ def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
             gt.append(info['gt'])
     mapping = [int(x.replace('-', '')) for x in mapping]
     mapp_ch = np.where(np.diff(mapping) != 0)[0]
-    mapp_blck_durs = np.diff(mapp_ch)
-    assert (mapp_blck_durs > min_mapp_dur).all()
-    mean_durs = np.mean(mapp_blck_durs)
-    exp_durs = min_mapp_dur+1/mapp_ch_prob
-    assert np.abs(mean_durs - exp_durs) < margin,\
-        'Mean durations: '+str(mean_durs)+', expected: '+str(exp_durs)
+    sess_ch = np.where(new_session)[0]
     if verbose:
         observations = np.array(observations)
         _, ax = plt.subplots(nrows=3, ncols=1, sharex=True)
         ax = ax.flatten()
         ax[0].imshow(observations.T, aspect='auto')
         ax[1].plot(actions, label='Actions')
-        ax[1].plot(new_trials, '--', label='New trial')
         ax[1].plot(gt, '--', label='gt')
         ax[1].set_xlim([-.5, len(actions)-0.5])
         ax[1].legend()
         ax[2].plot(reward)
+        end_of_trial = np.where(new_trials)[0]
+        for ch in end_of_trial:
+            ax[2].plot([ch, ch], [0, 1], '--c')
+        for ch in mapp_ch:
+            ax[2].plot([end_of_trial[ch], end_of_trial[ch]], [0, 1], '--k')
+        for ch in sess_ch:
+            ax[2].plot([end_of_trial[ch], end_of_trial[ch]], [0, 1], '--m')
         ax[2].set_xlim([-.5, len(actions)-0.5])
+    sess_durs = np.diff(sess_ch)
+    mean_sess_dur = np.mean(sess_durs)
+    assert np.abs(mean_sess_dur-1/sess_end_prob) < margin,\
+        'Mean sess. dur.: '+str(mean_sess_dur)+', expected: '+str(1/sess_end_prob)
+    mapp_blck_durs = np.diff(mapp_ch)
+    assert (mapp_blck_durs > min_mapp_dur).all()
+    mean_durs = np.mean(mapp_blck_durs)
+    exp_durs = min_mapp_dur+1/mapp_ch_prob
+    assert np.abs(mean_durs - exp_durs) < margin,\
+        'Mean mapp. block durations: '+str(mean_durs)+', expected: '+str(exp_durs)
+    sys.exit()
 
 
 def test_noise(env_name, random_bhvr=0., wrapper=None, perf_th=None,
