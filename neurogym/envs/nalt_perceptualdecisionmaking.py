@@ -17,8 +17,8 @@ class NAltPerceptualDecisionMaking(ngym.TrialEnv):
         sigma: float, input noise level
         n_ch: Number of choices. (def: 3, int)
         ob_nch: bool, states whether we add number of choices
-        to the observation space. 
-        ob_histblock: bool, states whether we add number of current trial 
+        to the observation space.
+        ob_histblock: bool, states whether we add number of current trial
         history block to the observation space (from TrialHistory wrapper).
     """
     metadata = {
@@ -169,7 +169,7 @@ class NAltPerceptualDecisionMaking(ngym.TrialEnv):
 
 
 
-class nalt_ConditionalVisuomotor(ngym.TrialEnv):
+class NAltConditionalVisuomotor(ngym.TrialEnv):
     """N-alternative conditional visuomotor task.
 
     N-alternative forced choice task in which the subject has

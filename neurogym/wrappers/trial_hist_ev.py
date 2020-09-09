@@ -187,22 +187,21 @@ class VariableMapping(TrialWrapper):
         probs: matrix of probabilities of the current choice conditioned
             on the previous. Shape, num-choices x num-choices
     """
-    def __init__(self, env, probs=None):
+    def __init__(self, env,  mapp_ch_prob=0.003, min_mapp_dur=30):
         super().__init__(env)
         try:
             self.n_ch = len(self.unwrapped.choices)  # max num of choices
             self.curr_chs = self.unwrapped.choices
             self.curr_n_ch = self.n_ch
-            
         except AttributeError:
             raise AttributeError('TrialHistory requires task to '
                                  'have attribute choices')
-        if probs is None:
-            probs = np.ones((self.n_ch, self.n_ch)) / self.n_ch  # uniform
-        self.probs = probs
-        assert self.probs.shape == (self.n_ch, self.n_ch), \
-            'probs shape wrong, should be' + str((self.n_ch, self.n_ch))
-        self.prev_trial = self.rng.choice(self.n_ch)  # random initialization
+        self.mapp_ch_prob = mapp_ch_prob
+        self.min_mapp_dur = min_mapp_dur
+        self.mapp_start = 0
+        self.curr_mapping = np.arange(self.curr_n_ch)
+        self.unwrapped.rng.shuffle(self.curr_mapping)
+        self.mapping_id = '-'.join([str(int(x)+1) for x in self.curr_mapping])
 
     def new_trial(self, **kwargs):
         block_change = False
@@ -212,17 +211,19 @@ class VariableMapping(TrialWrapper):
             self.curr_n_ch = len(self.curr_chs)
             block_change = True
         else:
-            block_change = self.unwrapped.rng.rand() < self.ctx_ch_prob
+            mapp_dur = self.unwrapped.num_tr-self.mapp_start
+            block_change = mapp_dur > self.min_mapp_dur and\
+                self.unwrapped.rng.rand() < self.mapp_ch_prob
         if block_change:
-            self.mapping = np.arange(self.curr_n_ch)
-            self.unwrapped.rng.shuffle(self.mapping)
-            self.mapping_id = '-'.join([str(int(x)+1) for x in self.mapping])
+            self.curr_mapping = np.arange(self.curr_n_ch)
+            self.unwrapped.rng.shuffle(self.curr_mapping)
+            self.mapping_id = '-'.join([str(int(x)+1) for x in self.curr_mapping])
+            self.mapp_start = self.unwrapped.num_tr
         # Choose ground truth and update previous trial info
-        kwargs.update({'mapping': self.mapping})
+        kwargs.update({'mapping': self.curr_mapping})
         return self.env.new_trial(**kwargs)
 
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
         info['mapping'] = self.mapping_id
         return obs, reward, done, info
-

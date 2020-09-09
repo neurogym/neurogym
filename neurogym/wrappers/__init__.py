@@ -16,6 +16,7 @@ from neurogym.wrappers.block import ScheduleAttr
 from neurogym.wrappers.block import ScheduleEnvs
 from neurogym.wrappers.block import TrialHistoryV2
 from neurogym.wrappers.trial_hist_ev import TrialHistoryEvolution
+from neurogym.wrappers.trial_hist_ev import VariableMapping
 
 
 ALL_WRAPPERS = {'CatchTrials-v0': 'neurogym.wrappers.catch_trials:CatchTrials',
@@ -27,7 +28,10 @@ ALL_WRAPPERS = {'CatchTrials-v0': 'neurogym.wrappers.catch_trials:CatchTrials',
                     'neurogym.wrappers.reaction_time:ReactionTime',
                 'SideBias-v0': 'neurogym.wrappers.side_bias:SideBias',
                 'TrialHistory-v0': 'neurogym.wrappers.trial_hist:TrialHistory',
-                'TrialHistoryEv-v0': 'neurogym.wrappers.trial_hist_ev:TrialHistoryEvolution',                
+                'TrialHistoryEv-v0':
+                    'neurogym.wrappers.trial_hist_ev:TrialHistoryEvolution',
+                'VariableMapping-v0':
+                    'neurogym.wrappers.trial_hist_ev:VariableMapping',
                 'MissTrialReward-v0':
                     'neurogym.wrappers.miss_trials_reward:MissTrialReward',
                 'TTLPulse-v0':

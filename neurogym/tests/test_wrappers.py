@@ -2,6 +2,7 @@
 
 import numpy as np
 import gym
+import sys
 # from gym import spaces
 # from gym.core import Wrapper
 import matplotlib.pyplot as plt
@@ -19,6 +20,7 @@ from neurogym.wrappers import TransferLearning
 from neurogym.wrappers import Combine
 from neurogym.wrappers import Variable_nch
 from neurogym.wrappers import TrialHistoryEvolution
+from neurogym.wrappers import VariableMapping
 
 
 def test_sidebias(env_name='NAltPerceptualDecisionMaking-v0', num_steps=100000,
@@ -209,6 +211,88 @@ def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=100,
         ax[2].plot(obs_cum_mat)
         ax[2].plot([0, len(obs_cum_mat)], [ths[1], ths[1]], '--')
         ax[2].plot([0, len(obs_cum_mat)], [ths[0], ths[0]], '--')
+        ax[2].set_xlim([-.5, len(actions)-0.5])
+
+
+def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
+                         mapp_ch_prob=0.1, min_mapp_dur=3, def_act=1,
+                         num_steps=20000, n_ch=10, margin=2):
+    """
+    Test variable-mapping wrapper.
+
+    Parameters
+    ----------
+    env_name : str, optional
+        enviroment to wrap.. The default is 'NAltConditionalVisuomotor-v0'.
+    num_steps : int, optional
+        number of steps to run the environment (1000)
+    verbose : boolean, optional
+        whether to print observation and reward (False)
+    mapp_ch_prob : float, optional
+        probability of mapping change (0.1)
+    min_mapp_dur : int, optional
+         minimum number of trials for a mapping block (3)
+    def_act : int, optional
+        default action for the agent, if None an action will be randomly chosen (1)
+    n_ch : int, optional
+        number of choices (10)
+    margin : float, optional
+        margin allowed when comparing actual and expected mean block durations (2)
+
+    Returns
+    -------
+    None.
+
+    """
+    env_args = {'n_ch': n_ch, 'timing': {'fixation': 100,
+                                         'stimulus': 200,
+                                         'delay': 200,
+                                         'decision': 200}}
+
+    env = gym.make(env, **env_args)
+    env = VariableMapping(env, mapp_ch_prob=mapp_ch_prob,
+                          min_mapp_dur=min_mapp_dur)
+    env.reset()
+    if verbose:
+        observations = []
+        reward = []
+        actions = []
+        gt = []
+        new_trials = []
+        mapping = []
+    prev_mapp = env.curr_mapping[env.trial['ground_truth']] + 1
+    for stp in range(num_steps):
+        action = def_act or env.action_space.sample()
+        obs, rew, done, info = env.step(action)
+        if info['new_trial']:
+            mapping.append(info['mapping'])
+            assert (action == prev_mapp and rew == 1.) or action != prev_mapp
+            prev_mapp = env.curr_mapping[env.trial['ground_truth']] + 1
+        if verbose:
+            observations.append(obs)
+            actions.append(action)
+            reward.append(rew)
+            new_trials.append(info['new_trial'])
+            gt.append(info['gt'])
+    mapping = [int(x.replace('-', '')) for x in mapping]
+    mapp_ch = np.where(np.diff(mapping) != 0)[0]
+    mapp_blck_durs = np.diff(mapp_ch)
+    assert (mapp_blck_durs > min_mapp_dur).all()
+    mean_durs = np.mean(mapp_blck_durs)
+    exp_durs = min_mapp_dur+1/mapp_ch_prob
+    assert np.abs(mean_durs - exp_durs) < margin,\
+        'Mean durations: '+str(mean_durs)+', expected: '+str(exp_durs)
+    if verbose:
+        observations = np.array(observations)
+        _, ax = plt.subplots(nrows=3, ncols=1, sharex=True)
+        ax = ax.flatten()
+        ax[0].imshow(observations.T, aspect='auto')
+        ax[1].plot(actions, label='Actions')
+        ax[1].plot(new_trials, '--', label='New trial')
+        ax[1].plot(gt, '--', label='gt')
+        ax[1].set_xlim([-.5, len(actions)-0.5])
+        ax[1].legend()
+        ax[2].plot(reward)
         ax[2].set_xlim([-.5, len(actions)-0.5])
 
 
@@ -614,6 +698,7 @@ if __name__ == '__main__':
                                              'stimulus': 200,
                                              'decision': 200}}
     # test_identity('Nothing-v0', num_steps=5)
+    test_variablemapping()
     test_reactiontime()
     test_sidebias()
     test_passreward()
