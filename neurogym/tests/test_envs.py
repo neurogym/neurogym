@@ -20,7 +20,7 @@ try:
 except ImportError as e:
     _have_psychopy = False
 
-ENVS = ngym.all_envs(psychopy=_have_psychopy, collections=True)
+ENVS = ngym.all_envs(psychopy=_have_psychopy, contrib=True, collections=True)
 
 
 def test_run(env=None, num_steps=100, verbose=False, **kwargs):

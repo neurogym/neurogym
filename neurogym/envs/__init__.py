@@ -1,95 +1,121 @@
 import importlib
 from inspect import getmembers, isfunction, isclass
+from pathlib import Path
 
 import gym
 from gym.envs.registration import register
 
 from neurogym.envs.collections import get_collection
 
-ALL_NATIVE_ENVS = {
-    'ContextDecisionMaking-v0':
-        'neurogym.envs.contextdecisionmaking:ContextDecisionMaking',
-    'SingleContextDecisionMaking-v0':
-        'neurogym.envs.contextdecisionmaking:SingleContextDecisionMaking',
-    'DelayComparison-v0':
-        'neurogym.envs.delaycomparison:DelayComparison',
-    'PerceptualDecisionMaking-v0':
-        'neurogym.envs.perceptualdecisionmaking:PerceptualDecisionMaking',
-    'EconomicDecisionMaking-v0':
-        'neurogym.envs.economicdecisionmaking:EconomicDecisionMaking',
-    'PostDecisionWager-v0':
-        'neurogym.envs.postdecisionwager:PostDecisionWager',
-    'DelayPairedAssociation-v0':
-        'neurogym.envs.delaypairedassociation:DelayPairedAssociation',
-    'GoNogo-v0':
-        'neurogym.envs.gonogo:GoNogo',
-    'ReadySetGo-v0':
-        'neurogym.envs.readysetgo:ReadySetGo',
-    'OneTwoThreeGo-v0':
-        'neurogym.envs.readysetgo:OneTwoThreeGo',
-    'DelayMatchSample-v0':
-        'neurogym.envs.delaymatchsample:DelayMatchSample',
-    'DelayMatchCategory-v0':
-        'neurogym.envs.delaymatchcategory:DelayMatchCategory',
-    'DawTwoStep-v0':
-        'neurogym.envs.dawtwostep:DawTwoStep',
-    'HierarchicalReasoning-v0':
-        'neurogym.envs.hierarchicalreasoning:HierarchicalReasoning',
-    'MatchingPenny-v0':
-        'neurogym.envs.matchingpenny:MatchingPenny',
-    'MotorTiming-v0':
-        'neurogym.envs.readysetgo:MotorTiming',
-    'MultiSensoryIntegration-v0':
-        'neurogym.envs.multisensory:MultiSensoryIntegration',
-    'Bandit-v0':
-        'neurogym.envs.bandit:Bandit',
-    'PerceptualDecisionMakingDelayResponse-v0':
-        'neurogym.envs.perceptualdecisionmaking:PerceptualDecisionMakingDelayResponse',
-    'NAltPerceptualDecisionMaking-v0':
-        'neurogym.envs.nalt_perceptualdecisionmaking:nalt_PerceptualDecisionMaking',
-    # 'Combine-v0': 'neurogym.envs.combine:combine',
-    # 'IBL-v0': 'neurogym.envs.ibl:IBL',
-    # 'MemoryRecall-v0': 'neurogym.envs.memoryrecall:MemoryRecall',
-    'Reaching1D-v0':
-        'neurogym.envs.reaching:Reaching1D',
-    'Reaching1DWithSelfDistraction-v0':
-        'neurogym.envs.reaching:Reaching1DWithSelfDistraction',
-    'AntiReach-v0':
-        'neurogym.envs.antireach:AntiReach',
-    'DelayMatchSampleDistractor1D-v0':
-        'neurogym.envs.delaymatchsample:DelayMatchSampleDistractor1D',
-    'IntervalDiscrimination-v0':
-        'neurogym.envs.intervaldiscrimination:IntervalDiscrimination',
-    'AngleReproduction-v0':
-        'neurogym.envs.anglereproduction:AngleReproduction',
-    'Detection-v0':
-        'neurogym.envs.detection:Detection',
-    'ReachingDelayResponse-v0':
-        'neurogym.envs.reachingdelayresponse:ReachingDelayResponse',
-    'CVLearning-v0':
-        'neurogym.envs.cv_learning:CVLearning',
-    'ChangingEnvironment-v0':
-        'neurogym.envs.changingenvironment:ChangingEnvironment',
-    'ProbabilisticReasoning-v0':
-        'neurogym.envs.weatherprediction:ProbabilisticReasoning',
-    'DualDelayMatchSample-v0':
-        'neurogym.envs.dualdelaymatchsample:DualDelayMatchSample',
-    'PulseDecisionMaking-v0':
-        'neurogym.envs.perceptualdecisionmaking:PulseDecisionMaking',
-    'Nothing-v0':
-        'neurogym.envs.nothing:Nothing',
-    'Pneumostomeopening-v0':
-        'neurogym.envs.pneumostomeopening:Pneumostomeopening',
-}
 
+def _get_envs(foldername=None, env_prefix=None, allow_list=None):
+    """A helper function to get all environments in a folder.
+
+    Example usage:
+        _get_envs(foldername=None, env_prefix=None)
+        _get_envs(foldername='contrib', env_prefix='contrib')
+
+    The results still need to be manually cleaned up, so this is just a helper
+
+    Args:
+        foldername: str or None. If str, in the form of contrib, etc.
+        env_prefix: str or None, if not None, add this prefix to all env ids
+        allow_list: list of allowed env name, for manual curation
+    """
+
+    if env_prefix is None:
+        env_prefix = ''
+    else:
+        if env_prefix[-1] != '.':
+            env_prefix = env_prefix + '.'
+
+    if allow_list is None:
+        allow_list = list()
+
+    # Root path of neurogym.envs folder
+    env_root = Path(__file__).resolve().parent
+    lib_root = 'neurogym.envs.'
+    if foldername is not None:
+        env_root = env_root / foldername
+        lib_root = lib_root + foldername + '.'
+
+    # Only take .py files
+    files = [p for p in env_root.iterdir() if p.suffix == '.py']
+    # Exclude files starting with '_'
+    files = [f for f in files if f.name[0] != '_']
+    filenames = [f.name[:-3] for f in files]  # remove .py suffix
+    filenames = sorted(filenames)
+
+    env_dict = {}
+    for filename in filenames:
+        # lib = 'neurogym.envs.collections.' + l
+        lib = lib_root + filename
+        module = importlib.import_module(lib)
+        for name, val in getmembers(module):
+            if name in allow_list:
+                env_dict[env_prefix + name + '-v0'] = lib + ':' + name
+
+    return env_dict
+
+
+NATIVE_ALLOW_LIST = [
+    'AntiReach',
+    'Bandit',
+    'ContextDecisionMaking',
+    'DawTwoStep',
+    'DelayComparison',
+    'DelayMatchCategory',
+    'DelayMatchSample',
+    'DelayMatchSampleDistractor1D',
+    'DelayPairedAssociation',
+    'Detection',
+    'DualDelayMatchSample',
+    'EconomicDecisionMaking',
+    'GoNogo',
+    'HierarchicalReasoning',
+    'IntervalDiscrimination',
+    'MotorTiming',
+    'MultiSensoryIntegration',
+    'NAltPerceptualDecisionMaking',
+    'Nothing',
+    'OneTwoThreeGo',
+    'PerceptualDecisionMaking',
+    'PerceptualDecisionMakingDelayResponse',
+    'PostDecisionWager',
+    'ProbabilisticReasoning',
+    'PulseDecisionMaking',
+    'Reaching1D',
+    'Reaching1DWithSelfDistraction',
+    'ReachingDelayResponse',
+    'ReadySetGo',
+    'SingleContextDecisionMaking'
+]
+ALL_NATIVE_ENVS = _get_envs(foldername=None, env_prefix=None,
+                            allow_list=NATIVE_ALLOW_LIST)
+
+_psychopy_prefix = 'neurogym.envs.psychopy.'
 ALL_PSYCHOPY_ENVS = {
     'psychopy.RandomDotMotion-v0':
-        'neurogym.envs.psychopy.perceptualdecisionmaking:RandomDotMotion',
+        _psychopy_prefix + 'perceptualdecisionmaking:RandomDotMotion',
     'psychopy.VisualSearch-v0':
-        'neurogym.envs.psychopy.visualsearch:VisualSearch',
-    'psychopy.spatialsuppressmotion-v0':
-        'neurogym.envs.psychopy.spatialsuppressmotion:SpatialSuppressMotion',
+        _psychopy_prefix + 'visualsearch:VisualSearch',
+    'psychopy.SpatialSuppressMotion-v0':
+        _psychopy_prefix + 'spatialsuppressmotion:SpatialSuppressMotion',
 }
+
+_contrib_name_prefix = 'contrib.'
+_contrib_prefix = 'neurogym.envs.contrib.'
+CONTRIB_ALLOW_LIST = [
+    'AngleReproduction',
+    'CVLearning',
+    'ChangingEnvironment',
+    # 'IBL',
+    'MatchingPenny',
+    'MemoryRecall',
+    'Pneumostomeopening'
+]
+ALL_CONTRIB_ENVS = _get_envs(foldername='contrib', env_prefix='contrib',
+                             allow_list=CONTRIB_ALLOW_LIST)
 
 
 # Automatically register all tasks in collections
@@ -115,17 +141,19 @@ def _get_collection_envs():
 ALL_COLLECTIONS_ENVS = _get_collection_envs()
 
 ALL_ENVS = {
-    **ALL_NATIVE_ENVS, **ALL_PSYCHOPY_ENVS
+    **ALL_NATIVE_ENVS, **ALL_PSYCHOPY_ENVS, **ALL_CONTRIB_ENVS
 }
 
 ALL_EXTENDED_ENVS = {**ALL_ENVS, **ALL_COLLECTIONS_ENVS}
 
 
-def all_envs(tag=None, psychopy=False, collections=False):
+def all_envs(tag=None, psychopy=False, contrib=False, collections=False):
     """Return a list of all envs in neurogym."""
     envs = ALL_NATIVE_ENVS.copy()
     if psychopy:
         envs.update(ALL_PSYCHOPY_ENVS)
+    if contrib:
+        envs.update(ALL_CONTRIB_ENVS)
     if collections:
         envs.update(ALL_COLLECTIONS_ENVS)
     env_list = sorted(list(envs.keys()))
