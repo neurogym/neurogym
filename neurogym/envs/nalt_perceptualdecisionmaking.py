@@ -195,6 +195,7 @@ class NAltConditionalVisuomotor(ngym.TrialEnv):
 
         super().__init__(dt=dt)
         self.n_ch = n_ch
+        self.choices = np.arange(n_stims)
         self.stims = np.random.rand(n_ch, n_stims) > 0.5
         assert isinstance(n_ch, int), 'n_ch must be integer'
         assert n_ch > 1, 'n_ch must be at least 2'
