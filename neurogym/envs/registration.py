@@ -3,8 +3,6 @@ from inspect import getmembers, isfunction, isclass
 from pathlib import Path
 
 import gym
-from gym.envs.registration import register, make
-
 from neurogym.envs.collections import get_collection
 
 
@@ -173,13 +171,65 @@ def all_envs(tag=None, psychopy=False, contrib=False, collections=False):
         return new_env_list
 
 
-_all_gym_envs = [env.id for env in gym.envs.registry.all()]
-for env_id, entry_point in ALL_EXTENDED_ENVS.items():
-    if env_id not in _all_gym_envs:
-        register(id=env_id, entry_point=entry_point)
-
-
 def all_tags():
     return ['confidence', 'context dependent', 'continuous action space', 'delayed response', 'go-no-go',
             'motor', 'multidimensional action space', 'n-alternative', 'perceptual', 'reaction time',
             'steps action space', 'supervised', 'timing', 'two-alternative', 'value-based', 'working memory']
+
+
+def _distance(s0, s1):
+    # Copyright (c) 2018 luozhouyang
+    if s0 is None:
+        raise TypeError("Argument s0 is NoneType.")
+    if s1 is None:
+        raise TypeError("Argument s1 is NoneType.")
+    if s0 == s1:
+        return 0.0
+    if len(s0) == 0:
+        return len(s1)
+    if len(s1) == 0:
+        return len(s0)
+
+    v0 = [0] * (len(s1) + 1)
+    v1 = [0] * (len(s1) + 1)
+
+    for i in range(len(v0)):
+        v0[i] = i
+
+    for i in range(len(s0)):
+        v1[0] = i + 1
+        for j in range(len(s1)):
+            cost = 1
+            if s0[i] == s1[j]:
+                cost = 0
+            v1[j + 1] = min(v1[j] + 1, v0[j + 1] + 1, v0[j] + cost)
+        v0, v1 = v1, v0
+
+    return v0[len(s1)]
+
+
+def make(id, **kwargs):
+    try:
+        gym.make(id, **kwargs)
+    except gym.error.UnregisteredEnv:
+        all_ids = [env.id for env in gym.envs.registry.all()]
+        dists = [_distance(id, env_id) for env_id in all_ids]
+        # Python argsort
+        sort_inds = sorted(range(len(dists)), key=dists.__getitem__)
+        env_guesses = [all_ids[sort_inds[i]] for i in range(5)]
+        err_msg = 'No registered env with id: {}.\nDo you mean:\n'.format(id)
+        for env_guess in env_guesses:
+            err_msg += '    ' + env_guess + '\n'
+        raise gym.error.UnregisteredEnv(err_msg)
+
+
+_all_gym_envs = [env.id for env in gym.envs.registry.all()]
+
+
+def register(id, **kwargs):
+    if id not in _all_gym_envs:
+        gym.envs.registration.register(id=id, **kwargs)
+
+
+for env_id, entry_point in ALL_EXTENDED_ENVS.items():
+    register(id=env_id, entry_point=entry_point)
