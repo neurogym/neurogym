@@ -6,7 +6,7 @@ import neurogym as ngym
 from neurogym import spaces
 
 
-class nalt_PerceptualDecisionMaking(ngym.TrialEnv):
+class NAltPerceptualDecisionMaking(ngym.TrialEnv):
     """N-alternative perceptual decision-making.
 
     N-alternative forced choice task in which the subject has

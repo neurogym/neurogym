@@ -93,6 +93,8 @@ class TrialEnv(BaseEnv):
         self.num_tr_exp = num_trials_before_reset
         self.trial = None
         self._ob_built = False
+        self._gt_built = False
+        self._has_gt = False  # check if the task ever defined gt
 
         self.performance = 0
         self.rewards = {}
@@ -144,12 +146,22 @@ class TrialEnv(BaseEnv):
         self.num_tr += 1  # Increment trial count
         # Reset for next trial
         self._ob_built = False
+        self._has_gt = self._gt_built
+        self._gt_built = False
         self._tmax = 0  # reset, self.tmax not reset so it can be used in step
         return trial
 
     def step(self, action):
         """Public interface for the environment."""
         ob, reward, done, info = self._step(action)
+
+        if 'new_trial' not in info:
+            info['new_trial'] = False
+
+        if self._has_gt and 'gt' not in info:
+            # If gt is built, default gt to gt_now
+            # must run before incrementing t
+            info['gt'] = self.gt_now
 
         self.t += self.dt  # increment within trial time count
         self.t_ind += 1
@@ -158,7 +170,6 @@ class TrialEnv(BaseEnv):
             info['new_trial'] = True
             reward += self.r_tmax
 
-        # TODO: Handle the case when new_trial is not provided in info
         # TODO: new_trial happens after step, so trial indx precedes obs change
         if info['new_trial']:
             info['performance'] = self.performance
@@ -291,10 +302,14 @@ class TrialEnv(BaseEnv):
         else:
             self.ob = np.full(ob_shape, self._default_ob_value,
                               dtype=self.observation_space.dtype)
+        self._ob_built = True
 
+    def _init_gt(self):
+        """Initialize trial with ground_truth."""
+        tmax_ind = int(self._tmax / self.dt)
         self.gt = np.zeros([tmax_ind] + list(self.action_space.shape),
                            dtype=self.action_space.dtype)
-        self._ob_built = True
+        self._gt_built = True
 
     def view_ob(self, period=None):
         """View observation of an period."""
@@ -373,6 +388,9 @@ class TrialEnv(BaseEnv):
 
     def set_groundtruth(self, value, period=None, where=None):
         """Set groundtruth value."""
+        if not self._gt_built:
+            self._init_gt()
+
         if where is not None:
             # TODO: Only works for Discrete action_space, make it work for Box
             value = self.action_space.name[where][value]
@@ -386,6 +404,8 @@ class TrialEnv(BaseEnv):
 
     def view_groundtruth(self, period):
         """View observation of an period."""
+        if not self._gt_built:
+            self._init_gt()
         return self.gt[self.start_ind[period]:self.end_ind[period]]
 
     def in_period(self, period, t=None):
