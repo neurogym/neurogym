@@ -191,17 +191,18 @@ class NAltConditionalVisuomotor(ngym.TrialEnv):
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, sigma=1.,
-                 stim_scale=1., n_ch=16, n_stims=2):
+                 stim_scale=1., n_ch=10, n_stims=2):
 
         super().__init__(dt=dt)
         self.n_ch = n_ch
         self.choices = np.arange(n_stims)
         self.stims = np.random.rand(n_ch, n_stims) > 0.5
+        while np.unique(self.stims, axis=1).shape[1] < n_stims:
+            self.stims = np.random.rand(n_ch, n_stims) > 0.5
         assert isinstance(n_ch, int), 'n_ch must be integer'
         assert n_ch > 1, 'n_ch must be at least 2'
-        n_ch_factor = 1.84665761*np.log(n_ch)-0.04102044
         # The strength of evidence, modulated by stim_scale.
-        self.cohs = np.array([51.2])*n_ch_factor*stim_scale
+        self.cohs = np.array([51.2])*stim_scale
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
         # Rewards
@@ -220,13 +221,12 @@ class NAltConditionalVisuomotor(ngym.TrialEnv):
 
         # Action and observation spaces
         name = {'fixation': 0, 'stimulus': range(1, n_ch + 1)}
-        self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(n_ch + 1,),
-            dtype=np.float32, name=name)
-        self.mapping = np.arange(n_ch)
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(n_ch + 1,),
+                                            dtype=np.float32, name=name)
+        self.mapping = np.arange(n_stims)
         self.unwrapped.rng.shuffle(self.mapping)
-        name = {'fixation': 0, 'choice': range(1, n_ch + 1)}
-        self.action_space = spaces.Discrete(n_ch + 1, name=name)
+        name = {'fixation': 0, 'choice': range(1, n_stims + 1)}
+        self.action_space = spaces.Discrete(n_stims + 1, name=name)
 
     def _new_trial(self, **kwargs):
         """
@@ -261,10 +261,7 @@ class NAltConditionalVisuomotor(ngym.TrialEnv):
 
         self.add_ob(1, 'fixation', where='fixation')
         stim = np.ones(self.n_ch) * (1 - trial['coh']/100)/2
-        try:
-            stim[stims_temp[:, trial['ground_truth']]] = (1 + trial['coh']/100)/2
-        except:
-            print(trial['ground_truth'])
+        stim[stims_temp[:, trial['ground_truth']]] = (1 + trial['coh']/100)/2
         self.add_ob(stim, 'stimulus', where='stimulus')
 
         #  Adding noise to stimulus observations
