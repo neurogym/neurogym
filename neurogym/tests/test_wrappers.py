@@ -216,8 +216,8 @@ def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=100,
 
 def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
                          mapp_ch_prob=0.2, min_mapp_dur=3, def_act=1,
-                         num_steps=2000, n_stims=4, margin=2,
-                         sess_end_prob=0.1):
+                         num_steps=20000, n_stims=10, margin=2,
+                         sess_end_prob=0.1, min_sess_dur=5):
     """
     Test variable-mapping wrapper.
 
@@ -235,6 +235,8 @@ def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
          minimum number of trials for a mapping block (3)
     sess_end_prob: float, optional,
         probability of session to finish (0.0025)
+    min_sess_dur: int, optional
+        minimum number of trials for session (5)
     def_act : int, optional
         default action for the agent, if None an action will be randomly chosen (1)
     n_stims : int, optional
@@ -247,14 +249,15 @@ def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
     None.
 
     """
-    env_args = {'n_stims': n_stims, 'timing': {'fixation': 100,
-                                               'stimulus': 200,
-                                               'delay': 200,
-                                               'decision': 200}}
+    env_args = {'n_stims': n_stims, 'n_ch': 8, 'timing': {'fixation': 100,
+                                                          'stimulus': 200,
+                                                          'delay': 200,
+                                                          'decision': 200}}
 
     env = gym.make(env, **env_args)
     env = VariableMapping(env, mapp_ch_prob=mapp_ch_prob,
-                          min_mapp_dur=min_mapp_dur, sess_end_prob=sess_end_prob)
+                          min_mapp_dur=min_mapp_dur, sess_end_prob=sess_end_prob,
+                          min_sess_dur=min_sess_dur)
     env.reset()
     if verbose:
         observations = []
@@ -308,8 +311,10 @@ def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
             ax[2].plot([end_of_trial[ch], end_of_trial[ch]], [0, 1], '--m')
         ax[2].set_xlim([-.5, len(actions)-0.5])
     sess_durs = np.diff(sess_ch)
+    assert (sess_durs > min_sess_dur).all()
     mean_sess_dur = np.mean(sess_durs)
-    assert np.abs(mean_sess_dur-1/sess_end_prob) < margin,\
+    exp_sess_durs = min_sess_dur+1/sess_end_prob
+    assert np.abs(mean_sess_dur-exp_sess_durs) < margin,\
         'Mean sess. dur.: '+str(mean_sess_dur)+', expected: '+str(1/sess_end_prob)
     mapp_blck_durs = np.diff(mapp_ch)
     assert (mapp_blck_durs > min_mapp_dur).all()

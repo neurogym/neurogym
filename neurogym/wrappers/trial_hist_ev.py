@@ -188,7 +188,7 @@ class VariableMapping(TrialWrapper):
             on the previous. Shape, num-choices x num-choices
     """
     def __init__(self, env,  mapp_ch_prob=0.003, min_mapp_dur=30,
-                 sess_end_prob=0.0025):
+                 sess_end_prob=0.0025, min_sess_dur=120):
         super().__init__(env)
         try:
             self.n_ch = self.unwrapped.n_ch  # max num of choices
@@ -199,7 +199,9 @@ class VariableMapping(TrialWrapper):
         self.mapp_ch_prob = mapp_ch_prob
         self.min_mapp_dur = min_mapp_dur
         self.sess_end_prob = sess_end_prob
+        self.min_sess_dur = min_sess_dur
         self.mapp_start = 0
+        self.sess_start = 0
         self.curr_mapping = np.arange(self.curr_n_ch)
         self.unwrapped.rng.shuffle(self.curr_mapping)
         self.mapping_id = '-'.join([str(int(x)+1) for x in self.curr_mapping])
@@ -223,9 +225,14 @@ class VariableMapping(TrialWrapper):
             self.mapping_id = '-'.join([str(int(x)+1) for x in self.curr_mapping])
             self.mapp_start = self.unwrapped.num_tr
         # end of session?
-        if self.unwrapped.rng.rand() < self.sess_end_prob:
+        sess_dur = self.unwrapped.num_tr-self.sess_start
+        if sess_dur > self.min_sess_dur and\
+           self.unwrapped.rng.rand() < self.sess_end_prob:
             self.stims = np.random.rand(self.n_ch, self.curr_n_ch) > 0.5
+            while np.unique(self.stims, axis=1).shape[1] < self.curr_n_ch:
+                self.stims = np.random.rand(self.n_ch, self.curr_n_ch) > 0.5
             self.sess_end = True
+            self.sess_start = self.unwrapped.num_tr
         # Choose ground truth and update previous trial info
         kwargs.update({'mapping': self.curr_mapping, 'stims': self.stims})
         return self.env.new_trial(**kwargs)
