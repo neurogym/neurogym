@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import neurogym as ngym
+import gym
 import numpy as np
 
 
-class Noise(ngym.TrialWrapper):
+class Noise(gym.Wrapper):
     """Add Gaussian noise to the observations.
 
     Args:
@@ -36,9 +36,8 @@ class Noise(ngym.TrialWrapper):
             self.perf = []
             self.std_noise = 0
 
-    def step(self, action, new_tr_fn=None):
-        ntr_fn = new_tr_fn or self.new_trial
-        obs, reward, done, info = self.env.step(action, new_tr_fn=ntr_fn)
+    def step(self, action):
+        obs, reward, done, info = self.env.step(action)
         # adjust noise
         if self.perf_th is not None and info['new_trial']:
             assert 'performance' in info, 'Adjusting noise is only possible' +\
