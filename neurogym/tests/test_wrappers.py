@@ -214,9 +214,9 @@ def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=100,
 
 
 def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
-                         mapp_ch_prob=0.2, min_mapp_dur=3, def_act=1,
-                         num_steps=20000, n_stims=10, margin=2,
-                         sess_end_prob=0.1, min_sess_dur=5):
+                         mapp_ch_prob=0.05, min_mapp_dur=10, def_act=1,
+                         num_steps=2000, n_stims=4, n_ch=4, margin=2,
+                         sess_end_prob=0.01, min_sess_dur=20):
     """
     Test variable-mapping wrapper.
 
@@ -240,6 +240,8 @@ def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
         default action for the agent, if None an action will be randomly chosen (1)
     n_stims : int, optional
         number of stims (10)
+    n_ch : int, optional
+        number of channels (4)
     margin : float, optional
         margin allowed when comparing actual and expected mean block durations (2)
 
@@ -248,10 +250,10 @@ def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
     None.
 
     """
-    env_args = {'n_stims': n_stims, 'n_ch': 8, 'timing': {'fixation': 100,
-                                                          'stimulus': 200,
-                                                          'delay': 200,
-                                                          'decision': 200}}
+    env_args = {'n_stims': n_stims, 'n_ch': n_ch, 'timing': {'fixation': 100,
+                                                             'stimulus': 200,
+                                                             'delay': 200,
+                                                             'decision': 200}}
 
     env = gym.make(env, **env_args)
     env = VariableMapping(env, mapp_ch_prob=mapp_ch_prob,
@@ -727,12 +729,12 @@ if __name__ == '__main__':
                                              'stimulus': 200,
                                              'decision': 200}}
     # test_identity('Nothing-v0', num_steps=5)
+    test_variablemapping()
+    sys.exit()
     data = test_concat_wrpprs_th_vch_pssr_pssa('NAltPerceptualDecisionMaking-v0',
                                                num_steps=20000, verbose=True,
                                                probs=0.99, num_blocks=16,
                                                env_args=env_args)
-    sys.exit()
-    test_variablemapping()
     test_reactiontime()
     test_sidebias()
     test_passreward()

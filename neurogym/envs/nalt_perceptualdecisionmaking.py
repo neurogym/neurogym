@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import numpy as np
-
+import itertools
 import neurogym as ngym
 from neurogym import spaces
 
@@ -190,19 +190,20 @@ class NAltConditionalVisuomotor(ngym.TrialEnv):
         'tags': ['conditional', 'n-alternative', 'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.,
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=0.1,
                  stim_scale=1., n_ch=10, n_stims=2):
 
         super().__init__(dt=dt)
         self.n_ch = n_ch
         self.choices = np.arange(n_stims)
-        self.stims = np.random.rand(n_ch, n_stims) > 0.5
-        while np.unique(self.stims, axis=1).shape[1] < n_stims:
-            self.stims = np.random.rand(n_ch, n_stims) > 0.5
+        self.stims = np.array(list(itertools.product([0, 1], repeat=n_ch))).T == 1
+        self.stims = self.stims[:, np.random.choice(self.stims.shape[1],
+                                                    size=n_stims, replace=False)]
         assert isinstance(n_ch, int), 'n_ch must be integer'
-        assert n_ch > 1, 'n_ch must be at least 2'
+        assert isinstance(n_stims, int), 'n_stims must be integer'
+        assert n_stims > 1, 'n_stims must be at least 2'
         # The strength of evidence, modulated by stim_scale.
-        self.cohs = np.array([51.2])*stim_scale
+        self.cohs = np.array([100.])*stim_scale
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
         # Rewards
