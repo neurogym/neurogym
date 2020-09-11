@@ -22,7 +22,6 @@ from neurogym.wrappers import Variable_nch
 from neurogym.wrappers import TrialHistoryEvolution
 from neurogym.wrappers import VariableMapping
 
-
 def test_sidebias(env_name='NAltPerceptualDecisionMaking-v0', num_steps=100000,
                   verbose=False, num_ch=3, eps=0.01, probs=[(.005, .005, .99),
                                                             (.005, .99, .005),
@@ -379,7 +378,7 @@ def test_catchtrials(env_name, num_steps=10000, verbose=False, catch_prob=0.1,
 
 def test_trialhist_and_variable_nch(env_name, num_steps=100000, probs=0.8,
                                     num_blocks=2, verbose=False, num_ch=4,
-                                    variable_nch=True):
+                                    variable_nch=False):
     env = gym.make(env_name, **{'n_ch': num_ch})
     env = TrialHistory(env, probs=probs, block_dur=200, num_blocks=num_blocks)
     if variable_nch:
@@ -591,11 +590,12 @@ def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
                                         variable_nch=True, env_args={}):
     env_args['n_ch'] = num_ch
     env_args['zero_irrelevant_stim'] = True
+    env_args['ob_histblock'] = True
     env = gym.make(env_name, **env_args)
     env = TrialHistoryEvolution(env, probs=probs, ctx_ch_prob=0.005,
                                 predef_tr_mats=True, balanced_probs=True,
                                 num_contexts=1)
-    env = Variable_nch(env, block_nch=50, prob_12=0.05, sorted_ch=True)
+    env = Variable_nch(env, block_nch=5000000000, prob_12=0.05, sorted_ch=True)
     transitions = np.zeros((num_blocks, num_ch, num_ch))
     env = PassReward(env)
     env = PassAction(env)
@@ -727,6 +727,11 @@ if __name__ == '__main__':
                                              'stimulus': 200,
                                              'decision': 200}}
     # test_identity('Nothing-v0', num_steps=5)
+    data = test_concat_wrpprs_th_vch_pssr_pssa('NAltPerceptualDecisionMaking-v0',
+                                               num_steps=20000, verbose=True,
+                                               probs=0.99, num_blocks=16,
+                                               env_args=env_args)
+    sys.exit()
     test_variablemapping()
     test_reactiontime()
     test_sidebias()
@@ -737,16 +742,13 @@ if __name__ == '__main__':
     test_noise('PerceptualDecisionMaking-v0', random_bhvr=0.,
                wrapper=PassAction, perf_th=0.7, num_steps=100000,
                verbose=True, **env_args)
-    test_trialhist_and_variable_nch('NAltPerceptualDecisionMaking-v0',
-                                    num_steps=1000000, verbose=True, probs=0.99,
-                                    num_blocks=3)
     test_catchtrials('PerceptualDecisionMaking-v0', num_steps=10000,
                      verbose=True, catch_prob=0.5, alt_rew=0)
     test_transferLearning(num_steps=200, verbose=True)
     test_combine(num_steps=200, verbose=True)
-    data = test_concat_wrpprs_th_vch_pssr_pssa('NAltPerceptualDecisionMaking-v0',
-                                               num_steps=2000000, verbose=True,
-                                               probs=0.99, num_blocks=16,
-                                               env_args=env_args)
+    test_trialhist_and_variable_nch('NAltPerceptualDecisionMaking-v0',
+                                    num_steps=1000000, verbose=True, probs=0.99,
+                                    num_blocks=3)
+
     # test_trialhistEv('NAltPerceptualDecisionMaking-v0', num_steps=100000,
     #                  probs=0.8, num_blocks=3, verbose=True, num_ch=8)

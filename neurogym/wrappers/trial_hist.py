@@ -72,6 +72,7 @@ class TrialHistory(TrialWrapper):
                     self.curr_tr_mat = self.trans_probs
                 else:
                     self.curr_block = (self.curr_block + 1) % self.curr_n_blocks
+                    self.blk_id = self.curr_block
 
         probs_curr_blk = self.curr_tr_mat[self.curr_block, self.prev_trial, :]
         ground_truth = self.unwrapped.rng.choice(self.th_choices[:self.curr_n_ch],

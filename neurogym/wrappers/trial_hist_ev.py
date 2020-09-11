@@ -108,7 +108,7 @@ class TrialHistoryEvolution(TrialWrapper):
             if block_change:
                 self.curr_tr_mat = self.trans_probs
 
-        probs_curr_blk = self.curr_tr_mat[self.curr_block, self.prev_trial, :]
+        probs_curr_blk = self.curr_tr_mat[self.prev_trial, :]
         ground_truth = self.unwrapped.rng.choice(self.curr_chs, p=probs_curr_blk)
         self.prev_trial =\
             np.where(self.curr_chs == ground_truth)[0][0]
@@ -124,16 +124,17 @@ class TrialHistoryEvolution(TrialWrapper):
         the subset corresponding to the current number of choices
         '''
         if self.unwrapped.rng.rand() < self.death_prob:
+            # new contexts
             self.curr_contexts = self.contexts
+        # select context
         sel_cntxt = self.unwrapped.rng.choice(range(self.contexts.shape[0]))
+        # build transition matrix
         context = self.curr_contexts[sel_cntxt]
         tr_mat = np.eye(self.curr_n_ch)*self.probs
         tr_mat[tr_mat == 0] = (1-self.probs)/(self.curr_n_ch-1)
         tr_mat = tr_mat[context, :]
-        tr_mat = np.expand_dims(tr_mat, axis=0)
-        tr_mat = np.unique(tr_mat, axis=0)
-        self.curr_n_blocks = tr_mat.shape[0]
-        self.curr_block = self.unwrapped.rng.choice(range(self.curr_n_blocks))
+        self.curr_block = sel_cntxt
+        # get context id
         blk_id = np.zeros((self.n_ch))-1
         blk_id[np.array(self.curr_chs)] =\
             np.array(self.curr_chs)[np.array(context)]
