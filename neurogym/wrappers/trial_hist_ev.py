@@ -237,6 +237,7 @@ class VariableMapping(TrialWrapper):
                                                         replace=False)]
             self.sess_end = True
             self.sess_start = self.unwrapped.num_tr
+            self.mapp_start = self.unwrapped.num_tr
         # Choose ground truth and update previous trial info
         kwargs.update({'mapping': self.curr_mapping, 'stims': self.stims})
         return self.env.new_trial(**kwargs)
