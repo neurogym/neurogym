@@ -21,21 +21,21 @@ class ReactionTime(gym.Wrapper):  # TODO: Make this a trial wrapper instead?
         'paper_name': None,
     }
 
-    def __init__(self, env):
+    def __init__(self, env, urgency=0.0):
         super().__init__(env)
         self.env = env
-
-    def reset(self, step_fn=None):
-        if step_fn is None:
-            step_fn = self.step
-        return self.env.reset(step_fn=step_fn)
+        self.urgency = urgency
 
     def step(self, action):
         assert 'stimulus' in self.env.start_t.keys(),\
             'Reaction time wrapper requires a stimulus period'
         assert 'decision' in self.env.start_t.keys(),\
             'Reaction time wrapper requires a decision period'
-        if self.t_ind == 0:
+        if self.env.start_t['decision'] != self.env.start_t['stimulus']:
+            ground_truth = self.env.view_groundtruth(period='decision')
             self.env.start_t['decision'] = self.env.start_t['stimulus']
+            self.env.set_groundtruth(ground_truth, period='stimulus',
+                                     where='choice')
         obs, reward, done, info = self.env.step(action)
+        reward += self.urgency
         return obs, reward, done, info

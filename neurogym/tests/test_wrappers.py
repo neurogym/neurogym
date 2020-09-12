@@ -155,16 +155,21 @@ def test_passreward(env_name='PerceptualDecisionMaking-v0', num_steps=1000,
 
 
 def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=100,
-                      ths=[-.5, .5], verbose=False):
+                      urgency=-0.1, ths=[-.5, .5], verbose=True):
     """
     Test reaction-time wrapper.
-    TODO: explain wrapper
+    
+    The reaction-time wrapper allows converting a fix duration task into a reaction
+    time task. It also allows addding a fix (negative) quantity (urgency) to force
+    the network to respond quickly.
     Parameters
     ----------
     env_name : str, optional
         enviroment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
     num_steps : int, optional
         number of steps to run the environment (1000)
+    urgency : float, optional
+        float value added to the reward (-0.1)
     verbose : boolean, optional
         whether to print observation and reward (False)
     ths : list, optional
@@ -176,13 +181,14 @@ def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=100,
 
     """
     env = gym.make(env_name)
-    env = ReactionTime(env)
+    env = ReactionTime(env, urgency=urgency)
     env.reset()
     if verbose:
         observations = []
         obs_cum_mat = []
         actions = []
         new_trials = []
+        reward = []
     obs_cum = 0
     end_of_trial = False
     for stp in range(num_steps):
@@ -193,6 +199,8 @@ def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=100,
         else:
             action = 0
         end_of_trial = True if action != 0 else False
+        if end_of_trial:
+            print(action)
         obs, rew, done, info = env.step(action)
         if info['new_trial']:
             obs_cum = 0
@@ -205,19 +213,22 @@ def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=100,
             actions.append(action)
             obs_cum_mat.append(obs_cum)
             new_trials.append(info['new_trial'])
+            reward.append(rew)
     if verbose:
         observations = np.array(observations)
-        _, ax = plt.subplots(nrows=3, ncols=1, sharex=True)
+        _, ax = plt.subplots(nrows=4, ncols=1, sharex=True)
         ax = ax.flatten()
         ax[0].imshow(observations.T, aspect='auto')
         ax[1].plot(actions, label='Actions')
         ax[1].plot(new_trials, '--', label='New trial')
         ax[1].set_xlim([-.5, len(actions)-0.5])
         ax[1].legend()
-        ax[2].plot(obs_cum_mat)
-        ax[2].plot([0, len(obs_cum_mat)], [ths[1], ths[1]], '--')
-        ax[2].plot([0, len(obs_cum_mat)], [ths[0], ths[0]], '--')
+        ax[2].plot(obs_cum_mat, label='cum. observation')
+        ax[2].plot([0, len(obs_cum_mat)], [ths[1], ths[1]], '--', label='upper th')
+        ax[2].plot([0, len(obs_cum_mat)], [ths[0], ths[0]], '--', label='lower th')
         ax[2].set_xlim([-.5, len(actions)-0.5])
+        ax[3].plot(reward, label='reward')
+        ax[3].set_xlim([-.5, len(actions)-0.5])
 
 
 def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
@@ -760,11 +771,12 @@ if __name__ == '__main__':
                                              'stimulus': 200,
                                              'decision': 200}}
     # test_identity('Nothing-v0', num_steps=5)
+    test_reactiontime()
+    sys.exit()
     test_noise()
     sys.exit()
     test_variablemapping()
     sys.exit()
-    test_reactiontime()
     test_sidebias()
     test_passreward()
     test_passaction()
