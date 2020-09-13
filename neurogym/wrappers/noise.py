@@ -36,6 +36,11 @@ class Noise(gym.Wrapper):
             self.perf = []
             self.std_noise = 0
 
+    def reset(self, step_fn=None):
+        if step_fn is None:
+            step_fn = self.step
+        return self.env.reset(step_fn=step_fn)
+
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
         # adjust noise

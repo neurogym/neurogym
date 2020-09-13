@@ -158,7 +158,7 @@ def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=100,
                       urgency=-0.1, ths=[-.5, .5], verbose=True):
     """
     Test reaction-time wrapper.
-    
+
     The reaction-time wrapper allows converting a fix duration task into a reaction
     time task. It also allows addding a fix (negative) quantity (urgency) to force
     the network to respond quickly.
@@ -199,8 +199,6 @@ def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=100,
         else:
             action = 0
         end_of_trial = True if action != 0 else False
-        if end_of_trial:
-            print(action)
         obs, rew, done, info = env.step(action)
         if info['new_trial']:
             obs_cum = 0
