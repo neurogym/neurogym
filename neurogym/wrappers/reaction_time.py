@@ -33,14 +33,16 @@ class ReactionTime(gym.Wrapper):  # TODO: Make this a trial wrapper instead?
         return self.env.reset(step_fn=step_fn)
 
     def step(self, action):
-        assert 'stimulus' in self.env.start_t.keys(),\
+        dec = 'decision'
+        stim = 'stimulus'
+        assert stim in self.env.start_t.keys(),\
             'Reaction time wrapper requires a stimulus period'
-        assert 'decision' in self.env.start_t.keys(),\
+        assert dec in self.env.start_t.keys(),\
             'Reaction time wrapper requires a decision period'
-        if self.env.start_t['decision'] != self.env.start_t['stimulus']:
-            self.env.start_t['decision'] = self.env.start_t['stimulus']
-            self.env.gt[self.start_ind['stimulus']:self.env.end_ind['stimulus']] =\
-                self.env.gt[self.start_ind['decision']]
+        if self.t_ind == 0:
+            self.env.start_t[dec] = self.env.start_t[stim]+1
+            self.env.gt[self.start_ind[stim]+1:self.env.end_ind[stim]] =\
+                self.env.gt[self.start_ind[dec]]
         obs, reward, done, info = self.env.step(action)
         if info['new_trial']:
             info['tr_dur'] = self.tr_dur

@@ -32,7 +32,7 @@ class NAltPerceptualDecisionMaking(ngym.TrialEnv):
 
     def __init__(self, dt=100, rewards=None, timing=None, sigma=1.,
                  stim_scale=1., n_ch=3, ob_nch=False, zero_irrelevant_stim=False,
-                 ob_histblock=False):
+                 ob_histblock=False, cohs=[0, 6.4, 12.8, 25.6, 51.2]):
 
         super().__init__(dt=dt)
         self.n = n_ch
@@ -48,7 +48,7 @@ class NAltPerceptualDecisionMaking(ngym.TrialEnv):
                                                 must be True/False'
         n_ch_factor = 1.84665761*np.log(n_ch)-0.04102044
         # The strength of evidence, modulated by stim_scale.
-        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])*n_ch_factor*stim_scale
+        self.cohs = np.array(cohs)*n_ch_factor*stim_scale
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
         # Rewards
@@ -101,7 +101,9 @@ class NAltPerceptualDecisionMaking(ngym.TrialEnv):
             'coh': self.rng.choice(self.cohs),
         }
         trial.update(kwargs)
-        self.add_period(['fixation', 'stimulus', 'decision'])
+        fixation = None if 'fixation' not in kwargs.keys() else kwargs['fixation']
+        self.add_period(period='fixation', duration=fixation)
+        self.add_period(['stimulus', 'decision'], after='fixation')
 
         self.add_ob(1, 'fixation', where='fixation')
         stim = np.ones(self.n) * (1 - trial['coh']/100)/2
@@ -303,7 +305,8 @@ class NAltConditionalVisuomotor(ngym.TrialEnv):
                     self.performance = 1
                 else:
                     reward = self.rewards['fail']
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return obs, reward, False, {'new_trial': new_trial, 'gt': gt,
+                                    'coh': self.trial['coh']}
 
 
 if __name__ == '__main__':
@@ -311,4 +314,3 @@ if __name__ == '__main__':
     env = NAltConditionalVisuomotor(n_stim=2)
     env.reset()
     plotting.plot_env(env, def_act=1)
-    

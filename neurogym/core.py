@@ -173,9 +173,9 @@ class TrialEnv(BaseEnv):
         # TODO: new_trial happens after step, so trial indx precedes obs change
         if info['new_trial']:
             info['performance'] = self.performance
-            self.performance = 0
             self.t = self.t_ind = 0  # Reset within trial time count
             trial = self._top.new_trial()
+            self.performance = 0
             info['trial'] = trial
         return ob, reward, done, info
 

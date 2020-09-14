@@ -21,6 +21,7 @@ from neurogym.wrappers import Combine
 from neurogym.wrappers import Variable_nch
 from neurogym.wrappers import TrialHistoryEvolution
 from neurogym.wrappers import VariableMapping
+from neurogym.wrappers import TimeOut
 
 
 def test_sidebias(env_name='NAltPerceptualDecisionMaking-v0', num_steps=100000,
@@ -401,6 +402,33 @@ def test_noise(env='PerceptualDecisionMaking-v0', margin=0.01, perf_th=0.7,
         str(actual_perf)+', expected: '+str(perf_th)
 
 
+def test_timeout(env='NAltPerceptualDecisionMaking-v0', time_out=500,
+                 num_steps=100, verbose=True):
+    env_args = {'n_ch': 2,
+                'timing': {'fixation': 100, 'stimulus': 200, 'decision': 200}}
+    env = gym.make(env, **env_args)
+    env = TimeOut(env, time_out=time_out)
+    env.reset()
+    reward = []
+    observations = []
+    for stp in range(num_steps):
+        action = env.action_space.sample()
+        obs, rew, done, info = env.step(action)
+        if verbose:
+            reward.append(rew)
+            observations.append(obs)
+        if done:
+            env.reset()
+    if verbose:
+        observations = np.array(observations)
+        _, ax = plt.subplots(nrows=2, ncols=1, sharex=True)
+        ax = ax.flatten()
+        ax[0].imshow(observations.T, aspect='auto')
+        ax[1].plot(reward, '--', label='reward')
+        ax[1].set_xlim([-.5, len(reward)-0.5])
+        ax[1].legend()
+
+
 def test_catchtrials(env_name, num_steps=10000, verbose=False, catch_prob=0.1,
                      alt_rew=0):
     env = gym.make(env_name)
@@ -769,8 +797,9 @@ if __name__ == '__main__':
                                              'stimulus': 200,
                                              'decision': 200}}
     # test_identity('Nothing-v0', num_steps=5)
-    test_reactiontime()
+    test_timeout()
     sys.exit()
+    test_reactiontime()
     test_noise()
     sys.exit()
     test_variablemapping()

@@ -17,6 +17,7 @@ from neurogym.wrappers.block import ScheduleEnvs
 from neurogym.wrappers.block import TrialHistoryV2
 from neurogym.wrappers.trial_hist_ev import TrialHistoryEvolution
 from neurogym.wrappers.trial_hist_ev import VariableMapping
+from neurogym.wrappers.time_out import TimeOut
 
 
 ALL_WRAPPERS = {'CatchTrials-v0': 'neurogym.wrappers.catch_trials:CatchTrials',
@@ -45,7 +46,9 @@ ALL_WRAPPERS = {'CatchTrials-v0': 'neurogym.wrappers.catch_trials:CatchTrials',
                 'Variable_nch-v0':
                     'neurogym.wrappers.variable_nch:Variable_nch',
                 'Concat-v0':
-                    'neurogym.wrappers.concat:Concat'
+                    'neurogym.wrappers.concat:Concat',
+                'TimeOut-v0':
+                    'neurogym.wrappers.time_out:TimeOut'
                 }
 
 
