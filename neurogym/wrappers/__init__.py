@@ -10,14 +10,10 @@ from neurogym.wrappers.ttl_pulse import TTLPulse
 from neurogym.wrappers.combine import Combine
 from neurogym.wrappers.identity import Identity
 from neurogym.wrappers.transfer_learning import TransferLearning
-from neurogym.wrappers.variable_nch import Variable_nch
 from neurogym.wrappers.block import RandomGroundTruth
 from neurogym.wrappers.block import ScheduleAttr
 from neurogym.wrappers.block import ScheduleEnvs
 from neurogym.wrappers.block import TrialHistoryV2
-from neurogym.wrappers.trial_hist_ev import TrialHistoryEvolution
-from neurogym.wrappers.trial_hist_ev import VariableMapping
-from neurogym.wrappers.time_out import TimeOut
 
 
 ALL_WRAPPERS = {'CatchTrials-v0': 'neurogym.wrappers.catch_trials:CatchTrials',
@@ -29,10 +25,6 @@ ALL_WRAPPERS = {'CatchTrials-v0': 'neurogym.wrappers.catch_trials:CatchTrials',
                     'neurogym.wrappers.reaction_time:ReactionTime',
                 'SideBias-v0': 'neurogym.wrappers.side_bias:SideBias',
                 'TrialHistory-v0': 'neurogym.wrappers.trial_hist:TrialHistory',
-                'TrialHistoryEv-v0':
-                    'neurogym.wrappers.trial_hist_ev:TrialHistoryEvolution',
-                'VariableMapping-v0':
-                    'neurogym.wrappers.trial_hist_ev:VariableMapping',
                 'MissTrialReward-v0':
                     'neurogym.wrappers.miss_trials_reward:MissTrialReward',
                 'TTLPulse-v0':
@@ -43,12 +35,8 @@ ALL_WRAPPERS = {'CatchTrials-v0': 'neurogym.wrappers.catch_trials:CatchTrials',
                     'neurogym.wrappers.identity:Identity',
                 'TransferLearning-v0':
                     'neurogym.wrappers.transfer_learning:TransferLearning',
-                'Variable_nch-v0':
-                    'neurogym.wrappers.variable_nch:Variable_nch',
                 'Concat-v0':
                     'neurogym.wrappers.concat:Concat',
-                'TimeOut-v0':
-                    'neurogym.wrappers.time_out:TimeOut'
                 }
 
 

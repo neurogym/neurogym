@@ -74,8 +74,6 @@ NATIVE_ALLOW_LIST = [
     'IntervalDiscrimination',
     'MotorTiming',
     'MultiSensoryIntegration',
-    'NAltPerceptualDecisionMaking',
-    'NAltConditionalVisuomotor',
     'Nothing',
     'OneTwoThreeGo',
     'PerceptualDecisionMaking',
