@@ -155,7 +155,7 @@ def test_passreward(env_name='PerceptualDecisionMaking-v0', num_steps=1000,
             env.reset()
 
 
-def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=100,
+def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=10000,
                       urgency=-0.1, ths=[-.5, .5], verbose=True):
     """
     Test reaction-time wrapper.
@@ -181,7 +181,8 @@ def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=100,
     None.
 
     """
-    env = gym.make(env_name)
+    env_args = {'timing': {'fixation': 100, 'stimulus': 2000, 'decision': 200}}
+    env = gym.make(env_name, **env_args)
     env = ReactionTime(env, urgency=urgency)
     env.reset()
     if verbose:
@@ -202,9 +203,11 @@ def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=100,
         end_of_trial = True if action != 0 else False
         obs, rew, done, info = env.step(action)
         if info['new_trial']:
+            step = 0
             obs_cum = 0
             end_of_trial = False
         else:
+            step += 1
             assert not end_of_trial, 'Trial still on after making a decision'
             obs_cum += obs[1] - obs[2]
         if verbose:
@@ -797,9 +800,9 @@ if __name__ == '__main__':
                                              'stimulus': 200,
                                              'decision': 200}}
     # test_identity('Nothing-v0', num_steps=5)
-    test_timeout()
-    sys.exit()
     test_reactiontime()
+    sys.exit()
+    test_timeout()
     test_noise()
     sys.exit()
     test_variablemapping()
