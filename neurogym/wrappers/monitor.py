@@ -39,9 +39,7 @@ class Monitor(Wrapper):
         self.env = env
         self.num_tr = 0
         # data to save
-        self.data = {'choice': [], 'stimulus': [], 'reward': []}
-        self.cum_obs = 0
-        self.cum_rew = 0
+        self.data = {'action': [], 'reward': []}
         self.sv_per = sv_per
         self.sv_stp = sv_stp
         self.fig_type = fig_type
@@ -75,19 +73,14 @@ class Monitor(Wrapper):
 
     def step(self, action):
         obs, rew, done, info = self.env.step(action)
-        self.cum_obs += obs
-        self.cum_rew += rew
         if self.sv_fig:
             self.store_data(obs, action, rew, info)
         if self.sv_stp == 'timestep':
             self.t += 1
         if info['new_trial']:
             self.num_tr += 1
-            self.data['choice'].append(action)
-            self.data['stimulus'].append(self.cum_obs)
-            self.cum_obs = 0
-            self.data['reward'].append(self.cum_rew)
-            self.cum_rew = 0
+            self.data['action'].append(action)
+            self.data['reward'].append(rew)
             for key in info:
                 if key not in self.data.keys():
                     self.data[key] = [info[key]]
