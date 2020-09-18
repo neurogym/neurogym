@@ -14,6 +14,7 @@ class ReactionTime(gym.Wrapper):  # TODO: Make this a trial wrapper instead?
     Modifies a given environment by allowing the network to act at
     any time after the fixation period.
     """
+
     metadata = {
         'description': 'Modifies a given environment by allowing the network' +
         ' to act at any time after the fixation period.',
