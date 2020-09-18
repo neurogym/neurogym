@@ -36,46 +36,11 @@ class Noise(gym.Wrapper):
         self.std_noise = std_noise
 
     def reset(self, step_fn=None):
-        """
-        Reset environment.
-
-        Parameters
-        ----------
-        step_fn : fn, optional
-            step function of the parent wrapper. If None, it is the step fn
-            of the current wrapper (None)
-
-        Returns
-        -------
-        TYPE
-            output of the reset function of the child wrapper/task.
-
-        """
         if step_fn is None:
             step_fn = self.step
         return self.env.reset(step_fn=step_fn)
 
     def step(self, action):
-        """
-        Step function.
-
-        Parameters
-        ----------
-        action : TYPE
-            DESCRIPTION.
-
-        Returns
-        -------
-        obs : ngym.observation_space
-            observation.
-        reward : float
-            reward.
-        done : bool
-            whether the experiment is done.
-        info : dict
-            dictionary with environment information.
-
-        """
         obs, reward, done, info = self.env.step(action)
         # add noise
         obs += self.env.rng.normal(loc=0, scale=self.std_noise,
