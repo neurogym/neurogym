@@ -12,13 +12,12 @@ from neurogym import spaces
 class PostDecisionWager(ngym.TrialEnv):
     r"""Post-decision wagering task assessing confidence.
 
-    Agents do a discrimination task (see PerceptualDecisionMaking). On a
-    random half of the trials, the agent is given the option to abort
-    the direction discrimination and to choose instead a small but
-    certain reward associated with a action.
-
-    Args:
-        dim_ring: int, dimension of ring input and output
+    The agent first performs a perceptual discrimination task (see for more
+    details the PerceptualDecisionMaking task). On a random half of the
+    trials, the agent is given the option to abort the sensory
+    discrimination and to choose instead a sure-bet option that guarantees a
+    small reward. Therefore, the agent is encouraged to choose the sure-bet
+    option when it is uncertain about its perceptual decision.
     """
     metadata = {
         'paper_link': 'https://science.sciencemag.org/content/324/5928/' +

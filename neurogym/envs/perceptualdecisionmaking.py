@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Random dot motion task."""
 
 import numpy as np
 
@@ -12,8 +11,14 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
     """Two-alternative forced choice task in which the subject has to
     integrate two stimuli to decide which one is higher on average.
 
+    A noisy stimulus is shown during the stimulus period. The strength (
+    coherence) of the stimulus is randomly sampled every trial. Because the
+    stimulus is noisy, the agent is encouraged to integrate the stimulus
+    over time.
+
     Args:
-        stim_scale: Controls the difficulty of the experiment. (def: 1., float)
+        cohs: list of float, coherence levels controlling the difficulty of
+        the task
         sigma: float, input noise level
         dim_ring: int, dimension of ring input and output
     """
@@ -24,11 +29,13 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
         'tags': ['perceptual', 'two-alternative', 'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
+    def __init__(self, dt=100, rewards=None, timing=None, cohs=None,
                  sigma=1.0, dim_ring=2):
         super().__init__(dt=dt)
-        # The strength of evidence, modulated by stim_scale
-        self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stim_scale
+        if cohs is None:
+            self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])
+        else:
+            self.cohs = cohs
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
         # Rewards

@@ -7,8 +7,15 @@ from neurogym import spaces
 
 
 class ProbabilisticReasoning(ngym.TrialEnv):
-    """The subject makes two-alternative forced choice based on sequentially
-    presented stimuli.
+    """Probabilistic reasoning.
+
+    The agent is shown a sequence of stimuli. Each stimulus is associated
+    with a certain log-likelihood of the correct response being one choice
+    versus the other. The final log-likelihood of the target response being,
+    for example, option 1, is the sum of all log-likelihood associated with
+    the presented stimuli. A delay period separates each stimulus, so the
+    agent is encouraged to lean the log-likelihood association and integrate
+    these values over time within a trial.
 
     Args:
         shape_weight: array-like, evidence weight of each shape

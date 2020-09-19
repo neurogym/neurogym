@@ -10,7 +10,11 @@ from neurogym import spaces
 class IntervalDiscrimination(ngym.TrialEnv):
     r"""Comparing the time length of two stimuli.
 
-    Two
+    Two stimuli are shown sequentially, separated by a delay period. The
+    duration of each stimulus is randomly sampled on each trial. The
+    subject needs to judge which stimulus has a longer duration, and reports
+    its decision during the decision period by choosing one of the two
+    choice options.
     """
     metadata = {
         'paper_link': 'https://www.sciencedirect.com/science/article/pii/' +

@@ -11,6 +11,13 @@ from neurogym import spaces
 class ReadySetGo(ngym.TrialEnv):
     r"""Agents have to measure and produce different time intervals.
 
+    A stimulus is briefly shown during a ready period, then again during a
+    set period. The ready and set periods are separated by a measure period,
+    the duration of which is randomly sampled on each trial. The agent is
+    required to produce a response after the set cue such that the interval
+    between the response and the set cue is as close as possible to the
+    duration of the measure period.
+
     Args:
         gain: Controls the measure that the agent has to produce. (def: 1, int)
         prod_margin: controls the interval around the ground truth production
@@ -82,9 +89,6 @@ class ReadySetGo(ngym.TrialEnv):
         return trial
 
     def _step(self, action):
-        # ---------------------------------------------------------------------
-        # Reward and inputs
-        # ---------------------------------------------------------------------
         trial = self.trial
         reward = 0
         ob = self.ob_now
