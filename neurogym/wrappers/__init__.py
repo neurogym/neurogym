@@ -20,22 +20,17 @@ ALL_WRAPPERS = {
     'Noise-v0': 'neurogym.wrappers.noise:Noise',
     'PassReward-v0': 'neurogym.wrappers.pass_reward:PassReward',
     'PassAction-v0': 'neurogym.wrappers.pass_action:PassAction',
-    'ReactionTime-v0':
-        'neurogym.wrappers.reaction_time:ReactionTime',
+    'ReactionTime-v0': 'neurogym.wrappers.reaction_time:ReactionTime',
     'SideBias-v0': 'neurogym.wrappers.side_bias:SideBias',
     'TrialHistory-v0': 'neurogym.wrappers.trial_hist:TrialHistory',
     'MissTrialReward-v0':
         'neurogym.wrappers.miss_trials_reward:MissTrialReward',
-    'TTLPulse-v0':
-        'neurogym.wrappers.ttl_pulse:TTLPulse',
-    'Combine-v0':
-        'neurogym.wrappers.combine:Combine',
-    'Identity-v0':
-        'neurogym.wrappers.identity:Identity',
+    'TTLPulse-v0': 'neurogym.wrappers.ttl_pulse:TTLPulse',
+    'Combine-v0': 'neurogym.wrappers.combine:Combine',
+    'Identity-v0': 'neurogym.wrappers.identity:Identity',
     'TransferLearning-v0':
         'neurogym.wrappers.transfer_learning:TransferLearning',
-    'Concat-v0':
-        'neurogym.wrappers.concat:Concat',
+    'Concat-v0': 'neurogym.wrappers.concat:Concat',
 }
 
 
