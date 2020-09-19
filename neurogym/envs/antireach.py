@@ -9,8 +9,14 @@ from neurogym import spaces
 class AntiReach(ngym.TrialEnv):
     """Anti-response task.
 
-    The agent has to move in the direction opposite to the one indicated
-    by the observation.
+    During the fixation period, the agent fixates on a fixation point.
+    During the following stimulus period, the agent is then shown a stimulus away
+    from the fixation point. Finally, the agent needs to respond in the
+    opposite direction of the stimulus during the decision period.
+
+    Args:
+        anti: bool, if True, requires an anti-response. If False, requires a
+            pro-response, i.e. response towards the stimulus.
     """
     metadata = {
         'paper_link': 'https://www.nature.com/articles/nrn1345',

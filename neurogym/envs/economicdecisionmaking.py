@@ -8,8 +8,11 @@ from neurogym import spaces
 
 
 class EconomicDecisionMaking(ngym.TrialEnv):
-    r"""Agents choose between two stimuli (A and B; where A is preferred)
-    offered in different amounts.
+    r"""Economic decision making task.
+
+    A agent chooses between two options. Each option offers a certain amount of
+    juice. Its amount is indicated by the stimulus. The two options offer
+    different types of juice, and the agent prefers one over another.
     """
     metadata = {
         'paper_link': 'https://www.nature.com/articles/nature04676',

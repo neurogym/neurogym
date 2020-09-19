@@ -17,7 +17,7 @@ class Bandit(ngym.TrialEnv):
     option produces a reward of a certain magnitude given a certain probability.
 
     Args:
-        n_: int, the number of choices (arms)
+        n: int, the number of choices (arms)
         p: tuple of length n, describes the probability of each arm
             leading to reward
         rewards: tuple of length n, describe the reward magnitude of each option when rewarded

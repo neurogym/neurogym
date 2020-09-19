@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from __future__ import division
 
 import numpy as np
 
@@ -9,10 +8,15 @@ from neurogym import spaces
 
 
 class DelayMatchCategory(ngym.TrialEnv):
-    r"""Delay match-to-category task.
+    r"""Delayed match-to-category task.
 
-    A sample stimulus is followed by a delay and test. Agents are required
-    to indicate if the sample and test are in the same category.
+    A sample stimulus is shown during the sample period. The stimulus is
+    characterized by a one-dimensional variable, such as its orientation
+    between 0 and 360 degree. This one-dimensional variable is separated
+    into two categories (for example, 0-180 degree and 180-360 degree).
+    After a delay period, a test stimulus is shown. The agent needs to
+    determine whether the sample and the test stimuli belong to the same
+    category, and report that decision during the decision period.
     """
     metadata = {
         'paper_link': 'https://www.nature.com/articles/nature05078',
@@ -78,7 +82,6 @@ class DelayMatchCategory(ngym.TrialEnv):
         # Periods
         periods = ['fixation', 'sample', 'first_delay', 'test']
         self.add_period(periods)
-        # self.add_period('decision', after='test')
 
         self.add_ob(1, where='fixation')
         self.set_ob(0, 'test', where='fixation')
@@ -93,7 +96,7 @@ class DelayMatchCategory(ngym.TrialEnv):
     def _step(self, action, **kwargs):
         new_trial = False
 
-        obs = self.ob_now
+        ob = self.ob_now
         gt = self.gt_now
 
         reward = 0
@@ -110,4 +113,4 @@ class DelayMatchCategory(ngym.TrialEnv):
                 else:
                     reward = self.rewards['fail']
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return ob, reward, False, {'new_trial': new_trial, 'gt': gt}

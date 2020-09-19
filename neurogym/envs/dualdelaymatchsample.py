@@ -7,8 +7,13 @@ from neurogym import spaces
 class DualDelayMatchSample(ngym.TrialEnv):
     r"""Two-item Delay-match-to-sample.
 
-    Two sample stimuli are shown simultaneously. Sample 1 and 2 are tested
-    sequentially. Whether sample 1 or 2 is tested first is indicated by a cue.
+    The trial starts with a fixation period. Then during the sample period,
+    two sample stimuli are shown simultaneously. Followed by the first delay
+    period, a cue is shown, indicating which sample stimulus will be tested.
+    Then the first test stimulus is shown and the agent needs to report whether
+    this test stimulus matches the cued sample stimulus. Then another delay
+    and then test period follows, and the agent needs to report whether the
+    other sample stimulus matches the second test stimulus.
     """
     metadata = {
         'paper_link': 'https://science.sciencemag.org/content/354/6316/1136',
@@ -110,7 +115,7 @@ class DualDelayMatchSample(ngym.TrialEnv):
         new_trial = False
         reward = 0
 
-        obs = self.ob_now
+        ob = self.ob_now
         gt = self.gt_now
 
         if self.in_period('test1'):
@@ -133,4 +138,4 @@ class DualDelayMatchSample(ngym.TrialEnv):
                 new_trial = self.abort
                 reward = self.rewards['abort']
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return ob, reward, False, {'new_trial': new_trial, 'gt': gt}

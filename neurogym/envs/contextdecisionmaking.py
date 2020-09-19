@@ -9,8 +9,17 @@ from neurogym import spaces
 class SingleContextDecisionMaking(ngym.TrialEnv):
     """Context-dependent decision-making task.
 
-    Agent has to perform one of two different perceptual discriminations.
-    On every trial, a contextual cue indicates which one to perform.
+    The agent simultaneously receives stimulus inputs from two modalities (
+    for example, a colored random dot motion pattern with color and motion
+    modalities). The agent needs to make a perceptual decision based on only
+    one of the two modalities, while ignoring the other. The agent reports
+    its decision during the decision period, with an optional delay period
+    in between the stimulus period and the decision period. The relevant
+    modality is not explicitly signaled.
+
+    Args:
+        context: int, 0 or 1 for the two context (rules). If 0, need to
+            focus on modality 0 (the first one)
     """
     metadata = {
         'paper_link': 'https://www.nature.com/articles/nature12742',
@@ -99,7 +108,7 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
         return trial
 
     def _step(self, action):
-        obs = self.ob_now
+        ob = self.ob_now
         gt = self.gt_now
 
         new_trial = False
@@ -115,16 +124,18 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
                     reward = self.rewards['correct']
                     self.performance = 1
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return ob, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
 class ContextDecisionMaking(ngym.TrialEnv):
     """Context-dependent decision-making task.
 
-    Agent has to perform one of two different perceptual discriminations.
-    On every trial, a contextual cue indicates which one to perform.
+    The agent simultaneously receives stimulus inputs from two modalities (
+    for example, a colored random dot motion pattern with color and motion
+    modalities). The agent needs to make a perceptual decision based on
+    only one of the two modalities, while ignoring the other. The relevant
+    modality is explicitly indicated by a rule signal.
     """
-    # TODO: Have this task replaced by the above task
     metadata = {
         'paper_link': 'https://www.nature.com/articles/nature12742',
         'paper_name': '''Context-dependent computation by recurrent
@@ -213,7 +224,7 @@ class ContextDecisionMaking(ngym.TrialEnv):
         return trial
 
     def _step(self, action):
-        obs = self.ob_now
+        ob = self.ob_now
         gt = self.gt_now
 
         new_trial = False
@@ -229,5 +240,4 @@ class ContextDecisionMaking(ngym.TrialEnv):
                     reward = self.rewards['correct']
                     self.performance = 1
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
-
+        return ob, reward, False, {'new_trial': new_trial, 'gt': gt}
