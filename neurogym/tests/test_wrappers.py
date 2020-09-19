@@ -21,14 +21,18 @@ from neurogym.wrappers import Combine
 from neurogym.wrappers import Variable_nch
 from neurogym.wrappers import TrialHistoryEvolution
 from neurogym.wrappers import VariableMapping
+from neurogym.wrappers import TimeOut
 
 
 def test_sidebias(env_name='NAltPerceptualDecisionMaking-v0', num_steps=100000,
-                  verbose=False, num_ch=3, eps=0.01, probs=[(.005, .005, .99),
-                                                            (.005, .99, .005),
-                                                            (.99, .005, .005)]):
+                  verbose=False, num_ch=3, margin=0.01, blk_dur=10,
+                  probs=[(.005, .005, .99), (.005, .99, .005), (.99, .005, .005)]):
     """
     Test side_bias wrapper.
+
+    The side-bias wrapper allows specifying the probabilities for each of the
+    existing choices to be correct. These probabilities can varied in blocks of
+    duration blk_dur.
 
     Parameters
     ----------
@@ -40,7 +44,9 @@ def test_sidebias(env_name='NAltPerceptualDecisionMaking-v0', num_steps=100000,
         whether to print ground truth and block (False)
     num_ch : int, optional
         number of choices (3)
-    eps : float, optional
+    blk_dur : int, optional
+        duration (in trials) of the blocks (10)
+    margin : float, optional
         margin allow when comparing provided and obtained ground truth
         probabilities (0.01)
     probs : list, optional
@@ -56,7 +62,7 @@ def test_sidebias(env_name='NAltPerceptualDecisionMaking-v0', num_steps=100000,
     """
     env_args['n_ch'] = num_ch
     env = gym.make(env_name, **env_args)
-    env = SideBias(env, probs=probs, block_dur=10)
+    env = SideBias(env, probs=probs, block_dur=blk_dur)
     env.reset()
     probs_mat = np.zeros((len(probs), num_ch))
     block = env.curr_block
@@ -73,8 +79,8 @@ def test_sidebias(env_name='NAltPerceptualDecisionMaking-v0', num_steps=100000,
         if done:
             env.reset()
     probs_mat = probs_mat/np.sum(probs_mat, axis=1)
-    assert np.mean(np.abs(probs-probs_mat)) < eps, 'Probs provided '+str(probs) +\
-        ' probs. obtained '+str(probs_mat)
+    assert np.mean(np.abs(probs-probs_mat)) < margin, 'Probs provided ' +\
+        str(probs)+' probs. obtained '+str(probs_mat)
     print('-----')
     print('Side bias wrapper OK')
 
@@ -84,6 +90,7 @@ def test_passaction(env_name='PerceptualDecisionMaking-v0', num_steps=1000,
     """
     Test pass-action wrapper.
 
+    TODO: explain wrapper
     Parameters
     ----------
     env_name : str, optional
@@ -118,7 +125,7 @@ def test_passreward(env_name='PerceptualDecisionMaking-v0', num_steps=1000,
                     verbose=False):
     """
     Test pass-reward wrapper.
-
+    TODO: explain wrapper
     Parameters
     ----------
     env_name : str, optional
@@ -148,17 +155,22 @@ def test_passreward(env_name='PerceptualDecisionMaking-v0', num_steps=1000,
             env.reset()
 
 
-def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=100,
-                      ths=[-.5, .5], verbose=False):
+def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=10000,
+                      urgency=-0.1, ths=[-.5, .5], verbose=True):
     """
     Test reaction-time wrapper.
 
+    The reaction-time wrapper allows converting a fix duration task into a reaction
+    time task. It also allows addding a fix (negative) quantity (urgency) to force
+    the network to respond quickly.
     Parameters
     ----------
     env_name : str, optional
         enviroment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
     num_steps : int, optional
         number of steps to run the environment (1000)
+    urgency : float, optional
+        float value added to the reward (-0.1)
     verbose : boolean, optional
         whether to print observation and reward (False)
     ths : list, optional
@@ -169,14 +181,16 @@ def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=100,
     None.
 
     """
-    env = gym.make(env_name)
-    env = ReactionTime(env)
+    env_args = {'timing': {'fixation': 100, 'stimulus': 2000, 'decision': 200}}
+    env = gym.make(env_name, **env_args)
+    env = ReactionTime(env, urgency=urgency)
     env.reset()
     if verbose:
         observations = []
         obs_cum_mat = []
         actions = []
         new_trials = []
+        reward = []
     obs_cum = 0
     end_of_trial = False
     for stp in range(num_steps):
@@ -189,9 +203,11 @@ def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=100,
         end_of_trial = True if action != 0 else False
         obs, rew, done, info = env.step(action)
         if info['new_trial']:
+            step = 0
             obs_cum = 0
             end_of_trial = False
         else:
+            step += 1
             assert not end_of_trial, 'Trial still on after making a decision'
             obs_cum += obs[1] - obs[2]
         if verbose:
@@ -199,28 +215,31 @@ def test_reactiontime(env_name='PerceptualDecisionMaking-v0', num_steps=100,
             actions.append(action)
             obs_cum_mat.append(obs_cum)
             new_trials.append(info['new_trial'])
+            reward.append(rew)
     if verbose:
         observations = np.array(observations)
-        _, ax = plt.subplots(nrows=3, ncols=1, sharex=True)
+        _, ax = plt.subplots(nrows=4, ncols=1, sharex=True)
         ax = ax.flatten()
         ax[0].imshow(observations.T, aspect='auto')
         ax[1].plot(actions, label='Actions')
         ax[1].plot(new_trials, '--', label='New trial')
         ax[1].set_xlim([-.5, len(actions)-0.5])
         ax[1].legend()
-        ax[2].plot(obs_cum_mat)
-        ax[2].plot([0, len(obs_cum_mat)], [ths[1], ths[1]], '--')
-        ax[2].plot([0, len(obs_cum_mat)], [ths[0], ths[0]], '--')
+        ax[2].plot(obs_cum_mat, label='cum. observation')
+        ax[2].plot([0, len(obs_cum_mat)], [ths[1], ths[1]], '--', label='upper th')
+        ax[2].plot([0, len(obs_cum_mat)], [ths[0], ths[0]], '--', label='lower th')
         ax[2].set_xlim([-.5, len(actions)-0.5])
+        ax[3].plot(reward, label='reward')
+        ax[3].set_xlim([-.5, len(actions)-0.5])
 
 
 def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
-                         mapp_ch_prob=0.2, min_mapp_dur=3, def_act=1,
-                         num_steps=2000, n_stims=4, margin=2,
-                         sess_end_prob=0.1):
+                         mapp_ch_prob=0.05, min_mapp_dur=10, def_act=1,
+                         num_steps=2000, n_stims=4, n_ch=4, margin=2,
+                         sess_end_prob=0.01, min_sess_dur=20):
     """
     Test variable-mapping wrapper.
-
+    TODO: explain wrapper
     Parameters
     ----------
     env_name : str, optional
@@ -235,10 +254,14 @@ def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
          minimum number of trials for a mapping block (3)
     sess_end_prob: float, optional,
         probability of session to finish (0.0025)
+    min_sess_dur: int, optional
+        minimum number of trials for session (5)
     def_act : int, optional
         default action for the agent, if None an action will be randomly chosen (1)
     n_stims : int, optional
         number of stims (10)
+    n_ch : int, optional
+        number of channels (4)
     margin : float, optional
         margin allowed when comparing actual and expected mean block durations (2)
 
@@ -247,14 +270,15 @@ def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
     None.
 
     """
-    env_args = {'n_stims': n_stims, 'timing': {'fixation': 100,
-                                               'stimulus': 200,
-                                               'delay': 200,
-                                               'decision': 200}}
+    env_args = {'n_stims': n_stims, 'n_ch': n_ch, 'timing': {'fixation': 100,
+                                                             'stimulus': 200,
+                                                             'delay': 200,
+                                                             'decision': 200}}
 
     env = gym.make(env, **env_args)
     env = VariableMapping(env, mapp_ch_prob=mapp_ch_prob,
-                          min_mapp_dur=min_mapp_dur, sess_end_prob=sess_end_prob)
+                          min_mapp_dur=min_mapp_dur, sess_end_prob=sess_end_prob,
+                          min_sess_dur=min_sess_dur)
     env.reset()
     if verbose:
         observations = []
@@ -308,8 +332,10 @@ def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
             ax[2].plot([end_of_trial[ch], end_of_trial[ch]], [0, 1], '--m')
         ax[2].set_xlim([-.5, len(actions)-0.5])
     sess_durs = np.diff(sess_ch)
+    assert (sess_durs > min_sess_dur).all()
     mean_sess_dur = np.mean(sess_durs)
-    assert np.abs(mean_sess_dur-1/sess_end_prob) < margin,\
+    exp_sess_durs = min_sess_dur+1/sess_end_prob
+    assert np.abs(mean_sess_dur-exp_sess_durs) < margin,\
         'Mean sess. dur.: '+str(mean_sess_dur)+', expected: '+str(1/sess_end_prob)
     mapp_blck_durs = np.diff(mapp_ch)
     assert (mapp_blck_durs > min_mapp_dur).all()
@@ -320,18 +346,41 @@ def test_variablemapping(env='NAltConditionalVisuomotor-v0', verbose=True,
     sys.exit()
 
 
-def test_noise(env_name, random_bhvr=0., wrapper=None, perf_th=None,
-               num_steps=10000, verbose=False, **envArgs):
-    env = gym.make(env_name, **envArgs)
+def test_noise(env='PerceptualDecisionMaking-v0', margin=0.01, perf_th=0.7,
+               num_steps=100000, verbose=True):
+    """
+    Test noise wrapper.
+
+    The noise wrapper allows adding noise to the full observation received by the
+    network. It also offers the option of fixxing a specific target performance
+    that the wrapper will assure by modulating the magnitude of the noise added.
+    Parameters
+    ----------
+    env_name : str, optional
+        enviroment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
+    num_steps : int, optional
+        number of steps to run the environment (1000)
+    verbose : boolean, optional
+        whether to print observation and reward (False)
+    margin : float, optional
+        margin allowed when comparing actual and expected performances (0.01)
+    perf_th : float, optional
+        target performance for the noise wrapper (0.7)
+
+    Returns
+    -------
+    None.
+
+    """
+    env_args = {'timing': {'fixation': 100, 'stimulus': 200, 'decision': 200}}
+    env = gym.make(env, **env_args)
     env = Noise(env, perf_th=perf_th)
-    if wrapper is not None:
-        env = wrapper(env)
     env.reset()
     perf = []
     std_mat = []
     std_noise = 0
     for stp in range(num_steps):
-        if np.random.rand() < random_bhvr + std_noise:
+        if np.random.rand() < std_noise:
             action = env.action_space.sample()
         else:
             action = env.gt_now
@@ -342,17 +391,45 @@ def test_noise(env_name, random_bhvr=0., wrapper=None, perf_th=None,
             if info['new_trial']:
                 perf.append(info['performance'])
                 std_mat.append(std_noise)
-                print(obs)
-                print('--------')
         if done:
             env.reset()
+    actual_perf = np.mean(perf[-5000:])
     if verbose:
         plt.figure()
         plt.subplot(2, 1, 1)
         plt.plot([0, len(perf)], [perf_th, perf_th], '--')
-        plt.plot(np.convolve(perf, np.ones((100,))/100))
+        plt.plot(np.convolve(perf, np.ones((100,))/100, mode='valid'))
         plt.subplot(2, 1, 2)
         plt.plot(std_mat)
+    assert np.abs(actual_perf-perf_th) < margin, 'Actual performance: ' +\
+        str(actual_perf)+', expected: '+str(perf_th)
+
+
+def test_timeout(env='NAltPerceptualDecisionMaking-v0', time_out=500,
+                 num_steps=100, verbose=True):
+    env_args = {'n_ch': 2,
+                'timing': {'fixation': 100, 'stimulus': 200, 'decision': 200}}
+    env = gym.make(env, **env_args)
+    env = TimeOut(env, time_out=time_out)
+    env.reset()
+    reward = []
+    observations = []
+    for stp in range(num_steps):
+        action = env.action_space.sample()
+        obs, rew, done, info = env.step(action)
+        if verbose:
+            reward.append(rew)
+            observations.append(obs)
+        if done:
+            env.reset()
+    if verbose:
+        observations = np.array(observations)
+        _, ax = plt.subplots(nrows=2, ncols=1, sharex=True)
+        ax = ax.flatten()
+        ax[0].imshow(observations.T, aspect='auto')
+        ax[1].plot(reward, '--', label='reward')
+        ax[1].set_xlim([-.5, len(reward)-0.5])
+        ax[1].legend()
 
 
 def test_catchtrials(env_name, num_steps=10000, verbose=False, catch_prob=0.1,
@@ -374,7 +451,7 @@ def test_catchtrials(env_name, num_steps=10000, verbose=False, catch_prob=0.1,
 
 def test_trialhist_and_variable_nch(env_name, num_steps=100000, probs=0.8,
                                     num_blocks=2, verbose=False, num_ch=4,
-                                    variable_nch=True):
+                                    variable_nch=False):
     env = gym.make(env_name, **{'n_ch': num_ch})
     env = TrialHistory(env, probs=probs, block_dur=200, num_blocks=num_blocks)
     if variable_nch:
@@ -586,11 +663,12 @@ def test_concat_wrpprs_th_vch_pssr_pssa(env_name, num_steps=100000, probs=0.8,
                                         variable_nch=True, env_args={}):
     env_args['n_ch'] = num_ch
     env_args['zero_irrelevant_stim'] = True
+    env_args['ob_histblock'] = True
     env = gym.make(env_name, **env_args)
     env = TrialHistoryEvolution(env, probs=probs, ctx_ch_prob=0.005,
                                 predef_tr_mats=True, balanced_probs=True,
                                 num_contexts=1)
-    env = Variable_nch(env, block_nch=50, prob_12=0.05, sorted_ch=True)
+    env = Variable_nch(env, block_nch=5000000000, prob_12=0.05, sorted_ch=True)
     transitions = np.zeros((num_blocks, num_ch, num_ch))
     env = PassReward(env)
     env = PassAction(env)
@@ -722,26 +800,30 @@ if __name__ == '__main__':
                                              'stimulus': 200,
                                              'decision': 200}}
     # test_identity('Nothing-v0', num_steps=5)
-    test_variablemapping()
     test_reactiontime()
+    sys.exit()
+    test_timeout()
+    test_noise()
+    sys.exit()
+    test_variablemapping()
+    sys.exit()
     test_sidebias()
     test_passreward()
     test_passaction()
+
     test_ttlpulse('PerceptualDecisionMaking-v0', num_steps=20, verbose=True,
                   **env_args)
-    test_noise('PerceptualDecisionMaking-v0', random_bhvr=0.,
-               wrapper=PassAction, perf_th=0.7, num_steps=100000,
-               verbose=True, **env_args)
-    test_trialhist_and_variable_nch('NAltPerceptualDecisionMaking-v0',
-                                    num_steps=1000000, verbose=True, probs=0.99,
-                                    num_blocks=3)
     test_catchtrials('PerceptualDecisionMaking-v0', num_steps=10000,
                      verbose=True, catch_prob=0.5, alt_rew=0)
     test_transferLearning(num_steps=200, verbose=True)
     test_combine(num_steps=200, verbose=True)
-    data = test_concat_wrpprs_th_vch_pssr_pssa('NAltPerceptualDecisionMaking-v0',
-                                               num_steps=2000000, verbose=True,
-                                               probs=0.99, num_blocks=16,
-                                               env_args=env_args)
+    test_trialhist_and_variable_nch('NAltPerceptualDecisionMaking-v0',
+                                    num_steps=1000000, verbose=True, probs=0.99,
+                                    num_blocks=3)
+
     # test_trialhistEv('NAltPerceptualDecisionMaking-v0', num_steps=100000,
     #                  probs=0.8, num_blocks=3, verbose=True, num_ch=8)
+    # data = test_concat_wrpprs_th_vch_pssr_pssa('NAltPerceptualDecisionMaking-v0',
+    #                                            num_steps=20000, verbose=True,
+    #                                            probs=0.99, num_blocks=16,
+    #                                            env_args=env_args)
