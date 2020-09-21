@@ -9,7 +9,6 @@ from neurogym.wrappers.block import ScheduleAttr
 from neurogym.wrappers.block import ScheduleEnvs
 from neurogym.wrappers.block import TrialHistoryV2
 
-
 ALL_WRAPPERS = {'Monitor-v0': 'neurogym.wrappers.monitor:Monitor',
                 'Noise-v0': 'neurogym.wrappers.noise:Noise',
                 'PassReward-v0': 'neurogym.wrappers.pass_reward:PassReward',
@@ -18,7 +17,6 @@ ALL_WRAPPERS = {'Monitor-v0': 'neurogym.wrappers.monitor:Monitor',
                     'neurogym.wrappers.reaction_time:ReactionTime',
                 'SideBias-v0': 'neurogym.wrappers.side_bias:SideBias',
                 }
-
 
 def all_wrappers():
     return sorted(list(ALL_WRAPPERS.keys()))

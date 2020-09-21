@@ -8,6 +8,7 @@ from gym import spaces
 import neurogym as ngym
 
 
+# TODO: Need better description
 class DawTwoStep(ngym.TrialEnv):
     """Daw Two-step task.
 
@@ -91,45 +92,23 @@ class DawTwoStep(ngym.TrialEnv):
         info = {'new_trial': False}
         reward = 0
 
-        obs = np.zeros((3,))
+        ob = np.zeros((3,))
         if self.t == 0:  # at stage 1, if action==fixate, abort
             if action == 0:
                 reward = self.rewards['abort']
                 info['new_trial'] = True
             else:
                 state = trial['transition'][action]
-                obs[int(state)] = 1
+                ob[int(state)] = 1
                 reward = trial['reward'][int(state-1)]
                 self.performance = action == self.ground_truth
         elif self.t == self.dt:
-            obs[0] = 1
+            ob[0] = 1
             if action != 0:
                 reward = self.rewards['abort']
             info['new_trial'] = True
         else:
             raise ValueError('t is not 0 or 1')
 
-        return obs, reward, False, info
+        return ob, reward, False, info
 
-
-if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-    num_steps = 2
-    plt.close('all')
-    env = DawTwoStep()
-    env.seed(seed=0)
-    env.reset()
-    data = ngym.utils.plot_env(env, num_steps=num_steps, def_act=1)
-    plt.ylim([-1, 1])
-    rew1 = np.array(data['rewards'])
-    obs1 = np.array(data['obs'])
-    print('--------------------------------')
-    env = DawTwoStep()
-    env.seed(seed=0)
-    env.reset()
-    data = ngym.utils.plot_env(env, num_steps=num_steps, def_act=1)
-    rew2 = np.array(data['rewards'])
-    obs2 = np.array(data['obs'])
-    plt.ylim([-1, 1])
-    assert (obs1 == obs2).all(), 'observations are different'
-    assert (rew1 == rew2).all(), 'rewards are different'

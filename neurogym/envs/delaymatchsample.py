@@ -8,16 +8,19 @@ from neurogym import spaces
 
 
 class DelayMatchSample(ngym.TrialEnv):
-    r"""Delay-match-to-sample.
+    r"""Delayed match-to-sample task.
 
-    A sample stimulus is followed by a delay and test. Agents are required
-    to indicate if the sample and test are the same stimulus.
+    A sample stimulus is shown during the sample period. The stimulus is
+    characterized by a one-dimensional variable, such as its orientation
+    between 0 and 360 degree. After a delay period, a test stimulus is
+    shown. The agent needs to determine whether the sample and the test
+    stimuli are equal, and report that decision during the decision period.
     """
     metadata = {
         'paper_link': 'https://www.jneurosci.org/content/jneuro/16/16/' +
                       '5154.full.pdf',
-        'paper_name': '''Neural Mechanisms of Visual Working Memory
-    in Prefrontal Cortex of the Macaque''',
+        'paper_name': '''Neural Mechanisms of Visual Working Memory in 
+        Prefrontal Cortex of the Macaque''',
         'tags': ['perceptual', 'working memory', 'two-alternative',
                  'supervised']
     }
@@ -89,7 +92,7 @@ class DelayMatchSample(ngym.TrialEnv):
         new_trial = False
         reward = 0
 
-        obs = self.ob_now
+        ob = self.ob_now
         gt = self.gt_now
 
         if self.in_period('fixation'):
@@ -105,16 +108,20 @@ class DelayMatchSample(ngym.TrialEnv):
                 else:
                     reward = self.rewards['fail']
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return ob, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
 class DelayMatchSampleDistractor1D(ngym.TrialEnv):
-    r"""Delay Match to sample with multiple, potentially repeating distractors.
+    r"""Delayed match-to-sample with multiple, potentially repeating
+    distractors.
 
-    Args:
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards: dictionary of rewards
-        timing: Description and duration of periods forming a trial.
+    A sample stimulus is shown during the sample period. The stimulus is
+    characterized by a one-dimensional variable, such as its orientation
+    between 0 and 360 degree. After a delay period, the first test stimulus is
+    shown. The agent needs to determine whether the sample and this test
+    stimuli are equal. If so, it needs to produce the match response. If the
+    first test is not equal to the sample stimulus, another delay period and
+    then a second test stimulus follow, and so on.
     """
     metadata = {
         'paper_link': 'https://www.jneurosci.org/content/jneuro/16/16/' +
@@ -188,10 +195,10 @@ class DelayMatchSampleDistractor1D(ngym.TrialEnv):
         new_trial = False
         reward = 0
 
-        obs = self.ob_now
+        ob = self.ob_now
         gt = self.gt_now
-        if ((self.in_period('fixation') or self.in_period('sample'))
-           and action != 0):
+        if ((self.in_period('fixation') or self.in_period('sample')) and
+                action != 0):
             reward = self.rewards['abort']
             new_trial = self.abort
         elif not self.in_period('test'+str(self.trial['ground_truth'])):
@@ -204,4 +211,4 @@ class DelayMatchSampleDistractor1D(ngym.TrialEnv):
                 new_trial = True
                 self.performance = 1
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return ob, reward, False, {'new_trial': new_trial, 'gt': gt}

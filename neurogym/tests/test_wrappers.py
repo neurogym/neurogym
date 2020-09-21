@@ -799,7 +799,7 @@ if __name__ == '__main__':
     env_args = {'stim_scale': 10, 'timing': {'fixation': 100,
                                              'stimulus': 200,
                                              'decision': 200}}
-    # test_identity('Nothing-v0', num_steps=5)
+    # test_identity('Null-v0', num_steps=5)
     test_reactiontime()
     sys.exit()
     test_timeout()

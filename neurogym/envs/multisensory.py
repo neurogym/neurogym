@@ -7,8 +7,17 @@ from neurogym import spaces
 
 
 # TODO: This is not finished yet. Need to compare with original paper
+# TODO: In this current implementation, the two stimuli always point to the
+#  same direction, check original
 class MultiSensoryIntegration(ngym.TrialEnv):
-    r"""Multi-sensory integration."""
+    r"""Multi-sensory integration.
+
+    Two stimuli are shown in two input modalities. Each stimulus points to
+    one of the possible responses with a certain strength (coherence). The
+    correct choice is the response with the highest summed strength from
+    both stimuli. The agent is therefore encouraged to integrate information
+    from both modalities equally.
+    """
     metadata = {
         'description': None,
         'paper_link': None,
@@ -33,10 +42,9 @@ class MultiSensoryIntegration(ngym.TrialEnv):
 
         self.timing = {
             'fixation': 300,
-            # 'target': 350,  # TODO: not implemented
             'stimulus': 750,
-            # 'delay': ngym.random.TruncExp(600, 300, 3000, rng=self.rng),
-            'decision': 100}  # XXX: not specified
+            'decision': 100
+        }
         if timing:
             self.timing.update(timing)
         self.abort = False
@@ -86,7 +94,7 @@ class MultiSensoryIntegration(ngym.TrialEnv):
         return trial
 
     def _step(self, action):
-        obs = self.ob_now
+        ob = self.ob_now
         gt = self.gt_now
 
         new_trial = False
@@ -102,4 +110,4 @@ class MultiSensoryIntegration(ngym.TrialEnv):
                     reward = self.rewards['correct']
                     self.performance = 1
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return ob, reward, False, {'new_trial': new_trial, 'gt': gt}

@@ -10,8 +10,14 @@ from neurogym.utils import tasktools
 
 # TODO: Ground truth and action have different space,
 # making it difficult for SL and RL to work together
+# TODO: Need to clean up this task
 class Reaching1D(ngym.TrialEnv):
-    r"""The agent has to reproduce the angle indicated by the observation.
+    r"""Reaching to the stimulus.
+
+    The agent is shown a stimulus during the fixation period. The stimulus
+    encodes a one-dimensional variable such as a movement direction. At the
+    end of the fixation period, the agent needs to respond by reaching
+    towards the stimulus direction.
     """
     metadata = {
         'paper_link': 'https://science.sciencemag.org/content/233/4771/1416',
@@ -43,17 +49,14 @@ class Reaching1D(ngym.TrialEnv):
         self.state = np.pi
 
     def _new_trial(self, **kwargs):
-        # ---------------------------------------------------------------------
         # Trial
-        # ---------------------------------------------------------------------
         self.state = np.pi
         trial = {
             'ground_truth': self.rng.uniform(0, np.pi*2)
         }
         trial.update(kwargs)
-        # ---------------------------------------------------------------------
+
         # Periods
-        # ---------------------------------------------------------------------
         self.add_period(['fixation', 'reach'])
 
         target = np.cos(self.theta - trial['ground_truth'])
@@ -170,11 +173,3 @@ class Reaching1DWithSelfDistraction(ngym.TrialEnv):
             self.performance += norm_rew/self.dec_per_dur
 
         return ob, reward, False, {'new_trial': False}
-
-
-if __name__ == '__main__':
-    from neurogym.tests import test_run
-    # env = Reaching1D()
-    env = Reaching1DWithSelfDistraction()
-    test_run(env)
-    ngym.utils.plot_env(env)

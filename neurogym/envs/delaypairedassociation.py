@@ -8,16 +8,18 @@ from neurogym import spaces
 
 
 class DelayPairedAssociation(ngym.TrialEnv):
-    r"""A sample is followed by a delay and a test. Agents have to report if
-    the pair sample-test is a rewarded pair or not.
+    r"""Delayed paired-association task.
+
+    The agent is shown a pair of two stimuli separated by a delay period. For
+    half of the stimuli-pairs shown, the agent should choose the Go response.
+    The agent is rewarded if it chose the Go response correctly.
     """
 
     metadata = {
         'paper_link': 'https://elifesciences.org/articles/43191',
         'paper_name': 'Active information maintenance in working memory' +
         ' by a sensory cortex',
-        'tags': ['perceptual', 'working memory', 'go-no-go',
-                 'supervised']
+        'tags': ['perceptual', 'working memory', 'go-no-go', 'supervised']
     }
 
     def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0):
@@ -60,15 +62,11 @@ class DelayPairedAssociation(ngym.TrialEnv):
         }
         trial.update(kwargs)
         pair = trial['pair']
-        # ---------------------------------------------------------------------
-        # Periods
-        # ---------------------------------------------------------------------
+
         periods = ['fixation', 'stim1', 'delay_btw_stim', 'stim2',
                    'delay_aft_stim', 'decision']
         self.add_period(periods)
-        # ---------------------------------------------------------------------
-        # Trial
-        # ---------------------------------------------------------------------
+
         # set observations
         self.add_ob(1, where='fixation')
         self.add_ob(1, 'stim1', where=pair[0])
@@ -84,13 +82,10 @@ class DelayPairedAssociation(ngym.TrialEnv):
         return trial
 
     def _step(self, action, **kwargs):
-        # ---------------------------------------------------------------------
-        # Reward and observations
-        # ---------------------------------------------------------------------
         new_trial = False
         # rewards
         reward = 0
-        obs = self.ob_now
+        ob = self.ob_now
         gt = self.gt_now
         # observations
         if self.in_period('fixation'):
@@ -107,4 +102,4 @@ class DelayPairedAssociation(ngym.TrialEnv):
                     self.performance = 0
                 new_trial = True
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return ob, reward, False, {'new_trial': new_trial, 'gt': gt}

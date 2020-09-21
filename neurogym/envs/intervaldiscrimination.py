@@ -8,8 +8,13 @@ from neurogym import spaces
 
 # TODO: Getting duration is not intuitive, not clear to people
 class IntervalDiscrimination(ngym.TrialEnv):
-    r"""Agents have to report which of two stimuli presented
-    sequentially is longer.
+    r"""Comparing the time length of two stimuli.
+
+    Two stimuli are shown sequentially, separated by a delay period. The
+    duration of each stimulus is randomly sampled on each trial. The
+    subject needs to judge which stimulus has a longer duration, and reports
+    its decision during the decision period by choosing one of the two
+    choice options.
     """
     metadata = {
         'paper_link': 'https://www.sciencedirect.com/science/article/pii/' +

@@ -9,7 +9,15 @@ from neurogym import spaces
 class HierarchicalReasoning(ngym.TrialEnv):
     """Hierarchical reasoning of rules.
 
-
+    On each trial, the subject receives two flashes separated by a delay
+    period. The subject needs to judge whether the duration of this delay
+    period is shorter than a threshold. Both flashes appear at the
+    same location on each trial. For one trial type, the network should
+    report its decision by going to the location of the flashes if the delay is
+    shorter than the threshold. In another trial type, the network should go to
+    the opposite direction of the flashes if the delay is short.
+    The two types of trials are alternated across blocks, and the block
+    transtion is unannouced.
     """
     metadata = {
         'paper_link': 'https://science.sciencemag.org/content/364/6441/eaav8911',

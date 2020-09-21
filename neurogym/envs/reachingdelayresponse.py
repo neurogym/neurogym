@@ -7,14 +7,13 @@ import neurogym as ngym
 from neurogym import spaces
 
 
+# TODO: Task need to be revisited
 class ReachingDelayResponse(ngym.TrialEnv):
-    r"""Working memory visual spatial task ~ Funahashi et al. 1991 adapted to
-    freely moving mice in a continous choice-space.
+    r"""Reaching task with a delay period.
 
-    While fixating, stimulus is presented in a
-    touchscreen (bright circle). Afterwards (perhaps including an
-    extra delay), doors open allowing the mouse to touch the screen
-    where the stimulus was located.
+    A reaching direction is presented by the stimulus during the stimulus
+    period. Followed by a delay period, the agent needs to respond to the
+    direction of the stimulus during the decision period.
     """
     metadata = {
         'paper_link': None,
@@ -38,7 +37,7 @@ class ReachingDelayResponse(ngym.TrialEnv):
         self.timing = {
             'stimulus': 500,
             'delay': (0, 1000, 2000),
-            'decision': 5000}
+            'decision': 500}
         if timing:
             self.timing.update(timing)
 
