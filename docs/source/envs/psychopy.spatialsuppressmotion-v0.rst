@@ -1,4 +1,4 @@
-psychopy.spatialsuppressmotion-v0
+psychopy.SpatialSuppressMotion-v0
 --------------------------------------------------
 .. autoclass:: neurogym.envs.psychopy.spatialsuppressmotion.SpatialSuppressMotion
     :members:
@@ -11,7 +11,7 @@ psychopy.spatialsuppressmotion-v0
         :ref:`tag-perceptual`,         :ref:`tag-plaid`,         :ref:`tag-motion`,         :ref:`tag-center-surround`
 
     Sample run
-        .. video:: ../_static/psychopy.spatialsuppressmotion-v0_examplerun.mp4
+        .. video:: ../_static/psychopy.SpatialSuppressMotion-v0_examplerun.mp4
             :width: 300
             :height: 300
             :loop:

@@ -49,12 +49,6 @@ TrialHistory-v0
     :members:
     :exclude-members: new_trial
 
-TrialHistoryEv-v0
---------------------------------------------------
-.. autoclass:: neurogym.wrappers.trial_hist_ev.TrialHistoryEvolution
-    :members:
-    :exclude-members: new_trial
-
 MissTrialReward-v0
 --------------------------------------------------
 .. autoclass:: neurogym.wrappers.miss_trials_reward.MissTrialReward
@@ -82,12 +76,6 @@ Identity-v0
 TransferLearning-v0
 --------------------------------------------------
 .. autoclass:: neurogym.wrappers.transfer_learning.TransferLearning
-    :members:
-    :exclude-members: new_trial
-
-Variable_nch-v0
---------------------------------------------------
-.. autoclass:: neurogym.wrappers.variable_nch.Variable_nch
     :members:
     :exclude-members: new_trial
 

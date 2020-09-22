@@ -26,7 +26,7 @@ class Bandit(ngym.TrialEnv):
         'paper_link': 'https://www.nature.com/articles/s41593-018-0147-8',
         'paper_name': 'Prefrontal cortex as a meta-reinforcement learning' +
         ' system',
-        'tags': ['n-alternative', 'supervised']
+        'tags': ['n-alternative']
     }
 
     def __init__(self, dt=100, n=2, p=(.5, .5), rewards=None, timing=None):

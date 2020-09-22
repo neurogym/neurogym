@@ -1,6 +1,6 @@
 ProbabilisticReasoning-v0
 --------------------------------------------------
-.. autoclass:: neurogym.envs.weatherprediction.ProbabilisticReasoning
+.. autoclass:: neurogym.envs.probabilisticreasoning.ProbabilisticReasoning
     :members:
     :exclude-members: new_trial
 

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 import gym
 import neurogym as ngym
-from neurogym.envs import ALL_ENVS
+from neurogym.envs.registration import ALL_ENVS
 from neurogym.wrappers import ALL_WRAPPERS
 
 
@@ -21,6 +21,7 @@ for key, val in sorted(ALL_ENVS.items()):
 def make_env_images():
     envs = all_envs.keys()
     for env_name in envs:
+        print('Make image for env', env_name)
         env = gym.make(env_name, **{'dt': 20})
         action = np.zeros_like(env.action_space.sample())
         fname = Path(__file__).parent / '_static' / (env_name + '_examplerun')
