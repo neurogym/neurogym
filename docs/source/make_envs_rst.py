@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import httplib2
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -27,6 +28,17 @@ def make_env_images():
         fname = Path(__file__).parent / '_static' / (env_name + '_examplerun')
         ngym.utils.plot_env(env, num_trials=2, def_act=action, fname=fname)
         plt.close()
+
+
+SUPERVISEDURL = 'neurogym/ngym_usage/blob/master/supervised/auto_notebooks/'
+COLABURL = 'https://colab.research.google.com/github/'
+
+
+def _url_exist(url):
+    """Check if this url exists."""
+    h = httplib2.Http()
+    resp = h.request(url, 'HEAD')
+    return int(resp[0]['status']) < 400
 
 
 def make_envs():
@@ -63,6 +75,14 @@ def make_envs():
             string += '        :ref:`tag-{:s}`, '.format(tag)
         string = string[:-2]
         string += '\n\n'
+
+        # Add optional link to training and analysis code
+        url = "https://github.com/{:s}{:s}.ipynb".format(SUPERVISEDURL, key)
+        if _url_exist(url):
+            string += ' '*4 + 'Supervised learning and analysis of this task\n'
+            link = '{:s}{:s}{:s}.ipynb'.format(COLABURL, SUPERVISEDURL, key)
+            string += ' '*8 + '`[Open in colab] <{:s}>`_\n'.format(link)
+            string += ' '*8 + '`[Jupyter notebook Source] <{:s}>`_\n'.format(url)
 
         # Add image
         string += '    Sample run\n'
@@ -124,7 +144,7 @@ def make_tags():
 
 
 def main():
-    make_env_images()
+    # make_env_images()
     make_envs()
     make_tags()
 

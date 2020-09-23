@@ -10,6 +10,9 @@ GoNogo-v0
     Tags
         :ref:`tag-delayed response`,         :ref:`tag-go-no-go`,         :ref:`tag-supervised`
 
+    Supervised learning and analysis of this task
+        `[Open in colab] <https://colab.research.google.com/github/neurogym/ngym_usage/blob/master/supervised/auto_notebooks/GoNogo-v0.ipynb>`_
+        `[Jupyter notebook Source] <https://github.com/neurogym/ngym_usage/blob/master/supervised/auto_notebooks/GoNogo-v0.ipynb>`_
     Sample run
         .. image:: ../_static/GoNogo-v0_examplerun.png
             :width: 600
