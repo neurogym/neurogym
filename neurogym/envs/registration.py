@@ -211,7 +211,7 @@ def _distance(s0, s1):
 
 def make(id, **kwargs):
     try:
-        gym.make(id, **kwargs)
+        return gym.make(id, **kwargs)
     except gym.error.UnregisteredEnv:
         all_ids = [env.id for env in gym.envs.registry.all()]
         dists = [_distance(id, env_id) for env_id in all_ids]
