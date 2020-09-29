@@ -10,6 +10,9 @@ Reaching1D-v0
     Tags
         :ref:`tag-motor`,         :ref:`tag-steps action space`
 
+    Reinforcement learning and analysis of this task
+        `[Open in colab] <https://colab.research.google.com/github/neurogym/ngym_usage/blob/master/supervised/auto_notebooks/rl/Reaching1D-v0.ipynb>`_
+        `[Jupyter notebook Source] <https://github.com/neurogym/ngym_usage/blob/master/supervised/auto_notebooks/rl/Reaching1D-v0.ipynb>`_
     Sample run
         .. image:: ../_static/Reaching1D-v0_examplerun.png
             :width: 600

@@ -30,7 +30,8 @@ def make_env_images():
         plt.close()
 
 
-SUPERVISEDURL = 'neurogym/ngym_usage/blob/master/supervised/auto_notebooks/'
+SUPERVISEDURL = 'neurogym/ngym_usage/blob/master/supervised/auto_notebooks/supervised/'
+RLURL = 'neurogym/ngym_usage/blob/master/supervised/auto_notebooks/rl/'
 COLABURL = 'https://colab.research.google.com/github/'
 
 
@@ -77,12 +78,14 @@ def make_envs():
         string += '\n\n'
 
         # Add optional link to training and analysis code
-        url = "https://github.com/{:s}{:s}.ipynb".format(SUPERVISEDURL, key)
-        if _url_exist(url):
-            string += ' '*4 + 'Supervised learning and analysis of this task\n'
-            link = '{:s}{:s}{:s}.ipynb'.format(COLABURL, SUPERVISEDURL, key)
-            string += ' '*8 + '`[Open in colab] <{:s}>`_\n'.format(link)
-            string += ' '*8 + '`[Jupyter notebook Source] <{:s}>`_\n'.format(url)
+        names = ['Supervised learning', 'Reinforcement learning']
+        for baseurl, name in zip([SUPERVISEDURL, RLURL], names):
+            url = "https://github.com/{:s}{:s}.ipynb".format(baseurl, key)
+            if _url_exist(url):
+                string += ' '*4 + '{:s} and analysis of this task\n'.format(name)
+                link = '{:s}{:s}{:s}.ipynb'.format(COLABURL, baseurl, key)
+                string += ' '*8 + '`[Open in colab] <{:s}>`_\n'.format(link)
+                string += ' '*8 + '`[Jupyter notebook Source] <{:s}>`_\n'.format(url)
 
         # Add image
         string += '    Sample run\n'
