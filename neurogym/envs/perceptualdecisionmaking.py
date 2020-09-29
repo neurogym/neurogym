@@ -18,7 +18,7 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
 
     Args:
         cohs: list of float, coherence levels controlling the difficulty of
-        the task
+            the task
         sigma: float, input noise level
         dim_ring: int, dimension of ring input and output
     """
