@@ -30,8 +30,8 @@ def make_env_images():
         plt.close()
 
 
-SUPERVISEDURL = 'neurogym/ngym_usage/blob/master/supervised/auto_notebooks/supervised/'
-RLURL = 'neurogym/ngym_usage/blob/master/supervised/auto_notebooks/rl/'
+SUPERVISEDURL = 'neurogym/ngym_usage/blob/master/training/auto_notebooks/supervised/'
+RLURL = 'neurogym/ngym_usage/blob/master/training/auto_notebooks/rl/'
 COLABURL = 'https://colab.research.google.com/github/'
 
 
