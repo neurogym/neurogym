@@ -4,11 +4,8 @@ Environments
 .. toctree::
     :maxdepth: 1
 
-    AngleReproduction-v0
     AntiReach-v0
     Bandit-v0
-    CVLearning-v0
-    ChangingEnvironment-v0
     ContextDecisionMaking-v0
     DawTwoStep-v0
     DelayComparison-v0
@@ -16,16 +13,13 @@ Environments
     DelayMatchSample-v0
     DelayMatchSampleDistractor1D-v0
     DelayPairedAssociation-v0
-    Detection-v0
     DualDelayMatchSample-v0
     EconomicDecisionMaking-v0
     GoNogo-v0
     HierarchicalReasoning-v0
     IntervalDiscrimination-v0
-    MatchingPenny-v0
     MotorTiming-v0
     MultiSensoryIntegration-v0
-    NAltPerceptualDecisionMaking-v0
     OneTwoThreeGo-v0
     PerceptualDecisionMaking-v0
     PerceptualDecisionMakingDelayResponse-v0
@@ -38,5 +32,5 @@ Environments
     ReadySetGo-v0
     SingleContextDecisionMaking-v0
     psychopy.RandomDotMotion-v0
+    psychopy.SpatialSuppressMotion-v0
     psychopy.VisualSearch-v0
-    psychopy.spatialsuppressmotion-v0

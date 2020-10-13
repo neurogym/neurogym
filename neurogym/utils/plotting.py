@@ -323,6 +323,7 @@ def plot_env_1dbox(
 
 def plot_env_3dbox(ob, actions=None, fname='', env=None):
     """Plot environment with 3-D Box observation space."""
+    ob = ob.astype(np.uint8)  # TODO: Temporary
     fig = plt.figure()
     ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
     ax.axis('off')

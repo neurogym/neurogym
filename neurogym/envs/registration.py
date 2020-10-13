@@ -66,7 +66,7 @@ NATIVE_ALLOW_LIST = [
     'DelayMatchSample',
     'DelayMatchSampleDistractor1D',
     'DelayPairedAssociation',
-    'Detection',
+    # 'Detection',  # TODO: Temporary removing until bug fixed
     'DualDelayMatchSample',
     'EconomicDecisionMaking',
     'GoNogo',
@@ -103,13 +103,13 @@ ALL_PSYCHOPY_ENVS = {
 _contrib_name_prefix = 'contrib.'
 _contrib_prefix = 'neurogym.envs.contrib.'
 CONTRIB_ALLOW_LIST = [
-    'AngleReproduction',
-    'CVLearning',
-    'ChangingEnvironment',
+    # 'AngleReproduction',
+    # 'CVLearning',
+    # 'ChangingEnvironment',
     # 'IBL',
-    'MatchingPenny',
-    'MemoryRecall',
-    'Pneumostomeopening'
+    # 'MatchingPenny',
+    # 'MemoryRecall',
+    # 'Pneumostomeopening'
 ]
 ALL_CONTRIB_ENVS = _get_envs(foldername='contrib', env_prefix='contrib',
                              allow_list=CONTRIB_ALLOW_LIST)
@@ -122,7 +122,9 @@ def _get_collection_envs():
     Each environment is named collection_name.env_name-v0
     """
     derived_envs = {}
-    collection_libs = ['perceptualdecisionmaking', 'yang19', 'priors']
+    # collection_libs = ['perceptualdecisionmaking', 'yang19', 'priors']
+    # TODO: Temporary disabling priors task
+    collection_libs = ['perceptualdecisionmaking', 'yang19']
     for l in collection_libs:
         lib = 'neurogym.envs.collections.' + l
         module = importlib.import_module(lib)
@@ -209,7 +211,7 @@ def _distance(s0, s1):
 
 def make(id, **kwargs):
     try:
-        gym.make(id, **kwargs)
+        return gym.make(id, **kwargs)
     except gym.error.UnregisteredEnv:
         all_ids = [env.id for env in gym.envs.registry.all()]
         dists = [_distance(id, env_id) for env_id in all_ids]
