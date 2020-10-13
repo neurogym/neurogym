@@ -7,8 +7,10 @@ Created on Mon Jan 27 11:00:26 2020
 """
 
 import numpy as np
-from gym import spaces
+
 import neurogym as ngym
+from neurogym import spaces
+
 import warnings
 
 
@@ -16,12 +18,12 @@ class Detection(ngym.TrialEnv):
     r"""The agent has to GO if a stimulus is presented.
 
     Args:
-        noise: Standard deviation of background noise. (def: 1., float)
         delay: If not None indicates the delay, from the moment of the start of
             the stimulus period when the actual stimulus is presented. Otherwise,
             the delay is drawn from a uniform distribution. (def: None (ms), int)
         stim_dur: Stimulus duration. (def: 100 (ms), int)
     """
+    # TODO: Remains to be described.
     metadata = {
             'paper_link': None,
             'paper_name': None,
@@ -65,19 +67,13 @@ class Detection(ngym.TrialEnv):
         # whether to abort (T) or not (F) the trial when breaking fixation:
         self.abort = False
 
-        self.action_space = spaces.Discrete(2)
-        self.act_dict = {'fixation': 0, 'go': 1}
+        name = {'fixation': 0, 'stimulus': 1}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': 1}
+                                            dtype=np.float32, name=name)
+
+        self.action_space = spaces.Discrete(2, name={'fixation': 0, 'go': 1})
 
     def _new_trial(self, **kwargs):
-        """
-        new_trial() is called when a trial ends to generate the next trial.
-        Here you have to set (at least):
-        1. The ground truth: the correct answer for the created trial.
-        2. The trial periods: fixation, stimulus...
-        """
         # Trial
         trial = {'ground_truth': self.rng.choice(self.choices)}
         trial.update(kwargs)  # allows wrappers to modify the trial
@@ -86,13 +82,11 @@ class Detection(ngym.TrialEnv):
         # Period
         self.add_period(['fixation', 'stimulus'])
 
-        # ---------------------------------------------------------------------
         # Observations
-        # ---------------------------------------------------------------------
         # TODO: The design of this task appears unnecessarily complicated
         # all observation values are 0 by default
         # FIXATION: setting fixation cue to 1 during fixation period
-        self.set_ob([1, 0], 'fixation')
+        self.set_ob(1, 'fixation', where='fixation')
         # stimulus:
         stim = self.view_ob('stimulus')
         stim[:, 1:] += self.rng.randn(stim.shape[0], 1) * self.sigma
@@ -118,9 +112,8 @@ class Detection(ngym.TrialEnv):
             self.performance = 1
 
         self.delay_trial = delay*self.dt
-        # ---------------------------------------------------------------------
-        # Ground truth
-        # ---------------------------------------------------------------------
+
+        # Set ground-truth
         if ground_truth == 1:
             dec = self.view_groundtruth('stimulus')
             dec[delay:] = 1
@@ -128,15 +121,6 @@ class Detection(ngym.TrialEnv):
         return trial
 
     def _step(self, action):
-        """
-        _step receives an action and returns:
-            a new observation, obs
-            reward associated with the action, reward
-            a boolean variable indicating whether the experiment has end, done
-            a dictionary with extra information:
-                ground truth correct response, info['gt']
-                boolean indicating the end of the trial, info['new_trial']
-        """
         new_trial = False
         # rewards
         reward = 0
@@ -158,8 +142,3 @@ class Detection(ngym.TrialEnv):
                     self.performance = 0
 
         return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
-
-
-if __name__ == '__main__':
-    env = Detection()
-    ngym.utils.plot_env(env, num_steps=50, def_act=0)

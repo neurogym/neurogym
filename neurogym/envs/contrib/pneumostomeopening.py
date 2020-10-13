@@ -3,9 +3,11 @@
 
 import numpy as np
 import math
-from gym import spaces
-import neurogym as ngym
 
+import neurogym as ngym
+from neurogym import spaces
+
+# TODO: Move to collection
 class Pneumostomeopening(ngym.BaseEnv):
     metadata = {
         'paper_link': 'https://jeb.biologists.org/content/199/3/683.long',
@@ -27,20 +29,21 @@ class Pneumostomeopening(ngym.BaseEnv):
         ## breathing actions: [breathing pneumostome, breathing skin]
         ## swim actions: [up, down, left, right]
         ## make it 3D (forward/backward) or 2D is enough ?
-        self.action_space = spaces.Discrete(4)
-        # self.action_space = spaces.MultiDiscrete([(0, 2), (0, 2)])
-        self.act_dict = {'breathingpneumostome':0,
-                         'breathingskin':1,
-                         'up':2,
-                         'down':3}
         ## observation space
         ## Discretizing beaker into level of depth
-        self.observation_space = spaces.Discrete(4)
-        self.ob_dict = {'depth1':0,
-                        'depth2':1,
-                        'depth2':2,
-                        'depth2':3}
-
+        name = {
+            'depth1': 0,
+            'depth2': 1,
+            'depth2': 2,
+            'depth2': 3}
+        self.observation_space = spaces.Discrete(4, name=name)
+        name = {
+            'breathingpneumostome': 0,
+            'breathingskin': 1,
+            'up': 2,
+            'down': 3}
+        self.action_space = spaces.Discrete(4, name=name)
+        # self.action_space = spaces.MultiDiscrete([(0, 2), (0, 2)])
 
         ## TODO: can do breathingpneumostome only when at the surface ==depth 1
 
@@ -125,7 +128,7 @@ class Pneumostomeopening(ngym.BaseEnv):
             if action == 3:
                 self.agent_pos = self.agent_pos - 1
 
-        self.agent_pos = np.clip(self.agent_pos, 0, len(self.ob_dict))
+        self.agent_pos = np.clip(self.agent_pos, 0, len(self.observation_space.name))
 
         # updating oxygen level according to action taken
         self.oxygen_level = self._get_new_oxygen_level(action)

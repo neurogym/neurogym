@@ -1,18 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from __future__ import division
 
 import numpy as np
-from gym import spaces
 
 import neurogym as ngym
+from neurogym import spaces
 
 
 class DelayMatchCategory(ngym.TrialEnv):
-    r"""Delay match-to-category task.
+    r"""Delayed match-to-category task.
 
-    A sample stimulus is followed by a delay and test. Agents are required
-    to indicate if the sample and test are in the same category.
+    A sample stimulus is shown during the sample period. The stimulus is
+    characterized by a one-dimensional variable, such as its orientation
+    between 0 and 360 degree. This one-dimensional variable is separated
+    into two categories (for example, 0-180 degree and 180-360 degree).
+    After a delay period, a test stimulus is shown. The agent needs to
+    determine whether the sample and the test stimuli belong to the same
+    category, and report that decision during the decision period.
     """
     metadata = {
         'paper_link': 'https://www.nature.com/articles/nature05078',
@@ -39,19 +43,20 @@ class DelayMatchCategory(ngym.TrialEnv):
             'sample': 650,
             'first_delay': 1000,
             'test': 650}
-        # 'second_delay': 250,
-        # 'decision': 650},
+
         if timing:
             self.timing.update(timing)
 
         self.abort = False
 
         self.theta = np.linspace(0, 2 * np.pi, dim_ring + 1)[:-1]
+
+        name = {'fixation': 0, 'stimulus': range(1, dim_ring + 1)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': range(1, dim_ring + 1)}
-        self.action_space = spaces.Discrete(3)
-        self.act_dict = {'fixation': 0, 'match': 1, 'non-match': 2}
+            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name)
+
+        name = {'fixation': 0, 'match': 1, 'non-match': 2}
+        self.action_space = spaces.Discrete(3, name=name)
 
     def _new_trial(self, **kwargs):
         # Trial info
@@ -77,7 +82,6 @@ class DelayMatchCategory(ngym.TrialEnv):
         # Periods
         periods = ['fixation', 'sample', 'first_delay', 'test']
         self.add_period(periods)
-        # self.add_period('decision', after='test')
 
         self.add_ob(1, where='fixation')
         self.set_ob(0, 'test', where='fixation')
@@ -85,14 +89,14 @@ class DelayMatchCategory(ngym.TrialEnv):
         self.add_ob(stim_test, 'test', where='stimulus')
         self.add_randn(0, self.sigma, ['sample', 'test'], where='stimulus')
 
-        self.set_groundtruth(self.act_dict[ground_truth], 'test')
+        self.set_groundtruth(self.action_space.name[ground_truth], 'test')
 
         return trial
 
     def _step(self, action, **kwargs):
         new_trial = False
 
-        obs = self.ob_now
+        ob = self.ob_now
         gt = self.gt_now
 
         reward = 0
@@ -109,9 +113,4 @@ class DelayMatchCategory(ngym.TrialEnv):
                 else:
                     reward = self.rewards['fail']
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
-
-
-if __name__ == '__main__':
-    env = DelayMatchCategory()
-    ngym.utils.plot_env(env, num_steps=100)
+        return ob, reward, False, {'new_trial': new_trial, 'gt': gt}

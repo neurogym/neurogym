@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from __future__ import division
-
 import numpy as np
-from gym import spaces
 
 import neurogym as ngym
+from neurogym import spaces
 
 
 class GoNogo(ngym.TrialEnv):
-    r"""Go/No-Go task in which the subject has either Go (e.g. lick)
-    or not Go depending on which one of two stimuli is presented with.
+    r"""Go/No-go task.
+
+    A stimulus is shown during the stimulus period. The stimulus period is
+    followed by a delay period, and then a decision period. If the stimulus is
+    a Go stimulus, then the subject should choose the action Go during the
+    decision period, otherwise, the subject should remain fixation.
     """
     # TODO: Find the original go-no-go paper
     metadata = {
@@ -36,18 +38,17 @@ class GoNogo(ngym.TrialEnv):
         self.timing = {
             'fixation': 0,
             'stimulus': 500,
-            'resp_delay': 500,
+            'delay': 500,
             'decision': 500}
         if timing:
             self.timing.update(timing)
 
         self.abort = False
         # set action and observation spaces
-        self.action_space = spaces.Discrete(2)
-        self.act_dict = {'fixation': 0, 'go': 1}
+        name = {'fixation': 0, 'nogo': 1, 'go': 2}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'nogo': 1, 'go': 2}
+                                            dtype=np.float32, name=name)
+        self.action_space = spaces.Discrete(2, {'fixation': 0, 'go': 1})
 
     def _new_trial(self, **kwargs):
         # Trial info
@@ -57,7 +58,7 @@ class GoNogo(ngym.TrialEnv):
         trial.update(kwargs)
 
         # Period info
-        periods = ['fixation', 'stimulus', 'resp_delay', 'decision']
+        periods = ['fixation', 'stimulus', 'delay', 'decision']
         self.add_period(periods)
         # set observations
         self.add_ob(1, where='fixation')
@@ -74,7 +75,7 @@ class GoNogo(ngym.TrialEnv):
     def _step(self, action):
         new_trial = False
         reward = 0
-        obs = self.ob_now
+        ob = self.ob_now
         gt = self.gt_now
         if self.in_period('fixation'):
             if action != 0:
@@ -90,10 +91,4 @@ class GoNogo(ngym.TrialEnv):
                     reward = self.rewards['fail']
                     self.performance = 0
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
-
-
-if __name__ == '__main__':
-    env = GoNogo()
-    env.reset()
-    ngym.utils.plot_env(env, def_act=0)
+        return ob, reward, False, {'new_trial': new_trial, 'gt': gt}

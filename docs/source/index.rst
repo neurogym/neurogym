@@ -31,6 +31,12 @@ The goal is to facilitate training of neural network models on neuroscience task
     tags
     wrappers
 
+.. toctree::
+    :maxdepth: 1
+    :caption: Contributing
+
+    contributors
+    understanding_neurogym_task
 
 
 

@@ -1,16 +1,17 @@
 import os
 from pathlib import Path
+import httplib2
 
 import numpy as np
 import matplotlib.pyplot as plt
 
 import gym
 import neurogym as ngym
-from neurogym.envs import ALL_ENVS
+from neurogym.envs.registration import ALL_ENVS
 from neurogym.wrappers import ALL_WRAPPERS
 
 
-ENV_IGNORE = ['Nothing-v0', 'Pneumostomeopening-v0']
+ENV_IGNORE = ['Null-v0', 'Pneumostomeopening-v0']
 all_envs = dict()
 for key, val in sorted(ALL_ENVS.items()):
     if key in ENV_IGNORE:
@@ -21,11 +22,24 @@ for key, val in sorted(ALL_ENVS.items()):
 def make_env_images():
     envs = all_envs.keys()
     for env_name in envs:
+        print('Make image for env', env_name)
         env = gym.make(env_name, **{'dt': 20})
         action = np.zeros_like(env.action_space.sample())
         fname = Path(__file__).parent / '_static' / (env_name + '_examplerun')
         ngym.utils.plot_env(env, num_trials=2, def_act=action, fname=fname)
         plt.close()
+
+
+SUPERVISEDURL = 'neurogym/ngym_usage/blob/master/training/auto_notebooks/supervised/'
+RLURL = 'neurogym/ngym_usage/blob/master/training/auto_notebooks/rl/'
+COLABURL = 'https://colab.research.google.com/github/'
+
+
+def _url_exist(url):
+    """Check if this url exists."""
+    h = httplib2.Http()
+    resp = h.request(url, 'HEAD')
+    return int(resp[0]['status']) < 400
 
 
 def make_envs():
@@ -62,6 +76,16 @@ def make_envs():
             string += '        :ref:`tag-{:s}`, '.format(tag)
         string = string[:-2]
         string += '\n\n'
+
+        # Add optional link to training and analysis code
+        names = ['Supervised learning', 'Reinforcement learning']
+        for baseurl, name in zip([SUPERVISEDURL, RLURL], names):
+            url = "https://github.com/{:s}{:s}.ipynb".format(baseurl, key)
+            if _url_exist(url):
+                string += ' '*4 + '{:s} and analysis of this task\n'.format(name)
+                link = '{:s}{:s}{:s}.ipynb'.format(COLABURL, baseurl, key)
+                string += ' '*8 + '`[Open in colab] <{:s}>`_\n'.format(link)
+                string += ' '*8 + '`[Jupyter notebook Source] <{:s}>`_\n'.format(url)
 
         # Add image
         string += '    Sample run\n'
@@ -123,7 +147,7 @@ def make_tags():
 
 
 def main():
-    make_env_images()
+    # make_env_images()
     make_envs()
     make_tags()
 
