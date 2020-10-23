@@ -131,6 +131,7 @@ class Dataset(object):
 
         self._seq_start = self._seq_end
         return inputs, target
+        # return inputs, np.expand_dims(target, axis=2)
 
 
 if __name__ == '__main__':
