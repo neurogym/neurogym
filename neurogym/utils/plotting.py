@@ -274,7 +274,7 @@ def plot_env_1dbox(
             ax.legend()
         ax.set_xlim([-0.5, len(steps)-0.5])
 
-        if env and hasattr(env.action_space, 'name') and env.rewards:
+        if env and hasattr(env, 'reward') and env.rewards:
             # Plot environment annotation
             yticks = []
             yticklabels = []
