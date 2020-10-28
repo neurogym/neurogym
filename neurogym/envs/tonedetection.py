@@ -19,8 +19,8 @@ class tonedetection(ngym.TrialEnv):
     '''
 
     metadata = {
-        'paper_link': '',
-        'paper_name': '',
+        'paper_link': 'https://www.jneurosci.org/content/jneuro/5/12/3261.full.pdf',
+        'paper_name': 'Representation of Tones in Noise in the Responses of Auditory Nerve Fibers  in Cats',
         'tags': ['auditory', 'perceptual', 'supervised', 'decision']
     }
 
