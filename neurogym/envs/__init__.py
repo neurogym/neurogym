@@ -80,6 +80,8 @@ ALL_NATIVE_ENVS = {
         'neurogym.envs.nothing:Nothing',
     'Pneumostomeopening-v0':
         'neurogym.envs.pneumostomeopening:Pneumostomeopening',
+    'delayestimation-v0':
+        'neurogym.envs.delayestimation:delayestimation',
 }
 
 ALL_PSYCHOPY_ENVS = {
@@ -87,7 +89,7 @@ ALL_PSYCHOPY_ENVS = {
         'neurogym.envs.psychopy.perceptualdecisionmaking:RandomDotMotion',
     'psychopy.VisualSearch-v0':
         'neurogym.envs.psychopy.visualsearch:VisualSearch',
-    'psychopy.spatialsuppressmotion-v0':
+    'psychopy.SpatialSuppressMotion-v0':
         'neurogym.envs.psychopy.spatialsuppressmotion:SpatialSuppressMotion',
 }
 
