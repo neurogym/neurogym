@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from __future__ import division
 import numpy as np
-from gym import spaces
 
 import neurogym as ngym
+from neurogym import spaces
 
 
+# TODO: Task need to be revisited
 class ReachingDelayResponse(ngym.TrialEnv):
-    r"""Working memory visual spatial task ~ Funahashi et al. 1991 adapted to
-    freely moving mice in a continous choice-space.
+    r"""Reaching task with a delay period.
 
-    While fixating, stimulus is presented in a
-    touchscreen (bright circle). Afterwards (perhaps including an
-    extra delay), doors open allowing the mouse to touch the screen
-    where the stimulus was located.
+    A reaching direction is presented by the stimulus during the stimulus
+    period. Followed by a delay period, the agent needs to respond to the
+    direction of the stimulus during the decision period.
     """
     metadata = {
         'paper_link': None,
@@ -39,21 +37,21 @@ class ReachingDelayResponse(ngym.TrialEnv):
         self.timing = {
             'stimulus': 500,
             'delay': (0, 1000, 2000),
-            'decision': 5000}
+            'decision': 500}
         if timing:
             self.timing.update(timing)
 
         self.r_tmax = self.rewards['miss']
         self.abort = False
 
+        name = {'go': 0, 'stimulus': 1}
+        self.observation_space = spaces.Box(low=np.array([0., -2]),
+                                            high=np.array([1, 2.]),
+                                            dtype=np.float32, name=name)
+
         self.action_space = spaces.Box(low=np.array((-1.0, -1.0)),
                                        high=np.array((1.0, 2.0)),
                                        dtype=np.float32)
-
-        self.observation_space = spaces.Box(low=np.array([0., -2]),
-                                            high=np.array([1, 2.]),
-                                            dtype=np.float32)
-        self.ob_dict = {'go': 0, 'stimulus': 1}
 
     def _new_trial(self, **kwargs):
         # Trial
@@ -92,8 +90,3 @@ class ReachingDelayResponse(ngym.TrialEnv):
                 self.performance = reward/self.rewards['correct']
 
         return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
-
-
-if __name__ == '__main__':
-    env = ReachingDelayResponse()
-    ngym.utils.plot_env(env, num_steps=100)

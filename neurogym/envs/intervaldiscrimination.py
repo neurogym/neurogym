@@ -1,15 +1,20 @@
 from __future__ import division
 
 import numpy as np
-from gym import spaces
 
 import neurogym as ngym
+from neurogym import spaces
 
 
 # TODO: Getting duration is not intuitive, not clear to people
 class IntervalDiscrimination(ngym.TrialEnv):
-    r"""Agents have to report which of two stimuli presented
-    sequentially is longer.
+    r"""Comparing the time length of two stimuli.
+
+    Two stimuli are shown sequentially, separated by a delay period. The
+    duration of each stimulus is randomly sampled on each trial. The
+    subject needs to judge which stimulus has a longer duration, and reports
+    its decision during the decision period by choosing one of the two
+    choice options.
     """
     metadata = {
         'paper_link': 'https://www.sciencedirect.com/science/article/pii/' +
@@ -39,16 +44,19 @@ class IntervalDiscrimination(ngym.TrialEnv):
 
         self.abort = False
 
-        self.action_space = spaces.Discrete(3)
-        self.act_dict = {'fixation': 0, 'choice1': 1, 'choice2': 2}
+        name = {'fixation': 0, 'stim1': 1, 'stim2': 2}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stim1': 1, 'stim2': 2}
+                                            dtype=np.float32, name=name)
+        name = {'fixation': 0, 'choice1': 1, 'choice2': 2}
+        self.action_space = spaces.Discrete(3, name=name)
 
     def _new_trial(self, **kwargs):
         duration1 = self.sample_time('stim1')
         duration2 = self.sample_time('stim2')
         ground_truth = 1 if duration1 > duration2 else 2
+        trial = {'duration1': duration1,
+                 'duration2': duration2,
+                 'ground_truth': ground_truth}
 
         periods = ['fixation', 'stim1', 'delay1', 'stim2', 'delay2', 'decision']
         durations = [None, duration1, None, duration2, None, None]
@@ -60,6 +68,8 @@ class IntervalDiscrimination(ngym.TrialEnv):
         self.set_ob(0, 'decision')
 
         self.set_groundtruth(ground_truth, 'decision')
+
+        return trial
 
     def _step(self, action):
         # ---------------------------------------------------------------------
@@ -84,10 +94,3 @@ class IntervalDiscrimination(ngym.TrialEnv):
                     reward = self.rewards['fail']
 
         return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
-
-
-if __name__ == '__main__':
-    from neurogym.tests import test_run
-    env = IntervalDiscrimination()
-    test_run(env)
-    ngym.utils.plot_env(env, def_act=0)

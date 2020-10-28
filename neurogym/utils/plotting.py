@@ -126,8 +126,8 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         states = None
 
     data = {
-        'ob': np.array(observations),
-        'ob_cum': np.array(ob_cum),
+        'ob': np.array(observations).astype(np.float),
+        'ob_cum': np.array(ob_cum).astype(np.float),
         'rewards': rewards,
         'actions': actions,
         'perf': perf,
@@ -211,11 +211,11 @@ def plot_env_1dbox(
         ax.set_xlim([-0.5, len(steps)-0.5])
     else:
         ax.imshow(ob.T, aspect='auto', origin='lower')
-        if env and env.ob_dict:
+        if env and hasattr(env.observation_space, 'name'):
             # Plot environment annotation
             yticks = []
             yticklabels = []
-            for key, val in env.ob_dict.items():
+            for key, val in env.observation_space.name.items():
                 yticks.append((np.min(val)+np.max(val))/2)
                 yticklabels.append(key)
             ax.set_yticks(yticks)
@@ -252,11 +252,11 @@ def plot_env_1dbox(
     ax.spines['right'].set_visible(False)
     if legend:
         ax.legend()
-    if env and hasattr(env, 'act_dict') and env.act_dict:
+    if env and hasattr(env.action_space, 'name'):
         # Plot environment annotation
         yticks = []
         yticklabels = []
-        for key, val in env.act_dict.items():
+        for key, val in env.action_space.name.items():
             yticks.append((np.min(val) + np.max(val)) / 2)
             yticklabels.append(key)
         ax.set_yticks(yticks)
@@ -274,7 +274,7 @@ def plot_env_1dbox(
             ax.legend()
         ax.set_xlim([-0.5, len(steps)-0.5])
 
-        if env and hasattr(env, 'act_dict') and env.rewards:
+        if env and hasattr(env, 'reward') and env.rewards:
             # Plot environment annotation
             yticks = []
             yticklabels = []
@@ -323,6 +323,7 @@ def plot_env_1dbox(
 
 def plot_env_3dbox(ob, actions=None, fname='', env=None):
     """Plot environment with 3-D Box observation space."""
+    ob = ob.astype(np.uint8)  # TODO: Temporary
     fig = plt.figure()
     ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
     ax.axis('off')

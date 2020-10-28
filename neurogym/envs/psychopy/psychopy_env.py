@@ -13,9 +13,10 @@ import neurogym as ngym
 class PsychopyEnv(ngym.TrialEnv):
     """Superclass for environments with psychopy stimuli."""
 
-    def __init__(self, win_kwargs={'size':(100, 100)}, *args, **kwargs):
+    def __init__(self, win_kwargs=None, *args, **kwargs):
         super(PsychopyEnv, self).__init__(*args, **kwargs)
 
+<<<<<<< HEAD
         win_kwargs_tmp = win_kwargs.copy()  # avoid bug for multi env in a batch
         if sys.platform == 'darwin':
             # TODO: Check if this works across platform
@@ -24,6 +25,20 @@ class PsychopyEnv(ngym.TrialEnv):
         # psychopy window kwargs can be supplied by 'win_kws'
         # note that default is gray screen
         self.win = visual.Window(**win_kwargs_tmp)
+=======
+        # Default setting
+        _win_kwargs = {'size':(100, 100), 'color': 'black'}
+        if win_kwargs is not None:
+            _win_kwargs.update(win_kwargs)
+
+        if sys.platform == 'darwin':
+            # TODO: Check if this works across platform
+            win_size = (int(_win_kwargs['size'][0]/2),
+                        int(_win_kwargs['size'][1]/2))
+            _win_kwargs['size'] = win_size
+        # psychopy window kwargs can be supplied by 'win_kws'
+        self.win = visual.Window(**_win_kwargs) # note that default is gray screen
+>>>>>>> master
         self.win.backend.winHandle.set_visible(False)
         self.win.flip()
         im = self.win._getFrame()

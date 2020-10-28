@@ -1,15 +1,25 @@
 from __future__ import division
 
 import numpy as np
-from gym import spaces
+
 import neurogym as ngym
+from neurogym import spaces
 
 
 class SingleContextDecisionMaking(ngym.TrialEnv):
     """Context-dependent decision-making task.
 
-    Agent has to perform one of two different perceptual discriminations.
-    On every trial, a contextual cue indicates which one to perform.
+    The agent simultaneously receives stimulus inputs from two modalities (
+    for example, a colored random dot motion pattern with color and motion
+    modalities). The agent needs to make a perceptual decision based on only
+    one of the two modalities, while ignoring the other. The agent reports
+    its decision during the decision period, with an optional delay period
+    in between the stimulus period and the decision period. The relevant
+    modality is not explicitly signaled.
+
+    Args:
+        context: int, 0 or 1 for the two context (rules). If 0, need to
+            focus on modality 0 (the first one)
     """
     metadata = {
         'paper_link': 'https://www.nature.com/articles/nature12742',
@@ -49,14 +59,16 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
         self.theta = np.linspace(0, 2 * np.pi, dim_ring + 1)[:-1]
         self.choices = np.arange(dim_ring)
 
+        name = {
+            'fixation': 0,
+            'stimulus_mod1': range(1, dim_ring + 1),
+            'stimulus_mod2': range(dim_ring + 1, 2 * dim_ring + 1)}
+        shape = (1 + 2 * dim_ring,)
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + 2 * dim_ring,), dtype=np.float32)
-        self.ob_dict = {'fixation': 0,
-                        'stimulus_mod1': range(1, dim_ring + 1),
-                        'stimulus_mod2': range(dim_ring + 1, 2 * dim_ring + 1)}
+            -np.inf, np.inf, shape=shape, dtype=np.float32, name=name)
 
-        self.action_space = spaces.Discrete(1+dim_ring)
-        self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring+1)}
+        name = {'fixation': 0, 'choice': range(1, dim_ring+1)}
+        self.action_space = spaces.Discrete(1+dim_ring, name=name)
 
     def _new_trial(self, **kwargs):
         # Trial
@@ -91,10 +103,12 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
         self.add_randn(0, self.sigma, 'stimulus')
         self.set_ob(0, 'decision')
 
-        self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+        self.set_groundtruth(ground_truth, period='decision', where='choice')
+
+        return trial
 
     def _step(self, action):
-        obs = self.ob_now
+        ob = self.ob_now
         gt = self.gt_now
 
         new_trial = False
@@ -110,16 +124,18 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
                     reward = self.rewards['correct']
                     self.performance = 1
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return ob, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
 class ContextDecisionMaking(ngym.TrialEnv):
     """Context-dependent decision-making task.
 
-    Agent has to perform one of two different perceptual discriminations.
-    On every trial, a contextual cue indicates which one to perform.
+    The agent simultaneously receives stimulus inputs from two modalities (
+    for example, a colored random dot motion pattern with color and motion
+    modalities). The agent needs to make a perceptual decision based on
+    only one of the two modalities, while ignoring the other. The relevant
+    modality is explicitly indicated by a rule signal.
     """
-    # TODO: Have this task replaced by the above task
     metadata = {
         'paper_link': 'https://www.nature.com/articles/nature12742',
         'paper_name': '''Context-dependent computation by recurrent
@@ -154,13 +170,14 @@ class ContextDecisionMaking(ngym.TrialEnv):
         self.abort = False
 
         # set action and observation space
-        self.action_space = spaces.Discrete(3)
-        self.act_dict = {'fixation': 0, 'choice1': 1, 'choice2': 2}
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(7,),
-                                            dtype=np.float32)
         names = ['fixation', 'stim1_mod1', 'stim2_mod1',
                  'stim1_mod2', 'stim2_mod2', 'context1', 'context2']
-        self.ob_dict = {name: i for i, name in enumerate(names)}
+        name = {name: i for i, name in enumerate(names)}
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(7,),
+                                            dtype=np.float32, name=name)
+
+        name = {'fixation': 0, 'choice1': 1, 'choice2': 2}
+        self.action_space = spaces.Discrete(3, name=name)
 
     def _new_trial(self, **kwargs):
         # -------------------------------------------------------------------------
@@ -207,7 +224,7 @@ class ContextDecisionMaking(ngym.TrialEnv):
         return trial
 
     def _step(self, action):
-        obs = self.ob_now
+        ob = self.ob_now
         gt = self.gt_now
 
         new_trial = False
@@ -223,5 +240,4 @@ class ContextDecisionMaking(ngym.TrialEnv):
                     reward = self.rewards['correct']
                     self.performance = 1
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
-
+        return ob, reward, False, {'new_trial': new_trial, 'gt': gt}

@@ -1,17 +1,23 @@
 """Reaching to target."""
 
 import numpy as np
-from gym import spaces
 
 import neurogym as ngym
+from neurogym import spaces
 
 from neurogym.utils import tasktools
 
 
 # TODO: Ground truth and action have different space,
 # making it difficult for SL and RL to work together
+# TODO: Need to clean up this task
 class Reaching1D(ngym.TrialEnv):
-    r"""The agent has to reproduce the angle indicated by the observation.
+    r"""Reaching to the stimulus.
+
+    The agent is shown a stimulus during the fixation period. The stimulus
+    encodes a one-dimensional variable such as a movement direction. At the
+    end of the fixation period, the agent needs to respond by reaching
+    towards the stimulus direction.
     """
     metadata = {
         'paper_link': 'https://science.sciencemag.org/content/233/4771/1416',
@@ -33,30 +39,24 @@ class Reaching1D(ngym.TrialEnv):
             self.timing.update(timing)
 
         # action and observation spaces
+        name = {'self': range(16, 32), 'target': range(16)}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(32,),
-                                            dtype=np.float32)
-        self.ob_dict = {'self': range(16, 32),
-                        'target': range(16)}
-        self.action_space = spaces.Discrete(3)
-        self.act_dict = {'fixation': 0,
-                         'left': 1,
-                         'right': 2,
-                         }
+                                            dtype=np.float32, name=name)
+        name = {'fixation': 0, 'left': 1, 'right': 2}
+        self.action_space = spaces.Discrete(3, name=name)
+
         self.theta = np.arange(0, 2*np.pi, 2*np.pi/16)
         self.state = np.pi
 
     def _new_trial(self, **kwargs):
-        # ---------------------------------------------------------------------
         # Trial
-        # ---------------------------------------------------------------------
         self.state = np.pi
         trial = {
             'ground_truth': self.rng.uniform(0, np.pi*2)
         }
         trial.update(kwargs)
-        # ---------------------------------------------------------------------
+
         # Periods
-        # ---------------------------------------------------------------------
         self.add_period(['fixation', 'reach'])
 
         target = np.cos(self.theta - trial['ground_truth'])
@@ -65,6 +65,8 @@ class Reaching1D(ngym.TrialEnv):
         self.set_groundtruth(np.pi, 'fixation')
         self.set_groundtruth(trial['ground_truth'], 'reach')
         self.dec_per_dur = (self.end_ind['reach'] - self.start_ind['reach'])
+
+        return trial
 
     def _step(self, action):
         ob = self.ob_now
@@ -171,11 +173,3 @@ class Reaching1DWithSelfDistraction(ngym.TrialEnv):
             self.performance += norm_rew/self.dec_per_dur
 
         return ob, reward, False, {'new_trial': False}
-
-
-if __name__ == '__main__':
-    from neurogym.tests import test_run
-    # env = Reaching1D()
-    env = Reaching1DWithSelfDistraction()
-    test_run(env)
-    ngym.utils.plot_env(env)

@@ -1,15 +1,19 @@
-from __future__ import division
-
 import numpy as np
-from gym import spaces
+
 import neurogym as ngym
+from neurogym import spaces
 
 
 class DualDelayMatchSample(ngym.TrialEnv):
     r"""Two-item Delay-match-to-sample.
 
-    Two sample stimuli are shown simultaneously. Sample 1 and 2 are tested
-    sequentially. Whether sample 1 or 2 is tested first is indicated by a cue.
+    The trial starts with a fixation period. Then during the sample period,
+    two sample stimuli are shown simultaneously. Followed by the first delay
+    period, a cue is shown, indicating which sample stimulus will be tested.
+    Then the first test stimulus is shown and the agent needs to report whether
+    this test stimulus matches the cued sample stimulus. Then another delay
+    and then test period follows, and the agent needs to report whether the
+    other sample stimulus matches the second test stimulus.
     """
     metadata = {
         'paper_link': 'https://science.sciencemag.org/content/354/6316/1136',
@@ -45,12 +49,12 @@ class DualDelayMatchSample(ngym.TrialEnv):
 
         self.abort = False
 
+        name = {'fixation': 0, 'stimulus1': range(1, 3),
+                'stimulus2': range(3, 5), 'cue1': 5, 'cue2': 6}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(7,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus1': range(1, 3),
-                        'stimulus2': range(3, 5), 'cue1': 5, 'cue2': 6}
-        self.action_space = spaces.Discrete(3)
-        self.act_dict = {'fixation': 0, 'match': 1, 'non-match': 2}
+                                            dtype=np.float32, name=name)
+        name = {'fixation': 0, 'match': 1, 'non-match': 2}
+        self.action_space = spaces.Discrete(3, name=name)
 
     def _new_trial(self, **kwargs):
         trial = {
@@ -111,7 +115,7 @@ class DualDelayMatchSample(ngym.TrialEnv):
         new_trial = False
         reward = 0
 
-        obs = self.ob_now
+        ob = self.ob_now
         gt = self.gt_now
 
         if self.in_period('test1'):
@@ -134,4 +138,4 @@ class DualDelayMatchSample(ngym.TrialEnv):
                 new_trial = self.abort
                 reward = self.rewards['abort']
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return ob, reward, False, {'new_trial': new_trial, 'gt': gt}

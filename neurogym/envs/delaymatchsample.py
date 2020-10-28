@@ -1,24 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from __future__ import division
-
 import numpy as np
-from gym import spaces
+
 import neurogym as ngym
+from neurogym import spaces
 
 
 class DelayMatchSample(ngym.TrialEnv):
-    r"""Delay-match-to-sample.
+    r"""Delayed match-to-sample task.
 
-    A sample stimulus is followed by a delay and test. Agents are required
-    to indicate if the sample and test are the same stimulus.
+    A sample stimulus is shown during the sample period. The stimulus is
+    characterized by a one-dimensional variable, such as its orientation
+    between 0 and 360 degree. After a delay period, a test stimulus is
+    shown. The agent needs to determine whether the sample and the test
+    stimuli are equal, and report that decision during the decision period.
     """
     metadata = {
         'paper_link': 'https://www.jneurosci.org/content/jneuro/16/16/' +
                       '5154.full.pdf',
-        'paper_name': '''Neural Mechanisms of Visual Working Memory
-    in Prefrontal Cortex of the Macaque''',
+        'paper_name': '''Neural Mechanisms of Visual Working Memory in 
+        Prefrontal Cortex of the Macaque''',
         'tags': ['perceptual', 'working memory', 'two-alternative',
                  'supervised']
     }
@@ -46,11 +48,13 @@ class DelayMatchSample(ngym.TrialEnv):
         self.abort = False
 
         self.theta = np.linspace(0, 2 * np.pi, dim_ring + 1)[:-1]
+
+        name = {'fixation': 0, 'stimulus': range(1, dim_ring + 1)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': range(1, dim_ring + 1)}
-        self.action_space = spaces.Discrete(3)
-        self.act_dict = {'fixation': 0, 'match': 1, 'non-match': 2}
+            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name)
+
+        name = {'fixation': 0, 'match': 1, 'non-match': 2}
+        self.action_space = spaces.Discrete(3, name=name)
 
     def _new_trial(self, **kwargs):
         # Trial
@@ -88,7 +92,7 @@ class DelayMatchSample(ngym.TrialEnv):
         new_trial = False
         reward = 0
 
-        obs = self.ob_now
+        ob = self.ob_now
         gt = self.gt_now
 
         if self.in_period('fixation'):
@@ -104,16 +108,20 @@ class DelayMatchSample(ngym.TrialEnv):
                 else:
                     reward = self.rewards['fail']
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return ob, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
 class DelayMatchSampleDistractor1D(ngym.TrialEnv):
-    r"""Delay Match to sample with multiple, potentially repeating distractors.
+    r"""Delayed match-to-sample with multiple, potentially repeating
+    distractors.
 
-    Args:
-        dt: Timestep duration. (def: 100 (ms), int)
-        rewards: dictionary of rewards
-        timing: Description and duration of periods forming a trial.
+    A sample stimulus is shown during the sample period. The stimulus is
+    characterized by a one-dimensional variable, such as its orientation
+    between 0 and 360 degree. After a delay period, the first test stimulus is
+    shown. The agent needs to determine whether the sample and this test
+    stimuli are equal. If so, it needs to produce the match response. If the
+    first test is not equal to the sample stimulus, another delay period and
+    then a second test stimulus follow, and so on.
     """
     metadata = {
         'paper_link': 'https://www.jneurosci.org/content/jneuro/16/16/' +
@@ -147,17 +155,17 @@ class DelayMatchSampleDistractor1D(ngym.TrialEnv):
             self.timing.update(timing)
 
         self.abort = False
-        self.action_space = spaces.Discrete(2)
-        self.act_dict = {'fixation': 0, 'match': 1}
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(33,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': range(1, 33)}
+
         self.theta = np.arange(0, 2 * np.pi, 2 * np.pi / 32)
 
+        name = {'fixation': 0, 'stimulus': range(1, 33)}
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(33,),
+                                            dtype=np.float32, name=name)
+
+        name = {'fixation': 0, 'match': 1}
+        self.action_space = spaces.Discrete(2, name=name)
+
     def _new_trial(self, **kwargs):
-        # ---------------------------------------------------------------------
-        # Trial
-        # ---------------------------------------------------------------------
         trial = {
             # There is always a match, ground_truth is which test is a match
             'ground_truth': self.rng.choice(self.choices),
@@ -171,9 +179,6 @@ class DelayMatchSampleDistractor1D(ngym.TrialEnv):
             tmp = sample if i == ground_truth else self.rng.uniform(0, 2*np.pi)
             trial['test'+str(i)] = tmp
 
-        # ---------------------------------------------------------------------
-        # Periods
-        # ---------------------------------------------------------------------
         periods = ['fixation', 'sample', 'delay1', 'test1',
                    'delay2', 'test2', 'delay3', 'test3']
         self.add_period(periods)
@@ -190,10 +195,10 @@ class DelayMatchSampleDistractor1D(ngym.TrialEnv):
         new_trial = False
         reward = 0
 
-        obs = self.ob_now
+        ob = self.ob_now
         gt = self.gt_now
-        if ((self.in_period('fixation') or self.in_period('sample'))
-           and action != 0):
+        if ((self.in_period('fixation') or self.in_period('sample')) and
+                action != 0):
             reward = self.rewards['abort']
             new_trial = self.abort
         elif not self.in_period('test'+str(self.trial['ground_truth'])):
@@ -206,4 +211,4 @@ class DelayMatchSampleDistractor1D(ngym.TrialEnv):
                 new_trial = True
                 self.performance = 1
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return ob, reward, False, {'new_trial': new_trial, 'gt': gt}

@@ -4,21 +4,20 @@
 from __future__ import division
 
 import numpy as np
-from gym import spaces
 
 import neurogym as ngym
+from neurogym import spaces
 
 
 class PostDecisionWager(ngym.TrialEnv):
     r"""Post-decision wagering task assessing confidence.
 
-    Agents do a discrimination task (see PerceptualDecisionMaking). On a
-    random half of the trials, the agent is given the option to abort
-    the direction discrimination and to choose instead a small but
-    certain reward associated with a action.
-
-    Args:
-        dim_ring: int, dimension of ring input and output
+    The agent first performs a perceptual discrimination task (see for more
+    details the PerceptualDecisionMaking task). On a random half of the
+    trials, the agent is given the option to abort the sensory
+    discrimination and to choose instead a sure-bet option that guarantees a
+    small reward. Therefore, the agent is encouraged to choose the sure-bet
+    option when it is uncertain about its perceptual decision.
     """
     metadata = {
         'paper_link': 'https://science.sciencemag.org/content/324/5928/' +
@@ -56,11 +55,11 @@ class PostDecisionWager(ngym.TrialEnv):
         self.abort = False
 
         # set action and observation space
-        self.action_space = spaces.Discrete(4)
-        self.act_dict = {'fixation': 0, 'choice': [1, 2], 'sure': 3}
+        name = {'fixation': 0, 'stimulus': [1, 2], 'sure': 3}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(4,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': [1, 2], 'sure': 3}
+                                            dtype=np.float32, name=name)
+        name = {'fixation': 0, 'choice': [1, 2], 'sure': 3}
+        self.action_space = spaces.Discrete(4, name=name)
 
     # Input scaling
     def scale(self, coh):
@@ -95,7 +94,7 @@ class PostDecisionWager(ngym.TrialEnv):
             self.set_ob(0, 'pre_sure', where='sure')
 
         # Ground truth
-        self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+        self.set_groundtruth(ground_truth, period='decision', where='choice')
 
         return trial
 
@@ -117,7 +116,7 @@ class PostDecisionWager(ngym.TrialEnv):
             new_trial = True
             if action == 0:
                 new_trial = False
-            elif action == self.act_dict['sure']:
+            elif action == 3:  # sure option
                 if trial['wager']:
                     reward = self.rewards['sure']
                     norm_rew = ((reward-self.rewards['fail'])/
@@ -133,9 +132,3 @@ class PostDecisionWager(ngym.TrialEnv):
                     reward = self.rewards['fail']
 
         return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
-
-
-if __name__ == '__main__':
-    env = PostDecisionWager()
-    env.seed(seed=0)
-    ngym.utils.plot_env(env, num_steps=100)  # , def_act=0)

@@ -1,15 +1,23 @@
 """Hierarchical reasoning tasks."""
 
 import numpy as np
-from gym import spaces
 
 import neurogym as ngym
+from neurogym import spaces
 
 
 class HierarchicalReasoning(ngym.TrialEnv):
     """Hierarchical reasoning of rules.
 
-
+    On each trial, the subject receives two flashes separated by a delay
+    period. The subject needs to judge whether the duration of this delay
+    period is shorter than a threshold. Both flashes appear at the
+    same location on each trial. For one trial type, the network should
+    report its decision by going to the location of the flashes if the delay is
+    shorter than the threshold. In another trial type, the network should go to
+    the opposite direction of the flashes if the delay is short.
+    The two types of trials are alternated across blocks, and the block
+    transtion is unannouced.
     """
     metadata = {
         'paper_link': 'https://science.sciencemag.org/content/364/6441/eaav8911',
@@ -40,11 +48,11 @@ class HierarchicalReasoning(ngym.TrialEnv):
 
         self.abort = False
 
+        name = {'fixation': 0, 'rule': [1, 2], 'stimulus': [3, 4]}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(5,), dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'rule': [1, 2], 'stimulus': [3, 4]}
-        self.action_space = spaces.Discrete(5)
-        self.act_dict = {'fixation': 0, 'rule': [1, 2], 'choice': [3, 4]}
+            -np.inf, np.inf, shape=(5,), dtype=np.float32, name=name)
+        name = {'fixation': 0, 'rule': [1, 2], 'choice': [3, 4]}
+        self.action_space = spaces.Discrete(5, name=name)
 
         self.chose_correct_rule = False
         self.rule = 0
@@ -79,7 +87,7 @@ class HierarchicalReasoning(ngym.TrialEnv):
         self.add_period(periods)
 
         # Observations
-        stimulus = self.ob_dict['stimulus'][trial['stimulus']]
+        stimulus = self.observation_space.name['stimulus'][trial['stimulus']]
         if pro_choice:
             choice = trial['stimulus']
         else:
@@ -92,9 +100,8 @@ class HierarchicalReasoning(ngym.TrialEnv):
         self.add_ob(1, 'flash2', where=stimulus)
 
         # Ground truth
-        self.set_groundtruth(self.act_dict['choice'][choice], 'decision')
-        self.set_groundtruth(
-            self.act_dict['rule'][trial['rule']], 'rule_target')
+        self.set_groundtruth(choice, period='decision', where='choice')
+        self.set_groundtruth(trial['rule'], period='rule_target', where='rule')
 
         # Start new block?
         self.trial_in_block += 1
