@@ -1,5 +1,3 @@
-import importlib
-from inspect import getmembers, isfunction, isclass
 
 import gym
 from gym.envs.registration import register

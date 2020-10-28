@@ -2,15 +2,21 @@
 # -*- coding: utf-8 -*-
 """Ready-set-go task."""
 
-from __future__ import division
-
 import numpy as np
-from gym import spaces
+
 import neurogym as ngym
+from neurogym import spaces
 
 
 class ReadySetGo(ngym.TrialEnv):
     r"""Agents have to measure and produce different time intervals.
+
+    A stimulus is briefly shown during a ready period, then again during a
+    set period. The ready and set periods are separated by a measure period,
+    the duration of which is randomly sampled on each trial. The agent is
+    required to produce a response after the set cue such that the interval
+    between the response and the set cue is as close as possible to the
+    duration of the measure period.
 
     Args:
         gain: Controls the measure that the agent has to produce. (def: 1, int)
@@ -47,11 +53,12 @@ class ReadySetGo(ngym.TrialEnv):
 
         self.abort = False
         # set action and observation space
-        self.action_space = spaces.Discrete(2)  # (fixate, go)
-        self.act_dict = {'fixation': 0, 'go': 1}
+        name = {'fixation': 0, 'ready': 1, 'set': 2}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'ready': 1, 'set': 2}
+                                            dtype=np.float32, name=name)
+
+        name = {'fixation': 0, 'go': 1}
+        self.action_space = spaces.Discrete(2, name=name)  # (fixate, go)
 
     def _new_trial(self, **kwargs):
         measure = self.sample_time('measure')
@@ -82,12 +89,9 @@ class ReadySetGo(ngym.TrialEnv):
         return trial
 
     def _step(self, action):
-        # ---------------------------------------------------------------------
-        # Reward and inputs
-        # ---------------------------------------------------------------------
         trial = self.trial
         reward = 0
-        obs = self.ob_now
+        ob = self.ob_now
         gt = self.gt_now
         new_trial = False
         if self.in_period('fixation'):
@@ -110,7 +114,7 @@ class ReadySetGo(ngym.TrialEnv):
                     reward *= self.rewards['correct']
                     self.performance = 1
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return ob, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
 class MotorTiming(ngym.TrialEnv):
@@ -187,7 +191,7 @@ class MotorTiming(ngym.TrialEnv):
         # ---------------------------------------------------------------------
         trial = self.trial
         reward = 0
-        obs = self.ob_now
+        ob = self.ob_now
         gt = self.gt_now
         new_trial = False
         if self.in_period('fixation'):
@@ -209,7 +213,7 @@ class MotorTiming(ngym.TrialEnv):
                     reward *= self.rewards['correct']
                     self.performance = 1
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return ob, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
 class OneTwoThreeGo(ngym.TrialEnv):
@@ -251,11 +255,11 @@ class OneTwoThreeGo(ngym.TrialEnv):
 
         self.abort = False
         # set action and observation space
-        self.action_space = spaces.Discrete(2)  # (fixate, go)
-        self.act_dict = {'fixation': 0, 'go': 1}
+        name = {'fixation': 0, 'stimulus': 1, 'target': 2}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': 1, 'target': 2}
+                                            dtype=np.float32, name=name)
+        name = {'fixation': 0, 'go': 1}
+        self.action_space = spaces.Discrete(2, name=name)
 
     def _new_trial(self, **kwargs):
         interval = self.sample_time('interval1')
@@ -278,7 +282,7 @@ class OneTwoThreeGo(ngym.TrialEnv):
         self.set_ob(0, 'fixation', where='target')
 
         # set ground truth
-        self.set_groundtruth(self.act_dict['go'], period='response')
+        self.set_groundtruth(1, period='response')
 
         return trial
 
@@ -288,7 +292,7 @@ class OneTwoThreeGo(ngym.TrialEnv):
         # ---------------------------------------------------------------------
         trial = self.trial
         reward = 0
-        obs = self.ob_now
+        ob = self.ob_now
         gt = self.gt_now
         new_trial = False
         if self.in_period('interval3') or self.in_period('response'):
@@ -310,10 +314,5 @@ class OneTwoThreeGo(ngym.TrialEnv):
                 new_trial = self.abort
                 reward = self.rewards['abort']
 
-        return obs, reward, False, {'new_trial': new_trial, 'gt': gt}
-
-
-if __name__ == '__main__':
-    env = ReadySetGo(dt=50)
-    ngym.utils.plot_env(env, num_steps=100, def_act=0)
+        return ob, reward, False, {'new_trial': new_trial, 'gt': gt}
 
