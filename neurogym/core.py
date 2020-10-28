@@ -141,13 +141,13 @@ class TrialEnv(BaseEnv):
             trial: dict of trial information. Available to step function as
                 self.trial
         """
+        # Reset for the current trial
+        self._ob_built = False
+        self._gt_built = False
         trial = self._new_trial(**kwargs)
         self.trial = trial
         self.num_tr += 1  # Increment trial count
-        # Reset for next trial
-        self._ob_built = False
         self._has_gt = self._gt_built
-        self._gt_built = False
         self._tmax = 0  # reset, self.tmax not reset so it can be used in step
         return trial
 
