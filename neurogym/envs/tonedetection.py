@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""tone detection auditory decision-making task."""
+"""auditory tone detection task."""
 
 import numpy as np
 from gym import spaces
@@ -11,11 +11,17 @@ import neurogym as ngym
 class tonedetection(ngym.TrialEnv):
     '''
     By Ru-Yuan Zhang (ruyuanzhang@gmail.com)
-    A subject is asked to report whether a pure tone is embeddied within a background noise
+    A subject is asked to report whether a pure tone is embeddied within a background noise. If yes, should indicate the position of the tone. The tone lasts 50ms and could appear at the 500ms, 1000ms, and 1500ms. The tone is embbeded within noises.
+
+    Note in this version we did not consider the fixation period as we mainly aim to model human data. 
+    
+    For an animal version of this task, please consider to include fixation and saccade cues. See 
+    https://www.nature.com/articles/nn1386
+
 
     Args:
-        <dt>: delta time
-        <sigma>: float, input noise level,
+        <dt>: milliseconds, delta time,
+        <sigma>: float, input noise level, control the task difficulty
     '''
 
     metadata = {
@@ -24,7 +30,7 @@ class tonedetection(ngym.TrialEnv):
         'tags': ['auditory', 'perceptual', 'supervised', 'decision']
     }
 
-    def __init__(self, dt=25, sigma=0.2, timing=None):
+    def __init__(self, dt=50, sigma=0.2, timing=None):
         super().__init__(dt=dt)
 
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
@@ -33,13 +39,15 @@ class tonedetection(ngym.TrialEnv):
         self.rewards = {'abort': -0.1, 'correct': +1., 'noresp': -0.1}  # need to change here
 
         self.timing = {
-            'stimulus': 2000,
-            'decision': 2000
+            'stimulus': 2000
             }
         if timing:
             self.timing.update(timing)
         self.toneTiming = [500, 1000, 1500] # ms, the onset times of a tone
         self.toneDur = 50 # ms, the duration of a tone
+
+        self.toneTimingIdx = [i/self.toneTiming for i in self.toneTiming]
+        self.stimArray = np.zeros(self.timing['stimulus']/self.toneDur)
 
         self.abort = False
 
@@ -49,7 +57,7 @@ class tonedetection(ngym.TrialEnv):
         self.observation_space = spaces.Box(
             -np.inf, np.inf, shape=(1+1,), dtype=np.float32)
         self.ob_dict = {'fixation': 0, 'stimulus': 1}
-        self.action_space = spaces.Discrete(5)
+        self.action_space = spaces.Discrete(4)
         self.act_dict = {'fixation': 0, 'choice': range(1, 5+1)}
 
     def _new_trial(self, condition=None):
@@ -61,65 +69,48 @@ class tonedetection(ngym.TrialEnv):
 
         # Trial info
         trial = {
-            'setsize': setsize,
-            'stim': stim,
-            'ground_truth': stim[target_ind],
+            'ground_truth': condition,
         }
 
+        # generate tone stimulus
+        stim = self.stimArray.copy()
+        if condition != 0:
+            stim[self.toneTimingIdx[condition-1]] = 1
+
         ground_truth = trial['ground_truth']
-        stim_theta = self.theta[ground_truth]
 
         # Periods
-        self.add_period(['stimulus', 'decision'])
+        self.add_period(['stimulus'])
 
         # Observations
         
-        # add fixtion
-        self.add_ob(1, period=['stimulus'], where='fixation') # where indicate the row to add observation
-        
         # generate stim input
         # define stimulus
-        self.add_ob(stimInput, 'stimulus', where='stimulus')
+        self.add_ob(stim, 'stimulus', where='stimulus')
         self.add_randn(0, self.sigma, 'stimulus') # add input noise
-        # Todo, shall we add noise to delay period??
-
-        # add target cue
-        cueInput = np.zeros((8))
-        cueInput[target_ind] = 1
-        self.add_ob(cueInput, 'decision', where='targetCue')
         
         # Ground truth
-        self.set_groundtruth(stim_theta, 'decision')
+        self.set_groundtruth(ground_truth, 'stimulus')
 
         return trial
 
     def _step(self, action):
         """
+        In this tone detection task, no need to define reward step function, just output the final choice.
         """
         new_trial = False
         # rewards
         reward = 0
         gt = self.gt_now
-        # observations
-        if self.in_period('stimulus'):
-            if action != 0:  # action = 0 means fixating
-                new_trial = self.abort
-                reward += self.rewards['abort']
-        elif self.in_period('decision'):
-            if action != 0:
-                new_trial = True                
-                reward += self.rewards['correct']-np.abs(gt-action)/180 # smaller response error, larger rewards
-                self.performance = 1
-        else: # no response during decision time window
-                new_trial = True
-                reward += self.rewards['noresp']
-            
+        # # observations
+        # if self.in_period('stimulus'): # start a new trial once step into decision stage       
+        #          new_trial = True
         return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
 
 if __name__ == '__main__':
-    env = tonedetection(dt=20, timing=None)
+    env = tonedetection(dt=50, timing=None)
     ngym.utils.plot_env(env, num_steps=100, def_act=1)
     # env = PerceptualDecisionMakingDelayResponse()
     # ngym.utils.plot_env(env, num_steps=100, def_act=1)
