@@ -4,76 +4,61 @@
 Multi-arm Bandit task
 TODO: add the actual papers
 """
-from __future__ import division
-
 import numpy as np
-from gym import spaces
+
 import neurogym as ngym
+from neurogym import spaces
 
 
 class Bandit(ngym.TrialEnv):
     """Multi-arm bandit task.
 
-    The agent has to select between N actions with different reward
-    probabilities.
+    On each trial, the agent is presented with multiple choices. Each
+    option produces a reward of a certain magnitude given a certain probability.
+
+    Args:
+        n: int, the number of choices (arms)
+        p: tuple of length n, describes the probability of each arm
+            leading to reward
+        rewards: tuple of length n, describe the reward magnitude of each option when rewarded
     """
     metadata = {
         'paper_link': 'https://www.nature.com/articles/s41593-018-0147-8',
         'paper_name': 'Prefrontal cortex as a meta-reinforcement learning' +
         ' system',
-        'tags': ['n-alternative', 'supervised']
+        'tags': ['n-alternative']
     }
 
-    def __init__(self, dt=100, n_arm=2, probs=(.9, .1), gt_arm=0,
-                 rewards=None, timing=None):
+    def __init__(self, dt=100, n=2, p=(.5, .5), rewards=None, timing=None):
         super().__init__(dt=dt)
         if timing is not None:
             print('Warning: Bandit task does not require timing variable.')
 
-        # Rewards
-        self.rewards = {'correct': +1.}
         if rewards:
-            self.rewards.update(rewards)
-        self.rewards['correct'] = self.rewards['correct']
+            self.rewards = rewards
+        else:
+            self.rewards = np.ones(n)  # 1 for every arm
 
-        self.n_arm = n_arm
-        self.gt_arm = gt_arm
+        self.n = n
+        self.p = np.array(p)  # Reward probabilities
 
-        # Reward probabilities
-        self.p_high = probs[0]
-        self.p_low = probs[1]
-
-        self.action_space = spaces.Discrete(n_arm)
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(1,),
                                             dtype=np.float32)
+        self.action_space = spaces.Discrete(n)
 
     def _new_trial(self, **kwargs):
-        # ---------------------------------------------------------------------
-        # Trial
-        # ---------------------------------------------------------------------
-        rew_high_reward_arm = (self.rng.rand() <
-                               self.p_high) * self.rewards['correct']
-        rew_low_reward_arm = (self.rng.rand() < self.p_low) * self.rewards['correct']
-        trial = {
-            'rew_high_reward_arm': rew_high_reward_arm,
-            'rew_low_reward_arm': rew_low_reward_arm,
-            'high_reward_arm': self.gt_arm,
-            }
+        trial = {'p': self.p, 'rewards': self.rewards}
         trial.update(kwargs)
+
         self.ob = np.zeros((1, self.observation_space.shape[0]))
-        self.gt = np.array([self.gt_arm])
 
         return trial
 
     def _step(self, action):
         trial = self.trial
-        info = {'new_trial': True, 'gt': self.gt}
 
-        obs = self.ob[0]
-        if action == trial['high_reward_arm']:
-            reward = trial['rew_high_reward_arm']
-            self.performance = 1
-        else:
-            reward = trial['rew_low_reward_arm']
+        ob = self.ob[0]
+        reward = (self.rng.random() < trial['p'][action]) * trial['rewards'][action]
+        info = {'new_trial': True}
 
-        return obs, reward, False, info
+        return ob, reward, False, info

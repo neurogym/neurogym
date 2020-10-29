@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from gym import spaces
+
 import neurogym as ngym
+from neurogym import spaces
 
 
 class DelayComparison(ngym.TrialEnv):
-    """Delay comparison.
+    """Delayed comparison.
 
-    Two-alternative forced choice task in which the subject
-    has to compare two stimuli separated by a delay to decide
-    which one has a higher frequency.
+    The agent needs to compare the magnitude of two stimuli are separated by a
+    delay period. The agent reports its decision of the stronger stimulus
+    during the decision period.
     """
     metadata = {
         'paper_link': 'https://www.jneurosci.org/content/30/28/9424',
@@ -20,11 +21,15 @@ class DelayComparison(ngym.TrialEnv):
                  'supervised']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0):
+    def __init__(self, dt=100, vpairs=None, rewards=None, timing=None,
+                 sigma=1.0):
         super().__init__(dt=dt)
 
-        # trial conditions
-        self.fpairs = [(18, 10), (22, 14), (26, 18), (30, 22), (34, 26)]
+        # Pair of stimulus strengthes
+        if vpairs is None:
+            self.vpairs = [(18, 10), (22, 14), (26, 18), (30, 22), (34, 26)]
+        else:
+            self.vpairs = vpairs
 
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
@@ -34,10 +39,10 @@ class DelayComparison(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            'fixation': lambda: self.rng.uniform(1500, 3000),
-            'f1': 500,
-            'delay': 3000,
-            'f2': 500,
+            'fixation': 500,
+            'stimulus1': 500,
+            'delay': 1000,
+            'stimulus2': 500,
             'decision': 100}
         if timing:
             self.timing.update(timing)
@@ -45,52 +50,52 @@ class DelayComparison(ngym.TrialEnv):
         self.abort = False
 
         # Input scaling
-        self.fall = np.ravel(self.fpairs)
-        self.fmin = np.min(self.fall)
-        self.fmax = np.max(self.fall)
+        self.vall = np.ravel(self.vpairs)
+        self.vmin = np.min(self.vall)
+        self.vmax = np.max(self.vall)
 
         # action and observation space
+        name = {'fixation': 0, 'stimulus': 1}
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,),
-                                            dtype=np.float32)
-        self.ob_dict = {'fixation': 0, 'stimulus': 1}
-        self.action_space = spaces.Discrete(3)
-        self.act_dict = {'fixation': 0, 'choice': [1, 2]}
+                                            dtype=np.float32, name=name)
+        name = {'fixation': 0, 'choice': [1, 2]}
+        self.action_space = spaces.Discrete(3, name=name)
+
+        self.choices = [1, 2]
 
     def _new_trial(self, **kwargs):
         trial = {
-            'ground_truth': self.rng.choice(self.act_dict['choice']),
-            'fpair': self.fpairs[self.rng.choice(len(self.fpairs))]
+            'ground_truth': self.rng.choice(self.choices),
+            'vpair': self.vpairs[self.rng.choice(len(self.vpairs))]
         }
         trial.update(kwargs)
 
-        f1, f2 = trial['fpair']
+        v1, v2 = trial['vpair']
         if trial['ground_truth'] == 2:
-            f1, f2 = f2, f1
-        trial['f1'] = f1
-        trial['f2'] = f2
+            v1, v2 = v2, v1
+        trial['v1'] = v1
+        trial['v2'] = v2
 
         # Periods
-        periods = ['fixation', 'f1', 'delay', 'f2', 'decision']
+        periods = ['fixation', 'stimulus1', 'delay', 'stimulus2', 'decision']
         self.add_period(periods)
 
         self.add_ob(1, where='fixation')
-        self.add_ob(self.scale_p(f1), 'f1', where='stimulus')
-        self.add_ob(self.scale_p(f2), 'f2', where='stimulus')
+        self.add_ob(self.represent(v1), 'stimulus1', where='stimulus')
+        self.add_ob(self.represent(v2), 'stimulus2', where='stimulus')
         self.set_ob(0, 'decision')
-        self.add_randn(0, self.sigma, ['f1', 'f2'])
+        self.add_randn(0, self.sigma, ['stimulus1', 'stimulus2'])
 
         self.set_groundtruth(trial['ground_truth'], 'decision')
 
         return trial
 
-    def scale(self, f):
-        return (f - self.fmin)/(self.fmax - self.fmin)
-
-    def scale_p(self, f):
-        return (1 + self.scale(f))/2
-
-    def scale_n(self, f):
-        return (1 - self.scale(f))/2
+    def represent(self, v):
+        """Input representation of stimulus value."""
+        # Scale to be between 0 and 1
+        v_ = (v - self.vmin) / (self.vmax - self.vmin)
+        # positive encoding, between 0.5 and 1
+        return (1 + v_) / 2
 
     def _step(self, action):
         # ---------------------------------------------------------------------
@@ -115,8 +120,3 @@ class DelayComparison(ngym.TrialEnv):
                     reward = self.rewards['fail']
 
         return ob, reward, False, {'new_trial': new_trial, 'gt': gt}
-
-
-if __name__ == '__main__':
-    env = DelayComparison()
-    ngym.utils.plot_env(env, num_steps=100)

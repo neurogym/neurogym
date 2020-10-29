@@ -13,10 +13,10 @@ import neurogym as ngym
 class PsychopyEnv(ngym.TrialEnv):
     """Superclass for environments with psychopy stimuli."""
 
-    def __init__(self, win_kwargs={'size':(100, 100)}, *args, **kwargs):
+    def __init__(self, win_kwargs=None, *args, **kwargs):
         super(PsychopyEnv, self).__init__(*args, **kwargs)
         
-        win_kwargs_tmp = win_kwargs.copy() # avoid bug for multi env in a batch  
+        win_kwargs_tmp = win_kwargs.copy() # fix the bug for multi env in a batch  
         if sys.platform == 'darwin':
             # TODO: Check if this works across platform
             win_kwargs_tmp['size'] = (int(win_kwargs_tmp['size'][0]/2),

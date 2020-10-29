@@ -26,8 +26,8 @@ You can perform a minimal install of ``neurogym`` with:
     git clone https://github.com/gyyang/neurogym.git
     cd neurogym
     pip install -e .
-
-Or a full install by replacing the last command with ``pip install -e '.[all]'``.
+    
+Or a full install by replacing the last command with ``pip install -e '.[all]'``
 
 ### Tasks
 Currently implemented tasks can be found [here](https://github.com/gyyang/neurogym/blob/master/docs/envs.md).
@@ -92,7 +92,9 @@ class YourTask(ngym.PeriodEnv):
     [Manuel Molano](https://github.com/manuelmolano) (manuelmolanomazon@gmail.com).
     [Guangyu Robert Yang](https://github.com/gyyang) (gyyang.neuro@gmail.com).
 
-* Contributors
+* Contributors (listed in chronological order)
 
     [Marta Fradera](https://github.com/martafradera),
-    [Jordi Pastor](https://github.com/pastorjordi)
+    [Jordi Pastor](https://github.com/pastorjordi),
+    [Jeremy Forest](https://github.com/jeremyforest),
+    [Ru-Yuan Zhang](https://github.com/ruyuanzhang)

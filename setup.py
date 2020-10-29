@@ -36,7 +36,7 @@ setup(name='neurogym',
       ],
       extras_require=extras,
       description='NeuroGym: Gym-style cognitive neuroscience tasks',
-      author='Manuel Molano and Guangyu Robert Yang',
-      url='https://github.com/gyyang/neurogym',
+      author='Manuel Molano, Guangyu Robert Yang, and contributors',
+      url='https://github.com/neurogym/neurogym',
       version=VERSION)
 

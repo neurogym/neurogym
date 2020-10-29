@@ -1,10 +1,10 @@
 from gym import spaces
 import neurogym as ngym
-from neurogym.core import TrialWrapperV2
+from neurogym.core import TrialWrapper
 import numpy as np
 
 
-class RandomGroundTruth(TrialWrapperV2):
+class RandomGroundTruth(TrialWrapper):
     # TODO: A better name?
     """"""
     def __init__(self, env, p=None):
@@ -28,7 +28,7 @@ class RandomGroundTruth(TrialWrapperV2):
         return self.env.new_trial(**kwargs)
 
 
-class ScheduleAttr(TrialWrapperV2):
+class ScheduleAttr(TrialWrapper):
     """Schedule attributes.
 
     Args:
@@ -65,7 +65,7 @@ def _have_equal_shape(envs):
                 ' and ' + str(env_act_shape) + ' for ' + str(envs[0]))
 
 
-class MultiEnvs(TrialWrapperV2):
+class MultiEnvs(TrialWrapper):
     """Wrap multiple environments.
 
     Args:
@@ -111,7 +111,7 @@ class MultiEnvs(TrialWrapperV2):
             return trial
 
 
-class ScheduleEnvs(TrialWrapperV2):
+class ScheduleEnvs(TrialWrapper):
     """Schedule environments.
 
     Args:
@@ -156,7 +156,7 @@ class ScheduleEnvs(TrialWrapperV2):
             return trial
 
 
-class TrialHistoryV2(TrialWrapperV2):
+class TrialHistoryV2(TrialWrapper):
     """Change ground truth probability based on previous outcome.
 
     Args:

@@ -1,10 +1,10 @@
 """Random dot motion task."""
 
 import numpy as np
-from gym import spaces
 from psychopy import visual
 
 import neurogym as ngym
+from neurogym import spaces
 from .psychopy_env import PsychopyEnv
 
 
@@ -46,8 +46,8 @@ class RandomDotMotion(PsychopyEnv):
         self.theta = np.linspace(0, 2 * np.pi, dim_ring + 1)[:-1]
         self.choices = np.arange(dim_ring)
 
-        self.action_space = spaces.Discrete(1 + dim_ring)
-        self.act_dict = {'fixation': 0, 'choice': range(1, dim_ring + 1)}
+        name = {'fixation': 0, 'choice': range(1, dim_ring + 1)}
+        self.action_space = spaces.Discrete(1 + dim_ring, name=name)
 
     def _new_trial(self, **kwargs):
         # Trial info
@@ -72,7 +72,7 @@ class RandomDotMotion(PsychopyEnv):
         self.add_ob(stim, 'stimulus')
 
         # Ground truth
-        self.set_groundtruth(self.act_dict['choice'][ground_truth], 'decision')
+        self.set_groundtruth(ground_truth, period='decision', where='choice')
 
         return trial
 
