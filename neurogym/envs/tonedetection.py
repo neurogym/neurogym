@@ -8,7 +8,7 @@ from gym import spaces
 import neurogym as ngym
 
 
-class tonedetection(ngym.TrialEnv):
+class ToneDetection(ngym.TrialEnv):
     '''
     By Ru-Yuan Zhang (ruyuanzhang@gmail.com)
     A subject is asked to report whether a pure tone is embeddied within a background noise. If yes, should indicate the position of the tone. The tone lasts 50ms and could appear at the 500ms, 1000ms, and 1500ms. The tone is embbeded within noises.
@@ -46,16 +46,16 @@ class tonedetection(ngym.TrialEnv):
         self.toneTiming = [500, 1000, 1500] # ms, the onset times of a tone
         self.toneDur = 50 # ms, the duration of a tone
 
-        self.toneTimingIdx = [i/self.toneTiming for i in self.toneTiming]
-        self.stimArray = np.zeros(self.timing['stimulus']/self.toneDur)
+        self.toneTimingIdx = [int(i / self.toneDur) for i in self.toneTiming]
+        self.stimArray = np.zeros(int(self.timing['stimulus']/self.toneDur))
 
         self.abort = False
 
-        self.sigals = np.linspace(0, 1, 5)[:-1] # signal strength
+        self.signals = np.linspace(0, 1, 5)[:-1] # signal strength
         self.conditions = [0, 1, 2, 3] # no tone, tone at position 1/2/3
 
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1+1,), dtype=np.float32)
+            -np.inf, np.inf, shape=(1,), dtype=np.float32)
         self.ob_dict = {'fixation': 0, 'stimulus': 1}
         self.action_space = spaces.Discrete(4)
         self.act_dict = {'fixation': 0, 'choice': range(1, 5+1)}
@@ -86,11 +86,12 @@ class tonedetection(ngym.TrialEnv):
         
         # generate stim input
         # define stimulus
-        self.add_ob(stim, 'stimulus', where='stimulus')
+        stim = stim[:, np.newaxis] # stimulus must be at least two dimension with the 1st dimen as seq_len
+        self.add_ob(stim, 'stimulus')
         self.add_randn(0, self.sigma, 'stimulus') # add input noise
         
         # Ground truth
-        self.set_groundtruth(ground_truth, 'stimulus')
+        self.set_groundtruth(ground_truth)
 
         return trial
 
@@ -108,9 +109,8 @@ class tonedetection(ngym.TrialEnv):
         return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
 
 
-
 if __name__ == '__main__':
-    env = tonedetection(dt=50, timing=None)
+    env = ToneDetection(dt=50, timing=None)
     ngym.utils.plot_env(env, num_steps=100, def_act=1)
     # env = PerceptualDecisionMakingDelayResponse()
     # ngym.utils.plot_env(env, num_steps=100, def_act=1)

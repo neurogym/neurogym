@@ -85,7 +85,9 @@ NATIVE_ALLOW_LIST = [
     'Reaching1DWithSelfDistraction',
     'ReachingDelayResponse',
     'ReadySetGo',
-    'SingleContextDecisionMaking'
+    'SingleContextDecisionMaking',
+    'SpatialSuppressMotion3',
+    'ToneDetection'
 ]
 ALL_NATIVE_ENVS = _get_envs(foldername=None, env_prefix=None,
                             allow_list=NATIVE_ALLOW_LIST)
@@ -110,7 +112,6 @@ CONTRIB_ALLOW_LIST = [
     # 'MatchingPenny',
     # 'MemoryRecall',
     # 'Pneumostomeopening'
-    'SpatialSuppressMotion3'
 ]
 ALL_CONTRIB_ENVS = _get_envs(foldername='contrib', env_prefix='contrib',
                              allow_list=CONTRIB_ALLOW_LIST)

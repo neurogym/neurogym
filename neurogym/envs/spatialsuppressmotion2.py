@@ -53,7 +53,7 @@ class SpatialSuppressMotion2(ngym.TrialEnv):
         
         # define observation space
         self.observation_space = spaces.Box(
-            0, np.inf, shape=(6,), dtype=np.float32) # action space, 4 directions + diameter and contrast
+            0, np.inf, shape=(6,), dtype=np.float32) # observation space, 4 direction selective neurons, diameter, and contrast
 
         self.directions = [1, 2, 3, 4] # motion direction left/right/up/down
         self.directions_anti = [2, 1, 4, 3]
@@ -107,6 +107,8 @@ class SpatialSuppressMotion2(ngym.TrialEnv):
         
         ob[:, trial['direction']-1] = 1
 
+
+        import ipdb;ipdb.set_trace();import matplotlib.pyplot as plt;
         # set observation and groundtruth
         self.set_ob(ob, 'stimulus')
         self.set_groundtruth(trial['ground_truth'], 'stimulus')
