@@ -61,7 +61,7 @@ class SpatialSuppressMotion(ngym.TrialEnv):
         # larger stimulus could elicit more neurons to fire
 
         self.directions = [1, 2, 3, 4] # motion direction left/right/up/down
-        self.theta = [pi*3/2, pi/2, 0, pi] # direction angle of the four directions
+        self.theta = [-pi/2, pi/2, 0, pi] # direction angle of the four directions
         self.directions_anti = [2, 1, 4, 3]
         self.directions_ortho = [[3, 4], [3, 4], [1, 2], [1, 2]]
 
@@ -69,7 +69,7 @@ class SpatialSuppressMotion(ngym.TrialEnv):
     def _new_trial(self, diameter=None, contrast=None, direction=None):
         '''
         To define a stimulus, we need diameter, contrast, duration, direction
-        <diameter>: 0~1, stimulus size in norm units
+        <diameter>: 0~8, stimulus size in norm units
         <contrast>: 0~1, stimulus contrast
         <direction>: int(1/2/3/4), left/right/up/down
         '''
@@ -78,25 +78,25 @@ class SpatialSuppressMotion(ngym.TrialEnv):
         # if no stimulus information provided, we random sample stimulus parameters  
         if direction is None:
             direction = self.rng.choice(self.directions)
-        if diameter is None:
-            #diameter = self.rng.uniform(0.125, 1)  # proportion of the window size
-            diameter = 8 # we fixed for now
         if contrast is None:
             #contrast = self.rng.uniform(0, 1) # stimlus contrast
             contrast = self.rng.choice([0.05, 0.99])  # Low contrast, and high contrast
-    
+        # here we only consider small-low contrast and large-high contrast condition
+        if contrast == 0.05: # small low contrast
+            diameter = 1
+        elif contrast == 0.99: # large high contrast
+            diameter = 8
+        
         trial = {
-            'diameter':   diameter,
+            'diameter': diameter,
             'contrast': contrast,
             'direction': direction,
         }
-
 
         # Periods and Timing
         # we only need stimulus period for this psychophysical task
         periods = ['stimulus']
         self.add_period(periods)
-
 
         # We need ground_truth
         # the probablities to choose four directions given stimulus parameters
@@ -106,8 +106,9 @@ class SpatialSuppressMotion(ngym.TrialEnv):
         ob = self.view_ob(period='stimulus')
         ob = np.zeros((ob.shape[0], ob.shape[1]))        
         
-        stim = np.cos(np.array(self.theta) - self.theta[1]) * contrast/2 + 0.5
+        stim = (np.cos(np.array(self.theta) - self.theta[direction-1])+1) * contrast / 2       
         stim = np.tile(stim, [diameter, 1])
+
         if diameter != 8:
             tmp = np.zeros((8-diameter, 4))
             stim = np.vstack((stim, tmp)).T.flatten()
@@ -162,12 +163,12 @@ class SpatialSuppressMotion(ngym.TrialEnv):
         seq_len = self.view_ob(period='stimulus').shape[0]
         xnew = np.arange(seq_len)
 
-        if trial['contrast'] == 0.99:
+        if trial['contrast'] > 0.5:
             # large size (11 deg radius), High contrast
             prob_corr = yy + [0.249, 0.249, 0.249, 0.27, 0.32, 0.4583, 0.65, 0.85, 0.99, 0.99, 0.99, 0.99]
             prob_anti = yy + [0.249, 0.29, 0.31, 0.4, 0.475, 0.4167, 0.3083, 0.075, 0.04, 0.04, 0.03, 0.03]
         
-        elif trial['contrast'] == 0.05:
+        elif trial['contrast'] < 0.5:
             # large size (11 deg radius), low contrast
             prob_corr = yy + [0.25, 0.26, 0.2583, 0.325, 0.45, 0.575, 0.875, 0.933, 0.99, 0.99, 0.99,0.99]
             prob_anti = yy + [0.25, 0.26, 0.2583, 0.267, 0.1417, 0.1167, 0.058, 0.016, 0.003, 0.003, 0.003, 0.003]
