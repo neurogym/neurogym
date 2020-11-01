@@ -16,18 +16,16 @@ class PsychopyEnv(ngym.TrialEnv):
     def __init__(self, win_kwargs=None, *args, **kwargs):
         super(PsychopyEnv, self).__init__(*args, **kwargs)
 
-        # Default setting
-        _win_kwargs = {'size':(100, 100), 'color': 'black'}
-        if win_kwargs is not None:
-            _win_kwargs.update(win_kwargs)
-
+        win_kwargs_tmp = win_kwargs.copy() # fix the bug when multi window with different sizes in a batch  
+        if win_kwargs_tmp is None:
+            win_kwargs_tmp={'size': (100, 100), 'color': 'black'}
+        
         if sys.platform == 'darwin':
             # TODO: Check if this works across platform
-            win_size = (int(_win_kwargs['size'][0]/2),
-                        int(_win_kwargs['size'][1]/2))
-            _win_kwargs['size'] = win_size
+            win_kwargs_tmp['size'] = (int(win_kwargs_tmp['size'][0]/2),
+                                      int(win_kwargs_tmp['size'][1]/2))
         # psychopy window kwargs can be supplied by 'win_kws'
-        self.win = visual.Window(**_win_kwargs) # note that default is gray screen
+        self.win = visual.Window(**win_kwargs_tmp)
         self.win.backend.winHandle.set_visible(False)
         self.win.flip()
         im = self.win._getFrame()
