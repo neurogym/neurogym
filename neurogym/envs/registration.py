@@ -86,7 +86,7 @@ NATIVE_ALLOW_LIST = [
     'ReachingDelayResponse',
     'ReadySetGo',
     'SingleContextDecisionMaking',
-    'SpatialSuppressMotion3',
+    'SpatialSuppressMotion',
     'ToneDetection'
 ]
 ALL_NATIVE_ENVS = _get_envs(foldername=None, env_prefix=None,
