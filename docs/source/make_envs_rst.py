@@ -11,7 +11,7 @@ from neurogym.envs.registration import ALL_ENVS
 from neurogym.wrappers import ALL_WRAPPERS
 
 
-ENV_IGNORE = ['Null-v0', 'Pneumostomeopening-v0']
+ENV_IGNORE = ['Null-v0']
 all_envs = dict()
 for key, val in sorted(ALL_ENVS.items()):
     if key in ENV_IGNORE:
@@ -147,7 +147,7 @@ def make_tags():
 
 
 def main():
-    # make_env_images()
+    make_env_images()
     make_envs()
     make_tags()
 
