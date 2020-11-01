@@ -15,8 +15,8 @@ class PsychopyEnv(ngym.TrialEnv):
 
     def __init__(self, win_kwargs=None, *args, **kwargs):
         super(PsychopyEnv, self).__init__(*args, **kwargs)
-        
-        win_kwargs_tmp = win_kwargs.copy() # fix the bug for multi env in a batch  
+
+        win_kwargs_tmp = win_kwargs.copy() # fix the bug for multi window in a batch  
         if sys.platform == 'darwin':
             # TODO: Check if this works across platform
             win_kwargs_tmp['size'] = (int(win_kwargs_tmp['size'][0]/2),
