@@ -18,10 +18,13 @@ class ToneDetection(ngym.TrialEnv):
     For an animal version of this task, please consider to include fixation and saccade cues. See 
     https://www.nature.com/articles/nn1386
 
+    Note that the output labels is of shape (seq_len, batch_size). For a human perceptual task, you can simply run labels = labels[-1, :] get the final output.
+
 
     Args:
         <dt>: milliseconds, delta time,
         <sigma>: float, input noise level, control the task difficulty
+        <timing>: stimulus timing
     '''
 
     metadata = {
