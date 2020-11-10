@@ -11,6 +11,8 @@ from neurogym.utils.random import trunc_exp
 METADATA_DEF_KEYS = ['description', 'paper_name', 'paper_link', 'timing',
                      'tags']
 
+OBNOW = 'ob_unknown_yet'  # TODO: temporary hack to create constant placeholder
+
 
 def _clean_string(string):
     return ' '.join(string.replace('\n', '').split())
@@ -176,6 +178,8 @@ class TrialEnv(BaseEnv):
             trial = self._top.new_trial()
             self.performance = 0
             info['trial'] = trial
+        if ob == OBNOW:
+            ob = self.ob[self.t_ind]
         return ob, reward, done, info
 
     def reset(self, step_fn=None, no_step=False):
@@ -415,7 +419,7 @@ class TrialEnv(BaseEnv):
 
     @property
     def ob_now(self):
-        return self.ob[self.t_ind]
+        return OBNOW
 
     @property
     def gt_now(self):
