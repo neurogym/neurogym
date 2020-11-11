@@ -3,7 +3,7 @@
 
 import numpy as np
 from gym import Wrapper
-from gym import spaces
+from neurogym import spaces
 
 class PassAction(Wrapper):
     """Modifies observation by adding the previous action."""
@@ -20,8 +20,8 @@ class PassAction(Wrapper):
         self.num_act = env.action_space.n
         self.observation_space = spaces.Box(-np.inf, np.inf,
                                             shape=(env_oss+self.num_act,),
-                                            dtype=np.float32)
-  
+                                            dtype=np.float32,name = self.ob_dict)
+        self.action_space = spaces.Discrete(self.num_act,name = self.act_dict) #without this line, env.action_space becomes None for some reason
     def reset(self, step_fn=None):
         if step_fn is None:
             step_fn = self.step
