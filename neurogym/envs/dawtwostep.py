@@ -94,6 +94,7 @@ class DawTwoStep(ngym.TrialEnv):
 
         ob = np.zeros((3,))
         if self.t == 0:  # at stage 1, if action==fixate, abort
+            info['gt'] = self.ground_truth
             if action == 0:
                 reward = self.rewards['abort']
                 info['new_trial'] = True
@@ -103,6 +104,7 @@ class DawTwoStep(ngym.TrialEnv):
                 reward = trial['reward'][int(state-1)]
                 self.performance = action == self.ground_truth
         elif self.t == self.dt:
+            info['gt'] = 0
             ob[0] = 1
             if action != 0:
                 reward = self.rewards['abort']
