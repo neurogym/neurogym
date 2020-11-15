@@ -178,6 +178,8 @@ class TrialEnv(BaseEnv):
             trial = self._top.new_trial()
             self.performance = 0
             info['trial'] = trial
+            if self.num_tr > self.num_tr_exp:
+                done = True
         if ob == OBNOW:
             ob = self.ob[self.t_ind]
         return ob, reward, done, info
