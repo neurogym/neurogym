@@ -11,6 +11,8 @@ from neurogym.utils.random import trunc_exp
 METADATA_DEF_KEYS = ['description', 'paper_name', 'paper_link', 'timing',
                      'tags']
 
+OBNOW = 'ob_unknown_yet'  # TODO: temporary hack to create constant placeholder
+
 
 def _clean_string(string):
     return ' '.join(string.replace('\n', '').split())
@@ -68,6 +70,10 @@ class BaseEnv(gym.Env):
     def __init__(self, dt=100):
         super(BaseEnv, self).__init__()
         self.dt = dt
+        self.t = self.t_ind = 0
+        self.tmax = 10000  # maximum time steps
+        self.performance = 0
+        self.rewards = {}
         self.seed()
 
     # Auxiliary functions
@@ -85,9 +91,6 @@ class TrialEnv(BaseEnv):
 
     def __init__(self, dt=100, num_trials_before_reset=10000000, r_tmax=0):
         super(TrialEnv, self).__init__(dt=dt)
-        self.dt = dt
-        self.t = self.t_ind = 0
-        self.tmax = 10000  # maximum time steps
         self.r_tmax = r_tmax
         self.num_tr = 0
         self.num_tr_exp = num_trials_before_reset
@@ -96,8 +99,6 @@ class TrialEnv(BaseEnv):
         self._gt_built = False
         self._has_gt = False  # check if the task ever defined gt
 
-        self.performance = 0
-        self.rewards = {}
         self._default_ob_value = None  # default to 0
 
         # For optional periods
@@ -141,14 +142,14 @@ class TrialEnv(BaseEnv):
             trial: dict of trial information. Available to step function as
                 self.trial
         """
+        # Reset for next trial
+        self._tmax = 0  # reset, self.tmax not reset so it can be used in step
+        self._ob_built = False
+        self._gt_built = False
         trial = self._new_trial(**kwargs)
         self.trial = trial
         self.num_tr += 1  # Increment trial count
-        # Reset for next trial
-        self._ob_built = False
         self._has_gt = self._gt_built
-        self._gt_built = False
-        self._tmax = 0  # reset, self.tmax not reset so it can be used in step
         return trial
 
     def step(self, action):
@@ -177,6 +178,8 @@ class TrialEnv(BaseEnv):
             trial = self._top.new_trial()
             self.performance = 0
             info['trial'] = trial
+        if ob == OBNOW:
+            ob = self.ob[self.t_ind]
         return ob, reward, done, info
 
     def reset(self, step_fn=None, no_step=False):
@@ -416,7 +419,7 @@ class TrialEnv(BaseEnv):
 
     @property
     def ob_now(self):
-        return self.ob[self.t_ind]
+        return OBNOW
 
     @property
     def gt_now(self):

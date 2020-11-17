@@ -85,7 +85,9 @@ NATIVE_ALLOW_LIST = [
     'Reaching1DWithSelfDistraction',
     'ReachingDelayResponse',
     'ReadySetGo',
-    'SingleContextDecisionMaking'
+    'SingleContextDecisionMaking',
+    'SpatialSuppressMotion',
+    'ToneDetection'
 ]
 ALL_NATIVE_ENVS = _get_envs(foldername=None, env_prefix=None,
                             allow_list=NATIVE_ALLOW_LIST)

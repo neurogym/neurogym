@@ -51,7 +51,6 @@ class Dataset(object):
             self._expand_action = True
         else:
             self._expand_action = False
-
         if cache_len is None:
             # Infer cache len
             cache_len = 1e5  # Probably too low
