@@ -70,7 +70,11 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     perf = []
     ob = env.reset()  # TODO: not saving this first observation
     ob_cum_temp = ob
-
+    if isinstance(ob, list) or ob.shape[0] == 1:
+        ob_aux = ob[0]
+    else:
+        ob_aux = ob
+    observations.append(ob_aux.copy())
     if num_trials is not None:
         num_steps = 1e5  # Overwrite num_steps value
 
@@ -124,9 +128,8 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         states = states[:, 0, :]
     else:
         states = None
-
     data = {
-        'ob': np.array(observations).astype(np.float),
+        'ob': np.array(observations[:-1]).astype(np.float),
         'ob_cum': np.array(ob_cum).astype(np.float),
         'rewards': rewards,
         'actions': actions,
