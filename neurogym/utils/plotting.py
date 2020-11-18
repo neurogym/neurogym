@@ -79,9 +79,10 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         num_steps = 1e5  # Overwrite num_steps value
 
     trial_count = 0
+    done, _states = False, None
     for stp in range(int(num_steps)):
         if model is not None:
-            action, _states = model.predict(ob)
+            action, _states = model.predict(ob, deterministic=True, state=_states)
             if isinstance(action, float) or isinstance(action, int):
                 action = [action]
             if len(_states) > 0:
@@ -271,6 +272,9 @@ def plot_env_1dbox(
         i_ax += 1
         ax.plot(steps, rewards, 'r', label='Rewards')
         ax.set_ylabel('Reward')
+        rewards = np.array(rewards)
+        sum_rew = np.sum(rewards)
+        ax.set_title('Total reward: ' + str(np.round(sum_rew, 2)))
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
         if legend:
@@ -317,7 +321,7 @@ def plot_env_1dbox(
     plt.tight_layout()
     if fname:
         fname = str(fname)
-        if not (fname.endswith('.png') or fname.endswith('.svg')):
+        if not (fname.endswith('.png') or fname.endswith('.svg') or fname.endswith('.pdf')):
             fname += '.png'
         f.savefig(fname, dpi=300)
         plt.close(f)
