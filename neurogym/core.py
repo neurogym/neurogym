@@ -44,10 +44,13 @@ def env_string(env):
     #         string +=\
     #             key + ' : ' + tasktools.random_number_name(dist, args) + '\n'
 
-    if env.rewards:
+    if env.rewards is not None: #if env.rewards is an array, if env.rewards will throw an error
         string += '\nReward structure \n'
-        for key, val in env.rewards.items():
-            string += key + ' : ' + str(val) + '\n'
+        try: #if the reward structure is a dictionary
+            for key, val in env.rewards.items():
+                string += key + ' : ' + str(val) + '\n'
+        except AttributeError: #otherwise just add the reward structure to the string?
+            string += str(env.rewards)
 
     # add extra info
     other_info = list(set(metadata.keys()) - set(METADATA_DEF_KEYS))
