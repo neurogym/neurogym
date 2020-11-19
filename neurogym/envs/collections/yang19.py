@@ -37,7 +37,8 @@ class _MultiModalityStimulus(TrialWrapper):
         ob_space = self.task.observation_space
         ob_shape = ob_space.shape[0] + (n_modality - 1) * len_stimulus
         # Shift stimulus
-        name = {'stimulus': ind_stimulus + len_stimulus * modality}
+        name = {'fixation': 0,
+                'stimulus': ind_stimulus + len_stimulus * modality}
         self.observation_space = self.task.observation_space = spaces.Box(
             -np.inf, np.inf, shape=(ob_shape,), dtype=ob_space.dtype, name=name)
 
@@ -352,7 +353,6 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
         name = {'fixation': 0, 'choice': range(1, dim_ring + 1)}
         self.action_space = spaces.Discrete(1+dim_ring, name=name)
 
-
     def _new_trial(self, **kwargs):
         # Trial info
         trial = {
@@ -396,6 +396,9 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
         if ((ground_truth == 'match' and self.matchgo) or
                 (ground_truth == 'non-match' and not self.matchgo)):
             self.set_groundtruth(i_test_theta, period='decision', where='choice')
+        else:
+            self.set_groundtruth(0)
+
         return trial
 
     def _step(self, action, **kwargs):
