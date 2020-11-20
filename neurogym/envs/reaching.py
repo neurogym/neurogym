@@ -91,12 +91,11 @@ class Reaching1D(ngym.TrialEnv):
 
         return ob, reward, False, {'new_trial': False}
 
-
     def ob_modifier(self, theta, state):
         def ob_mod(ob):
             ob[16:] = np.cos(self.theta - self.state)
-        return ob
-    return ob_mod            
+            return ob
+        return ob_mod
 
 class Reaching1DWithSelfDistraction(ngym.TrialEnv):
     r"""Reaching with self distraction.
