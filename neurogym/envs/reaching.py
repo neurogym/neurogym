@@ -69,8 +69,9 @@ class Reaching1D(ngym.TrialEnv):
         return trial
 
     def _step(self, action):
-        ob = self.ob_now
-        ob[16:] = np.cos(self.theta - self.state)
+        # ob = self.ob_now
+        # ob[16:] = np.cos(self.theta - self.state)
+        ob = self.ob_modifier(theta=self.theta, state=self.state)
         if action == 1:
             self.state += 0.05
         elif action == 2:
@@ -90,6 +91,12 @@ class Reaching1D(ngym.TrialEnv):
 
         return ob, reward, False, {'new_trial': False}
 
+
+    def ob_modifier(self, theta, state):
+        def ob_mod(ob):
+            ob[16:] = np.cos(self.theta - self.state)
+        return ob
+    return ob_mod            
 
 class Reaching1DWithSelfDistraction(ngym.TrialEnv):
     r"""Reaching with self distraction.
