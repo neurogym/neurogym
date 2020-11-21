@@ -138,6 +138,10 @@ class TrialEnv(BaseEnv):
         """
         raise NotImplementedError('_step is not defined by user.')
 
+    def wrapper(self, ob, reward, done, info):
+        """Optional task specific wrapper applied at the end of step."""
+        return ob, reward, done, info
+
     def new_trial(self, **kwargs):
         """Public interface for starting a new trial.
 
@@ -183,7 +187,7 @@ class TrialEnv(BaseEnv):
             info['trial'] = trial
         if ob == OBNOW:
             ob = self.ob[self.t_ind]
-        return ob, reward, done, info
+        return self.wrapper(ob, reward, done, info)
 
     def reset(self, step_fn=None, no_step=False):
         """Reset the environment.
