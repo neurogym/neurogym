@@ -87,7 +87,7 @@ NATIVE_ALLOW_LIST = [
     'ReadySetGo',
     'SingleContextDecisionMaking',
     'SpatialSuppressMotion',
-    'ToneDetection'
+    # 'ToneDetection'  # TODO: Temporary removing until bug fixed
 ]
 ALL_NATIVE_ENVS = _get_envs(foldername=None, env_prefix=None,
                             allow_list=NATIVE_ALLOW_LIST)
