@@ -77,11 +77,13 @@ class BaseEnv(gym.Env):
         self.tmax = 10000  # maximum time steps
         self.performance = 0
         self.rewards = {}
-        self.seed()
+        self.rng = np.random.RandomState()
 
-    # Auxiliary functions
     def seed(self, seed=None):
+        """Set random seed."""
         self.rng = np.random.RandomState(seed)
+        if self.action_space is not None:
+            self.action_space.seed(seed)
         return [seed]
 
     def reset(self):
@@ -138,6 +140,18 @@ class TrialEnv(BaseEnv):
         """
         raise NotImplementedError('_step is not defined by user.')
 
+    def seed(self, seed=None):
+        """Set random seed."""
+        self.rng = np.random.RandomState(seed)
+        if self.action_space is not None:
+            self.action_space.seed(seed)
+        for key, val in self.timing.items():
+            try:
+                val.seed(seed)
+            except AttributeError:
+                pass
+        return [seed]
+
     def wrapper(self, ob, reward, done, info):
         """Optional task specific wrapper applied at the end of step."""
         return ob, reward, done, info
@@ -185,7 +199,7 @@ class TrialEnv(BaseEnv):
             trial = self._top.new_trial()
             self.performance = 0
             info['trial'] = trial
-        if ob == OBNOW:
+        if ob is OBNOW:
             ob = self.ob[self.t_ind]
         return self.wrapper(ob, reward, done, info)
 

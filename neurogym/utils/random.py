@@ -19,10 +19,11 @@ class TruncExp(object):
         self.vmean = vmean
         self.vmin = vmin
         self.vmax = vmax
-        if rng is None:
-            self.rng = np.random.RandomState()
-        else:
-            self.rng = rng
+        self.rng = np.random.RandomState()
+
+    def seed(self, seed=None):
+        """Seed the PRNG of this space. """
+        self.rng = np.random.RandomState(seed)
 
     def __call__(self, *args, **kwargs):
         if self.vmin >= self.vmax:  # the > is to avoid issues when making vmin as big as dt

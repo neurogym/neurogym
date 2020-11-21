@@ -21,6 +21,8 @@ except ImportError as e:
     _have_psychopy = False
 
 ENVS = ngym.all_envs(psychopy=_have_psychopy, contrib=True, collections=True)
+# Envs without psychopy, TODO: check if contrib or collections include psychopy
+ENVS_NOPSYCHOPY = ngym.all_envs(psychopy=False, contrib=True, collections=True)
 
 
 def test_run(env=None, num_steps=100, verbose=False, **kwargs):
@@ -107,36 +109,36 @@ def test_seeding(env=None, seed=0):
     else:
         if not isinstance(env, gym.Env):
             raise ValueError('env must be a string or a gym.Env')
-    env.seed(seed=seed)
+    env.seed(seed)
     env.reset()
-    states_mat = []
+    ob_mat = []
     rew_mat = []
-    env.action_space.seed(seed)
+    act_mat = []
     for stp in range(100):
-        state, rew, done, _ = env.step(env.action_space.sample())
-        states_mat.append(state)
+        action = env.action_space.sample()
+        ob, rew, done, info = env.step(action)
+        ob_mat.append(ob)
         rew_mat.append(rew)
+        act_mat.append(action)
         if done:
             env.reset()
-    states_mat = np.array(states_mat)
+    ob_mat = np.array(ob_mat)
     rew_mat = np.array(rew_mat)
-    return states_mat, rew_mat
+    act_mat = np.array(act_mat)
+    return ob_mat, rew_mat, act_mat
 
 
 def test_seeding_all():
     """Test if all environments can at least be run."""
-    success_count = 0
-    total_count = 0
-    for env_name in sorted(ENVS):
-        total_count += 1
-
+    for env_name in sorted(ENVS_NOPSYCHOPY):
         # print('Running env: {:s}'.format(env_name))
         # env = test_run(env_name)
-        states1, rews1 = test_seeding(env_name, seed=0)
-        states2, rews2 = test_seeding(env_name, seed=0)
-        assert (states1 == states2).all(), 'states are not identical'
+        obs1, rews1, acts1 = test_seeding(env_name, seed=0)
+        obs2, rews2, acts2 = test_seeding(env_name, seed=0)
+        assert (obs1 == obs2).all(), 'obs are not identical'
         assert (rews1 == rews2).all(), 'rewards are not identical'
-        states1, rews1 = test_seeding(env_name, seed=0)
-        states2, rews2 = test_seeding(env_name, seed=0)
-        assert (states1 == states2).all(), 'states are not identical'
-        assert (rews1 == rews2).all(), 'rewards are not identical'
+        assert (acts1 == acts2).all(), 'rewards are not identical'
+        # obs1, rews1 = test_seeding(env_name, seed=0)
+        # obs2, rews2 = test_seeding(env_name, seed=0)
+        # assert (obs1 == obs2).all(), 'obs are not identical'
+        # assert (rews1 == rews2).all(), 'rewards are not identical'

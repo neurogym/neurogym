@@ -60,7 +60,7 @@ class Detection(ngym.TrialEnv):
 
         self.timing = {
             'fixation': 500,
-            'stimulus': ngym.random.TruncExp(1000, 500, 1500, rng=self.rng)}
+            'stimulus': ngym.random.TruncExp(1000, 500, 1500)}
         if timing:
             self.timing.update(timing)
 
