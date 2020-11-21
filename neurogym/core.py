@@ -59,11 +59,13 @@ def env_string(env):
         for key in other_info:
             string += key + ' : ' + _clean_string(str(metadata[key])) + '\n'
     # tags
-    tags = metadata['tags']
-    string += '\nTags: '
-    for tag in tags:
-        string += tag + ', '
-    string = string[:-2] + '.\n'
+    if 'tags' in metadata:
+        tags = metadata['tags']
+        string += '\nTags: '
+        for tag in tags:
+            string += tag + ', '
+        string = string[:-2] + '.\n'
+
     return string
 
 
