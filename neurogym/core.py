@@ -154,8 +154,13 @@ class TrialEnv(BaseEnv):
                 pass
         return [seed]
 
-    def wrapper(self, ob, reward, done, info):
-        """Optional task specific wrapper applied at the end of step."""
+    def post_step(self, ob, reward, done, info):
+        """
+        Optional task-specific wrapper applied at the end of step.
+
+        It allows to modify ob online (e.g. provide a specific observation for
+                                       different actions made by the agent)
+        """
         return ob, reward, done, info
 
     def new_trial(self, **kwargs):
@@ -203,7 +208,7 @@ class TrialEnv(BaseEnv):
             info['trial'] = trial
         if ob is OBNOW:
             ob = self.ob[self.t_ind]
-        return self.wrapper(ob, reward, done, info)
+        return self.post_step(ob, reward, done, info)
 
     def reset(self, step_fn=None, no_step=False):
         """Reset the environment.

@@ -90,7 +90,7 @@ class Reaching1D(ngym.TrialEnv):
 
         return self.ob_now, reward, False, {'new_trial': False}
 
-    def wrapper(self, ob, reward, done, info):
+    def post_step(self, ob, reward, done, info):
         """Modify observation"""
         ob[self.dim_ring:] = np.cos(self.theta - self.state)
         return ob, reward, done, info
@@ -178,7 +178,7 @@ class Reaching1DWithSelfDistraction(ngym.TrialEnv):
 
         return self.ob_now, reward, False, {'new_trial': False}
 
-    def wrapper(self, ob, reward, done, info):
+    def post_step(self, ob, reward, done, info):
         """Modify observation."""
         ob += np.cos(self.theta - self.state)
         return ob, reward, done, info
