@@ -11,6 +11,8 @@ from neurogym.utils.random import trunc_exp
 METADATA_DEF_KEYS = ['description', 'paper_name', 'paper_link', 'timing',
                      'tags']
 
+OBNOW = 'ob_unknown_yet'  # TODO: temporary hack to create constant placeholder
+
 
 def _clean_string(string):
     return ' '.join(string.replace('\n', '').split())
@@ -42,10 +44,13 @@ def env_string(env):
     #         string +=\
     #             key + ' : ' + tasktools.random_number_name(dist, args) + '\n'
 
-    if env.rewards:
+    if env.rewards is not None: #if env.rewards is an array, if env.rewards will throw an error
         string += '\nReward structure \n'
-        for key, val in env.rewards.items():
-            string += key + ' : ' + str(val) + '\n'
+        try: #if the reward structure is a dictionary
+            for key, val in env.rewards.items():
+                string += key + ' : ' + str(val) + '\n'
+        except AttributeError: #otherwise just add the reward structure to the string?
+            string += str(env.rewards)
 
     # add extra info
     other_info = list(set(metadata.keys()) - set(METADATA_DEF_KEYS))
@@ -54,11 +59,13 @@ def env_string(env):
         for key in other_info:
             string += key + ' : ' + _clean_string(str(metadata[key])) + '\n'
     # tags
-    tags = metadata['tags']
-    string += '\nTags: '
-    for tag in tags:
-        string += tag + ', '
-    string = string[:-2] + '.\n'
+    if 'tags' in metadata:
+        tags = metadata['tags']
+        string += '\nTags: '
+        for tag in tags:
+            string += tag + ', '
+        string = string[:-2] + '.\n'
+
     return string
 
 
@@ -72,11 +79,13 @@ class BaseEnv(gym.Env):
         self.tmax = 10000  # maximum time steps
         self.performance = 0
         self.rewards = {}
-        self.seed()
+        self.rng = np.random.RandomState()
 
-    # Auxiliary functions
     def seed(self, seed=None):
+        """Set random seed."""
         self.rng = np.random.RandomState(seed)
+        if self.action_space is not None:
+            self.action_space.seed(seed)
         return [seed]
 
     def reset(self):
@@ -133,6 +142,27 @@ class TrialEnv(BaseEnv):
         """
         raise NotImplementedError('_step is not defined by user.')
 
+    def seed(self, seed=None):
+        """Set random seed."""
+        self.rng = np.random.RandomState(seed)
+        if self.action_space is not None:
+            self.action_space.seed(seed)
+        for key, val in self.timing.items():
+            try:
+                val.seed(seed)
+            except AttributeError:
+                pass
+        return [seed]
+
+    def post_step(self, ob, reward, done, info):
+        """
+        Optional task-specific wrapper applied at the end of step.
+
+        It allows to modify ob online (e.g. provide a specific observation for
+                                       different actions made by the agent)
+        """
+        return ob, reward, done, info
+
     def new_trial(self, **kwargs):
         """Public interface for starting a new trial.
 
@@ -176,7 +206,9 @@ class TrialEnv(BaseEnv):
             trial = self._top.new_trial()
             self.performance = 0
             info['trial'] = trial
-        return ob, reward, done, info
+        if ob is OBNOW:
+            ob = self.ob[self.t_ind]
+        return self.post_step(ob, reward, done, info)
 
     def reset(self, step_fn=None, no_step=False):
         """Reset the environment.
@@ -415,7 +447,7 @@ class TrialEnv(BaseEnv):
 
     @property
     def ob_now(self):
-        return self.ob[self.t_ind]
+        return OBNOW
 
     @property
     def gt_now(self):

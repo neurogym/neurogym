@@ -205,10 +205,15 @@ def plot_env_1dbox(
         assert len(ob_traces) == ob.shape[1],\
             'Please provide label for each of the '+str(ob.shape[1]) +\
             ' traces in the observations'
+        yticks = []
         for ind_tr, tr in enumerate(ob_traces):
             ax.plot(ob[:, ind_tr], label=ob_traces[ind_tr])
-        ax.legend()
+            yticks.append(np.mean(ob[:, ind_tr]))
+        if legend:
+            ax.legend()
         ax.set_xlim([-0.5, len(steps)-0.5])
+        ax.set_yticks(yticks)
+        ax.set_yticklabels(ob_traces)
     else:
         ax.imshow(ob.T, aspect='auto', origin='lower')
         if env and hasattr(env.observation_space, 'name'):
@@ -228,8 +233,8 @@ def plot_env_1dbox(
 
     if name:
         ax.set_title(name + ' env')
-    ax.set_ylabel('Observations')
-
+    ax.set_ylabel('Obs.')
+    ax.set_xticks([])
     # actions
     ax = axes[i_ax]
     i_ax += 1
@@ -247,7 +252,7 @@ def plot_env_1dbox(
         else:
             ax.plot(steps, gt, '--'+gt_colors[0], label='Ground truth')
     ax.set_xlim([-0.5, len(steps)-0.5])
-    ax.set_ylabel('Actions')
+    ax.set_ylabel('Act.')
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     if legend:
@@ -261,29 +266,32 @@ def plot_env_1dbox(
             yticklabels.append(key)
         ax.set_yticks(yticks)
         ax.set_yticklabels(yticklabels)
-
+    if n_row > 2:
+        ax.set_xticks([])
     # rewards
     if rewards is not None:
         ax = axes[i_ax]
         i_ax += 1
         ax.plot(steps, rewards, 'r', label='Rewards')
-        ax.set_ylabel('Reward')
+        ax.set_ylabel('Rew.')
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
         if legend:
             ax.legend()
         ax.set_xlim([-0.5, len(steps)-0.5])
 
-        if env and hasattr(env, 'reward') and env.rewards:
+        if env and hasattr(env, 'rewards') and env.rewards:
             # Plot environment annotation
             yticks = []
             yticklabels = []
             for key, val in env.rewards.items():
                 yticks.append(val)
-                yticklabels.append('{:s} {:0.2f}'.format(key, val))
+                yticklabels.append('{:s} {:0.2f}'.format(key[:4], val))
             ax.set_yticks(yticks)
             ax.set_yticklabels(yticklabels)
-
+    if n_row > 3:
+        ax.set_xticks([])
+    # performance
     if performance is not None:
         ax = axes[i_ax]
         i_ax += 1
