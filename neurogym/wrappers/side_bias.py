@@ -29,7 +29,12 @@ class SideBias(ngym.TrialWrapper):
                                  to have attribute choices''')
         assert isinstance(self.task, ngym.TrialEnv), 'Task has to be TrialEnv'
         assert probs is not None, 'Please provide choices probabilities'
-        self.choice_prob = np.array(probs)
+        if isinstance(probs, (float, int)):
+            mat = np.eye(len(self.choices))*probs
+            mat[mat == 0] = 1 - probs
+            self.choice_prob = mat
+        else:
+            self.choice_prob = np.array(probs)
         assert self.choice_prob.shape[1] == len(self.choices),\
             'The number of choices {:d} inferred from prob mismatchs {:d} inferred from choices'.format(
                 self.choice_prob.shape[1], len(self.choices))
