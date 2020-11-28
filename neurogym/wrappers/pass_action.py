@@ -23,9 +23,8 @@ class PassAction(Wrapper):
         #add number of actions available to observation space if using one-hot, otherwise we only need a singleton to represent.
         self.observation_space = spaces.Box(-np.inf, np.inf,
                                             shape=(env_oss+self.num_act,),
-                                            dtype=np.float32
+                                            dtype=np.float32)
   
-
     def reset(self, step_fn=None):
         if step_fn is None:
             step_fn = self.step
