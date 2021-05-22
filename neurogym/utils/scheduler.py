@@ -13,6 +13,10 @@ class BaseSchedule(object):
         self.total_count = 0  # total count
         self.count = 0  # count within a condition
         self.i = 0  # initialize at 0
+        self.rng = np.random.RandomState()
+
+    def seed(self, seed=None):
+        self.rng = np.random.RandomState(seed)
 
     def reset(self):
         self.total_count = 0
@@ -47,7 +51,7 @@ class RandomSchedule(BaseSchedule):
     def __call__(self):
         if self.n > 1:
             js = [j for j in range(self.n) if j != self.i]
-            self.i = np.random.choice(js)
+            self.i = self.rng.choice(js)
         else:
             self.i = 0
         self.total_count += 1
@@ -91,7 +95,7 @@ class RandomBlockSchedule(BaseSchedule):
             self.count = 1
             if self.n > 1:
                 potential_i_envs = [i for i in range(self.n) if i != self.i]
-                self.i = np.random.choice(potential_i_envs)
+                self.i = self.rng.choice(potential_i_envs)
             else:
                 self.i = 0
         self.total_count += 1

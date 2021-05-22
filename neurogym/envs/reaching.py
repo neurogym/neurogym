@@ -25,7 +25,7 @@ class Reaching1D(ngym.TrialEnv):
         'tags': ['motor', 'steps action space']
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None, dim_ring=16):
         super().__init__(dt=dt)
         # Rewards
         self.rewards = {'correct': +1., 'fail': -0.1}
@@ -39,14 +39,16 @@ class Reaching1D(ngym.TrialEnv):
             self.timing.update(timing)
 
         # action and observation spaces
-        name = {'self': range(16, 32), 'target': range(16)}
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(32,),
-                                            dtype=np.float32, name=name)
+        name = {'self': range(dim_ring, 2*dim_ring), 'target': range(dim_ring)}
+        self.observation_space = spaces.Box(
+            -np.inf, np.inf, shape=(2*dim_ring,),
+            dtype=np.float32, name=name)
         name = {'fixation': 0, 'left': 1, 'right': 2}
         self.action_space = spaces.Discrete(3, name=name)
 
-        self.theta = np.arange(0, 2*np.pi, 2*np.pi/16)
+        self.theta = np.arange(0, 2*np.pi, 2*np.pi/dim_ring)
         self.state = np.pi
+        self.dim_ring = dim_ring
 
     def _new_trial(self, **kwargs):
         # Trial
@@ -69,8 +71,6 @@ class Reaching1D(ngym.TrialEnv):
         return trial
 
     def _step(self, action):
-        ob = self.ob_now
-        ob[16:] = np.cos(self.theta - self.state)
         if action == 1:
             self.state += 0.05
         elif action == 2:
@@ -88,7 +88,12 @@ class Reaching1D(ngym.TrialEnv):
             norm_rew = (reward-self.rewards['fail'])/(self.rewards['correct']-self.rewards['fail'])
             self.performance += norm_rew/self.dec_per_dur
 
-        return ob, reward, False, {'new_trial': False}
+        return self.ob_now, reward, False, {'new_trial': False}
+
+    def post_step(self, ob, reward, done, info):
+        """Modify observation"""
+        ob[self.dim_ring:] = np.cos(self.theta - self.state)
+        return ob, reward, done, info
 
 
 class Reaching1DWithSelfDistraction(ngym.TrialEnv):
@@ -155,7 +160,6 @@ class Reaching1DWithSelfDistraction(ngym.TrialEnv):
         return trial
 
     def _step(self, action):
-        ob = self.ob_now + np.cos(self.theta - self.state)
         if action == 1:
             self.state += 0.05
         elif action == 2:
@@ -172,4 +176,9 @@ class Reaching1DWithSelfDistraction(ngym.TrialEnv):
             norm_rew = (reward-self.rewards['fail'])/(self.rewards['correct']-self.rewards['fail'])
             self.performance += norm_rew/self.dec_per_dur
 
-        return ob, reward, False, {'new_trial': False}
+        return self.ob_now, reward, False, {'new_trial': False}
+
+    def post_step(self, ob, reward, done, info):
+        """Modify observation."""
+        ob += np.cos(self.theta - self.state)
+        return ob, reward, done, info

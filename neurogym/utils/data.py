@@ -36,6 +36,8 @@ class Dataset(object):
                          for _ in range(batch_size)]
         for env in self.envs:
             env.reset()
+        self.seed()
+
         env = self.envs[0]
         self.env = env
         self.batch_size = batch_size
@@ -131,6 +133,13 @@ class Dataset(object):
         self._seq_start = self._seq_end
         return inputs, target
         # return inputs, np.expand_dims(target, axis=2)
+
+    def seed(self, seed=None):
+        for i, env in enumerate(self.envs):
+            if seed is None:
+                env.seed(seed)
+            else:
+                env.seed(seed + i)
 
 
 if __name__ == '__main__':

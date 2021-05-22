@@ -35,22 +35,33 @@ class ToneDetection(ngym.TrialEnv):
 
     def __init__(self, dt=50, sigma=0.2, timing=None):
         super().__init__(dt=dt)
-
+        ''' 
+        Here the key variables are
+        <self.toneDur>: ms, duration of the tone
+        <self.toneTiming>: ms, onset of the tone
+        '''
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
         # Rewards
         self.rewards = {'abort': -0.1, 'correct': +1., 'noresp': -0.1}  # need to change here
 
         self.timing = {
-            'stimulus': 2000
+            'stimulus': 2000,
+            'toneTiming': [500, 1000, 1500],
+            'toneDur': 50,
             }
         if timing:
             self.timing.update(timing)
-        self.toneTiming = [500, 1000, 1500] # ms, the onset times of a tone
-        self.toneDur = 50 # ms, the duration of a tone
+        
+        self.toneTiming = self.timing['toneTiming']
+        self.toneDur = self.timing['toneDur'] # ms, the duration of a tone
+        
+        assert dt <= self.toneDur, 'note dt must <= tone duration (default:50)'
+        
+        self.toneDurIdx = int(self.toneDur/dt) # how many data point it lasts
 
-        self.toneTimingIdx = [int(i / self.toneDur) for i in self.toneTiming]
-        self.stimArray = np.zeros(int(self.timing['stimulus']/self.toneDur))
+        self.toneTimingIdx = [int(i / dt) for i in self.toneTiming]
+        self.stimArray = np.zeros(int(self.timing['stimulus']/dt))
 
         self.abort = False
 
@@ -78,7 +89,7 @@ class ToneDetection(ngym.TrialEnv):
         # generate tone stimulus
         stim = self.stimArray.copy()
         if condition != 0:
-            stim[self.toneTimingIdx[condition-1]] = 1
+            stim[self.toneTimingIdx[condition-1]:self.toneTimingIdx[condition-1]+self.toneDurIdx] = 1
 
         ground_truth = trial['ground_truth']
 

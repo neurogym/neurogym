@@ -23,7 +23,7 @@ class RandomGroundTruth(TrialWrapper):
             p = kwargs['p']
         else:
             p = self.p
-        ground_truth = np.random.choice(self.env.choices, p=p)
+        ground_truth = self.rng.choice(self.env.choices, p=p)
         kwargs = {'ground_truth': ground_truth}
         return self.env.new_trial(**kwargs)
 
@@ -39,6 +39,10 @@ class ScheduleAttr(TrialWrapper):
         super().__init__(env)
         self.schedule = schedule
         self.attr_list = attr_list
+
+    def seed(self, seed=None):
+        self.schedule.seed(seed)
+        self.env.seed(seed)
 
     def new_trial(self, **kwargs):
         i = self.schedule()
@@ -139,6 +143,11 @@ class ScheduleEnvs(TrialWrapper):
                 -np.inf, np.inf, shape=(env_shape[0] + len(self.envs),),
                 dtype=self.observation_space.dtype
             )
+
+    def seed(self, seed=None):
+        for env in self.envs:
+            env.seed(seed)
+        self.schedule.seed(seed)
 
     def new_trial(self, **kwargs):
         self.i_env = self.schedule()
