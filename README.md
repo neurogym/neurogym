@@ -23,7 +23,7 @@ The toolkit also includes various modifier functions that allow easy configurati
 
 You can perform a minimal install of ``neurogym`` with:
 
-    git clone https://github.com/gyyang/neurogym.git
+    git clone https://github.com/neurogym/neurogym.git
     cd neurogym
     pip install -e .
     
