@@ -3,6 +3,7 @@
 import gym
 import neurogym as ngym
 from neurogym.utils.info import info, info_wrapper
+from neurogym.envs.registration import ALL_ENVS
 
 
 SOURCE_ROOT = 'https://github.com/gyyang/neurogym/blob/master/'
@@ -19,7 +20,7 @@ def write_doc(write_type):
         all_items = ngym.all_envs()
         info_fn = info
         fname = 'envs.md'
-        all_items_dict = ngym.envs.ALL_ENVS
+        all_items_dict = ALL_ENVS
 
     elif write_type == 'wrappers':
         all_items = ngym.all_wrappers()

@@ -1,50 +1,52 @@
 * Under development, details subject to change
 
-### List of 26 tasks implemented
+### List of 29 tasks implemented
 
-[AngleReproduction-v0](#anglereproduction)
-
-[AntiReach-v0](#antireach1d)
+[AntiReach-v0](#antireach)
 
 [Bandit-v0](#bandit)
-
-[CVLearning-v0](#cvlearning)
-
-[ChangingEnvironment-v0](#changingenvironment)
 
 [ContextDecisionMaking-v0](#contextdecisionmaking)
 
 [DawTwoStep-v0](#dawtwostep)
 
+[DelayComparison-v0](#delaycomparison)
+
+[DelayMatchCategory-v0](#delaymatchcategory)
+
+[DelayMatchSample-v0](#delaymatchsample)
+
+[DelayMatchSampleDistractor1D-v0](#delaymatchsampledistractor1d)
+
 [DelayPairedAssociation-v0](#delaypairedassociation)
 
-[DelayComparison-v0](#delayedcomparison)
-
-[DelayMatchCategory-v0](#delayedmatchcategory)
-
-[DelayMatchSample-v0](#delayedmatchtosample)
-
-[DelayMatchSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
-
-[Detection-v0](#detection)
+[DualDelayMatchSample-v0](#dualdelaymatchsample)
 
 [EconomicDecisionMaking-v0](#economicdecisionmaking)
 
 [GoNogo-v0](#gonogo)
 
-[IntervalDiscrimination-v0](#intervaldiscrimination)
+[HierarchicalReasoning-v0](#hierarchicalreasoning)
 
-[MatchingPenny-v0](#matchingpenny)
+[IntervalDiscrimination-v0](#intervaldiscrimination)
 
 [MotorTiming-v0](#motortiming)
 
-[NAltPerceptualDecisionMaking-v0](#nalt_perceptualdecisionmaking)
+[MultiSensoryIntegration-v0](#multisensoryintegration)
+
+[Null-v0](#null)
+
+[OneTwoThreeGo-v0](#onetwothreego)
 
 [PerceptualDecisionMaking-v0](#perceptualdecisionmaking)
 
 [PerceptualDecisionMakingDelayResponse-v0](#perceptualdecisionmakingdelayresponse)
 
 [PostDecisionWager-v0](#postdecisionwager)
+
+[ProbabilisticReasoning-v0](#probabilisticreasoning)
+
+[PulseDecisionMaking-v0](#pulsedecisionmaking)
 
 [Reaching1D-v0](#reaching1d)
 
@@ -54,63 +56,35 @@
 
 [ReadySetGo-v0](#readysetgo)
 
+[SingleContextDecisionMaking-v0](#singlecontextdecisionmaking)
+
+[SpatialSuppressMotion-v0](#spatialsuppressmotion)
+
 ___
 
 Tags: [confidence](#confidence), [context dependent](#context-dependent), [continuous action space](#continuous-action-space), [delayed response](#delayed-response), [go-no-go](#go-no-go), [motor](#motor), [multidimensional action space](#multidimensional-action-space), [n-alternative](#n-alternative), [perceptual](#perceptual), [reaction time](#reaction-time), [steps action space](#steps-action-space), [supervised](#supervised), [timing](#timing), [two-alternative](#two-alternative), [value-based](#value-based), [working memory](#working-memory)
 
 ___
 
-### AngleReproduction  
-Doc:   
-        The agent has to reproduce to two angles separated by a constant delay.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards:  
-            R_CORRECT: given when correct. (def: +1., float)  
-            R_FAIL: given when incorrect. (def: -0.1, float)  
-        timing: Description and duration of periods forming a trial.  
-          
-Reference paper   
-[Visual perception as retrospective Bayesian decoding from high- to low-level features](https://www.pnas.org/content/114/43/E9115.short)  
+### AntiReach  
+Doc: Anti-response task.  
   
-Period timing (ms)   
-fixation : constant 500  
-stim1 : constant 500  
-delay1 : constant 500  
-stim2 : constant 500  
-delay2 : constant 500  
-go1 : constant 500  
-go2 : constant 500  
+    During the fixation period, the agent fixates on a fixation point.  
+    During the following stimulus period, the agent is then shown a stimulus away  
+    from the fixation point. Finally, the agent needs to respond in the  
+    opposite direction of the stimulus during the decision period.  
   
-Reward structure   
-correct : 1.0  
-fail : -0.1  
-  
-Tags: [perceptual](#perceptual), [working memory](#working-memory), [delayed response](#delayed-response), [steps action space](#steps-action-space)
-
-[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/anglereproduction.py)
-
-___
-
-### AntiReach1D  
-Doc:   
-        The agent has to move in the direction opposite to the one indicated  
-        by the observation.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards:  
-            R_CORRECT: given when correct. (def: +1., float)  
-            R_FAIL: given when incorrect. (def: -0.1, float)  
-        timing: Description and duration of periods forming a trial.  
-          
+    Args:  
+        anti: bool, if True, requires an anti-response. If False, requires a  
+            pro-response, i.e. response towards the stimulus.  
+      
 Reference paper   
 [Look away: the anti-saccade task and the voluntary control of eye movement](https://www.nature.com/articles/nrn1345)  
   
-Period timing (ms)   
-fixation : constant 500  
-reach : constant 500  
-  
 Reward structure   
+abort : -0.1  
 correct : 1.0  
-fail : -0.1  
+fail : 0.0  
   
 Tags: [perceptual](#perceptual), [steps action space](#steps-action-space)
 
@@ -119,119 +93,39 @@ Tags: [perceptual](#perceptual), [steps action space](#steps-action-space)
 ___
 
 ### Bandit  
-Doc:   
-        The agent has to select between N actions with different reward  
-        probabilities.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        n_arms: Number of arms. (def: 2, int)  
-        probs: Reward probabilities for each arm. (def: (.9, .1), tuple)  
-        gt_arm: High reward arm. (def: 0, int)  
-        rewards:  
-            R_CORRECT: given when correct. (def: +1., float)  
-        timing: Description and duration of periods forming a trial.  
-          
+Doc: Multi-arm bandit task.  
+  
+    On each trial, the agent is presented with multiple choices. Each  
+    option produces a reward of a certain magnitude given a certain probability.  
+  
+    Args:  
+        n: int, the number of choices (arms)  
+        p: tuple of length n, describes the probability of each arm  
+            leading to reward  
+        rewards: tuple of length n, describe the reward magnitude of each option when rewarded  
+      
 Reference paper   
 [Prefrontal cortex as a meta-reinforcement learning system](https://www.nature.com/articles/s41593-018-0147-8)  
   
 Reward structure   
-correct : 1.0  
-  
-Tags: [n-alternative](#n-alternative), [supervised](#supervised)
+[1. 1.]  
+Tags: [n-alternative](#n-alternative)
 
 [Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/bandit.py)
 
 ___
 
-### CVLearning  
-Doc:   
-        Implements shaping for the delay-response task, in which agents  
-        have to integrate two stimuli and report which one is larger on  
-        average after a delay.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards:  
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)  
-            R_CORRECT: given when correct. (def: +1., float)  
-            R_FAIL: given when incorrect. (def: -1., float)  
-        timing: Description and duration of periods forming a trial.  
-        stim_scale: Controls the difficulty of the experiment. (def: 1., float)  
-        perf_w: Window used to compute the mean reward. (def: 1000, int)  
-        max_num_reps: Maximum number of times that agent can go in a row  
-        to the same side during phase 0. (def: 3, int)  
-        init_ph: Phase initializing the task. (def: 0, int)  
-        th: Performance threshold needed to proceed to the following phase.  
-        (def: 0.8, float)  
-          
-Reference paper   
-[Discrete attractor dynamics underlies persistent activity in the frontal cortex](https://www.nature.com/articles/s41586-019-0919-7)  
-  
-Period timing (ms)   
-fixation : constant 200  
-stimulus : constant 1150  
-delay : choice [300, 500, 700, 900, 1200, 2000, 3200, 4000]  
-decision : constant 1500  
-  
-Reward structure   
-abort : -0.1  
-correct : 1.0  
-fail : -1.0  
-  
-Tags: [perceptual](#perceptual), [delayed response](#delayed-response), [two-alternative](#two-alternative), [supervised](#supervised)
-
-[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/cv_learning.py)
-
-___
-
-### ChangingEnvironment  
-Doc:   
-        Random Dots Motion tasks in which the correct action  
-        depends on a randomly changing context.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards:  
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)  
-            R_CORRECT: given when correct. (def: +1., float)  
-            R_FAIL: given when incorrect. (def: 0., float)  
-        timing: Description and duration of periods forming a trial.  
-        stim_scale: Controls the difficulty of the experiment. (def: 1., float)  
-        cxt_ch_prob: Probability of changing context. (def: 0.01, float)  
-        cxt_cue: Whether to show context as a cue. (def: False, bool)  
-          
-Reference paper   
-[Hierarchical decision processes that operate over distinct timescales underlie choice and changes in strategy](https://www.pnas.org/content/113/31/E4531)  
-  
-Period timing (ms)   
-fixation : constant 500  
-stimulus : truncated_exponential [1000, 500, 1500]  
-decision : constant 500  
-  
-Reward structure   
-abort : -0.1  
-correct : 1.0  
-fail : 0.0  
-  
-Tags: [perceptual](#perceptual), [two-alternative](#two-alternative), [supervised](#supervised), [context dependent](#context-dependent)
-
-[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/changingenvironment.py)
-
-___
-
 ### ContextDecisionMaking  
-Doc:   
-        Agent has to perform one of two different perceptual discriminations.  
-        On every trial, a contextual cue indicates which one to perform.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards:  
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)  
-            R_CORRECT: given when correct. (def: +1., float)  
-        timing: Description and duration of periods forming a trial.  
-          
+Doc: Context-dependent decision-making task.  
+  
+    The agent simultaneously receives stimulus inputs from two modalities (  
+    for example, a colored random dot motion pattern with color and motion  
+    modalities). The agent needs to make a perceptual decision based on  
+    only one of the two modalities, while ignoring the other. The relevant  
+    modality is explicitly indicated by a rule signal.  
+      
 Reference paper   
 [Context-dependent computation by recurrent dynamics in prefrontal cortex](https://www.nature.com/articles/nature12742)  
-  
-Period timing (ms)   
-fixation : constant 300  
-stimulus : constant 750  
-delay : truncated_exponential [600, 300, 3000]  
-decision : constant 100  
   
 Reward structure   
 abort : -0.1  
@@ -244,17 +138,13 @@ Tags: [perceptual](#perceptual), [context dependent](#context-dependent), [two-a
 ___
 
 ### DawTwoStep  
-Doc:   
-        On each trial, an initial choice between two options lead  
-        to either of two, second-stage states. In turn, these both  
-        demand another two-option choice, each of which is associated  
-        with a different chance of receiving reward.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards:  
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)  
-            R_CORRECT: given when correct. (def: +1., float)  
-        timing: Description and duration of periods forming a trial.  
-          
+Doc: Daw Two-step task.  
+  
+    On each trial, an initial choice between two options lead  
+    to either of two, second-stage states. In turn, these both  
+    demand another two-option choice, each of which is associated  
+    with a different chance of receiving reward.  
+      
 Reference paper   
 [Model-Based Influences on Humans Choices and Striatal Prediction Errors](https://www.sciencedirect.com/science/article/pii/S0896627311001255)  
   
@@ -268,60 +158,15 @@ Tags: [two-alternative](#two-alternative)
 
 ___
 
-### DelayPairedAssociation  
-Doc:   
-        A sample is followed by a delay and a test. Agents have to report if  
-        the pair sample-test is a rewarded pair or not.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards: dictionary of rewards  
-        timing: Description and duration of periods forming a trial.  
-        noise: Standard deviation of the Gaussian noise added to  
-        the stimulus. (def: 0.01, float)  
-          
-Reference paper   
-[Active information maintenance in working memory by a sensory cortex](https://elifesciences.org/articles/43191)  
-  
-Period timing (ms)   
-fixation : constant 0  
-stim1 : constant 1000  
-delay_btw_stim : constant 13000  
-stim2 : constant 1000  
-delay_aft_stim : constant 1000  
-decision : constant 500  
-  
-Reward structure   
-abort : -0.1  
-correct : 1.0  
-fail : -1.0  
-miss : 0.0  
-  
-Tags: [perceptual](#perceptual), [working memory](#working-memory), [go-no-go](#go-no-go), [supervised](#supervised)
-
-[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delaypairedassociation.py)
-
-___
-
 ### DelayComparison  
-Doc:   
-        Two-alternative forced choice task in which the subject  
-        has to compare two stimuli separated by a delay to decide  
-        which one has a higher frequency.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards:  
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)  
-            R_CORRECT: given when correct. (def: +1., float)  
-            R_FAIL: given when incorrect. (def: 0., float)  
-        timing: Description and duration of periods forming a trial.  
-          
+Doc: Delayed comparison.  
+  
+    The agent needs to compare the magnitude of two stimuli are separated by a  
+    delay period. The agent reports its decision of the stronger stimulus  
+    during the decision period.  
+      
 Reference paper   
 [Neuronal Population Coding of Parametric Working Memory](https://www.jneurosci.org/content/30/28/9424)  
-  
-Period timing (ms)   
-fixation : uniform (1500, 3000)  
-f1 : constant 500  
-delay : constant 3000  
-f2 : constant 500  
-decision : constant 100  
   
 Reward structure   
 abort : -0.1  
@@ -330,29 +175,23 @@ fail : 0.0
   
 Tags: [perceptual](#perceptual), [working memory](#working-memory), [two-alternative](#two-alternative), [supervised](#supervised)
 
-[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delayedcomparison.py)
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delaycomparison.py)
 
 ___
 
 ### DelayMatchCategory  
-Doc:   
-        A sample stimulus is followed by a delay and test. Agents are required  
-        to indicate if the sample and test are in the same category.  
-        dt: Timestep duration.  
-        rewards:  
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)  
-            R_CORRECT: given when correct. (def: +1., float)  
-            R_FAIL: given when incorrect. (def: 0., float)  
-        timing: Description and duration of periods forming a trial.  
-          
+Doc: Delayed match-to-category task.  
+  
+    A sample stimulus is shown during the sample period. The stimulus is  
+    characterized by a one-dimensional variable, such as its orientation  
+    between 0 and 360 degree. This one-dimensional variable is separated  
+    into two categories (for example, 0-180 degree and 180-360 degree).  
+    After a delay period, a test stimulus is shown. The agent needs to  
+    determine whether the sample and the test stimuli belong to the same  
+    category, and report that decision during the decision period.  
+      
 Reference paper   
 [Experience-dependent representation of visual categories in parietal cortex](https://www.nature.com/articles/nature05078)  
-  
-Period timing (ms)   
-fixation : constant 500  
-sample : constant 650  
-first_delay : constant 1000  
-test : constant 650  
   
 Reward structure   
 abort : -0.1  
@@ -366,25 +205,16 @@ Tags: [perceptual](#perceptual), [working memory](#working-memory), [two-alterna
 ___
 
 ### DelayMatchSample  
-Doc:   
-        A sample stimulus is followed by a delay and test. Agents are required  
-        to indicate if the sample and test are the same stimulus.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards:  
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)  
-            R_CORRECT: given when correct. (def: +1., float)  
-            R_FAIL: given when incorrect. (def: 0., float)  
-        timing: Description and duration of periods forming a trial.  
-          
+Doc: Delayed match-to-sample task.  
+  
+    A sample stimulus is shown during the sample period. The stimulus is  
+    characterized by a one-dimensional variable, such as its orientation  
+    between 0 and 360 degree. After a delay period, a test stimulus is  
+    shown. The agent needs to determine whether the sample and the test  
+    stimuli are equal, and report that decision during the decision period.  
+      
 Reference paper   
 [Neural Mechanisms of Visual Working Memory in Prefrontal Cortex of the Macaque](https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf)  
-  
-Period timing (ms)   
-fixation : constant 300  
-sample : constant 500  
-delay : constant 1000  
-test : constant 500  
-decision : constant 900  
   
 Reward structure   
 abort : -0.1  
@@ -398,27 +228,19 @@ Tags: [perceptual](#perceptual), [working memory](#working-memory), [two-alterna
 ___
 
 ### DelayMatchSampleDistractor1D  
-Doc:   
-        Delay Match to sample with multiple, potentially repeating distractors.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards:  
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)  
-            R_CORRECT: given when correct. (def: +1., float)  
-            R_FAIL: given when incorrect. (def: -1., float)  
-        timing: Description and duration of periods forming a trial.  
-          
+Doc: Delayed match-to-sample with multiple, potentially repeating  
+    distractors.  
+  
+    A sample stimulus is shown during the sample period. The stimulus is  
+    characterized by a one-dimensional variable, such as its orientation  
+    between 0 and 360 degree. After a delay period, the first test stimulus is  
+    shown. The agent needs to determine whether the sample and this test  
+    stimuli are equal. If so, it needs to produce the match response. If the  
+    first test is not equal to the sample stimulus, another delay period and  
+    then a second test stimulus follow, and so on.  
+      
 Reference paper   
 [Neural Mechanisms of Visual Working Memory in Prefrontal Cortex of the Macaque](https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf)  
-  
-Period timing (ms)   
-fixation : constant 300  
-sample : constant 500  
-delay1 : constant 1000  
-test1 : constant 500  
-delay2 : constant 1000  
-test2 : constant 500  
-delay3 : constant 1000  
-test3 : constant 500  
   
 Reward structure   
 abort : -0.1  
@@ -431,53 +253,62 @@ Tags: [perceptual](#perceptual), [working memory](#working-memory), [two-alterna
 
 ___
 
-### Detection  
-Doc:   
-        The agent has to GO if a stimulus is presented.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards: dictionary of rewards  
-        timing: Description and duration of periods forming a trial.  
-        noise: Standard deviation of background noise. (def: 1., float)  
-        delay: If not None indicates the delay, from the moment of the start of  
-        the stimulus period when the actual stimulus is presented. Otherwise,  
-        the delay is drawn from a uniform distribution. (def: None (ms), int)  
-        stim_dur: Stimulus duration. (def: 100 (ms), int)  
-          
-Reference paper   
-Missing paper name  
-Missing paper link  
+### DelayPairedAssociation  
+Doc: Delayed paired-association task.  
   
-Period timing (ms)   
-fixation : constant 500  
-stimulus : truncated_exponential [1000, 500, 1500]  
+    The agent is shown a pair of two stimuli separated by a delay period. For  
+    half of the stimuli-pairs shown, the agent should choose the Go response.  
+    The agent is rewarded if it chose the Go response correctly.  
+      
+Reference paper   
+[Active information maintenance in working memory by a sensory cortex](https://elifesciences.org/articles/43191)  
   
 Reward structure   
 abort : -0.1  
 correct : 1.0  
 fail : -1.0  
-miss : -1  
+miss : 0.0  
   
-Tags: [perceptual](#perceptual), [reaction time](#reaction-time), [go-no-go](#go-no-go), [supervised](#supervised)
+Tags: [perceptual](#perceptual), [working memory](#working-memory), [go-no-go](#go-no-go), [supervised](#supervised)
 
-[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/detection.py)
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/delaypairedassociation.py)
+
+___
+
+### DualDelayMatchSample  
+Doc: Two-item Delay-match-to-sample.  
+  
+    The trial starts with a fixation period. Then during the sample period,  
+    two sample stimuli are shown simultaneously. Followed by the first delay  
+    period, a cue is shown, indicating which sample stimulus will be tested.  
+    Then the first test stimulus is shown and the agent needs to report whether  
+    this test stimulus matches the cued sample stimulus. Then another delay  
+    and then test period follows, and the agent needs to report whether the  
+    other sample stimulus matches the second test stimulus.  
+      
+Reference paper   
+[Reactivation of latent working memories with transcranial magnetic stimulation](https://science.sciencemag.org/content/354/6316/1136)  
+  
+Reward structure   
+abort : -0.1  
+correct : 1.0  
+fail : 0.0  
+  
+Tags: [perceptual](#perceptual), [working memory](#working-memory), [two-alternative](#two-alternative), [supervised](#supervised)
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/dualdelaymatchsample.py)
 
 ___
 
 ### EconomicDecisionMaking  
-Doc:   
-        Agents choose between two stimuli (A and B; where A is preferred)  
-        offered in different amounts.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards: dictionary of rewards  
-        timing: Description and duration of periods forming a trial.  
-          
+Doc: Economic decision making task.  
+  
+    A agent chooses between two options. Each option offers a certain amount of  
+    juice. Its amount is indicated by the stimulus. The two options offer  
+    different types of juice, and the agent prefers one over another.  
+      
 Reference paper   
 [Neurons in the orbitofrontal cortex encode economic value](https://www.nature.com/articles/nature04676)  
-  
-Period timing (ms)   
-fixation : constant 1500  
-offer_on : uniform [1000, 2000]  
-decision : constant 750  
   
 Reward structure   
 abort : -0.1  
@@ -490,21 +321,15 @@ Tags: [perceptual](#perceptual), [value-based](#value-based)
 ___
 
 ### GoNogo  
-Doc:   
-        Go/No-Go task in which the subject has either Go (e.g. lick)  
-        or not Go depending on which one of two stimuli is presented with.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards: reward dictionary  
-        timing: Description and duration of periods forming a trial.  
-          
+Doc: Go/No-go task.  
+  
+    A stimulus is shown during the stimulus period. The stimulus period is  
+    followed by a delay period, and then a decision period. If the stimulus is  
+    a Go stimulus, then the subject should choose the action Go during the  
+    decision period, otherwise, the subject should remain fixation.  
+      
 Reference paper   
 [Active information maintenance in working memory by a sensory cortex](https://elifesciences.org/articles/43191)  
-  
-Period timing (ms)   
-fixation : constant 0  
-stimulus : constant 500  
-resp_delay : constant 500  
-decision : constant 500  
   
 Reward structure   
 abort : -0.1  
@@ -518,24 +343,44 @@ Tags: [delayed response](#delayed-response), [go-no-go](#go-no-go), [supervised]
 
 ___
 
+### HierarchicalReasoning  
+Doc: Hierarchical reasoning of rules.  
+  
+    On each trial, the subject receives two flashes separated by a delay  
+    period. The subject needs to judge whether the duration of this delay  
+    period is shorter than a threshold. Both flashes appear at the  
+    same location on each trial. For one trial type, the network should  
+    report its decision by going to the location of the flashes if the delay is  
+    shorter than the threshold. In another trial type, the network should go to  
+    the opposite direction of the flashes if the delay is short.  
+    The two types of trials are alternated across blocks, and the block  
+    transtion is unannouced.  
+      
+Reference paper   
+[Hierarchical reasoning by neural circuits in the frontal cortex](https://science.sciencemag.org/content/364/6441/eaav8911)  
+  
+Reward structure   
+abort : -0.1  
+correct : 1.0  
+fail : 0.0  
+  
+Tags: [perceptual](#perceptual), [two-alternative](#two-alternative), [supervised](#supervised)
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/hierarchicalreasoning.py)
+
+___
+
 ### IntervalDiscrimination  
-Doc:   
-        Agents have to report which of two stimuli presented  
-        sequentially is longer.  
-        dt: Timestep duration. (def: 80 (ms), int)  
-        rewards: dictionary of rewards  
-        timing: Description and duration of periods forming a trial.  
-          
+Doc: Comparing the time length of two stimuli.  
+  
+    Two stimuli are shown sequentially, separated by a delay period. The  
+    duration of each stimulus is randomly sampled on each trial. The  
+    subject needs to judge which stimulus has a longer duration, and reports  
+    its decision during the decision period by choosing one of the two  
+    choice options.  
+      
 Reference paper   
 [Feature- and Order-Based Timing Representations in the Frontal Cortex](https://www.sciencedirect.com/science/article/pii/S0896627309004887)  
-  
-Period timing (ms)   
-fixation : constant 300  
-stim1 : uniform (300, 600)  
-delay1 : choice [800, 1500]  
-stim2 : uniform (300, 600)  
-delay2 : constant 500  
-decision : constant 300  
   
 Reward structure   
 abort : -0.1  
@@ -548,50 +393,16 @@ Tags: [timing](#timing), [working memory](#working-memory), [delayed response](#
 
 ___
 
-### MatchingPenny  
-Doc:   
-        The agent is rewarded when it selects the same target as the computer.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        opponent_type: Type of opponent. (def: 'mean_action', str)  
-        rewards:  
-            R_CORRECT: given when correct. (def: +1., float)  
-            R_FAIL: given when incorrect. (def: 0., float)  
-        timing: Description and duration of periods forming a trial.  
-        learning_rate: learning rate in the mean_action opponent  
-          
-Reference paper   
-[Prefrontal cortex and decision making in a mixed-strategy game](https://www.nature.com/articles/nn1209)  
-  
-Reward structure   
-correct : 1.0  
-fail : 0.0  
-  
-Tags: [two-alternative](#two-alternative), [supervised](#supervised)
-
-[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/matchingpenny.py)
-
-___
-
 ### MotorTiming  
-Doc:   
-        Agents have to produce different time intervals  
-        using different effectors (actions).  
-        dt: Timestep duration. (def: 80 (ms), int)  
-        rewards:  
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)  
-            R_CORRECT: given when correct. (def: +1., float)  
-            R_FAIL: given when incorrect. (def: 0., float)  
-        timing: Description and duration of periods forming a trial.  
+Doc: Agents have to produce different time intervals  
+    using different effectors (actions).  
+  
+    Args:  
         prod_margin: controls the interval around the ground truth production  
                     time within which the agent receives proportional reward  
-          
+      
 Reference paper   
 [Flexible timing by temporal scaling of cortical responses](https://www.nature.com/articles/s41593-017-0028-6)  
-  
-Period timing (ms)   
-fixation : constant 500  
-cue : uniform [1000, 3000]  
-set : constant 50  
   
 Reward structure   
 abort : -0.1  
@@ -604,60 +415,82 @@ Tags: [timing](#timing), [go-no-go](#go-no-go), [supervised](#supervised)
 
 ___
 
-### nalt_PerceptualDecisionMaking  
-Doc:   
-        N-alternative forced choice task in which the subject has  
-        to integrate N stimuli to decide which one is higher on average.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards:  
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)  
-            R_CORRECT: given when correct. (def: +1., float)  
-            R_FAIL: given when incorrect. (def: 0., float)  
-        timing: Description and duration of periods forming a trial.  
-        stim_scale: Controls the difficulty of the experiment. (def: 1., float)  
-        n_ch: Number of choices. (def: 3, int)  
-          
+### MultiSensoryIntegration  
+Doc: Multi-sensory integration.  
+  
+    Two stimuli are shown in two input modalities. Each stimulus points to  
+    one of the possible responses with a certain strength (coherence). The  
+    correct choice is the response with the highest summed strength from  
+    both stimuli. The agent is therefore encouraged to integrate information  
+    from both modalities equally.  
+      
 Reference paper   
 Missing paper name  
 Missing paper link  
   
-Period timing (ms)   
-fixation : constant 500  
-stimulus : truncated_exponential [330, 80, 1500]  
-decision : constant 500  
+Reward structure   
+abort : -0.1  
+correct : 1.0  
+  
+Tags: [perceptual](#perceptual), [two-alternative](#two-alternative), [supervised](#supervised)
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/multisensory.py)
+
+___
+
+### Null  
+Doc: Null task.  
+Reference paper   
+Missing paper name  
+Missing paper link  
+  
+Reward structure   
+  
+Other parameters:   
+render.modes : []  Tags
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/null.py)
+
+___
+
+### OneTwoThreeGo  
+Doc: Agents reproduce time intervals based on two samples.  
+  
+    Args:  
+        prod_margin: controls the interval around the ground truth production  
+                    time within which the agent receives proportional reward  
+      
+Reference paper   
+[Internal models of sensorimotor integration regulate cortical dynamics](https://www.nature.com/articles/s41593-019-0500-6)  
   
 Reward structure   
 abort : -0.1  
 correct : 1.0  
 fail : 0.0  
   
-Tags: [perceptual](#perceptual), [n-alternative](#n-alternative), [supervised](#supervised)
+Tags: [timing](#timing), [go-no-go](#go-no-go), [supervised](#supervised)
 
-[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/nalt_perceptualdecisionmaking.py)
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/readysetgo.py)
 
 ___
 
 ### PerceptualDecisionMaking  
-Doc:   
-        Two-alternative forced choice task in which the subject has to  
-        integrate two stimuli to decide which one is higher on average.  
+Doc: Two-alternative forced choice task in which the subject has to  
+    integrate two stimuli to decide which one is higher on average.  
   
-        Parameters:  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards:  
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)  
-            R_CORRECT: given when correct. (def: +1., float)  
-            R_FAIL: given when incorrect. (def: 0., float)  
-        timing: Description and duration of periods forming a trial.  
-        stim_scale: Controls the difficulty of the experiment. (def: 1., float)  
-          
+    A noisy stimulus is shown during the stimulus period. The strength (  
+    coherence) of the stimulus is randomly sampled every trial. Because the  
+    stimulus is noisy, the agent is encouraged to integrate the stimulus  
+    over time.  
+  
+    Args:  
+        cohs: list of float, coherence levels controlling the difficulty of  
+            the task  
+        sigma: float, input noise level  
+        dim_ring: int, dimension of ring input and output  
+      
 Reference paper   
 [The analysis of visual motion: a comparison of neuronal and psychophysical performance](https://www.jneurosci.org/content/12/12/4745)  
-  
-Period timing (ms)   
-fixation : constant 100  
-stimulus : constant 2000  
-decision : constant 100  
   
 Reward structure   
 abort : -0.1  
@@ -671,33 +504,21 @@ Tags: [perceptual](#perceptual), [two-alternative](#two-alternative), [supervise
 ___
 
 ### PerceptualDecisionMakingDelayResponse  
-Doc:   
-        Agents have to integrate two stimuli and report which one is  
-        larger on average after a delay.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards:  
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)  
-            R_CORRECT: given when correct. (def: +1., float)  
-            R_FAIL: given when incorrect. (def: -1., float)  
-        timing: Description and duration of periods forming a trial.  
+Doc: Perceptual decision-making with delayed responses.  
+  
+    Agents have to integrate two stimuli and report which one is  
+    larger on average after a delay.  
+  
+    Args:  
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)  
-          
+      
 Reference paper   
 [Discrete attractor dynamics underlies persistent activity in the frontal cortex](https://www.nature.com/articles/s41586-019-0919-7)  
-  
-Period timing (ms)   
-fixation : constant 0  
-stimulus : constant 1150  
-delay : choice [300, 500, 700, 900, 1200, 2000, 3200, 4000]  
-decision : constant 1500  
   
 Reward structure   
 abort : -0.1  
 correct : 1.0  
 fail : 0.0  
-  
-Other parameters:   
-stim_scale : Controls the difficulty of the experiment. (def: 1.)  
   
 Tags: [perceptual](#perceptual), [delayed response](#delayed-response), [two-alternative](#two-alternative), [supervised](#supervised)
 
@@ -706,27 +527,17 @@ Tags: [perceptual](#perceptual), [delayed response](#delayed-response), [two-alt
 ___
 
 ### PostDecisionWager  
-Doc:   
-        Agents do a discrimination task(see PerceptualDecisionMaking). On a  
-        random half of the trials, the agent is given the option to abort  
-        the direction discrimination and to choose instead a small but  
-        certain reward associated with a action.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards:  
-            R_ABORTED: given when breaking fixation. (def: -0.1, float)  
-            R_CORRECT: given when correct. (def: +1., float)  
-            R_FAIL: given when incorrect. (def: 0., float)  
-        timing: Description and duration of periods forming a trial.  
-          
+Doc: Post-decision wagering task assessing confidence.  
+  
+    The agent first performs a perceptual discrimination task (see for more  
+    details the PerceptualDecisionMaking task). On a random half of the  
+    trials, the agent is given the option to abort the sensory  
+    discrimination and to choose instead a sure-bet option that guarantees a  
+    small reward. Therefore, the agent is encouraged to choose the sure-bet  
+    option when it is uncertain about its perceptual decision.  
+      
 Reference paper   
 [Representation of Confidence Associated with a Decision by Neurons in the Parietal Cortex](https://science.sciencemag.org/content/324/5928/759.long)  
-  
-Period timing (ms)   
-fixation : constant 100  
-stimulus : truncated_exponential [180, 100, 900]  
-delay : truncated_exponential [1350, 1200, 1800]  
-pre_sure : uniform [500, 750]  
-decision : constant 100  
   
 Reward structure   
 abort : -0.1  
@@ -740,21 +551,68 @@ Tags: [perceptual](#perceptual), [delayed response](#delayed-response), [confide
 
 ___
 
+### ProbabilisticReasoning  
+Doc: Probabilistic reasoning.  
+  
+    The agent is shown a sequence of stimuli. Each stimulus is associated  
+    with a certain log-likelihood of the correct response being one choice  
+    versus the other. The final log-likelihood of the target response being,  
+    for example, option 1, is the sum of all log-likelihood associated with  
+    the presented stimuli. A delay period separates each stimulus, so the  
+    agent is encouraged to lean the log-likelihood association and integrate  
+    these values over time within a trial.  
+  
+    Args:  
+        shape_weight: array-like, evidence weight of each shape  
+        n_loc: int, number of location of show shapes  
+      
+Reference paper   
+[Probabilistic reasoning by neurons](https://www.nature.com/articles/nature05852)  
+  
+Reward structure   
+abort : -0.1  
+correct : 1.0  
+fail : 0.0  
+  
+Tags: [perceptual](#perceptual), [two-alternative](#two-alternative), [supervised](#supervised)
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/probabilisticreasoning.py)
+
+___
+
+### PulseDecisionMaking  
+Doc: Pulse-based decision making task.  
+  
+    Discrete stimuli are presented briefly as pulses.  
+  
+    Args:  
+        p_pulse: array-like, probability of pulses for each choice  
+        n_bin: int, number of stimulus bins  
+      
+Reference paper   
+[Sources of noise during accumulation of evidence in unrestrained and voluntarily head-restrained rats](https://elifesciences.org/articles/11308)  
+  
+Reward structure   
+abort : -0.1  
+correct : 1.0  
+fail : 0.0  
+  
+Tags: [perceptual](#perceptual), [two-alternative](#two-alternative), [supervised](#supervised)
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/perceptualdecisionmaking.py)
+
+___
+
 ### Reaching1D  
-Doc:   
-        The agent has to reproduce the angle indicated by the observation.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards:  
-            R_CORRECT: given when correct. (def: +1., float)  
-            R_FAIL: given when incorrect. (def: -0.1, float)  
-        timing: Description and duration of periods forming a trial.  
-          
+Doc: Reaching to the stimulus.  
+  
+    The agent is shown a stimulus during the fixation period. The stimulus  
+    encodes a one-dimensional variable such as a movement direction. At the  
+    end of the fixation period, the agent needs to respond by reaching  
+    towards the stimulus direction.  
+      
 Reference paper   
 [Neuronal population coding of movement direction](https://science.sciencemag.org/content/233/4771/1416)  
-  
-Period timing (ms)   
-fixation : constant 500  
-reach : constant 500  
   
 Reward structure   
 correct : 1.0  
@@ -767,23 +625,17 @@ Tags: [motor](#motor), [steps action space](#steps-action-space)
 ___
 
 ### Reaching1DWithSelfDistraction  
-Doc:   
-        The agent has to reproduce the angle indicated by the observation.  
-        Furthermore, the reaching state itself generates strong inputs that  
-        overshadows the actual target input.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards:  
-            R_CORRECT: given when correct. (def: +1., float)  
-            R_FAIL: given when incorrect. (def: -0.1, float)  
-        timing: Description and duration of periods forming a trial.  
-          
+Doc: Reaching with self distraction.  
+  
+    In this task, the reaching state itself generates strong inputs that  
+    overshadows the actual target input. This task is inspired by behavior  
+    in electric fish where the electric sensing organ is distracted by  
+    discharges from its own electric organ for active sensing.  
+    Similar phenomena in bats.  
+      
 Reference paper   
 Missing paper name  
 Missing paper link  
-  
-Period timing (ms)   
-fixation : constant 500  
-reach : constant 500  
   
 Reward structure   
 correct : 1.0  
@@ -796,21 +648,15 @@ Tags: [motor](#motor), [steps action space](#steps-action-space)
 ___
 
 ### ReachingDelayResponse  
-Doc:   
-        Working memory visual spatial task ~ Funahashi et al. 1991 adapted to  
-        freely moving mice in a continous choice-space.  
-        dt: Timestep duration. (def: 100 (ms), int)  
-        rewards: dictionary of rewards  
-        timing: Description and duration of periods forming a trial.  
-          
+Doc: Reaching task with a delay period.  
+  
+    A reaching direction is presented by the stimulus during the stimulus  
+    period. Followed by a delay period, the agent needs to respond to the  
+    direction of the stimulus during the decision period.  
+      
 Reference paper   
 Missing paper name  
 Missing paper link  
-  
-Period timing (ms)   
-stimulus : constant 500  
-delay : choice [0, 1000, 2000]  
-decision : constant 5000  
   
 Reward structure   
 abort : -0.1  
@@ -825,23 +671,22 @@ Tags: [perceptual](#perceptual), [delayed response](#delayed-response), [continu
 ___
 
 ### ReadySetGo  
-Doc:   
-        Agents have to measure and produce different time intervals.  
-        dt: Timestep duration. (def: 80 (ms), int)  
-        rewards: dictionary of rewards  
-        timing: Description and duration of periods forming a trial.  
+Doc: Agents have to measure and produce different time intervals.  
+  
+    A stimulus is briefly shown during a ready period, then again during a  
+    set period. The ready and set periods are separated by a measure period,  
+    the duration of which is randomly sampled on each trial. The agent is  
+    required to produce a response after the set cue such that the interval  
+    between the response and the set cue is as close as possible to the  
+    duration of the measure period.  
+  
+    Args:  
         gain: Controls the measure that the agent has to produce. (def: 1, int)  
         prod_margin: controls the interval around the ground truth production  
-                    time within which the agent receives proportional reward  
-          
+            time within which the agent receives proportional reward  
+      
 Reference paper   
 [Flexible Sensorimotor Computations through Rapid Reconfiguration of Cortical Dynamics](https://www.sciencedirect.com/science/article/pii/S0896627318304185)  
-  
-Period timing (ms)   
-fixation : constant 100  
-ready : constant 83  
-measure : choice [800, 1500]  
-set : constant 83  
   
 Reward structure   
 abort : -0.1  
@@ -854,6 +699,66 @@ Tags: [timing](#timing), [go-no-go](#go-no-go), [supervised](#supervised)
 
 ___
 
+### SingleContextDecisionMaking  
+Doc: Context-dependent decision-making task.  
+  
+    The agent simultaneously receives stimulus inputs from two modalities (  
+    for example, a colored random dot motion pattern with color and motion  
+    modalities). The agent needs to make a perceptual decision based on only  
+    one of the two modalities, while ignoring the other. The agent reports  
+    its decision during the decision period, with an optional delay period  
+    in between the stimulus period and the decision period. The relevant  
+    modality is not explicitly signaled.  
+  
+    Args:  
+        context: int, 0 or 1 for the two context (rules). If 0, need to  
+            focus on modality 0 (the first one)  
+      
+Reference paper   
+[Context-dependent computation by recurrent dynamics in prefrontal cortex](https://www.nature.com/articles/nature12742)  
+  
+Reward structure   
+abort : -0.1  
+correct : 1.0  
+  
+Tags: [perceptual](#perceptual), [context dependent](#context-dependent), [two-alternative](#two-alternative), [supervised](#supervised)
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/contextdecisionmaking.py)
+
+___
+
+### SpatialSuppressMotion  
+Doc:   
+    Spatial suppression motion task. This task is useful to study center-surround interaction in monkey MT and human psychophysical performance in motion perception.  
+  
+    Tha task is derived from (Tadin et al. Nature, 2003). In this task, there is no fixation or decision stage. We only present a stimulus and a subject needs to perform a 4-AFC motion direction judgement. The ground-truth is the probabilities for choosing the four directions at a given time point. The probabilities depend on stimulus contrast and size, and the probabilities are derived from emprically measured human psychophysical performance.  
+  
+    In this version, the input size is 4 (directions) x 8 (size) = 32 neurons. This setting aims to simulate four pools (8 neurons in each pool) of neurons that are selective for four directions.   
+  
+    Args:  
+        <dt>: millisecs per image frame, default: 8.3 (given 120HZ monitor)  
+        <win_size>: size per image frame  
+        <timing>: millisecs, stimulus duration, default: 8.3 * 36 frames ~ 300 ms.   
+            This is the longest duration we need (i.e., probability reach ceilling)  
+      
+    Note that please input default seq_len = 36 frames when creating dataset object.  
+  
+  
+      
+Reference paper   
+[Perceptual consequences of centre–surround antagonism in visual motion processing](https://www.nature.com/articles/nature01800)  
+  
+Reward structure   
+abort : -0.1  
+correct : 1.0  
+fail : 0.0  
+  
+Tags: [perceptual](#perceptual), [plaid](#plaid), [motion](#motion), [center-surround](#center-surround)
+
+[Source](https://github.com/gyyang/neurogym/blob/master/neurogym/envs/spatialsuppressmotion.py)
+
+___
+
 ### Tags ### 
 
 ### confidence 
@@ -862,19 +767,15 @@ ___
 
 ### context dependent 
 
-[ChangingEnvironment-v0](#changingenvironment)
-
 [ContextDecisionMaking-v0](#contextdecisionmaking)
+
+[SingleContextDecisionMaking-v0](#singlecontextdecisionmaking)
 
 ### continuous action space 
 
 [ReachingDelayResponse-v0](#reachingdelayresponse)
 
 ### delayed response 
-
-[AngleReproduction-v0](#anglereproduction)
-
-[CVLearning-v0](#cvlearning)
 
 [GoNogo-v0](#gonogo)
 
@@ -890,11 +791,11 @@ ___
 
 [DelayPairedAssociation-v0](#delaypairedassociation)
 
-[Detection-v0](#detection)
-
 [GoNogo-v0](#gonogo)
 
 [MotorTiming-v0](#motortiming)
+
+[OneTwoThreeGo-v0](#onetwothreego)
 
 [ReadySetGo-v0](#readysetgo)
 
@@ -912,35 +813,29 @@ ___
 
 [Bandit-v0](#bandit)
 
-[NAltPerceptualDecisionMaking-v0](#nalt_perceptualdecisionmaking)
-
 ### perceptual 
 
-[AngleReproduction-v0](#anglereproduction)
-
-[AntiReach-v0](#antireach1d)
-
-[CVLearning-v0](#cvlearning)
-
-[ChangingEnvironment-v0](#changingenvironment)
+[AntiReach-v0](#antireach)
 
 [ContextDecisionMaking-v0](#contextdecisionmaking)
 
+[DelayComparison-v0](#delaycomparison)
+
+[DelayMatchCategory-v0](#delaymatchcategory)
+
+[DelayMatchSample-v0](#delaymatchsample)
+
+[DelayMatchSampleDistractor1D-v0](#delaymatchsampledistractor1d)
+
 [DelayPairedAssociation-v0](#delaypairedassociation)
 
-[DelayComparison-v0](#delayedcomparison)
-
-[DelayMatchCategory-v0](#delayedmatchcategory)
-
-[DelayMatchSample-v0](#delayedmatchtosample)
-
-[DelayMatchSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
-
-[Detection-v0](#detection)
+[DualDelayMatchSample-v0](#dualdelaymatchsample)
 
 [EconomicDecisionMaking-v0](#economicdecisionmaking)
 
-[NAltPerceptualDecisionMaking-v0](#nalt_perceptualdecisionmaking)
+[HierarchicalReasoning-v0](#hierarchicalreasoning)
+
+[MultiSensoryIntegration-v0](#multisensoryintegration)
 
 [PerceptualDecisionMaking-v0](#perceptualdecisionmaking)
 
@@ -948,17 +843,21 @@ ___
 
 [PostDecisionWager-v0](#postdecisionwager)
 
+[ProbabilisticReasoning-v0](#probabilisticreasoning)
+
+[PulseDecisionMaking-v0](#pulsedecisionmaking)
+
 [ReachingDelayResponse-v0](#reachingdelayresponse)
+
+[SingleContextDecisionMaking-v0](#singlecontextdecisionmaking)
+
+[SpatialSuppressMotion-v0](#spatialsuppressmotion)
 
 ### reaction time 
 
-[Detection-v0](#detection)
-
 ### steps action space 
 
-[AngleReproduction-v0](#anglereproduction)
-
-[AntiReach-v0](#antireach1d)
+[AntiReach-v0](#antireach)
 
 [Reaching1D-v0](#reaching1d)
 
@@ -966,43 +865,45 @@ ___
 
 ### supervised 
 
-[Bandit-v0](#bandit)
-
-[CVLearning-v0](#cvlearning)
-
-[ChangingEnvironment-v0](#changingenvironment)
-
 [ContextDecisionMaking-v0](#contextdecisionmaking)
+
+[DelayComparison-v0](#delaycomparison)
+
+[DelayMatchCategory-v0](#delaymatchcategory)
+
+[DelayMatchSample-v0](#delaymatchsample)
+
+[DelayMatchSampleDistractor1D-v0](#delaymatchsampledistractor1d)
 
 [DelayPairedAssociation-v0](#delaypairedassociation)
 
-[DelayComparison-v0](#delayedcomparison)
-
-[DelayMatchCategory-v0](#delayedmatchcategory)
-
-[DelayMatchSample-v0](#delayedmatchtosample)
-
-[DelayMatchSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
-
-[Detection-v0](#detection)
+[DualDelayMatchSample-v0](#dualdelaymatchsample)
 
 [GoNogo-v0](#gonogo)
 
-[IntervalDiscrimination-v0](#intervaldiscrimination)
+[HierarchicalReasoning-v0](#hierarchicalreasoning)
 
-[MatchingPenny-v0](#matchingpenny)
+[IntervalDiscrimination-v0](#intervaldiscrimination)
 
 [MotorTiming-v0](#motortiming)
 
-[NAltPerceptualDecisionMaking-v0](#nalt_perceptualdecisionmaking)
+[MultiSensoryIntegration-v0](#multisensoryintegration)
+
+[OneTwoThreeGo-v0](#onetwothreego)
 
 [PerceptualDecisionMaking-v0](#perceptualdecisionmaking)
 
 [PerceptualDecisionMakingDelayResponse-v0](#perceptualdecisionmakingdelayresponse)
 
+[ProbabilisticReasoning-v0](#probabilisticreasoning)
+
+[PulseDecisionMaking-v0](#pulsedecisionmaking)
+
 [ReachingDelayResponse-v0](#reachingdelayresponse)
 
 [ReadySetGo-v0](#readysetgo)
+
+[SingleContextDecisionMaking-v0](#singlecontextdecisionmaking)
 
 ### timing 
 
@@ -1010,33 +911,41 @@ ___
 
 [MotorTiming-v0](#motortiming)
 
+[OneTwoThreeGo-v0](#onetwothreego)
+
 [ReadySetGo-v0](#readysetgo)
 
 ### two-alternative 
-
-[CVLearning-v0](#cvlearning)
-
-[ChangingEnvironment-v0](#changingenvironment)
 
 [ContextDecisionMaking-v0](#contextdecisionmaking)
 
 [DawTwoStep-v0](#dawtwostep)
 
-[DelayComparison-v0](#delayedcomparison)
+[DelayComparison-v0](#delaycomparison)
 
-[DelayMatchCategory-v0](#delayedmatchcategory)
+[DelayMatchCategory-v0](#delaymatchcategory)
 
-[DelayMatchSample-v0](#delayedmatchtosample)
+[DelayMatchSample-v0](#delaymatchsample)
 
-[DelayMatchSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
+[DelayMatchSampleDistractor1D-v0](#delaymatchsampledistractor1d)
+
+[DualDelayMatchSample-v0](#dualdelaymatchsample)
+
+[HierarchicalReasoning-v0](#hierarchicalreasoning)
 
 [IntervalDiscrimination-v0](#intervaldiscrimination)
 
-[MatchingPenny-v0](#matchingpenny)
+[MultiSensoryIntegration-v0](#multisensoryintegration)
 
 [PerceptualDecisionMaking-v0](#perceptualdecisionmaking)
 
 [PerceptualDecisionMakingDelayResponse-v0](#perceptualdecisionmakingdelayresponse)
+
+[ProbabilisticReasoning-v0](#probabilisticreasoning)
+
+[PulseDecisionMaking-v0](#pulsedecisionmaking)
+
+[SingleContextDecisionMaking-v0](#singlecontextdecisionmaking)
 
 ### value-based 
 
@@ -1044,17 +953,17 @@ ___
 
 ### working memory 
 
-[AngleReproduction-v0](#anglereproduction)
+[DelayComparison-v0](#delaycomparison)
+
+[DelayMatchCategory-v0](#delaymatchcategory)
+
+[DelayMatchSample-v0](#delaymatchsample)
+
+[DelayMatchSampleDistractor1D-v0](#delaymatchsampledistractor1d)
 
 [DelayPairedAssociation-v0](#delaypairedassociation)
 
-[DelayComparison-v0](#delayedcomparison)
-
-[DelayMatchCategory-v0](#delayedmatchcategory)
-
-[DelayMatchSample-v0](#delayedmatchtosample)
-
-[DelayMatchSampleDistractor1D-v0](#delayedmatchtosampledistractor1d)
+[DualDelayMatchSample-v0](#dualdelaymatchsample)
 
 [IntervalDiscrimination-v0](#intervaldiscrimination)
 
