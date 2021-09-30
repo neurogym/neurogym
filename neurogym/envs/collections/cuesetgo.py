@@ -14,7 +14,8 @@ class CueSetGo(ngym.TrialEnv):
     def __init__(self, dt=1, params=None):
         super().__init__(dt=dt)
         # Unpack Parameters
-        Training, InputNoise, TargetThreshold, ThresholdDelay, TargetRamp = params
+        Training, InputNoise, TargetThreshold, ThresholdDelay, TargetRamp,\
+            wait_time,scenario = params
 
         # Several different intervals: their length and corresponding magnitude
         self.production_ind = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] 
@@ -25,7 +26,8 @@ class CueSetGo(ngym.TrialEnv):
         # Leave out for now, reimplement later otherwise unfair
         # self.weberFraction = float((100-50)/(1500-800))
         # self.prod_margin = self.weberFraction
-        
+        self.scenario = scenario
+        self.def_wait_time = wait_time
         self.training = Training # Training Label
         self.trial_nr = 1 # Trial Counter
         
@@ -44,12 +46,9 @@ class CueSetGo(ngym.TrialEnv):
         # Set Cue: Burn+Wait followed by Set Spike
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,), dtype=np.float32)
 
-    def _new_trial(self, Scenario=None, WaitTime=None, **kwargs):
+    def _new_trial(self, **kwargs):
         # Define Times
-        if WaitTime is not None:
-            self.wait_time = WaitTime
-        else:
-            self.wait_time = int(self.rng.uniform(100, 200))
+        self.wait_time = self.def_wait_time or int(self.rng.uniform(100, 200))
         self.burn = 50 # Duration of Burn period before context cue
         self.set = 20 # Duration of Set Period
 
@@ -66,9 +65,9 @@ class CueSetGo(ngym.TrialEnv):
             }
         
         # Choose given Scenario
-        if Scenario is not None:
+        if self.scenario is not None:
             trial = {
-                'production_ind': Scenario
+                'production_ind': self.scenario
             }
 
         trial.update(kwargs)
@@ -192,7 +191,8 @@ class ReadySetGo_SinglePrior(ngym.TrialEnv):
     def __init__(self, dt=1, params= None):
         super().__init__(dt=dt)
         # Unpack Parameters
-        Training, InputNoise, TargetThreshold, ThresholdDelay, TargetRamp = params
+        Training, InputNoise, TargetThreshold, ThresholdDelay, TargetRamp,\
+            wait_time, scenario = params
 
         # Several different intervals with their corresponding their length 
         self.production_ind = [0, 1, 2, 3, 4] 
@@ -204,7 +204,8 @@ class ReadySetGo_SinglePrior(ngym.TrialEnv):
         # Leave out for now, reimplement later otherwise unfair
         # self.weberFraction = float((100-50)/(1500-800))
         # self.prod_margin = self.weberFraction
-
+        self.scenario = scenario
+        self.def_wait_time = wait_time
         self.training = Training # Training Label
         self.trial_nr = 1 # Trial Counter
         self.input_noise = InputNoise # Input Noise Percentage
@@ -221,12 +222,9 @@ class ReadySetGo_SinglePrior(ngym.TrialEnv):
         # Ready-Set Cue: Burn+Wait followed by Ready-Set Spike
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,), dtype=np.float32)
 
-    def _new_trial(self, Scenario=None, WaitTime=None, **kwargs):
+    def _new_trial(self, **kwargs):
         # Define Times
-        if WaitTime is not None:
-            self.wait_time = WaitTime
-        else:
-            self.wait_time = int(self.rng.uniform(100, 200))
+        self.wait_time = self.def_wait_time or int(self.rng.uniform(100, 200))
         self.burn = 50
         self.spike = 20
 
@@ -243,9 +241,9 @@ class ReadySetGo_SinglePrior(ngym.TrialEnv):
             }
         
         # Choose given Scenario
-        if Scenario is not None:
+        if self.scenario is not None:
             trial = {
-                'production_ind': Scenario
+                'production_ind': self.scenario
             }
 
         # Select corresponding interval
@@ -380,7 +378,8 @@ class ReadySetGo_DoublePrior(ngym.TrialEnv):
     def __init__(self, dt=1, params= None):
         super().__init__(dt=dt)
         # Unpack Parameters
-        Training, InputNoise, TargetThreshold, ThresholdDelay, TargetRamp = params
+        Training, InputNoise, TargetThreshold, ThresholdDelay, TargetRamp,\
+            wait_time, scenario = params
 
         # Several different intervals with their corresponding their length 
         self.production_ind = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] 
@@ -392,7 +391,8 @@ class ReadySetGo_DoublePrior(ngym.TrialEnv):
         # Leave out for now, reimplement later otherwise unfair
         # self.weberFraction = float((100-50)/(1500-800))
         # self.prod_margin = self.weberFraction
-
+        self.scenario = scenario
+        self.def_wait_time = wait_time
         self.training = Training # Training Label
         self.trial_nr = 1 # Trial Counter
         self.input_noise = InputNoise # Input Noise Percentage
@@ -410,12 +410,9 @@ class ReadySetGo_DoublePrior(ngym.TrialEnv):
         # Ready-Set Cue: Burn+Wait followed by Ready-Set Spike
         self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,), dtype=np.float32)
 
-    def _new_trial(self, Scenario=None, WaitTime=None, **kwargs):
+    def _new_trial(self, **kwargs):
         # Define Times
-        if WaitTime is not None:
-            self.wait_time = WaitTime
-        else:
-            self.wait_time = int(self.rng.uniform(100, 200))
+        self.wait_time = self.def_wait_time or int(self.rng.uniform(100, 200))
         self.burn = 50
         self.spike = 20
 
@@ -432,9 +429,9 @@ class ReadySetGo_DoublePrior(ngym.TrialEnv):
             }
         
         # Choose given Scenario
-        if Scenario is not None:
+        if self.scenario is not None:
             trial = {
-                'production_ind': Scenario
+                'production_ind': self.scenario
             }
 
         # Select corresponding interval
@@ -568,8 +565,39 @@ def cuesetgo(**kwargs):
     Input_Noise = 0  # Input Noise Percentage
     Target_Threshold = 0.05  # Allowed Target Deviation Percentage
     Threshold_Delay = 50  # Delay after Threshold is reached
+    Wait_Time = 100  # Wait after start for context cue
     Target_Ramp = True  # Ramp or NaN Target
-    env_kwargs = {'params': (True, Input_Noise, Target_Threshold,
-                             Threshold_Delay, Target_Ramp)}
+    training = True
+    scenario = 0
+    env_kwargs = {'params': (training, Input_Noise, Target_Threshold,
+                             Threshold_Delay, Target_Ramp, Wait_Time, scenario)}
     env_kwargs.update(kwargs)
     return CueSetGo(**env_kwargs)
+
+
+def readysetgo_sp(**kwargs):
+    Input_Noise = 0.01  # Input Noise Percentage
+    Target_Threshold = 0.05  # Allowed Target Deviation Percentage
+    Threshold_Delay = 50  # Delay after Threshold is reached
+    Wait_Time = 50  # Wait after start for context cue
+    Target_Ramp = True  # Ramp or NaN Target
+    training = True
+    scenario = 0
+    env_kwargs = {'params': (training, Input_Noise, Target_Threshold,
+                             Threshold_Delay, Target_Ramp, Wait_Time, scenario)}
+    env_kwargs.update(kwargs)
+    return ReadySetGo_SinglePrior(**env_kwargs)
+
+
+def readysetgo_dp(**kwargs):
+    Input_Noise = 0  # Input Noise Percentage
+    Target_Threshold = 0.05  # Allowed Target Deviation Percentage
+    Threshold_Delay = 50  # Delay after Threshold is reached
+    Wait_Time = 50  # Wait after start for context cue
+    Target_Ramp = True  # Ramp or NaN Target
+    training = True
+    scenario = 0
+    env_kwargs = {'params': (training, Input_Noise, Target_Threshold,
+                             Threshold_Delay, Target_Ramp, Wait_Time, scenario)}
+    env_kwargs.update(kwargs)
+    return ReadySetGo_DoublePrior(**env_kwargs)
