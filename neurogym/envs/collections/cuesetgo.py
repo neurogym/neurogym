@@ -2,6 +2,7 @@ import numpy as np
 import neurogym as ngym
 from neurogym import spaces
 
+
 class CueSetGo(ngym.TrialEnv):
     """Agents have to produce different time intervals
     using different cues.
@@ -561,3 +562,14 @@ class ReadySetGo_DoublePrior(ngym.TrialEnv):
             'Interval': trial[0]['production'],
             'SetStart': self.spike+trial[0]['production']+self.spike+self.wait_time+self.burn,
             }
+
+
+def cuesetgo(**kwargs):
+    Input_Noise = 0  # Input Noise Percentage
+    Target_Threshold = 0.05  # Allowed Target Deviation Percentage
+    Threshold_Delay = 50  # Delay after Threshold is reached
+    Target_Ramp = True  # Ramp or NaN Target
+    env_kwargs = {'params': (True, Input_Noise, Target_Threshold,
+                             Threshold_Delay, Target_Ramp)}
+    env_kwargs.update(kwargs)
+    return CueSetGo(**env_kwargs)
