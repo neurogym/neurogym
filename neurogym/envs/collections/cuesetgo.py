@@ -1,6 +1,8 @@
 import numpy as np
 import neurogym as ngym
 from neurogym import spaces
+from neurogym.wrappers.block import ScheduleEnvs
+from neurogym.utils import scheduler
 
 
 class CueSetGo(ngym.TrialEnv):
@@ -11,11 +13,10 @@ class CueSetGo(ngym.TrialEnv):
     metadata = {
     }
 
-    def __init__(self, dt=1, params=None):
+    def __init__(self, dt=1, Training=True, InputNoise=0, TargetThreshold=0.05,
+                 ThresholdDelay=50, TargetRamp=True, wait_time=100, scenario=0):
         super().__init__(dt=dt)
         # Unpack Parameters
-        Training, InputNoise, TargetThreshold, ThresholdDelay, TargetRamp,\
-            wait_time,scenario = params
 
         # Several different intervals: their length and corresponding magnitude
         self.production_ind = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] 
@@ -187,12 +188,9 @@ class ReadySetGo_SinglePrior(ngym.TrialEnv):
     """Agents have to estimate and produce different time intervals
     using different effectors (actions).
     """
-
-    def __init__(self, dt=1, params= None):
+    def __init__(self, dt=1, Training=True, InputNoise=0.01 , TargetThreshold=0.05,
+                 ThresholdDelay=50, TargetRamp=True, wait_time=50, scenario=0):
         super().__init__(dt=dt)
-        # Unpack Parameters
-        Training, InputNoise, TargetThreshold, ThresholdDelay, TargetRamp,\
-            wait_time, scenario = params
 
         # Several different intervals with their corresponding their length 
         self.production_ind = [0, 1, 2, 3, 4] 
@@ -374,13 +372,9 @@ class ReadySetGo_DoublePrior(ngym.TrialEnv):
     """Agents have to estimate and produce different time intervals
     using different effectors (actions).
     """
-
-    def __init__(self, dt=1, params= None):
+    def __init__(self, dt=1, Training=True, InputNoise=0, TargetThreshold=0.05,
+                 ThresholdDelay=50, TargetRamp=True, wait_time=50, scenario=0):
         super().__init__(dt=dt)
-        # Unpack Parameters
-        Training, InputNoise, TargetThreshold, ThresholdDelay, TargetRamp,\
-            wait_time, scenario = params
-
         # Several different intervals with their corresponding their length 
         self.production_ind = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] 
         self.intervals = [480, 560, 640, 720, 800, 800, 900, 1000, 1100, 1200] 
@@ -561,21 +555,28 @@ class ReadySetGo_DoublePrior(ngym.TrialEnv):
             }
 
 
-def cuesetgo(**kwargs):
+def cuesetgo(n_conds=10, **kwargs):
     Input_Noise = 0  # Input Noise Percentage
     Target_Threshold = 0.05  # Allowed Target Deviation Percentage
     Threshold_Delay = 50  # Delay after Threshold is reached
     Wait_Time = 100  # Wait after start for context cue
     Target_Ramp = True  # Ramp or NaN Target
     training = True
-    scenario = 0
-    env_kwargs = {'params': (training, Input_Noise, Target_Threshold,
-                             Threshold_Delay, Target_Ramp, Wait_Time, scenario)}
+    env_kwargs = {'training': training, 'Input_Noise': Input_Noise,
+                  'Target_Threshold': Target_Threshold,
+                  'Threshold_Delay': Threshold_Delay, 'Target_Ramp': Target_Ramp,
+                  'Wait_Time': Wait_Time, 'scenario': 0}
     env_kwargs.update(kwargs)
-    return CueSetGo(**env_kwargs)
+    env_list = []
+    for scenario in range(n_conds):
+        env_kwargs['scenario'] = scenario
+        env_list.append(CueSetGo(**env_kwargs))
+    schedule = scheduler.SequentialSchedule(len(env_list))
+    env = ScheduleEnvs(env_list, schedule, env_input=False)
+    return env
 
 
-def readysetgo_sp(**kwargs):
+def readysetgo_sp(n_conds=10, **kwargs):
     Input_Noise = 0.01  # Input Noise Percentage
     Target_Threshold = 0.05  # Allowed Target Deviation Percentage
     Threshold_Delay = 50  # Delay after Threshold is reached
@@ -583,13 +584,21 @@ def readysetgo_sp(**kwargs):
     Target_Ramp = True  # Ramp or NaN Target
     training = True
     scenario = 0
-    env_kwargs = {'params': (training, Input_Noise, Target_Threshold,
-                             Threshold_Delay, Target_Ramp, Wait_Time, scenario)}
+    env_kwargs = {'training': training, 'Input_Noise': Input_Noise,
+                  'Target_Threshold': Target_Threshold,
+                  'Threshold_Delay': Threshold_Delay, 'Target_Ramp': Target_Ramp,
+                  'Wait_Time': Wait_Time, 'scenario': 0}
     env_kwargs.update(kwargs)
-    return ReadySetGo_SinglePrior(**env_kwargs)
+    env_list = []
+    for scenario in range(n_conds):
+        env_kwargs['scenario'] = scenario
+        env_list.append(ReadySetGo_SinglePrior(**env_kwargs))
+    schedule = scheduler.SequentialSchedule(len(env_list))
+    env = ScheduleEnvs(env_list, schedule, env_input=False)
+    return env
 
 
-def readysetgo_dp(**kwargs):
+def readysetgo_dp(n_conds=10, **kwargs):
     Input_Noise = 0  # Input Noise Percentage
     Target_Threshold = 0.05  # Allowed Target Deviation Percentage
     Threshold_Delay = 50  # Delay after Threshold is reached
@@ -597,7 +606,15 @@ def readysetgo_dp(**kwargs):
     Target_Ramp = True  # Ramp or NaN Target
     training = True
     scenario = 0
-    env_kwargs = {'params': (training, Input_Noise, Target_Threshold,
-                             Threshold_Delay, Target_Ramp, Wait_Time, scenario)}
+    env_kwargs = {'training': training, 'Input_Noise': Input_Noise,
+                  'Target_Threshold': Target_Threshold,
+                  'Threshold_Delay': Threshold_Delay, 'Target_Ramp': Target_Ramp,
+                  'Wait_Time': Wait_Time, 'scenario': 0}
     env_kwargs.update(kwargs)
-    return ReadySetGo_DoublePrior(**env_kwargs)
+    env_list = []
+    for scenario in range(n_conds):
+        env_kwargs['scenario'] = scenario
+        env_list.append(ReadySetGo_DoublePrior(**env_kwargs))
+    schedule = scheduler.SequentialSchedule(len(env_list))
+    env = ScheduleEnvs(env_list, schedule, env_input=False)
+    return env
