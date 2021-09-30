@@ -126,7 +126,7 @@ def _get_collection_envs():
     derived_envs = {}
     # collection_libs = ['perceptualdecisionmaking', 'yang19', 'priors']
     # TODO: Temporary disabling priors task
-    collection_libs = ['perceptualdecisionmaking', 'yang19']
+    collection_libs = ['cuesetgo', 'perceptualdecisionmaking', 'yang19']
     for l in collection_libs:
         lib = 'neurogym.envs.collections.' + l
         module = importlib.import_module(lib)
