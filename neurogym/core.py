@@ -118,7 +118,8 @@ class TrialEnv(BaseEnv):
 
         self._top = self
 
-        self.seed()
+        # TODO: self.action_space is no more initialized to None in gym.Env in the latest version of gym
+        # self.seed()
 
     def __str__(self):
         """Information about task."""
