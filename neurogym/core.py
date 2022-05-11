@@ -145,7 +145,7 @@ class TrialEnv(BaseEnv):
     def seed(self, seed=None):
         """Set random seed."""
         self.rng = np.random.RandomState(seed)
-        if self.action_space is not None:
+        if hasattr(self, 'action_space') and self.action_space is not None:
             self.action_space.seed(seed)
         for key, val in self.timing.items():
             try:

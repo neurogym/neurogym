@@ -6,7 +6,7 @@ import inspect
 
 import gym
 from neurogym.core import env_string, METADATA_DEF_KEYS
-from neurogym.envs import all_envs, ALL_ENVS
+from neurogym.envs.registration import all_envs, ALL_ENVS
 from neurogym.wrappers import ALL_WRAPPERS
 
 
