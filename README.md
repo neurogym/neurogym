@@ -5,6 +5,7 @@
 NeuroGym is a curated collection of neuroscience tasks with a common interface.
 The goal is to facilitate training of neural network models on neuroscience tasks. 
 
+Documentation: https://neurogym.github.io/
 - [Installation](#Installation)
 - [Tasks](#Tasks)
 - [Wrappers](#Wrappers)
