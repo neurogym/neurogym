@@ -18,7 +18,11 @@ def _clean_string(string):
     return ' '.join(string.replace('\n', '').split())
 
 
-def env_string(env):
+def env_string(env, short=False):
+    if short:
+        string = "<{:s}>".format(type(env).__name__)
+        return string
+
     string = ''
     metadata = env.metadata
     docstring = env.__doc__
@@ -88,9 +92,10 @@ class BaseEnv(gym.Env):
             self.action_space.seed(seed)
         return [seed]
 
-    def reset(self):
-        """Do nothing. Run one step"""
-        return self.step(self.action_space.sample())
+    # TODO: should return just the initial ob
+    # def reset(self):
+    #     """Do nothing. Run one step"""
+    #     return self.step(self.action_space.sample())
 
 
 class TrialEnv(BaseEnv):
@@ -117,13 +122,10 @@ class TrialEnv(BaseEnv):
         self._tmax = 0  # Length of each trial
 
         self._top = self
-        
-        # TODO: self.action_space is no more initialized to None in gym.Env in the latest version of gym
-        # self.seed()
 
     def __str__(self):
         """Information about task."""
-        return env_string(self)  # TODO: simplify, too long now
+        return env_string(self, short=True)  # TODO: simplify, too long now
 
     def _new_trial(self, **kwargs):
         """Private interface for starting a new trial.
@@ -211,23 +213,27 @@ class TrialEnv(BaseEnv):
             ob = self.ob[self.t_ind]
         return self.post_step(ob, reward, done, info)
 
-    def reset(self, step_fn=None, no_step=False):
+    def reset(self, seed=None, return_info=False, options=None, step_fn=None, no_step=False):
         """Reset the environment.
 
         Args:
-            new_tr_fn: function or None. If function, overwrite original
-                self.new_trial function
+            seed: random seed
+            return_info: if False, return only the initial observation, else return also some extra info
+            options: additional options used to reset the env
             step_fn: function or None. If function, overwrite original
                 self.step function
             no_step: bool. If True, no step is taken and observation randomly
                 sampled. Default False.
         """
-        # TODO: Why are we stepping during reset?
+        super().reset(seed=seed)  # set the random seed in gym.Env
+        self.seed(seed)
+
         self.num_tr = 0
         self.t = self.t_ind = 0
 
-        # TODO: Check this works with wrapper
         self._top.new_trial()
+
+        # have to also call step() to get the initial ob since some wrappers modify step() but not new_trial()
         self.action_space.seed(0)
         if no_step:
             return self.observation_space.sample()

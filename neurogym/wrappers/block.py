@@ -96,6 +96,17 @@ class MultiEnvs(TrialWrapper):
                 dtype=self.observation_space.dtype
             )
 
+    def reset(self, **kwargs):
+        # return the initial ob of the first env in the list envs by default
+        return_i_env = 0
+
+        for i, env in enumerate(self.envs):
+            self.set_i(i)
+            env.reset(**kwargs)
+
+        self.set_i(0)
+
+
     def set_i(self, i):
         """Set the i-th environment."""
         self.i_env = i
@@ -115,6 +126,7 @@ class MultiEnvs(TrialWrapper):
             return trial
 
 
+# TODO: EnvsWrapper or MultiEnvWrapper
 class ScheduleEnvs(TrialWrapper):
     """Schedule environments.
 
@@ -122,7 +134,7 @@ class ScheduleEnvs(TrialWrapper):
         envs: list of env object
         schedule: utils.scheduler.BaseSchedule object
         env_input: bool, if True, add scalar inputs indicating current
-            envinronment. default False.
+            environment. default False.
     """
     def __init__(self, envs, schedule, env_input=False):
         super().__init__(envs[0])
@@ -130,7 +142,7 @@ class ScheduleEnvs(TrialWrapper):
             env.unwrapped.set_top(self)
         self.envs = envs
         self.schedule = schedule
-        self.i_env = 0
+        self.i_env = self.next_i_env = 0
 
         self.env_input = env_input
         if env_input:
@@ -149,11 +161,41 @@ class ScheduleEnvs(TrialWrapper):
             env.seed(seed)
         self.schedule.seed(seed)
 
+    def reset(self, **kwargs):
+        # TODO: kwargs to specify the condition for new_trial
+        """
+        Reset each environment in self.envs and use the scheduler to select the environment returning
+        the initial observation. This environment is also used to set the current environment self.env.
+        """
+        self.schedule.reset()
+        return_i_env = self.schedule()
+
+        # first reset all the env excepted return_i_env
+        for i, env in enumerate(self.envs):
+            if i == return_i_env:
+                continue
+
+            # change the current env so that calling _top.new_trial() in env.reset() will generate a trial for the env
+            # being currently reset (and not an env that is not yet reset)
+            self.set_i(i)
+            # same env used here and in the first call to new_trial()
+            self.next_i_env = self.i_env
+
+            env.reset(**kwargs)
+
+        # then reset return_i_env and return the result
+        self.set_i(return_i_env)
+        self.next_i_env = self.i_env
+        return self.env.reset()
+
     def new_trial(self, **kwargs):
-        self.i_env = self.schedule()
+        # self.env has to be changed at the beginning of new_trial, not at the end
+        # but don't use schedule here since don't want to change the env between reset() and first call to new_trial()
+        self.i_env = self.next_i_env
         self.env = self.envs[self.i_env]
+
         if not self.env_input:
-            return self.env.new_trial(**kwargs)
+            trial = self.env.new_trial(**kwargs)
         else:
             trial = self.env.new_trial(**kwargs)
             # Expand observation
@@ -162,7 +204,25 @@ class ScheduleEnvs(TrialWrapper):
             env_ob[:, self.i_env] = 1.
             self.unwrapped.ob = np.concatenate(
                 (self.unwrapped.ob, env_ob), axis=-1)
-            return trial
+
+        # want self.ob to refer to the ob of the new trial, so can't change self.env here => use next_i_env
+        self.next_i_env = self.schedule()
+        assert self.env == self.envs[self.i_env]
+        return trial
+
+    def set_i(self, i):
+        """Set the current environment to the i-th environment in the list envs."""
+        self.i_env = i
+        self.env = self.envs[self.i_env]
+        self.schedule.i = i
+
+    def __str__(self):
+        string = f"<{type(self).__name__}"
+        for env in self.envs:
+            for line in str(env).splitlines():
+                string += "\n\t" + line
+        string += "\n>"
+        return string
 
 
 class TrialHistoryV2(TrialWrapper):
