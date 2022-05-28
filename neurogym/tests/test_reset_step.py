@@ -1,0 +1,95 @@
+import gym
+import numpy as np
+
+import neurogym as ngym
+from neurogym.utils.scheduler import RandomSchedule
+from neurogym.wrappers import ScheduleEnvs
+
+
+class CstObTrialWrapper(ngym.TrialWrapper):
+    def __init__(self, env, cst_ob):
+        super().__init__(env)
+        self.cst_ob = cst_ob
+
+    def new_trial(self, **kwargs):
+        trial = self.env.new_trial(**kwargs)
+        self.ob = np.repeat(self.cst_ob[None, :], self.ob.shape[0], axis=0)
+        return trial
+
+    # modifying new_trial is not enough to modify the ob returned by step()
+    def step(self, action):
+        _, reward, done, info = self.env.step(action)
+        new_ob = self.ob[self.t_ind]
+        return new_ob, reward, done, info
+
+
+def _setup_env(cst_ob):
+    env = ngym.make(ngym.all_envs()[0])
+    env = CstObTrialWrapper(env, cst_ob)
+    return env
+
+
+def test_wrapper_new_trial():
+    """
+    Test that the ob returned by new_trial takes the wrapper correctly into account
+    """
+    cst_ob = np.random.random(10)
+    env = _setup_env(cst_ob)
+    env.new_trial()
+    ob = env.ob[0]
+    assert ob.shape == cst_ob.shape, "Got shape {} but expected shape {}".format(ob.shape, cst_ob.shape)
+    assert np.all(ob == cst_ob)
+
+
+def test_wrapper_reset():
+    """
+    Test that the ob returned by reset takes the wrapper correctly into account.
+    """
+    cst_ob = np.random.random(10)
+    env = _setup_env(cst_ob)
+    ob = env.reset()
+
+    assert ob.shape == cst_ob.shape, "Got shape {} but expected shape {}".format(ob.shape, cst_ob.shape)
+    assert np.all(ob == cst_ob)
+
+
+def test_wrapper_step():
+    """
+    Test that the ob returned by step takes the wrapper correctly into account.
+    """
+    cst_ob = np.random.random(10)
+    env = _setup_env(cst_ob)
+    env.reset()
+    ob, _, _, _ = env.step(env.action_space.sample())
+    assert ob.shape == cst_ob.shape, "Got shape {} but expected shape {}".format(ob.shape, cst_ob.shape)
+    assert np.all(ob == cst_ob)
+
+
+def test_reset_with_scheduler():
+    """
+    Test that ScheduleEnvs.reset() resets all the environments in its list envs, which is required before being able to
+    call step() (enforced by the gym wrapper OrderEnforcing).
+    """
+    tasks = ngym.get_collection('yang19')
+    envs = [gym.make(task) for task in tasks]
+    schedule = RandomSchedule(len(envs))
+    env = ScheduleEnvs(envs, schedule=schedule, env_input=True)
+
+    env.reset()
+    env.step(env.action_space.sample())
+
+
+def test_schedule_envs():
+    tasks = ngym.get_collection('yang19')
+    envs = [gym.make(task) for task in tasks]
+    for i, env in enumerate(envs):
+        envs[i] = CstObTrialWrapper(env, np.array([i]))
+
+    schedule = RandomSchedule(len(envs))
+    env = ScheduleEnvs(envs, schedule=schedule, env_input=True)
+    env.reset()
+    for _ in range(5):
+        env.new_trial()
+        assert np.all([ob == env.i_env for ob in env.ob])
+        # test rule input
+        assert env.i_env == np.argmax(env.unwrapped.ob[0, -len(envs):])
