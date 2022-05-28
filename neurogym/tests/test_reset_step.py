@@ -79,4 +79,17 @@ def test_reset_with_scheduler():
     env.step(env.action_space.sample())
 
 
-# TODO: test ScheduleEnvs (correct rule input etc.)
+def test_schedule_envs():
+    tasks = ngym.get_collection('yang19')
+    envs = [gym.make(task) for task in tasks]
+    for i, env in enumerate(envs):
+        envs[i] = CstObTrialWrapper(env, np.array([i]))
+
+    schedule = RandomSchedule(len(envs))
+    env = ScheduleEnvs(envs, schedule=schedule, env_input=True)
+    env.reset()
+    for _ in range(5):
+        env.new_trial()
+        assert np.all([ob == env.i_env for ob in env.ob])
+        # test rule input
+        assert env.i_env == np.argmax(env.unwrapped.ob[0, -len(envs):])
