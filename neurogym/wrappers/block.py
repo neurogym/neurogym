@@ -224,6 +224,14 @@ class ScheduleEnvs(TrialWrapper):
         string += "\n>"
         return string
 
+    def __str__(self):
+        string = f"<{type(self).__name__}"
+        for env in self.envs:
+            for line in str(env).splitlines():
+                string += "\n\t" + line
+        string += "\n>"
+        return string
+
 
 class TrialHistoryV2(TrialWrapper):
     """Change ground truth probability based on previous outcome.

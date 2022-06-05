@@ -1,9 +1,27 @@
+from packaging import version
+
 import gym
 import numpy as np
 
 import neurogym as ngym
 from neurogym.utils.scheduler import RandomSchedule
 from neurogym.wrappers import ScheduleEnvs
+
+
+# In gym 0.24.0, env_checker calls reset() when the env is created => no error if env.step() before env.reset() but it
+# doens't mean that ScheduleEnvs properly reset all its env, so disable env_checker to test that
+if version.parse(gym.__version__) >= version.parse('0.24.0'):
+    disable_env_checker = True
+else:
+    disable_env_checker = False
+
+
+def make_env(name, **kwargs):
+    if disable_env_checker:
+        return ngym.make(name, disable_env_checker=True, **kwargs)
+    else:
+        # cannot add the arg disable_env_checker to gym.make in versions lower than 0.24
+        return ngym.make(name, **kwargs)
 
 
 class CstObTrialWrapper(ngym.TrialWrapper):
@@ -24,7 +42,7 @@ class CstObTrialWrapper(ngym.TrialWrapper):
 
 
 def _setup_env(cst_ob):
-    env = ngym.make(ngym.all_envs()[0])
+    env = make_env(ngym.all_envs()[0])
     env = CstObTrialWrapper(env, cst_ob)
     return env
 
@@ -71,7 +89,7 @@ def test_reset_with_scheduler():
     call step() (enforced by the gym wrapper OrderEnforcing).
     """
     tasks = ngym.get_collection('yang19')
-    envs = [gym.make(task) for task in tasks]
+    envs = [make_env(task) for task in tasks]
     schedule = RandomSchedule(len(envs))
     env = ScheduleEnvs(envs, schedule=schedule, env_input=True)
 
@@ -81,7 +99,7 @@ def test_reset_with_scheduler():
 
 def test_schedule_envs():
     tasks = ngym.get_collection('yang19')
-    envs = [gym.make(task) for task in tasks]
+    envs = [make_env(task) for task in tasks]
     for i, env in enumerate(envs):
         envs[i] = CstObTrialWrapper(env, np.array([i]))
 

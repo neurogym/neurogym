@@ -125,7 +125,7 @@ class TrialEnv(BaseEnv):
 
     def __str__(self):
         """Information about task."""
-        return env_string(self, short=True)  # TODO: simplify, too long now
+        return env_string(self, short=True)
 
     def _new_trial(self, **kwargs):
         """Private interface for starting a new trial.
