@@ -18,7 +18,11 @@ def _clean_string(string):
     return ' '.join(string.replace('\n', '').split())
 
 
-def env_string(env):
+def env_string(env, short=False):
+    if short:
+        string = "<{:s}>".format(type(env).__name__)
+        return string
+
     string = ''
     metadata = env.metadata
     docstring = env.__doc__
@@ -122,7 +126,7 @@ class TrialEnv(BaseEnv):
 
     def __str__(self):
         """Information about task."""
-        return env_string(self)  # TODO: simplify, too long now
+        return env_string(self, short=True)
 
     def _new_trial(self, **kwargs):
         """Private interface for starting a new trial.
