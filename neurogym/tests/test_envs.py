@@ -129,16 +129,11 @@ def test_seeding(env=None, seed=0):
 
 
 def test_seeding_all():
-    """Test if all environments can at least be run."""
+    """Test if all environments are replicable."""
     for env_name in sorted(ENVS_NOPSYCHOPY):
-        # print('Running env: {:s}'.format(env_name))
-        # env = test_run(env_name)
+        print('Running env: {:s}'.format(env_name))
         obs1, rews1, acts1 = test_seeding(env_name, seed=0)
         obs2, rews2, acts2 = test_seeding(env_name, seed=0)
         assert (obs1 == obs2).all(), 'obs are not identical'
         assert (rews1 == rews2).all(), 'rewards are not identical'
-        assert (acts1 == acts2).all(), 'rewards are not identical'
-        # obs1, rews1 = test_seeding(env_name, seed=0)
-        # obs2, rews2 = test_seeding(env_name, seed=0)
-        # assert (obs1 == obs2).all(), 'obs are not identical'
-        # assert (rews1 == rews2).all(), 'rewards are not identical'
+        assert (acts1 == acts2).all(), 'actions are not identical'

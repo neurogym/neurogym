@@ -217,7 +217,7 @@ class TrialEnv(BaseEnv):
         """Reset the environment.
 
         Args:
-            seed: random seed
+            seed: random seed, overwrites self.seed if not None
             return_info: if False, return only the initial observation, else return also some extra info
             options: additional options used to reset the env
             step_fn: function or None. If function, overwrite original
@@ -225,8 +225,9 @@ class TrialEnv(BaseEnv):
             no_step: bool. If True, no step is taken and observation randomly
                 sampled. Default False.
         """
-        super().reset(seed=seed)  # set the random seed in gym.Env
-        self.seed(seed)
+        if seed is not None:
+            super().reset(seed=seed)  # set the random seed in gym.Env
+            self.seed(seed)
 
         self.num_tr = 0
         self.t = self.t_ind = 0
