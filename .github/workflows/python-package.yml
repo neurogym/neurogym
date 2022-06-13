@@ -15,8 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9, '3.10']
-        gym-version: ['0.20.*', '0.21.*', '0.22.*', '0.23.1', '0.24.*']
+        python-version: [3.7, 3.8, 3.9, '3.10']
+        gym-version: ['0.20.*', '0.21.*', '0.22.*', '0.23.*', '0.24.*']
 
     steps:
     - uses: actions/checkout@v2
