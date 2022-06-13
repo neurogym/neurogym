@@ -10,10 +10,12 @@ from neurogym.wrappers import ScheduleEnvs
 
 # In gym 0.24.0, env_checker calls reset() when the env is created => no error if env.step() before env.reset() but it
 # doens't mean that ScheduleEnvs properly reset all its env, so disable env_checker to test that
-if version.parse(gym.__version__) >= version.parse('0.24.0'):
-    disable_env_checker = True
-else:
-    disable_env_checker = False
+# TODO: already disable env_checker in ngym.make for now so don't have to do it here
+# if version.parse(gym.__version__) >= version.parse('0.24.0'):
+#     disable_env_checker = True
+# else:
+#     disable_env_checker = False
+disable_env_checker = False
 
 
 def make_env(name, **kwargs):
