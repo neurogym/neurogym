@@ -128,6 +128,7 @@ def test_seeding(env=None, seed=0):
     return ob_mat, rew_mat, act_mat
 
 
+# TODO: there is one env for which it sometimes raises an error
 def test_seeding_all():
     """Test if all environments are replicable."""
     for env_name in sorted(ENVS_NOPSYCHOPY):
