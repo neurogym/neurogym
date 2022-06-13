@@ -25,13 +25,18 @@ ENVS = ngym.all_envs(psychopy=_have_psychopy, contrib=True, collections=True)
 ENVS_NOPSYCHOPY = ngym.all_envs(psychopy=False, contrib=True, collections=True)
 
 
+def make_env(env, **kwargs):
+    # use ngym.make and not gym.make to disable env_checker
+    return ngym.make(env, **kwargs)
+
+
 def test_run(env=None, num_steps=100, verbose=False, **kwargs):
     """Test if one environment can at least be run."""
     if env is None:
         env = ngym.all_envs()[0]
 
     if isinstance(env, str):
-        env = gym.make(env, **kwargs)
+        env = make_env(env, **kwargs)
     else:
         if not isinstance(env, gym.Env):
             raise ValueError('env must be a string or a gym.Env')
@@ -70,7 +75,7 @@ def test_print_all():
         total_count += 1
         print('')
         print('Test printing env: {:s}'.format(env_name))
-        env = gym.make(env_name)
+        env = make_env(env_name)
         print(env)
 
 
@@ -80,7 +85,7 @@ def test_trialenv(env=None, **kwargs):
         env = ngym.all_envs()[0]
 
     if isinstance(env, str):
-        env = gym.make(env, **kwargs)
+        env = make_env(env, **kwargs)
     else:
         if not isinstance(env, gym.Env):
             raise ValueError('env must be a string or a gym.Env')
@@ -92,7 +97,7 @@ def test_trialenv(env=None, **kwargs):
 def test_trialenv_all():
     """Test if all environments can at least be run."""
     for env_name in sorted(ENVS):
-        env = gym.make(env_name)
+        env = make_env(env_name)
         if not isinstance(env, ngym.TrialEnv):
             continue
         test_trialenv(env)
@@ -105,7 +110,7 @@ def test_seeding(env=None, seed=0):
 
     if isinstance(env, str):
         kwargs = {'dt': 20}
-        env = gym.make(env, **kwargs)
+        env = make_env(env, **kwargs)
     else:
         if not isinstance(env, gym.Env):
             raise ValueError('env must be a string or a gym.Env')

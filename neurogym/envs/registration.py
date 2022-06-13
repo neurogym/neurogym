@@ -1,6 +1,7 @@
 import importlib
 from inspect import getmembers, isfunction, isclass
 from pathlib import Path
+from packaging import version
 
 import gym
 from neurogym.envs.collections import get_collection
@@ -213,7 +214,12 @@ def _distance(s0, s1):
 
 def make(id, **kwargs):
     try:
-        return gym.make(id, **kwargs)
+        # TODO: disable gym 0.24 env_checker for now (raises warnings, even errors when ob not in observation_space)
+        if version.parse(gym.__version__) >= version.parse('0.24.0'):
+            return gym.make(id, disable_env_checker=True, **kwargs)
+        else:
+            return gym.make(id, **kwargs)
+
     except gym.error.UnregisteredEnv:
         all_ids = [env.id for env in gym.envs.registry.all()]
         dists = [_distance(id, env_id) for env_id in all_ids]
