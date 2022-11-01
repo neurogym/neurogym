@@ -221,7 +221,14 @@ def make(id, **kwargs):
             return gym.make(id, **kwargs)
 
     except gym.error.UnregisteredEnv:
-        all_ids = [env.id for env in gym.envs.registry.values()]
+        # backward compatibility with old versions of gym
+        if hasattr(gym.envs.registry, 'all'):
+            print("all")
+            all_ids = [env.id for env in gym.envs.registry.all()]
+        else:
+            print("values")
+            all_ids = [env.id for env in gym.envs.registry.values()]
+
         dists = [_distance(id, env_id) for env_id in all_ids]
         # Python argsort
         sort_inds = sorted(range(len(dists)), key=dists.__getitem__)
@@ -232,7 +239,11 @@ def make(id, **kwargs):
         raise gym.error.UnregisteredEnv(err_msg)
 
 
-_all_gym_envs = [env.id for env in gym.envs.registry.values()]
+# backward compatibility with old versions of gym
+if hasattr(gym.envs.registry, 'all'):
+    _all_gym_envs = [env.id for env in gym.envs.registry.all()]
+else:
+    _all_gym_envs = [env.id for env in gym.envs.registry.values()]
 
 
 def register(id, **kwargs):
