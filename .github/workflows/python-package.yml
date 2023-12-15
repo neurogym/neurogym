@@ -26,7 +26,12 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies, gym v${{ matrix.gym-version }}
       run: |
-        python -m pip install --upgrade pip
+        # gym 0.21 installation is broken with more recent versions of pip
+        # see https://stackoverflow.com/questions/77124879/pip-extras-require-must-be-a-dictionary-whose-values-are-strings-or-lists-of
+        # python -m pip install --upgrade pip
+        pip install setuptools==65.5.0 pip==21  
+        pip install wheel==0.38.0   
+
         pip install flake8 pytest
         pip install -e .
         pip install gym==${{ matrix.gym-version }}
