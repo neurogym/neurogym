@@ -143,3 +143,12 @@ def test_seeding_all():
         assert (obs1 == obs2).all(), 'obs are not identical'
         assert (rews1 == rews2).all(), 'rewards are not identical'
         assert (acts1 == acts2).all(), 'actions are not identical'
+
+
+def test_plot_envs():
+    for env_name in sorted(ENVS):
+        if env_name in ['Null-v0']:
+            continue
+        env = make_env(env_name, **{'dt': 20})
+        action = np.zeros_like(env.action_space.sample())
+        ngym.utils.plot_env(env, num_trials=2, def_act=action)
