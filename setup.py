@@ -31,7 +31,7 @@ setup(name='neurogym',
                 if package.startswith('neurogym')],
       install_requires=[
           'numpy',
-          'gym',
+          'gym>=0.20.0, <0.25',
           'matplotlib',
       ],
       extras_require=extras,
