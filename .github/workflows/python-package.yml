@@ -17,7 +17,6 @@ jobs:
       matrix:
         python-version: [3.8, 3.9, '3.10']
         gym-version: ['0.20.*', '0.21.*', '0.22.*', '0.23.*', '0.24.*']
-        numpy-version: ['1.21.0', '1.25.0']
 
     steps:
     - uses: actions/checkout@v2
@@ -34,7 +33,6 @@ jobs:
         pip install wheel==0.38.0   
 
         pip install flake8 pytest
-        pip install numpy==${{ matrix.numpy-version }}
         pip install -e .
         pip install gym==${{ matrix.gym-version }}
     - name: Lint with flake8
