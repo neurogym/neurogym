@@ -61,7 +61,7 @@ class HierarchicalReasoning(ngym.TrialEnv):
         self.new_block()
 
     def new_block(self):
-        self.block_size = self.rng.random_integers(10, 20)
+        self.block_size = self.rng.randint(10, 20+1)
         self.rule = 1 - self.rule  # alternate rule
         self.trial_in_block = 0
 
