@@ -273,6 +273,9 @@ class TrialEnv(BaseEnv):
                 t = trunc_exp(self.rng, *args)
             elif dist == 'constant':
                 t = args
+            elif dist == 'until':
+                # set period duration such that self.t_end[period] = args
+                t = args - self.tmax
             else:
                 raise ValueError('Unknown dist:', str(dist))
         return (t // self.dt) * self.dt
