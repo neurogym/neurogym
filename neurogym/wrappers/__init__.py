@@ -9,14 +9,19 @@ from neurogym.wrappers.block import ScheduleAttr
 from neurogym.wrappers.block import ScheduleEnvs
 from neurogym.wrappers.block import TrialHistoryV2
 
-ALL_WRAPPERS = {'Monitor-v0': 'neurogym.wrappers.monitor:Monitor',
-                'Noise-v0': 'neurogym.wrappers.noise:Noise',
-                'PassReward-v0': 'neurogym.wrappers.pass_reward:PassReward',
-                'PassAction-v0': 'neurogym.wrappers.pass_action:PassAction',
-                'ReactionTime-v0':
-                    'neurogym.wrappers.reaction_time:ReactionTime',
-                'SideBias-v0': 'neurogym.wrappers.side_bias:SideBias',
-                }
+ALL_WRAPPERS = {
+    'Monitor-v0': 'neurogym.wrappers.monitor:Monitor',
+    'Noise-v0': 'neurogym.wrappers.noise:Noise',
+    'PassReward-v0': 'neurogym.wrappers.pass_reward:PassReward',
+    'PassAction-v0': 'neurogym.wrappers.pass_action:PassAction',
+    'ReactionTime-v0': 'neurogym.wrappers.reaction_time:ReactionTime',
+    'SideBias-v0': 'neurogym.wrappers.side_bias:SideBias',
+    'RandomGroundTruth-v0': 'neurogym.wrappers.block:RandomGroundTruth',
+    'ScheduleAttr-v0': 'neurogym.wrappers.block:ScheduleAttr',
+    'ScheduleEnvs-v0': 'neurogym.wrappers.block:ScheduleEnvs',
+    'TrialHistoryV2-v0': 'neurogym.wrappers.block:TrialHistoryV2',
+}
+
 
 def all_wrappers():
     return sorted(list(ALL_WRAPPERS.keys()))
