@@ -37,3 +37,27 @@ SideBias-v0
     :members:
     :exclude-members: new_trial
 
+RandomGroundTruth-v0
+--------------------------------------------------
+.. autoclass:: neurogym.wrappers.block.RandomGroundTruth
+    :members:
+    :exclude-members: new_trial
+
+ScheduleAttr-v0
+--------------------------------------------------
+.. autoclass:: neurogym.wrappers.block.ScheduleAttr
+    :members:
+    :exclude-members: new_trial
+
+ScheduleEnvs-v0
+--------------------------------------------------
+.. autoclass:: neurogym.wrappers.block.ScheduleEnvs
+    :members:
+    :exclude-members: new_trial
+
+TrialHistoryV2-v0
+--------------------------------------------------
+.. autoclass:: neurogym.wrappers.block.TrialHistoryV2
+    :members:
+    :exclude-members: new_trial
+

@@ -126,8 +126,8 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         states = None
 
     data = {
-        'ob': np.array(observations).astype(np.float),
-        'ob_cum': np.array(ob_cum).astype(np.float),
+        'ob': np.array(observations).astype(float),
+        'ob_cum': np.array(ob_cum).astype(float),
         'rewards': rewards,
         'actions': actions,
         'perf': perf,
@@ -280,13 +280,20 @@ def plot_env_1dbox(
             ax.legend()
         ax.set_xlim([-0.5, len(steps)-0.5])
 
-        if env and hasattr(env, 'rewards') and env.rewards:
+        if env and hasattr(env, 'rewards') and env.rewards is not None:
             # Plot environment annotation
             yticks = []
             yticklabels = []
-            for key, val in env.rewards.items():
-                yticks.append(val)
-                yticklabels.append('{:s} {:0.2f}'.format(key[:4], val))
+
+            if isinstance(env.rewards, dict):
+                for key, val in env.rewards.items():
+                    yticks.append(val)
+                    yticklabels.append('{:s} {:0.2f}'.format(key[:4], val))
+            else:
+                for val in env.rewards:
+                    yticks.append(val)
+                    yticklabels.append('{:0.2f}'.format(val))
+
             ax.set_yticks(yticks)
             ax.set_yticklabels(yticklabels)
     if n_row > 3:
@@ -408,8 +415,3 @@ def order_by_sufix(file_list):
     sfx = [int(x[x.rfind('_')+1:x.rfind('.')]) for x in file_list]
     sorted_list = [x for _, x in sorted(zip(sfx, file_list))]
     return sorted_list
-
-
-if __name__ == '__main__':
-    f = '/home/molano/res080220/SL_PerceptualDecisionMaking-v0_0/'
-    plot_rew_across_training(folder=f)

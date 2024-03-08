@@ -12,6 +12,7 @@ import numpy as np
 
 import gym
 import neurogym as ngym
+from neurogym.utils.data import Dataset
 
 
 try:
@@ -65,6 +66,41 @@ def test_run_all(verbose_success=False):
     for env_name in sorted(ENVS):
         print(env_name)
         test_run(env_name, verbose=verbose_success)
+
+
+def test_dataset(env=None):
+    """Main function for testing if an environment is healthy."""
+    if env is None:
+        env = ngym.all_envs()[0]
+
+    print('Testing Environment:', env)
+    kwargs = {'dt': 20}
+    dataset = Dataset(env, env_kwargs=kwargs, batch_size=16, seq_len=300,
+                      cache_len=1e4)
+    for i in range(10):
+        inputs, target = dataset()
+        assert inputs.shape[0] == target.shape[0]
+
+
+def test_dataset_all():
+    """Test if all environments can at least be run."""
+    success_count = 0
+    total_count = 0
+    supervised_count = len(ngym.all_envs(tag='supervised'))
+    for env_name in sorted(ngym.all_envs()):
+        total_count += 1
+
+        print('Running env: {:s}'.format(env_name))
+        try:
+            test_dataset(env_name)
+            print('Success')
+            success_count += 1
+        except BaseException as e:
+            print('Failure at running env: {:s}'.format(env_name))
+            print(e)
+
+    print('Success {:d}/{:d} envs'.format(success_count, total_count))
+    print('Expect {:d} envs to support supervised learning'.format(supervised_count))
 
 
 def test_print_all():
@@ -143,3 +179,14 @@ def test_seeding_all():
         assert (obs1 == obs2).all(), 'obs are not identical'
         assert (rews1 == rews2).all(), 'rewards are not identical'
         assert (acts1 == acts2).all(), 'actions are not identical'
+
+
+def test_plot_envs():
+    for env_name in sorted(ENVS):
+        if env_name in ['Null-v0']:
+            continue
+        env = make_env(env_name, **{'dt': 20})
+        action = np.zeros_like(env.action_space.sample())
+        ngym.utils.plot_env(env, num_trials=2, def_act=action)
+
+

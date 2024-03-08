@@ -223,10 +223,8 @@ def make(id, **kwargs):
     except gym.error.UnregisteredEnv:
         # backward compatibility with old versions of gym
         if hasattr(gym.envs.registry, 'all'):
-            print("all")
             all_ids = [env.id for env in gym.envs.registry.all()]
         else:
-            print("values")
             all_ids = [env.id for env in gym.envs.registry.values()]
 
         dists = [_distance(id, env_id) for env_id in all_ids]

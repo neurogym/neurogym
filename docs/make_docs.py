@@ -19,7 +19,7 @@ def write_doc(write_type):
         all_items = ngym.all_envs()
         info_fn = info
         fname = 'envs.md'
-        all_items_dict = ngym.envs.ALL_ENVS
+        all_items_dict = ngym.envs.registration.ALL_ENVS
 
     elif write_type == 'wrappers':
         all_items = ngym.all_wrappers()
@@ -34,46 +34,44 @@ def write_doc(write_type):
     counter = 0
     link_dict = dict()
     for name in all_items:
-        try:
-            # Get information about individual task or wrapper
-            string += '___\n\n'
-            info_string = info_fn(name)
-            info_string = info_string.replace('\n', '  \n')  # for markdown
+        # Get information about individual task or wrapper
+        string += '___\n\n'
+        info_string = info_fn(name)
+        info_string = info_string.replace('\n', '  \n')  # for markdown
 
-            # If task, add link to tags
-            if write_type == 'tasks':
-                # Tags has to be last
-                ind = info_string.find('Tags')
-                info_string = info_string[:ind]
-                env = gym.make(name)
-                # Modify to add tag links
-                info_string += 'Tags: '
-                for tag in env.metadata.get('tags', []):
-                    tag_link = tag.lower().replace(' ', '-')
-                    tag_with_link = add_link(tag, tag_link)
-                    info_string += tag_with_link + ', '
-                info_string = info_string[:-2] + '\n\n'
-            string += info_string
+        # If task, add link to tags
+        if write_type == 'tasks':
+            # Tags has to be last
+            ind = info_string.find('Tags')
+            info_string = info_string[:ind]
+            env = ngym.make(name)
+            env = env.unwrapped  # remove extra wrappers ('make' can add OrderEnforcer wrapper, which causes issues here)
+            # Modify to add tag links
+            info_string += 'Tags: '
+            for tag in env.metadata.get('tags', []):
+                tag_link = tag.lower().replace(' ', '-')
+                tag_with_link = add_link(tag, tag_link)
+                info_string += tag_with_link + ', '
+            info_string = info_string[:-2] + '\n\n'
+        string += info_string
 
-            # Make links to the section titles
-            # Using github's automatic link to section titles
-            if write_type == 'tasks':
-                env = gym.make(name)
-                link = type(env).__name__
-            else:
-                link = name
-            link = link.lower().replace(' ', '-')
-            link_dict[name] = link
+        # Make links to the section titles
+        # Using github's automatic link to section titles
+        if write_type == 'tasks':
+            env = ngym.make(name)
+            env = env.unwrapped  # remove extra wrappers ('make' can add OrderEnforcer wrapper, which causes issues here)
+            link = type(env).__name__
+        else:
+            link = name
+        link = link.lower().replace(' ', '-')
+        link_dict[name] = link
 
-            # Add link to source code
-            names += add_link(name, link) + '\n\n'
-            source_link = all_items_dict[name].split(':')[0].replace('.', '/')
-            string += '[Source]({:s})\n\n'.format(
-                SOURCE_ROOT + source_link + '.py')
-            counter += 1
-        except BaseException as e:
-            print('Failure in ', name)
-            print(e)
+        # Add link to source code
+        names += add_link(name, link) + '\n\n'
+        source_link = all_items_dict[name].split(':')[0].replace('.', '/')
+        string += '[Source]({:s})\n\n'.format(
+            SOURCE_ROOT + source_link + '.py')
+        counter += 1
 
     full_string = '### List of {:d} {:s} implemented\n\n'.format(counter,
                                                                  write_type)
