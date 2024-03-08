@@ -26,6 +26,8 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies, gym v${{ matrix.gym-version }}
       run: |
+        # error: unable to create symlink docs/source/understanding_neurogym_task.ipynb: File name too long      
+        git config --global core.longpaths true
         # gym 0.21 installation is broken with more recent versions of pip
         # see https://stackoverflow.com/questions/77124879/pip-extras-require-must-be-a-dictionary-whose-values-are-strings-or-lists-of
         # python -m pip install --upgrade pip
