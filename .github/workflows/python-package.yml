@@ -19,14 +19,9 @@ jobs:
         gym-version: ['0.20.*', '0.21.*', '0.22.*', '0.23.*', '0.24.*']
 
     steps:
-    - name: Configure git
-      run: |
-        # error: unable to create symlink docs/source/understanding_neurogym_task.ipynb: File name too long      
-        git config --global core.longpaths true
-
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies, gym v${{ matrix.gym-version }}
