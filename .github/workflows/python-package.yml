@@ -19,12 +19,7 @@ jobs:
         gym-version: ['0.20.*', '0.21.*', '0.22.*', '0.23.*', '0.24.*']
 
     steps:  
-    # - name: Support longpaths
-    #   run: git config core.longpaths true
-
     - uses: actions/checkout@v3
-      with:
-        fetch-depth: 2
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
