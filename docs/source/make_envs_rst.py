@@ -23,7 +23,7 @@ def make_env_images():
     envs = all_envs.keys()
     for env_name in envs:
         print('Make image for env', env_name)
-        env = gym.make(env_name, **{'dt': 20})
+        env = ngym.make(env_name, **{'dt': 20})
         action = np.zeros_like(env.action_space.sample())
         fname = Path(__file__).parent / '_static' / (env_name + '_examplerun')
         ngym.utils.plot_env(env, num_trials=2, def_act=action, fname=fname)
@@ -99,7 +99,7 @@ def make_envs():
                 break
 
         if suffix is not None:
-            image_path = str(image_path.with_suffix(suffix))
+            image_path = image_path.with_suffix(suffix).as_posix()
             if suffix == '.png':
                 string += ' '*8 + '.. image:: ../{:s}\n'.format(image_path)
                 string += ' ' * 12 + ':width: 600\n\n'

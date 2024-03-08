@@ -5,7 +5,7 @@ psychopy.SpatialSuppressMotion-v0
     :exclude-members: new_trial
 
     Reference paper
-        `Perceptual consequences of centreâ€“surround antagonism in visual motion processing  <https://www.nature.com/articles/nature01800>`__
+        `Perceptual consequences of centre–surround antagonism in visual motion processing  <https://www.nature.com/articles/nature01800>`__
 
     Tags
         :ref:`tag-perceptual`,         :ref:`tag-plaid`,         :ref:`tag-motion`,         :ref:`tag-center-surround`
