@@ -91,6 +91,7 @@ class YourTask(ngym.PeriodEnv):
 ### Authors
 * Contact
 
+    [Nathan Cloos](https://github.com/nacloos) (cloosnathan@gmail.com).
     [Manuel Molano](https://github.com/manuelmolano) (manuelmolanomazon@gmail.com).
     [Guangyu Robert Yang](https://github.com/gyyang) (gyyang.neuro@gmail.com).
 
