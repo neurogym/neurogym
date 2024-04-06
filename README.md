@@ -9,6 +9,7 @@ The goal is to facilitate the training of neural network models on neuroscience 
 
 Documentation: https://neurogym.github.io/
 
+- [⚠️ Repository Archived ⚠️](#️-repository-archived-️)
 - [NeuroGym](#neurogym)
   - [Installation](#installation)
   - [Tasks](#tasks)
