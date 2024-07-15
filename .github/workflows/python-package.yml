@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8, 3.9, '3.10']
-        gym-version: ['0.20.*', '0.21.*', '0.22.*', '0.23.*', '0.24.*']
+        gymnasium-version: ['0.29.*']
 
     steps:  
     - uses: actions/checkout@v3
@@ -26,17 +26,15 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install dependencies, gym v${{ matrix.gym-version }}
+    - name: Install dependencies, gymnasium v${{ matrix.gymnasium-version }}
       run: |
-        # gym 0.21 installation is broken with more recent versions of pip
-        # see https://stackoverflow.com/questions/77124879/pip-extras-require-must-be-a-dictionary-whose-values-are-strings-or-lists-of
         # python -m pip install --upgrade pip
         pip install setuptools==65.5.0 pip==21  
         pip install wheel==0.38.0   
 
         pip install flake8 pytest
         pip install -e .
-        pip install gym==${{ matrix.gym-version }}
+        pip install gymnasium==${{ matrix.gymnasium-version }}
 
     - name: Lint with flake8
       run: |
