@@ -72,13 +72,16 @@ class YourTask(ngym.PeriodEnv):
         _step receives an action and returns:
             a new observation, obs
             reward associated with the action, reward
-            a boolean variable indicating whether the experiment has end, done
+            a boolean variable indicating whether the experiment has terminated, terminated
+                See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#termination
+            a boolean variable indicating whether the experiment has been truncated, truncated
+                See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#truncation
             a dictionary with extra information:
                 ground truth correct response, info['gt']
                 boolean indicating the end of the trial, info['new_trial']
         """
 
-        return obs, reward, done, {'new_trial': new_trial, 'gt': gt}
+        return obs, reward, terminated, truncated, {'new_trial': new_trial, 'gt': gt}
 
 ```
 
