@@ -45,6 +45,4 @@ jobs:
 
     - name: Test with pytest
       run: |
-        pytest neurogym/tests/test_envs.py
-        pytest neurogym/tests/test_core.py
-        pytest neurogym/tests/test_reset_step.py
+        pytest tests
