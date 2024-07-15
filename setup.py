@@ -1,11 +1,10 @@
-import re
-from setuptools import setup, find_packages
-import sys
 import os
+import sys
+
+from setuptools import find_packages, setup
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "neurogym"))
 from version import VERSION
-
 
 if sys.version_info.major != 3:
     print(
@@ -37,12 +36,12 @@ setup(
     packages=[package for package in find_packages() if package.startswith("neurogym")],
     install_requires=[
         "numpy",
-        "gym>=0.20.0, <0.25",
+        "gymnasium>=0.29.1",
         "matplotlib",
     ],
     extras_require=extras,
-    description="NeuroGym: Gym-style cognitive neuroscience tasks",
+    description="NeuroGym: Gymnasium-style cognitive neuroscience tasks",
     author="Manuel Molano, Guangyu Robert Yang, and contributors",
-    url="https://github.com/neurogym/neurogym",
+    url="https://github.com/ANNUBS/neurogym",
     version=VERSION,
 )
