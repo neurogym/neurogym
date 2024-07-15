@@ -37,8 +37,8 @@ def plot_env(
                  specified action
         model: if not None, the task will be run with the actions predicted by
                model, which so far is assumed to be created and trained with the
-               stable-baselines toolbox:
-                   (https://github.com/hill-a/stable-baselines)
+               stable-baselines3 toolbox:
+                   (https://stable-baselines3.readthedocs.io/en/master/)
         name: title to show on the rewards panel
         legend: whether to show the legend for actions panel or not.
         ob_traces: if != [] observations will be plot as traces, with the labels
