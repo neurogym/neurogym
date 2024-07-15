@@ -10,9 +10,6 @@ import pytest
 import neurogym as ngym
 from neurogym.wrappers import (
     Noise,
-    # CatchTrials,
-    # Combine,
-    # Identity,
     PassAction,
     PassReward,
     ReactionTime,

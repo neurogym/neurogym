@@ -215,7 +215,7 @@ class SpatialSuppressMotion(PsychopyEnv):
 
         This function is adoped from Duje Tadin. Some variables here are not clear.
         """
-        from numpy import arange, exp, sqrt, sum, empty, floor, ones
+        from numpy import arange, empty, exp, floor, ones, sqrt, sum
         from numpy.polynomial.polynomial import polyfit
 
         time_sigma = time_sigma * 1000  # convert it to millisecs
