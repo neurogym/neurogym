@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import numpy as np
 import math
+
+import numpy as np
 
 import neurogym as ngym
 from neurogym import spaces
@@ -98,7 +99,7 @@ class Pneumostomeopening(ngym.BaseEnv):
     def reset(self):
         self.agent_pos = np.random.randint(7)
         self.done = False
-        return self.agent_pos
+        return self.agent_pos, {}
 
     def step(self, action):
         new_trial = False

@@ -243,7 +243,7 @@ class TrialEnv(BaseEnv):
             ob, _, _, _ = self._top.step(self.action_space.sample())
         else:
             ob, _, _, _ = step_fn(self.action_space.sample())
-        return ob
+        return ob, {}
 
     def render(self, mode="human"):
         """

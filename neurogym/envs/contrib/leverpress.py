@@ -93,7 +93,7 @@ class LeverPress(gym.Env):
         self.state = 0
         signal = [0]
         self.steps_beyond_done = None
-        return np.array(signal)
+        return np.array(signal), {}
 
     def render(self, mode="human"):
         raise NotImplementedError
@@ -201,9 +201,9 @@ class LeverPressWithPoke(gym.Env):
         self.state = self.n_press
         self.steps_beyond_done = None
         if self.observe_state:
-            return np.array([self.state])
+            return np.array([self.state]), {}
         else:
-            return np.array([1.0])
+            return np.array([1.0]), {}
 
     def render(self, mode="human"):
         raise NotImplementedError
@@ -324,9 +324,9 @@ class LeverPressWithPokeRest(gym.Env):
         self.thirst_state = 1
         self.thirst = self._get_thirst(self.thirst_state)
         if self.observe_state:
-            return np.array([self.state])
+            return np.array([self.state]), {}
         else:
-            return np.array([self.thirst])
+            return np.array([self.thirst]), {}
 
     def render(self, mode="human"):
         raise NotImplementedError
@@ -403,7 +403,7 @@ class ContextSwitch(gym.Env):
         self.steps_beyond_done = None
         obs = np.array([0.0, 0.0])
         obs[self.ob] = 1.0
-        return obs
+        return obs, {}
 
     def render(self, mode="human"):
         raise NotImplementedError
@@ -437,4 +437,4 @@ class FullInput(gym.Wrapper):
         obs = self.env.reset()
         # observation, reward, actions
         obs = np.array(list(obs) + [0.0] + [0.0] * self.action_space.n)
-        return obs
+        return obs, {}
