@@ -83,12 +83,16 @@ class YourTask(ngym.TrialEnv):
         _step receives an action and returns:
             a new observation, obs
             reward associated with the action, reward
-            a boolean variable indicating whether the experiment has end, done
+            a boolean variable indicating whether the experiment has terminated, terminated
+                See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#termination
+            a boolean variable indicating whether the experiment has been truncated, truncated
+                See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#truncation
             a dictionary with extra information:
                 ground truth correct response, info['gt']
                 boolean indicating the end of the trial, info['new_trial']
         """
-        new_trial = False
+        terminated = False
+        truncated = False
         # rewards
         reward = 0
         gt = self.gt_now
@@ -98,13 +102,19 @@ class YourTask(ngym.TrialEnv):
                 reward = self.rewards["abort"]
         else:
             if action != 0:
-                new_trial = True
+                terminated = True
                 if action == gt:  # if correct
                     reward = self.rewards["correct"]
                 else:  # if incorrect
                     reward = self.rewards["fail"]
 
-        return self.ob_now, reward, False, {"new_trial": new_trial, "gt": gt}
+        return (
+            self.ob_now,
+            reward,
+            terminated,
+            truncated,
+            {"new_trial": terminated, "gt": gt},
+        )
 
 
 if __name__ == "__main__":
@@ -115,5 +125,5 @@ if __name__ == "__main__":
     print("Trial observation shape", env.ob.shape)
     print("Trial action shape", env.gt.shape)
     env.reset()
-    ob, reward, done, info = env.step(env.action_space.sample())
+    ob, reward, terminated, truncated, info = env.step(env.action_space.sample())
     print("Single time step observation shape", ob.shape)
