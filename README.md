@@ -40,7 +40,7 @@ are short scripts that allow introducing modifications the original tasks. For i
 ### Examples
 
 NeuroGym is compatible with most packages that use gymnasium. 
-In this [example](https://github.com/gyyang/neurogym/blob/master/examples/example_neurogym_rl.ipynb) jupyter notebook we show how to train a neural network with reinforcement learning algorithms using the [Stable Baselines](https://github.com/hill-a/stable-baselines) toolbox.
+In this [example](https://github.com/gyyang/neurogym/blob/master/examples/example_neurogym_rl.ipynb) jupyter notebook we show how to train a neural network with reinforcement learning algorithms using the [Stable-Baselines3](https://stable-baselines3.readthedocs.io/en/master/) toolbox.
 
 
 ### Contributing
