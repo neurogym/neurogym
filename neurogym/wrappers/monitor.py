@@ -83,7 +83,7 @@ class Monitor(Wrapper):
         super().reset(seed=seed)
         if step_fn is None:
             step_fn = self.step
-        return self.env.reset(step_fn=step_fn)
+        return self.env.reset(step_fn=step_fn), {}
 
     def step(self, action):
         obs, rew, terminated, truncated, info = self.env.step(action)

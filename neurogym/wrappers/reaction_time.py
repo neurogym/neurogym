@@ -34,7 +34,7 @@ class ReactionTime(gym.Wrapper):  # TODO: Make this a trial wrapper instead?
     def reset(self, step_fn=None, **kwargs):
         if step_fn is None:
             step_fn = self.step
-        return self.env.reset(step_fn=step_fn, **kwargs)
+        return self.env.reset(step_fn=step_fn, **kwargs), {}
 
     def step(self, action):
         dec = "decision"

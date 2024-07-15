@@ -158,13 +158,11 @@ class Pneumostomeopening(ngym.BaseEnv):
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    from neurogym.tests import test_run, test_speed
 
     env = Pneumostomeopening()
     # test_run(env)
     # test_speed(env)
     from neurogym.utils.plotting import plot_env
-    from neurogym.utils.test_plotting import test_plot
 
     # ngym.utils.plotting.run_env(env, num_steps=200)
     plot = plot_env(env, num_steps=100)
