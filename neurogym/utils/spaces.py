@@ -5,12 +5,12 @@ from gymnasium.spaces.utils import flatdim, flatten, unflatten
 
 
 class Box(GymBox):
-    """Thin wrapper of gym.spaces.Box.
+    """Thin wrapper of gymnasium.spaces.Box.
 
     Allow the user to give names to each dimension of the Box.
 
     Args:
-        low, high, kwargs: see gym.spaces.Box
+        low, high, kwargs: see gymnasium.spaces.Box
         name: dict describing the name of different dimensions
 
     Example usage:
@@ -26,12 +26,12 @@ class Box(GymBox):
 
 
 class Discrete(GymDiscrete):
-    """Thin wrapper of gym.spaces.Discrete.
+    """Thin wrapper of gymnasium.spaces.Discrete.
 
     Allow the user to give names to each dimension of the Discrete space.
 
     Args:
-        low, high, kwargs: see gym.spaces.Box
+        low, high, kwargs: see gymnasium.spaces.Box
         name: dict describing the name of different dimensions
 
     Example usage:
