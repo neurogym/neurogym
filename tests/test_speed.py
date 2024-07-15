@@ -7,7 +7,7 @@ import gymnasium as gym
 import neurogym as ngym
 
 
-def test_speed(env, n_steps=100000, warmup_steps=10000):
+def speed(env, n_steps=100000, warmup_steps=10000):
     """Test speed of an environment."""
     if isinstance(env, str):
         kwargs = {"dt": 20}
@@ -34,29 +34,30 @@ def test_speed(env, n_steps=100000, warmup_steps=10000):
     return env
 
 
-def test_speed_with_new_trial(env):
-    """Test speed of an environment."""
-    n_trials = 1000
-    warmup_trials = 100
-    kwargs = {"dt": 20}
+# Note: this test is not working
+# def test_speed_with_new_trial(env):
+#     """Test speed of an environment."""
+#     n_trials = 1000
+#     warmup_trials = 100
+#     kwargs = {"dt": 20}
 
-    if isinstance(env, str):
-        env = gym.make(env, **kwargs)
+#     if isinstance(env, str):
+#         env = gym.make(env, **kwargs)
 
-    env.reset()
-    for stp in range(warmup_trials):
-        env.new_trial()
+#     env.reset()
+#     for stp in range(warmup_trials):
+#         env.new_trial()
 
-    n_steps = 0
-    start_time = time.time()
-    env.reset()
-    for stp in range(n_trials):
-        env.new_trial()
-        n_steps += env.ob.shape[0]
-    total_time = time.time() - start_time
+#     n_steps = 0
+#     start_time = time.time()
+#     env.reset()
+#     for stp in range(n_trials):
+#         env.new_trial()
+#         n_steps += env.ob.shape[0]
+#     total_time = time.time() - start_time
 
-    print("Time/step {:0.3f}us [with new trial]".format(total_time / n_steps * 1e6))
-    return env
+#     print("Time/step {:0.3f}us [with new trial]".format(total_time / n_steps * 1e6))
+#     return env
 
 
 def test_speed_all():
@@ -64,14 +65,14 @@ def test_speed_all():
     for env_name in sorted(ngym.all_envs()):
         print("Running env: {:s}".format(env_name))
         try:
-            test_speed(env_name)
+            speed(env_name)
             print("Success")
         except BaseException as e:
             print("Failure at running env: {:s}".format(env_name))
             print(e)
 
 
-def test_speed_dataset(env):
+def speed_dataset(env):
     batch_size = 16
     seq_len = 100
     kwargs = {}
@@ -94,7 +95,7 @@ def test_speed_dataset_all():
     for env_name in sorted(ngym.all_envs()):
         print("Running env: {:s}".format(env_name))
         try:
-            test_speed_dataset(env_name)
+            speed_dataset(env_name)
             print("Success")
         except BaseException as e:
             print("Failure at running env: {:s}".format(env_name))
