@@ -1,23 +1,32 @@
 """Plotting functions."""
 
 import glob
-import numpy as np
+
+import gymnasium as gym
 import matplotlib as mpl
-import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-
-import gym
-
+import matplotlib.pyplot as plt
+import numpy as np
 
 # TODO: This is changing user's plotting behavior for non-neurogym plots
-mpl.rcParams['font.size'] = 7
-mpl.rcParams['pdf.fonttype'] = 42
-mpl.rcParams['ps.fonttype'] = 42
-mpl.rcParams['font.family'] = 'arial'
+mpl.rcParams["font.size"] = 7
+mpl.rcParams["pdf.fonttype"] = 42
+mpl.rcParams["ps.fonttype"] = 42
+mpl.rcParams["font.family"] = "arial"
 
 
-def plot_env(env, num_steps=200, num_trials=None, def_act=None, model=None,
-             name=None, legend=True, ob_traces=[], fig_kwargs={}, fname=None):
+def plot_env(
+    env,
+    num_steps=200,
+    num_trials=None,
+    def_act=None,
+    model=None,
+    name=None,
+    legend=True,
+    ob_traces=[],
+    fig_kwargs={},
+    fname=None,
+):
     """Plot environment with agent.
 
     Args:
@@ -45,15 +54,27 @@ def plot_env(env, num_steps=200, num_trials=None, def_act=None, model=None,
         env = gym.make(env)
     if name is None:
         name = type(env).__name__
-    data = run_env(env=env, num_steps=num_steps, num_trials=num_trials,
-                   def_act=def_act, model=model)
+    data = run_env(
+        env=env,
+        num_steps=num_steps,
+        num_trials=num_trials,
+        def_act=def_act,
+        model=model,
+    )
 
     fig = fig_(
-        data['ob'], data['actions'],
-        gt=data['gt'], rewards=data['rewards'],
-        legend=legend, performance=data['perf'],
-        states=data['states'], name=name, ob_traces=ob_traces,
-        fig_kwargs=fig_kwargs, env=env, fname=fname
+        data["ob"],
+        data["actions"],
+        gt=data["gt"],
+        rewards=data["rewards"],
+        legend=legend,
+        performance=data["perf"],
+        states=data["states"],
+        name=name,
+        ob_traces=ob_traces,
+        fig_kwargs=fig_kwargs,
+        env=env,
+        fname=fname,
     )
 
     return fig
@@ -103,14 +124,14 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         observations.append(ob_aux)
         rewards.append(rew)
         actions.append(action)
-        if 'gt' in info.keys():
-            gt.append(info['gt'])
+        if "gt" in info.keys():
+            gt.append(info["gt"])
         else:
             gt.append(0)
 
-        if info['new_trial']:
+        if info["new_trial"]:
             actions_end_of_trial.append(action)
-            perf.append(info['performance'])
+            perf.append(info["performance"])
             ob_cum_temp = np.zeros_like(ob_cum_temp)
             trial_count += 1
             if num_trials is not None and trial_count >= num_trials:
@@ -126,22 +147,33 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         states = None
 
     data = {
-        'ob': np.array(observations).astype(float),
-        'ob_cum': np.array(ob_cum).astype(float),
-        'rewards': rewards,
-        'actions': actions,
-        'perf': perf,
-        'actions_end_of_trial': actions_end_of_trial,
-        'gt': gt,
-        'states': states
+        "ob": np.array(observations).astype(float),
+        "ob_cum": np.array(ob_cum).astype(float),
+        "rewards": rewards,
+        "actions": actions,
+        "perf": perf,
+        "actions_end_of_trial": actions_end_of_trial,
+        "gt": gt,
+        "states": states,
     }
     return data
 
 
 # TODO: Change name, fig_ not a good name
-def fig_(ob, actions, gt=None, rewards=None, performance=None, states=None,
-         legend=True, ob_traces=None, name='', fname=None, fig_kwargs={},
-         env=None):
+def fig_(
+    ob,
+    actions,
+    gt=None,
+    rewards=None,
+    performance=None,
+    states=None,
+    legend=True,
+    ob_traces=None,
+    name="",
+    fname=None,
+    fig_kwargs={},
+    env=None,
+):
     """Visualize a run in a simple environment.
 
     Args:
@@ -165,26 +197,42 @@ def fig_(ob, actions, gt=None, rewards=None, performance=None, states=None,
 
     if len(ob.shape) == 2:
         return plot_env_1dbox(
-            ob, actions, gt=gt, rewards=rewards,
-            performance=performance, states=states, legend=legend,
-            ob_traces=ob_traces, name=name, fname=fname,
-            fig_kwargs=fig_kwargs, env=env
+            ob,
+            actions,
+            gt=gt,
+            rewards=rewards,
+            performance=performance,
+            states=states,
+            legend=legend,
+            ob_traces=ob_traces,
+            name=name,
+            fname=fname,
+            fig_kwargs=fig_kwargs,
+            env=env,
         )
     elif len(ob.shape) == 4:
-        return plot_env_3dbox(
-            ob, actions, fname=fname, env=env
-        )
+        return plot_env_3dbox(ob, actions, fname=fname, env=env)
     else:
-        raise ValueError('ob shape {} not supported'.format(str(ob.shape)))
+        raise ValueError("ob shape {} not supported".format(str(ob.shape)))
 
 
 def plot_env_1dbox(
-        ob, actions, gt=None, rewards=None, performance=None, states=None,
-        legend=True, ob_traces=None, name='', fname=None, fig_kwargs={},
-        env=None):
+    ob,
+    actions,
+    gt=None,
+    rewards=None,
+    performance=None,
+    states=None,
+    legend=True,
+    ob_traces=None,
+    name="",
+    fname=None,
+    fig_kwargs={},
+    env=None,
+):
     """Plot environment with 1-D Box observation space."""
     if len(ob.shape) != 2:
-        raise ValueError('ob has to be 2-dimensional.')
+        raise ValueError("ob has to be 2-dimensional.")
     steps = np.arange(ob.shape[0])  # XXX: +1? 1st ob doesn't have action/gt
 
     n_row = 2  # observation and action
@@ -192,9 +240,9 @@ def plot_env_1dbox(
     n_row += performance is not None
     n_row += states is not None
 
-    gt_colors = 'gkmcry'
+    gt_colors = "gkmcry"
     if not fig_kwargs:
-        fig_kwargs = dict(sharex=True, figsize=(5, n_row*1.2))
+        fig_kwargs = dict(sharex=True, figsize=(5, n_row * 1.2))
 
     f, axes = plt.subplots(n_row, 1, **fig_kwargs)
     i_ax = 0
@@ -202,62 +250,68 @@ def plot_env_1dbox(
     ax = axes[i_ax]
     i_ax += 1
     if ob_traces:
-        assert len(ob_traces) == ob.shape[1],\
-            'Please provide label for each of the '+str(ob.shape[1]) +\
-            ' traces in the observations'
+        assert len(ob_traces) == ob.shape[1], (
+            "Please provide label for each of the "
+            + str(ob.shape[1])
+            + " traces in the observations"
+        )
         yticks = []
         for ind_tr, tr in enumerate(ob_traces):
             ax.plot(ob[:, ind_tr], label=ob_traces[ind_tr])
             yticks.append(np.mean(ob[:, ind_tr]))
         if legend:
             ax.legend()
-        ax.set_xlim([-0.5, len(steps)-0.5])
+        ax.set_xlim([-0.5, len(steps) - 0.5])
         ax.set_yticks(yticks)
         ax.set_yticklabels(ob_traces)
     else:
-        ax.imshow(ob.T, aspect='auto', origin='lower')
-        if env and hasattr(env.observation_space, 'name'):
+        ax.imshow(ob.T, aspect="auto", origin="lower")
+        if env and hasattr(env.observation_space, "name"):
             # Plot environment annotation
             yticks = []
             yticklabels = []
             for key, val in env.observation_space.name.items():
-                yticks.append((np.min(val)+np.max(val))/2)
+                yticks.append((np.min(val) + np.max(val)) / 2)
                 yticklabels.append(key)
             ax.set_yticks(yticks)
             ax.set_yticklabels(yticklabels)
         else:
             ax.set_yticks([])
-        ax.spines['top'].set_visible(False)
-        ax.spines['bottom'].set_visible(False)
-        ax.spines['right'].set_visible(False)
+        ax.spines["top"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        ax.spines["right"].set_visible(False)
 
     if name:
-        ax.set_title(name + ' env')
-    ax.set_ylabel('Obs.')
+        ax.set_title(name + " env")
+    ax.set_ylabel("Obs.")
     ax.set_xticks([])
     # actions
     ax = axes[i_ax]
     i_ax += 1
     if len(actions.shape) > 1:
         # Changes not implemented yet
-        ax.plot(steps, actions, marker='+', label='Actions')
+        ax.plot(steps, actions, marker="+", label="Actions")
     else:
-        ax.plot(steps, actions, marker='+', label='Actions')
+        ax.plot(steps, actions, marker="+", label="Actions")
     if gt is not None:
         gt = np.array(gt)
         if len(gt.shape) > 1:
             for ind_gt in range(gt.shape[1]):
-                ax.plot(steps, gt[:, ind_gt], '--'+gt_colors[ind_gt],
-                        label='Ground truth '+str(ind_gt))
+                ax.plot(
+                    steps,
+                    gt[:, ind_gt],
+                    "--" + gt_colors[ind_gt],
+                    label="Ground truth " + str(ind_gt),
+                )
         else:
-            ax.plot(steps, gt, '--'+gt_colors[0], label='Ground truth')
-    ax.set_xlim([-0.5, len(steps)-0.5])
-    ax.set_ylabel('Act.')
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
+            ax.plot(steps, gt, "--" + gt_colors[0], label="Ground truth")
+    ax.set_xlim([-0.5, len(steps) - 0.5])
+    ax.set_ylabel("Act.")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
     if legend:
         ax.legend()
-    if env and hasattr(env.action_space, 'name'):
+    if env and hasattr(env.action_space, "name"):
         # Plot environment annotation
         yticks = []
         yticklabels = []
@@ -272,15 +326,15 @@ def plot_env_1dbox(
     if rewards is not None:
         ax = axes[i_ax]
         i_ax += 1
-        ax.plot(steps, rewards, 'r', label='Rewards')
-        ax.set_ylabel('Rew.')
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
+        ax.plot(steps, rewards, "r", label="Rewards")
+        ax.set_ylabel("Rew.")
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
         if legend:
             ax.legend()
-        ax.set_xlim([-0.5, len(steps)-0.5])
+        ax.set_xlim([-0.5, len(steps) - 0.5])
 
-        if env and hasattr(env, 'rewards') and env.rewards is not None:
+        if env and hasattr(env, "rewards") and env.rewards is not None:
             # Plot environment annotation
             yticks = []
             yticklabels = []
@@ -288,11 +342,11 @@ def plot_env_1dbox(
             if isinstance(env.rewards, dict):
                 for key, val in env.rewards.items():
                     yticks.append(val)
-                    yticklabels.append('{:s} {:0.2f}'.format(key[:4], val))
+                    yticklabels.append("{:s} {:0.2f}".format(key[:4], val))
             else:
                 for val in env.rewards:
                     yticks.append(val)
-                    yticklabels.append('{:0.2f}'.format(val))
+                    yticklabels.append("{:0.2f}".format(val))
 
             ax.set_yticks(yticks)
             ax.set_yticklabels(yticklabels)
@@ -302,69 +356,74 @@ def plot_env_1dbox(
     if performance is not None:
         ax = axes[i_ax]
         i_ax += 1
-        ax.plot(steps, performance, 'k', label='Performance')
-        ax.set_ylabel('Performance')
+        ax.plot(steps, performance, "k", label="Performance")
+        ax.set_ylabel("Performance")
         performance = np.array(performance)
         mean_perf = np.mean(performance[performance != -1])
-        ax.set_title('Mean performance: ' + str(np.round(mean_perf, 2)))
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
+        ax.set_title("Mean performance: " + str(np.round(mean_perf, 2)))
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
         if legend:
             ax.legend()
-        ax.set_xlim([-0.5, len(steps)-0.5])
+        ax.set_xlim([-0.5, len(steps) - 0.5])
 
     # states
     if states is not None:
         ax.set_xticks([])
         ax = axes[i_ax]
         i_ax += 1
-        plt.imshow(states[:, int(states.shape[1]/2):].T,
-                   aspect='auto')
-        ax.set_title('Activity')
-        ax.set_ylabel('Neurons')
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
+        plt.imshow(states[:, int(states.shape[1] / 2) :].T, aspect="auto")
+        ax.set_title("Activity")
+        ax.set_ylabel("Neurons")
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
 
-    ax.set_xlabel('Steps')
+    ax.set_xlabel("Steps")
     plt.tight_layout()
     if fname:
         fname = str(fname)
-        if not (fname.endswith('.png') or fname.endswith('.svg')):
-            fname += '.png'
+        if not (fname.endswith(".png") or fname.endswith(".svg")):
+            fname += ".png"
         f.savefig(fname, dpi=300)
         plt.close(f)
     return f
 
 
-def plot_env_3dbox(ob, actions=None, fname='', env=None):
+def plot_env_3dbox(ob, actions=None, fname="", env=None):
     """Plot environment with 3-D Box observation space."""
     ob = ob.astype(np.uint8)  # TODO: Temporary
     fig = plt.figure()
     ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
-    ax.axis('off')
+    ax.axis("off")
     im = ax.imshow(ob[0], animated=True)
 
     def animate(i, *args, **kwargs):
         im.set_array(ob[i])
-        return im,
+        return (im,)
 
     if env is not None:
         interval = env.dt
     else:
         interval = 50
-    ani = animation.FuncAnimation(fig, animate, frames=ob.shape[0],
-                                  interval=interval)
+    ani = animation.FuncAnimation(fig, animate, frames=ob.shape[0], interval=interval)
     if fname:
-        writer = animation.writers['ffmpeg'](fps=int(1000 / interval))
+        writer = animation.writers["ffmpeg"](fps=int(1000 / interval))
         fname = str(fname)
-        if not fname.endswith('.mp4'):
-            fname += '.mp4'
+        if not fname.endswith(".mp4"):
+            fname += ".mp4"
         ani.save(fname, writer=writer, dpi=300)
 
 
-def plot_rew_across_training(folder, window=500, ax=None,
-                             fkwargs={'c': 'tab:blue'}, ytitle='',
-                             legend=False, zline=False, metric_name='reward'):
+def plot_rew_across_training(
+    folder,
+    window=500,
+    ax=None,
+    fkwargs={"c": "tab:blue"},
+    ytitle="",
+    legend=False,
+    zline=False,
+    metric_name="reward",
+):
     data = put_together_files(folder)
     if data:
         sv_fig = False
@@ -375,27 +434,30 @@ def plot_rew_across_training(folder, window=500, ax=None,
         if isinstance(window, float):
             if window < 1.0:
                 window = int(metric.size * window)
-        mean_metric = np.convolve(metric, np.ones((window,))/window,
-                                  mode='valid')
+        mean_metric = np.convolve(metric, np.ones((window,)) / window, mode="valid")
         ax.plot(mean_metric, **fkwargs)  # add color, label etc.
-        ax.set_xlabel('trials')
+        ax.set_xlabel("trials")
         if not ytitle:
-            ax.set_ylabel('mean ' + metric_name + ' (running window' +
-                          ' of {:d} trials)'.format(window))
+            ax.set_ylabel(
+                "mean "
+                + metric_name
+                + " (running window"
+                + " of {:d} trials)".format(window)
+            )
         else:
             ax.set_ylabel(ytitle)
         if legend:
             ax.legend()
         if zline:
-            ax.axhline(0, c='k', ls=':')
+            ax.axhline(0, c="k", ls=":")
         if sv_fig:
-            f.savefig(folder + '/mean_' + metric_name + '_across_training.png')
+            f.savefig(folder + "/mean_" + metric_name + "_across_training.png")
     else:
-        print('No data in: ', folder)
+        print("No data in: ", folder)
 
 
 def put_together_files(folder):
-    files = glob.glob(folder + '/*_bhvr_data*npz')
+    files = glob.glob(folder + "/*_bhvr_data*npz")
     data = {}
     if len(files) > 0:
         files = order_by_sufix(files)
@@ -407,11 +469,11 @@ def put_together_files(folder):
             file_data = np.load(files[ind_f], allow_pickle=True)
             for key in file_data.keys():
                 data[key] = np.concatenate((data[key], file_data[key]))
-        np.savez(folder + '/bhvr_data_all.npz', **data)
+        np.savez(folder + "/bhvr_data_all.npz", **data)
     return data
 
 
 def order_by_sufix(file_list):
-    sfx = [int(x[x.rfind('_')+1:x.rfind('.')]) for x in file_list]
+    sfx = [int(x[x.rfind("_") + 1 : x.rfind(".")]) for x in file_list]
     sorted_list = [x for _, x in sorted(zip(sfx, file_list))]
     return sorted_list

@@ -1,14 +1,7 @@
-from gym.spaces.space import Space
-from gym.spaces.box import Box as GymBox
-from gym.spaces.discrete import Discrete as GymDiscrete
-from gym.spaces.multi_discrete import MultiDiscrete
-from gym.spaces.multi_binary import MultiBinary
-from gym.spaces.tuple import Tuple
-from gym.spaces.dict import Dict
-
-from gym.spaces.utils import flatdim
-from gym.spaces.utils import flatten
-from gym.spaces.utils import unflatten
+from gymnasium.spaces import Box as GymBox
+from gymnasium.spaces import Dict, MultiBinary, MultiDiscrete, Space, Tuple
+from gymnasium.spaces import Discrete as GymDiscrete
+from gymnasium.spaces.utils import flatdim, flatten, unflatten
 
 
 class Box(GymBox):
@@ -24,6 +17,7 @@ class Box(GymBox):
         observation_space = Box(low=0, high=1,
                                 name={'fixation': 0, 'stimulus': [1, 2]})
     """
+
     def __init__(self, low, high, name=None, **kwargs):
         super().__init__(low, high, **kwargs)
         if name is not None:
@@ -43,6 +37,7 @@ class Discrete(GymDiscrete):
     Example usage:
         observation_space = Discrete(n=3, name={'fixation': 0, 'stimulus': [1, 2]})
     """
+
     def __init__(self, n, name=None, **kwargs):
         super().__init__(n)
         if name is not None:
@@ -50,4 +45,15 @@ class Discrete(GymDiscrete):
             self.name = name
 
 
-__all__ = ["Space", "Box", "Discrete", "MultiDiscrete", "MultiBinary", "Tuple", "Dict", "flatdim", "flatten", "unflatten"]
+__all__ = [
+    "Space",
+    "Box",
+    "Discrete",
+    "MultiDiscrete",
+    "MultiBinary",
+    "Tuple",
+    "Dict",
+    "flatdim",
+    "flatten",
+    "unflatten",
+]

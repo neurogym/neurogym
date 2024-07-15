@@ -6,19 +6,17 @@ All tests in this file can be run by running in command line
 pytest test_envs.py
 """
 
-import pytest
-
+import gymnasium as gym
 import numpy as np
 
-import gym
 import neurogym as ngym
 from neurogym.utils.data import Dataset
 
-
 try:
     import psychopy
+
     _have_psychopy = True
-except ImportError as e:
+except ImportError:
     _have_psychopy = False
 
 ENVS = ngym.all_envs(psychopy=_have_psychopy, contrib=True, collections=True)
@@ -40,7 +38,7 @@ def test_run(env=None, num_steps=100, verbose=False, **kwargs):
         env = make_env(env, **kwargs)
     else:
         if not isinstance(env, gym.Env):
-            raise ValueError('env must be a string or a gym.Env')
+            raise ValueError("env must be a string or a gym.Env")
 
     env.reset()
     for stp in range(num_steps):
@@ -49,11 +47,11 @@ def test_run(env=None, num_steps=100, verbose=False, **kwargs):
         if done:
             env.reset()
 
-    tags = env.metadata.get('tags', [])
+    tags = env.metadata.get("tags", [])
     all_tags = ngym.all_tags()
     for t in tags:
         if t not in all_tags:
-            print('Warning: env has tag {:s} not in all_tags'.format(t))
+            print("Warning: env has tag {:s} not in all_tags".format(t))
 
     if verbose:
         print(env)
@@ -73,10 +71,9 @@ def test_dataset(env=None):
     if env is None:
         env = ngym.all_envs()[0]
 
-    print('Testing Environment:', env)
-    kwargs = {'dt': 20}
-    dataset = Dataset(env, env_kwargs=kwargs, batch_size=16, seq_len=300,
-                      cache_len=1e4)
+    print("Testing Environment:", env)
+    kwargs = {"dt": 20}
+    dataset = Dataset(env, env_kwargs=kwargs, batch_size=16, seq_len=300, cache_len=1e4)
     for i in range(10):
         inputs, target = dataset()
         assert inputs.shape[0] == target.shape[0]
@@ -86,21 +83,21 @@ def test_dataset_all():
     """Test if all environments can at least be run."""
     success_count = 0
     total_count = 0
-    supervised_count = len(ngym.all_envs(tag='supervised'))
+    supervised_count = len(ngym.all_envs(tag="supervised"))
     for env_name in sorted(ngym.all_envs()):
         total_count += 1
 
-        print('Running env: {:s}'.format(env_name))
+        print("Running env: {:s}".format(env_name))
         try:
             test_dataset(env_name)
-            print('Success')
+            print("Success")
             success_count += 1
         except BaseException as e:
-            print('Failure at running env: {:s}'.format(env_name))
+            print("Failure at running env: {:s}".format(env_name))
             print(e)
 
-    print('Success {:d}/{:d} envs'.format(success_count, total_count))
-    print('Expect {:d} envs to support supervised learning'.format(supervised_count))
+    print("Success {:d}/{:d} envs".format(success_count, total_count))
+    print("Expect {:d} envs to support supervised learning".format(supervised_count))
 
 
 def test_print_all():
@@ -109,8 +106,8 @@ def test_print_all():
     total_count = 0
     for env_name in sorted(ENVS):
         total_count += 1
-        print('')
-        print('Test printing env: {:s}'.format(env_name))
+        print("")
+        print("Test printing env: {:s}".format(env_name))
         env = make_env(env_name)
         print(env)
 
@@ -124,10 +121,10 @@ def test_trialenv(env=None, **kwargs):
         env = make_env(env, **kwargs)
     else:
         if not isinstance(env, gym.Env):
-            raise ValueError('env must be a string or a gym.Env')
+            raise ValueError("env must be a string or a gym.Env")
 
     trial = env.new_trial()
-    assert trial is not None, 'TrialEnv should return trial info dict ' + str(env)
+    assert trial is not None, "TrialEnv should return trial info dict " + str(env)
 
 
 def test_trialenv_all():
@@ -145,11 +142,11 @@ def test_seeding(env=None, seed=0):
         env = ngym.all_envs()[0]
 
     if isinstance(env, str):
-        kwargs = {'dt': 20}
+        kwargs = {"dt": 20}
         env = make_env(env, **kwargs)
     else:
         if not isinstance(env, gym.Env):
-            raise ValueError('env must be a string or a gym.Env')
+            raise ValueError("env must be a string or a gym.Env")
     env.seed(seed)
     env.reset()
     ob_mat = []
@@ -173,20 +170,18 @@ def test_seeding(env=None, seed=0):
 def test_seeding_all():
     """Test if all environments are replicable."""
     for env_name in sorted(ENVS_NOPSYCHOPY):
-        print('Running env: {:s}'.format(env_name))
+        print("Running env: {:s}".format(env_name))
         obs1, rews1, acts1 = test_seeding(env_name, seed=0)
         obs2, rews2, acts2 = test_seeding(env_name, seed=0)
-        assert (obs1 == obs2).all(), 'obs are not identical'
-        assert (rews1 == rews2).all(), 'rewards are not identical'
-        assert (acts1 == acts2).all(), 'actions are not identical'
+        assert (obs1 == obs2).all(), "obs are not identical"
+        assert (rews1 == rews2).all(), "rewards are not identical"
+        assert (acts1 == acts2).all(), "actions are not identical"
 
 
 def test_plot_envs():
     for env_name in sorted(ENVS):
-        if env_name in ['Null-v0']:
+        if env_name in ["Null-v0"]:
             continue
-        env = make_env(env_name, **{'dt': 20})
+        env = make_env(env_name, **{"dt": 20})
         action = np.zeros_like(env.action_space.sample())
         ngym.utils.plot_env(env, num_trials=2, def_act=action)
-
-

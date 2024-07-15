@@ -1,12 +1,9 @@
-"""
+""" """
 
-"""
-
+import gymnasium as gym
 import numpy as np
-
-import gym
-from gym import spaces, logger
-from gym.utils import seeding
+from gymnasium import logger, spaces
+from gymnasium.utils import seeding
 
 
 class LeverPress(gym.Env):
@@ -14,10 +11,7 @@ class LeverPress(gym.Env):
     Lever pressing environment where a cue signals the sequence start.
     """
 
-    metadata = {
-        'render.modes': ['human', 'rgb_array'],
-        'video.frames_per_second': 50
-    }
+    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
 
     def __init__(self):
         """
@@ -44,7 +38,9 @@ class LeverPress(gym.Env):
 
     def _step(self, action):
         assert self.action_space.contains(action), "%r (%s) invalid" % (
-            action, type(action))
+            action,
+            type(action),
+        )
         state = self.state
 
         reward = 0.0
@@ -78,7 +74,8 @@ class LeverPress(gym.Env):
         else:
             if self.steps_beyond_done == 0:
                 logger.warn(
-                    "You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior.")
+                    "You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior."
+                )
             self.steps_beyond_done += 1
 
         return np.array(signal), reward, done, {}
@@ -88,7 +85,7 @@ class LeverPress(gym.Env):
         """Optimal reward possible for each step on average."""
         p = self.signal_prob
         ns = np.arange(100)
-        r = 1. / np.sum((ns + self.n_press + 1) * p * (1 - p) ** ns)
+        r = 1.0 / np.sum((ns + self.n_press + 1) * p * (1 - p) ** ns)
         r *= self.reward_seq_complete
         return r
 
@@ -98,11 +95,12 @@ class LeverPress(gym.Env):
         self.steps_beyond_done = None
         return np.array(signal)
 
-    def render(self, mode='human'):
+    def render(self, mode="human"):
         raise NotImplementedError
 
     def close(self):
-        if self.viewer: self.viewer.close()
+        if self.viewer:
+            self.viewer.close()
 
 
 class LeverPressWithPoke(gym.Env):
@@ -117,10 +115,7 @@ class LeverPressWithPoke(gym.Env):
         1: pressing
     """
 
-    metadata = {
-        'render.modes': ['human', 'rgb_array'],
-        'video.frames_per_second': 50
-    }
+    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
 
     def __init__(self):
         high = np.array([1])
@@ -144,7 +139,9 @@ class LeverPressWithPoke(gym.Env):
 
     def _step(self, action):
         assert self.action_space.contains(action), "%r (%s) invalid" % (
-            action, type(action))
+            action,
+            type(action),
+        )
         state = self.state
 
         reward = 0.0
@@ -172,20 +169,21 @@ class LeverPressWithPoke(gym.Env):
         else:
             if self.steps_beyond_done == 0:
                 logger.warn(
-                    "You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior.")
+                    "You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior."
+                )
             self.steps_beyond_done += 1
 
         if self.observe_state:
             obs = np.array([self.state])
         else:
-            obs = np.array([1.])
+            obs = np.array([1.0])
 
         return obs, reward, done, {}
 
     @property
     def optimal_reward(self):
         """Optimal reward possible for each step on average."""
-        r = self.reward_seq_complete / (1. + self.n_press)
+        r = self.reward_seq_complete / (1.0 + self.n_press)
         return r
 
     @property
@@ -205,13 +203,14 @@ class LeverPressWithPoke(gym.Env):
         if self.observe_state:
             return np.array([self.state])
         else:
-            return np.array([1.])
+            return np.array([1.0])
 
-    def render(self, mode='human'):
+    def render(self, mode="human"):
         raise NotImplementedError
 
     def close(self):
-        if self.viewer: self.viewer.close()
+        if self.viewer:
+            self.viewer.close()
 
 
 class LeverPressWithPokeRest(gym.Env):
@@ -227,10 +226,7 @@ class LeverPressWithPokeRest(gym.Env):
         2: poking reward port
     """
 
-    metadata = {
-        'render.modes': ['human', 'rgb_array'],
-        'video.frames_per_second': 50
-    }
+    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
 
     def __init__(self):
         high = np.array([1])
@@ -256,12 +252,15 @@ class LeverPressWithPokeRest(gym.Env):
         return [seed]
 
     def _get_thirst(self, thirst_state):
-        return (thirst_state > 0.) * (thirst_state < 1.0) * thirst_state + \
-               (thirst_state > 1.0) * 1.0
+        return (thirst_state > 0.0) * (thirst_state < 1.0) * thirst_state + (
+            thirst_state > 1.0
+        ) * 1.0
 
     def _step(self, action):
         assert self.action_space.contains(action), "%r (%s) invalid" % (
-            action, type(action))
+            action,
+            type(action),
+        )
         state = self.state
 
         if action == 0:
@@ -296,7 +295,8 @@ class LeverPressWithPokeRest(gym.Env):
         else:
             if self.steps_beyond_done == 0:
                 logger.warn(
-                    "You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior.")
+                    "You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior."
+                )
             self.steps_beyond_done += 1
 
         if self.observe_state:
@@ -328,21 +328,18 @@ class LeverPressWithPokeRest(gym.Env):
         else:
             return np.array([self.thirst])
 
-    def render(self, mode='human'):
+    def render(self, mode="human"):
         raise NotImplementedError
 
     def close(self):
-        if self.viewer: self.viewer.close()
+        if self.viewer:
+            self.viewer.close()
 
 
 class ContextSwitch(gym.Env):
-    """
-    """
+    """ """
 
-    metadata = {
-        'render.modes': ['human', 'rgb_array'],
-        'video.frames_per_second': 50
-    }
+    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
 
     def __init__(self):
         high = np.array([1, 1])
@@ -366,7 +363,9 @@ class ContextSwitch(gym.Env):
 
     def _step(self, action):
         assert self.action_space.contains(action), "%r (%s) invalid" % (
-            action, type(action))
+            action,
+            type(action),
+        )
         if self.rng.rand() < self.p_switch:
             self.context = 1 - self.context
 
@@ -379,8 +378,8 @@ class ContextSwitch(gym.Env):
 
         # new observation
         self.ob = self.rng.randint(0, 2)
-        obs = np.array([0., 0.])
-        obs[self.ob] = 1.
+        obs = np.array([0.0, 0.0])
+        obs[self.ob] = 1.0
 
         done = False
 
@@ -392,7 +391,8 @@ class ContextSwitch(gym.Env):
         else:
             if self.steps_beyond_done == 0:
                 logger.warn(
-                    "You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior.")
+                    "You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior."
+                )
             self.steps_beyond_done += 1
 
         return obs, reward, done, {}
@@ -401,15 +401,16 @@ class ContextSwitch(gym.Env):
         self.ob = 0
         self.context = 0
         self.steps_beyond_done = None
-        obs = np.array([0., 0.])
-        obs[self.ob] = 1.
+        obs = np.array([0.0, 0.0])
+        obs[self.ob] = 1.0
         return obs
 
-    def render(self, mode='human'):
+    def render(self, mode="human"):
         raise NotImplementedError
 
     def close(self):
-        if self.viewer: self.viewer.close()
+        if self.viewer:
+            self.viewer.close()
 
 
 class FullInput(gym.Wrapper):
@@ -419,8 +420,7 @@ class FullInput(gym.Wrapper):
         super(FullInput, self).__init__(env)
         # Modify observation space to include reward and action
         orig_ob_space = self.observation_space
-        ob_shape = (orig_ob_space.shape[0] +
-                    self.action_space.n + 1)
+        ob_shape = orig_ob_space.shape[0] + self.action_space.n + 1
         low = np.array(list(orig_ob_space.low) + [-1] + [0] * self.action_space.n)
         high = np.array(list(orig_ob_space.high) + [1] + [1] * self.action_space.n)
         self.observation_space = spaces.Box(low, high, dtype=np.float32)
@@ -428,13 +428,13 @@ class FullInput(gym.Wrapper):
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
         # include reward and action information
-        one_hot_action = [0.] * self.action_space.n
-        one_hot_action[action] = 1.
+        one_hot_action = [0.0] * self.action_space.n
+        one_hot_action[action] = 1.0
         obs = np.array(list(obs) + [reward] + one_hot_action)
         return obs, reward, done, info
 
     def reset(self):
         obs = self.env.reset()
         # observation, reward, actions
-        obs = np.array(list(obs) + [0.] + [0.] * self.action_space.n)
+        obs = np.array(list(obs) + [0.0] + [0.0] * self.action_space.n)
         return obs

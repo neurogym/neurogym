@@ -4,7 +4,8 @@
 from __future__ import division
 
 import numpy as np
-from gym import spaces
+from gymnasium import spaces
+
 import neurogym as ngym
 
 
@@ -17,18 +18,19 @@ class DawTwoStep(ngym.TrialEnv):
     demand another two-option choice, each of which is associated
     with a different chance of receiving reward.
     """
+
     metadata = {
-        'paper_link': 'https://www.sciencedirect.com/science/article/' +
-        'pii/S0896627311001255',
-        'paper_name': 'Model-Based Influences on Humans' +
-        ' Choices and Striatal Prediction Errors',
-        'tags': ['two-alternative']
+        "paper_link": "https://www.sciencedirect.com/science/article/"
+        + "pii/S0896627311001255",
+        "paper_name": "Model-Based Influences on Humans"
+        + " Choices and Striatal Prediction Errors",
+        "tags": ["two-alternative"],
     }
 
     def __init__(self, dt=100, rewards=None, timing=None):
         super().__init__(dt=dt)
         if timing is not None:
-            print('Warning: Two-step task does not require timing variable.')
+            print("Warning: Two-step task does not require timing variable.")
         # Actions ('FIXATE', 'ACTION1', 'ACTION2')
         self.actions = [0, 1, 2]
 
@@ -38,17 +40,18 @@ class DawTwoStep(ngym.TrialEnv):
         self.p_switch = 0.025  # switch reward contingency
         self.high_reward_p = 0.9
         self.low_reward_p = 0.1
-        self.tmax = 3*self.dt
+        self.tmax = 3 * self.dt
         self.mean_trial_duration = self.tmax
         self.state1_high_reward = True
         # Rewards
-        self.rewards = {'abort': -0.1, 'correct': +1.}
+        self.rewards = {"abort": -0.1, "correct": +1.0}
         if rewards:
             self.rewards.update(rewards)
 
         self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(3,),
-                                            dtype=np.float32)
+        self.observation_space = spaces.Box(
+            -np.inf, np.inf, shape=(3,), dtype=np.float32
+        )
 
     def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
@@ -74,41 +77,42 @@ class DawTwoStep(ngym.TrialEnv):
             hi_state, low_state = 1, 0
 
         reward = np.empty((2,))
-        reward[hi_state] = (self.rng.rand() <
-                            self.high_reward_p) * self.rewards['correct']
-        reward[low_state] = (self.rng.rand() <
-                             self.low_reward_p) * self.rewards['correct']
-        self.ground_truth = hi_state+1  # assuming p1, p2 >= 0.5
+        reward[hi_state] = (self.rng.rand() < self.high_reward_p) * self.rewards[
+            "correct"
+        ]
+        reward[low_state] = (self.rng.rand() < self.low_reward_p) * self.rewards[
+            "correct"
+        ]
+        self.ground_truth = hi_state + 1  # assuming p1, p2 >= 0.5
         trial = {
-            'transition':  transition,
-            'reward': reward,
-            'hi_state': hi_state,
-            }
+            "transition": transition,
+            "reward": reward,
+            "hi_state": hi_state,
+        }
 
         return trial
 
     def _step(self, action):
         trial = self.trial
-        info = {'new_trial': False}
+        info = {"new_trial": False}
         reward = 0
 
         ob = np.zeros((3,))
         if self.t == 0:  # at stage 1, if action==fixate, abort
             if action == 0:
-                reward = self.rewards['abort']
-                info['new_trial'] = True
+                reward = self.rewards["abort"]
+                info["new_trial"] = True
             else:
-                state = trial['transition'][action]
+                state = trial["transition"][action]
                 ob[int(state)] = 1
-                reward = trial['reward'][int(state-1)]
+                reward = trial["reward"][int(state - 1)]
                 self.performance = action == self.ground_truth
         elif self.t == self.dt:
             ob[0] = 1
             if action != 0:
-                reward = self.rewards['abort']
-            info['new_trial'] = True
+                reward = self.rewards["abort"]
+            info["new_trial"] = True
         else:
-            raise ValueError('t is not 0 or 1')
+            raise ValueError("t is not 0 or 1")
 
         return ob, reward, False, info
-

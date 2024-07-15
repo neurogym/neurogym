@@ -8,8 +8,7 @@ Created on Thu Feb 28 15:07:21 2019
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
-import gym
+import gymnasium as gym
 
 
 class Noise(gym.Wrapper):
@@ -25,12 +24,12 @@ class Noise(gym.Wrapper):
     """
 
     metadata = {
-        'description': 'Add Gaussian noise to the observations.',
-        'paper_link': None,
-        'paper_name': None,
+        "description": "Add Gaussian noise to the observations.",
+        "paper_link": None,
+        "paper_name": None,
     }
 
-    def __init__(self, env, std_noise=.1):
+    def __init__(self, env, std_noise=0.1):
         super().__init__(env)
         self.env = env
         self.std_noise = std_noise
@@ -43,6 +42,5 @@ class Noise(gym.Wrapper):
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
         # add noise
-        obs += self.env.rng.normal(loc=0, scale=self.std_noise,
-                                   size=obs.shape)
+        obs += self.env.rng.normal(loc=0, scale=self.std_noise, size=obs.shape)
         return obs, reward, done, info

@@ -9,19 +9,21 @@ Usage:
 
     import neurogym as ngym
 
-    import gym
+    import gymnasium as gym
     kwargs = {'dt': 100, 'tr_hist_kwargs': {'probs': 0.9}}
     # Make supervised dataset
     tasks = ngym.get_collection('priors')
     envs = [gym.make(task, **kwargs) for task in tasks]
 
 """
-import gym
+
+import gymnasium as gym
+
 import neurogym.wrappers as wrappers
 
 
-def priors_v0(tr_hist_kwargs={'probs': 0.9}, var_nch_kwargs={}, **task_kwargs):
-    env = gym.make('NAltPerceptualDecisionMaking-v0', **task_kwargs)
+def priors_v0(tr_hist_kwargs={"probs": 0.9}, var_nch_kwargs={}, **task_kwargs):
+    env = gym.make("NAltPerceptualDecisionMaking-v0", **task_kwargs)
     print(tr_hist_kwargs)
     env = wrappers.TrialHistoryEvolution(env, **tr_hist_kwargs)
     env = wrappers.Variable_nch(env, **var_nch_kwargs)
