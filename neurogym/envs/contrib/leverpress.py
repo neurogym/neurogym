@@ -1,10 +1,9 @@
 """ """
 
+import gymnasium as gym
 import numpy as np
-
-import gym
-from gym import spaces, logger
-from gym.utils import seeding
+from gymnasium import logger, spaces
+from gymnasium.utils import seeding
 
 
 class LeverPress(gym.Env):

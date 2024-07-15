@@ -2,7 +2,8 @@
 
 import time
 
-import gym
+import gymnasium as gym
+
 import neurogym as ngym
 
 

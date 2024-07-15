@@ -7,7 +7,8 @@ Created on Thu Jan 30 13:47:15 2020
 """
 
 import numpy as np
-from gym import spaces
+from gymnasium import spaces
+
 import neurogym as ngym
 
 

@@ -4,10 +4,9 @@
 
 import inspect
 
-import gym
 import neurogym as ngym
-from neurogym.core import env_string, METADATA_DEF_KEYS
-from neurogym.envs.registration import all_envs, ALL_ENVS
+from neurogym.core import METADATA_DEF_KEYS, env_string
+from neurogym.envs.registration import ALL_ENVS, all_envs
 from neurogym.wrappers import ALL_WRAPPERS
 
 
@@ -50,7 +49,6 @@ def info_wrapper(wrapper=None, show_code=False):
     metadata = imported.metadata
 
     if not isinstance(metadata, dict):
-        # same wrappers don't specify metadata dict but still have a metadata property inherited from gym.Wrapper (which causes an error when trying to access keys)
         metadata = {}
 
     string += "### {:s}\n\n".format(wrapper)

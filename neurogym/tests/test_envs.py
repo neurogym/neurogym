@@ -6,20 +6,17 @@ All tests in this file can be run by running in command line
 pytest test_envs.py
 """
 
-import pytest
-
+import gymnasium as gym
 import numpy as np
 
-import gym
 import neurogym as ngym
 from neurogym.utils.data import Dataset
-
 
 try:
     import psychopy
 
     _have_psychopy = True
-except ImportError as e:
+except ImportError:
     _have_psychopy = False
 
 ENVS = ngym.all_envs(psychopy=_have_psychopy, contrib=True, collections=True)

@@ -3,11 +3,13 @@
 # This is try to code spatial suppression motion task
 
 
-import numpy as np
-from gym import spaces
-from psychopy import visual
-from .psychopy_env import PsychopyEnv
 import sys
+
+import numpy as np
+from gymnasium import spaces
+from psychopy import visual
+
+from .psychopy_env import PsychopyEnv
 
 
 class SpatialSuppressMotion(PsychopyEnv):

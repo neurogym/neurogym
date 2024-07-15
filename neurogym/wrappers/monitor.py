@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from gym import Wrapper
 import os
+
 import numpy as np
+from gymnasium import Wrapper
+
 from neurogym.utils.plotting import fig_
 
 

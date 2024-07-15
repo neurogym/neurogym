@@ -1,15 +1,13 @@
-import os
 from pathlib import Path
+
+import gymnasium as gym
 import httplib2
-
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
-import gym
 import neurogym as ngym
 from neurogym.envs.registration import ALL_ENVS
 from neurogym.wrappers import ALL_WRAPPERS
-
 
 ENV_IGNORE = ["Null-v0"]
 all_envs = dict()

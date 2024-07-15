@@ -1,12 +1,8 @@
-from packaging import version
-
-import gym
 import numpy as np
 
 import neurogym as ngym
 from neurogym.utils.scheduler import RandomSchedule
 from neurogym.wrappers import ScheduleEnvs
-
 
 # In gym 0.24.0, env_checker calls reset() when the env is created => no error if env.step() before env.reset() but it
 # doens't mean that ScheduleEnvs properly reset all its env, so disable env_checker to test that

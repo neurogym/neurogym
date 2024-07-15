@@ -1,9 +1,10 @@
 """Reproducing angles."""
 
 import numpy as np
-from gym import spaces
-from neurogym.utils import tasktools
+from gymnasium import spaces
+
 import neurogym as ngym
+from neurogym.utils import tasktools
 
 
 class AngleReproduction(ngym.TrialEnv):

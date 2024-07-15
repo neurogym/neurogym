@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import division
+
 import numpy as np
-from gym import spaces
+from gymnasium import spaces
+
 import neurogym as ngym
 
 
