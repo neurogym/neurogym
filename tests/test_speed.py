@@ -16,8 +16,10 @@ def speed(env, n_steps=100000, warmup_steps=10000):
     env.reset()
     for stp in range(warmup_steps):
         action = env.action_space.sample()
-        state, rew, done, info = env.step(action)  # env.action_space.sample())
-        if done:
+        state, rew, terminated, truncated, info = env.step(
+            action
+        )  # env.action_space.sample())
+        if terminated:
             env.reset()
 
     total_time = 0
@@ -25,9 +27,11 @@ def speed(env, n_steps=100000, warmup_steps=10000):
     for stp in range(n_steps):
         action = env.action_space.sample()
         start_time = time.time()
-        state, rew, done, info = env.step(action)  # env.action_space.sample())
+        state, rew, terminated, truncated, info = env.step(
+            action
+        )  # env.action_space.sample())
         total_time += time.time() - start_time
-        if done:
+        if terminated:
             env.reset()
 
     print("Time/step {:0.3f}us [with stepping]".format(total_time / n_steps * 1e6))

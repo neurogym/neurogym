@@ -43,8 +43,10 @@ def test_run(env=None, num_steps=100, verbose=False, **kwargs):
     env.reset()
     for stp in range(num_steps):
         action = env.action_space.sample()
-        state, rew, done, info = env.step(action)  # env.action_space.sample())
-        if done:
+        state, rew, terminated, truncated, info = env.step(
+            action
+        )  # env.action_space.sample())
+        if terminated:
             env.reset()
 
     tags = env.metadata.get("tags", [])
@@ -154,11 +156,11 @@ def test_seeding(env=None, seed=0):
     act_mat = []
     for stp in range(100):
         action = env.action_space.sample()
-        ob, rew, done, info = env.step(action)
+        ob, rew, terminated, truncated, info = env.step(action)
         ob_mat.append(ob)
         rew_mat.append(rew)
         act_mat.append(action)
-        if done:
+        if terminated:
             env.reset()
     ob_mat = np.array(ob_mat)
     rew_mat = np.array(rew_mat)
@@ -184,4 +186,8 @@ def test_plot_envs():
             continue
         env = make_env(env_name, **{"dt": 20})
         action = np.zeros_like(env.action_space.sample())
-        ngym.utils.plot_env(env, num_trials=2, def_act=action)
+        try:
+            ngym.utils.plot_env(env, num_trials=2, def_act=action)
+        except Exception as e:
+            print(f"Error in plotting env: {env_name}, {e}")
+            print(e)

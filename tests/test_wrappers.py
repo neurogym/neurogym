@@ -65,7 +65,7 @@ from neurogym.wrappers import (
 #     block = env.curr_block
 #     for stp in range(num_steps):
 #         action = env.action_space.sample()
-#         obs, rew, done, info = env.step(action)
+#         obs, rew, terminated, truncated, info = env.step(action)
 #         if info["new_trial"]:
 #             probs_mat[block, info["gt"] - 1] += 1
 #             block = env.curr_block
@@ -73,7 +73,7 @@ from neurogym.wrappers import (
 #                 print("Ground truth", info["gt"])
 #                 print("----------")
 #                 print("Block", block)
-#         if done:
+#         if terminated:
 #             env.reset()
 #     probs_mat = probs_mat / np.sum(probs_mat, axis=1)
 #     assert np.mean(np.abs(probs - probs_mat)) < margin, (
@@ -109,14 +109,14 @@ def test_passaction(
     env.reset()
     for stp in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, done, info = env.step(action)
+        obs, rew, terminated, truncated, info = env.step(action)
         assert obs[-1] == action, "Previous action is not part of observation"
         if verbose:
             print(obs)
             print(action)
             print("--------")
 
-        if done:
+        if terminated:
             env.reset()
 
 
@@ -142,16 +142,16 @@ def test_passreward(
     """
     env = gym.make(env_name)
     env = PassReward(env)
-    obs = env.reset()
+    obs, _ = env.reset()
     for stp in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, done, info = env.step(action)
+        obs, rew, terminated, truncated, info = env.step(action)
         assert obs[-1] == rew, "Previous reward is not part of observation"
         if verbose:
             print(obs)
             print(rew)
             print("--------")
-        if done:
+        if terminated:
             env.reset()
 
 
@@ -207,7 +207,7 @@ def test_passreward(
 #         else:
 #             action = 0
 #         end_of_trial = True if action != 0 else False
-#         obs, rew, done, info = env.step(action)
+#         obs, rew, terminated, truncated, info = env.step(action)
 #         if info["new_trial"]:
 #             step = 0
 #             obs_cum = 0
@@ -313,7 +313,7 @@ def test_passreward(
 #     stims = env.stims.flatten()
 #     for stp in range(num_steps):
 #         action = def_act or env.action_space.sample()
-#         obs, rew, done, info = env.step(action)
+#         obs, rew, terminated, truncated, info = env.step(action)
 #         if info["new_trial"]:
 #             mapping.append(info["mapping"])
 #             assert (action == prev_mapp and rew == 1.0) or action != prev_mapp
@@ -416,14 +416,14 @@ def test_passreward(
 #             action = env.action_space.sample()
 #         else:
 #             action = env.gt_now
-#         obs, rew, done, info = env.step(action)
+#         obs, rew, terminated, truncated, info = env.step(action)
 #         if "std_noise" in info:
 #             std_noise = info["std_noise"]
 #         if verbose:
 #             if info["new_trial"]:
 #                 perf.append(info["performance"])
 #                 std_mat.append(std_noise)
-#         if done:
+#         if terminated:
 #             env.reset()
 #     actual_perf = np.mean(perf[-5000:])
 #     if verbose:
@@ -453,11 +453,11 @@ def test_passreward(
 #     observations = []
 #     for stp in range(num_steps):
 #         action = env.action_space.sample()
-#         obs, rew, done, info = env.step(action)
+#         obs, rew, terminated, truncated, info = env.step(action)
 #         if verbose:
 #             reward.append(rew)
 #             observations.append(obs)
-#         if done:
+#         if terminated:
 #             env.reset()
 #     if verbose:
 #         observations = np.array(observations)
@@ -478,13 +478,13 @@ def test_passreward(
 #     env.reset()
 #     for stp in range(num_steps):
 #         action = env.action_space.sample()
-#         obs, rew, done, info = env.step(action)
+#         obs, rew, terminated, truncated, info = env.step(action)
 #         if info["new_trial"] and verbose:
 #             print("Perfomance", (info["gt"] - action) < 0.00001)
 #             print("catch-trial", info["catch_trial"])
 #             print("Reward", rew)
 #             print("-------------")
-#         if done:
+#         if terminated:
 #             env.reset()
 
 # Note: TrialHistory is not implemented in the current version of neurogym
@@ -511,8 +511,8 @@ def test_passreward(
 #     prev_gt = 1
 #     for stp in range(num_steps):
 #         action = env.action_space.sample()
-#         obs, rew, done, info = env.step(action)
-#         if done:
+#         obs, rew, terminated, truncated, info = env.step(action)
+#         if terminated:
 #             env.reset()
 #         if info["new_trial"] and verbose:
 #             blk.append(info["curr_block"])
@@ -551,13 +551,13 @@ def test_passreward(
 #     signals = []
 #     for stp in range(num_steps):
 #         action = env.action_space.sample()
-#         obs, rew, done, info = env.step(action)
+#         obs, rew, terminated, truncated, info = env.step(action)
 #         if verbose:
 #             obs_mat.append(obs)
 #             signals.append([info["signal_0"], info["signal_1"]])
 #             print("--------")
 
-#         if done:
+#         if terminated:
 #             env.reset()
 #     if verbose:
 #         plt.figure()
@@ -591,14 +591,14 @@ def test_passreward(
 #     for stp in range(num_steps):
 #         # action = env.action_space.sample()
 #         action = 1
-#         obs, rew, done, info = env.step(action)
+#         obs, rew, terminated, truncated, info = env.step(action)
 #         if verbose:
 #             action_mat.append(action)
 #             rew_mat.append(rew)
 #             obs_mat.append(obs)
 #             signals.append([info["task"]])
 
-#         if done:
+#         if terminated:
 #             env.reset()
 #     if verbose:
 #         plt.figure()
@@ -659,14 +659,14 @@ def test_passreward(
 #     for stp in range(num_steps):
 #         action = env.action_space.sample()
 #         # action = 1
-#         obs, rew, done, info = env.step(action)
+#         obs, rew, terminated, truncated, info = env.step(action)
 #         if verbose:
 #             action_mat.append(action)
 #             rew_mat.append(rew)
 #             obs_mat.append(obs)
 #             config_mat.append(info["task_type"])
 
-#         if done:
+#         if terminated:
 #             env.reset()
 #     if verbose:
 #         plt.figure()
@@ -694,8 +694,8 @@ def test_passreward(
 #     env.reset()
 #     for stp in range(num_steps):
 #         action = env.action_space.sample()
-#         obs, rew, done, info = env.step(action)
-#         if done:
+#         obs, rew, terminated, truncated, info = env.step(action)
+#         if terminated:
 #             env.reset()
 
 # Note: this test is failing
@@ -757,10 +757,10 @@ def test_passreward(
 #     prev_gt = 1
 #     for stp in range(num_steps):
 #         action = env.action_space.sample()
-#         obs, rew, done, info = env.step(action)
+#         obs, rew, terminated, truncated, info = env.step(action)
 #         obs_mat.append(obs)
 #         blk_stp.append(info["curr_block"])
-#         if done:
+#         if terminated:
 #             env.reset()
 #         if info["new_trial"] and verbose:
 #             # print(info['curr_block'])
@@ -873,8 +873,8 @@ def check_blk_id(blk_id_mat, curr_blk, num_blk, sel_chs):
 #     num_tr = 0
 #     for stp in range(num_steps):
 #         action = env.action_space.sample()
-#         obs, rew, done, info = env.step(action)
-#         if done:
+#         obs, rew, terminated, truncated, info = env.step(action)
+#         if terminated:
 #             env.reset()
 #         if info["new_trial"] and verbose:
 #             num_tr += 1

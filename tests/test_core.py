@@ -3,6 +3,7 @@
 # import pytest
 
 import numpy as np
+
 import neurogym as ngym
 
 
@@ -32,13 +33,15 @@ def test_one_step_mismatch():
                 reward = (action == 0) * 1.0
             else:
                 reward = (action == 1) * 1.0
-            return self.ob_now, reward, False, info
+            terminated = False
+            truncated = False
+            return self.ob_now, reward, terminated, truncated, info
 
     env = TestEnv()
     ob = env.reset(no_step=True)
     for i in range(10):
         action = np.argmax(ob)  # fixate if observes fixation input, vice versa
-        ob, rew, done, info = env.step(action=action)
+        ob, rew, terminated, truncated, info = env.step(action=action)
         if i > 0:
             assert rew == 1
 
@@ -63,12 +66,14 @@ def test_addob_instep():
 
         def _step(self, action):
             new_trial = False
+            terminated = False
+            truncated = False
             reward = 0
             self.add_ob(1)
-            return self.ob_now, reward, False, {"new_trial": new_trial}
+            return self.ob_now, reward, terminated, truncated, {"new_trial": new_trial}
 
     env = TestEnv()
     env.reset(no_step=True)
     for i in range(10):
-        ob, rew, done, info = env.step(action=0)
+        ob, rew, terminated, truncated, info = env.step(action=0)
         assert ob[0] == ((i + 1) % 5) + 1  # each trial is 5 steps
