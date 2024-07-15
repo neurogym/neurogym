@@ -103,6 +103,8 @@ class DelayComparison(ngym.TrialEnv):
         # Reward and inputs
         # ---------------------------------------------------------------------
         new_trial = False
+        terminated = False
+        truncated = False
         gt = self.gt_now
         ob = self.ob_now
         # rewards
@@ -120,4 +122,4 @@ class DelayComparison(ngym.TrialEnv):
                 else:
                     reward = self.rewards["fail"]
 
-        return ob, reward, False, {"new_trial": new_trial, "gt": gt}
+        return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}

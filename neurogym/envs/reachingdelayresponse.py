@@ -77,6 +77,8 @@ class ReachingDelayResponse(ngym.TrialEnv):
 
     def _step(self, action):
         new_trial = False
+        terminated = False
+        truncated = False
         # rewards
         reward = 0
         gt = self.gt_now  # 2 dim now
@@ -91,4 +93,10 @@ class ReachingDelayResponse(ngym.TrialEnv):
                 reward = self.rewards["correct"] / ((1 + abs(action[1] - gt[1])) ** 2)
                 self.performance = reward / self.rewards["correct"]
 
-        return self.ob_now, reward, False, {"new_trial": new_trial, "gt": gt}
+        return (
+            self.ob_now,
+            reward,
+            terminated,
+            truncated,
+            {"new_trial": new_trial, "gt": gt},
+        )

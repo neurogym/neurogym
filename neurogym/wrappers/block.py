@@ -209,7 +209,7 @@ class ScheduleEnvs(TrialWrapper):
         # then reset return_i_env and return the result
         self.set_i(return_i_env)
         self.next_i_env = self.i_env
-        return self.env.reset(), {}
+        return self.env.reset()
 
     def new_trial(self, **kwargs):
         # self.env has to be changed at the beginning of new_trial, not at the end

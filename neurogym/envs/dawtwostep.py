@@ -95,6 +95,8 @@ class DawTwoStep(ngym.TrialEnv):
     def _step(self, action):
         trial = self.trial
         info = {"new_trial": False}
+        terminated = False
+        truncated = False
         reward = 0
 
         ob = np.zeros((3,))
@@ -115,4 +117,4 @@ class DawTwoStep(ngym.TrialEnv):
         else:
             raise ValueError("t is not 0 or 1")
 
-        return ob, reward, False, info
+        return ob, reward, terminated, truncated, info

@@ -63,10 +63,10 @@ class LeverPress(gym.Env):
         signal = [float(state == self.n_press)]
 
         self.state = state
-        done = False
-        done = bool(done)
+        terminated = False
+        truncated = False
 
-        if not done:
+        if not terminated:
             pass
         elif self.steps_beyond_done is None:
             # Pole just fell!
@@ -74,11 +74,11 @@ class LeverPress(gym.Env):
         else:
             if self.steps_beyond_done == 0:
                 logger.warn(
-                    "You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior."
+                    "You are calling 'step()' even though this environment has already returned terminated = True. You should always call 'reset()' once you receive 'terminated = True' -- any further steps are undefined behavior."
                 )
             self.steps_beyond_done += 1
 
-        return np.array(signal), reward, done, {}
+        return np.array(signal), reward, terminated, truncated, {}
 
     @property
     def optimal_reward(self):
@@ -159,9 +159,10 @@ class LeverPressWithPoke(gym.Env):
             raise ValueError
 
         self.state = state
-        done = False
+        terminated = False
+        truncated = False
 
-        if not done:
+        if not terminated:
             pass
         elif self.steps_beyond_done is None:
             # Pole just fell!
@@ -169,7 +170,7 @@ class LeverPressWithPoke(gym.Env):
         else:
             if self.steps_beyond_done == 0:
                 logger.warn(
-                    "You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior."
+                    "You are calling 'step()' even though this environment has already returned terminated = True. You should always call 'reset()' once you receive 'terminated = True' -- any further steps are undefined behavior."
                 )
             self.steps_beyond_done += 1
 
@@ -178,7 +179,7 @@ class LeverPressWithPoke(gym.Env):
         else:
             obs = np.array([1.0])
 
-        return obs, reward, done, {}
+        return obs, reward, terminated, truncated, {}
 
     @property
     def optimal_reward(self):
@@ -285,9 +286,10 @@ class LeverPressWithPokeRest(gym.Env):
         self.thirst_state += self.np_random.rand() * 0.4 + 0.8
         self.thirst = self._get_thirst(self.thirst_state)
         self.state = state
-        done = False
+        terminated = False
+        truncated = False
 
-        if not done:
+        if not terminated:
             pass
         elif self.steps_beyond_done is None:
             # Pole just fell!
@@ -295,7 +297,7 @@ class LeverPressWithPokeRest(gym.Env):
         else:
             if self.steps_beyond_done == 0:
                 logger.warn(
-                    "You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior."
+                    "You are calling 'step()' even though this environment has already returned terminated = True. You should always call 'reset()' once you receive 'terminated = True' -- any further steps are undefined behavior."
                 )
             self.steps_beyond_done += 1
 
@@ -304,7 +306,7 @@ class LeverPressWithPokeRest(gym.Env):
         else:
             obs = np.array([self.thirst])
 
-        return obs, reward, done, {}
+        return obs, reward, terminated, truncated, {}
 
     @property
     def optimal_reward(self):
@@ -381,9 +383,10 @@ class ContextSwitch(gym.Env):
         obs = np.array([0.0, 0.0])
         obs[self.ob] = 1.0
 
-        done = False
+        terminated = False
+        truncated = False
 
-        if not done:
+        if not terminated:
             pass
         elif self.steps_beyond_done is None:
             # Pole just fell!
@@ -391,11 +394,11 @@ class ContextSwitch(gym.Env):
         else:
             if self.steps_beyond_done == 0:
                 logger.warn(
-                    "You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior."
+                    "You are calling 'step()' even though this environment has already returned terminated = True. You should always call 'reset()' once you receive 'terminated = True' -- any further steps are undefined behavior."
                 )
             self.steps_beyond_done += 1
 
-        return obs, reward, done, {}
+        return obs, reward, terminated, truncated, {}
 
     def reset(self):
         self.ob = 0
@@ -426,15 +429,15 @@ class FullInput(gym.Wrapper):
         self.observation_space = spaces.Box(low, high, dtype=np.float32)
 
     def step(self, action):
-        obs, reward, done, info = self.env.step(action)
+        obs, reward, terminated, truncated, info = self.env.step(action)
         # include reward and action information
         one_hot_action = [0.0] * self.action_space.n
         one_hot_action[action] = 1.0
         obs = np.array(list(obs) + [reward] + one_hot_action)
-        return obs, reward, done, info
+        return obs, reward, terminated, truncated, info
 
     def reset(self):
-        obs = self.env.reset()
+        obs, _ = self.env.reset()
         # observation, reward, actions
         obs = np.array(list(obs) + [0.0] + [0.0] * self.action_space.n)
         return obs, {}

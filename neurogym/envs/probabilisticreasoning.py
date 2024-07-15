@@ -112,6 +112,8 @@ class ProbabilisticReasoning(ngym.TrialEnv):
 
     def _step(self, action):
         new_trial = False
+        terminated = False
+        truncated = False
         # rewards
         reward = 0
         gt = self.gt_now
@@ -129,4 +131,10 @@ class ProbabilisticReasoning(ngym.TrialEnv):
                 new_trial = self.abort
                 reward += self.rewards["abort"]
 
-        return self.ob_now, reward, False, {"new_trial": new_trial, "gt": gt}
+        return (
+            self.ob_now,
+            reward,
+            terminated,
+            truncated,
+            {"new_trial": new_trial, "gt": gt},
+        )

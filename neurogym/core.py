@@ -156,14 +156,14 @@ class TrialEnv(BaseEnv):
                 pass
         return [seed]
 
-    def post_step(self, ob, reward, done, info):
+    def post_step(self, ob, reward, terminated, truncated, info):
         """
         Optional task-specific wrapper applied at the end of step.
 
         It allows to modify ob online (e.g. provide a specific observation for
                                        different actions made by the agent)
         """
-        return ob, reward, done, info
+        return ob, reward, terminated, truncated, info
 
     def new_trial(self, **kwargs):
         """Public interface for starting a new trial.
@@ -184,7 +184,7 @@ class TrialEnv(BaseEnv):
 
     def step(self, action):
         """Public interface for the environment."""
-        ob, reward, done, info = self._step(action)
+        ob, reward, terminated, truncated, info = self._step(action)
 
         if "new_trial" not in info:
             info["new_trial"] = False
@@ -210,7 +210,7 @@ class TrialEnv(BaseEnv):
             info["trial"] = trial
         if ob is OBNOW:
             ob = self.ob[self.t_ind]
-        return self.post_step(ob, reward, done, info)
+        return self.post_step(ob, reward, terminated, truncated, info)
 
     def reset(
         self, seed=None, return_info=False, options=None, step_fn=None, no_step=False
@@ -240,9 +240,9 @@ class TrialEnv(BaseEnv):
         if no_step:
             return self.observation_space.sample()
         if step_fn is None:
-            ob, _, _, _ = self._top.step(self.action_space.sample())
+            ob, _, _, _, _ = self._top.step(self.action_space.sample())
         else:
-            ob, _, _, _ = step_fn(self.action_space.sample())
+            ob, _, _, _, _ = step_fn(self.action_space.sample())
         return ob, {}
 
     def render(self, mode="human"):

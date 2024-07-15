@@ -83,10 +83,10 @@ class Monitor(Wrapper):
         super().reset(seed=seed)
         if step_fn is None:
             step_fn = self.step
-        return self.env.reset(step_fn=step_fn), {}
+        return self.env.reset(step_fn=step_fn)
 
     def step(self, action):
-        obs, rew, done, info = self.env.step(action)
+        obs, rew, terminated, truncated, info = self.env.step(action)
         if self.sv_fig:
             self.store_data(obs, action, rew, info)
         if self.sv_stp == "timestep":
@@ -119,7 +119,7 @@ class Monitor(Wrapper):
                     self.stp_counter = 0
                 if self.sv_stp == "timestep":
                     self.t = 0
-        return obs, rew, done, info
+        return obs, rew, terminated, truncated, info
 
     def reset_data(self):
         for key in self.data.keys():

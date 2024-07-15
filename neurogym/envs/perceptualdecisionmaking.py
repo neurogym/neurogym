@@ -102,12 +102,17 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
         _step receives an action and returns:
             a new observation, obs
             reward associated with the action, reward
-            a boolean variable indicating whether the experiment has end, done
+            a boolean variable indicating whether the experiment has terminated, terminated
+                See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#termination
+            a boolean variable indicating whether the experiment has been truncated, truncated
+                See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#truncation
             a dictionary with extra information:
                 ground truth correct response, info['gt']
                 boolean indicating the end of the trial, info['new_trial']
         """
         new_trial = False
+        terminated = False
+        truncated = False
         # rewards
         reward = 0
         gt = self.gt_now
@@ -125,7 +130,13 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
                 else:
                     reward += self.rewards["fail"]
 
-        return self.ob_now, reward, False, {"new_trial": new_trial, "gt": gt}
+        return (
+            self.ob_now,
+            reward,
+            terminated,
+            truncated,
+            {"new_trial": new_trial, "gt": gt},
+        )
 
 
 #  TODO: there should be a timeout of 1000ms for incorrect trials
@@ -213,6 +224,8 @@ class PerceptualDecisionMakingDelayResponse(ngym.TrialEnv):
         # Reward and observations
         # ---------------------------------------------------------------------
         new_trial = False
+        terminated = False
+        truncated = False
         # rewards
         reward = 0
         # observations
@@ -231,7 +244,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.TrialEnv):
                 reward = self.rewards["fail"]
 
         info = {"new_trial": new_trial, "gt": gt}
-        return self.ob_now, reward, False, info
+        return self.ob_now, reward, terminated, truncated, info
 
 
 class PulseDecisionMaking(ngym.TrialEnv):
@@ -313,6 +326,8 @@ class PulseDecisionMaking(ngym.TrialEnv):
 
     def _step(self, action):
         new_trial = False
+        terminated = False
+        truncated = False
         # rewards
         reward = 0
         gt = self.gt_now
@@ -330,4 +345,10 @@ class PulseDecisionMaking(ngym.TrialEnv):
                 new_trial = self.abort
                 reward += self.rewards["abort"]
 
-        return self.ob_now, reward, False, {"new_trial": new_trial, "gt": gt}
+        return (
+            self.ob_now,
+            reward,
+            terminated,
+            truncated,
+            {"new_trial": new_trial, "gt": gt},
+        )

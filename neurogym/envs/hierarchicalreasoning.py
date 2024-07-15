@@ -121,6 +121,8 @@ class HierarchicalReasoning(ngym.TrialEnv):
 
     def _step(self, action):
         new_trial = False
+        terminated = False
+        truncated = False
         # rewards
         reward = 0
         gt = self.gt_now
@@ -143,4 +145,10 @@ class HierarchicalReasoning(ngym.TrialEnv):
         if new_trial:
             self.chose_correct_rule = False
 
-        return self.ob_now, reward, False, {"new_trial": new_trial, "gt": gt}
+        return (
+            self.ob_now,
+            reward,
+            terminated,
+            truncated,
+            {"new_trial": new_trial, "gt": gt},
+        )

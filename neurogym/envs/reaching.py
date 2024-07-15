@@ -4,7 +4,6 @@ import numpy as np
 
 import neurogym as ngym
 from neurogym import spaces
-
 from neurogym.utils import tasktools
 
 
@@ -68,6 +67,8 @@ class Reaching1D(ngym.TrialEnv):
         return trial
 
     def _step(self, action):
+        terminated = False
+        truncated = False
         if action == 1:
             self.state += 0.05
         elif action == 2:
@@ -90,12 +91,12 @@ class Reaching1D(ngym.TrialEnv):
             )
             self.performance += norm_rew / self.dec_per_dur
 
-        return self.ob_now, reward, False, {"new_trial": False}
+        return self.ob_now, reward, terminated, truncated, {"new_trial": False}
 
-    def post_step(self, ob, reward, done, info):
+    def post_step(self, ob, reward, terminated, truncated, info):
         """Modify observation"""
         ob[self.dim_ring :] = np.cos(self.theta - self.state)
-        return ob, reward, done, info
+        return ob, reward, terminated, truncated, info
 
 
 class Reaching1DWithSelfDistraction(ngym.TrialEnv):
@@ -160,6 +161,8 @@ class Reaching1DWithSelfDistraction(ngym.TrialEnv):
         return trial
 
     def _step(self, action):
+        terminated = False
+        truncated = False
         if action == 1:
             self.state += 0.05
         elif action == 2:
@@ -181,9 +184,9 @@ class Reaching1DWithSelfDistraction(ngym.TrialEnv):
             )
             self.performance += norm_rew / self.dec_per_dur
 
-        return self.ob_now, reward, False, {"new_trial": False}
+        return self.ob_now, reward, terminated, truncated, {"new_trial": False}
 
-    def post_step(self, ob, reward, done, info):
+    def post_step(self, ob, reward, terminated, truncated, info):
         """Modify observation."""
         ob += np.cos(self.theta - self.state)
-        return ob, reward, done, info
+        return ob, reward, terminated, truncated, info

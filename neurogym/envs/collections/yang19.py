@@ -126,6 +126,8 @@ class _Reach(ngym.TrialEnv):
 
     def _step(self, action):
         new_trial = False
+        terminated = False
+        truncated = False
         # rewards
         reward = 0
         gt = self.gt_now
@@ -143,7 +145,13 @@ class _Reach(ngym.TrialEnv):
                 else:
                     reward += self.rewards["fail"]
 
-        return self.ob_now, reward, False, {"new_trial": new_trial, "gt": gt}
+        return (
+            self.ob_now,
+            reward,
+            terminated,
+            truncated,
+            {"new_trial": new_trial, "gt": gt},
+        )
 
 
 class _DMFamily(ngym.TrialEnv):
@@ -287,6 +295,8 @@ class _DMFamily(ngym.TrialEnv):
         # Reward and inputs
         # ---------------------------------------------------------------------
         new_trial = False
+        terminated = False
+        truncated = False
         gt = self.gt_now
         ob = self.ob_now
         # rewards
@@ -304,7 +314,7 @@ class _DMFamily(ngym.TrialEnv):
                 else:
                     reward = self.rewards["fail"]
 
-        return ob, reward, False, {"new_trial": new_trial, "gt": gt}
+        return ob, reward, truncated, terminated, {"new_trial": new_trial, "gt": gt}
 
 
 class _DelayMatch1DResponse(ngym.TrialEnv):
@@ -425,6 +435,8 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
 
     def _step(self, action, **kwargs):
         new_trial = False
+        terminated = False
+        truncated = False
 
         ob = self.ob_now
         gt = self.gt_now
@@ -443,7 +455,7 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
                 else:
                     reward = self.rewards["fail"]
 
-        return ob, reward, False, {"new_trial": new_trial, "gt": gt}
+        return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}
 
 
 def _reach(**kwargs):

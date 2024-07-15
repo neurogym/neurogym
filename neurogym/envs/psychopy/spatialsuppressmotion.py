@@ -180,13 +180,21 @@ class SpatialSuppressMotion(PsychopyEnv):
 
         """
         new_trial = False
+        terminated = False
+        truncated = False
         # rewards
         reward = 0
         gt = self.gt_now
         # # observations
         # if self.in_period('stimulus'): # start a new trial once step into decision stage
         #          new_trial = True
-        return self.ob_now, reward, False, {"new_trial": new_trial, "gt": gt}
+        return (
+            self.ob_now,
+            reward,
+            terminated,
+            truncated,
+            {"new_trial": new_trial, "gt": gt},
+        )
 
     @staticmethod
     def envelope(time_sigma, frame_rate=120, cut_off=True, amplitude=128):

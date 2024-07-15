@@ -70,6 +70,8 @@ class GoNogo(ngym.TrialEnv):
 
     def _step(self, action):
         new_trial = False
+        terminated = False
+        truncated = False
         reward = 0
         ob = self.ob_now
         gt = self.gt_now
@@ -87,4 +89,4 @@ class GoNogo(ngym.TrialEnv):
                     reward = self.rewards["fail"]
                     self.performance = 0
 
-        return ob, reward, False, {"new_trial": new_trial, "gt": gt}
+        return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}

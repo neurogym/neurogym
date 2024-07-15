@@ -104,6 +104,8 @@ class EconomicDecisionMaking(ngym.TrialEnv):
         trial = self.trial
 
         new_trial = False
+        terminated = False
+        truncated = False
 
         obs = self.ob_now
 
@@ -134,4 +136,4 @@ class EconomicDecisionMaking(ngym.TrialEnv):
                     reward = r2
                     self.performance = r2 > r1
 
-        return obs, reward, False, {"new_trial": new_trial, "gt": 0}
+        return obs, reward, terminated, truncated, {"new_trial": new_trial, "gt": 0}

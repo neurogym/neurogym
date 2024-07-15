@@ -96,6 +96,8 @@ class MultiSensoryIntegration(ngym.TrialEnv):
         gt = self.gt_now
 
         new_trial = False
+        terminated = False
+        truncated = False
         reward = 0
         if self.in_period("fixation"):
             if action != 0:
@@ -108,4 +110,4 @@ class MultiSensoryIntegration(ngym.TrialEnv):
                     reward = self.rewards["correct"]
                     self.performance = 1
 
-        return ob, reward, False, {"new_trial": new_trial, "gt": gt}
+        return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}

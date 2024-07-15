@@ -139,6 +139,8 @@ class ChangingEnvironment(ngym.TrialEnv):
 
     def _step(self, action):
         new_trial = False
+        terminated = False
+        truncated = False
         # rewards
         reward = 0
         gt = self.gt_now
@@ -160,7 +162,8 @@ class ChangingEnvironment(ngym.TrialEnv):
         return (
             obs,
             reward,
-            False,
+            terminated,
+            truncated,
             {"new_trial": new_trial, "gt": gt, "context": self.curr_cxt},
         )
 

@@ -87,8 +87,9 @@ class IBL(ngym.TrialEnv):
         # ---------------------------------------------------------------------
         # new trial?
         info["new_trial"] = True
-        done = False
-        return obs, reward, done, info
+        terminated = False
+        truncated = False
+        return obs, reward, terminated, truncated, info
 
 
 class IBL_Block(IBL):
