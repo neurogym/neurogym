@@ -38,6 +38,7 @@ setup(
         "numpy",
         "gymnasium>=0.29.1",
         "matplotlib",
+        "stable-baselines3",
     ],
     extras_require=extras,
     description="NeuroGym: Gymnasium-style cognitive neuroscience tasks",
