@@ -46,24 +46,23 @@ def test_speed_with_new_trial(env):
     warmup_trials = 100
     kwargs = {"dt": 20}
 
+    if isinstance(env, str):
+        env = gym.make(env, **kwargs)
 
-#     if isinstance(env, str):
-#         env = gym.make(env, **kwargs)
+    env.reset()
+    for stp in range(warmup_trials):
+        env.new_trial()
 
-#     env.reset()
-#     for stp in range(warmup_trials):
-#         env.new_trial()
+    n_steps = 0
+    start_time = time.time()
+    env.reset()
+    for stp in range(n_trials):
+        env.new_trial()
+        n_steps += env.ob.shape[0]
+    total_time = time.time() - start_time
 
-#     n_steps = 0
-#     start_time = time.time()
-#     env.reset()
-#     for stp in range(n_trials):
-#         env.new_trial()
-#         n_steps += env.ob.shape[0]
-#     total_time = time.time() - start_time
-
-#     print("Time/step {:0.3f}us [with new trial]".format(total_time / n_steps * 1e6))
-#     return env
+    print("Time/step {:0.3f}us [with new trial]".format(total_time / n_steps * 1e6))
+    return env
 
 
 def test_speed_all():
