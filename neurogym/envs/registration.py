@@ -1,9 +1,10 @@
 import importlib
-from inspect import getmembers, isfunction, isclass
+from inspect import getmembers, isclass, isfunction
 from pathlib import Path
+
+import gymnasium as gym
 from packaging import version
 
-import gym
 from neurogym.envs.collections import get_collection
 
 

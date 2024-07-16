@@ -4,10 +4,11 @@ import numpy as np
 
 try:
     from psychopy import visual
-except ImportError as e:
+except ImportError:
     raise ImportError("Psychopy is not installed.")
 
-from gym import spaces
+from gymnasium import spaces
+
 import neurogym as ngym
 
 

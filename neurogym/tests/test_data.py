@@ -4,13 +4,10 @@ All tests in this file can be run by running in command line
 pytest test_data.py
 """
 
-import pytest
-
+import gymnasium as gym
 import numpy as np
 
-import gym
 import neurogym as ngym
-
 
 # Get all supervised learning environment
 SLENVS = ngym.all_envs(tag="supervised")

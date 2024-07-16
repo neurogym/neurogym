@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import numpy as np
-from gym import spaces
-import neurogym as ngym
 import matplotlib.pyplot as plt
+import numpy as np
+from gymnasium import spaces
+
+import neurogym as ngym
 
 
 class CVLearning(ngym.TrialEnv):

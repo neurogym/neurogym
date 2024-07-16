@@ -1,6 +1,5 @@
 """Script to make environment md"""
 
-import gym
 import neurogym as ngym
 from neurogym.utils.info import info, info_wrapper
 

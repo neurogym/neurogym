@@ -1,13 +1,12 @@
 """An example collection of tasks."""
 
 import numpy as np
-import gym
 
 import neurogym as ngym
 from neurogym import spaces
-from neurogym.wrappers.block import ScheduleEnvs
-from neurogym.utils import scheduler
 from neurogym.core import TrialWrapper
+from neurogym.utils import scheduler
+from neurogym.wrappers.block import ScheduleEnvs
 
 
 def _get_dist(original_dist):

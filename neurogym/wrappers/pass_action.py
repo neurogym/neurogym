@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from gym import Wrapper
-from gym import spaces
+from gymnasium import Wrapper, spaces
 
 
 class PassAction(Wrapper):

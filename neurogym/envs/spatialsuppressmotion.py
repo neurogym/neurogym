@@ -4,9 +4,9 @@
 
 
 import numpy as np
-from gym import spaces
+from gymnasium import spaces
+
 import neurogym as ngym
-import sys
 
 
 class SpatialSuppressMotion(ngym.TrialEnv):
@@ -154,8 +154,8 @@ class SpatialSuppressMotion(ngym.TrialEnv):
 
         We output a (4,) tuple indicate the probabilities to perceive left/right/up/down direction. This label comes from emprically measured human performance
         """
-        from scipy.interpolate import interp1d
         from numpy import zeros
+        from scipy.interpolate import interp1d
 
         # duration = [5, 7.296, 10.65, 15.54, 22.67, 33.08, 48.27, 70.44, 102.8]
         # frame_ind = [self.envelope(i/1000)[1] for i in duration]

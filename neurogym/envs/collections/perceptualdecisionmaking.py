@@ -1,6 +1,7 @@
 """Specific tasks based on the same base task."""
 
-import gym
+import gymnasium as gym
+
 import neurogym.wrappers as wrappers
 from neurogym.utils import scheduler
 

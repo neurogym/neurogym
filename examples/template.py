@@ -26,7 +26,7 @@ class YourTask(ngym.TrialEnv):
         if timing:
             self.timing.update(timing)
 
-        # Similar to gym envs, define observations_space and action_space
+        # Similar to gymnasium envs, define observations_space and action_space
         # Optional annotation of the observation space
         name = {"fixation": 0, "stimulus": [1, 2]}
         self.observation_space = spaces.Box(

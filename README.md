@@ -6,15 +6,15 @@ NeuroGym is a curated collection of neuroscience tasks with a common interface.
 The goal is to facilitate training of neural network models on neuroscience tasks. 
 
 Documentation: https://neurogym.github.io/
-- [Installation](#Installation)
-- [Tasks](#Tasks)
-- [Wrappers](#Wrappers)
-- [Examples](#Examples)
-- [Contributing](#Contributing)
-- [Authors](#Authors)
+- [NeuroGym](#neurogym)
+        - [Installation](#installation)
+        - [Tasks](#tasks)
+        - [Wrappers](#wrappers)
+        - [Examples](#examples)
+        - [Contributing](#contributing)
+        - [Authors](#authors)
 
-NeuroGym inherits from the machine learning toolkit [Gym](https://github.com/openai/gym) by OpenAI, 
-and thus allows a wide range of well established machine learning algorithms to be easily trained on behavioral paradigms relevant for the neuroscience community. 
+NeuroGym inherits from the machine learning toolkit [Gymnasium](https://gymnasium.farama.org/), a maintained fork of [OpenAI’s Gym library](https://github.com/openai/gym). It allows a wide range of well established machine learning algorithms to be easily trained on behavioral paradigms relevant for the neuroscience community. 
 NeuroGym also incorporates several properties and functions (e.g. continuous-time and trial-based tasks) that are important for neuroscience applications.
 The toolkit also includes various modifier functions that allow easy configuration of new tasks. 
 
@@ -39,18 +39,16 @@ are short scripts that allow introducing modifications the original tasks. For i
 
 ### Examples
 
-NeuroGym is compatible with most packages that use OpenAI gym. 
-In this [example](https://github.com/gyyang/neurogym/blob/master/examples/example_neurogym_rl.ipynb) jupyter notebook we show how to train
-a neural network with reinforcement learning algorithms using the 
-[Stable Baselines](https://github.com/hill-a/stable-baselines) toolbox.
+NeuroGym is compatible with most packages that use gymnasium. 
+In this [example](https://github.com/gyyang/neurogym/blob/master/examples/example_neurogym_rl.ipynb) jupyter notebook we show how to train a neural network with reinforcement learning algorithms using the [Stable Baselines](https://github.com/hill-a/stable-baselines) toolbox.
 
 
 ### Contributing
-Contributing new tasks should be easy. You can contribute tasks using the regular OpenAI gym format. If your task has a trial/period structure,
+Contributing new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure,
 this [template](https://github.com/gyyang/neurogym/blob/master/examples/template.py) provides the basic structure that we recommend a task to have:
 
 ```
-from gym import spaces
+from gymnasium import spaces
 import neurogym as ngym
 
 class YourTask(ngym.PeriodEnv):

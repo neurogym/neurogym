@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 
 
+import gymnasium as gym
 import numpy as np
-import gym
-import warnings
 
 from neurogym.utils.random import trunc_exp
 

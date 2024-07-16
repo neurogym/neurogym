@@ -3,7 +3,7 @@
 """auditory tone detection task."""
 
 import numpy as np
-from gym import spaces
+from gymnasium import spaces
 
 import neurogym as ngym
 

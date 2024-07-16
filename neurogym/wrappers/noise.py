@@ -8,7 +8,7 @@ Created on Thu Feb 28 15:07:21 2019
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import gym
+import gymnasium as gym
 
 
 class Noise(gym.Wrapper):

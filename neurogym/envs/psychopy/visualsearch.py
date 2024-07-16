@@ -1,7 +1,7 @@
 """Visual search task."""
 
 import numpy as np
-from gym import spaces
+from gymnasium import spaces
 from psychopy import visual
 
 from .psychopy_env import PsychopyEnv

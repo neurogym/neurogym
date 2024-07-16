@@ -9,7 +9,7 @@ Usage:
 
     import neurogym as ngym
 
-    import gym
+    import gymnasium as gym
     kwargs = {'dt': 100, 'tr_hist_kwargs': {'probs': 0.9}}
     # Make supervised dataset
     tasks = ngym.get_collection('priors')
@@ -17,7 +17,8 @@ Usage:
 
 """
 
-import gym
+import gymnasium as gym
+
 import neurogym.wrappers as wrappers
 
 

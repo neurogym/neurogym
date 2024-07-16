@@ -1,9 +1,10 @@
 """A generic memory recall task."""
 
 from collections import OrderedDict
-import numpy as np
 
-from gym import spaces
+import numpy as np
+from gymnasium import spaces
+
 import neurogym as ngym
 
 

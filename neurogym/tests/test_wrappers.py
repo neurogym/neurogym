@@ -1,28 +1,29 @@
 """Test wrappers."""
 
-import numpy as np
-import gym
 import sys
 
-# from gym import spaces
-# from gym.core import Wrapper
+import gymnasium as gym
 import matplotlib.pyplot as plt
+import numpy as np
+
 import neurogym as ngym
-from neurogym.wrappers import TrialHistory
-from neurogym.wrappers import SideBias
-from neurogym.wrappers import PassAction
-from neurogym.wrappers import PassReward
-from neurogym.wrappers import Identity
-from neurogym.wrappers import Noise
-from neurogym.wrappers import CatchTrials
-from neurogym.wrappers import ReactionTime
-from neurogym.wrappers import TTLPulse
-from neurogym.wrappers import TransferLearning
-from neurogym.wrappers import Combine
-from neurogym.wrappers import Variable_nch
-from neurogym.wrappers import TrialHistoryEvolution
-from neurogym.wrappers import VariableMapping
-from neurogym.wrappers import TimeOut
+from neurogym.wrappers import (
+    CatchTrials,
+    Combine,
+    Identity,
+    Noise,
+    PassAction,
+    PassReward,
+    ReactionTime,
+    SideBias,
+    TimeOut,
+    TransferLearning,
+    TrialHistory,
+    TrialHistoryEvolution,
+    TTLPulse,
+    Variable_nch,
+    VariableMapping,
+)
 
 
 def test_sidebias(

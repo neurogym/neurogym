@@ -1,7 +1,7 @@
-from gym import spaces
-import neurogym as ngym
-from neurogym.core import TrialWrapper
 import numpy as np
+from gymnasium import spaces
+
+from neurogym.core import TrialWrapper
 
 
 class RandomGroundTruth(TrialWrapper):

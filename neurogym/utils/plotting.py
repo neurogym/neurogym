@@ -1,13 +1,12 @@
 """Plotting functions."""
 
 import glob
-import numpy as np
+
+import gymnasium as gym
 import matplotlib as mpl
-import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-
-import gym
-
+import matplotlib.pyplot as plt
+import numpy as np
 
 # TODO: This is changing user's plotting behavior for non-neurogym plots
 mpl.rcParams["font.size"] = 7
