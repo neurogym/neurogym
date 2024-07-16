@@ -46,10 +46,12 @@ class Monitor(Wrapper):
         num_stps_sv_fig=100,
         name="",
         fig_type="png",
+        step_fn=None,
     ):
         super().__init__(env)
         self.env = env
         self.num_tr = 0
+        self.step_fn = step_fn
         # data to save
         self.data = {"action": [], "reward": []}
         self.sv_per = sv_per
@@ -79,14 +81,15 @@ class Monitor(Wrapper):
             self.gt_mat = []
             self.perf_mat = []
 
-    def reset(self, step_fn=None, seed=None):
+    def reset(self, seed=None):
         super().reset(seed=seed)
-        if step_fn is None:
-            step_fn = self.step
-        return self.env.reset(step_fn=step_fn)
+        return self.env.reset()
 
     def step(self, action):
-        obs, rew, terminated, truncated, info = self.env.step(action)
+        if self.step_fn:
+            obs, rew, terminated, truncated, info = self.step_fn(action)
+        else:
+            obs, rew, terminated, truncated, info = self.env.step(action)
         if self.sv_fig:
             self.store_data(obs, action, rew, info)
         if self.sv_stp == "timestep":
