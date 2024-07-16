@@ -7,6 +7,7 @@ import matplotlib as mpl
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
+from stable_baselines3.common.vec_env import DummyVecEnv
 
 # TODO: This is changing user's plotting behavior for non-neurogym plots
 mpl.rcParams["font.size"] = 7
@@ -89,7 +90,10 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     actions_end_of_trial = []
     gt = []
     perf = []
-    ob, _ = env.reset()  # TODO: not saving this first observation
+    if isinstance(env, DummyVecEnv):
+        ob = env.reset()
+    else:
+        ob, _ = env.reset()  # TODO: not saving this first observation
     ob_cum_temp = ob
 
     if num_trials is not None:
@@ -101,13 +105,16 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
             action, _states = model.predict(ob)
             if isinstance(action, float) or isinstance(action, int):
                 action = [action]
-            if len(_states) > 0:
+            if (_states is not None) and (len(_states) > 0):
                 state_mat.append(_states)
         elif def_act is not None:
             action = def_act
         else:
             action = env.action_space.sample()
-        ob, rew, terminated, truncated, info = env.step(action)
+        if isinstance(env, DummyVecEnv):
+            ob, rew, terminated, info = env.step(action)
+        else:
+            ob, rew, terminated, truncated, info = env.step(action)
         ob_cum_temp += ob
         ob_cum.append(ob_cum_temp.copy())
         if isinstance(info, list):
