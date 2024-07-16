@@ -8,10 +8,11 @@ from gym import spaces
 
 class PassAction(Wrapper):
     """Modifies observation by adding the previous action."""
+
     metadata = {
-        'description': 'Modifies observation by adding the previous action.',
-        'paper_link': None,
-        'paper_name': None,
+        "description": "Modifies observation by adding the previous action.",
+        "paper_link": None,
+        "paper_name": None,
     }
 
     def __init__(self, env):
@@ -19,9 +20,10 @@ class PassAction(Wrapper):
         self.env = env
         # TODO: This is not adding one-hot
         env_oss = env.observation_space.shape[0]
-        self.observation_space = spaces.Box(-np.inf, np.inf,
-                                            shape=(env_oss+1,),
-                                            dtype=np.float32)
+        self.observation_space = spaces.Box(
+            -np.inf, np.inf, shape=(env_oss + 1,), dtype=np.float32
+        )
+
     def reset(self, step_fn=None):
         if step_fn is None:
             step_fn = self.step

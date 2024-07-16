@@ -9,10 +9,10 @@ import neurogym as ngym
 
 class IBL(ngym.TrialEnv):
     metadata = {
-        'paper_link': 'https://www.sciencedirect.com/science/article/' +
-        'pii/S0896627317311364',
-        'paper_name': '''An International Laboratory for Systems and ' +
-        'Computational Neuroscience''',
+        "paper_link": "https://www.sciencedirect.com/science/article/"
+        + "pii/S0896627317311364",
+        "paper_name": """An International Laboratory for Systems and ' +
+        'Computational Neuroscience""",
     }
 
     def __init__(self, dt=100, rewards=None):
@@ -25,7 +25,7 @@ class IBL(ngym.TrialEnv):
         self.block_size = 10000
 
         # Rewards
-        self.rewards = {'correct': +1, 'fail': 0.}
+        self.rewards = {"correct": +1, "fail": 0.0}
         if rewards:
             self.rewards.update(rewards)
 
@@ -35,12 +35,12 @@ class IBL(ngym.TrialEnv):
         self.cohs = np.array([1.6, 3.2, 6.4, 12.8, 25.6, 51.2])
 
         self.action_space = spaces.Discrete(2)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(2,),
-                                            dtype=np.float32)
+        self.observation_space = spaces.Box(
+            -np.inf, np.inf, shape=(2,), dtype=np.float32
+        )
 
     def new_block(self, n_trial, probs=None):
-        self.ground_truth = self._rng.choice(self.choices,
-                                             size=(n_trial,), p=probs)
+        self.ground_truth = self._rng.choice(self.choices, size=(n_trial,), p=probs)
         self.coh = self._rng.choice(self.cohs, size=(n_trial,))
 
         obs = np.zeros((n_trial, self.observation_space.shape[0]))
@@ -72,16 +72,20 @@ class IBL(ngym.TrialEnv):
         self.num_tr += 1
 
     def _step(self, action):
-        info = {'continue': True, 'gt': self.ground_truth[self.ind],
-                'coh': self.coh[self.ind], 'block': self.block}
+        info = {
+            "continue": True,
+            "gt": self.ground_truth[self.ind],
+            "coh": self.coh[self.ind],
+            "block": self.block,
+        }
         obs = self.ob[self.ind]
 
         # reward of last trial
-        reward = self.rewards['correct']  # TODO: need to be done
+        reward = self.rewards["correct"]  # TODO: need to be done
 
         # ---------------------------------------------------------------------
         # new trial?
-        info['new_trial'] = True
+        info["new_trial"] = True
         done = False
         return obs, reward, done, info
 

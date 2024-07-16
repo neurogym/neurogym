@@ -22,11 +22,13 @@ class TruncExp(object):
         self.rng = np.random.RandomState()
 
     def seed(self, seed=None):
-        """Seed the PRNG of this space. """
+        """Seed the PRNG of this space."""
         self.rng = np.random.RandomState(seed)
 
     def __call__(self, *args, **kwargs):
-        if self.vmin >= self.vmax:  # the > is to avoid issues when making vmin as big as dt
+        if (
+            self.vmin >= self.vmax
+        ):  # the > is to avoid issues when making vmin as big as dt
             return self.vmax
         else:
             while True:
@@ -37,32 +39,32 @@ class TruncExp(object):
 
 def random_number_fn(dist, args, rng):
     """Return a random number generating function from a distribution."""
-    if dist == 'uniform':
+    if dist == "uniform":
         return lambda: rng.uniform(*args)
-    elif dist == 'choice':
+    elif dist == "choice":
         return lambda: rng.choice(args)
-    elif dist == 'truncated_exponential':
+    elif dist == "truncated_exponential":
         return lambda: trunc_exp(rng, *args)
-    elif dist == 'constant':
+    elif dist == "constant":
         return lambda: args
     else:
-        raise ValueError('Unknown dist:', str(dist))
+        raise ValueError("Unknown dist:", str(dist))
 
 
 def random_number_name(dist, args):
     """Return a string explaining the dist and args."""
-    if dist == 'uniform':
-        return dist + ' between ' + str(args[0]) + ' and ' + str(args[1])
-    elif dist == 'choice':
-        return dist + ' within ' + str(args)
-    elif dist == 'truncated_exponential':
-        string = 'truncated exponential with mean ' + str(args[0])
+    if dist == "uniform":
+        return dist + " between " + str(args[0]) + " and " + str(args[1])
+    elif dist == "choice":
+        return dist + " within " + str(args)
+    elif dist == "truncated_exponential":
+        string = "truncated exponential with mean " + str(args[0])
         if len(args) > 1:
-            string += ', min ' + str(args[1])
+            string += ", min " + str(args[1])
         if len(args) > 2:
-            string += ', max ' + str(args[2])
+            string += ", max " + str(args[2])
         return string
-    elif dist == 'constant':
-        return dist + ' ' + str(args)
+    elif dist == "constant":
+        return dist + " " + str(args)
     else:
-        raise ValueError('Unknown dist:', str(dist))
+        raise ValueError("Unknown dist:", str(dist))
