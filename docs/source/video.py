@@ -22,7 +22,8 @@ def get_option(options, key, default):
         return options[key]
 
 
-class video(nodes.General, nodes.Element): pass
+class video(nodes.General, nodes.Element):
+    pass
 
 
 class Video(Directive):
@@ -36,7 +37,7 @@ class Video(Directive):
         "height": directives.unchanged,
         "autoplay": directives.flag,
         "nocontrols": directives.flag,
-        "loop": directives.flag
+        "loop": directives.flag,
     }
 
     def run(self):
@@ -47,28 +48,30 @@ class Video(Directive):
         nocontrols = get_option(self.options, "nocontrols", False)
         loop = get_option(self.options, "loop", False)
 
-        return [video(
-            path=self.arguments[0],
-            alt=alt,
-            width=width,
-            height=height,
-            autoplay=autoplay,
-            nocontrols=nocontrols,
-            loop=loop,
-        )]
+        return [
+            video(
+                path=self.arguments[0],
+                alt=alt,
+                width=width,
+                height=height,
+                autoplay=autoplay,
+                nocontrols=nocontrols,
+                loop=loop,
+            )
+        ]
 
 
 def visit_video_node(self, node):
     extension = os.path.splitext(node["path"])[1][1:]
 
-    html_block = '''
+    html_block = """
     <video {width} {height} {nocontrols} muted {autoplay} {loop}>
     <source src="{path}" type="video/{filetype}">
     {alt}
     </video>
-    '''.format(
-        width="width=\"" + node["width"] + "\"" if node["width"] else "",
-        height="height=\"" + node["height"] + "\"" if node["height"] else "",
+    """.format(
+        width='width="' + node["width"] + '"' if node["width"] else "",
+        height='height="' + node["height"] + '"' if node["height"] else "",
         path=node["path"],
         filetype=extension,
         alt=node["alt"],

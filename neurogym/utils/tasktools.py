@@ -29,33 +29,33 @@ def get_periods_idx(dt, periods):
     """
     function for defining task periods
     """
-    t = np.linspace(0, periods['tmax'], int(periods['tmax']/dt)+1)
+    t = np.linspace(0, periods["tmax"], int(periods["tmax"] / dt) + 1)
 
-    return t, {k: get_idx(t, v) for k, v in periods.items() if k != 'tmax'}
+    return t, {k: get_idx(t, v) for k, v in periods.items() if k != "tmax"}
 
 
 def minmax_number(dist, args):
     """Given input to the random_number_fn function, return min and max."""
-    if dist == 'uniform':
+    if dist == "uniform":
         return args[0], args[1]
-    elif dist == 'choice':
+    elif dist == "choice":
         return np.min(args), np.max(args)
-    elif dist == 'truncated_exponential':
+    elif dist == "truncated_exponential":
         return args[1], args[2]
-    elif dist == 'constant':
+    elif dist == "constant":
         return args, args
     else:
-        raise ValueError('Unknown dist:', str(dist))
+        raise ValueError("Unknown dist:", str(dist))
 
 
 def circular_dist(original_dist):
-    '''Get the distance in periodic boundary conditions.'''
+    """Get the distance in periodic boundary conditions."""
     return np.minimum(abs(original_dist), 2 * np.pi - abs(original_dist))
 
 
 def divide(x, y):
     try:
-        z = x/y
+        z = x / y
         if np.isnan(z):
             raise ZeroDivisionError
         return z
@@ -67,7 +67,7 @@ def correct_2AFC(perf):
     """
     computes performance
     """
-    p_decision = perf.n_decision/perf.n_trials
+    p_decision = perf.n_decision / perf.n_trials
     p_correct = divide(perf.n_correct, perf.n_decision)
 
     return p_decision, p_correct
@@ -76,6 +76,6 @@ def correct_2AFC(perf):
 def compute_perf(perf, reward, num_tr_perf, tr_perf):
     if tr_perf:
         num_tr_perf += 1
-        perf += (reward - perf)/num_tr_perf
+        perf += (reward - perf) / num_tr_perf
 
     return perf, num_tr_perf

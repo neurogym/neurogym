@@ -57,7 +57,9 @@ def test_wrapper_new_trial():
     env = _setup_env(cst_ob)
     env.new_trial()
     ob = env.ob[0]
-    assert ob.shape == cst_ob.shape, "Got shape {} but expected shape {}".format(ob.shape, cst_ob.shape)
+    assert ob.shape == cst_ob.shape, "Got shape {} but expected shape {}".format(
+        ob.shape, cst_ob.shape
+    )
     assert np.all(ob == cst_ob)
 
 
@@ -69,7 +71,9 @@ def test_wrapper_reset():
     env = _setup_env(cst_ob)
     ob = env.reset()
 
-    assert ob.shape == cst_ob.shape, "Got shape {} but expected shape {}".format(ob.shape, cst_ob.shape)
+    assert ob.shape == cst_ob.shape, "Got shape {} but expected shape {}".format(
+        ob.shape, cst_ob.shape
+    )
     assert np.all(ob == cst_ob)
 
 
@@ -81,7 +85,9 @@ def test_wrapper_step():
     env = _setup_env(cst_ob)
     env.reset()
     ob, _, _, _ = env.step(env.action_space.sample())
-    assert ob.shape == cst_ob.shape, "Got shape {} but expected shape {}".format(ob.shape, cst_ob.shape)
+    assert ob.shape == cst_ob.shape, "Got shape {} but expected shape {}".format(
+        ob.shape, cst_ob.shape
+    )
     assert np.all(ob == cst_ob)
 
 
@@ -90,7 +96,7 @@ def test_reset_with_scheduler():
     Test that ScheduleEnvs.reset() resets all the environments in its list envs, which is required before being able to
     call step() (enforced by the gym wrapper OrderEnforcing).
     """
-    tasks = ngym.get_collection('yang19')
+    tasks = ngym.get_collection("yang19")
     envs = [make_env(task) for task in tasks]
     schedule = RandomSchedule(len(envs))
     env = ScheduleEnvs(envs, schedule=schedule, env_input=True)
@@ -100,7 +106,7 @@ def test_reset_with_scheduler():
 
 
 def test_schedule_envs():
-    tasks = ngym.get_collection('yang19')
+    tasks = ngym.get_collection("yang19")
     envs = [make_env(task) for task in tasks]
     for i, env in enumerate(envs):
         envs[i] = CstObTrialWrapper(env, np.array([i]))
@@ -112,4 +118,4 @@ def test_schedule_envs():
         env.new_trial()
         assert np.all([ob == env.i_env for ob in env.ob])
         # test rule input
-        assert env.i_env == np.argmax(env.unwrapped.ob[0, -len(envs):])
+        assert env.i_env == np.argmax(env.unwrapped.ob[0, -len(envs) :])

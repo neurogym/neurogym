@@ -23,17 +23,23 @@ class Dataset(object):
         cache_len: int, default length of caching
     """
 
-    def __init__(self, env, env_kwargs=None,
-                 batch_size=1, seq_len=None, max_batch=np.inf,
-                 batch_first=False, cache_len=None):
+    def __init__(
+        self,
+        env,
+        env_kwargs=None,
+        batch_size=1,
+        seq_len=None,
+        max_batch=np.inf,
+        batch_first=False,
+        cache_len=None,
+    ):
         if isinstance(env, gym.Env):
             self.envs = [copy.deepcopy(env) for _ in range(batch_size)]
         else:
-            assert isinstance(env, str), 'env must be gym.Env or str'
+            assert isinstance(env, str), "env must be gym.Env or str"
             if env_kwargs is None:
                 env_kwargs = {}
-            self.envs = [gym.make(env, **env_kwargs)
-                         for _ in range(batch_size)]
+            self.envs = [gym.make(env, **env_kwargs) for _ in range(batch_size)]
         for env in self.envs:
             env.reset()
         self.seed()
@@ -56,7 +62,7 @@ class Dataset(object):
         if cache_len is None:
             # Infer cache len
             cache_len = 1e5  # Probably too low
-            cache_len /= (np.prod(obs_shape) + np.prod(action_shape))
+            cache_len /= np.prod(obs_shape) + np.prod(action_shape)
             cache_len /= batch_size
         cache_len = int((1 + (cache_len // seq_len)) * seq_len)
 
@@ -73,7 +79,9 @@ class Dataset(object):
         self._cache_inputs_shape = shape2 + list(obs_shape)
         self._cache_target_shape = shape2 + list(action_shape)
 
-        self._inputs = np.zeros(self._cache_inputs_shape, dtype=env.observation_space.dtype)
+        self._inputs = np.zeros(
+            self._cache_inputs_shape, dtype=env.observation_space.dtype
+        )
         self._target = np.zeros(self._cache_target_shape, dtype=env.action_space.dtype)
 
         self._cache()
@@ -124,11 +132,11 @@ class Dataset(object):
             self._cache(**kwargs)
 
         if self.batch_first:
-            inputs = self._inputs[:, self._seq_start:self._seq_end, ...]
-            target = self._target[:, self._seq_start:self._seq_end, ...]
+            inputs = self._inputs[:, self._seq_start : self._seq_end, ...]
+            target = self._target[:, self._seq_start : self._seq_end, ...]
         else:
-            inputs = self._inputs[self._seq_start:self._seq_end]
-            target = self._target[self._seq_start:self._seq_end]
+            inputs = self._inputs[self._seq_start : self._seq_end]
+            target = self._target[self._seq_start : self._seq_end]
 
         self._seq_start = self._seq_end
         return inputs, target
@@ -142,11 +150,12 @@ class Dataset(object):
                 env.seed(seed + i)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import neurogym as ngym
+
     dataset = ngym.Dataset(
-        'PerceptualDecisionMaking-v0', env_kwargs={'dt': 100}, batch_size=32,
-        seq_len=40)
+        "PerceptualDecisionMaking-v0", env_kwargs={"dt": 100}, batch_size=32, seq_len=40
+    )
     inputs_list = list()
     for i in range(2):
         inputs, target = dataset()

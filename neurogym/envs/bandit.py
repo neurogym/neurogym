@@ -4,6 +4,7 @@
 Multi-arm Bandit task
 TODO: add the actual papers
 """
+
 import numpy as np
 
 import neurogym as ngym
@@ -22,17 +23,17 @@ class Bandit(ngym.TrialEnv):
             leading to reward
         rewards: tuple of length n, describe the reward magnitude of each option when rewarded
     """
+
     metadata = {
-        'paper_link': 'https://www.nature.com/articles/s41593-018-0147-8',
-        'paper_name': 'Prefrontal cortex as a meta-reinforcement learning' +
-        ' system',
-        'tags': ['n-alternative']
+        "paper_link": "https://www.nature.com/articles/s41593-018-0147-8",
+        "paper_name": "Prefrontal cortex as a meta-reinforcement learning" + " system",
+        "tags": ["n-alternative"],
     }
 
-    def __init__(self, dt=100, n=2, p=(.5, .5), rewards=None, timing=None):
+    def __init__(self, dt=100, n=2, p=(0.5, 0.5), rewards=None, timing=None):
         super().__init__(dt=dt)
         if timing is not None:
-            print('Warning: Bandit task does not require timing variable.')
+            print("Warning: Bandit task does not require timing variable.")
 
         if rewards:
             self.rewards = rewards
@@ -42,12 +43,13 @@ class Bandit(ngym.TrialEnv):
         self.n = n
         self.p = np.array(p)  # Reward probabilities
 
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(1,),
-                                            dtype=np.float32)
+        self.observation_space = spaces.Box(
+            -np.inf, np.inf, shape=(1,), dtype=np.float32
+        )
         self.action_space = spaces.Discrete(n)
 
     def _new_trial(self, **kwargs):
-        trial = {'p': self.p, 'rewards': self.rewards}
+        trial = {"p": self.p, "rewards": self.rewards}
         trial.update(kwargs)
 
         self.ob = np.zeros((1, self.observation_space.shape[0]))
@@ -58,7 +60,7 @@ class Bandit(ngym.TrialEnv):
         trial = self.trial
 
         ob = self.ob[0]
-        reward = (self.rng.random() < trial['p'][action]) * trial['rewards'][action]
-        info = {'new_trial': True}
+        reward = (self.rng.random() < trial["p"][action]) * trial["rewards"][action]
+        info = {"new_trial": True}
 
         return ob, reward, False, info

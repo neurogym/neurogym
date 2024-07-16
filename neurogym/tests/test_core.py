@@ -12,22 +12,23 @@ def test_one_step_mismatch():
     class TestEnv(ngym.TrialEnv):
         def __init__(self, dt=100):
             super().__init__(dt=dt)
-            self.timing = {'fixation': dt, 'go': dt}
-            name = {'fixation': 0, 'go': 1}
+            self.timing = {"fixation": dt, "go": dt}
+            name = {"fixation": 0, "go": 1}
             self.observation_space = ngym.spaces.Box(
-                -np.inf, np.inf, shape=(2,), dtype=np.float32, name=name)
+                -np.inf, np.inf, shape=(2,), dtype=np.float32, name=name
+            )
             self.action_space = ngym.spaces.Discrete(2)
 
         def _new_trial(self, **kwargs):
-            self.add_period(['fixation', 'go'])
-            self.add_ob(1, period='fixation', where='fixation')
-            self.add_ob(1, period='go', where='go')
+            self.add_period(["fixation", "go"])
+            self.add_ob(1, period="fixation", where="fixation")
+            self.add_ob(1, period="go", where="go")
             trial = dict()
             return trial
 
         def _step(self, action):
-            info = {'new_trial': False}
-            if self.in_period('fixation'):
+            info = {"new_trial": False}
+            if self.in_period("fixation"):
                 reward = (action == 0) * 1.0
             else:
                 reward = (action == 1) * 1.0
@@ -48,14 +49,15 @@ def test_addob_instep():
     class TestEnv(ngym.TrialEnv):
         def __init__(self, dt=100):
             super().__init__(dt=dt)
-            self.timing = {'go': 500}
+            self.timing = {"go": 500}
             self.observation_space = ngym.spaces.Box(
-                -np.inf, np.inf, shape=(1,), dtype=np.float32)
+                -np.inf, np.inf, shape=(1,), dtype=np.float32
+            )
             self.action_space = ngym.spaces.Discrete(3)
 
         def _new_trial(self, **kwargs):
             trial = dict()
-            self.add_period('go')
+            self.add_period("go")
             self.add_ob(1)
             return trial
 
@@ -63,7 +65,7 @@ def test_addob_instep():
             new_trial = False
             reward = 0
             self.add_ob(1)
-            return self.ob_now, reward, False, {'new_trial': new_trial}
+            return self.ob_now, reward, False, {"new_trial": new_trial}
 
     env = TestEnv()
     env.reset(no_step=True)

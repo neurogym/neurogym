@@ -24,6 +24,7 @@ class Box(GymBox):
         observation_space = Box(low=0, high=1,
                                 name={'fixation': 0, 'stimulus': [1, 2]})
     """
+
     def __init__(self, low, high, name=None, **kwargs):
         super().__init__(low, high, **kwargs)
         if name is not None:
@@ -43,6 +44,7 @@ class Discrete(GymDiscrete):
     Example usage:
         observation_space = Discrete(n=3, name={'fixation': 0, 'stimulus': [1, 2]})
     """
+
     def __init__(self, n, name=None, **kwargs):
         super().__init__(n)
         if name is not None:
@@ -50,4 +52,15 @@ class Discrete(GymDiscrete):
             self.name = name
 
 
-__all__ = ["Space", "Box", "Discrete", "MultiDiscrete", "MultiBinary", "Tuple", "Dict", "flatdim", "flatten", "unflatten"]
+__all__ = [
+    "Space",
+    "Box",
+    "Discrete",
+    "MultiDiscrete",
+    "MultiBinary",
+    "Tuple",
+    "Dict",
+    "flatdim",
+    "flatten",
+    "unflatten",
+]

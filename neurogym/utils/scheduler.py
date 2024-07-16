@@ -1,4 +1,5 @@
 """Trial scheduler class."""
+
 import numpy as np
 
 
@@ -8,6 +9,7 @@ class BaseSchedule(object):
     Args:
         n: int, number of conditions to schedule
     """
+
     def __init__(self, n):
         self.n = n
         self.total_count = 0  # total count
@@ -65,7 +67,7 @@ class SequentialBlockSchedule(BaseSchedule):
         super().__init__(n)
         self.block_lens = block_lens
         if len(block_lens) != n:
-            raise ValueError('Length of block_lens must equal n')
+            raise ValueError("Length of block_lens must equal n")
 
     def __call__(self):
         if self.count < self.block_lens[self.i]:
@@ -86,7 +88,7 @@ class RandomBlockSchedule(BaseSchedule):
         super().__init__(n)
         self.block_lens = block_lens
         if len(block_lens) != n:
-            raise ValueError('Length of block_lens must equal n')
+            raise ValueError("Length of block_lens must equal n")
 
     def __call__(self):
         if self.count < self.block_lens[self.i]:
@@ -100,7 +102,3 @@ class RandomBlockSchedule(BaseSchedule):
                 self.i = 0
         self.total_count += 1
         return self.i
-
-
-
-
