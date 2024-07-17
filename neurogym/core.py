@@ -91,11 +91,6 @@ class BaseEnv(gym.Env):
             self.action_space.seed(seed)
         return [seed]
 
-    # TODO: should return just the initial ob
-    # def reset(self):
-    #     """Do nothing. Run one step"""
-    #     return self.step(self.action_space.sample())
-
 
 class TrialEnv(BaseEnv):
     """The main Neurogym class for trial-based envs."""
@@ -212,23 +207,18 @@ class TrialEnv(BaseEnv):
             ob = self.ob[self.t_ind]
         return self.post_step(ob, reward, terminated, truncated, info)
 
-    def reset(
-        self, seed=None, return_info=False, options=None, step_fn=None, no_step=False
-    ):
+    def reset(self, seed=None, options=None, step_fn=None, no_step=False):
         """Reset the environment.
 
         Args:
             seed: random seed, overwrites self.seed if not None
-            return_info: if False, return only the initial observation, else return also some extra info
             options: additional options used to reset the env
             step_fn: function or None. If function, overwrite original
                 self.step function
             no_step: bool. If True, no step is taken and observation randomly
                 sampled. Default False.
         """
-        if seed is not None:
-            super().reset(seed=seed)  # set the random seed in gym.Env
-            self.seed(seed)
+        super().reset(seed=seed)
 
         self.num_tr = 0
         self.t = self.t_ind = 0
