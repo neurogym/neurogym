@@ -6,12 +6,12 @@ Created on Mon Jan 27 11:00:26 2020
 @author: martafradera
 """
 
+import warnings
+
 import numpy as np
 
 import neurogym as ngym
 from neurogym import spaces
-
-import warnings
 
 
 class Detection(ngym.TrialEnv):
@@ -126,6 +126,8 @@ class Detection(ngym.TrialEnv):
 
     def _step(self, action):
         new_trial = False
+        terminated = False
+        truncated = False
         # rewards
         reward = 0
         gt = self.gt_now
@@ -146,4 +148,10 @@ class Detection(ngym.TrialEnv):
                     reward = self.rewards["fail"]
                     self.performance = 0
 
-        return self.ob_now, reward, False, {"new_trial": new_trial, "gt": gt}
+        return (
+            self.ob_now,
+            reward,
+            terminated,
+            truncated,
+            {"new_trial": new_trial, "gt": gt},
+        )

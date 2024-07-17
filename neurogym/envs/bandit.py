@@ -58,9 +58,11 @@ class Bandit(ngym.TrialEnv):
 
     def _step(self, action):
         trial = self.trial
+        terminated = False
+        truncated = False
 
         ob = self.ob[0]
         reward = (self.rng.random() < trial["p"][action]) * trial["rewards"][action]
         info = {"new_trial": True}
 
-        return ob, reward, False, info
+        return ob, reward, terminated, truncated, info

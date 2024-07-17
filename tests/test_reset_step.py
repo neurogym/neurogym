@@ -27,9 +27,9 @@ class CstObTrialWrapper(ngym.TrialWrapper):
 
     # modifying new_trial is not enough to modify the ob returned by step()
     def step(self, action):
-        _, reward, done, info = self.env.step(action)
+        _, reward, terminated, truncated, info = self.env.step(action)
         new_ob = self.ob[self.t_ind]
-        return new_ob, reward, done, info
+        return new_ob, reward, terminated, truncated, info
 
 
 def _setup_env(cst_ob):
@@ -58,7 +58,7 @@ def test_wrapper_reset():
     """
     cst_ob = np.random.random(10)
     env = _setup_env(cst_ob)
-    ob = env.reset()
+    ob, _ = env.reset()
 
     assert ob.shape == cst_ob.shape, "Got shape {} but expected shape {}".format(
         ob.shape, cst_ob.shape
@@ -73,7 +73,7 @@ def test_wrapper_step():
     cst_ob = np.random.random(10)
     env = _setup_env(cst_ob)
     env.reset()
-    ob, _, _, _ = env.step(env.action_space.sample())
+    ob, _, _, _, _ = env.step(env.action_space.sample())
     assert ob.shape == cst_ob.shape, "Got shape {} but expected shape {}".format(
         ob.shape, cst_ob.shape
     )

@@ -111,3 +111,6 @@ figures/
 docs/source/envs/images/
 docs/source/_static/
 .DS_Store
+
+# example content
+examples/content/

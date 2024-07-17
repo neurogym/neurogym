@@ -296,10 +296,9 @@ class CVLearning(ngym.TrialEnv):
                 self.days_keep -= 1
 
     def _step(self, action):
-        # obs, reward, done, info = self.env._step(action)
-        # ---------------------------------------------------------------------
-
         new_trial = False
+        terminated = False
+        truncated = False
         # rewards
         reward = 0
         gt = self.gt_now
@@ -348,7 +347,7 @@ class CVLearning(ngym.TrialEnv):
             "th_perf": self.th_perf,
             "num_stps": self.t_ind,
         }
-        return self.ob_now, reward, False, info
+        return self.ob_now, reward, terminated, truncated, info
 
 
 if __name__ == "__main__":

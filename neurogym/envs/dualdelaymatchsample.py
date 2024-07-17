@@ -128,6 +128,8 @@ class DualDelayMatchSample(ngym.TrialEnv):
 
     def _step(self, action):
         new_trial = False
+        terminated = False
+        truncated = False
         reward = 0
 
         ob = self.ob_now
@@ -153,4 +155,4 @@ class DualDelayMatchSample(ngym.TrialEnv):
                 new_trial = self.abort
                 reward = self.rewards["abort"]
 
-        return ob, reward, False, {"new_trial": new_trial, "gt": gt}
+        return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}

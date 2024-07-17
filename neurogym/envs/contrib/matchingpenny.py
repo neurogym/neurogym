@@ -79,6 +79,8 @@ class MatchingPenny(ngym.TrialEnv):
 
     def _step(self, action):
         trial = self.trial
+        terminated = False
+        truncated = False
         obs = self.ob[0]
         if self.opponent_type == "mean_action":
             self.mean_action += self.lr * (action - self.mean_action)
@@ -89,7 +91,7 @@ class MatchingPenny(ngym.TrialEnv):
             reward = self.rewards["fail"]
 
         info = {"new_trial": True, "gt": self.gt}
-        return obs, reward, False, info
+        return obs, reward, terminated, truncated, info
 
 
 if __name__ == "__main__":

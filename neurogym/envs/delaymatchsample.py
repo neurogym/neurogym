@@ -91,6 +91,8 @@ class DelayMatchSample(ngym.TrialEnv):
 
     def _step(self, action):
         new_trial = False
+        terminated = False
+        truncated = False
         reward = 0
 
         ob = self.ob_now
@@ -109,7 +111,7 @@ class DelayMatchSample(ngym.TrialEnv):
                 else:
                     reward = self.rewards["fail"]
 
-        return ob, reward, False, {"new_trial": new_trial, "gt": gt}
+        return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}
 
 
 class DelayMatchSampleDistractor1D(ngym.TrialEnv):
@@ -204,6 +206,8 @@ class DelayMatchSampleDistractor1D(ngym.TrialEnv):
 
     def _step(self, action):
         new_trial = False
+        terminated = False
+        truncated = False
         reward = 0
 
         ob = self.ob_now
@@ -221,4 +225,4 @@ class DelayMatchSampleDistractor1D(ngym.TrialEnv):
                 new_trial = True
                 self.performance = 1
 
-        return ob, reward, False, {"new_trial": new_trial, "gt": gt}
+        return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}

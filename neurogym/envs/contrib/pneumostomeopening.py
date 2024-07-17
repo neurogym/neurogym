@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import numpy as np
 import math
+
+import numpy as np
 
 import neurogym as ngym
 from neurogym import spaces
@@ -97,11 +98,12 @@ class Pneumostomeopening(ngym.BaseEnv):
 
     def reset(self):
         self.agent_pos = np.random.randint(7)
-        self.done = False
-        return self.agent_pos
+        self.terminated = False
+        return self.agent_pos, {}
 
     def step(self, action):
         new_trial = False
+        self.truncated = False
 
         # define the phase of the behavior
         self.rewards = self.phase("set_default_behavior")
@@ -128,7 +130,7 @@ class Pneumostomeopening(ngym.BaseEnv):
 
         # if oxygen level drop at 0 or below then end experiment
         if self.oxygen_level <= 0:
-            self.done = True
+            self.terminated = True
 
         self.t = self.t + 1
 
@@ -138,11 +140,12 @@ class Pneumostomeopening(ngym.BaseEnv):
         ## by using breathing even only when below threshold of O2 ?
         ## or use refractory period ?
 
-        print([self.agent_pos], self.reward, self.done, {"new_trial": new_trial})
+        print([self.agent_pos], self.reward, self.terminated, {"new_trial": new_trial})
         return (
             np.array([self.agent_pos]),
             self.reward,
-            self.done,
+            self.terminated,
+            self.truncated,
             {"new_trial": new_trial},
         )
 
@@ -155,13 +158,11 @@ class Pneumostomeopening(ngym.BaseEnv):
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    from neurogym.tests import test_run, test_speed
 
     env = Pneumostomeopening()
     # test_run(env)
     # test_speed(env)
     from neurogym.utils.plotting import plot_env
-    from neurogym.utils.test_plotting import test_plot
 
     # ngym.utils.plotting.run_env(env, num_steps=200)
     plot = plot_env(env, num_steps=100)

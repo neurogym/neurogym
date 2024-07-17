@@ -91,6 +91,8 @@ class DelayPairedAssociation(ngym.TrialEnv):
 
     def _step(self, action, **kwargs):
         new_trial = False
+        terminated = False
+        truncated = False
         # rewards
         reward = 0
         ob = self.ob_now
@@ -110,4 +112,4 @@ class DelayPairedAssociation(ngym.TrialEnv):
                     self.performance = 0
                 new_trial = True
 
-        return ob, reward, False, {"new_trial": new_trial, "gt": gt}
+        return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}

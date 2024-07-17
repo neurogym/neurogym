@@ -99,7 +99,9 @@ def test_examples_different_custom_env():
                 reward = (action == 0) * 1.0
             else:
                 reward = (action == 1) * 1.0
-            return self.ob_now, reward, False, info
+            terminated = False
+            truncated = False
+            return self.ob_now, reward, terminated, truncated, info
 
     env = TestEnv()
     _test_examples_different(env)

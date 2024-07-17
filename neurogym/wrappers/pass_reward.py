@@ -22,12 +22,13 @@ class PassReward(Wrapper):
             -np.inf, np.inf, shape=(env_oss + 1,), dtype=np.float32
         )
 
-    def reset(self, step_fn=None):
+    def reset(self, options=None):
+        step_fn = options.get("step_fn") if options else None
         if step_fn is None:
             step_fn = self.step
-        return self.env.reset(step_fn=step_fn)
+        return self.env.reset(options={"step_fn": step_fn})
 
     def step(self, action):
-        obs, reward, done, info = self.env.step(action)
+        obs, reward, terminated, truncated, info = self.env.step(action)
         obs = np.concatenate((obs, np.array([reward])))
-        return obs, reward, done, info
+        return obs, reward, terminated, truncated, info

@@ -89,6 +89,8 @@ class AngleReproduction(ngym.TrialEnv):
         return trial
 
     def _step(self, action):
+        terminated = False
+        truncated = False
         ob = self.ob_now
         ob[16:32] = np.cos(self.theta - self.state)
         if action == 1:
@@ -112,7 +114,7 @@ class AngleReproduction(ngym.TrialEnv):
             )
             self.performance += norm_rew / self.dec_per_dur
 
-        return ob, reward, False, {"new_trial": False}
+        return ob, reward, terminated, truncated, {"new_trial": False}
 
 
 if __name__ == "__main__":

@@ -3,8 +3,8 @@
 import numpy as np
 from psychopy import visual
 
-import neurogym as ngym
 from neurogym import spaces
+
 from .psychopy_env import PsychopyEnv
 
 
@@ -94,6 +94,8 @@ class RandomDotMotion(PsychopyEnv):
 
     def _step(self, action):
         new_trial = False
+        terminated = False
+        truncated = False
         # rewards
         reward = 0
         gt = self.gt_now
@@ -111,4 +113,10 @@ class RandomDotMotion(PsychopyEnv):
                 else:
                     reward += self.rewards["fail"]
 
-        return self.ob_now, reward, False, {"new_trial": new_trial, "gt": gt}
+        return (
+            self.ob_now,
+            reward,
+            terminated,
+            truncated,
+            {"new_trial": new_trial, "gt": gt},
+        )

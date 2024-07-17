@@ -88,6 +88,8 @@ class ReadySetGo(ngym.TrialEnv):
 
     def _step(self, action):
         trial = self.trial
+        terminated = False
+        truncated = False
         reward = 0
         ob = self.ob_now
         gt = self.gt_now
@@ -112,7 +114,7 @@ class ReadySetGo(ngym.TrialEnv):
                     reward *= self.rewards["correct"]
                     self.performance = 1
 
-        return ob, reward, False, {"new_trial": new_trial, "gt": gt}
+        return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}
 
 
 class MotorTiming(ngym.TrialEnv):
@@ -188,6 +190,8 @@ class MotorTiming(ngym.TrialEnv):
         # Reward and inputs
         # ---------------------------------------------------------------------
         trial = self.trial
+        terminated = False
+        truncated = False
         reward = 0
         ob = self.ob_now
         gt = self.gt_now
@@ -211,7 +215,7 @@ class MotorTiming(ngym.TrialEnv):
                     reward *= self.rewards["correct"]
                     self.performance = 1
 
-        return ob, reward, False, {"new_trial": new_trial, "gt": gt}
+        return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}
 
 
 class OneTwoThreeGo(ngym.TrialEnv):
@@ -292,6 +296,8 @@ class OneTwoThreeGo(ngym.TrialEnv):
         # Reward and inputs
         # ---------------------------------------------------------------------
         trial = self.trial
+        terminated = False
+        truncated = False
         reward = 0
         ob = self.ob_now
         gt = self.gt_now
@@ -315,4 +321,4 @@ class OneTwoThreeGo(ngym.TrialEnv):
                 new_trial = self.abort
                 reward = self.rewards["abort"]
 
-        return ob, reward, False, {"new_trial": new_trial, "gt": gt}
+        return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}

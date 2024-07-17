@@ -91,6 +91,8 @@ class DelayMatchCategory(ngym.TrialEnv):
 
     def _step(self, action, **kwargs):
         new_trial = False
+        terminated = False
+        truncated = False
 
         ob = self.ob_now
         gt = self.gt_now
@@ -109,4 +111,4 @@ class DelayMatchCategory(ngym.TrialEnv):
                 else:
                     reward = self.rewards["fail"]
 
-        return ob, reward, False, {"new_trial": new_trial, "gt": gt}
+        return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}

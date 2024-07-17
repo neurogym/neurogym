@@ -180,13 +180,21 @@ class SpatialSuppressMotion(PsychopyEnv):
 
         """
         new_trial = False
+        terminated = False
+        truncated = False
         # rewards
         reward = 0
         gt = self.gt_now
         # # observations
         # if self.in_period('stimulus'): # start a new trial once step into decision stage
         #          new_trial = True
-        return self.ob_now, reward, False, {"new_trial": new_trial, "gt": gt}
+        return (
+            self.ob_now,
+            reward,
+            terminated,
+            truncated,
+            {"new_trial": new_trial, "gt": gt},
+        )
 
     @staticmethod
     def envelope(time_sigma, frame_rate=120, cut_off=True, amplitude=128):
@@ -207,7 +215,7 @@ class SpatialSuppressMotion(PsychopyEnv):
 
         This function is adoped from Duje Tadin. Some variables here are not clear.
         """
-        from numpy import arange, exp, sqrt, sum, empty, floor, ones
+        from numpy import arange, empty, exp, floor, ones, sqrt, sum
         from numpy.polynomial.polynomial import polyfit
 
         time_sigma = time_sigma * 1000  # convert it to millisecs
@@ -281,8 +289,8 @@ class SpatialSuppressMotion(PsychopyEnv):
 
         We output a (4,) tuple indicate the probabilities to perceive left/right/up/down direction. This label comes from emprically measured human performance
         """
-        from scipy.interpolate import interp1d
         from numpy import zeros
+        from scipy.interpolate import interp1d
 
         # duration = [5, 7.296, 10.65, 15.54, 22.67, 33.08, 48.27, 70.44, 102.8]
         # frame_ind = [self.envelope(i/1000)[1] for i in duration]

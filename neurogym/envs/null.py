@@ -25,4 +25,4 @@ class Null(ngym.TrialEnv):
         return trial
 
     def _step(self, action):
-        return 0, 0, False, {}
+        return 0, 0, False, False, {}

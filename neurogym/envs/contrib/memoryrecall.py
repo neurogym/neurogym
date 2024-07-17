@@ -147,5 +147,6 @@ class MemoryRecall(ngym.TrialEnv):
         obs = self.ob_now
         gt = self.gt_now
         reward = np.mean(abs(gt - action)) * self.mask[self.t_ind]
-        done = False
-        return obs, reward, done, {"new_trial": False, "gt": gt}
+        terminated = False
+        truncated = False
+        return obs, reward, terminated, truncated, {"new_trial": False, "gt": gt}

@@ -7,6 +7,7 @@ import matplotlib as mpl
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
+from stable_baselines3.common.vec_env import DummyVecEnv
 
 # TODO: This is changing user's plotting behavior for non-neurogym plots
 mpl.rcParams["font.size"] = 7
@@ -37,8 +38,8 @@ def plot_env(
                  specified action
         model: if not None, the task will be run with the actions predicted by
                model, which so far is assumed to be created and trained with the
-               stable-baselines toolbox:
-                   (https://github.com/hill-a/stable-baselines)
+               stable-baselines3 toolbox:
+                   (https://stable-baselines3.readthedocs.io/en/master/)
         name: title to show on the rewards panel
         legend: whether to show the legend for actions panel or not.
         ob_traces: if != [] observations will be plot as traces, with the labels
@@ -89,7 +90,10 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     actions_end_of_trial = []
     gt = []
     perf = []
-    ob = env.reset()  # TODO: not saving this first observation
+    if isinstance(env, DummyVecEnv):
+        ob = env.reset()
+    else:
+        ob, _ = env.reset()  # TODO: not saving this first observation
     ob_cum_temp = ob
 
     if num_trials is not None:
@@ -101,25 +105,28 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
             action, _states = model.predict(ob)
             if isinstance(action, float) or isinstance(action, int):
                 action = [action]
-            if len(_states) > 0:
+            if (_states is not None) and (len(_states) > 0):
                 state_mat.append(_states)
         elif def_act is not None:
             action = def_act
         else:
             action = env.action_space.sample()
-        ob, rew, done, info = env.step(action)
+        if isinstance(env, DummyVecEnv):
+            ob, rew, terminated, info = env.step(action)
+        else:
+            ob, rew, terminated, truncated, info = env.step(action)
         ob_cum_temp += ob
         ob_cum.append(ob_cum_temp.copy())
         if isinstance(info, list):
             info = info[0]
             ob_aux = ob[0]
             rew = rew[0]
-            done = done[0]
+            terminated = terminated[0]
             action = action[0]
         else:
             ob_aux = ob
 
-        if done:
+        if terminated:
             env.reset()
         observations.append(ob_aux)
         rewards.append(rew)
