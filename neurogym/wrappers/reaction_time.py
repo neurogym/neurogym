@@ -31,10 +31,11 @@ class ReactionTime(gym.Wrapper):  # TODO: Make this a trial wrapper instead?
         self.urgency = urgency
         self.tr_dur = 0
 
-    def reset(self, step_fn=None, **kwargs):
+    def reset(self, options=None):
+        step_fn = options.get("step_fn") if options else None
         if step_fn is None:
             step_fn = self.step
-        return self.env.reset(step_fn=step_fn, **kwargs)
+        return self.env.reset(options={"step_fn": step_fn})
 
     def step(self, action):
         dec = "decision"

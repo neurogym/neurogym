@@ -38,7 +38,7 @@ def test_one_step_mismatch():
             return self.ob_now, reward, terminated, truncated, info
 
     env = TestEnv()
-    ob, _ = env.reset(no_step=True)
+    ob, _ = env.reset(options={"no_step": True})
     for i in range(10):
         action = np.argmax(ob)  # fixate if observes fixation input, vice versa
         ob, rew, terminated, truncated, info = env.step(action=action)
@@ -73,7 +73,7 @@ def test_addob_instep():
             return self.ob_now, reward, terminated, truncated, {"new_trial": new_trial}
 
     env = TestEnv()
-    env.reset(no_step=True)
+    env.reset(options={"no_step": True})
     for i in range(10):
         ob, rew, terminated, truncated, info = env.step(action=0)
         assert ob[0] == ((i + 1) % 5) + 1  # each trial is 5 steps

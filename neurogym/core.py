@@ -207,28 +207,32 @@ class TrialEnv(BaseEnv):
             ob = self.ob[self.t_ind]
         return self.post_step(ob, reward, terminated, truncated, info)
 
-    def reset(self, seed=None, options=None, step_fn=None, no_step=False):
+    def reset(self, seed=None, options=None):
         """Reset the environment.
 
         Args:
             seed: random seed, overwrites self.seed if not None
-            options: additional options used to reset the env
-            step_fn: function or None. If function, overwrite original
-                self.step function
-            no_step: bool. If True, no step is taken and observation randomly
-                sampled. Default False.
+            options: additional options used to reset the env.
+                Can include 'step_fn' and 'no_step'.
+                `step_fn` can be a function or None. If function, overwrite original
+                `self.step` method.
+                `no_step` is a bool. If True, no step is taken and observation randomly
+                sampled. It defaults to False.
         """
         super().reset(seed=seed)
 
         self.num_tr = 0
         self.t = self.t_ind = 0
 
+        step_fn = options.get("step_fn") if options else None
+        no_step = options.get("no_step", False) if options else False
+
         self._top.new_trial()
 
         # have to also call step() to get the initial ob since some wrappers modify step() but not new_trial()
         self.action_space.seed(0)
         if no_step:
-            return self.observation_space.sample()
+            return self.observation_space.sample(), {}
         if step_fn is None:
             ob, _, _, _, _ = self._top.step(self.action_space.sample())
         else:
