@@ -218,10 +218,7 @@ class SpatialSuppressMotion(PsychopyEnv):
         from numpy.polynomial.polynomial import polyfit
 
         time_sigma = time_sigma * 1000  # convert it to millisecs
-        if cut_off:
-            gauss_only = 0
-        else:
-            gauss_only = 1
+        gauss_only = 0 if cut_off else 1
 
         fr = round(frame_rate / 20)  # this frame is determined arbitrarily
         xx = arange(fr) + 1

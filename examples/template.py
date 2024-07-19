@@ -98,10 +98,7 @@ class YourTask(ngym.TrialEnv):
                 reward = self.rewards["abort"]
         elif action != 0:
             terminated = True
-            if action == gt:  # if correct
-                reward = self.rewards["correct"]
-            else:  # if incorrect
-                reward = self.rewards["fail"]
+            reward = self.rewards["correct"] if action == gt else self.rewards["fail"]
 
         return (
             self.ob_now,

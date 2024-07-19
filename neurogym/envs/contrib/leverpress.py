@@ -163,10 +163,7 @@ class LeverPressWithPoke(gym.Env):
                 )
             self.steps_beyond_done += 1
 
-        if self.observe_state:
-            obs = np.array([self.state])
-        else:
-            obs = np.array([1.0])
+        obs = np.array([self.state]) if self.observe_state else np.array([1.0])
 
         return obs, reward, terminated, truncated, {}
 
@@ -285,10 +282,7 @@ class LeverPressWithPokeRest(gym.Env):
                 )
             self.steps_beyond_done += 1
 
-        if self.observe_state:
-            obs = np.array([self.state])
-        else:
-            obs = np.array([self.thirst])
+        obs = np.array([self.state]) if self.observe_state else np.array([self.thirst])
 
         return obs, reward, terminated, truncated, {}
 
@@ -352,10 +346,7 @@ class ContextSwitch(gym.Env):
         if self.rng.rand() < self.p_switch:
             self.context = 1 - self.context
 
-        if self.context == 0:
-            correct_action = self.ob2action_context1[self.ob]
-        else:
-            correct_action = self.ob2action_context2[self.ob]
+        correct_action = self.ob2action_context1[self.ob] if self.context == 0 else self.ob2action_context2[self.ob]
 
         reward = (correct_action == action) * 1.0
 

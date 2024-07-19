@@ -97,10 +97,7 @@ class HierarchicalReasoning(ngym.TrialEnv):
 
         # Observations
         stimulus = self.observation_space.name["stimulus"][trial["stimulus"]]
-        if pro_choice:
-            choice = trial["stimulus"]
-        else:
-            choice = 1 - trial["stimulus"]
+        choice = trial["stimulus"] if pro_choice else 1 - trial["stimulus"]
 
         self.add_ob(1, where="fixation")
         self.set_ob(0, "decision", where="fixation")

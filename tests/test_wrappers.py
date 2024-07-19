@@ -415,10 +415,7 @@ def test_noise(
     std_mat = []
     std_noise = 0
     for _ in range(num_steps):
-        if np.random.rand() < std_noise:
-            action = env.action_space.sample()
-        else:
-            action = env.gt_now
+        action = env.action_space.sample() if np.random.rand() < std_noise else env.gt_now
         obs, rew, terminated, truncated, info = env.step(action)
         if "std_noise" in info:
             std_noise = info["std_noise"]

@@ -64,10 +64,7 @@ class AntiReach(ngym.TrialEnv):
         trial.update(kwargs)
 
         ground_truth = trial["ground_truth"]
-        if trial["anti"]:
-            stim_theta = np.mod(self.theta[ground_truth] + np.pi, 2 * np.pi)
-        else:
-            stim_theta = self.theta[ground_truth]
+        stim_theta = np.mod(self.theta[ground_truth] + np.pi, 2 * np.pi) if trial["anti"] else self.theta[ground_truth]
 
         # Periods
         periods = ["fixation", "stimulus", "delay", "decision"]

@@ -63,10 +63,7 @@ class DelayMatchCategory(ngym.TrialEnv):
 
         ground_truth = trial["ground_truth"]
         sample_category = trial["sample_category"]
-        if ground_truth == "match":
-            test_category = sample_category
-        else:
-            test_category = 1 - sample_category
+        test_category = sample_category if ground_truth == "match" else 1 - sample_category
 
         sample_theta = (sample_category + self.rng.rand()) * np.pi
         test_theta = (test_category + self.rng.rand()) * np.pi

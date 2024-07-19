@@ -6,10 +6,7 @@ import numpy as np
 
 def to_map(*args):
     """Produces ordered dict from given inputs."""
-    if isinstance(args[0], list):
-        var_list = args[0]
-    else:
-        var_list = args
+    var_list = args[0] if isinstance(args[0], list) else args
     od = OrderedDict()
     for i, v in enumerate(var_list):
         od[v] = i

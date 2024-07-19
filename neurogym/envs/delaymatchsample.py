@@ -66,10 +66,7 @@ class DelayMatchSample(ngym.TrialEnv):
 
         ground_truth = trial["ground_truth"]
         sample_theta = trial["sample_theta"]
-        if ground_truth == 1:
-            test_theta = sample_theta
-        else:
-            test_theta = np.mod(sample_theta + np.pi, 2 * np.pi)
+        test_theta = sample_theta if ground_truth == 1 else np.mod(sample_theta + np.pi, 2 * np.pi)
         trial["test_theta"] = test_theta
 
         stim_sample = np.cos(self.theta - sample_theta) * 0.5 + 0.5

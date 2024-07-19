@@ -95,10 +95,7 @@ def test_examples_different_custom_env():
 
         def _step(self, action):
             info = {"new_trial": False}
-            if self.in_period("fixation"):
-                reward = (action == 0) * 1.0
-            else:
-                reward = (action == 1) * 1.0
+            reward = (action == 0) * 1.0 if self.in_period("fixation") else (action == 1) * 1.0
             terminated = False
             truncated = False
             return self.ob_now, reward, terminated, truncated, info

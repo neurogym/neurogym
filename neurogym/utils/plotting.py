@@ -416,10 +416,7 @@ def plot_env_3dbox(ob, actions=None, fname="", env=None) -> None:
         im.set_array(ob[i])
         return (im,)
 
-    if env is not None:
-        interval = env.dt
-    else:
-        interval = 50
+    interval = env.dt if env is not None else 50
     ani = animation.FuncAnimation(fig, animate, frames=ob.shape[0], interval=interval)
     if fname:
         writer = animation.writers["ffmpeg"](fps=int(1000 / interval))

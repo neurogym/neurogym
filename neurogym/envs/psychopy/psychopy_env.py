@@ -19,12 +19,8 @@ class PsychopyEnv(ngym.TrialEnv):
     def __init__(self, win_kwargs=None, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        if win_kwargs is None:
-            win_kwargs_tmp = {"size": (100, 100), "color": "black"}
-        else:
-            win_kwargs_tmp = (
-                win_kwargs.copy()
-            )  # fix the bug when multi windows with different sizes in a batch
+        # fix the bug when multi windows with different sizes in a batch
+        win_kwargs_tmp = {"size": (100, 100), "color": "black"} if win_kwargs is None else win_kwargs.copy()  
 
         if sys.platform == "darwin":
             # TODO: Check if this works across platform

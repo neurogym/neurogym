@@ -102,10 +102,7 @@ class _Reach(ngym.TrialEnv):
         trial.update(kwargs)
 
         ground_truth = trial["ground_truth"]
-        if trial["anti"]:
-            stim_theta = np.mod(self.theta[ground_truth] + np.pi, 2 * np.pi)
-        else:
-            stim_theta = self.theta[ground_truth]
+        stim_theta = np.mod(self.theta[ground_truth] + np.pi, 2 * np.pi) if trial["anti"] else self.theta[ground_truth]
         stim = _gaussianbump(stim_theta, self.theta, 1)
 
         if not self.reaction:
@@ -400,10 +397,7 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
         i_sample_theta = self.rng.choice(self.dim_ring)
         if self.matchto == "category":
             sample_category = (i_sample_theta > self.half_ring) * 1
-            if ground_truth == "match":
-                test_category = sample_category
-            else:
-                test_category = 1 - sample_category
+            test_category = sample_category if ground_truth == "match" else 1 - sample_category
             i_test_theta = self.rng.choice(self.half_ring)
             i_test_theta += test_category * self.half_ring
         elif ground_truth == "match":

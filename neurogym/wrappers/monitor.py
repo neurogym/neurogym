@@ -105,10 +105,7 @@ class Monitor(Wrapper):
 
             # save data
             save = False
-            if self.sv_stp == "timestep":
-                save = self.t >= self.sv_per
-            else:
-                save = self.num_tr % self.sv_per == 0
+            save = self.t >= self.sv_per if self.sv_stp == "timestep" else self.num_tr % self.sv_per == 0
             if save:
                 np.savez(self.sv_name + str(self.num_tr) + ".npz", **self.data)
                 if self.verbose:
