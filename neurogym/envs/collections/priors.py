@@ -17,7 +17,7 @@ Usage:
 
 import gymnasium as gym
 
-import neurogym.wrappers as wrappers
+from neurogym import wrappers
 
 
 def priors_v0(tr_hist_kwargs=None, var_nch_kwargs=None, **task_kwargs):

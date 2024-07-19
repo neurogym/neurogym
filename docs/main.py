@@ -1,6 +1,6 @@
 import os
 
-import docs.source.make_envs_rst as make_envs_rst
+from docs.source import make_envs_rst
 
 make_envs_rst.main()
 # Make html, can also be run in terminal

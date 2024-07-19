@@ -2,7 +2,7 @@
 
 import gymnasium as gym
 
-import neurogym.wrappers as wrappers
+from neurogym import wrappers
 from neurogym.utils import scheduler
 
 

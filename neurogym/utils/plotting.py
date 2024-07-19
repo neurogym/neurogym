@@ -4,7 +4,7 @@ import glob
 
 import gymnasium as gym
 import matplotlib as mpl
-import matplotlib.animation as animation
+from matplotlib import animation
 import matplotlib.pyplot as plt
 import numpy as np
 from stable_baselines3.common.vec_env import DummyVecEnv
