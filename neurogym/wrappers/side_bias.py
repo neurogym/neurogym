@@ -38,9 +38,7 @@ class SideBias(ngym.TrialWrapper):
             self.choice_prob = np.array(probs)
         assert (
             self.choice_prob.shape[1] == len(self.choices)
-        ), "The number of choices {:d} inferred from prob mismatchs {:d} inferred from choices".format(
-            self.choice_prob.shape[1], len(self.choices),
-        )
+        ), f"The number of choices {self.choice_prob.shape[1]:d} inferred from prob mismatchs {len(self.choices):d} inferred from choices"
 
         self.n_block = self.choice_prob.shape[0]
         self.curr_block = self.task.rng.choice(range(self.n_block))

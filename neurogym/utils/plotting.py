@@ -220,7 +220,7 @@ def fig_(
     elif len(ob.shape) == 4:
         return plot_env_3dbox(ob, actions, fname=fname, env=env)
     else:
-        raise ValueError("ob shape {} not supported".format(str(ob.shape)))
+        raise ValueError(f"ob shape {str(ob.shape)} not supported")
 
 
 def plot_env_1dbox(
@@ -349,11 +349,11 @@ def plot_env_1dbox(
             if isinstance(env.rewards, dict):
                 for key, val in env.rewards.items():
                     yticks.append(val)
-                    yticklabels.append("{:s} {:0.2f}".format(key[:4], val))
+                    yticklabels.append(f"{key[:4]:s} {val:0.2f}")
             else:
                 for val in env.rewards:
                     yticks.append(val)
-                    yticklabels.append("{:0.2f}".format(val))
+                    yticklabels.append(f"{val:0.2f}")
 
             ax.set_yticks(yticks)
             ax.set_yticklabels(yticklabels)
@@ -449,7 +449,7 @@ def plot_rew_across_training(
                 "mean "
                 + metric_name
                 + " (running window"
-                + " of {:d} trials)".format(window),
+                + f" of {window:d} trials)",
             )
         else:
             ax.set_ylabel(ytitle)

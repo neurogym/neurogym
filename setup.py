@@ -9,7 +9,7 @@ from version import VERSION
 if sys.version_info.major != 3:
     print(
         "This Python is only compatible with Python 3, but you are running "
-        "Python {}. The installation will likely fail.".format(sys.version_info.major),
+        f"Python {sys.version_info.major}. The installation will likely fail.",
     )
 
 # Environment-specific dependencies.

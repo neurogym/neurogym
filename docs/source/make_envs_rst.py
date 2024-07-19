@@ -47,7 +47,7 @@ def make_envs():
     string += ".. toctree::\n"
     string += "    :maxdepth: 1\n\n"
     for key, val in all_envs.items():
-        string += " " * 4 + "{:s}\n".format(key)
+        string += " " * 4 + f"{key:s}\n"
     with open(Path(__file__).parent / "envs" / "index.rst", "w") as f:
         f.write(string)
 
@@ -65,25 +65,25 @@ def make_envs():
         if paper_name:
             string += "    Reference paper\n"
             paper_name = paper_name.replace("\n", " ")
-            string += "        `{:s} <{:s}>`__\n\n".format(paper_name, paper_link)
+            string += f"        `{paper_name:s} <{paper_link:s}>`__\n\n"
             # string += '    .. __{:s}:\n        {:s}\n\n'.format(paper_name, paper_link)
 
         # Add tags
         string += "    Tags\n"
         for tag in env.metadata.get("tags", []):
-            string += "        :ref:`tag-{:s}`, ".format(tag)
+            string += f"        :ref:`tag-{tag:s}`, "
         string = string[:-2]
         string += "\n\n"
 
         # Add optional link to training and analysis code
         names = ["Supervised learning", "Reinforcement learning"]
         for baseurl, name in zip([SUPERVISEDURL, RLURL], names):
-            url = "https://github.com/{:s}{:s}.ipynb".format(baseurl, key)
+            url = f"https://github.com/{baseurl:s}{key:s}.ipynb"
             if _url_exist(url):
-                string += " " * 4 + "{:s} and analysis of this task\n".format(name)
-                link = "{:s}{:s}{:s}.ipynb".format(COLABURL, baseurl, key)
-                string += " " * 8 + "`[Open in colab] <{:s}>`_\n".format(link)
-                string += " " * 8 + "`[Jupyter notebook Source] <{:s}>`_\n".format(url)
+                string += " " * 4 + f"{name:s} and analysis of this task\n"
+                link = f"{COLABURL:s}{baseurl:s}{key:s}.ipynb"
+                string += " " * 8 + f"`[Open in colab] <{link:s}>`_\n"
+                string += " " * 8 + f"`[Jupyter notebook Source] <{url:s}>`_\n"
 
         # Add image
         string += "    Sample run\n"
@@ -99,10 +99,10 @@ def make_envs():
         if suffix is not None:
             image_path = image_path.with_suffix(suffix).as_posix()
             if suffix == ".png":
-                string += " " * 8 + ".. image:: ../{:s}\n".format(image_path)
+                string += " " * 8 + f".. image:: ../{image_path:s}\n"
                 string += " " * 12 + ":width: 600\n\n"
             elif suffix == ".mp4":
-                string += " " * 8 + ".. video:: ../{:s}\n".format(image_path)
+                string += " " * 8 + f".. video:: ../{image_path:s}\n"
                 string += " " * 12 + ":width: 300\n"
                 string += " " * 12 + ":height: 300\n"
                 # string += ' ' * 12 + ':autoplay:\n'
@@ -119,7 +119,7 @@ def make_tags():
     all_tags = ngym.all_tags()
 
     for tag in sorted(all_tags):
-        string += ".. _tag-{:s}:\n\n".format(tag)
+        string += f".. _tag-{tag:s}:\n\n"
         string += tag + "\n--------------------------------\n"
         for env in ngym.all_envs(tag=tag):
             if env in ENV_IGNORE:

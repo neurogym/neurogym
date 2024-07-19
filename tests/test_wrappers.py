@@ -727,17 +727,17 @@ def test_all(test_fn):
     total_count = 0
     for env_name in sorted(ngym.all_envs()):
         total_count += 1
-        print("Running env: {:s} Wrapped with SideBias".format(env_name))
+        print(f"Running env: {env_name:s} Wrapped with SideBias")
         try:
             test_fn(env_name)
             print("Success")
             success_count += 1
         except BaseException as e:
-            print("Failure at running env: {:s}".format(env_name))
+            print(f"Failure at running env: {env_name:s}")
             print(e)
         print("")
 
-    print("Success {:d}/{:d} envs".format(success_count, total_count))
+    print(f"Success {success_count:d}/{total_count:d} envs")
 
 
 @pytest.mark.skip(

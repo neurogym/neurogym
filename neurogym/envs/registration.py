@@ -248,7 +248,7 @@ def make(id, **kwargs):
         # Python argsort
         sort_inds = sorted(range(len(dists)), key=dists.__getitem__)
         env_guesses = [all_ids[sort_inds[i]] for i in range(5)]
-        err_msg = "No registered env with id: {}.\nDo you mean:\n".format(id)
+        err_msg = f"No registered env with id: {id}.\nDo you mean:\n"
         for env_guess in env_guesses:
             err_msg += "    " + env_guess + "\n"
         raise gym.error.UnregisteredEnv(err_msg)

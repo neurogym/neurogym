@@ -143,7 +143,7 @@ class Monitor(Wrapper):
                 self.perf_mat.append(-1)
             self.stp_counter += 1
         elif len(self.rew_mat) > 0:
-            fname = self.sv_name + "task_{0:06d}.".format(self.num_tr) + self.fig_type
+            fname = self.sv_name + f"task_{self.num_tr:06d}." + self.fig_type
             obs_mat = np.array(self.ob_mat)
             act_mat = np.array(self.act_mat)
             fig_(

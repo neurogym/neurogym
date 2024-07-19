@@ -53,7 +53,7 @@ def test_run(env=None, num_steps=100, verbose=False, **kwargs):
     all_tags = ngym.all_tags()
     for t in tags:
         if t not in all_tags:
-            print("Warning: env has tag {:s} not in all_tags".format(t))
+            print(f"Warning: env has tag {t:s} not in all_tags")
 
     if verbose:
         print(env)
@@ -89,17 +89,17 @@ def test_dataset_all():
     for env_name in sorted(ngym.all_envs()):
         total_count += 1
 
-        print("Running env: {:s}".format(env_name))
+        print(f"Running env: {env_name:s}")
         try:
             test_dataset(env_name)
             print("Success")
             success_count += 1
         except BaseException as e:
-            print("Failure at running env: {:s}".format(env_name))
+            print(f"Failure at running env: {env_name:s}")
             print(e)
 
-    print("Success {:d}/{:d} envs".format(success_count, total_count))
-    print("Expect {:d} envs to support supervised learning".format(supervised_count))
+    print(f"Success {success_count:d}/{total_count:d} envs")
+    print(f"Expect {supervised_count:d} envs to support supervised learning")
 
 
 def test_print_all():
@@ -109,7 +109,7 @@ def test_print_all():
     for env_name in sorted(ENVS):
         total_count += 1
         print("")
-        print("Test printing env: {:s}".format(env_name))
+        print(f"Test printing env: {env_name:s}")
         env = make_env(env_name)
         print(env)
 
@@ -172,7 +172,7 @@ def test_seeding(env=None, seed=0):
 def test_seeding_all():
     """Test if all environments are replicable."""
     for env_name in sorted(ENVS_NOPSYCHOPY):
-        print("Running env: {:s}".format(env_name))
+        print(f"Running env: {env_name:s}")
         obs1, rews1, acts1 = test_seeding(env_name, seed=0)
         obs2, rews2, acts2 = test_seeding(env_name, seed=0)
         assert (obs1 == obs2).all(), "obs are not identical"

@@ -8,7 +8,7 @@ SOURCE_ROOT = "https://github.com/gyyang/neurogym/blob/master/"
 
 def add_link(text, link):
     # Add link to a within document location
-    return "[{:s}](#{:s})".format(text, link)
+    return f"[{text:s}](#{link:s})"
 
 
 def write_doc(write_type):
@@ -70,7 +70,7 @@ def write_doc(write_type):
         string += "[Source]({:s})\n\n".format(SOURCE_ROOT + source_link + ".py")
         counter += 1
 
-    full_string = "### List of {:d} {:s} implemented\n\n".format(counter, write_type)
+    full_string = f"### List of {counter:d} {write_type:s} implemented\n\n"
     full_string += names
 
     if write_type == "tasks":
@@ -87,7 +87,7 @@ def write_doc(write_type):
     if write_type == "tasks":
         string_tag = "___\n\n### Tags ### \n\n"
         for tag in sorted(all_tags):
-            string_tag += "### {:s} \n\n".format(tag)
+            string_tag += f"### {tag:s} \n\n"
             for name in ngym.all_envs(tag=tag):
                 string_tag += add_link(name, link_dict[name])
                 string_tag += "\n\n"

@@ -55,8 +55,8 @@ class PsychopyEnv(ngym.TrialEnv):
                 # These stimuli need to be drawn every frame
                 if not (isinstance(period, str) or period is None):
                     raise ValueError(
-                        "Period {:s} not ".format(str(period))
-                        + "supported for stimuli {:s}".format(str(value)),
+                        f"Period {str(period):s} not "
+                        + f"supported for stimuli {str(value):s}",
                     )
 
                 ob = self.view_ob(period=period)

@@ -18,23 +18,23 @@ def _clean_string(string):
 
 def env_string(env, short=False):
     if short:
-        string = "<{:s}>".format(type(env).__name__)
+        string = f"<{type(env).__name__:s}>"
         return string
 
     string = ""
     metadata = env.metadata
     docstring = env.__doc__
-    string += "### {:s}\n".format(type(env).__name__)
+    string += f"### {type(env).__name__:s}\n"
     paper_name = metadata.get("paper_name", None) or "Missing paper name"
     paper_name = _clean_string(paper_name)
     paper_link = metadata.get("paper_link", None)
-    string += "Doc: {:s}\n".format(docstring)
+    string += f"Doc: {docstring:s}\n"
     string += "Reference paper \n"
     if paper_link is None:
-        string += "{:s}\n".format(paper_name)
+        string += f"{paper_name:s}\n"
         string += "Missing paper link\n"
     else:
-        string += "[{:s}]({:s})\n".format(paper_name, paper_link)
+        string += f"[{paper_name:s}]({paper_link:s})\n"
     # add timing info
     # TODO: Add timing info back?
     # if isinstance(env, TrialEnv):
