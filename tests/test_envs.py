@@ -103,7 +103,6 @@ def test_dataset_all():
 
 def test_print_all():
     """Test printing of all experiments."""
-    success_count = 0
     total_count = 0
     for env_name in sorted(ENVS):
         total_count += 1

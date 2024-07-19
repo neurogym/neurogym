@@ -7,6 +7,7 @@ import gymnasium as gym
 import numpy as np
 
 from neurogym.utils.random import trunc_exp
+import contextlib
 
 METADATA_DEF_KEYS = ["description", "paper_name", "paper_link", "timing", "tags"]
 
@@ -146,11 +147,9 @@ class TrialEnv(BaseEnv):
         self.rng = np.random.RandomState(seed)
         if hasattr(self, "action_space") and self.action_space is not None:
             self.action_space.seed(seed)
-        for key, val in self.timing.items():
-            try:
+        for val in self.timing.values():
+            with contextlib.suppress(AttributeError):
                 val.seed(seed)
-            except AttributeError:
-                pass
         return [seed]
 
     def post_step(self, ob, reward, terminated, truncated, info):
@@ -249,11 +248,11 @@ class TrialEnv(BaseEnv):
 
     def sample_time(self, period):
         timing = self.timing[period]
-        if isinstance(timing, (int, float)):
+        if isinstance(timing, int | float):
             t = timing
         elif callable(timing):
             t = timing()
-        elif isinstance(timing[0], (int, float)):
+        elif isinstance(timing[0], int | float):
             # Expect list of int/float, and use random choice
             t = self.rng.choice(timing)
         else:

@@ -158,7 +158,7 @@ def all_envs(tag=None, psychopy=False, contrib=False, collections=False):
         envs.update(ALL_CONTRIB_ENVS)
     if collections:
         envs.update(ALL_COLLECTIONS_ENVS)
-    env_list = sorted(list(envs.keys()))
+    env_list = sorted(envs.keys())
     if tag is None:
         return env_list
     else:

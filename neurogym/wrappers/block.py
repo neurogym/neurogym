@@ -22,10 +22,7 @@ class RandomGroundTruth(TrialWrapper):
         self.p = p
 
     def new_trial(self, **kwargs):
-        if "p" in kwargs:
-            p = kwargs["p"]
-        else:
-            p = self.p
+        p = kwargs.get("p", self.p)
         ground_truth = self.rng.choice(self.env.choices, p=p)
         kwargs = {"ground_truth": ground_truth}
         return self.env.new_trial(**kwargs)
@@ -119,7 +116,6 @@ class MultiEnvs(TrialWrapper):
 
     def reset(self, **kwargs):
         # return the initial ob of the first env in the list envs by default
-        return_i_env = 0
 
         for i, env in enumerate(self.envs):
             self.set_i(i)
@@ -277,10 +273,7 @@ class TrialHistoryV2(TrialWrapper):
         self.prev_trial = self.rng.choice(self.n_ch)  # random initialization
 
     def new_trial(self, **kwargs):
-        if "probs" in kwargs:
-            probs = kwargs["probs"]
-        else:
-            probs = self.probs
+        probs = kwargs.get("probs", self.probs)
         p = probs[self.prev_trial, :]
         # Choose ground truth and update previous trial info
         self.prev_trial = self.rng.choice(self.n_ch, p=p)

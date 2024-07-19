@@ -20,7 +20,7 @@ class VisualSearch(PsychopyEnv):
 
     metadata = {
         "paper_link": "https://science.sciencemag.org/content/315/5820/1860",
-        "paper_name": """Top-down versus bottom-up control of attention 
+        "paper_name": """Top-down versus bottom-up control of attention
         in the prefrontal and posterior parietal cortices""",
         "tags": ["perceptual", "supervised"],
     }

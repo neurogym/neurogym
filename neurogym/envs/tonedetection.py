@@ -33,7 +33,7 @@ class ToneDetection(ngym.TrialEnv):
 
     def __init__(self, dt=50, sigma=0.2, timing=None):
         super().__init__(dt=dt)
-        """ 
+        """
         Here the key variables are
         <self.toneDur>: ms, duration of the tone
         <self.toneTiming>: ms, onset of the tone

@@ -33,7 +33,7 @@ class SideBias(ngym.TrialWrapper):
             raise AttributeError(msg)
         assert isinstance(self.task, ngym.TrialEnv), "Task has to be TrialEnv"
         assert probs is not None, "Please provide choices probabilities"
-        if isinstance(probs, (float, int)):
+        if isinstance(probs, float | int):
             mat = np.eye(len(self.choices)) * probs
             mat[mat == 0] = 1 - probs
             self.choice_prob = mat

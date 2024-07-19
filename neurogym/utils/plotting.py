@@ -106,7 +106,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     for stp in range(int(num_steps)):
         if model is not None:
             action, _states = model.predict(ob)
-            if isinstance(action, float) or isinstance(action, int):
+            if isinstance(action, (float, int)):
                 action = [action]
             if (_states is not None) and (len(_states) > 0):
                 state_mat.append(_states)
@@ -397,7 +397,7 @@ def plot_env_1dbox(
     plt.tight_layout()
     if fname:
         fname = str(fname)
-        if not (fname.endswith(".png") or fname.endswith(".svg")):
+        if not (fname.endswith((".png", ".svg"))):
             fname += ".png"
         f.savefig(fname, dpi=300)
         plt.close(f)

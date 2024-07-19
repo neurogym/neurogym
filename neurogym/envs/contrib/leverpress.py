@@ -415,7 +415,7 @@ class FullInput(gym.Wrapper):
         super().__init__(env)
         # Modify observation space to include reward and action
         orig_ob_space = self.observation_space
-        ob_shape = orig_ob_space.shape[0] + self.action_space.n + 1
+        ob_shape = orig_ob_space.shape[0] + self.action_space.n + 1  # noqa: F841
         low = np.array(list(orig_ob_space.low) + [-1] + [0] * self.action_space.n)
         high = np.array(list(orig_ob_space.high) + [1] + [1] * self.action_space.n)
         self.observation_space = spaces.Box(low, high, dtype=np.float32)

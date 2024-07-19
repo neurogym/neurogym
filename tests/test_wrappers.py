@@ -209,7 +209,7 @@ def test_reactiontime(
             action = 2
         else:
             action = 0
-        end_of_trial = True if action != 0 else False
+        end_of_trial = action != 0
         obs, rew, terminated, truncated, info = env.step(action)
         if info["new_trial"]:
             step = 0
