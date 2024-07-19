@@ -40,10 +40,10 @@ class ReactionTime(gym.Wrapper):  # TODO: Make this a trial wrapper instead?
         dec = "decision"
         stim = "stimulus"
         assert (
-            stim in self.env.start_t.keys()
+            stim in self.env.start_t
         ), "Reaction time wrapper requires a stimulus period"
         assert (
-            dec in self.env.start_t.keys()
+            dec in self.env.start_t
         ), "Reaction time wrapper requires a decision period"
         if self.env.t_ind == 0:
             # set start of decision period

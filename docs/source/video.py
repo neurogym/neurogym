@@ -14,7 +14,7 @@ from docutils.parsers.rst import Directive, directives
 
 
 def get_option(options, key, default):
-    if key not in options.keys():
+    if key not in options:
         return default
 
     if type(default) == bool:

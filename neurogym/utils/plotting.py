@@ -134,7 +134,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         observations.append(ob_aux)
         rewards.append(rew)
         actions.append(action)
-        if "gt" in info.keys():
+        if "gt" in info:
             gt.append(info["gt"])
         else:
             gt.append(0)
@@ -479,12 +479,12 @@ def put_together_files(folder):
     if len(files) > 0:
         files = order_by_sufix(files)
         file_data = np.load(files[0], allow_pickle=True)
-        for key in file_data.keys():
+        for key in file_data:
             data[key] = file_data[key]
 
         for ind_f in range(1, len(files)):
             file_data = np.load(files[ind_f], allow_pickle=True)
-            for key in file_data.keys():
+            for key in file_data:
                 data[key] = np.concatenate((data[key], file_data[key]))
         np.savez(folder + "/bhvr_data_all.npz", **data)
     return data

@@ -98,7 +98,7 @@ class Monitor(Wrapper):
             self.data["action"].append(action)
             self.data["reward"].append(rew)
             for key in info:
-                if key not in self.data.keys():
+                if key not in self.data:
                     self.data[key] = [info[key]]
                 else:
                     self.data[key].append(info[key])
@@ -124,7 +124,7 @@ class Monitor(Wrapper):
         return obs, rew, terminated, truncated, info
 
     def reset_data(self):
-        for key in self.data.keys():
+        for key in self.data:
             self.data[key] = []
 
     def store_data(self, obs, action, rew, info):
@@ -132,11 +132,11 @@ class Monitor(Wrapper):
             self.ob_mat.append(obs)
             self.act_mat.append(action)
             self.rew_mat.append(rew)
-            if "gt" in info.keys():
+            if "gt" in info:
                 self.gt_mat.append(info["gt"])
             else:
                 self.gt_mat.append(-1)
-            if "performance" in info.keys():
+            if "performance" in info:
                 self.perf_mat.append(info["performance"])
             else:
                 self.perf_mat.append(-1)
