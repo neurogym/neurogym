@@ -17,7 +17,7 @@ class IBL(ngym.TrialEnv):
     }
 
     def __init__(self, dt=100, rewards=None):
-        super(IBL, self).__init__(dt=dt)
+        super().__init__(dt=dt)
         # TODO: Fix to use the default random number generator
         self._rng = self.rng.RandomState(0)
         self.sigma = 0.10  # noise

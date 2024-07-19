@@ -17,7 +17,7 @@ class PsychopyEnv(ngym.TrialEnv):
     """Superclass for environments with psychopy stimuli."""
 
     def __init__(self, win_kwargs=None, *args, **kwargs):
-        super(PsychopyEnv, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if win_kwargs is None:
             win_kwargs_tmp = {"size": (100, 100), "color": "black"}

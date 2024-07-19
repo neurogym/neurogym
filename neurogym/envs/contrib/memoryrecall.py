@@ -30,7 +30,7 @@ class MemoryRecall(ngym.TrialEnv):
         p_recall: proportion of patterns stored for recall
         chance: chance level performance.
         """
-        super(MemoryRecall, self).__init__(dt=dt)
+        super().__init__(dt=dt)
 
         self.stim_dim = stim_dim
         self.store_signal_dim = store_signal_dim

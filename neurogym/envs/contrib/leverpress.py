@@ -412,7 +412,7 @@ class FullInput(gym.Wrapper):
     """Lever pressing environment where reward and action is input."""
 
     def __init__(self, env):
-        super(FullInput, self).__init__(env)
+        super().__init__(env)
         # Modify observation space to include reward and action
         orig_ob_space = self.observation_space
         ob_shape = orig_ob_space.shape[0] + self.action_space.n + 1

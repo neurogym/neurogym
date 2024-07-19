@@ -76,7 +76,7 @@ class BaseEnv(gym.Env):
     """The base Neurogym class to include dt."""
 
     def __init__(self, dt=100):
-        super(BaseEnv, self).__init__()
+        super().__init__()
         self.dt = dt
         self.t = self.t_ind = 0
         self.tmax = 10000  # maximum time steps
@@ -96,7 +96,7 @@ class TrialEnv(BaseEnv):
     """The main Neurogym class for trial-based envs."""
 
     def __init__(self, dt=100, num_trials_before_reset=10000000, r_tmax=0):
-        super(TrialEnv, self).__init__(dt=dt)
+        super().__init__(dt=dt)
         self.r_tmax = r_tmax
         self.num_tr = 0
         self.num_tr_exp = num_trials_before_reset
