@@ -7,7 +7,6 @@ import gymnasium as gym
 import numpy as np
 
 from neurogym.utils.random import trunc_exp
-import contextlib
 
 METADATA_DEF_KEYS = ["description", "paper_name", "paper_link", "timing", "tags"]
 

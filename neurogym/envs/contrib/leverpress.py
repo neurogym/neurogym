@@ -33,10 +33,7 @@ class LeverPress(gym.Env):
         return [seed]
 
     def _step(self, action):
-        assert self.action_space.contains(action), "{!r} ({}) invalid".format(
-            action,
-            type(action),
-        )
+        assert self.action_space.contains(action), f"{action!r} ({type(action)}) invalid"
         state = self.state
 
         reward = 0.0
@@ -132,10 +129,7 @@ class LeverPressWithPoke(gym.Env):
         return [seed]
 
     def _step(self, action):
-        assert self.action_space.contains(action), "{!r} ({}) invalid".format(
-            action,
-            type(action),
-        )
+        assert self.action_space.contains(action), f"{action!r} ({type(action)}) invalid"
         state = self.state
 
         reward = 0.0
@@ -250,10 +244,7 @@ class LeverPressWithPokeRest(gym.Env):
         ) * 1.0
 
     def _step(self, action):
-        assert self.action_space.contains(action), "{!r} ({}) invalid".format(
-            action,
-            type(action),
-        )
+        assert self.action_space.contains(action), f"{action!r} ({type(action)}) invalid"
         state = self.state
 
         if action == 0:
@@ -356,10 +347,7 @@ class ContextSwitch(gym.Env):
         return [seed]
 
     def _step(self, action):
-        assert self.action_space.contains(action), "{!r} ({}) invalid".format(
-            action,
-            type(action),
-        )
+        assert self.action_space.contains(action), f"{action!r} ({type(action)}) invalid"
         if self.rng.rand() < self.p_switch:
             self.context = 1 - self.context
 
