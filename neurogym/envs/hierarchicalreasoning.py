@@ -51,7 +51,11 @@ class HierarchicalReasoning(ngym.TrialEnv):
 
         name = {"fixation": 0, "rule": [1, 2], "stimulus": [3, 4]}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(5,), dtype=np.float32, name=name,
+            -np.inf,
+            np.inf,
+            shape=(5,),
+            dtype=np.float32,
+            name=name,
         )
         name = {"fixation": 0, "rule": [1, 2], "choice": [3, 4]}
         self.action_space = spaces.Discrete(5, name=name)

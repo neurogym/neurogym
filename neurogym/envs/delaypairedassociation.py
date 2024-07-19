@@ -16,8 +16,7 @@ class DelayPairedAssociation(ngym.TrialEnv):
 
     metadata = {
         "paper_link": "https://elifesciences.org/articles/43191",
-        "paper_name": "Active information maintenance in working memory"
-        + " by a sensory cortex",
+        "paper_name": "Active information maintenance in working memory" + " by a sensory cortex",
         "tags": ["perceptual", "working memory", "go-no-go", "supervised"],
     }
 
@@ -50,7 +49,11 @@ class DelayPairedAssociation(ngym.TrialEnv):
         # action and observation spaces
         name = {"fixation": 0, "stimulus": range(1, 5)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(5,), dtype=np.float32, name=name,
+            -np.inf,
+            np.inf,
+            shape=(5,),
+            dtype=np.float32,
+            name=name,
         )
 
         self.action_space = spaces.Discrete(2, name={"fixation": 0, "go": 1})

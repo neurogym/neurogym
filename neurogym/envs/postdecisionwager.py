@@ -56,7 +56,11 @@ class PostDecisionWager(ngym.TrialEnv):
         # set action and observation space
         name = {"fixation": 0, "stimulus": [1, 2], "sure": 3}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(4,), dtype=np.float32, name=name,
+            -np.inf,
+            np.inf,
+            shape=(4,),
+            dtype=np.float32,
+            name=name,
         )
         name = {"fixation": 0, "choice": [1, 2], "sure": 3}
         self.action_space = spaces.Discrete(4, name=name)
@@ -121,9 +125,7 @@ class PostDecisionWager(ngym.TrialEnv):
             elif action == 3:  # sure option
                 if trial["wager"]:
                     reward = self.rewards["sure"]
-                    norm_rew = (reward - self.rewards["fail"]) / (
-                        self.rewards["correct"] - self.rewards["fail"]
-                    )
+                    norm_rew = (reward - self.rewards["fail"]) / (self.rewards["correct"] - self.rewards["fail"])
                     self.performance = norm_rew
                 else:
                     reward = self.rewards["abort"]

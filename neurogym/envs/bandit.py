@@ -42,7 +42,10 @@ class Bandit(ngym.TrialEnv):
         self.p = np.array(p)  # Reward probabilities
 
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1,), dtype=np.float32,
+            -np.inf,
+            np.inf,
+            shape=(1,),
+            dtype=np.float32,
         )
         self.action_space = spaces.Discrete(n)
 

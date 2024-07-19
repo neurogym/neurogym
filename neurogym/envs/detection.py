@@ -30,7 +30,13 @@ class Detection(ngym.TrialEnv):
     }
 
     def __init__(
-        self, dt=100, rewards=None, timing=None, sigma=1.0, delay=None, stim_dur=100,
+        self,
+        dt=100,
+        rewards=None,
+        timing=None,
+        sigma=1.0,
+        delay=None,
+        stim_dur=100,
     ) -> None:
         super().__init__(dt=dt)
         # Possible decisions at the end of the trial
@@ -71,7 +77,11 @@ class Detection(ngym.TrialEnv):
 
         name = {"fixation": 0, "stimulus": 1}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(2,), dtype=np.float32, name=name,
+            -np.inf,
+            np.inf,
+            shape=(2,),
+            dtype=np.float32,
+            name=name,
         )
 
         self.action_space = spaces.Discrete(2, name={"fixation": 0, "go": 1})
@@ -136,9 +146,7 @@ class Detection(ngym.TrialEnv):
                 reward = self.rewards["abort"]
         elif self.in_period("stimulus") and action != 0:  # original
             new_trial = True
-            if (action == self.trial["ground_truth"]) and (
-                self.t >= self.end_t["fixation"] + self.delay_trial
-            ):
+            if (action == self.trial["ground_truth"]) and (self.t >= self.end_t["fixation"] + self.delay_trial):
                 reward = self.rewards["correct"]
                 self.performance = 1
             else:  # if incorrect

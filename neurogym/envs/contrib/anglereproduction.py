@@ -33,7 +33,10 @@ class AngleReproduction(ngym.TrialEnv):
         self.action_space = spaces.Discrete(3)
         # 0-31 is angle, 32 go1, 33 go2
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(34,), dtype=np.float32,
+            -np.inf,
+            np.inf,
+            shape=(34,),
+            dtype=np.float32,
         )
         self.theta = np.arange(0, 2 * np.pi, 2 * np.pi / 16)
         self.state = np.pi
@@ -82,9 +85,7 @@ class AngleReproduction(ngym.TrialEnv):
 
         self.set_groundtruth(trial["ground_truth1"], "go1")
         self.set_groundtruth(trial["ground_truth2"], "go2")
-        self.dec_per_dur = (self.end_ind["go1"] - self.start_ind["go1"]) + (
-            self.end_ind["go2"] - self.start_ind["go2"]
-        )
+        self.dec_per_dur = (self.end_ind["go1"] - self.start_ind["go1"]) + (self.end_ind["go2"] - self.start_ind["go2"])
 
         return trial
 
@@ -109,9 +110,7 @@ class AngleReproduction(ngym.TrialEnv):
                     self.rewards["fail"],
                 ),
             )
-            norm_rew = (reward - self.rewards["fail"]) / (
-                self.rewards["correct"] - self.rewards["fail"]
-            )
+            norm_rew = (reward - self.rewards["fail"]) / (self.rewards["correct"] - self.rewards["fail"])
             self.performance += norm_rew / self.dec_per_dur
 
         return ob, reward, terminated, truncated, {"new_trial": False}

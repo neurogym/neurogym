@@ -14,7 +14,10 @@ class Null(ngym.TrialEnv):
         super().__init__(dt=dt)
         self.action_space = spaces.Discrete(1)
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1,), dtype=np.float32,
+            -np.inf,
+            np.inf,
+            shape=(1,),
+            dtype=np.float32,
         )
 
     def _new_trial(self, **kwargs):

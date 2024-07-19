@@ -16,7 +16,10 @@ class PassReward(Wrapper):
         super().__init__(env)
         env_oss = env.observation_space.shape[0]
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(env_oss + 1,), dtype=np.float32,
+            -np.inf,
+            np.inf,
+            shape=(env_oss + 1,),
+            dtype=np.float32,
         )
 
     def reset(self, options=None):

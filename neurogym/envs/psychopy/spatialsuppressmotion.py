@@ -66,7 +66,10 @@ class SpatialSuppressMotion(PsychopyEnv):
 
         # four directions
         self.action_space = spaces.Box(
-            0, 1, shape=(4,), dtype=np.float32,
+            0,
+            1,
+            shape=(4,),
+            dtype=np.float32,
         )  # the probabilities for four direction
 
         self.directions = [1, 2, 3, 4]  # motion direction left/right/up/down
@@ -237,9 +240,7 @@ class SpatialSuppressMotion(PsychopyEnv):
         area = time_sigma * frame_rate / 400
         if cut_off > -1:
             uniform = int(floor(area - 3))
-            if (
-                time_sigma > cut_off & ~gauss_only
-            ):  # we provide Gaussian edges and a plateao part
+            if time_sigma > cut_off & ~gauss_only:  # we provide Gaussian edges and a plateao part
                 remd = area - uniform
                 time = p[2] * remd**2 + p[1] * remd + p[0]
                 time = time / (1000 / frame_rate)  # how many frame
@@ -257,9 +258,7 @@ class SpatialSuppressMotion(PsychopyEnv):
             else:  # in this case, we provide a completely Gaussian profile, with no flat part
                 time = time_sigma / (1000 / frame_rate)
                 mv_length = time * (1000 / frame_rate) * 6
-                mv_length = (
-                    round((round(mv_length / (1000 / frame_rate))) / 2) * 2 + 1
-                )
+                mv_length = round((round(mv_length / (1000 / frame_rate))) / 2) * 2 + 1
                 xx = arange(mv_length) + 1
                 xx = xx - xx.mean()
                 profile = exp(-(((xx) / (sqrt(2) * time)) ** 2))
@@ -310,10 +309,16 @@ class SpatialSuppressMotion(PsychopyEnv):
             prob_anti = [*yy, 0.25, 0.26, 0.2583, 0.267, 0.1417, 0.1167, 0.058, 0.016, 0.003, 0.003, 0.003, 0.003]
 
         corr_prob = interp1d(
-            frame_ind, prob_corr, kind="slinear", fill_value="extrapolate",
+            frame_ind,
+            prob_corr,
+            kind="slinear",
+            fill_value="extrapolate",
         )(xnew)
         anti_prob = interp1d(
-            frame_ind, prob_anti, kind="slinear", fill_value="extrapolate",
+            frame_ind,
+            prob_anti,
+            kind="slinear",
+            fill_value="extrapolate",
         )(xnew)
         ortho_prob = (1 - (corr_prob + anti_prob)) / 2
 

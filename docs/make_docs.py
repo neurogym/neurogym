@@ -43,7 +43,9 @@ def write_doc(write_type) -> None:
             ind = info_string.find("Tags")
             info_string = info_string[:ind]
             env = ngym.make(name)
-            env = env.unwrapped  # remove extra wrappers ('make' can add OrderEnforcer wrapper, which causes issues here)
+            env = (
+                env.unwrapped
+            )  # remove extra wrappers ('make' can add OrderEnforcer wrapper, which causes issues here)
             # Modify to add tag links
             info_string += "Tags: "
             for tag in env.metadata.get("tags", []):
@@ -57,7 +59,9 @@ def write_doc(write_type) -> None:
         # Using github's automatic link to section titles
         if write_type == "tasks":
             env = ngym.make(name)
-            env = env.unwrapped  # remove extra wrappers ('make' can add OrderEnforcer wrapper, which causes issues here)
+            env = (
+                env.unwrapped
+            )  # remove extra wrappers ('make' can add OrderEnforcer wrapper, which causes issues here)
             link = type(env).__name__
         else:
             link = name

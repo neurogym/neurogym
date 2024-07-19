@@ -66,9 +66,7 @@ class Monitor(Wrapper):
         if not os.path.exists(self.folder):
             os.makedirs(self.folder)
         # seeding
-        self.sv_name = (
-            self.folder + self.env.__class__.__name__ + "_bhvr_data_" + name + "_"
-        )
+        self.sv_name = self.folder + self.env.__class__.__name__ + "_bhvr_data_" + name + "_"
         # figure
         self.sv_fig = sv_fig
         if self.sv_fig:

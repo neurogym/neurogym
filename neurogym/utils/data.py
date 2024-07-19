@@ -80,7 +80,8 @@ class Dataset:
         self._cache_target_shape = shape2 + list(action_shape)
 
         self._inputs = np.zeros(
-            self._cache_inputs_shape, dtype=env.observation_space.dtype,
+            self._cache_inputs_shape,
+            dtype=env.observation_space.dtype,
         )
         self._target = np.zeros(self._cache_target_shape, dtype=env.action_space.dtype)
 
@@ -154,7 +155,10 @@ if __name__ == "__main__":
     import neurogym as ngym
 
     dataset = ngym.Dataset(
-        "PerceptualDecisionMaking-v0", env_kwargs={"dt": 100}, batch_size=32, seq_len=40,
+        "PerceptualDecisionMaking-v0",
+        env_kwargs={"dt": 100},
+        batch_size=32,
+        seq_len=40,
     )
     inputs_list = []
     for _ in range(2):

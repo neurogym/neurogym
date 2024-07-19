@@ -104,7 +104,8 @@ class MultiEnvs(TrialWrapper):
             if len(env_shape) > 1:
                 msg = "Env must have 1-D Box shape"
                 raise ValueError(
-                    msg, "Instead got " + str(env_shape),
+                    msg,
+                    "Instead got " + str(env_shape),
                 )
             _have_equal_shape(envs)
             self.observation_space = spaces.Box(
@@ -168,7 +169,8 @@ class ScheduleEnvs(TrialWrapper):
             if len(env_shape) > 1:
                 msg = "Env must have 1-D Box shape"
                 raise ValueError(
-                    msg, "Instead got " + str(env_shape),
+                    msg,
+                    "Instead got " + str(env_shape),
                 )
             _have_equal_shape(envs)
             self.observation_space = spaces.Box(
@@ -267,9 +269,7 @@ class TrialHistoryV2(TrialWrapper):
         if probs is None:
             probs = np.ones((self.n_ch, self.n_ch)) / self.n_ch  # uniform
         self.probs = probs
-        assert self.probs.shape == (self.n_ch, self.n_ch), (
-            "probs shape wrong, should be" + str((self.n_ch, self.n_ch))
-        )
+        assert self.probs.shape == (self.n_ch, self.n_ch), "probs shape wrong, should be" + str((self.n_ch, self.n_ch))
         self.prev_trial = self.rng.choice(self.n_ch)  # random initialization
 
     def new_trial(self, **kwargs):

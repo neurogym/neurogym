@@ -28,7 +28,12 @@ class Pneumostomeopening(ngym.BaseEnv):
     }
 
     def __init__(
-        self, dt=100, rewards=None, timing=None, sigma=1.0, extra_input_param=None,
+        self,
+        dt=100,
+        rewards=None,
+        timing=None,
+        sigma=1.0,
+        extra_input_param=None,
     ) -> None:
         super().__init__(dt=dt)
 

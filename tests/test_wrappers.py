@@ -88,7 +88,9 @@ def test_sidebias(
 
 
 def test_passaction(
-    env_name="PerceptualDecisionMaking-v0", num_steps=1000, verbose=True,
+    env_name="PerceptualDecisionMaking-v0",
+    num_steps=1000,
+    verbose=True,
 ):
     """Test pass-action wrapper.
 
@@ -124,7 +126,9 @@ def test_passaction(
 
 
 def test_passreward(
-    env_name="PerceptualDecisionMaking-v0", num_steps=1000, verbose=False,
+    env_name="PerceptualDecisionMaking-v0",
+    num_steps=1000,
+    verbose=False,
 ):
     """Test pass-reward wrapper.
     TODO: explain wrapper
@@ -361,10 +365,7 @@ def test_variablemapping(
     mean_sess_dur = np.mean(sess_durs)
     exp_sess_durs = min_sess_dur + 1 / sess_end_prob
     assert np.abs(mean_sess_dur - exp_sess_durs) < margin, (
-        "Mean sess. dur.: "
-        + str(mean_sess_dur)
-        + ", expected: "
-        + str(1 / sess_end_prob)
+        "Mean sess. dur.: " + str(mean_sess_dur) + ", expected: " + str(1 / sess_end_prob)
     )
     mapp_blck_durs = np.diff(mapp_ch)
     assert (mapp_blck_durs > min_mapp_dur).all()
@@ -441,7 +442,10 @@ def test_noise(
     reason="TimeOut is not implemented in the current version of neurogym",
 )
 def test_timeout(
-    env="NAltPerceptualDecisionMaking-v0", time_out=500, num_steps=100, verbose=True,
+    env="NAltPerceptualDecisionMaking-v0",
+    time_out=500,
+    num_steps=100,
+    verbose=True,
 ):
     env_args = {
         "n_ch": 2,
@@ -474,7 +478,11 @@ def test_timeout(
     reason="CatchTrials is not implemented in the current version of neurogym",
 )
 def test_catchtrials(
-    env_name, num_steps=10000, verbose=False, catch_prob=0.1, alt_rew=0,
+    env_name,
+    num_steps=10000,
+    verbose=False,
+    catch_prob=0.1,
+    alt_rew=0,
 ):
     env = gym.make(env_name)
     env = CatchTrials(env, catch_prob=catch_prob, alt_rew=alt_rew)
@@ -527,7 +535,10 @@ def test_trialhist_and_variable_nch(
                 nch.append(info["nch"])
                 if len(nch) > 1 and nch[-1] == nch[-2] and blk[-1] == blk[-2]:
                     transitions[
-                        info["nch"] - 2, info["curr_block"], prev_gt, info["gt"] - 1,
+                        info["nch"] - 2,
+                        info["curr_block"],
+                        prev_gt,
+                        info["gt"] - 1,
                     ] += 1
             else:
                 nch.append(num_ch)
@@ -792,12 +803,7 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
             blk_id, indx = check_blk_id(blk_id, info["curr_block"], num_blocks, sel_chs)
             s_chs.append(info["sel_chs"])
             nch.append(info["nch"])
-            if (
-                len(nch) > 2
-                and 2 * [nch[-1]] == nch[-3:-1]
-                and 2 * [blk[-1]] == blk[-3:-1]
-                and indx != -1
-            ):
+            if len(nch) > 2 and 2 * [nch[-1]] == nch[-3:-1] and 2 * [blk[-1]] == blk[-3:-1] and indx != -1:
                 num_tr_blks[indx] += 1
                 transitions[indx, prev_gt, info["gt"] - 1] += 1
                 if prev_gt > info["nch"] or info["gt"] - 1 > info["nch"]:
@@ -810,7 +816,8 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
         print(sel_choices)
         print(counts / np.sum(counts))
         tr_blks, counts = np.unique(
-            np.array(blk)[np.array(s_chs) == "1-2"], return_counts=1,
+            np.array(blk)[np.array(s_chs) == "1-2"],
+            return_counts=1,
         )
         print("\n2AFC task transition matrices and frequencies:")
         print(tr_blks)
@@ -821,7 +828,9 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
         _, ax = plt.subplots(nrows=2, ncols=1, sharex=True)
         blk_int = [int(x.replace("-", "")) for x in blk]
         ax[0].plot(
-            np.array(blk_int[:20000]) / (10 ** (num_ch - 1)), "-+", label="tr-blck",
+            np.array(blk_int[:20000]) / (10 ** (num_ch - 1)),
+            "-+",
+            label="tr-blck",
         )
         ax[0].plot(nch[:20000], "-+", label="num choices")
         ax[1].plot(gt[:20000], "-+", label="correct side")
@@ -877,7 +886,12 @@ def check_blk_id(blk_id_mat, curr_blk, num_blk, sel_chs):
     reason="TrialHistoryEvolution is not implemented in the current version of neurogym",
 )
 def test_trialhistEv(
-    env_name, num_steps=10000, probs=0.8, num_blocks=2, verbose=True, num_ch=4,
+    env_name,
+    num_steps=10000,
+    probs=0.8,
+    num_blocks=2,
+    verbose=True,
+    num_ch=4,
 ):
     env = gym.make(env_name, n_ch=num_ch)
     env = TrialHistoryEvolution(

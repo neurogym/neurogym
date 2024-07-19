@@ -58,7 +58,11 @@ class DualDelayMatchSample(ngym.TrialEnv):
             "cue2": 6,
         }
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(7,), dtype=np.float32, name=name,
+            -np.inf,
+            np.inf,
+            shape=(7,),
+            dtype=np.float32,
+            name=name,
         )
         name = {"fixation": 0, "match": 1, "non-match": 2}
         self.action_space = spaces.Discrete(3, name=name)

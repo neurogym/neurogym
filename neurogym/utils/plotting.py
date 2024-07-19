@@ -83,7 +83,6 @@ def plot_env(
     )
 
 
-
 def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     observations = []
     ob_cum = []
@@ -266,9 +265,7 @@ def plot_env_1dbox(
     i_ax += 1
     if ob_traces:
         assert len(ob_traces) == ob.shape[1], (
-            "Please provide label for each of the "
-            + str(ob.shape[1])
-            + " traces in the observations"
+            "Please provide label for each of the " + str(ob.shape[1]) + " traces in the observations"
         )
         yticks = []
         for ind_tr, tr in enumerate(ob_traces):
@@ -452,10 +449,7 @@ def plot_rew_across_training(
         ax.set_xlabel("trials")
         if not ytitle:
             ax.set_ylabel(
-                "mean "
-                + metric_name
-                + " (running window"
-                + f" of {window:d} trials)",
+                "mean " + metric_name + " (running window" + f" of {window:d} trials)",
             )
         else:
             ax.set_ylabel(ytitle)

@@ -18,10 +18,8 @@ class DawTwoStep(ngym.TrialEnv):
     """
 
     metadata = {
-        "paper_link": "https://www.sciencedirect.com/science/article/"
-        + "pii/S0896627311001255",
-        "paper_name": "Model-Based Influences on Humans"
-        + " Choices and Striatal Prediction Errors",
+        "paper_link": "https://www.sciencedirect.com/science/article/" + "pii/S0896627311001255",
+        "paper_name": "Model-Based Influences on Humans" + " Choices and Striatal Prediction Errors",
         "tags": ["two-alternative"],
     }
 
@@ -48,7 +46,10 @@ class DawTwoStep(ngym.TrialEnv):
 
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3,), dtype=np.float32,
+            -np.inf,
+            np.inf,
+            shape=(3,),
+            dtype=np.float32,
         )
 
     def _new_trial(self, **kwargs):
@@ -75,19 +76,14 @@ class DawTwoStep(ngym.TrialEnv):
             hi_state, low_state = 1, 0
 
         reward = np.empty((2,))
-        reward[hi_state] = (self.rng.rand() < self.high_reward_p) * self.rewards[
-            "correct"
-        ]
-        reward[low_state] = (self.rng.rand() < self.low_reward_p) * self.rewards[
-            "correct"
-        ]
+        reward[hi_state] = (self.rng.rand() < self.high_reward_p) * self.rewards["correct"]
+        reward[low_state] = (self.rng.rand() < self.low_reward_p) * self.rewards["correct"]
         self.ground_truth = hi_state + 1  # assuming p1, p2 >= 0.5
         return {
             "transition": transition,
             "reward": reward,
             "hi_state": hi_state,
         }
-
 
     def _step(self, action):
         trial = self.trial

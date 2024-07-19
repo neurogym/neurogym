@@ -90,16 +90,16 @@ NATIVE_ALLOW_LIST = [
     # 'ToneDetection'  # TODO: Temporary removing until bug fixed
 ]
 ALL_NATIVE_ENVS = _get_envs(
-    foldername=None, env_prefix=None, allow_list=NATIVE_ALLOW_LIST,
+    foldername=None,
+    env_prefix=None,
+    allow_list=NATIVE_ALLOW_LIST,
 )
 
 _psychopy_prefix = "neurogym.envs.psychopy."
 ALL_PSYCHOPY_ENVS = {
-    "psychopy.RandomDotMotion-v0": _psychopy_prefix
-    + "perceptualdecisionmaking:RandomDotMotion",
+    "psychopy.RandomDotMotion-v0": _psychopy_prefix + "perceptualdecisionmaking:RandomDotMotion",
     "psychopy.VisualSearch-v0": _psychopy_prefix + "visualsearch:VisualSearch",
-    "psychopy.SpatialSuppressMotion-v0": _psychopy_prefix
-    + "spatialsuppressmotion:SpatialSuppressMotion",
+    "psychopy.SpatialSuppressMotion-v0": _psychopy_prefix + "spatialsuppressmotion:SpatialSuppressMotion",
 }
 
 _contrib_name_prefix = "contrib."
@@ -114,7 +114,9 @@ CONTRIB_ALLOW_LIST = [
     # 'Pneumostomeopening'
 ]
 ALL_CONTRIB_ENVS = _get_envs(
-    foldername="contrib", env_prefix="contrib", allow_list=CONTRIB_ALLOW_LIST,
+    foldername="contrib",
+    env_prefix="contrib",
+    allow_list=CONTRIB_ALLOW_LIST,
 )
 
 
@@ -131,9 +133,7 @@ def _get_collection_envs():
     for l in collection_libs:
         lib = "neurogym.envs.collections." + l
         module = importlib.import_module(lib)
-        envs = [
-            name for name, val in getmembers(module) if isfunction(val) or isclass(val)
-        ]
+        envs = [name for name, val in getmembers(module) if isfunction(val) or isclass(val)]
         envs = [env for env in envs if env[0] != "_"]  # ignore private members
         # TODO: check is instance gym.env
         env_dict = {l + "." + env + "-v0": lib + ":" + env for env in envs}

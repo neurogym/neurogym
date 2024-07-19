@@ -43,8 +43,7 @@ class PsychopyEnv(ngym.TrialEnv):
         if isinstance(value, visual.BaseVisualStim):
             if where is not None:
                 print(
-                    "Warning: Setting where to values other than None"
-                    "has no effect when adding PsychoPy stimuli",
+                    "Warning: Setting where to values other than Nonehas no effect when adding PsychoPy stimuli",
                 )
 
             if isinstance(value, visual.DotStim):
@@ -52,8 +51,7 @@ class PsychopyEnv(ngym.TrialEnv):
                 # These stimuli need to be drawn every frame
                 if not (isinstance(period, str) or period is None):
                     raise ValueError(
-                        f"Period {period!s:s} not "
-                        + f"supported for stimuli {value!s:s}",
+                        f"Period {period!s:s} not " + f"supported for stimuli {value!s:s}",
                     )
 
                 ob = self.view_ob(period=period)

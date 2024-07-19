@@ -1,4 +1,3 @@
-
 import numpy as np
 
 import neurogym as ngym
@@ -17,8 +16,7 @@ class IntervalDiscrimination(ngym.TrialEnv):
     """
 
     metadata = {
-        "paper_link": "https://www.sciencedirect.com/science/article/pii/"
-        + "S0896627309004887",
+        "paper_link": "https://www.sciencedirect.com/science/article/pii/" + "S0896627309004887",
         "paper_name": """Feature- and Order-Based Timing Representations
          in the Frontal Cortex""",
         "tags": [
@@ -52,7 +50,11 @@ class IntervalDiscrimination(ngym.TrialEnv):
 
         name = {"fixation": 0, "stim1": 1, "stim2": 2}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3,), dtype=np.float32, name=name,
+            -np.inf,
+            np.inf,
+            shape=(3,),
+            dtype=np.float32,
+            name=name,
         )
         name = {"fixation": 0, "choice1": 1, "choice2": 2}
         self.action_space = spaces.Discrete(3, name=name)

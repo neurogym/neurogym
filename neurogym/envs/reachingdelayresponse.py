@@ -53,7 +53,9 @@ class ReachingDelayResponse(ngym.TrialEnv):
         )
 
         self.action_space = spaces.Box(
-            low=np.array((-1.0, -1.0)), high=np.array((1.0, 2.0)), dtype=np.float32,
+            low=np.array((-1.0, -1.0)),
+            high=np.array((1.0, 2.0)),
+            dtype=np.float32,
         )
 
     def _new_trial(self, **kwargs):

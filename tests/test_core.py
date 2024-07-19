@@ -16,7 +16,11 @@ def test_one_step_mismatch():
             self.timing = {"fixation": dt, "go": dt}
             name = {"fixation": 0, "go": 1}
             self.observation_space = ngym.spaces.Box(
-                -np.inf, np.inf, shape=(2,), dtype=np.float32, name=name,
+                -np.inf,
+                np.inf,
+                shape=(2,),
+                dtype=np.float32,
+                name=name,
             )
             self.action_space = ngym.spaces.Discrete(2)
 
@@ -50,7 +54,10 @@ def test_addob_instep():
             super().__init__(dt=dt)
             self.timing = {"go": 500}
             self.observation_space = ngym.spaces.Box(
-                -np.inf, np.inf, shape=(1,), dtype=np.float32,
+                -np.inf,
+                np.inf,
+                shape=(1,),
+                dtype=np.float32,
             )
             self.action_space = ngym.spaces.Discrete(3)
 

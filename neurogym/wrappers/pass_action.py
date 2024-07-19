@@ -19,7 +19,10 @@ class PassAction(Wrapper):
         # TODO: This is not adding one-hot
         env_oss = env.observation_space.shape[0]
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(env_oss + 1,), dtype=np.float32,
+            -np.inf,
+            np.inf,
+            shape=(env_oss + 1,),
+            dtype=np.float32,
         )
 
     def reset(self, options=None):

@@ -24,9 +24,7 @@ class TruncExp:
         self.rng = np.random.RandomState(seed)
 
     def __call__(self, *args, **kwargs):
-        if (
-            self.vmin >= self.vmax
-        ):  # the > is to avoid issues when making vmin as big as dt
+        if self.vmin >= self.vmax:  # the > is to avoid issues when making vmin as big as dt
             return self.vmax
         else:
             while True:

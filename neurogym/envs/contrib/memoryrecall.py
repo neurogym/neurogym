@@ -62,10 +62,16 @@ class MemoryRecall(ngym.TrialEnv):
 
         # Environment specific
         self.action_space = spaces.Box(
-            -np.inf, np.inf, shape=(stim_dim,), dtype=np.float32,
+            -np.inf,
+            np.inf,
+            shape=(stim_dim,),
+            dtype=np.float32,
         )
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(stim_dim + 1,), dtype=np.float32,
+            -np.inf,
+            np.inf,
+            shape=(stim_dim + 1,),
+            dtype=np.float32,
         )
 
     def __str__(self) -> str:
@@ -128,9 +134,7 @@ class MemoryRecall(ngym.TrialEnv):
             X_stim[T_store:, :stim_dim] = X_stim_recall * known_matrix
         else:
             flip_matrix = self.rng.rand(T_recall, stim_dim) < self.p_flip
-            X_stim[T_store:, :stim_dim] = (
-                X_stim_recall * (1 - flip_matrix) + (1 - X_stim_recall) * flip_matrix
-            )
+            X_stim[T_store:, :stim_dim] = X_stim_recall * (1 - flip_matrix) + (1 - X_stim_recall) * flip_matrix
 
         X = np.concatenate((X_stim, X_store_signal), axis=1)
         self.ob = X

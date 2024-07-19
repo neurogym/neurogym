@@ -236,9 +236,7 @@ class LeverPressWithPokeRest(gym.Env):
         return [seed]
 
     def _get_thirst(self, thirst_state):
-        return (thirst_state > 0.0) * (thirst_state < 1.0) * thirst_state + (
-            thirst_state > 1.0
-        ) * 1.0
+        return (thirst_state > 0.0) * (thirst_state < 1.0) * thirst_state + (thirst_state > 1.0) * 1.0
 
     def _step(self, action):
         assert self.action_space.contains(action), f"{action!r} ({type(action)}) invalid"

@@ -1,4 +1,3 @@
-
 import numpy as np
 
 import neurogym as ngym
@@ -56,7 +55,11 @@ class DelayComparison(ngym.TrialEnv):
         # action and observation space
         name = {"fixation": 0, "stimulus": 1}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(2,), dtype=np.float32, name=name,
+            -np.inf,
+            np.inf,
+            shape=(2,),
+            dtype=np.float32,
+            name=name,
         )
         name = {"fixation": 0, "choice": [1, 2]}
         self.action_space = spaces.Discrete(3, name=name)

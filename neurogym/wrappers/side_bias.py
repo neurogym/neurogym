@@ -26,10 +26,8 @@ class SideBias(ngym.TrialWrapper):
         try:
             self.choices = self.task.choices
         except AttributeError:
-            msg = (
-                """SideBias requires task
+            msg = """SideBias requires task
                                  to have attribute choices"""
-            )
             raise AttributeError(msg)
         assert isinstance(self.task, ngym.TrialEnv), "Task has to be TrialEnv"
         assert probs is not None, "Please provide choices probabilities"

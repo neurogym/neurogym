@@ -46,7 +46,10 @@ class MatchingPenny(ngym.TrialEnv):
 
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(2,), dtype=np.float32,
+            -np.inf,
+            np.inf,
+            shape=(2,),
+            dtype=np.float32,
         )
         self.prev_opp_action = int(self.rng.rand() > 0.5)
         if self.opponent_type == "mean_action":

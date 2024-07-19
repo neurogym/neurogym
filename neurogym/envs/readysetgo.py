@@ -24,8 +24,7 @@ class ReadySetGo(ngym.TrialEnv):
     """
 
     metadata = {
-        "paper_link": "https://www.sciencedirect.com/science/article/pii/"
-        + "S0896627318304185",
+        "paper_link": "https://www.sciencedirect.com/science/article/pii/" + "S0896627318304185",
         "paper_name": """Flexible Sensorimotor Computations through Rapid
         Reconfiguration of Cortical Dynamics""",
         "tags": ["timing", "go-no-go", "supervised"],
@@ -55,7 +54,11 @@ class ReadySetGo(ngym.TrialEnv):
         # set action and observation space
         name = {"fixation": 0, "ready": 1, "set": 2}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3,), dtype=np.float32, name=name,
+            -np.inf,
+            np.inf,
+            shape=(3,),
+            dtype=np.float32,
+            name=name,
         )
 
         name = {"fixation": 0, "go": 1}
@@ -155,7 +158,10 @@ class MotorTiming(ngym.TrialEnv):
         self.action_space = spaces.Discrete(2)  # (fixate, go)
         # Fixation, Interval indicator x2, Set
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(4,), dtype=np.float32,
+            -np.inf,
+            np.inf,
+            shape=(4,),
+            dtype=np.float32,
         )
 
     def _new_trial(self, **kwargs):
@@ -223,8 +229,7 @@ class OneTwoThreeGo(ngym.TrialEnv):
 
     metadata = {
         "paper_link": "https://www.nature.com/articles/s41593-019-0500-6",
-        "paper_name": "Internal models of sensorimotor integration "
-        "regulate cortical dynamics",
+        "paper_name": "Internal models of sensorimotor integration regulate cortical dynamics",
         "tags": ["timing", "go-no-go", "supervised"],
     }
 
@@ -256,7 +261,11 @@ class OneTwoThreeGo(ngym.TrialEnv):
         # set action and observation space
         name = {"fixation": 0, "stimulus": 1, "target": 2}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3,), dtype=np.float32, name=name,
+            -np.inf,
+            np.inf,
+            shape=(3,),
+            dtype=np.float32,
+            name=name,
         )
         name = {"fixation": 0, "go": 1}
         self.action_space = spaces.Discrete(2, name=name)

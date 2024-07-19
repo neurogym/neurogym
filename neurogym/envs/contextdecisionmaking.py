@@ -1,4 +1,3 @@
-
 import numpy as np
 
 import neurogym as ngym
@@ -29,7 +28,13 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
     }
 
     def __init__(
-        self, dt=100, context=0, rewards=None, timing=None, sigma=1.0, dim_ring=2,
+        self,
+        dt=100,
+        context=0,
+        rewards=None,
+        timing=None,
+        sigma=1.0,
+        dim_ring=2,
     ) -> None:
         super().__init__(dt=dt)
 
@@ -67,7 +72,11 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
         }
         shape = (1 + 2 * dim_ring,)
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=shape, dtype=np.float32, name=name,
+            -np.inf,
+            np.inf,
+            shape=shape,
+            dtype=np.float32,
+            name=name,
         )
 
         name = {"fixation": 0, "choice": range(1, dim_ring + 1)}
@@ -185,7 +194,11 @@ class ContextDecisionMaking(ngym.TrialEnv):
         ]
         name = {name: i for i, name in enumerate(names)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(7,), dtype=np.float32, name=name,
+            -np.inf,
+            np.inf,
+            shape=(7,),
+            dtype=np.float32,
+            name=name,
         )
 
         name = {"fixation": 0, "choice1": 1, "choice2": 2}

@@ -55,12 +55,18 @@ class SpatialSuppressMotion(ngym.TrialEnv):
 
         # define action space four directions
         self.action_space = spaces.Box(
-            0, 1, shape=(4,), dtype=np.float32,
+            0,
+            1,
+            shape=(4,),
+            dtype=np.float32,
         )  # the probabilities for four direction
 
         # define observation space
         self.observation_space = spaces.Box(
-            0, np.inf, shape=(32,), dtype=np.float32,
+            0,
+            np.inf,
+            shape=(32,),
+            dtype=np.float32,
         )  # observation space, 4 directions * 8 sizes
         # larger stimulus could elicit more neurons to fire
 
@@ -108,11 +114,7 @@ class SpatialSuppressMotion(ngym.TrialEnv):
         ob = self.view_ob(period="stimulus")
         ob = np.zeros((ob.shape[0], ob.shape[1]))
 
-        stim = (
-            (np.cos(np.array(self.theta) - self.theta[direction - 1]) + 1)
-            * contrast
-            / 2
-        )
+        stim = (np.cos(np.array(self.theta) - self.theta[direction - 1]) + 1) * contrast / 2
         stim = np.tile(stim, [diameter, 1])
 
         if diameter != 8:
@@ -185,10 +187,16 @@ class SpatialSuppressMotion(ngym.TrialEnv):
             prob_anti = [*yy, 0.25, 0.26, 0.2583, 0.267, 0.1417, 0.1167, 0.058, 0.016, 0.003, 0.003, 0.003, 0.003]
 
         corr_prob = interp1d(
-            frame_ind, prob_corr, kind="slinear", fill_value="extrapolate",
+            frame_ind,
+            prob_corr,
+            kind="slinear",
+            fill_value="extrapolate",
         )(xnew)
         anti_prob = interp1d(
-            frame_ind, prob_anti, kind="slinear", fill_value="extrapolate",
+            frame_ind,
+            prob_anti,
+            kind="slinear",
+            fill_value="extrapolate",
         )(xnew)
         ortho_prob = (1 - (corr_prob + anti_prob)) / 2
 

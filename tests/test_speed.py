@@ -82,7 +82,10 @@ def speed_dataset(env):
     seq_len = 100
     kwargs = {}
     dataset = ngym.Dataset(
-        env, env_kwargs=kwargs, batch_size=batch_size, seq_len=seq_len,
+        env,
+        env_kwargs=kwargs,
+        batch_size=batch_size,
+        seq_len=seq_len,
     )
     n_batch = 100
     start_time = time.time()

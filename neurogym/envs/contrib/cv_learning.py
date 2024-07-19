@@ -28,8 +28,7 @@ class CVLearning(ngym.TrialEnv):
 
     metadata = {
         "paper_link": "https://www.nature.com/articles/s41586-019-0919-7",
-        "paper_name": "Discrete attractor dynamics underlies persistent"
-        + " activity in the frontal cortex",
+        "paper_name": "Discrete attractor dynamics underlies persistent" + " activity in the frontal cortex",
         "tags": ["perceptual", "delayed response", "two-alternative", "supervised"],
     }
 
@@ -131,7 +130,10 @@ class CVLearning(ngym.TrialEnv):
         # action and observation spaces
         self.action_space = spaces.Discrete(n_ch + 1)
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(n_ch + 1,), dtype=np.float32,
+            -np.inf,
+            np.inf,
+            shape=(n_ch + 1,),
+            dtype=np.float32,
         )
 
     def _new_trial(self, **kwargs):
@@ -193,10 +195,7 @@ class CVLearning(ngym.TrialEnv):
                 if self.inst_perf >= self.inc_delays_th and self.inc_delays < 1:
                     self.inc_delays += self.inc_factor
                     self.trials_delay = 0
-                elif (
-                    self.inst_perf <= self.dec_delays_th
-                    and self.inc_delays > self.delay_milestone
-                ):
+                elif self.inst_perf <= self.dec_delays_th and self.inc_delays > self.delay_milestone:
                     self.inc_delays -= self.inc_factor
                     self.trials_delay = 0
             self.dur = [int(d * self.inc_delays) for d in self.delay_durs]
@@ -254,9 +253,7 @@ class CVLearning(ngym.TrialEnv):
     def set_phase(self) -> None:
         # print(self.curr_ph)
         self.day_perf[self.trials_counter] = 1 * (self.rew == self.rewards["correct"])
-        self.mov_perf[self.trials_counter % self.perf_len] = 1 * (
-            self.rew == self.rewards["correct"]
-        )
+        self.mov_perf[self.trials_counter % self.perf_len] = 1 * (self.rew == self.rewards["correct"])
         self.trials_counter += 1
         self.trials_delay += 1
 

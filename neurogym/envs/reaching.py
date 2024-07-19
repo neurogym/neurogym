@@ -39,7 +39,11 @@ class Reaching1D(ngym.TrialEnv):
         # action and observation spaces
         name = {"self": range(dim_ring, 2 * dim_ring), "target": range(dim_ring)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(2 * dim_ring,), dtype=np.float32, name=name,
+            -np.inf,
+            np.inf,
+            shape=(2 * dim_ring,),
+            dtype=np.float32,
+            name=name,
         )
         name = {"fixation": 0, "left": 1, "right": 2}
         self.action_space = spaces.Discrete(3, name=name)
@@ -86,9 +90,7 @@ class Reaching1D(ngym.TrialEnv):
                     self.rewards["fail"],
                 ),
             )
-            norm_rew = (reward - self.rewards["fail"]) / (
-                self.rewards["correct"] - self.rewards["fail"]
-            )
+            norm_rew = (reward - self.rewards["fail"]) / (self.rewards["correct"] - self.rewards["fail"])
             self.performance += norm_rew / self.dec_per_dur
 
         return self.ob_now, reward, terminated, truncated, {"new_trial": False}
@@ -132,7 +134,10 @@ class Reaching1DWithSelfDistraction(ngym.TrialEnv):
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(32,), dtype=np.float32,
+            -np.inf,
+            np.inf,
+            shape=(32,),
+            dtype=np.float32,
         )
         self.theta = np.arange(0, 2 * np.pi, 2 * np.pi / 32)
         self.state = np.pi
@@ -179,9 +184,7 @@ class Reaching1DWithSelfDistraction(ngym.TrialEnv):
                     self.rewards["fail"],
                 ),
             )
-            norm_rew = (reward - self.rewards["fail"]) / (
-                self.rewards["correct"] - self.rewards["fail"]
-            )
+            norm_rew = (reward - self.rewards["fail"]) / (self.rewards["correct"] - self.rewards["fail"])
             self.performance += norm_rew / self.dec_per_dur
 
         return self.ob_now, reward, terminated, truncated, {"new_trial": False}

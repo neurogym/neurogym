@@ -46,9 +46,7 @@ def env_string(env, short=False):
     #         string +=\
     #             key + ' : ' + tasktools.random_number_name(dist, args) + '\n'
 
-    if (
-        env.rewards is not None
-    ):  # if env.rewards is an array, if env.rewards will throw an error
+    if env.rewards is not None:  # if env.rewards is an array, if env.rewards will throw an error
         string += "\nReward structure \n"
         try:  # if the reward structure is a dictionary
             for key, val in env.rewards.items():
@@ -274,7 +272,12 @@ class TrialEnv(BaseEnv):
         return (t // self.dt) * self.dt
 
     def add_period(
-        self, period, duration=None, before=None, after=None, last_period=False,
+        self,
+        period,
+        duration=None,
+        before=None,
+        after=None,
+        last_period=False,
     ) -> None:
         """Add an period.
 
@@ -288,9 +291,7 @@ class TrialEnv(BaseEnv):
             last_period: bool, default False. If True, then this is last period
                 will generate self.tmax, self.tind, and self.ob
         """
-        assert not self._ob_built, (
-            "Cannot add period after ob is built, i.e. after running add_ob"
-        )
+        assert not self._ob_built, "Cannot add period after ob is built, i.e. after running add_ob"
         if isinstance(period, str):
             pass
         else:
@@ -340,7 +341,9 @@ class TrialEnv(BaseEnv):
             self.ob = np.zeros(ob_shape, dtype=self.observation_space.dtype)
         else:
             self.ob = np.full(
-                ob_shape, self._default_ob_value, dtype=self.observation_space.dtype,
+                ob_shape,
+                self._default_ob_value,
+                dtype=self.observation_space.dtype,
             )
         self._ob_built = True
 
@@ -348,7 +351,8 @@ class TrialEnv(BaseEnv):
         """Initialize trial with ground_truth."""
         tmax_ind = int(self._tmax / self.dt)
         self.gt = np.zeros(
-            [tmax_ind, *list(self.action_space.shape)], dtype=self.action_space.dtype,
+            [tmax_ind, *list(self.action_space.shape)],
+            dtype=self.action_space.dtype,
         )
         self._gt_built = True
 
@@ -473,7 +477,8 @@ class TrialWrapper(gym.Wrapper):
         if not isinstance(self.unwrapped, TrialEnv):
             msg = "Trial wrapper must be used on TrialEnvGot instead"
             raise TypeError(
-                msg, self.unwrapped,
+                msg,
+                self.unwrapped,
             )
         self.unwrapped.set_top(self)
 
