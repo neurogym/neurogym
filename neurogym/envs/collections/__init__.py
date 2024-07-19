@@ -3,8 +3,8 @@
 Each collection is a list of envs.
 """
 
-from inspect import getmembers, isfunction, isclass
 import importlib
+from inspect import getmembers, isclass, isfunction
 
 
 def _collection_from_file(fname):

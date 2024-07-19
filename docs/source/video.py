@@ -8,8 +8,9 @@ Modified by gryang
 # -*- coding: utf-8 -*-
 
 import os
+
 from docutils import nodes
-from docutils.parsers.rst import directives, Directive
+from docutils.parsers.rst import Directive, directives
 
 
 def get_option(options, key, default):

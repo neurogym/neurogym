@@ -4,9 +4,9 @@ import glob
 
 import gymnasium as gym
 import matplotlib as mpl
-from matplotlib import animation
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import animation
 from stable_baselines3.common.vec_env import DummyVecEnv
 
 # TODO: This is changing user's plotting behavior for non-neurogym plots

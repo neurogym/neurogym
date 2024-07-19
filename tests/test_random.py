@@ -1,9 +1,9 @@
+import numpy as np
 import pytest
 
-import numpy as np
 from neurogym.utils.random import TruncExp
+from neurogym.utils.scheduler import RandomBlockSchedule, RandomSchedule
 from neurogym.wrappers import RandomGroundTruth
-from neurogym.utils.scheduler import RandomSchedule, RandomBlockSchedule
 
 
 def test_truncexp():
