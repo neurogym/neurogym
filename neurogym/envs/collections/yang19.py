@@ -468,8 +468,7 @@ def _reach(**kwargs):
         env = _MultiModalityStimulus(env, modality=modality, n_modality=2)
         envs.append(env)
     schedule = scheduler.RandomSchedule(len(envs))
-    env = ScheduleEnvs(envs, schedule, env_input=False)
-    return env
+    return ScheduleEnvs(envs, schedule, env_input=False)
 
 
 def go(**kwargs):
@@ -513,8 +512,7 @@ def dlyanti(**kwargs):
 
 
 def _dm_kwargs():
-    env_kwargs = {"cohs": [0.08, 0.16, 0.32, 0.64], "delaycomparison": False}
-    return env_kwargs
+    return {"cohs": [0.08, 0.16, 0.32, 0.64], "delaycomparison": False}
 
 
 def dm1(**kwargs):
@@ -553,8 +551,7 @@ def multidm(**kwargs):
 
 
 def _dlydm_kwargs():
-    env_kwargs = {"cohs": [0.3, 0.6, 1.0], "delaycomparison": True}
-    return env_kwargs
+    return {"cohs": [0.3, 0.6, 1.0], "delaycomparison": True}
 
 
 def dlydm1(**kwargs):
@@ -601,8 +598,7 @@ def _dlymatch(matchto, matchgo, **kwargs):
         env = _MultiModalityStimulus(env, modality=modality, n_modality=2)
         envs.append(env)
     schedule = scheduler.RandomSchedule(len(envs))
-    env = ScheduleEnvs(envs, schedule, env_input=False)
-    return env
+    return ScheduleEnvs(envs, schedule, env_input=False)
 
 
 def dms(**kwargs):

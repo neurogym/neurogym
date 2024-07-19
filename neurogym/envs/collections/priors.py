@@ -30,5 +30,4 @@ def priors_v0(tr_hist_kwargs=None, var_nch_kwargs=None, **task_kwargs):
     env = wrappers.TrialHistoryEvolution(env, **tr_hist_kwargs)
     env = wrappers.Variable_nch(env, **var_nch_kwargs)
     env = wrappers.PassAction(env)
-    env = wrappers.PassReward(env)
-    return env
+    return wrappers.PassReward(env)

@@ -382,6 +382,5 @@ class SpatialSuppressMotion(PsychopyEnv):
         gt[direction_ortho, :] = ortho_prob
 
         # import ipdb;ipdb.set_trace();import matplotlib.pyplot as plt;
-        gt = gt.T
+        return gt.T
         # gt is a seq_len x 4 numpy array
-        return gt

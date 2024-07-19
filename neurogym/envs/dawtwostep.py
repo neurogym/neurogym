@@ -82,13 +82,12 @@ class DawTwoStep(ngym.TrialEnv):
             "correct"
         ]
         self.ground_truth = hi_state + 1  # assuming p1, p2 >= 0.5
-        trial = {
+        return {
             "transition": transition,
             "reward": reward,
             "hi_state": hi_state,
         }
 
-        return trial
 
     def _step(self, action):
         trial = self.trial

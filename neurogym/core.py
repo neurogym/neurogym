@@ -19,8 +19,7 @@ def _clean_string(string):
 
 def env_string(env, short=False):
     if short:
-        string = f"<{type(env).__name__:s}>"
-        return string
+        return f"<{type(env).__name__:s}>"
 
     string = ""
     metadata = env.metadata

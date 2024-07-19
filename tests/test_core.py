@@ -24,8 +24,7 @@ def test_one_step_mismatch():
             self.add_period(["fixation", "go"])
             self.add_ob(1, period="fixation", where="fixation")
             self.add_ob(1, period="go", where="go")
-            trial = dict()
-            return trial
+            return dict()
 
         def _step(self, action):
             info = {"new_trial": False}

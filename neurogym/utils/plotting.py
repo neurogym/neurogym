@@ -67,7 +67,7 @@ def plot_env(
         model=model,
     )
 
-    fig = fig_(
+    return fig_(
         data["ob"],
         data["actions"],
         gt=data["gt"],
@@ -82,7 +82,6 @@ def plot_env(
         fname=fname,
     )
 
-    return fig
 
 
 def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
@@ -157,7 +156,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     else:
         states = None
 
-    data = {
+    return {
         "ob": np.array(observations).astype(float),
         "ob_cum": np.array(ob_cum).astype(float),
         "rewards": rewards,
@@ -167,7 +166,6 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         "gt": gt,
         "states": states,
     }
-    return data
 
 
 # TODO: Change name, fig_ not a good name
@@ -494,5 +492,4 @@ def put_together_files(folder):
 
 def order_by_sufix(file_list):
     sfx = [int(x[x.rfind("_") + 1 : x.rfind(".")]) for x in file_list]
-    sorted_list = [x for _, x in sorted(zip(sfx, file_list))]
-    return sorted_list
+    return [x for _, x in sorted(zip(sfx, file_list))]

@@ -178,8 +178,7 @@ class LeverPressWithPoke(gym.Env):
     @property
     def optimal_reward(self):
         """Optimal reward possible for each step on average."""
-        r = self.reward_seq_complete / (1.0 + self.n_press)
-        return r
+        return self.reward_seq_complete / (1.0 + self.n_press)
 
     @property
     def optimal_chance_reward(self):

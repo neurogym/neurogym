@@ -851,7 +851,7 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
                 str(blk_id[ind_blk]) + " (N=" + str(num_tr_blks[ind_blk]) + ")",
                 fontsize=6,
             )
-    data = {
+    return {
         "transitions": transitions,
         "blk": blk,
         "blk_id": blk_id,
@@ -861,7 +861,6 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
         "obs_mat": obs_mat,
         "blk_stp": blk_stp,
     }
-    return data
 
 
 def check_blk_id(blk_id_mat, curr_blk, num_blk, sel_chs):

@@ -39,8 +39,7 @@ def _collection_from_file(fname):
         envs = sorted(envs)
         envs = [env for env in envs if env[0] != "_"]
 
-    envs = [fname + "." + env + "-v0" for env in envs]
-    return envs
+    return [fname + "." + env + "-v0" for env in envs]
 
 
 def get_collection(collection):

@@ -34,8 +34,7 @@ class CstObTrialWrapper(ngym.TrialWrapper):
 
 def _setup_env(cst_ob):
     env = make_env(ngym.all_envs()[0])
-    env = CstObTrialWrapper(env, cst_ob)
-    return env
+    return CstObTrialWrapper(env, cst_ob)
 
 
 def test_wrapper_new_trial():
