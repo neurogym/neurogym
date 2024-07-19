@@ -40,7 +40,7 @@ def test_run(env=None, num_steps=100, verbose=False, **kwargs):
         raise ValueError(msg)
 
     env.reset()
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
         state, rew, terminated, truncated, info = env.step(
             action,
@@ -75,7 +75,7 @@ def test_dataset(env=None):
     print("Testing Environment:", env)
     kwargs = {"dt": 20}
     dataset = Dataset(env, env_kwargs=kwargs, batch_size=16, seq_len=300, cache_len=1e4)
-    for i in range(10):
+    for _ in range(10):
         inputs, target = dataset()
         assert inputs.shape[0] == target.shape[0]
 
@@ -152,7 +152,7 @@ def test_seeding(env=None, seed=0):
     ob_mat = []
     rew_mat = []
     act_mat = []
-    for stp in range(100):
+    for _ in range(100):
         action = env.action_space.sample()
         ob, rew, terminated, truncated, info = env.step(action)
         ob_mat.append(ob)

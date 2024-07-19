@@ -67,7 +67,7 @@ def test_sidebias(
     env.reset()
     probs_mat = np.zeros((len(probs), num_ch))
     block = env.curr_block
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
         obs, rew, terminated, truncated, info = env.step(action)
         if info["new_trial"]:
@@ -110,7 +110,7 @@ def test_passaction(
     env = gym.make(env_name)
     env = PassAction(env)
     env.reset()
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
         obs, rew, terminated, truncated, info = env.step(action)
         assert obs[-1] == action, "Previous action is not part of observation"
@@ -145,7 +145,7 @@ def test_passreward(
     env = gym.make(env_name)
     env = PassReward(env)
     obs, _ = env.reset()
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
         obs, rew, terminated, truncated, info = env.step(action)
         assert obs[-1] == rew, "Previous reward is not part of observation"
@@ -202,7 +202,7 @@ def test_reactiontime(
         reward = []
     obs_cum = 0
     end_of_trial = False
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         if obs_cum > ths[1]:
             action = 1
         elif obs_cum < ths[0]:
@@ -315,7 +315,7 @@ def test_variablemapping(
         new_session = []
     prev_mapp = env.curr_mapping[env.trial["ground_truth"]] + 1
     stims = env.stims.flatten()
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = def_act or env.action_space.sample()
         obs, rew, terminated, truncated, info = env.step(action)
         if info["new_trial"]:
@@ -414,7 +414,7 @@ def test_noise(
     perf = []
     std_mat = []
     std_noise = 0
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         if np.random.rand() < std_noise:
             action = env.action_space.sample()
         else:
@@ -456,7 +456,7 @@ def test_timeout(
     env.reset()
     reward = []
     observations = []
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
         obs, rew, terminated, truncated, info = env.step(action)
         if verbose:
@@ -483,7 +483,7 @@ def test_catchtrials(
     env = gym.make(env_name)
     env = CatchTrials(env, catch_prob=catch_prob, alt_rew=alt_rew)
     env.reset()
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
         obs, rew, terminated, truncated, info = env.step(action)
         if info["new_trial"] and verbose:
@@ -519,7 +519,7 @@ def test_trialhist_and_variable_nch(
     gt = []
     nch = []
     prev_gt = 1
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
         obs, rew, terminated, truncated, info = env.step(action)
         if terminated:
@@ -544,7 +544,7 @@ def test_trialhist_and_variable_nch(
         ax[1].plot(gt[:20000], "-+")
         ch_mat = np.unique(nch)
         _, ax = plt.subplots(nrows=num_blocks, ncols=len(ch_mat))
-        for ind_ch, ch in enumerate(ch_mat):
+        for ind_ch, _ in enumerate(ch_mat):
             for ind_blk in range(num_blocks):
                 norm_counts = transitions[ind_ch, ind_blk, :, :]
                 nxt_tr_counts = np.sum(norm_counts, axis=1).reshape((-1, 1))
@@ -561,7 +561,7 @@ def test_ttlpulse(env_name, num_steps=10000, verbose=False, **envArgs):
     env.reset()
     obs_mat = []
     signals = []
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
         obs, rew, terminated, truncated, info = env.step(action)
         if verbose:
@@ -602,7 +602,7 @@ def test_transferLearning(num_steps=10000, verbose=False, **envArgs):
     signals = []
     rew_mat = []
     action_mat = []
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         # action = env.action_space.sample()
         action = 1
         obs, rew, terminated, truncated, info = env.step(action)
@@ -672,7 +672,7 @@ def test_combine(num_steps=10000, verbose=False, **envArgs):
     config_mat = []
     rew_mat = []
     action_mat = []
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
         # action = 1
         obs, rew, terminated, truncated, info = env.step(action)
@@ -711,7 +711,7 @@ def test_identity(env_name, num_steps=10000, **envArgs):
     env = Identity(env)
     env = Identity(env, id_="1")
     env.reset()
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
         obs, rew, terminated, truncated, info = env.step(action)
         if terminated:
@@ -779,7 +779,7 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
     nch = []
     obs_mat = []
     prev_gt = 1
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
         obs, rew, terminated, truncated, info = env.step(action)
         obs_mat.append(obs)
@@ -896,7 +896,7 @@ def test_trialhistEv(
     transitions = []
     env.reset()
     num_tr = 0
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
         obs, rew, terminated, truncated, info = env.step(action)
         if terminated:

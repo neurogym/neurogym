@@ -103,7 +103,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         num_steps = 1e5  # Overwrite num_steps value
 
     trial_count = 0
-    for stp in range(int(num_steps)):
+    for _ in range(int(num_steps)):
         if model is not None:
             action, _states = model.predict(ob)
             if isinstance(action, (float, int)):

@@ -20,7 +20,7 @@ def _test_env(env):
     dataset = ngym.Dataset(
         env, env_kwargs={"dt": 100}, batch_size=batch_size, seq_len=seq_len,
     )
-    for i in range(2):
+    for _ in range(2):
         inputs, target = dataset()
         assert inputs.shape[0] == seq_len
         assert inputs.shape[1] == batch_size

@@ -15,7 +15,7 @@ def speed(env, n_steps=100000, warmup_steps=10000):
         env = gym.make(env, **kwargs)
 
     env.reset()
-    for stp in range(warmup_steps):
+    for _ in range(warmup_steps):
         action = env.action_space.sample()
         state, rew, terminated, truncated, info = env.step(
             action,
@@ -25,7 +25,7 @@ def speed(env, n_steps=100000, warmup_steps=10000):
 
     total_time = 0
     env.reset()
-    for stp in range(n_steps):
+    for _ in range(n_steps):
         action = env.action_space.sample()
         start_time = time.time()
         state, rew, terminated, truncated, info = env.step(
@@ -50,13 +50,13 @@ def test_speed_with_new_trial(env):
         env = gym.make(env, **kwargs)
 
     env.reset()
-    for stp in range(warmup_trials):
+    for _ in range(warmup_trials):
         env.new_trial()
 
     n_steps = 0
     start_time = time.time()
     env.reset()
-    for stp in range(n_trials):
+    for _ in range(n_trials):
         env.new_trial()
         n_steps += env.ob.shape[0]
     total_time = time.time() - start_time
@@ -86,7 +86,7 @@ def speed_dataset(env):
     )
     n_batch = 100
     start_time = time.time()
-    for batch in range(n_batch):
+    for _ in range(n_batch):
         _, _ = dataset()
     total_time = time.time() - start_time
     time_per_batch = total_time / n_batch

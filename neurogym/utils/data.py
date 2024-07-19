@@ -157,7 +157,7 @@ if __name__ == "__main__":
         "PerceptualDecisionMaking-v0", env_kwargs={"dt": 100}, batch_size=32, seq_len=40,
     )
     inputs_list = []
-    for i in range(2):
+    for _ in range(2):
         inputs, target = dataset()
         inputs_list.append(inputs)
     # print(inputs.shape)

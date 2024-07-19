@@ -77,7 +77,7 @@ class VisualSearch(PsychopyEnv):
         sample_color = self.rng.uniform(0, 1, size=(3,))
         angles = [sample_angle]
         colors = [sample_color]
-        for i in range(1, self.n_target):
+        for _ in range(1, self.n_target):
             if self.rng.rand() > 0.5:
                 new_angle = sample_angle + self.rng.choice([1, -1]) * self.delta_angle
                 new_angle = np.mod(new_angle, 2 * np.pi)

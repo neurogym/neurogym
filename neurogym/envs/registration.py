@@ -49,7 +49,7 @@ def _get_envs(foldername=None, env_prefix=None, allow_list=None):
         # lib = 'neurogym.envs.collections.' + l
         lib = lib_root + filename
         module = importlib.import_module(lib)
-        for name, val in getmembers(module):
+        for name, _val in getmembers(module):
             if name in allow_list:
                 env_dict[env_prefix + name + "-v0"] = lib + ":" + name
 
