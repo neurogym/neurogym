@@ -65,7 +65,8 @@ class MatchingPenny(ngym.TrialEnv):
             opponent_action = 1 * (not np.round(self.mean_action))
         else:
             ot = self.opponent_type
-            raise ValueError(f"Unknown opponent type {ot:s}")
+            msg = f"Unknown opponent type {ot:s}"
+            raise ValueError(msg)
 
         trial = {"opponent_action": opponent_action}
         self.ob = np.zeros((1, self.observation_space.shape[0]))

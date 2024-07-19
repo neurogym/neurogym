@@ -21,7 +21,7 @@ def make_env_images():
     envs = all_envs.keys()
     for env_name in envs:
         print("Make image for env", env_name)
-        env = ngym.make(env_name, **{"dt": 20})
+        env = ngym.make(env_name, dt=20)
         action = np.zeros_like(env.action_space.sample())
         fname = Path(__file__).parent / "_static" / (env_name + "_examplerun")
         ngym.utils.plot_env(env, num_trials=2, def_act=action, fname=fname)

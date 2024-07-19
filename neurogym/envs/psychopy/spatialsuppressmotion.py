@@ -159,7 +159,7 @@ class SpatialSuppressMotion(PsychopyEnv):
             grating2.draw()
 
             self.win.flip()
-            im = self.win._getFrame()  #
+            im = self.win._getFrame()
             im = np.array(
                 im,
             )  # convert it to numpy array, it is a nPix x nPix x 3 array

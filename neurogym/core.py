@@ -243,7 +243,6 @@ class TrialEnv(BaseEnv):
 
     def render(self, mode="human"):
         """Plots relevant variables/parameters."""
-        pass
 
     def set_top(self, wrapper):
         """Set top to be wrapper."""

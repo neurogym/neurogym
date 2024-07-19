@@ -107,7 +107,7 @@ def test_print_all():
     total_count = 0
     for env_name in sorted(ENVS):
         total_count += 1
-        print("")
+        print()
         print(f"Test printing env: {env_name:s}")
         env = make_env(env_name)
         print(env)
@@ -183,7 +183,7 @@ def test_plot_envs():
     for env_name in sorted(ENVS):
         if env_name in ["Null-v0"]:
             continue
-        env = make_env(env_name, **{"dt": 20})
+        env = make_env(env_name, dt=20)
         action = np.zeros_like(env.action_space.sample())
         try:
             ngym.utils.plot_env(env, num_trials=2, def_act=action)

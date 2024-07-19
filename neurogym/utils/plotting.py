@@ -226,7 +226,8 @@ def fig_(
     elif len(ob.shape) == 4:
         return plot_env_3dbox(ob, actions, fname=fname, env=env)
     else:
-        raise ValueError(f"ob shape {str(ob.shape)} not supported")
+        msg = f"ob shape {ob.shape!s} not supported"
+        raise ValueError(msg)
 
 
 def plot_env_1dbox(
@@ -273,7 +274,7 @@ def plot_env_1dbox(
         )
         yticks = []
         for ind_tr, tr in enumerate(ob_traces):
-            ax.plot(ob[:, ind_tr], label=ob_traces[ind_tr])
+            ax.plot(ob[:, ind_tr], label=tr)
             yticks.append(np.mean(ob[:, ind_tr]))
         if legend:
             ax.legend()

@@ -507,7 +507,7 @@ def test_trialhist_and_variable_nch(
     num_ch=4,
     variable_nch=False,
 ):
-    env = gym.make(env_name, **{"n_ch": num_ch})
+    env = gym.make(env_name, n_ch=num_ch)
     env = TrialHistory(env, probs=probs, block_dur=200, num_blocks=num_blocks)
     if variable_nch:
         env = Variable_nch(env, block_nch=1000, blocks_probs=[0.1, 0.45, 0.45])
@@ -733,7 +733,7 @@ def test_all(test_fn):
         except BaseException as e:
             print(f"Failure at running env: {env_name:s}")
             print(e)
-        print("")
+        print()
 
     print(f"Success {success_count:d}/{total_count:d} envs")
 
@@ -884,7 +884,7 @@ def check_blk_id(blk_id_mat, curr_blk, num_blk, sel_chs):
 def test_trialhistEv(
     env_name, num_steps=10000, probs=0.8, num_blocks=2, verbose=True, num_ch=4,
 ):
-    env = gym.make(env_name, **{"n_ch": num_ch})
+    env = gym.make(env_name, n_ch=num_ch)
     env = TrialHistoryEvolution(
         env,
         probs=probs,
