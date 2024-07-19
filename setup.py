@@ -29,6 +29,7 @@ extras["dev"] = extras["all"] + [
     "sphinx_rtd_theme",
     "sphinxcontrib.katex",
     "nbsphinx",
+    "ruff",
 ]
 
 setup(

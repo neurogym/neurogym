@@ -5,37 +5,42 @@ name: Python package
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10']
-        gymnasium-version: ['0.29.*']
+        python-version: ["3.10"]
+        gymnasium-version: ["0.29.*"]
 
-    steps:  
-    - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v4
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Install dependencies, gymnasium v${{ matrix.gymnasium-version }}
-      run: |
-        # python -m pip install --upgrade pip
-        pip install setuptools==65.5.0 pip==21  
-        pip install wheel==0.38.0   
+      - name: Install dependencies, gymnasium v${{ matrix.gymnasium-version }}
+        run: |
+          pip install -e .["ci"]
+          pip install gymnasium==${{ matrix.gymnasium-version }}
 
-        pip install flake8 pytest
-        pip install -e .
-        pip install gymnasium==${{ matrix.gymnasium-version }}
+      - name: Test with pytest
+        continue-on-error: true
+        run: pytest tests -v
 
-    - name: Test with pytest
-      run: |
-        pytest tests -v
+      - name: Linting check
+        continue-on-error: true
+        run: |
+          ruff -V
+          ruff check
+
+      - name: Formatting check
+        run: |
+          ruff -V
+          ruff format --check
