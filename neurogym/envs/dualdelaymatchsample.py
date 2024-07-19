@@ -150,9 +150,8 @@ class DualDelayMatchSample(ngym.TrialEnv):
                     self.performance = 1
                 else:
                     reward = self.rewards["fail"]
-        else:
-            if action != 0:
-                new_trial = self.abort
-                reward = self.rewards["abort"]
+        elif action != 0:
+            new_trial = self.abort
+            reward = self.rewards["abort"]
 
         return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}

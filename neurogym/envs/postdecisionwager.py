@@ -127,12 +127,11 @@ class PostDecisionWager(ngym.TrialEnv):
                     self.performance = norm_rew
                 else:
                     reward = self.rewards["abort"]
+            elif action == trial["ground_truth"]:
+                reward = self.rewards["correct"]
+                self.performance = 1
             else:
-                if action == trial["ground_truth"]:
-                    reward = self.rewards["correct"]
-                    self.performance = 1
-                else:
-                    reward = self.rewards["fail"]
+                reward = self.rewards["fail"]
 
         return (
             self.ob_now,

@@ -126,10 +126,9 @@ class ProbabilisticReasoning(ngym.TrialEnv):
                     self.performance = 1
                 else:
                     reward += self.rewards["fail"]
-        else:
-            if action != 0:  # action = 0 means fixating
-                new_trial = self.abort
-                reward += self.rewards["abort"]
+        elif action != 0:  # action = 0 means fixating
+            new_trial = self.abort
+            reward += self.rewards["abort"]
 
         return (
             self.ob_now,

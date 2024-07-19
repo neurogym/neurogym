@@ -137,10 +137,9 @@ class HierarchicalReasoning(ngym.TrialEnv):
                     reward += self.rewards["fail"]
         elif self.in_period("rule_target"):
             self.chose_correct_rule = action == gt
-        else:
-            if action != 0:  # action = 0 means fixating
-                new_trial = self.abort
-                reward += self.rewards["abort"]
+        elif action != 0:  # action = 0 means fixating
+            new_trial = self.abort
+            reward += self.rewards["abort"]
 
         if new_trial:
             self.chose_correct_rule = False

@@ -406,12 +406,11 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
                 test_category = 1 - sample_category
             i_test_theta = self.rng.choice(self.half_ring)
             i_test_theta += test_category * self.half_ring
-        else:  # match to sample
-            if ground_truth == "match":
-                i_test_theta = i_sample_theta
-            else:
-                # non-match is 180 degree apart
-                i_test_theta = np.mod(i_sample_theta + self.half_ring, self.dim_ring)
+        elif ground_truth == "match":
+            i_test_theta = i_sample_theta
+        else:
+            # non-match is 180 degree apart
+            i_test_theta = np.mod(i_sample_theta + self.half_ring, self.dim_ring)
 
         trial["sample_theta"] = sample_theta = self.theta[i_sample_theta]
         trial["test_theta"] = test_theta = self.theta[i_test_theta]

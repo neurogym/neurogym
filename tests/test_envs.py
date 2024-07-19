@@ -35,10 +35,9 @@ def test_run(env=None, num_steps=100, verbose=False, **kwargs):
 
     if isinstance(env, str):
         env = make_env(env, **kwargs)
-    else:
-        if not isinstance(env, gym.Env):
-            msg = "env must be a string or a gym.Env"
-            raise ValueError(msg)
+    elif not isinstance(env, gym.Env):
+        msg = "env must be a string or a gym.Env"
+        raise ValueError(msg)
 
     env.reset()
     for stp in range(num_steps):
@@ -121,10 +120,9 @@ def test_trialenv(env=None, **kwargs):
 
     if isinstance(env, str):
         env = make_env(env, **kwargs)
-    else:
-        if not isinstance(env, gym.Env):
-            msg = "env must be a string or a gym.Env"
-            raise ValueError(msg)
+    elif not isinstance(env, gym.Env):
+        msg = "env must be a string or a gym.Env"
+        raise ValueError(msg)
 
     trial = env.new_trial()
     assert trial is not None, "TrialEnv should return trial info dict " + str(env)
@@ -147,10 +145,9 @@ def test_seeding(env=None, seed=0):
     if isinstance(env, str):
         kwargs = {"dt": 20}
         env = make_env(env, **kwargs)
-    else:
-        if not isinstance(env, gym.Env):
-            msg = "env must be a string or a gym.Env"
-            raise ValueError(msg)
+    elif not isinstance(env, gym.Env):
+        msg = "env must be a string or a gym.Env"
+        raise ValueError(msg)
     env.seed(seed)
     env.reset()
     ob_mat = []

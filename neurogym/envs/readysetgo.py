@@ -315,9 +315,8 @@ class OneTwoThreeGo(ngym.TrialEnv):
                     reward = max(reward, 0.1)
                     reward *= self.rewards["correct"]
                     self.performance = 1
-        else:
-            if action != 0:
-                new_trial = self.abort
-                reward = self.rewards["abort"]
+        elif action != 0:
+            new_trial = self.abort
+            reward = self.rewards["abort"]
 
         return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}

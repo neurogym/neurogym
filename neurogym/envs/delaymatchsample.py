@@ -218,10 +218,9 @@ class DelayMatchSampleDistractor1D(ngym.TrialEnv):
             if action != 0:
                 reward = self.rewards["fail"]
                 new_trial = True
-        else:
-            if action == 1:
-                reward = self.rewards["correct"]
-                new_trial = True
-                self.performance = 1
+        elif action == 1:
+            reward = self.rewards["correct"]
+            new_trial = True
+            self.performance = 1
 
         return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}

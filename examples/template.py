@@ -96,13 +96,12 @@ class YourTask(ngym.TrialEnv):
         if not self.in_period("decision"):
             if action != 0:  # if fixation break
                 reward = self.rewards["abort"]
-        else:
-            if action != 0:
-                terminated = True
-                if action == gt:  # if correct
-                    reward = self.rewards["correct"]
-                else:  # if incorrect
-                    reward = self.rewards["fail"]
+        elif action != 0:
+            terminated = True
+            if action == gt:  # if correct
+                reward = self.rewards["correct"]
+            else:  # if incorrect
+                reward = self.rewards["fail"]
 
         return (
             self.ob_now,

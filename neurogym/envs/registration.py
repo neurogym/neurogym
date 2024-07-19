@@ -24,9 +24,8 @@ def _get_envs(foldername=None, env_prefix=None, allow_list=None):
     """
     if env_prefix is None:
         env_prefix = ""
-    else:
-        if env_prefix[-1] != ".":
-            env_prefix = env_prefix + "."
+    elif env_prefix[-1] != ".":
+        env_prefix = env_prefix + "."
 
     if allow_list is None:
         allow_list = list()

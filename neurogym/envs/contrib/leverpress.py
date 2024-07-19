@@ -46,16 +46,15 @@ class LeverPress(gym.Env):
                     state = self.n_press
             else:
                 reward = -1.0
+        elif action == 1:
+            # reducing state to 0
+            state -= 1
+            if state == 0:
+                # this transition is rewarded
+                reward = self.reward_seq_complete
         else:
-            if action == 1:
-                # reducing state to 0
-                state -= 1
-                if state == 0:
-                    # this transition is rewarded
-                    reward = self.reward_seq_complete
-            else:
-                # if not pressing, then move directly to 0
-                state = 0
+            # if not pressing, then move directly to 0
+            state = 0
         signal = [float(state == self.n_press)]
 
         self.state = state
