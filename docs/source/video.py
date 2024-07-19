@@ -16,7 +16,7 @@ def get_option(options, key, default):
     if key not in options.keys():
         return default
 
-    if type(default) == type(True):
+    if type(default) == bool:
         return True
     else:
         return options[key]

@@ -3,7 +3,7 @@
 import numpy as np
 
 
-class BaseSchedule(object):
+class BaseSchedule:
     """Base schedule.
 
     Args:

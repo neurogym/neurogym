@@ -12,7 +12,7 @@ def trunc_exp(rng, vmean, vmin=0, vmax=np.inf):
                 return x
 
 
-class TruncExp(object):
+class TruncExp:
     def __init__(self, vmean, vmin=0, vmax=np.inf, rng=None):
         self.vmean = vmean
         self.vmin = vmin

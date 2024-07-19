@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # This is try to code spatial suppression motion task
 
 
@@ -258,7 +257,7 @@ class SpatialSuppressMotion(PsychopyEnv):
                 time = time_sigma / (1000 / frame_rate)
                 mv_length = time * (1000 / frame_rate) * 6
                 mv_length = (
-                    round(((round(mv_length / (1000 / frame_rate))) / 2)) * 2 + 1
+                    round((round(mv_length / (1000 / frame_rate))) / 2) * 2 + 1
                 )
                 xx = arange(mv_length) + 1
                 xx = xx - xx.mean()

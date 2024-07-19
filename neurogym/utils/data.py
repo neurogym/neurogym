@@ -6,7 +6,7 @@ import gymnasium as gym
 import numpy as np
 
 
-class Dataset(object):
+class Dataset:
     """Make an environment into an iterable dataset for supervised learning.
 
     Create an iterator that at each call returns
