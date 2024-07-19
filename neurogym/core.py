@@ -339,7 +339,7 @@ class TrialEnv(BaseEnv):
     def _init_ob(self):
         """Initialize trial info with tmax, tind, ob."""
         tmax_ind = int(self._tmax / self.dt)
-        ob_shape = [tmax_ind] + list(self.observation_space.shape)
+        ob_shape = [tmax_ind, *list(self.observation_space.shape)]
         if self._default_ob_value is None:
             self.ob = np.zeros(ob_shape, dtype=self.observation_space.dtype)
         else:
@@ -352,7 +352,7 @@ class TrialEnv(BaseEnv):
         """Initialize trial with ground_truth."""
         tmax_ind = int(self._tmax / self.dt)
         self.gt = np.zeros(
-            [tmax_ind] + list(self.action_space.shape), dtype=self.action_space.dtype,
+            [tmax_ind, *list(self.action_space.shape)], dtype=self.action_space.dtype,
         )
         self._gt_built = True
 

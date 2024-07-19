@@ -425,7 +425,7 @@ class FullInput(gym.Wrapper):
         # include reward and action information
         one_hot_action = [0.0] * self.action_space.n
         one_hot_action[action] = 1.0
-        obs = np.array(list(obs) + [reward] + one_hot_action)
+        obs = np.array([*list(obs), reward, *one_hot_action])
         return obs, reward, terminated, truncated, info
 
     def reset(self):
