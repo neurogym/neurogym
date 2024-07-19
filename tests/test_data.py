@@ -84,7 +84,7 @@ def test_examples_different_custom_env():
             self.action_space = ngym.spaces.Discrete(2)
 
         def _new_trial(self, **kwargs):
-            trial = dict()
+            trial = {}
             trial["x"] = self.rng.randint(2)
             self.add_period(["fixation", "go"])
             self.add_ob(1, period="fixation", where="fixation")

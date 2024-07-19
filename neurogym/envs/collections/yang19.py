@@ -462,7 +462,7 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
 
 
 def _reach(**kwargs):
-    envs = list()
+    envs = []
     for modality in [0, 1]:
         env = _Reach(**kwargs)
         env = _MultiModalityStimulus(env, modality=modality, n_modality=2)
@@ -590,7 +590,7 @@ def multidlydm(**kwargs):
 
 
 def _dlymatch(matchto, matchgo, **kwargs):
-    envs = list()
+    envs = []
     for modality in [0, 1]:
         env_kwargs = {"matchto": matchto, "matchgo": matchgo}
         env_kwargs.update(kwargs)

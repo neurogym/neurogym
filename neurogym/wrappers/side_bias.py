@@ -55,6 +55,6 @@ class SideBias(ngym.TrialWrapper):
                 curr_block = self.task.rng.choice(range(self.n_block))
             self.curr_block = curr_block
         probs = self.choice_prob[self.curr_block]
-        kwargs = dict()
+        kwargs = {}
         kwargs["ground_truth"] = self.task.rng.choice(self.choices, p=probs)
         return self.env.new_trial(**kwargs)

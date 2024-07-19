@@ -257,7 +257,7 @@ def plot_env_1dbox(
 
     gt_colors = "gkmcry"
     if not fig_kwargs:
-        fig_kwargs = dict(sharex=True, figsize=(5, n_row * 1.2))
+        fig_kwargs = {"sharex": True, "figsize": (5, n_row * 1.2)}
 
     f, axes = plt.subplots(n_row, 1, **fig_kwargs)
     i_ax = 0

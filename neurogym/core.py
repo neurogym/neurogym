@@ -109,10 +109,10 @@ class TrialEnv(BaseEnv):
 
         # For optional periods
         self.timing = {}
-        self.start_t = dict()
-        self.end_t = dict()
-        self.start_ind = dict()
-        self.end_ind = dict()
+        self.start_t = {}
+        self.end_t = {}
+        self.start_ind = {}
+        self.end_ind = {}
         self._tmax = 0  # Length of each trial
 
         self._top = self

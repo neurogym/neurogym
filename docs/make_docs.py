@@ -30,7 +30,7 @@ def write_doc(write_type):
     string = ""
     names = ""
     counter = 0
-    link_dict = dict()
+    link_dict = {}
     for name in all_items:
         # Get information about individual task or wrapper
         string += "___\n\n"

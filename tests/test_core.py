@@ -24,7 +24,7 @@ def test_one_step_mismatch():
             self.add_period(["fixation", "go"])
             self.add_ob(1, period="fixation", where="fixation")
             self.add_ob(1, period="go", where="go")
-            return dict()
+            return {}
 
         def _step(self, action):
             info = {"new_trial": False}
@@ -58,7 +58,7 @@ def test_addob_instep():
             self.action_space = ngym.spaces.Discrete(3)
 
         def _new_trial(self, **kwargs):
-            trial = dict()
+            trial = {}
             self.add_period("go")
             self.add_ob(1)
             return trial

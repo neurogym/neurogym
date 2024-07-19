@@ -28,7 +28,7 @@ def _get_envs(foldername=None, env_prefix=None, allow_list=None):
         env_prefix = env_prefix + "."
 
     if allow_list is None:
-        allow_list = list()
+        allow_list = []
 
     # Root path of neurogym.envs folder
     env_root = Path(__file__).resolve().parent
@@ -166,7 +166,7 @@ def all_envs(tag=None, psychopy=False, contrib=False, collections=False):
             msg = "tag must be str, but got "
             raise ValueError(msg, type(tag))
 
-        new_env_list = list()
+        new_env_list = []
         for env in env_list:
             from_, class_ = envs[env].split(":")
             imported = getattr(__import__(from_, fromlist=[class_]), class_)
