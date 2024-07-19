@@ -13,7 +13,7 @@ class RandomGroundTruth(TrialWrapper):
         try:
             self.n_ch = len(self.choices)  # max num of choices
         except AttributeError:
-            msg = "RandomGroundTruth requires task to " "have attribute choices"
+            msg = "RandomGroundTruth requires task to have attribute choices"
             raise AttributeError(
                 msg,
             )
@@ -264,7 +264,7 @@ class TrialHistoryV2(TrialWrapper):
         try:
             self.n_ch = len(self.choices)  # max num of choices
         except AttributeError:
-            msg = "TrialHistory requires task to " "have attribute choices"
+            msg = "TrialHistory requires task to have attribute choices"
             raise AttributeError(
                 msg,
             )

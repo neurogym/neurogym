@@ -292,7 +292,7 @@ class TrialEnv(BaseEnv):
                 will generate self.tmax, self.tind, and self.ob
         """
         assert not self._ob_built, (
-            "Cannot add period after ob " "is built, i.e. after running add_ob"
+            "Cannot add period after ob is built, i.e. after running add_ob"
         )
         if isinstance(period, str):
             pass
@@ -477,7 +477,7 @@ class TrialWrapper(gym.Wrapper):
         super().__init__(env)
         self.env = env
         if not isinstance(self.unwrapped, TrialEnv):
-            msg = "Trial wrapper must be used on TrialEnv" "Got instead"
+            msg = "Trial wrapper must be used on TrialEnvGot instead"
             raise TypeError(
                 msg, self.unwrapped,
             )
