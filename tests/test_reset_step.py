@@ -47,7 +47,7 @@ def test_wrapper_new_trial():
     env.new_trial()
     ob = env.ob[0]
     assert ob.shape == cst_ob.shape, "Got shape {} but expected shape {}".format(
-        ob.shape, cst_ob.shape
+        ob.shape, cst_ob.shape,
     )
     assert np.all(ob == cst_ob)
 
@@ -61,7 +61,7 @@ def test_wrapper_reset():
     ob, _ = env.reset()
 
     assert ob.shape == cst_ob.shape, "Got shape {} but expected shape {}".format(
-        ob.shape, cst_ob.shape
+        ob.shape, cst_ob.shape,
     )
     assert np.all(ob == cst_ob)
 
@@ -75,7 +75,7 @@ def test_wrapper_step():
     env.reset()
     ob, _, _, _, _ = env.step(env.action_space.sample())
     assert ob.shape == cst_ob.shape, "Got shape {} but expected shape {}".format(
-        ob.shape, cst_ob.shape
+        ob.shape, cst_ob.shape,
     )
     assert np.all(ob == cst_ob)
 

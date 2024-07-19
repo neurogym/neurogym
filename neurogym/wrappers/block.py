@@ -14,7 +14,7 @@ class RandomGroundTruth(TrialWrapper):
             self.n_ch = len(self.choices)  # max num of choices
         except AttributeError:
             raise AttributeError(
-                "RandomGroundTruth requires task to " "have attribute choices"
+                "RandomGroundTruth requires task to " "have attribute choices",
             )
         if p is None:
             p = np.ones(self.n_ch) / self.n_ch
@@ -66,7 +66,7 @@ def _have_equal_shape(envs):
                 + " and "
                 + str(env_ob_shape)
                 + " for "
-                + str(envs[0])
+                + str(envs[0]),
             )
 
     env_act_shape = envs[0].action_space.n
@@ -80,7 +80,7 @@ def _have_equal_shape(envs):
                 + " and "
                 + str(env_act_shape)
                 + " for "
-                + str(envs[0])
+                + str(envs[0]),
             )
 
 
@@ -105,7 +105,7 @@ class MultiEnvs(TrialWrapper):
             env_shape = envs[0].observation_space.shape
             if len(env_shape) > 1:
                 raise ValueError(
-                    "Env must have 1-D Box shape", "Instead got " + str(env_shape)
+                    "Env must have 1-D Box shape", "Instead got " + str(env_shape),
                 )
             _have_equal_shape(envs)
             self.observation_space = spaces.Box(
@@ -169,7 +169,7 @@ class ScheduleEnvs(TrialWrapper):
             env_shape = envs[0].observation_space.shape
             if len(env_shape) > 1:
                 raise ValueError(
-                    "Env must have 1-D Box shape", "Instead got " + str(env_shape)
+                    "Env must have 1-D Box shape", "Instead got " + str(env_shape),
                 )
             _have_equal_shape(envs)
             self.observation_space = spaces.Box(
@@ -263,7 +263,7 @@ class TrialHistoryV2(TrialWrapper):
             self.n_ch = len(self.choices)  # max num of choices
         except AttributeError:
             raise AttributeError(
-                "TrialHistory requires task to " "have attribute choices"
+                "TrialHistory requires task to " "have attribute choices",
             )
         if probs is None:
             probs = np.ones((self.n_ch, self.n_ch)) / self.n_ch  # uniform

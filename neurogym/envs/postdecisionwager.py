@@ -58,7 +58,7 @@ class PostDecisionWager(ngym.TrialEnv):
         # set action and observation space
         name = {"fixation": 0, "stimulus": [1, 2], "sure": 3}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(4,), dtype=np.float32, name=name
+            -np.inf, np.inf, shape=(4,), dtype=np.float32, name=name,
         )
         name = {"fixation": 0, "choice": [1, 2], "sure": 3}
         self.action_space = spaces.Discrete(4, name=name)

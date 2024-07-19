@@ -108,14 +108,14 @@ class VisualSearch(PsychopyEnv):
             color = tuple(trial["colors"][i])
             start, end = self._line_startend(center, angle, self.length)
             stim = visual.Line(
-                self.win, lineWidth=self.lw, lineColor=color, start=start, end=end
+                self.win, lineWidth=self.lw, lineColor=color, start=start, end=end,
             )
             self.add_ob(stim, "decision")
 
             if i == 0:
                 start, end = self._line_startend(fixation, angle, self.length)
                 stim = visual.Line(
-                    self.win, lineWidth=self.lw, lineColor=color, start=start, end=end
+                    self.win, lineWidth=self.lw, lineColor=color, start=start, end=end,
                 )
                 self.add_ob(stim, "sample")
 

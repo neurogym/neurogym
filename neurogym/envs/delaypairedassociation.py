@@ -51,7 +51,7 @@ class DelayPairedAssociation(ngym.TrialEnv):
         # action and observation spaces
         name = {"fixation": 0, "stimulus": range(1, 5)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(5,), dtype=np.float32, name=name
+            -np.inf, np.inf, shape=(5,), dtype=np.float32, name=name,
         )
 
         self.action_space = spaces.Discrete(2, name={"fixation": 0, "go": 1})

@@ -57,7 +57,7 @@ class Video(Directive):
                 autoplay=autoplay,
                 nocontrols=nocontrols,
                 loop=loop,
-            )
+            ),
         ]
 
 

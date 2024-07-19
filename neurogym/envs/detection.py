@@ -32,7 +32,7 @@ class Detection(ngym.TrialEnv):
     }
 
     def __init__(
-        self, dt=100, rewards=None, timing=None, sigma=1.0, delay=None, stim_dur=100
+        self, dt=100, rewards=None, timing=None, sigma=1.0, delay=None, stim_dur=100,
     ):
         super().__init__(dt=dt)
         # Possible decisions at the end of the trial
@@ -48,7 +48,7 @@ class Detection(ngym.TrialEnv):
                 warnings.warn(
                     "Added an extra stp after the actual stimulus,"
                     + " else model will not be able to respond "
-                    + "within response window (stimulus epoch)"
+                    + "within response window (stimulus epoch)",
                 )
         else:
             self.extra_step = 0
@@ -73,7 +73,7 @@ class Detection(ngym.TrialEnv):
 
         name = {"fixation": 0, "stimulus": 1}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(2,), dtype=np.float32, name=name
+            -np.inf, np.inf, shape=(2,), dtype=np.float32, name=name,
         )
 
         self.action_space = spaces.Discrete(2, name={"fixation": 0, "go": 1})

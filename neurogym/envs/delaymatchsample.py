@@ -51,7 +51,7 @@ class DelayMatchSample(ngym.TrialEnv):
 
         name = {"fixation": 0, "stimulus": range(1, dim_ring + 1)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name
+            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name,
         )
 
         name = {"fixation": 0, "match": 1, "non-match": 2}
@@ -164,7 +164,7 @@ class DelayMatchSampleDistractor1D(ngym.TrialEnv):
 
         name = {"fixation": 0, "stimulus": range(1, 33)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(33,), dtype=np.float32, name=name
+            -np.inf, np.inf, shape=(33,), dtype=np.float32, name=name,
         )
 
         name = {"fixation": 0, "match": 1}

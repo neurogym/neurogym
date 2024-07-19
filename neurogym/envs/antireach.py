@@ -49,7 +49,7 @@ class AntiReach(ngym.TrialEnv):
 
         name = {"fixation": 0, "stimulus": range(1, dim_ring + 1)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name
+            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name,
         )
 
         name = {"fixation": 0, "choice": range(1, dim_ring + 1)}

@@ -73,7 +73,7 @@ class ToneDetection(ngym.TrialEnv):
         self.conditions = [0, 1, 2, 3]  # no tone, tone at position 1/2/3
 
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1,), dtype=np.float32
+            -np.inf, np.inf, shape=(1,), dtype=np.float32,
         )
         self.ob_dict = {"fixation": 0, "stimulus": 1}
         self.action_space = spaces.Discrete(4)
@@ -109,7 +109,7 @@ class ToneDetection(ngym.TrialEnv):
         # generate stim input
         # define stimulus
         stim = stim[
-            :, np.newaxis
+            :, np.newaxis,
         ]  # stimulus must be at least two dimension with the 1st dimen as seq_len
         self.add_ob(stim, "stimulus")
         self.add_randn(0, self.sigma, "stimulus")  # add input noise

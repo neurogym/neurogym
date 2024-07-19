@@ -73,7 +73,7 @@ class ChangingEnvironment(ngym.TrialEnv):
         self.action_space = spaces.Discrete(5)
         # observation space: [fixation cue, left stim, right stim]
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3 + 1 * cxt_cue,), dtype=np.float32
+            -np.inf, np.inf, shape=(3 + 1 * cxt_cue,), dtype=np.float32,
         )
 
     def _new_trial(self, **kwargs):

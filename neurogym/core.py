@@ -276,7 +276,7 @@ class TrialEnv(BaseEnv):
         return (t // self.dt) * self.dt
 
     def add_period(
-        self, period, duration=None, before=None, after=None, last_period=False
+        self, period, duration=None, before=None, after=None, last_period=False,
     ):
         """Add an period.
 
@@ -300,7 +300,7 @@ class TrialEnv(BaseEnv):
                 duration = [None] * len(period)
             else:
                 assert len(duration) == len(
-                    period
+                    period,
                 ), "duration and period must have same length"
 
             # Recursively calling itself
@@ -345,7 +345,7 @@ class TrialEnv(BaseEnv):
             self.ob = np.zeros(ob_shape, dtype=self.observation_space.dtype)
         else:
             self.ob = np.full(
-                ob_shape, self._default_ob_value, dtype=self.observation_space.dtype
+                ob_shape, self._default_ob_value, dtype=self.observation_space.dtype,
             )
         self._ob_built = True
 
@@ -353,7 +353,7 @@ class TrialEnv(BaseEnv):
         """Initialize trial with ground_truth."""
         tmax_ind = int(self._tmax / self.dt)
         self.gt = np.zeros(
-            [tmax_ind] + list(self.action_space.shape), dtype=self.action_space.dtype
+            [tmax_ind] + list(self.action_space.shape), dtype=self.action_space.dtype,
         )
         self._gt_built = True
 
@@ -477,7 +477,7 @@ class TrialWrapper(gym.Wrapper):
         self.env = env
         if not isinstance(self.unwrapped, TrialEnv):
             raise TypeError(
-                "Trial wrapper must be used on TrialEnv" "Got instead", self.unwrapped
+                "Trial wrapper must be used on TrialEnv" "Got instead", self.unwrapped,
             )
         self.unwrapped.set_top(self)
 

@@ -69,7 +69,7 @@ class EconomicDecisionMaking(ngym.TrialEnv):
             "n2": 6,  # amount for choice 1 or 2
         }
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(7,), dtype=np.float32, name=name
+            -np.inf, np.inf, shape=(7,), dtype=np.float32, name=name,
         )
 
         self.act_dict = {"fixation": 0, "choice1": 1, "choice2": 2}

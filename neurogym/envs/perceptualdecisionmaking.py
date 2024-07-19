@@ -31,7 +31,7 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
     }
 
     def __init__(
-        self, dt=100, rewards=None, timing=None, cohs=None, sigma=1.0, dim_ring=2
+        self, dt=100, rewards=None, timing=None, cohs=None, sigma=1.0, dim_ring=2,
     ):
         super().__init__(dt=dt)
         if cohs is None:
@@ -56,7 +56,7 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
 
         name = {"fixation": 0, "stimulus": range(1, dim_ring + 1)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name
+            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name,
         )
         name = {"fixation": 0, "choice": range(1, dim_ring + 1)}
         self.action_space = spaces.Discrete(1 + dim_ring, name=name)
@@ -185,7 +185,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.TrialEnv):
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3,), dtype=np.float32
+            -np.inf, np.inf, shape=(3,), dtype=np.float32,
         )
 
     def _new_trial(self, **kwargs):
@@ -285,7 +285,7 @@ class PulseDecisionMaking(ngym.TrialEnv):
 
         name = {"fixation": 0, "stimulus": [1, 2]}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3,), dtype=np.float32, name=name
+            -np.inf, np.inf, shape=(3,), dtype=np.float32, name=name,
         )
         name = {"fixation": 0, "choice": [1, 2]}
         self.action_space = spaces.Discrete(3, name=name)

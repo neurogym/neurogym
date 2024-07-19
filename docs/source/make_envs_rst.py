@@ -125,7 +125,7 @@ def make_tags():
             if env in ENV_IGNORE:
                 continue
             string += "    :class:`{:s} <{:s}>`\n".format(
-                env, all_envs[env].replace(":", ".")
+                env, all_envs[env].replace(":", "."),
             )
         string += "\n"
     with open(Path(__file__).parent / "tags.rst", "w") as f:

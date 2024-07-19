@@ -33,7 +33,7 @@ class AngleReproduction(ngym.TrialEnv):
         self.action_space = spaces.Discrete(3)
         # 0-31 is angle, 32 go1, 33 go2
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(34,), dtype=np.float32
+            -np.inf, np.inf, shape=(34,), dtype=np.float32,
         )
         self.theta = np.arange(0, 2 * np.pi, 2 * np.pi / 16)
         self.state = np.pi
@@ -107,7 +107,7 @@ class AngleReproduction(ngym.TrialEnv):
                 (
                     self.rewards["correct"] - tasktools.circular_dist(self.state - gt),
                     self.rewards["fail"],
-                )
+                ),
             )
             norm_rew = (reward - self.rewards["fail"]) / (
                 self.rewards["correct"] - self.rewards["fail"]

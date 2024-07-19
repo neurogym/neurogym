@@ -18,7 +18,7 @@ def speed(env, n_steps=100000, warmup_steps=10000):
     for stp in range(warmup_steps):
         action = env.action_space.sample()
         state, rew, terminated, truncated, info = env.step(
-            action
+            action,
         )  # env.action_space.sample())
         if terminated:
             env.reset()
@@ -29,7 +29,7 @@ def speed(env, n_steps=100000, warmup_steps=10000):
         action = env.action_space.sample()
         start_time = time.time()
         state, rew, terminated, truncated, info = env.step(
-            action
+            action,
         )  # env.action_space.sample())
         total_time += time.time() - start_time
         if terminated:
@@ -82,7 +82,7 @@ def speed_dataset(env):
     seq_len = 100
     kwargs = {}
     dataset = ngym.Dataset(
-        env, env_kwargs=kwargs, batch_size=batch_size, seq_len=seq_len
+        env, env_kwargs=kwargs, batch_size=batch_size, seq_len=seq_len,
     )
     n_batch = 100
     start_time = time.time()

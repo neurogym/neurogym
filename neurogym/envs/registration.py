@@ -92,7 +92,7 @@ NATIVE_ALLOW_LIST = [
     # 'ToneDetection'  # TODO: Temporary removing until bug fixed
 ]
 ALL_NATIVE_ENVS = _get_envs(
-    foldername=None, env_prefix=None, allow_list=NATIVE_ALLOW_LIST
+    foldername=None, env_prefix=None, allow_list=NATIVE_ALLOW_LIST,
 )
 
 _psychopy_prefix = "neurogym.envs.psychopy."
@@ -116,7 +116,7 @@ CONTRIB_ALLOW_LIST = [
     # 'Pneumostomeopening'
 ]
 ALL_CONTRIB_ENVS = _get_envs(
-    foldername="contrib", env_prefix="contrib", allow_list=CONTRIB_ALLOW_LIST
+    foldername="contrib", env_prefix="contrib", allow_list=CONTRIB_ALLOW_LIST,
 )
 
 

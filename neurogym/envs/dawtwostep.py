@@ -50,7 +50,7 @@ class DawTwoStep(ngym.TrialEnv):
 
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3,), dtype=np.float32
+            -np.inf, np.inf, shape=(3,), dtype=np.float32,
         )
 
     def _new_trial(self, **kwargs):

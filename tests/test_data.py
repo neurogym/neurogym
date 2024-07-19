@@ -18,7 +18,7 @@ def _test_env(env):
     batch_size = 32
     seq_len = 40
     dataset = ngym.Dataset(
-        env, env_kwargs={"dt": 100}, batch_size=batch_size, seq_len=seq_len
+        env, env_kwargs={"dt": 100}, batch_size=batch_size, seq_len=seq_len,
     )
     for i in range(2):
         inputs, target = dataset()
@@ -79,7 +79,7 @@ def test_examples_different_custom_env():
             self.timing = {"fixation": dt, "go": dt}
             name = {"fixation": 0, "go": 1}
             self.observation_space = ngym.spaces.Box(
-                -np.inf, np.inf, shape=(2,), dtype=np.float32, name=name
+                -np.inf, np.inf, shape=(2,), dtype=np.float32, name=name,
             )
             self.action_space = ngym.spaces.Discrete(2)
 

@@ -449,7 +449,7 @@ def plot_rew_across_training(
                 "mean "
                 + metric_name
                 + " (running window"
-                + " of {:d} trials)".format(window)
+                + " of {:d} trials)".format(window),
             )
         else:
             ax.set_ylabel(ytitle)

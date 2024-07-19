@@ -65,7 +65,7 @@ class ProbabilisticReasoning(ngym.TrialEnv):
             name["loc" + str(i_loc)] = range(start, start + dim_shape)
             start += dim_shape
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + dim_shape * n_loc,), dtype=np.float32, name=name
+            -np.inf, np.inf, shape=(1 + dim_shape * n_loc,), dtype=np.float32, name=name,
         )
 
         name = {"fixation": 0, "choice": [1, 2]}
@@ -76,7 +76,7 @@ class ProbabilisticReasoning(ngym.TrialEnv):
         trial = {
             "locs": self.rng.choice(range(self.n_loc), size=self.n_loc, replace=False),
             "shapes": self.rng.choice(
-                range(self.n_shape), size=self.n_loc, replace=True
+                range(self.n_shape), size=self.n_loc, replace=True,
             ),
         }
         trial.update(kwargs)

@@ -44,7 +44,7 @@ def test_run(env=None, num_steps=100, verbose=False, **kwargs):
     for stp in range(num_steps):
         action = env.action_space.sample()
         state, rew, terminated, truncated, info = env.step(
-            action
+            action,
         )  # env.action_space.sample())
         if terminated:
             env.reset()

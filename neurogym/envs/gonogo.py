@@ -44,7 +44,7 @@ class GoNogo(ngym.TrialEnv):
         # set action and observation spaces
         name = {"fixation": 0, "nogo": 1, "go": 2}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3,), dtype=np.float32, name=name
+            -np.inf, np.inf, shape=(3,), dtype=np.float32, name=name,
         )
         self.action_space = spaces.Discrete(2, {"fixation": 0, "go": 1})
 

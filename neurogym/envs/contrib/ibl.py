@@ -37,7 +37,7 @@ class IBL(ngym.TrialEnv):
 
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(2,), dtype=np.float32
+            -np.inf, np.inf, shape=(2,), dtype=np.float32,
         )
 
     def new_block(self, n_trial, probs=None):

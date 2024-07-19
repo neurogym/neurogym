@@ -87,7 +87,7 @@ def test_sidebias(
 
 
 def test_passaction(
-    env_name="PerceptualDecisionMaking-v0", num_steps=1000, verbose=True
+    env_name="PerceptualDecisionMaking-v0", num_steps=1000, verbose=True,
 ):
     """
     Test pass-action wrapper.
@@ -124,7 +124,7 @@ def test_passaction(
 
 
 def test_passreward(
-    env_name="PerceptualDecisionMaking-v0", num_steps=1000, verbose=False
+    env_name="PerceptualDecisionMaking-v0", num_steps=1000, verbose=False,
 ):
     """
     Test pass-reward wrapper.
@@ -243,7 +243,7 @@ def test_reactiontime(
 
 
 @pytest.mark.skip(
-    reason="VariableMapping is not implemented in the current version of neurogym"
+    reason="VariableMapping is not implemented in the current version of neurogym",
 )
 def test_variablemapping(
     env="NAltConditionalVisuomotor-v0",
@@ -444,10 +444,10 @@ def test_noise(
 
 
 @pytest.mark.skip(
-    reason="TimeOut is not implemented in the current version of neurogym"
+    reason="TimeOut is not implemented in the current version of neurogym",
 )
 def test_timeout(
-    env="NAltPerceptualDecisionMaking-v0", time_out=500, num_steps=100, verbose=True
+    env="NAltPerceptualDecisionMaking-v0", time_out=500, num_steps=100, verbose=True,
 ):
     env_args = {
         "n_ch": 2,
@@ -477,10 +477,10 @@ def test_timeout(
 
 
 @pytest.mark.skip(
-    reason="CatchTrials is not implemented in the current version of neurogym"
+    reason="CatchTrials is not implemented in the current version of neurogym",
 )
 def test_catchtrials(
-    env_name, num_steps=10000, verbose=False, catch_prob=0.1, alt_rew=0
+    env_name, num_steps=10000, verbose=False, catch_prob=0.1, alt_rew=0,
 ):
     env = gym.make(env_name)
     env = CatchTrials(env, catch_prob=catch_prob, alt_rew=alt_rew)
@@ -498,7 +498,7 @@ def test_catchtrials(
 
 
 @pytest.mark.skip(
-    reason="TrialHistory and Variable_nch are not implemented in the current version of neurogym"
+    reason="TrialHistory and Variable_nch are not implemented in the current version of neurogym",
 )
 def test_trialhist_and_variable_nch(
     env_name,
@@ -533,7 +533,7 @@ def test_trialhist_and_variable_nch(
                 nch.append(info["nch"])
                 if len(nch) > 1 and nch[-1] == nch[-2] and blk[-1] == blk[-2]:
                     transitions[
-                        info["nch"] - 2, info["curr_block"], prev_gt, info["gt"] - 1
+                        info["nch"] - 2, info["curr_block"], prev_gt, info["gt"] - 1,
                     ] += 1
             else:
                 nch.append(num_ch)
@@ -555,7 +555,7 @@ def test_trialhist_and_variable_nch(
 
 
 @pytest.mark.skip(
-    reason="TTLPulse is not implemented in the current version of neurogym"
+    reason="TTLPulse is not implemented in the current version of neurogym",
 )
 def test_ttlpulse(env_name, num_steps=10000, verbose=False, **envArgs):
     env = gym.make(env_name, **envArgs)
@@ -585,7 +585,7 @@ def test_ttlpulse(env_name, num_steps=10000, verbose=False, **envArgs):
 
 
 @pytest.mark.skip(
-    reason="TransferLearning is not implemented in the current version of neurogym"
+    reason="TransferLearning is not implemented in the current version of neurogym",
 )
 def test_transferLearning(num_steps=10000, verbose=False, **envArgs):
     task = "GoNogo-v0"
@@ -636,7 +636,7 @@ def test_transferLearning(num_steps=10000, verbose=False, **envArgs):
 
 
 @pytest.mark.skip(
-    reason="Combine is not implemented in the current version of neurogym"
+    reason="Combine is not implemented in the current version of neurogym",
 )
 def test_combine(num_steps=10000, verbose=False, **envArgs):
     task = "GoNogo-v0"
@@ -706,7 +706,7 @@ def test_combine(num_steps=10000, verbose=False, **envArgs):
 
 
 @pytest.mark.skip(
-    reason="Identity is not implemented in the current version of neurogym"
+    reason="Identity is not implemented in the current version of neurogym",
 )
 def test_identity(env_name, num_steps=10000, **envArgs):
     env = gym.make(env_name, **envArgs)
@@ -741,7 +741,7 @@ def test_all(test_fn):
 
 
 @pytest.mark.skip(
-    reason="TrialHistoryEvolution and Variable_nch are not implemented in the current version of neurogym"
+    reason="TrialHistoryEvolution and Variable_nch are not implemented in the current version of neurogym",
 )
 def test_concat_wrpprs_th_vch_pssr_pssa(
     env_name,
@@ -814,7 +814,7 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
         print(sel_choices)
         print(counts / np.sum(counts))
         tr_blks, counts = np.unique(
-            np.array(blk)[np.array(s_chs) == "1-2"], return_counts=1
+            np.array(blk)[np.array(s_chs) == "1-2"], return_counts=1,
         )
         print("\n2AFC task transition matrices and frequencies:")
         print(tr_blks)
@@ -825,7 +825,7 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
         _, ax = plt.subplots(nrows=2, ncols=1, sharex=True)
         blk_int = [int(x.replace("-", "")) for x in blk]
         ax[0].plot(
-            np.array(blk_int[:20000]) / (10 ** (num_ch - 1)), "-+", label="tr-blck"
+            np.array(blk_int[:20000]) / (10 ** (num_ch - 1)), "-+", label="tr-blck",
         )
         ax[0].plot(nch[:20000], "-+", label="num choices")
         ax[1].plot(gt[:20000], "-+", label="correct side")
@@ -879,10 +879,10 @@ def check_blk_id(blk_id_mat, curr_blk, num_blk, sel_chs):
 
 
 @pytest.mark.skip(
-    reason="TrialHistoryEvolution is not implemented in the current version of neurogym"
+    reason="TrialHistoryEvolution is not implemented in the current version of neurogym",
 )
 def test_trialhistEv(
-    env_name, num_steps=10000, probs=0.8, num_blocks=2, verbose=True, num_ch=4
+    env_name, num_steps=10000, probs=0.8, num_blocks=2, verbose=True, num_ch=4,
 ):
     env = gym.make(env_name, **{"n_ch": num_ch})
     env = TrialHistoryEvolution(
@@ -906,7 +906,7 @@ def test_trialhistEv(
             num_tr += 1
             # print(info['curr_block'])
             transitions.append(
-                np.array([np.where(x == 0.8)[0][0] for x in env.curr_tr_mat[0, :, :]])
+                np.array([np.where(x == 0.8)[0][0] for x in env.curr_tr_mat[0, :, :]]),
             )
         if info["new_generation"] and verbose:
             print("New generation")

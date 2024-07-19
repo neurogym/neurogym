@@ -130,7 +130,7 @@ class CVLearning(ngym.TrialEnv):
         # action and observation spaces
         self.action_space = spaces.Discrete(n_ch + 1)
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(n_ch + 1,), dtype=np.float32
+            -np.inf, np.inf, shape=(n_ch + 1,), dtype=np.float32,
         )
 
     def _new_trial(self, **kwargs):

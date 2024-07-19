@@ -62,10 +62,10 @@ class MemoryRecall(ngym.TrialEnv):
 
         # Environment specific
         self.action_space = spaces.Box(
-            -np.inf, np.inf, shape=(stim_dim,), dtype=np.float32
+            -np.inf, np.inf, shape=(stim_dim,), dtype=np.float32,
         )
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(stim_dim + 1,), dtype=np.float32
+            -np.inf, np.inf, shape=(stim_dim + 1,), dtype=np.float32,
         )
 
     def __str__(self):
@@ -81,7 +81,7 @@ class MemoryRecall(ngym.TrialEnv):
                 ("T_distribution", "Sequence length distribution"),
                 ("p_recall", "Proportion of recall"),
                 ("chance", "Chancel level accuracy"),
-            ]
+            ],
         )
         if self.balanced:
             nicename_dict["p_unknown"] = "Proportion of unknown elements at recall"

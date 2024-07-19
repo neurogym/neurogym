@@ -30,7 +30,7 @@ class YourTask(ngym.TrialEnv):
         # Optional annotation of the observation space
         name = {"fixation": 0, "stimulus": [1, 2]}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3,), dtype=np.float32, name=name
+            -np.inf, np.inf, shape=(3,), dtype=np.float32, name=name,
         )
         # Optional annotation of the action space
         name = {"fixation": 0, "choice": [1, 2]}

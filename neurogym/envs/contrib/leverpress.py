@@ -74,7 +74,7 @@ class LeverPress(gym.Env):
         else:
             if self.steps_beyond_done == 0:
                 logger.warn(
-                    "You are calling 'step()' even though this environment has already returned terminated = True. You should always call 'reset()' once you receive 'terminated = True' -- any further steps are undefined behavior."
+                    "You are calling 'step()' even though this environment has already returned terminated = True. You should always call 'reset()' once you receive 'terminated = True' -- any further steps are undefined behavior.",
                 )
             self.steps_beyond_done += 1
 
@@ -170,7 +170,7 @@ class LeverPressWithPoke(gym.Env):
         else:
             if self.steps_beyond_done == 0:
                 logger.warn(
-                    "You are calling 'step()' even though this environment has already returned terminated = True. You should always call 'reset()' once you receive 'terminated = True' -- any further steps are undefined behavior."
+                    "You are calling 'step()' even though this environment has already returned terminated = True. You should always call 'reset()' once you receive 'terminated = True' -- any further steps are undefined behavior.",
                 )
             self.steps_beyond_done += 1
 
@@ -297,7 +297,7 @@ class LeverPressWithPokeRest(gym.Env):
         else:
             if self.steps_beyond_done == 0:
                 logger.warn(
-                    "You are calling 'step()' even though this environment has already returned terminated = True. You should always call 'reset()' once you receive 'terminated = True' -- any further steps are undefined behavior."
+                    "You are calling 'step()' even though this environment has already returned terminated = True. You should always call 'reset()' once you receive 'terminated = True' -- any further steps are undefined behavior.",
                 )
             self.steps_beyond_done += 1
 
@@ -394,7 +394,7 @@ class ContextSwitch(gym.Env):
         else:
             if self.steps_beyond_done == 0:
                 logger.warn(
-                    "You are calling 'step()' even though this environment has already returned terminated = True. You should always call 'reset()' once you receive 'terminated = True' -- any further steps are undefined behavior."
+                    "You are calling 'step()' even though this environment has already returned terminated = True. You should always call 'reset()' once you receive 'terminated = True' -- any further steps are undefined behavior.",
                 )
             self.steps_beyond_done += 1
 

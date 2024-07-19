@@ -47,7 +47,7 @@ class PsychopyEnv(ngym.TrialEnv):
             if where is not None:
                 print(
                     "Warning: Setting where to values other than None"
-                    "has no effect when adding PsychoPy stimuli"
+                    "has no effect when adding PsychoPy stimuli",
                 )
 
             if isinstance(value, visual.DotStim):
@@ -56,7 +56,7 @@ class PsychopyEnv(ngym.TrialEnv):
                 if not (isinstance(period, str) or period is None):
                     raise ValueError(
                         "Period {:s} not ".format(str(period))
-                        + "supported for stimuli {:s}".format(str(value))
+                        + "supported for stimuli {:s}".format(str(value)),
                     )
 
                 ob = self.view_ob(period=period)

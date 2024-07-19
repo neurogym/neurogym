@@ -39,7 +39,7 @@ class _MultiModalityStimulus(TrialWrapper):
         # Shift stimulus
         name = {"fixation": 0, "stimulus": ind_stimulus + len_stimulus * modality}
         self.observation_space = self.task.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(ob_shape,), dtype=ob_space.dtype, name=name
+            -np.inf, np.inf, shape=(ob_shape,), dtype=ob_space.dtype, name=name,
         )
 
     def new_trial(self, **kwargs):
@@ -61,7 +61,7 @@ class _Reach(ngym.TrialEnv):
     }
 
     def __init__(
-        self, dt=100, anti=True, rewards=None, timing=None, dim_ring=16, reaction=False
+        self, dt=100, anti=True, rewards=None, timing=None, dim_ring=16, reaction=False,
     ):
         super().__init__(dt=dt)
 
@@ -86,7 +86,7 @@ class _Reach(ngym.TrialEnv):
 
         name = {"fixation": 0, "stimulus": range(1, dim_ring + 1)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name
+            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name,
         )
 
         name = {"fixation": 0, "choice": range(1, dim_ring + 1)}
@@ -224,7 +224,7 @@ class _DMFamily(ngym.TrialEnv):
             "stimulus_mod2": range(dim_ring + 1, 2 * dim_ring + 1),
         }
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + 2 * dim_ring,), dtype=np.float32, name=name
+            -np.inf, np.inf, shape=(1 + 2 * dim_ring,), dtype=np.float32, name=name,
         )
         name = {"fixation": 0, "choice": range(1, dim_ring + 1)}
         self.action_space = spaces.Discrete(1 + dim_ring, name=name)
@@ -380,7 +380,7 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
 
         name = {"fixation": 0, "stimulus": range(1, dim_ring + 1)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name
+            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name,
         )
         name = {"fixation": 0, "choice": range(1, dim_ring + 1)}
         self.action_space = spaces.Discrete(1 + dim_ring, name=name)

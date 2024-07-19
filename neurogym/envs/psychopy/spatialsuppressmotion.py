@@ -64,7 +64,7 @@ class SpatialSuppressMotion(PsychopyEnv):
 
         # four directions
         self.action_space = spaces.Box(
-            0, 1, shape=(4,), dtype=np.float32
+            0, 1, shape=(4,), dtype=np.float32,
         )  # the probabilities for four direction
 
         self.directions = [1, 2, 3, 4]  # motion direction left/right/up/down
@@ -160,7 +160,7 @@ class SpatialSuppressMotion(PsychopyEnv):
             self.win.flip()
             im = self.win._getFrame()  #
             im = np.array(
-                im
+                im,
             )  # convert it to numpy array, it is a nPix x nPix x 3 array
             # import ipdb;ipdb.set_trace();import matplotlib.pyplot as plt;
 
@@ -367,10 +367,10 @@ class SpatialSuppressMotion(PsychopyEnv):
             ]
 
         corr_prob = interp1d(
-            frame_ind, prob_corr, kind="slinear", fill_value="extrapolate"
+            frame_ind, prob_corr, kind="slinear", fill_value="extrapolate",
         )(xnew)
         anti_prob = interp1d(
-            frame_ind, prob_anti, kind="slinear", fill_value="extrapolate"
+            frame_ind, prob_anti, kind="slinear", fill_value="extrapolate",
         )(xnew)
         ortho_prob = (1 - (corr_prob + anti_prob)) / 2
 
