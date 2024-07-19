@@ -127,7 +127,8 @@ class TrialEnv(BaseEnv):
             trial: dict of trial information. Available to step function as
                 self.trial
         """
-        raise NotImplementedError("_new_trial is not defined by user.")
+        msg = "_new_trial is not defined by user."
+        raise NotImplementedError(msg)
 
     def _step(self, action):
         """Private interface for the environment.
@@ -136,7 +137,8 @@ class TrialEnv(BaseEnv):
         indicating whether the experiment has ended and a dictionary with
         useful information
         """
-        raise NotImplementedError("_step is not defined by user.")
+        msg = "_step is not defined by user."
+        raise NotImplementedError(msg)
 
     def seed(self, seed=None):
         """Set random seed."""
@@ -268,7 +270,8 @@ class TrialEnv(BaseEnv):
                 # set period duration such that self.t_end[period] = args
                 t = args - self.tmax
             else:
-                raise ValueError("Unknown dist:", str(dist))
+                msg = "Unknown dist:"
+                raise ValueError(msg, str(dist))
         return (t // self.dt) * self.dt
 
     def add_period(
@@ -472,8 +475,9 @@ class TrialWrapper(gym.Wrapper):
         super().__init__(env)
         self.env = env
         if not isinstance(self.unwrapped, TrialEnv):
+            msg = "Trial wrapper must be used on TrialEnv" "Got instead"
             raise TypeError(
-                "Trial wrapper must be used on TrialEnv" "Got instead", self.unwrapped,
+                msg, self.unwrapped,
             )
         self.unwrapped.set_top(self)
 

@@ -5,7 +5,8 @@ import numpy as np
 try:
     from psychopy import visual
 except ImportError:
-    raise ImportError("Psychopy is not installed.")
+    msg = "Psychopy is not installed."
+    raise ImportError(msg)
 
 from gymnasium import spaces
 

@@ -67,7 +67,8 @@ class SequentialBlockSchedule(BaseSchedule):
         super().__init__(n)
         self.block_lens = block_lens
         if len(block_lens) != n:
-            raise ValueError("Length of block_lens must equal n")
+            msg = "Length of block_lens must equal n"
+            raise ValueError(msg)
 
     def __call__(self):
         if self.count < self.block_lens[self.i]:
@@ -88,7 +89,8 @@ class RandomBlockSchedule(BaseSchedule):
         super().__init__(n)
         self.block_lens = block_lens
         if len(block_lens) != n:
-            raise ValueError("Length of block_lens must equal n")
+            msg = "Length of block_lens must equal n"
+            raise ValueError(msg)
 
     def __call__(self):
         if self.count < self.block_lens[self.i]:

@@ -46,7 +46,8 @@ class MemoryRecall(ngym.TrialEnv):
         if T_distribution == "uniform":
             self.generate_T = lambda: self.rng.randint(self.T_min, self.T_max + 1)
         else:
-            raise ValueError("Not supported T distribution type", str(T_distribution))
+            msg = "Not supported T distribution type"
+            raise ValueError(msg, str(T_distribution))
         self.p_recall = p_recall
         self.balanced = balanced
         self.chance = chance

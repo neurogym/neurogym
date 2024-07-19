@@ -113,6 +113,7 @@ class DawTwoStep(ngym.TrialEnv):
                 reward = self.rewards["abort"]
             info["new_trial"] = True
         else:
-            raise ValueError("t is not 0 or 1")
+            msg = "t is not 0 or 1"
+            raise ValueError(msg)
 
         return ob, reward, terminated, truncated, info

@@ -239,7 +239,8 @@ def plot_env_1dbox(
 ):
     """Plot environment with 1-D Box observation space."""
     if len(ob.shape) != 2:
-        raise ValueError("ob has to be 2-dimensional.")
+        msg = "ob has to be 2-dimensional."
+        raise ValueError(msg)
     steps = np.arange(ob.shape[0])  # XXX: +1? 1st ob doesn't have action/gt
 
     n_row = 2  # observation and action

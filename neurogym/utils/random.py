@@ -46,7 +46,8 @@ def random_number_fn(dist, args, rng):
     elif dist == "constant":
         return lambda: args
     else:
-        raise ValueError("Unknown dist:", str(dist))
+        msg = "Unknown dist:"
+        raise ValueError(msg, str(dist))
 
 
 def random_number_name(dist, args):
@@ -65,4 +66,5 @@ def random_number_name(dist, args):
     elif dist == "constant":
         return dist + " " + str(args)
     else:
-        raise ValueError("Unknown dist:", str(dist))
+        msg = "Unknown dist:"
+        raise ValueError(msg, str(dist))

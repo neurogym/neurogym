@@ -13,8 +13,9 @@ class RandomGroundTruth(TrialWrapper):
         try:
             self.n_ch = len(self.choices)  # max num of choices
         except AttributeError:
+            msg = "RandomGroundTruth requires task to " "have attribute choices"
             raise AttributeError(
-                "RandomGroundTruth requires task to " "have attribute choices",
+                msg,
             )
         if p is None:
             p = np.ones(self.n_ch) / self.n_ch
@@ -104,8 +105,9 @@ class MultiEnvs(TrialWrapper):
         if env_input:
             env_shape = envs[0].observation_space.shape
             if len(env_shape) > 1:
+                msg = "Env must have 1-D Box shape"
                 raise ValueError(
-                    "Env must have 1-D Box shape", "Instead got " + str(env_shape),
+                    msg, "Instead got " + str(env_shape),
                 )
             _have_equal_shape(envs)
             self.observation_space = spaces.Box(
@@ -168,8 +170,9 @@ class ScheduleEnvs(TrialWrapper):
         if env_input:
             env_shape = envs[0].observation_space.shape
             if len(env_shape) > 1:
+                msg = "Env must have 1-D Box shape"
                 raise ValueError(
-                    "Env must have 1-D Box shape", "Instead got " + str(env_shape),
+                    msg, "Instead got " + str(env_shape),
                 )
             _have_equal_shape(envs)
             self.observation_space = spaces.Box(
@@ -261,8 +264,9 @@ class TrialHistoryV2(TrialWrapper):
         try:
             self.n_ch = len(self.choices)  # max num of choices
         except AttributeError:
+            msg = "TrialHistory requires task to " "have attribute choices"
             raise AttributeError(
-                "TrialHistory requires task to " "have attribute choices",
+                msg,
             )
         if probs is None:
             probs = np.ones((self.n_ch, self.n_ch)) / self.n_ch  # uniform

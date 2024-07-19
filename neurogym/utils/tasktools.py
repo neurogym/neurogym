@@ -40,7 +40,8 @@ def minmax_number(dist, args):
     elif dist == "constant":
         return args, args
     else:
-        raise ValueError("Unknown dist:", str(dist))
+        msg = "Unknown dist:"
+        raise ValueError(msg, str(dist))
 
 
 def circular_dist(original_dist):

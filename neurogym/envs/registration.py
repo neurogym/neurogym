@@ -164,7 +164,8 @@ def all_envs(tag=None, psychopy=False, contrib=False, collections=False):
         return env_list
     else:
         if not isinstance(tag, str):
-            raise ValueError("tag must be str, but got ", type(tag))
+            msg = "tag must be str, but got "
+            raise ValueError(msg, type(tag))
 
         new_env_list = list()
         for env in env_list:
@@ -200,9 +201,11 @@ def all_tags():
 def _distance(s0, s1):
     # Copyright (c) 2018 luozhouyang
     if s0 is None:
-        raise TypeError("Argument s0 is NoneType.")
+        msg = "Argument s0 is NoneType."
+        raise TypeError(msg)
     if s1 is None:
-        raise TypeError("Argument s1 is NoneType.")
+        msg = "Argument s1 is NoneType."
+        raise TypeError(msg)
     if s0 == s1:
         return 0.0
     if len(s0) == 0:
