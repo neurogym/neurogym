@@ -1,10 +1,9 @@
-""" """
+from typing import NoReturn
 
 import gymnasium as gym
 import numpy as np
 from gymnasium import logger, spaces
 from gymnasium.utils import seeding
-from typing import NoReturn
 
 
 class LeverPress(gym.Env):

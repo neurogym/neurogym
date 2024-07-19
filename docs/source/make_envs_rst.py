@@ -46,7 +46,7 @@ def make_envs() -> None:
     string += "===================================\n\n"
     string += ".. toctree::\n"
     string += "    :maxdepth: 1\n\n"
-    for key, _val in all_envs.items():
+    for key in all_envs:
         string += " " * 4 + f"{key:s}\n"
     with open(Path(__file__).parent / "envs" / "index.rst", "w") as f:
         f.write(string)

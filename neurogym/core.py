@@ -2,12 +2,12 @@
 
 
 import contextlib
+from typing import NoReturn
 
 import gymnasium as gym
 import numpy as np
 
 from neurogym.utils.random import trunc_exp
-from typing import NoReturn
 
 METADATA_DEF_KEYS = ["description", "paper_name", "paper_link", "timing", "tags"]
 
