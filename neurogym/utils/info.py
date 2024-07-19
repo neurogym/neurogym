@@ -9,12 +9,12 @@ from neurogym.envs.registration import ALL_ENVS, all_envs
 from neurogym.wrappers import ALL_WRAPPERS
 
 
-def all_tasks():
+def all_tasks() -> None:
     for task in sorted(ALL_ENVS):
         print(task)
 
 
-def all_wrappers():
+def all_wrappers() -> None:
     for wrapper in sorted(ALL_WRAPPERS):
         print(wrapper)
 

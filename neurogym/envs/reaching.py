@@ -25,7 +25,7 @@ class Reaching1D(ngym.TrialEnv):
         "tags": ["motor", "steps action space"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, dim_ring=16):
+    def __init__(self, dt=100, rewards=None, timing=None, dim_ring=16) -> None:
         super().__init__(dt=dt)
         # Rewards
         self.rewards = {"correct": +1.0, "fail": -0.1}
@@ -118,7 +118,7 @@ class Reaching1DWithSelfDistraction(ngym.TrialEnv):
         "tags": ["motor", "steps action space"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None) -> None:
         super().__init__(dt=dt)
         # Rewards
         self.rewards = {"correct": +1.0, "fail": -0.1}

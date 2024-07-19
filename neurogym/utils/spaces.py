@@ -18,7 +18,7 @@ class Box(GymBox):
                                 name={'fixation': 0, 'stimulus': [1, 2]})
     """
 
-    def __init__(self, low, high, name=None, **kwargs):
+    def __init__(self, low, high, name=None, **kwargs) -> None:
         super().__init__(low, high, **kwargs)
         if name is not None:
             assert isinstance(name, dict)
@@ -38,7 +38,7 @@ class Discrete(GymDiscrete):
         observation_space = Discrete(n=3, name={'fixation': 0, 'stimulus': [1, 2]})
     """
 
-    def __init__(self, n, name=None, **kwargs):
+    def __init__(self, n, name=None, **kwargs) -> None:
         super().__init__(n)
         if name is not None:
             assert isinstance(name, dict)

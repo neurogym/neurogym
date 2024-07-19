@@ -30,7 +30,7 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
 
     def __init__(
         self, dt=100, context=0, rewards=None, timing=None, sigma=1.0, dim_ring=2,
-    ):
+    ) -> None:
         super().__init__(dt=dt)
 
         # trial conditions
@@ -148,7 +148,7 @@ class ContextDecisionMaking(ngym.TrialEnv):
         "tags": ["perceptual", "context dependent", "two-alternative", "supervised"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0) -> None:
         super().__init__(dt=dt)
 
         # trial conditions

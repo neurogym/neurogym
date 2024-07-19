@@ -24,7 +24,7 @@ class ReactionTime(gym.Wrapper):  # TODO: Make this a trial wrapper instead?
         "paper_name": None,
     }
 
-    def __init__(self, env, urgency=0.0):
+    def __init__(self, env, urgency=0.0) -> None:
         super().__init__(env)
         self.env = env
         self.urgency = urgency

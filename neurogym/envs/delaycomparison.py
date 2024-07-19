@@ -20,7 +20,7 @@ class DelayComparison(ngym.TrialEnv):
         "tags": ["perceptual", "working memory", "two-alternative", "supervised"],
     }
 
-    def __init__(self, dt=100, vpairs=None, rewards=None, timing=None, sigma=1.0):
+    def __init__(self, dt=100, vpairs=None, rewards=None, timing=None, sigma=1.0) -> None:
         super().__init__(dt=dt)
 
         # Pair of stimulus strengthes

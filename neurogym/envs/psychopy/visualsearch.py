@@ -36,7 +36,7 @@ class VisualSearch(PsychopyEnv):
         delta_angle=None,
         delta_color=None,
         line_width=3,
-    ):
+    ) -> None:
         if win_kwargs is None:
             win_kwargs = {"size": (100, 100)}
         super().__init__(dt=dt, win_kwargs=win_kwargs)

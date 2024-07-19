@@ -31,7 +31,7 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
 
     def __init__(
         self, dt=100, rewards=None, timing=None, cohs=None, sigma=1.0, dim_ring=2,
-    ):
+    ) -> None:
         super().__init__(dt=dt)
         if cohs is None:
             self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])
@@ -154,7 +154,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.TrialEnv):
         "tags": ["perceptual", "delayed response", "two-alternative", "supervised"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.0, sigma=1.0):
+    def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.0, sigma=1.0) -> None:
         super().__init__(dt=dt)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence (modulated by stim_scale)
@@ -261,7 +261,7 @@ class PulseDecisionMaking(ngym.TrialEnv):
         "tags": ["perceptual", "two-alternative", "supervised"],
     }
 
-    def __init__(self, dt=10, rewards=None, timing=None, p_pulse=(0.3, 0.7), n_bin=6):
+    def __init__(self, dt=10, rewards=None, timing=None, p_pulse=(0.3, 0.7), n_bin=6) -> None:
         super().__init__(dt=dt)
         self.p_pulse = p_pulse
         self.n_bin = n_bin

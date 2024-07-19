@@ -29,7 +29,7 @@ class Pneumostomeopening(ngym.BaseEnv):
 
     def __init__(
         self, dt=100, rewards=None, timing=None, sigma=1.0, extra_input_param=None,
-    ):
+    ) -> None:
         super().__init__(dt=dt)
 
         self.t = 0
@@ -146,10 +146,10 @@ class Pneumostomeopening(ngym.BaseEnv):
             {"new_trial": new_trial},
         )
 
-    def render(self, mode="human"):
+    def render(self, mode="human") -> None:
         pass
 
-    def close(self):
+    def close(self) -> None:
         pass
 
 

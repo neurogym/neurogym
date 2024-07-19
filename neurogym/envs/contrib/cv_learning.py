@@ -47,7 +47,7 @@ class CVLearning(ngym.TrialEnv):
         perf_len=20,
         stages=None,
         n_ch=10,
-    ):
+    ) -> None:
         if stages is None:
             stages = [0, 1, 2, 3, 4]
         super().__init__(dt=dt)
@@ -240,7 +240,7 @@ class CVLearning(ngym.TrialEnv):
 
         return trial
 
-    def count(self, action):
+    def count(self, action) -> None:
         """Check the last three answers during stage 0 so the network has to
         alternate between left and right.
         """
@@ -251,7 +251,7 @@ class CVLearning(ngym.TrialEnv):
             else:
                 self.action_counter = new
 
-    def set_phase(self):
+    def set_phase(self) -> None:
         # print(self.curr_ph)
         self.day_perf[self.trials_counter] = 1 * (self.rew == self.rewards["correct"])
         self.mov_perf[self.trials_counter % self.perf_len] = 1 * (

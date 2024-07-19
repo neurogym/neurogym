@@ -16,7 +16,7 @@ def make_env(name, **kwargs):
 
 
 class CstObTrialWrapper(ngym.TrialWrapper):
-    def __init__(self, env, cst_ob):
+    def __init__(self, env, cst_ob) -> None:
         super().__init__(env)
         self.cst_ob = cst_ob
 

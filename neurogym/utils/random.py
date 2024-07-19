@@ -13,13 +13,13 @@ def trunc_exp(rng, vmean, vmin=0, vmax=np.inf):
 
 
 class TruncExp:
-    def __init__(self, vmean, vmin=0, vmax=np.inf, rng=None):
+    def __init__(self, vmean, vmin=0, vmax=np.inf, rng=None) -> None:
         self.vmean = vmean
         self.vmin = vmin
         self.vmax = vmax
         self.rng = np.random.RandomState()
 
-    def seed(self, seed=None):
+    def seed(self, seed=None) -> None:
         """Seed the PRNG of this space."""
         self.rng = np.random.RandomState(seed)
 

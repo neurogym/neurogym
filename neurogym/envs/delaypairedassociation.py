@@ -21,7 +21,7 @@ class DelayPairedAssociation(ngym.TrialEnv):
         "tags": ["perceptual", "working memory", "go-no-go", "supervised"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0) -> None:
         super().__init__(dt=dt)
         self.choices = [0, 1]
         # trial conditions

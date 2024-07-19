@@ -26,7 +26,7 @@ class AntiReach(ngym.TrialEnv):
         "tags": ["perceptual", "steps action space"],
     }
 
-    def __init__(self, dt=100, anti=True, rewards=None, timing=None, dim_ring=32):
+    def __init__(self, dt=100, anti=True, rewards=None, timing=None, dim_ring=32) -> None:
         super().__init__(dt=dt)
 
         self.anti = anti

@@ -22,7 +22,7 @@ class MemoryRecall(ngym.TrialEnv):
         chance=0.7,
         balanced=True,
         **kwargs,
-    ):
+    ) -> None:
         """Args:
         stim_dim: int, stimulus dimension
         store_signal_dim: int, storage signal dimension
@@ -68,7 +68,7 @@ class MemoryRecall(ngym.TrialEnv):
             -np.inf, np.inf, shape=(stim_dim + 1,), dtype=np.float32,
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         print("Recall dataset:")
         nicename_dict = OrderedDict(
             [

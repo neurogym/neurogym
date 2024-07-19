@@ -8,7 +8,7 @@ from neurogym import spaces
 
 
 class YourTask(ngym.TrialEnv):
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1) -> None:
         super().__init__(dt=dt)
         # Possible decisions at the end of the trial
         self.choices = [1, 2]  # e.g. [left, right]

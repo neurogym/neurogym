@@ -4,6 +4,7 @@ import gymnasium as gym
 import numpy as np
 from gymnasium import logger, spaces
 from gymnasium.utils import seeding
+from typing import NoReturn
 
 
 class LeverPress(gym.Env):
@@ -11,7 +12,7 @@ class LeverPress(gym.Env):
 
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Lever pressing environment where a cue signals the sequence start."""
         high = np.array([1])
 
@@ -87,10 +88,10 @@ class LeverPress(gym.Env):
         self.steps_beyond_done = None
         return np.array(signal), {}
 
-    def render(self, mode="human"):
+    def render(self, mode="human") -> NoReturn:
         raise NotImplementedError
 
-    def close(self):
+    def close(self) -> None:
         if self.viewer:
             self.viewer.close()
 
@@ -108,7 +109,7 @@ class LeverPressWithPoke(gym.Env):
 
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
 
-    def __init__(self):
+    def __init__(self) -> None:
         high = np.array([1])
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-high, high, dtype=np.float32)
@@ -193,10 +194,10 @@ class LeverPressWithPoke(gym.Env):
         else:
             return np.array([1.0]), {}
 
-    def render(self, mode="human"):
+    def render(self, mode="human") -> NoReturn:
         raise NotImplementedError
 
-    def close(self):
+    def close(self) -> None:
         if self.viewer:
             self.viewer.close()
 
@@ -215,7 +216,7 @@ class LeverPressWithPokeRest(gym.Env):
 
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
 
-    def __init__(self):
+    def __init__(self) -> None:
         high = np.array([1])
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(-high, high, dtype=np.float32)
@@ -292,13 +293,13 @@ class LeverPressWithPokeRest(gym.Env):
         return obs, reward, terminated, truncated, {}
 
     @property
-    def optimal_reward(self):
+    def optimal_reward(self) -> int:
         # TODO: Remain to be updated
         """Optimal reward possible for each step on average."""
         return 0
 
     @property
-    def optimal_chance_reward(self):
+    def optimal_chance_reward(self) -> int:
         """Optimal reward if agent chooses press and poking randomly."""
         # TODO: Remain to be updated
         return 0
@@ -313,10 +314,10 @@ class LeverPressWithPokeRest(gym.Env):
         else:
             return np.array([self.thirst]), {}
 
-    def render(self, mode="human"):
+    def render(self, mode="human") -> NoReturn:
         raise NotImplementedError
 
-    def close(self):
+    def close(self) -> None:
         if self.viewer:
             self.viewer.close()
 
@@ -326,7 +327,7 @@ class ContextSwitch(gym.Env):
 
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
 
-    def __init__(self):
+    def __init__(self) -> None:
         high = np.array([1, 1])
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(-high, high, dtype=np.float32)
@@ -388,10 +389,10 @@ class ContextSwitch(gym.Env):
         obs[self.ob] = 1.0
         return obs, {}
 
-    def render(self, mode="human"):
+    def render(self, mode="human") -> NoReturn:
         raise NotImplementedError
 
-    def close(self):
+    def close(self) -> None:
         if self.viewer:
             self.viewer.close()
 
@@ -399,7 +400,7 @@ class ContextSwitch(gym.Env):
 class FullInput(gym.Wrapper):
     """Lever pressing environment where reward and action is input."""
 
-    def __init__(self, env):
+    def __init__(self, env) -> None:
         super().__init__(env)
         # Modify observation space to include reward and action
         orig_ob_space = self.observation_space

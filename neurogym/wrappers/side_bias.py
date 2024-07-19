@@ -21,7 +21,7 @@ class SideBias(ngym.TrialWrapper):
         "paper_name": None,
     }
 
-    def __init__(self, env, probs=None, block_dur=200):
+    def __init__(self, env, probs=None, block_dur=200) -> None:
         super().__init__(env)
         try:
             self.choices = self.task.choices

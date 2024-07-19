@@ -31,7 +31,7 @@ class ToneDetection(ngym.TrialEnv):
         "tags": ["auditory", "perceptual", "supervised", "decision"],
     }
 
-    def __init__(self, dt=50, sigma=0.2, timing=None):
+    def __init__(self, dt=50, sigma=0.2, timing=None) -> None:
         super().__init__(dt=dt)
         """
         Here the key variables are

@@ -25,7 +25,7 @@ class DawTwoStep(ngym.TrialEnv):
         "tags": ["two-alternative"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None) -> None:
         super().__init__(dt=dt)
         if timing is not None:
             print("Warning: Two-step task does not require timing variable.")

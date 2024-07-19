@@ -17,7 +17,7 @@ for key, val in sorted(ALL_ENVS.items()):
     all_envs[key] = val
 
 
-def make_env_images():
+def make_env_images() -> None:
     envs = all_envs.keys()
     for env_name in envs:
         print("Make image for env", env_name)
@@ -40,7 +40,7 @@ def _url_exist(url):
     return int(resp[0]["status"]) < 400
 
 
-def make_envs():
+def make_envs() -> None:
     # Make envs/index.rst
     string = "Environments\n"
     string += "===================================\n\n"
@@ -112,7 +112,7 @@ def make_envs():
             f.write(string)
 
 
-def make_tags():
+def make_tags() -> None:
     string = "Tags\n"
     string += "===================================\n\n"
 
@@ -144,7 +144,7 @@ def make_tags():
         f.write(string)
 
 
-def main():
+def main() -> None:
     make_env_images()
     make_envs()
     make_tags()

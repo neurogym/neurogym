@@ -21,7 +21,7 @@ class EconomicDecisionMaking(ngym.TrialEnv):
         "tags": ["perceptual", "value-based"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None) -> None:
         super().__init__(dt=dt)
 
         # trial conditions

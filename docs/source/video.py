@@ -62,7 +62,7 @@ class Video(Directive):
         ]
 
 
-def visit_video_node(self, node):
+def visit_video_node(self, node) -> None:
     extension = os.path.splitext(node["path"])[1][1:]
 
     html_block = """
@@ -83,10 +83,10 @@ def visit_video_node(self, node):
     self.body.append(html_block)
 
 
-def depart_video_node(self, node):
+def depart_video_node(self, node) -> None:
     pass
 
 
-def setup(app):
+def setup(app) -> None:
     app.add_node(video, html=(visit_video_node, depart_video_node))
     app.add_directive("video", Video)

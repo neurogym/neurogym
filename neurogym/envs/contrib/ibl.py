@@ -16,7 +16,7 @@ class IBL(ngym.TrialEnv):
         'Computational Neuroscience""",
     }
 
-    def __init__(self, dt=100, rewards=None):
+    def __init__(self, dt=100, rewards=None) -> None:
         super().__init__(dt=dt)
         # TODO: Fix to use the default random number generator
         self._rng = self.rng.RandomState(0)
@@ -40,7 +40,7 @@ class IBL(ngym.TrialEnv):
             -np.inf, np.inf, shape=(2,), dtype=np.float32,
         )
 
-    def new_block(self, n_trial, probs=None):
+    def new_block(self, n_trial, probs=None) -> None:
         self.ground_truth = self._rng.choice(self.choices, size=(n_trial,), p=probs)
         self.coh = self._rng.choice(self.cohs, size=(n_trial,))
 
@@ -53,7 +53,7 @@ class IBL(ngym.TrialEnv):
         obs += self._rng.randn(*obs.shape) * self.sigma
         self.ob = obs
 
-    def _new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs) -> None:
         """_new_trial() is called when a trial ends to get the specifications of
         the next trial. Such specifications are stored in a dictionary with
         the following items:
@@ -93,13 +93,13 @@ class IBL(ngym.TrialEnv):
 
 class IBL_Block(IBL):
     # pass
-    def __init__(self, dt=100):
+    def __init__(self, dt=100) -> None:
         super().__init__(dt=dt)
         self.probs = ((0.2, 0.8), (0.8, 0.2), (0.5, 0.5))
         self.block = 0
         self.block_size = 200
 
-    def _new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs) -> None:
         """_new_trial() is called when a trial ends to get the specifications of
         the next trial. Such specifications are stored in a dictionary with
         the following items:

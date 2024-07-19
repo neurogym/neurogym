@@ -28,7 +28,7 @@ class ProbabilisticReasoning(ngym.TrialEnv):
         "tags": ["perceptual", "two-alternative", "supervised"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, shape_weight=None, n_loc=4):
+    def __init__(self, dt=100, rewards=None, timing=None, shape_weight=None, n_loc=4) -> None:
         super().__init__(dt=dt)
         # The evidence weight of each stimulus
         if shape_weight is not None:

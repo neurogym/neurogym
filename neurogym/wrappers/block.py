@@ -8,7 +8,7 @@ class RandomGroundTruth(TrialWrapper):
     # TODO: A better name?
     """"""
 
-    def __init__(self, env, p=None):
+    def __init__(self, env, p=None) -> None:
         super().__init__(env)
         try:
             self.n_ch = len(self.choices)  # max num of choices
@@ -36,12 +36,12 @@ class ScheduleAttr(TrialWrapper):
         schedule:
     """
 
-    def __init__(self, env, schedule, attr_list):
+    def __init__(self, env, schedule, attr_list) -> None:
         super().__init__(env)
         self.schedule = schedule
         self.attr_list = attr_list
 
-    def seed(self, seed=None):
+    def seed(self, seed=None) -> None:
         self.schedule.seed(seed)
         self.env.seed(seed)
 
@@ -51,7 +51,7 @@ class ScheduleAttr(TrialWrapper):
         return self.env.new_trial(**kwargs)
 
 
-def _have_equal_shape(envs):
+def _have_equal_shape(envs) -> None:
     """Check if environments have equal shape."""
     env_ob_shape = envs[0].observation_space.shape
     for env in envs:
@@ -91,7 +91,7 @@ class MultiEnvs(TrialWrapper):
             envinronment. default False.
     """
 
-    def __init__(self, envs, env_input=False):
+    def __init__(self, envs, env_input=False) -> None:
         super().__init__(envs[0])
         for env in envs:
             env.unwrapped.set_top(self)
@@ -114,7 +114,7 @@ class MultiEnvs(TrialWrapper):
                 dtype=self.observation_space.dtype,
             )
 
-    def reset(self, **kwargs):
+    def reset(self, **kwargs) -> None:
         # return the initial ob of the first env in the list envs by default
 
         for i, env in enumerate(self.envs):
@@ -123,7 +123,7 @@ class MultiEnvs(TrialWrapper):
 
         self.set_i(0)
 
-    def set_i(self, i):
+    def set_i(self, i) -> None:
         """Set the i-th environment."""
         self.i_env = i
         self.env = self.envs[self.i_env]
@@ -154,7 +154,7 @@ class ScheduleEnvs(TrialWrapper):
             environment. default False.
     """
 
-    def __init__(self, envs, schedule, env_input=False):
+    def __init__(self, envs, schedule, env_input=False) -> None:
         super().__init__(envs[0])
         for env in envs:
             env.unwrapped.set_top(self)
@@ -178,7 +178,7 @@ class ScheduleEnvs(TrialWrapper):
                 dtype=self.observation_space.dtype,
             )
 
-    def seed(self, seed=None):
+    def seed(self, seed=None) -> None:
         for env in self.envs:
             env.seed(seed)
         self.schedule.seed(seed)
@@ -232,13 +232,13 @@ class ScheduleEnvs(TrialWrapper):
         assert self.env == self.envs[self.i_env]
         return trial
 
-    def set_i(self, i):
+    def set_i(self, i) -> None:
         """Set the current environment to the i-th environment in the list envs."""
         self.i_env = i
         self.env = self.envs[self.i_env]
         self.schedule.i = i
 
-    def __str__(self):
+    def __str__(self) -> str:
         string = f"<{type(self).__name__}"
         for env in self.envs:
             for line in str(env).splitlines():
@@ -255,7 +255,7 @@ class TrialHistoryV2(TrialWrapper):
             on the previous. Shape, num-choices x num-choices
     """
 
-    def __init__(self, env, probs=None):
+    def __init__(self, env, probs=None) -> None:
         super().__init__(env)
         try:
             self.n_ch = len(self.choices)  # max num of choices

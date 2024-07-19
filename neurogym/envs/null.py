@@ -10,7 +10,7 @@ import neurogym as ngym
 class Null(ngym.TrialEnv):
     """Null task."""
 
-    def __init__(self, dt=100):
+    def __init__(self, dt=100) -> None:
         super().__init__(dt=dt)
         self.action_space = spaces.Discrete(1)
         self.observation_space = spaces.Box(

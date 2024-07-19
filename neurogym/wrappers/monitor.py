@@ -46,7 +46,7 @@ class Monitor(Wrapper):
         name="",
         fig_type="png",
         step_fn=None,
-    ):
+    ) -> None:
         super().__init__(env)
         self.env = env
         self.num_tr = 0
@@ -123,11 +123,11 @@ class Monitor(Wrapper):
                     self.t = 0
         return obs, rew, terminated, truncated, info
 
-    def reset_data(self):
+    def reset_data(self) -> None:
         for key in self.data:
             self.data[key] = []
 
-    def store_data(self, obs, action, rew, info):
+    def store_data(self, obs, action, rew, info) -> None:
         if self.stp_counter <= self.num_stps_sv_fig:
             self.ob_mat.append(obs)
             self.act_mat.append(action)

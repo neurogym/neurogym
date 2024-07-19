@@ -27,7 +27,7 @@ class ReachingDelayResponse(ngym.TrialEnv):
         ],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, lowbound=0.0, highbound=1.0):
+    def __init__(self, dt=100, rewards=None, timing=None, lowbound=0.0, highbound=1.0) -> None:
         super().__init__(dt=dt)
         self.lowbound = lowbound
         self.highbound = highbound

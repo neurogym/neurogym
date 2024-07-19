@@ -7,6 +7,7 @@ import gymnasium as gym
 import numpy as np
 
 from neurogym.utils.random import trunc_exp
+from typing import NoReturn
 
 METADATA_DEF_KEYS = ["description", "paper_name", "paper_link", "timing", "tags"]
 
@@ -75,7 +76,7 @@ def env_string(env, short=False):
 class BaseEnv(gym.Env):
     """The base Neurogym class to include dt."""
 
-    def __init__(self, dt=100):
+    def __init__(self, dt=100) -> None:
         super().__init__()
         self.dt = dt
         self.t = self.t_ind = 0
@@ -95,7 +96,7 @@ class BaseEnv(gym.Env):
 class TrialEnv(BaseEnv):
     """The main Neurogym class for trial-based envs."""
 
-    def __init__(self, dt=100, num_trials_before_reset=10000000, r_tmax=0):
+    def __init__(self, dt=100, num_trials_before_reset=10000000, r_tmax=0) -> None:
         super().__init__(dt=dt)
         self.r_tmax = r_tmax
         self.num_tr = 0
@@ -117,11 +118,11 @@ class TrialEnv(BaseEnv):
 
         self._top = self
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Information about task."""
         return env_string(self, short=True)
 
-    def _new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs) -> NoReturn:
         """Private interface for starting a new trial.
 
         Returns:
@@ -131,7 +132,7 @@ class TrialEnv(BaseEnv):
         msg = "_new_trial is not defined by user."
         raise NotImplementedError(msg)
 
-    def _step(self, action):
+    def _step(self, action) -> NoReturn:
         """Private interface for the environment.
 
         Receives an action and returns a new state, a reward, a flag variable
@@ -238,10 +239,10 @@ class TrialEnv(BaseEnv):
             ob, _, _, _, _ = step_fn(self.action_space.sample())
         return ob, {}
 
-    def render(self, mode="human"):
+    def render(self, mode="human") -> None:
         """Plots relevant variables/parameters."""
 
-    def set_top(self, wrapper):
+    def set_top(self, wrapper) -> None:
         """Set top to be wrapper."""
         self._top = wrapper
 
@@ -274,7 +275,7 @@ class TrialEnv(BaseEnv):
 
     def add_period(
         self, period, duration=None, before=None, after=None, last_period=False,
-    ):
+    ) -> None:
         """Add an period.
 
         Args:
@@ -334,7 +335,7 @@ class TrialEnv(BaseEnv):
         self._tmax = max(self._tmax, start + duration)
         self.tmax = int(self._tmax / self.dt) * self.dt
 
-    def _init_ob(self):
+    def _init_ob(self) -> None:
         """Initialize trial info with tmax, tind, ob."""
         tmax_ind = int(self._tmax / self.dt)
         ob_shape = [tmax_ind, *list(self.observation_space.shape)]
@@ -346,7 +347,7 @@ class TrialEnv(BaseEnv):
             )
         self._ob_built = True
 
-    def _init_gt(self):
+    def _init_gt(self) -> None:
         """Initialize trial with ground_truth."""
         tmax_ind = int(self._tmax / self.dt)
         self.gt = np.zeros(
@@ -364,7 +365,7 @@ class TrialEnv(BaseEnv):
         else:
             return self.ob[self.start_ind[period] : self.end_ind[period]]
 
-    def _add_ob(self, value, period=None, where=None, reset=False):
+    def _add_ob(self, value, period=None, where=None, reset=False) -> None:
         """Set observation in period to value.
 
         Args:
@@ -399,7 +400,7 @@ class TrialEnv(BaseEnv):
             except TypeError:
                 ob[..., where] += value
 
-    def add_ob(self, value, period=None, where=None):
+    def add_ob(self, value, period=None, where=None) -> None:
         """Add value to observation.
 
         Args:
@@ -409,7 +410,7 @@ class TrialEnv(BaseEnv):
         """
         self._add_ob(value, period, where, reset=False)
 
-    def add_randn(self, mu=0, sigma=1, period=None, where=None):
+    def add_randn(self, mu=0, sigma=1, period=None, where=None) -> None:
         if isinstance(period, str) or period is None:
             pass
         else:
@@ -426,10 +427,10 @@ class TrialEnv(BaseEnv):
             # TODO: This only works if the slicing is one one-dimension
             ob[..., where] += mu + self.rng.randn(*ob[..., where].shape) * sigma
 
-    def set_ob(self, value, period=None, where=None):
+    def set_ob(self, value, period=None, where=None) -> None:
         self._add_ob(value, period, where, reset=True)
 
-    def set_groundtruth(self, value, period=None, where=None):
+    def set_groundtruth(self, value, period=None, where=None) -> None:
         """Set groundtruth value."""
         if not self._gt_built:
             self._init_gt()
@@ -469,7 +470,7 @@ class TrialEnv(BaseEnv):
 class TrialWrapper(gym.Wrapper):
     """Base class for wrapping TrialEnv."""
 
-    def __init__(self, env):
+    def __init__(self, env) -> None:
         super().__init__(env)
         self.env = env
         if not isinstance(self.unwrapped, TrialEnv):
@@ -484,5 +485,5 @@ class TrialWrapper(gym.Wrapper):
         """Alias."""
         return self.unwrapped
 
-    def new_trial(self, **kwargs):
+    def new_trial(self, **kwargs) -> NoReturn:
         raise NotImplementedError

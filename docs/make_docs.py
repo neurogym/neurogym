@@ -6,12 +6,12 @@ from neurogym.utils.info import info, info_wrapper
 SOURCE_ROOT = "https://github.com/gyyang/neurogym/blob/master/"
 
 
-def add_link(text, link):
+def add_link(text, link) -> str:
     # Add link to a within document location
     return f"[{text:s}](#{link:s})"
 
 
-def write_doc(write_type):
+def write_doc(write_type) -> None:
     all_tags = ngym.all_tags()
     if write_type == "tasks":
         all_items = ngym.all_envs()
@@ -98,7 +98,7 @@ def write_doc(write_type):
         f.write(full_string)
 
 
-def main():
+def main() -> None:
     write_doc("tasks")
     write_doc("wrappers")
 

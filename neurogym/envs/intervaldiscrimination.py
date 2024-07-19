@@ -30,7 +30,7 @@ class IntervalDiscrimination(ngym.TrialEnv):
         ],
     }
 
-    def __init__(self, dt=80, rewards=None, timing=None):
+    def __init__(self, dt=80, rewards=None, timing=None) -> None:
         super().__init__(dt=dt)
         # Rewards
         self.rewards = {"abort": -0.1, "correct": +1.0, "fail": 0.0}

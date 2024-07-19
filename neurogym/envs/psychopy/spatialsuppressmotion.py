@@ -41,7 +41,7 @@ class SpatialSuppressMotion(PsychopyEnv):
         win_kwargs=None,
         timing=None,
         rewards=None,
-    ):
+    ) -> None:
         if timing is None:
             timing = {"stimulus": 300}
         if win_kwargs is None:

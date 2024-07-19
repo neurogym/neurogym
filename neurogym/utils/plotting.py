@@ -404,7 +404,7 @@ def plot_env_1dbox(
     return f
 
 
-def plot_env_3dbox(ob, actions=None, fname="", env=None):
+def plot_env_3dbox(ob, actions=None, fname="", env=None) -> None:
     """Plot environment with 3-D Box observation space."""
     ob = ob.astype(np.uint8)  # TODO: Temporary
     fig = plt.figure()
@@ -438,7 +438,7 @@ def plot_rew_across_training(
     legend=False,
     zline=False,
     metric_name="reward",
-):
+) -> None:
     if fkwargs is None:
         fkwargs = {"c": "tab:blue"}
     data = put_together_files(folder)

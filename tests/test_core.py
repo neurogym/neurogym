@@ -11,7 +11,7 @@ def test_one_step_mismatch():
     """Test the agent gets rewarded if it fixates after seeing fixation cue."""
 
     class TestEnv(ngym.TrialEnv):
-        def __init__(self, dt=100):
+        def __init__(self, dt=100) -> None:
             super().__init__(dt=dt)
             self.timing = {"fixation": dt, "go": dt}
             name = {"fixation": 0, "go": 1}
@@ -49,7 +49,7 @@ def test_addob_instep():
     """Test if we can add observation during step."""
 
     class TestEnv(ngym.TrialEnv):
-        def __init__(self, dt=100):
+        def __init__(self, dt=100) -> None:
             super().__init__(dt=dt)
             self.timing = {"go": 500}
             self.observation_space = ngym.spaces.Box(

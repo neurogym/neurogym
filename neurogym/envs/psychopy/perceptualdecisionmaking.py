@@ -32,7 +32,7 @@ class RandomDotMotion(PsychopyEnv):
         timing=None,
         stim_scale=1.0,
         dim_ring=2,
-    ):
+    ) -> None:
         if win_kwargs is None:
             win_kwargs = {"size": (100, 100)}
         super().__init__(dt=dt, win_kwargs=win_kwargs)

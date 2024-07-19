@@ -10,17 +10,17 @@ class BaseSchedule:
         n: int, number of conditions to schedule
     """
 
-    def __init__(self, n):
+    def __init__(self, n) -> None:
         self.n = n
         self.total_count = 0  # total count
         self.count = 0  # count within a condition
         self.i = 0  # initialize at 0
         self.rng = np.random.RandomState()
 
-    def seed(self, seed=None):
+    def seed(self, seed=None) -> None:
         self.rng = np.random.RandomState(seed)
 
-    def reset(self):
+    def reset(self) -> None:
         self.total_count = 0
         self.count = 0
         self.i = 0
@@ -32,7 +32,7 @@ class BaseSchedule:
 class SequentialSchedule(BaseSchedule):
     """Sequential schedules."""
 
-    def __init__(self, n):
+    def __init__(self, n) -> None:
         super().__init__(n)
 
     def __call__(self):
@@ -47,7 +47,7 @@ class SequentialSchedule(BaseSchedule):
 class RandomSchedule(BaseSchedule):
     """Random schedules."""
 
-    def __init__(self, n):
+    def __init__(self, n) -> None:
         super().__init__(n)
 
     def __call__(self):
@@ -63,7 +63,7 @@ class RandomSchedule(BaseSchedule):
 class SequentialBlockSchedule(BaseSchedule):
     """Sequential block schedules."""
 
-    def __init__(self, n, block_lens):
+    def __init__(self, n, block_lens) -> None:
         super().__init__(n)
         self.block_lens = block_lens
         if len(block_lens) != n:
@@ -85,7 +85,7 @@ class SequentialBlockSchedule(BaseSchedule):
 class RandomBlockSchedule(BaseSchedule):
     """Random block schedules."""
 
-    def __init__(self, n, block_lens):
+    def __init__(self, n, block_lens) -> None:
         super().__init__(n)
         self.block_lens = block_lens
         if len(block_lens) != n:

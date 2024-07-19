@@ -32,7 +32,7 @@ class SpatialSuppressMotion(ngym.TrialEnv):
         "tags": ["perceptual", "plaid", "motion", "center-surround"],
     }
 
-    def __init__(self, dt=8.3, timing=None, rewards=None):
+    def __init__(self, dt=8.3, timing=None, rewards=None) -> None:
         if timing is None:
             timing = {"stimulus": 300}
         super().__init__(dt=dt)

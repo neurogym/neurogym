@@ -16,7 +16,7 @@ import neurogym as ngym
 class PsychopyEnv(ngym.TrialEnv):
     """Superclass for environments with psychopy stimuli."""
 
-    def __init__(self, win_kwargs=None, *args, **kwargs):
+    def __init__(self, win_kwargs=None, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         if win_kwargs is None:
@@ -43,7 +43,7 @@ class PsychopyEnv(ngym.TrialEnv):
         ob_shape = (self.win.size[0], self.win.size[1], 3)
         self.observation_space = spaces.Box(0, 255, shape=ob_shape, dtype=np.uint8)
 
-    def add_ob(self, value, period=None, where=None):
+    def add_ob(self, value, period=None, where=None) -> None:
         if isinstance(value, visual.BaseVisualStim):
             if where is not None:
                 print(

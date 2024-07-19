@@ -23,7 +23,7 @@ class DualDelayMatchSample(ngym.TrialEnv):
         "tags": ["perceptual", "working memory", "two-alternative", "supervised"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0) -> None:
         super().__init__(dt=dt)
         self.choices = [1, 2]
         self.cues = [0, 1]

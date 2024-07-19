@@ -28,7 +28,7 @@ class Noise(gym.Wrapper):
         "paper_name": None,
     }
 
-    def __init__(self, env, std_noise=0.1):
+    def __init__(self, env, std_noise=0.1) -> None:
         super().__init__(env)
         self.env = env
         self.std_noise = std_noise

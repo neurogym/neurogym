@@ -31,7 +31,7 @@ class MatchingPenny(ngym.TrialEnv):
         timing=None,
         opponent_type="mean_action",
         learning_rate=0.2,
-    ):
+    ) -> None:
         super().__init__(dt=dt)
         if timing is not None:
             print("Warning: Matching-Penny task does not require" + " timing variable.")

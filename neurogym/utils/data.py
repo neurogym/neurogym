@@ -32,7 +32,7 @@ class Dataset:
         max_batch=np.inf,
         batch_first=False,
         cache_len=None,
-    ):
+    ) -> None:
         if isinstance(env, gym.Env):
             self.envs = [copy.deepcopy(env) for _ in range(batch_size)]
         else:
@@ -89,7 +89,7 @@ class Dataset:
         self._i_batch = 0
         self.max_batch = max_batch
 
-    def _cache(self, **kwargs):
+    def _cache(self, **kwargs) -> None:
         for i in range(self.batch_size):
             env = self.envs[i]
             seq_start = 0
@@ -142,7 +142,7 @@ class Dataset:
         return inputs, target
         # return inputs, np.expand_dims(target, axis=2)
 
-    def seed(self, seed=None):
+    def seed(self, seed=None) -> None:
         for i, env in enumerate(self.envs):
             if seed is None:
                 env.seed(seed)

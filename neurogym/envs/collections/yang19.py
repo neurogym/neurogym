@@ -27,7 +27,7 @@ def _cosinebump(loc, theta, strength):
 class _MultiModalityStimulus(TrialWrapper):
     """Move observation to specific modality."""
 
-    def __init__(self, env, modality=0, n_modality=1):
+    def __init__(self, env, modality=0, n_modality=1) -> None:
         super().__init__(env)
         self.modality = modality
         if "stimulus" not in self.task.observation_space.name:
@@ -63,7 +63,7 @@ class _Reach(ngym.TrialEnv):
 
     def __init__(
         self, dt=100, anti=True, rewards=None, timing=None, dim_ring=16, reaction=False,
-    ):
+    ) -> None:
         super().__init__(dt=dt)
 
         self.anti = anti
@@ -174,7 +174,7 @@ class _DMFamily(ngym.TrialEnv):
         w_mod=(1, 1),
         stim_mod=(True, True),
         delaycomparison=True,
-    ):
+    ) -> None:
         super().__init__(dt=dt)
 
         # trial conditions
@@ -231,7 +231,7 @@ class _DMFamily(ngym.TrialEnv):
         name = {"fixation": 0, "choice": range(1, dim_ring + 1)}
         self.action_space = spaces.Discrete(1 + dim_ring, name=name)
 
-    def _add_singlemod(self, trial, mod=1):
+    def _add_singlemod(self, trial, mod=1) -> None:
         """Add stimulus to modality."""
         mod = "_mod" + str(mod)
 
@@ -347,7 +347,7 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
         dim_ring=16,
         matchto="sample",
         matchgo=True,
-    ):
+    ) -> None:
         super().__init__(dt=dt)
         self.matchto = matchto
         if self.matchto not in ["sample", "category"]:

@@ -26,7 +26,7 @@ class AngleReproduction(ngym.TrialEnv):
         ],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None) -> None:
         super().__init__(dt=dt)
         # action and observation spaces
         # Do nothing, rotate clockwise, rotatet counterclockwise

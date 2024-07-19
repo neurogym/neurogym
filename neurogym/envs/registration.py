@@ -262,7 +262,7 @@ else:
     _all_gym_envs = [env.id for env in gym.envs.registry.values()]
 
 
-def register(id, **kwargs):
+def register(id, **kwargs) -> None:
     if id not in _all_gym_envs:
         gym.envs.registration.register(id=id, **kwargs)
 

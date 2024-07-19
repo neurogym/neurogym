@@ -37,7 +37,7 @@ def test_registered_env():
         _test_env(env_name)
 
 
-def _test_examples_different(env):
+def _test_examples_different(env) -> None:
     """Test that each example in a batch is different."""
     batch_size = 32
     # need to be long enough to make sure variability in inputs or target
@@ -74,7 +74,7 @@ def test_examples_different_custom_env():
     """Test that each example in a batch is different in created envs."""
 
     class TestEnv(ngym.TrialEnv):
-        def __init__(self, dt=100):
+        def __init__(self, dt=100) -> None:
             super().__init__(dt=dt)
             self.timing = {"fixation": dt, "go": dt}
             name = {"fixation": 0, "go": 1}

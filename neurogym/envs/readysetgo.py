@@ -31,7 +31,7 @@ class ReadySetGo(ngym.TrialEnv):
         "tags": ["timing", "go-no-go", "supervised"],
     }
 
-    def __init__(self, dt=80, rewards=None, timing=None, gain=1, prod_margin=0.2):
+    def __init__(self, dt=80, rewards=None, timing=None, gain=1, prod_margin=0.2) -> None:
         super().__init__(dt=dt)
         self.prod_margin = prod_margin
 
@@ -133,7 +133,7 @@ class MotorTiming(ngym.TrialEnv):
         "tags": ["timing", "go-no-go", "supervised"],
     }
 
-    def __init__(self, dt=80, rewards=None, timing=None, prod_margin=0.2):
+    def __init__(self, dt=80, rewards=None, timing=None, prod_margin=0.2) -> None:
         super().__init__(dt=dt)
         self.prod_margin = prod_margin
         self.production_ind = [0, 1]
@@ -232,7 +232,7 @@ class OneTwoThreeGo(ngym.TrialEnv):
         "tags": ["timing", "go-no-go", "supervised"],
     }
 
-    def __init__(self, dt=80, rewards=None, timing=None, prod_margin=0.2):
+    def __init__(self, dt=80, rewards=None, timing=None, prod_margin=0.2) -> None:
         super().__init__(dt=dt)
 
         self.prod_margin = prod_margin

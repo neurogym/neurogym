@@ -37,7 +37,7 @@ class ChangingEnvironment(ngym.TrialEnv):
         sigma=1.0,
         cxt_ch_prob=0.001,
         cxt_cue=False,
-    ):
+    ) -> None:
         super().__init__(dt=dt)
 
         # Possible contexts

@@ -26,7 +26,7 @@ class HierarchicalReasoning(ngym.TrialEnv):
         "tags": ["perceptual", "two-alternative", "supervised"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None) -> None:
         super().__init__(dt=dt)
         self.choices = [0, 1]
 
@@ -62,7 +62,7 @@ class HierarchicalReasoning(ngym.TrialEnv):
         self.block_size = 10
         self.new_block()
 
-    def new_block(self):
+    def new_block(self) -> None:
         self.block_size = self.rng.randint(10, 20 + 1)
         self.rule = 1 - self.rule  # alternate rule
         self.trial_in_block = 0

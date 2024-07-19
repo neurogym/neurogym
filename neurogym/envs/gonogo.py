@@ -23,7 +23,7 @@ class GoNogo(ngym.TrialEnv):
         "tags": ["delayed response", "go-no-go", "supervised"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None) -> None:
         super().__init__(dt=dt)
         # Actions (fixate, go)
         self.actions = [0, 1]

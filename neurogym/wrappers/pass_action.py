@@ -13,7 +13,7 @@ class PassAction(Wrapper):
         "paper_name": None,
     }
 
-    def __init__(self, env):
+    def __init__(self, env) -> None:
         super().__init__(env)
         self.env = env
         # TODO: This is not adding one-hot

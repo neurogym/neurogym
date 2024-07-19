@@ -28,7 +28,7 @@ class Bandit(ngym.TrialEnv):
         "tags": ["n-alternative"],
     }
 
-    def __init__(self, dt=100, n=2, p=(0.5, 0.5), rewards=None, timing=None):
+    def __init__(self, dt=100, n=2, p=(0.5, 0.5), rewards=None, timing=None) -> None:
         super().__init__(dt=dt)
         if timing is not None:
             print("Warning: Bandit task does not require timing variable.")

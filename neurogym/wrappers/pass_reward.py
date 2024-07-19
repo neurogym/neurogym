@@ -11,7 +11,7 @@ class PassReward(Wrapper):
         "paper_name": None,
     }
 
-    def __init__(self, env):
+    def __init__(self, env) -> None:
         """Modifies observation by adding the previous reward."""
         super().__init__(env)
         env_oss = env.observation_space.shape[0]
