@@ -24,8 +24,8 @@ def plot_env(
     model=None,
     name=None,
     legend=True,
-    ob_traces=[],
-    fig_kwargs={},
+    ob_traces=None,
+    fig_kwargs=None,
     fname=None,
 ):
     """Plot environment with agent.
@@ -51,6 +51,10 @@ def plot_env(
     # 1) env could be already prewrapped with monitor
     # 2) monitor will save data and so the function will need a folder
 
+    if fig_kwargs is None:
+        fig_kwargs = {}
+    if ob_traces is None:
+        ob_traces = []
     if isinstance(env, str):
         env = gym.make(env)
     if name is None:
@@ -178,7 +182,7 @@ def fig_(
     ob_traces=None,
     name="",
     fname=None,
-    fig_kwargs={},
+    fig_kwargs=None,
     env=None,
 ):
     """Visualize a run in a simple environment.
@@ -199,6 +203,8 @@ def fig_(
         fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
         env: environment class for extra information
     """
+    if fig_kwargs is None:
+        fig_kwargs = {}
     ob = np.array(ob)
     actions = np.array(actions)
 
@@ -234,10 +240,12 @@ def plot_env_1dbox(
     ob_traces=None,
     name="",
     fname=None,
-    fig_kwargs={},
+    fig_kwargs=None,
     env=None,
 ):
     """Plot environment with 1-D Box observation space."""
+    if fig_kwargs is None:
+        fig_kwargs = {}
     if len(ob.shape) != 2:
         msg = "ob has to be 2-dimensional."
         raise ValueError(msg)
@@ -426,12 +434,14 @@ def plot_rew_across_training(
     folder,
     window=500,
     ax=None,
-    fkwargs={"c": "tab:blue"},
+    fkwargs=None,
     ytitle="",
     legend=False,
     zline=False,
     metric_name="reward",
 ):
+    if fkwargs is None:
+        fkwargs = {"c": "tab:blue"}
     data = put_together_files(folder)
     if data:
         sv_fig = False

@@ -27,12 +27,14 @@ class RandomDotMotion(PsychopyEnv):
     def __init__(
         self,
         dt=16,
-        win_kwargs={"size": (100, 100)},
+        win_kwargs=None,
         rewards=None,
         timing=None,
         stim_scale=1.0,
         dim_ring=2,
     ):
+        if win_kwargs is None:
+            win_kwargs = {"size": (100, 100)}
         super().__init__(dt=dt, win_kwargs=win_kwargs)
         # The strength of evidence, modulated by stim_scale
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stim_scale

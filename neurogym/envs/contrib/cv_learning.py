@@ -45,9 +45,11 @@ class CVLearning(ngym.TrialEnv):
         keep_days=1,
         trials_day=300,
         perf_len=20,
-        stages=[0, 1, 2, 3, 4],
+        stages=None,
         n_ch=10,
     ):
+        if stages is None:
+            stages = [0, 1, 2, 3, 4]
         super().__init__(dt=dt)
         self.choices = [1, 2]
         self.n_ch = n_ch  # number of obs and actions different from fixation

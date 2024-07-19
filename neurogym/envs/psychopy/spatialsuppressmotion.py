@@ -38,10 +38,14 @@ class SpatialSuppressMotion(PsychopyEnv):
     def __init__(
         self,
         dt=8.3,
-        win_kwargs={"size": (100, 100)},
-        timing={"stimulus": 300},
+        win_kwargs=None,
+        timing=None,
         rewards=None,
     ):
+        if timing is None:
+            timing = {"stimulus": 300}
+        if win_kwargs is None:
+            win_kwargs = {"size": (100, 100)}
         super().__init__(dt=dt, win_kwargs=win_kwargs)
 
         # Rewards

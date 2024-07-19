@@ -28,7 +28,7 @@ class VisualSearch(PsychopyEnv):
     def __init__(
         self,
         dt=16,
-        win_kwargs={"size": (100, 100)},
+        win_kwargs=None,
         rewards=None,
         timing=None,
         target_centers=None,
@@ -37,6 +37,8 @@ class VisualSearch(PsychopyEnv):
         delta_color=None,
         line_width=3,
     ):
+        if win_kwargs is None:
+            win_kwargs = {"size": (100, 100)}
         super().__init__(dt=dt, win_kwargs=win_kwargs)
 
         # Rewards

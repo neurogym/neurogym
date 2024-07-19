@@ -25,7 +25,7 @@ def test_sidebias(
     num_ch=3,
     margin=0.01,
     blk_dur=10,
-    probs=[(0.005, 0.005, 0.99), (0.005, 0.99, 0.005), (0.99, 0.005, 0.005)],
+    probs=None,
 ):
     """Test side_bias wrapper.
 
@@ -59,6 +59,8 @@ def test_sidebias(
     None.
 
     """
+    if probs is None:
+        probs = [(0.005, 0.005, 0.99), (0.005, 0.99, 0.005), (0.99, 0.005, 0.005)]
     env_args["n_ch"] = num_ch
     env = gym.make(env_name, **env_args)
     env = SideBias(env, probs=probs, block_dur=blk_dur)
@@ -160,7 +162,7 @@ def test_reactiontime(
     env_name="PerceptualDecisionMaking-v0",
     num_steps=10000,
     urgency=-0.1,
-    ths=[-0.5, 0.5],
+    ths=None,
     verbose=True,
 ):
     """Test reaction-time wrapper.
@@ -186,6 +188,8 @@ def test_reactiontime(
     None.
 
     """
+    if ths is None:
+        ths = [-0.5, 0.5]
     env_args = {"timing": {"fixation": 100, "stimulus": 2000, "decision": 200}}
     env = gym.make(env_name, **env_args)
     env = ReactionTime(env, urgency=urgency)
@@ -745,8 +749,10 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
     verbose=False,
     num_ch=8,
     variable_nch=True,
-    env_args={},
+    env_args=None,
 ):
+    if env_args is None:
+        env_args = {}
     env_args["n_ch"] = num_ch
     env_args["zero_irrelevant_stim"] = True
     env_args["ob_histblock"] = True
