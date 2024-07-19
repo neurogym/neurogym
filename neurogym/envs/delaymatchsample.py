@@ -98,14 +98,13 @@ class DelayMatchSample(ngym.TrialEnv):
             if action != 0:
                 new_trial = self.abort
                 reward = self.rewards["abort"]
-        elif self.in_period("decision"):
-            if action != 0:
-                new_trial = True
-                if action == gt:
-                    reward = self.rewards["correct"]
-                    self.performance = 1
-                else:
-                    reward = self.rewards["fail"]
+        elif self.in_period("decision") and action != 0:
+            new_trial = True
+            if action == gt:
+                reward = self.rewards["correct"]
+                self.performance = 1
+            else:
+                reward = self.rewards["fail"]
 
         return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}
 

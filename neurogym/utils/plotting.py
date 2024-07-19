@@ -445,9 +445,8 @@ def plot_rew_across_training(
             sv_fig = True
             f, ax = plt.subplots(figsize=(8, 8))
         metric = data[metric_name]
-        if isinstance(window, float):
-            if window < 1.0:
-                window = int(metric.size * window)
+        if isinstance(window, float) and window < 1.0:
+            window = int(metric.size * window)
         mean_metric = np.convolve(metric, np.ones((window,)) / window, mode="valid")
         ax.plot(mean_metric, **fkwargs)  # add color, label etc.
         ax.set_xlabel("trials")

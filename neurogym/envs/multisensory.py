@@ -103,11 +103,10 @@ class MultiSensoryIntegration(ngym.TrialEnv):
             if action != 0:
                 new_trial = self.abort
                 reward = self.rewards["abort"]
-        elif self.in_period("decision"):
-            if action != 0:  # broke fixation
-                new_trial = True
-                if action == gt:
-                    reward = self.rewards["correct"]
-                    self.performance = 1
+        elif self.in_period("decision") and action != 0:  # broke fixation
+            new_trial = True
+            if action == gt:
+                reward = self.rewards["correct"]
+                self.performance = 1
 
         return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}

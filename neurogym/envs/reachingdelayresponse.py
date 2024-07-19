@@ -86,11 +86,10 @@ class ReachingDelayResponse(ngym.TrialEnv):
             if not action[0] < 0:
                 new_trial = self.abort
                 reward = self.rewards["abort"]
-        elif self.in_period("decision"):
-            if action[0] > 0:
-                new_trial = True
-                reward = self.rewards["correct"] / ((1 + abs(action[1] - gt[1])) ** 2)
-                self.performance = reward / self.rewards["correct"]
+        elif self.in_period("decision") and action[0] > 0:
+            new_trial = True
+            reward = self.rewards["correct"] / ((1 + abs(action[1] - gt[1])) ** 2)
+            self.performance = reward / self.rewards["correct"]
 
         return (
             self.ob_now,

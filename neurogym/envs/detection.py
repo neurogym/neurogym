@@ -134,17 +134,16 @@ class Detection(ngym.TrialEnv):
             if action != 0:  # if fixation break
                 new_trial = self.abort
                 reward = self.rewards["abort"]
-        elif self.in_period("stimulus"):  # during stimulus period
-            if action != 0:  # original
-                new_trial = True
-                if (action == self.trial["ground_truth"]) and (
-                    self.t >= self.end_t["fixation"] + self.delay_trial
-                ):
-                    reward = self.rewards["correct"]
-                    self.performance = 1
-                else:  # if incorrect
-                    reward = self.rewards["fail"]
-                    self.performance = 0
+        elif self.in_period("stimulus") and action != 0:  # original
+            new_trial = True
+            if (action == self.trial["ground_truth"]) and (
+                self.t >= self.end_t["fixation"] + self.delay_trial
+            ):
+                reward = self.rewards["correct"]
+                self.performance = 1
+            else:  # if incorrect
+                reward = self.rewards["fail"]
+                self.performance = 0
 
         return (
             self.ob_now,

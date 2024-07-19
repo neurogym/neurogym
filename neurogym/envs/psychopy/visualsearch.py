@@ -138,14 +138,13 @@ class VisualSearch(PsychopyEnv):
             if np.sum(action**2) > 0.01:  # action = 0 means fixating
                 new_trial = self.abort
                 reward += self.rewards["abort"]
-        elif self.in_period("decision"):
-            if np.sum(action**2) > 0.01:
-                new_trial = True
-                if np.sum((action - gt) ** 2) < 0.01:
-                    reward += self.rewards["correct"]
-                    self.performance = 1
-                else:
-                    reward += self.rewards["fail"]
+        elif self.in_period("decision") and np.sum(action**2) > 0.01:
+            new_trial = True
+            if np.sum((action - gt) ** 2) < 0.01:
+                reward += self.rewards["correct"]
+                self.performance = 1
+            else:
+                reward += self.rewards["fail"]
 
         return (
             self.ob_now,

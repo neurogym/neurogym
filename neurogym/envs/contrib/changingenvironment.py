@@ -148,14 +148,13 @@ class ChangingEnvironment(ngym.TrialEnv):
             if action != 0:  # if fixation break
                 new_trial = self.abort
                 reward = self.rewards["abort"]
-        elif self.in_period("decision"):  # during decision period
-            if action != 0:
-                new_trial = True
-                if action == gt:  # if correct
-                    reward = self.rewards["correct"]
-                    self.performance = 1
-                else:  # if incorrect
-                    reward = self.rewards["fail"]
+        elif self.in_period("decision") and action != 0:
+            new_trial = True
+            if action == gt:  # if correct
+                reward = self.rewards["correct"]
+                self.performance = 1
+            else:  # if incorrect
+                reward = self.rewards["fail"]
 
         return (
             obs,

@@ -93,25 +93,23 @@ class ReadySetGo(ngym.TrialEnv):
         ob = self.ob_now
         gt = self.gt_now
         new_trial = False
-        if self.in_period("fixation"):
-            if action != 0:
-                new_trial = self.abort
-                reward = self.rewards["abort"]
-        if self.in_period("production"):
-            if action == 1:
-                new_trial = True  # terminate
-                # time from end of measure:
-                t_prod = self.t - self.end_t["measure"]
-                eps = abs(t_prod - trial["production"])
-                # actual production time
-                eps_threshold = self.prod_margin * trial["production"] + 25
-                if eps > eps_threshold:
-                    reward = self.rewards["fail"]
-                else:
-                    reward = (1.0 - eps / eps_threshold) ** 1.5
-                    reward = max(reward, 0.1)
-                    reward *= self.rewards["correct"]
-                    self.performance = 1
+        if self.in_period("fixation") and action != 0:
+            new_trial = self.abort
+            reward = self.rewards["abort"]
+        if self.in_period("production") and action == 1:
+            new_trial = True  # terminate
+            # time from end of measure:
+            t_prod = self.t - self.end_t["measure"]
+            eps = abs(t_prod - trial["production"])
+            # actual production time
+            eps_threshold = self.prod_margin * trial["production"] + 25
+            if eps > eps_threshold:
+                reward = self.rewards["fail"]
+            else:
+                reward = (1.0 - eps / eps_threshold) ** 1.5
+                reward = max(reward, 0.1)
+                reward *= self.rewards["correct"]
+                self.performance = 1
 
         return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}
 
@@ -195,24 +193,22 @@ class MotorTiming(ngym.TrialEnv):
         ob = self.ob_now
         gt = self.gt_now
         new_trial = False
-        if self.in_period("fixation"):
-            if action != 0:
-                new_trial = self.abort
-                reward = self.rewards["abort"]
-        if self.in_period("production"):
-            if action == 1:
-                new_trial = True  # terminate
-                t_prod = self.t - self.end_t["set"]  # time from end of measure
-                eps = abs(t_prod - trial["production"])
-                # actual production time
-                eps_threshold = self.prod_margin * trial["production"] + 25
-                if eps > eps_threshold:
-                    reward = self.rewards["fail"]
-                else:
-                    reward = (1.0 - eps / eps_threshold) ** 1.5
-                    reward = max(reward, 0.1)
-                    reward *= self.rewards["correct"]
-                    self.performance = 1
+        if self.in_period("fixation") and action != 0:
+            new_trial = self.abort
+            reward = self.rewards["abort"]
+        if self.in_period("production") and action == 1:
+            new_trial = True  # terminate
+            t_prod = self.t - self.end_t["set"]  # time from end of measure
+            eps = abs(t_prod - trial["production"])
+            # actual production time
+            eps_threshold = self.prod_margin * trial["production"] + 25
+            if eps > eps_threshold:
+                reward = self.rewards["fail"]
+            else:
+                reward = (1.0 - eps / eps_threshold) ** 1.5
+                reward = max(reward, 0.1)
+                reward *= self.rewards["correct"]
+                self.performance = 1
 
         return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}
 

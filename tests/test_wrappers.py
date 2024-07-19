@@ -419,10 +419,9 @@ def test_noise(
         obs, rew, terminated, truncated, info = env.step(action)
         if "std_noise" in info:
             std_noise = info["std_noise"]
-        if verbose:
-            if info["new_trial"]:
-                perf.append(info["performance"])
-                std_mat.append(std_noise)
+        if verbose and info["new_trial"]:
+            perf.append(info["performance"])
+            std_mat.append(std_noise)
         if terminated:
             env.reset()
     actual_perf = np.mean(perf[-5000:])
