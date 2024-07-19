@@ -37,8 +37,7 @@ class YourTask(ngym.TrialEnv):
         self.action_space = spaces.Discrete(3, name=name)
 
     def _new_trial(self, **kwargs):
-        """
-        self._new_trial() is called internally to generate a next trial.
+        """self._new_trial() is called internally to generate a next trial.
 
         Typically, you need to
             set trial: a dictionary of trial information
@@ -53,7 +52,6 @@ class YourTask(ngym.TrialEnv):
         Returns:
             trial: dictionary of trial information
         """
-
         # Setting trial information
         trial = {"ground_truth": self.rng.choice(self.choices)}
         trial.update(kwargs)  # allows wrappers to modify the trial
@@ -79,17 +77,16 @@ class YourTask(ngym.TrialEnv):
         return trial
 
     def _step(self, action):
-        """
-        _step receives an action and returns:
-            a new observation, obs
-            reward associated with the action, reward
-            a boolean variable indicating whether the experiment has terminated, terminated
-                See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#termination
-            a boolean variable indicating whether the experiment has been truncated, truncated
-                See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#truncation
-            a dictionary with extra information:
-                ground truth correct response, info['gt']
-                boolean indicating the end of the trial, info['new_trial']
+        """_step receives an action and returns:
+        a new observation, obs
+        reward associated with the action, reward
+        a boolean variable indicating whether the experiment has terminated, terminated
+            See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#termination
+        a boolean variable indicating whether the experiment has been truncated, truncated
+            See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#truncation
+        a dictionary with extra information:
+            ground truth correct response, info['gt']
+            boolean indicating the end of the trial, info['new_trial'].
         """
         terminated = False
         truncated = False

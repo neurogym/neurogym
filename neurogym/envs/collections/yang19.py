@@ -10,7 +10,7 @@ from neurogym.wrappers.block import ScheduleEnvs
 
 
 def _get_dist(original_dist):
-    """Get the distance in periodic boundary conditions"""
+    """Get the distance in periodic boundary conditions."""
     return np.minimum(abs(original_dist), 2 * np.pi - abs(original_dist))
 
 

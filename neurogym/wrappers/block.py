@@ -186,8 +186,7 @@ class ScheduleEnvs(TrialWrapper):
 
     def reset(self, **kwargs):
         # TODO: kwargs to specify the condition for new_trial
-        """
-        Reset each environment in self.envs and use the scheduler to select the environment returning
+        """Reset each environment in self.envs and use the scheduler to select the environment returning
         the initial observation. This environment is also used to set the current environment self.env.
         """
         self.schedule.reset()

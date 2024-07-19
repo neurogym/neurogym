@@ -94,7 +94,7 @@ class Reaching1D(ngym.TrialEnv):
         return self.ob_now, reward, terminated, truncated, {"new_trial": False}
 
     def post_step(self, ob, reward, terminated, truncated, info):
-        """Modify observation"""
+        """Modify observation."""
         ob[self.dim_ring :] = np.cos(self.theta - self.state)
         return ob, reward, terminated, truncated, info
 

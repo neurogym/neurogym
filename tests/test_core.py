@@ -1,4 +1,4 @@
-"""Test core.py"""
+"""Test core.py."""
 
 # import pytest
 

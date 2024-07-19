@@ -27,8 +27,7 @@ def test_sidebias(
     blk_dur=10,
     probs=[(0.005, 0.005, 0.99), (0.005, 0.99, 0.005), (0.99, 0.005, 0.005)],
 ):
-    """
-    Test side_bias wrapper.
+    """Test side_bias wrapper.
 
     The side-bias wrapper allows specifying the probabilities for each of the
     existing choices to be correct. These probabilities can varied in blocks of
@@ -55,7 +54,7 @@ def test_sidebias(
         corresponds to 3 blocks with each of them giving 0.99 probabilitiy to
         ground truth 3, 2 and 1, respectively.
 
-    Returns
+    Returns:
     -------
     None.
 
@@ -89,8 +88,7 @@ def test_sidebias(
 def test_passaction(
     env_name="PerceptualDecisionMaking-v0", num_steps=1000, verbose=True,
 ):
-    """
-    Test pass-action wrapper.
+    """Test pass-action wrapper.
 
     TODO: explain wrapper
     Parameters
@@ -102,7 +100,7 @@ def test_passaction(
     verbose : boolean, optional
         whether to print observation and action (False)
 
-    Returns
+    Returns:
     -------
     None.
 
@@ -126,10 +124,9 @@ def test_passaction(
 def test_passreward(
     env_name="PerceptualDecisionMaking-v0", num_steps=1000, verbose=False,
 ):
-    """
-    Test pass-reward wrapper.
+    """Test pass-reward wrapper.
     TODO: explain wrapper
-    Parameters
+    Parameters.
     ----------
     env_name : str, optional
         enviroment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
@@ -138,7 +135,7 @@ def test_passreward(
     verbose : boolean, optional
         whether to print observation and reward (False)
 
-    Returns
+    Returns:
     -------
     None.
 
@@ -166,8 +163,7 @@ def test_reactiontime(
     ths=[-0.5, 0.5],
     verbose=True,
 ):
-    """
-    Test reaction-time wrapper.
+    """Test reaction-time wrapper.
 
     The reaction-time wrapper allows converting a fix duration task into a reaction
     time task. It also allows addding a fix (negative) quantity (urgency) to force
@@ -185,7 +181,7 @@ def test_reactiontime(
     ths : list, optional
         list containing the threholds to make a decision ([-.5, .5])
 
-    Returns
+    Returns:
     -------
     None.
 
@@ -258,10 +254,9 @@ def test_variablemapping(
     sess_end_prob=0.01,
     min_sess_dur=20,
 ):
-    """
-    Test variable-mapping wrapper.
+    """Test variable-mapping wrapper.
     TODO: explain wrapper
-    Parameters
+    Parameters.
     ----------
     env_name : str, optional
         enviroment to wrap.. The default is 'NAltConditionalVisuomotor-v0'.
@@ -286,7 +281,7 @@ def test_variablemapping(
     margin : float, optional
         margin allowed when comparing actual and expected mean block durations (2)
 
-    Returns
+    Returns:
     -------
     None.
 
@@ -385,8 +380,7 @@ def test_noise(
     num_steps=100000,
     verbose=True,
 ):
-    """
-    Test noise wrapper.
+    """Test noise wrapper.
 
     The noise wrapper allows adding noise to the full observation received by the
     network. It also offers the option of fixxing a specific target performance
@@ -404,7 +398,7 @@ def test_noise(
     perf_th : float, optional
         target performance for the noise wrapper (0.7)
 
-    Returns
+    Returns:
     -------
     None.
 

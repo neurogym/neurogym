@@ -30,7 +30,7 @@ class BaseSchedule(object):
 
 
 class SequentialSchedule(BaseSchedule):
-    """Sequential schedules"""
+    """Sequential schedules."""
 
     def __init__(self, n):
         super().__init__(n)
@@ -45,7 +45,7 @@ class SequentialSchedule(BaseSchedule):
 
 
 class RandomSchedule(BaseSchedule):
-    """Random schedules"""
+    """Random schedules."""
 
     def __init__(self, n):
         super().__init__(n)
@@ -61,7 +61,7 @@ class RandomSchedule(BaseSchedule):
 
 
 class SequentialBlockSchedule(BaseSchedule):
-    """Sequential block schedules"""
+    """Sequential block schedules."""
 
     def __init__(self, n, block_lens):
         super().__init__(n)
@@ -82,7 +82,7 @@ class SequentialBlockSchedule(BaseSchedule):
 
 
 class RandomBlockSchedule(BaseSchedule):
-    """Random block schedules"""
+    """Random block schedules."""
 
     def __init__(self, n, block_lens):
         super().__init__(n)

@@ -22,7 +22,6 @@ def _get_envs(foldername=None, env_prefix=None, allow_list=None):
         env_prefix: str or None, if not None, add this prefix to all env ids
         allow_list: list of allowed env name, for manual curation
     """
-
     if env_prefix is None:
         env_prefix = ""
     else:

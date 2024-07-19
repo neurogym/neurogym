@@ -54,8 +54,7 @@ class Pneumostomeopening(ngym.BaseEnv):
         self.oxygen_level = 10
 
     def _get_new_oxygen_level(self, action):
-        """
-        Update oxygen level of the agent based on action. Follow an
+        """Update oxygen level of the agent based on action. Follow an
         exponential decay.
         """
         decay_constant = 1
@@ -71,8 +70,7 @@ class Pneumostomeopening(ngym.BaseEnv):
         return self.oxygen_level
 
     def phase(self, phase, **kwargs):
-        """
-        different phase of training.
+        """Different phase of training.
         set_default_behavior trains the network so that breathing behavior corresponds
         to the default states of the animal where breathing through the peumostome
         is a common occurence.

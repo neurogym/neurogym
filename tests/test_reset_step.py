@@ -39,9 +39,7 @@ def _setup_env(cst_ob):
 
 
 def test_wrapper_new_trial():
-    """
-    Test that the ob returned by new_trial takes the wrapper correctly into account
-    """
+    """Test that the ob returned by new_trial takes the wrapper correctly into account."""
     cst_ob = np.random.random(10)
     env = _setup_env(cst_ob)
     env.new_trial()
@@ -51,9 +49,7 @@ def test_wrapper_new_trial():
 
 
 def test_wrapper_reset():
-    """
-    Test that the ob returned by reset takes the wrapper correctly into account.
-    """
+    """Test that the ob returned by reset takes the wrapper correctly into account."""
     cst_ob = np.random.random(10)
     env = _setup_env(cst_ob)
     ob, _ = env.reset()
@@ -63,9 +59,7 @@ def test_wrapper_reset():
 
 
 def test_wrapper_step():
-    """
-    Test that the ob returned by step takes the wrapper correctly into account.
-    """
+    """Test that the ob returned by step takes the wrapper correctly into account."""
     cst_ob = np.random.random(10)
     env = _setup_env(cst_ob)
     env.reset()
@@ -75,8 +69,7 @@ def test_wrapper_step():
 
 
 def test_reset_with_scheduler():
-    """
-    Test that ScheduleEnvs.reset() resets all the environments in its list envs, which is required before being able to
+    """Test that ScheduleEnvs.reset() resets all the environments in its list envs, which is required before being able to
     call step() (enforced by the gymnasium wrapper OrderEnforcing).
     """
     tasks = ngym.get_collection("yang19")

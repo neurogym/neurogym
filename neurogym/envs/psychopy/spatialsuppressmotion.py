@@ -13,8 +13,7 @@ from .psychopy_env import PsychopyEnv
 
 
 class SpatialSuppressMotion(PsychopyEnv):
-    """
-    By Ru-Yuan Zhang (ruyuanzhang@gmail.com)
+    """By Ru-Yuan Zhang (ruyuanzhang@gmail.com).
 
     Spatial suppression motion task. This task is useful to study center-surround interaction in monkey MT and human psychophysical performance in motion perception.
 
@@ -78,11 +77,10 @@ class SpatialSuppressMotion(PsychopyEnv):
         self.directions_ortho = [[3, 4], [3, 4], [1, 2], [1, 2]]
 
     def _new_trial(self, diameter=None, contrast=None, direction=None):
-        """
-        To define a stimulus, we need diameter, contrast, duration, direction
+        """To define a stimulus, we need diameter, contrast, duration, direction
         <diameter>: 0~1, stimulus size in norm units
         <contrast>: 0~1, stimulus contrast
-        <direction>: int(1/2/3/4), left/right/up/down
+        <direction>: int(1/2/3/4), left/right/up/down.
 
         """
         # if no stimulus information provided, we random sample stimulus parameters
@@ -173,8 +171,7 @@ class SpatialSuppressMotion(PsychopyEnv):
         return trial
 
     def _step(self, action):
-        """
-        We only need output at very end, no need to check action every step and calculate reward. Just let this function complete all steps.
+        """We only need output at very end, no need to check action every step and calculate reward. Just let this function complete all steps.
 
         The _step function is useful for making a choice early in a trial or the situation when breaking the fixation.
 
@@ -198,8 +195,7 @@ class SpatialSuppressMotion(PsychopyEnv):
 
     @staticmethod
     def envelope(time_sigma, frame_rate=120, cut_off=True, amplitude=128):
-        """
-        envelope(time_sigma, frame_rate=120, cut_off=True):
+        """envelope(time_sigma, frame_rate=120, cut_off=True):
 
         Create a temporal profile and mv_length to motion stimulus in the spatial suppression task. This function is modified fron Duje Tadin's code.
 
@@ -282,8 +278,7 @@ class SpatialSuppressMotion(PsychopyEnv):
         return profile, mv_length
 
     def getgroundtruth(self, trial):
-        """
-        The utility function to obtain ground truth probabilities for four direction
+        """The utility function to obtain ground truth probabilities for four direction.
 
         Input trial is a dict, contains fields <duration>, <contrast>, <diameter>, and <direction>.
 

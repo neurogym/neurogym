@@ -134,8 +134,7 @@ class CVLearning(ngym.TrialEnv):
         )
 
     def _new_trial(self, **kwargs):
-        """
-        new_trial() is called when a trial ends to generate the next trial.
+        """new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:
             durations: Stores the duration of the different periods.
             ground truth: Correct response for the trial.
@@ -241,9 +240,8 @@ class CVLearning(ngym.TrialEnv):
         return trial
 
     def count(self, action):
-        """
-        check the last three answers during stage 0 so the network has to
-        alternate between left and right
+        """Check the last three answers during stage 0 so the network has to
+        alternate between left and right.
         """
         if action != 0:
             new = action - 2 / action

@@ -23,13 +23,12 @@ class MemoryRecall(ngym.TrialEnv):
         balanced=True,
         **kwargs,
     ):
-        """
-        Args:
-            stim_dim: int, stimulus dimension
-            store_signal_dim: int, storage signal dimension
-            T: int, sequence length
-            p_recall: proportion of patterns stored for recall
-            chance: chance level performance
+        """Args:
+        stim_dim: int, stimulus dimension
+        store_signal_dim: int, storage signal dimension
+        T: int, sequence length
+        p_recall: proportion of patterns stored for recall
+        chance: chance level performance.
         """
         super(MemoryRecall, self).__init__(dt=dt)
 

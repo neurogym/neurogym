@@ -5,7 +5,7 @@ import numpy as np
 
 
 def to_map(*args):
-    "produces ordered dict from given inputs"
+    """Produces ordered dict from given inputs."""
     if isinstance(args[0], list):
         var_list = args[0]
     else:
@@ -18,17 +18,13 @@ def to_map(*args):
 
 
 def get_idx(t, start_end):
-    """
-    auxiliary function for defining task periods
-    """
+    """Auxiliary function for defining task periods."""
     start, end = start_end
     return list(np.where((start <= t) & (t < end))[0])
 
 
 def get_periods_idx(dt, periods):
-    """
-    function for defining task periods
-    """
+    """Function for defining task periods."""
     t = np.linspace(0, periods["tmax"], int(periods["tmax"] / dt) + 1)
 
     return t, {k: get_idx(t, v) for k, v in periods.items() if k != "tmax"}
@@ -64,9 +60,7 @@ def divide(x, y):
 
 
 def correct_2AFC(perf):
-    """
-    computes performance
-    """
+    """Computes performance."""
     p_decision = perf.n_decision / perf.n_trials
     p_correct = divide(perf.n_correct, perf.n_decision)
 

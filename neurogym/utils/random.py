@@ -2,9 +2,7 @@ import numpy as np
 
 
 def trunc_exp(rng, vmean, vmin=0, vmax=np.inf):
-    """
-    function for generating period durations
-    """
+    """Function for generating period durations."""
     if vmin >= vmax:  # the > is to avoid issues when making vmin as big as dt
         return vmax
     else:

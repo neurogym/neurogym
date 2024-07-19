@@ -21,7 +21,7 @@ def all_wrappers():
 
 
 def info(env=None, show_code=False):
-    """Script to get envs info"""
+    """Script to get envs info."""
     string = ""
     env_name = env
     env = ngym.make(env)
@@ -40,7 +40,7 @@ def info(env=None, show_code=False):
 
 
 def info_wrapper(wrapper=None, show_code=False):
-    """Script to get wrappers info"""
+    """Script to get wrappers info."""
     string = ""
 
     wrapp_ref = ALL_WRAPPERS[wrapper]
@@ -79,7 +79,7 @@ def info_wrapper(wrapper=None, show_code=False):
 
 
 def all_tags(verbose=0):
-    """Script to get all tags"""
+    """Script to get all tags."""
     envs = all_envs()
     tags = []
     for env_name in sorted(envs):

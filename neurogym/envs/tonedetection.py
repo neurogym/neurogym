@@ -9,8 +9,7 @@ import neurogym as ngym
 
 
 class ToneDetection(ngym.TrialEnv):
-    """
-    By Ru-Yuan Zhang (ruyuanzhang@gmail.com)
+    """By Ru-Yuan Zhang (ruyuanzhang@gmail.com)
     A subject is asked to report whether a pure tone is embeddied within a background noise. If yes, should indicate the position of the tone. The tone lasts 50ms and could appear at the 500ms, 1000ms, and 1500ms. The tone is embbeded within noises.
 
     Note in this version we did not consider the fixation period as we mainly aim to model human data.
@@ -80,9 +79,7 @@ class ToneDetection(ngym.TrialEnv):
         self.act_dict = {"fixation": 0, "choice": range(1, 5 + 1)}
 
     def _new_trial(self, condition=None):
-        """
-        <condition>: int (0/1/2/3), indicate no tone, tone at position 1/2/3
-        """
+        """<condition>: int (0/1/2/3), indicate no tone, tone at position 1/2/3."""
         if condition is None:
             condition = self.rng.choice(self.conditions)
 
@@ -120,9 +117,7 @@ class ToneDetection(ngym.TrialEnv):
         return trial
 
     def _step(self, action):
-        """
-        In this tone detection task, no need to define reward step function, just output the final choice.
-        """
+        """In this tone detection task, no need to define reward step function, just output the final choice."""
         new_trial = False
         terminated = False
         truncated = False

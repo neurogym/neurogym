@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Aug 18 17:16:10 2020
+"""Created on Tue Aug 18 17:16:10 2020.
 
 @author: molano
 

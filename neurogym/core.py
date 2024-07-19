@@ -73,7 +73,7 @@ def env_string(env, short=False):
 
 
 class BaseEnv(gym.Env):
-    """The base Neurogym class to include dt"""
+    """The base Neurogym class to include dt."""
 
     def __init__(self, dt=100):
         super(BaseEnv, self).__init__()
@@ -152,8 +152,7 @@ class TrialEnv(BaseEnv):
         return [seed]
 
     def post_step(self, ob, reward, terminated, truncated, info):
-        """
-        Optional task-specific wrapper applied at the end of step.
+        """Optional task-specific wrapper applied at the end of step.
 
         It allows to modify ob online (e.g. provide a specific observation for
                                        different actions made by the agent)
@@ -240,9 +239,7 @@ class TrialEnv(BaseEnv):
         return ob, {}
 
     def render(self, mode="human"):
-        """
-        plots relevant variables/parameters
-        """
+        """Plots relevant variables/parameters."""
         pass
 
     def set_top(self, wrapper):
@@ -338,7 +335,7 @@ class TrialEnv(BaseEnv):
         self.tmax = int(self._tmax / self.dt) * self.dt
 
     def _init_ob(self):
-        """Initialize trial info with tmax, tind, ob"""
+        """Initialize trial info with tmax, tind, ob."""
         tmax_ind = int(self._tmax / self.dt)
         ob_shape = [tmax_ind] + list(self.observation_space.shape)
         if self._default_ob_value is None:
@@ -455,7 +452,7 @@ class TrialEnv(BaseEnv):
         return self.gt[self.start_ind[period] : self.end_ind[period]]
 
     def in_period(self, period, t=None):
-        """Check if current time or time t is in period"""
+        """Check if current time or time t is in period."""
         if t is None:
             t = self.t  # Default
         return self.start_t[period] <= t < self.end_t[period]
@@ -470,7 +467,7 @@ class TrialEnv(BaseEnv):
 
 
 class TrialWrapper(gym.Wrapper):
-    """Base class for wrapping TrialEnv"""
+    """Base class for wrapping TrialEnv."""
 
     def __init__(self, env):
         super().__init__(env)

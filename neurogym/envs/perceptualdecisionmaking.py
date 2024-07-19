@@ -62,15 +62,14 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
         self.action_space = spaces.Discrete(1 + dim_ring, name=name)
 
     def _new_trial(self, **kwargs):
-        """
-        new_trial() is called when a trial ends to generate the next trial.
+        """new_trial() is called when a trial ends to generate the next trial.
         The following variables are created:
             durations, which stores the duration of the different periods (in
             the case of perceptualDecisionMaking: fixation, stimulus and
             decision periods)
             ground truth: correct response for the trial
             coh: stimulus coherence (evidence) for the trial
-            obs: observation
+            obs: observation.
         """
         # Trial info
         trial = {
@@ -98,17 +97,16 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
         return trial
 
     def _step(self, action):
-        """
-        _step receives an action and returns:
-            a new observation, obs
-            reward associated with the action, reward
-            a boolean variable indicating whether the experiment has terminated, terminated
-                See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#termination
-            a boolean variable indicating whether the experiment has been truncated, truncated
-                See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#truncation
-            a dictionary with extra information:
-                ground truth correct response, info['gt']
-                boolean indicating the end of the trial, info['new_trial']
+        """_step receives an action and returns:
+        a new observation, obs
+        reward associated with the action, reward
+        a boolean variable indicating whether the experiment has terminated, terminated
+            See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#termination
+        a boolean variable indicating whether the experiment has been truncated, truncated
+            See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#truncation
+        a dictionary with extra information:
+            ground truth correct response, info['gt']
+            boolean indicating the end of the trial, info['new_trial'].
         """
         new_trial = False
         terminated = False

@@ -7,16 +7,12 @@ from gymnasium.utils import seeding
 
 
 class LeverPress(gym.Env):
-    """
-    Lever pressing environment where a cue signals the sequence start.
-    """
+    """Lever pressing environment where a cue signals the sequence start."""
 
     metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
 
     def __init__(self):
-        """
-        Lever pressing environment where a cue signals the sequence start.
-        """
+        """Lever pressing environment where a cue signals the sequence start."""
         high = np.array([1])
 
         self.action_space = spaces.Discrete(2)
@@ -104,8 +100,7 @@ class LeverPress(gym.Env):
 
 
 class LeverPressWithPoke(gym.Env):
-    """
-    Lever press but obtain reward through poking.
+    """Lever press but obtain reward through poking.
 
     Observation:
         0: constant 1
@@ -215,8 +210,7 @@ class LeverPressWithPoke(gym.Env):
 
 
 class LeverPressWithPokeRest(gym.Env):
-    """
-    Lever press but obtain reward through poking.
+    """Lever press but obtain reward through poking.
 
     Observation:
         0: thirsty level, ranging from 0 to 1, will scale reward obtained

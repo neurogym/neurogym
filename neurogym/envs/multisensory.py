@@ -1,4 +1,4 @@
-"""Multi-Sensory Integration"""
+"""Multi-Sensory Integration."""
 
 import numpy as np
 

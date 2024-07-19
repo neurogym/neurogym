@@ -1,5 +1,4 @@
-"""
-Noise wrapper.
+"""Noise wrapper.
 
 Created on Thu Feb 28 15:07:21 2019
 
