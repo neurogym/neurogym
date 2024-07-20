@@ -93,10 +93,8 @@ class SpatialSuppressMotion(PsychopyEnv):
         if direction is None:
             direction = self.rng.choice(self.directions)
         if diameter is None:
-            # diameter = self.rng.uniform(0.125, 1)  # proportion of the window size
             diameter = 1  # we fixed for now
         if contrast is None:
-            # contrast = self.rng.uniform(0, 1) # stimlus contrast
             contrast = self.rng.choice([0.05, 0.99])  # Low contrast, and high contrast
 
         trial = {
@@ -166,7 +164,6 @@ class SpatialSuppressMotion(PsychopyEnv):
             im = np.array(
                 im,
             )  # convert it to numpy array, it is a nPix x nPix x 3 array
-            # import ipdb;ipdb.set_trace();import matplotlib.pyplot as plt;
 
             # Here we did not use .add_ob function of psychopyEnv object
             ob[i] = im.copy()  # we switch the add, which seems wrong for image
@@ -188,9 +185,6 @@ class SpatialSuppressMotion(PsychopyEnv):
         # rewards
         reward = 0
         gt = self.gt_now
-        # # observations
-        # if self.in_period('stimulus'): # start a new trial once step into decision stage
-        #          new_trial = True
         return (
             self.ob_now,
             reward,
@@ -283,11 +277,8 @@ class SpatialSuppressMotion(PsychopyEnv):
 
         We output a (4,) tuple indicate the probabilities to perceive left/right/up/down direction. This label comes from emprically measured human performance
         """
-        from numpy import zeros
         from scipy.interpolate import interp1d
 
-        # duration = [5, 7.296, 10.65, 15.54, 22.67, 33.08, 48.27, 70.44, 102.8]
-        # frame_ind = [self.envelope(i/1000)[1] for i in duration]
         frame_ind = [8, 9, 10, 13, 15, 18, 21, 28, 36, 37, 38, 39]
         xx = [1, 2, 3, 4, 5, 6, 7]
         yy = [0.249] * 7
@@ -326,11 +317,10 @@ class SpatialSuppressMotion(PsychopyEnv):
         direction_anti = self.directions_anti[direction] - 1
         direction_ortho = [i - 1 for i in self.directions_ortho[direction]]
 
-        gt = zeros((4, seq_len))
+        gt = np.zeros((4, seq_len))
         gt[direction, :] = corr_prob
         gt[direction_anti, :] = anti_prob
         gt[direction_ortho, :] = ortho_prob
 
-        # import ipdb;ipdb.set_trace();import matplotlib.pyplot as plt;
         return gt.T
         # gt is a seq_len x 4 numpy array

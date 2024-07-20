@@ -99,8 +99,3 @@ def all_tags(verbose=0):
 
 if __name__ == "__main__":
     all_tasks()
-    # get_all_tags(verbose=1)
-    # info(tags=['supervised', 'n-alternative'])
-    # info('PerceptualDecisionMaking-v0', show_code=True)
-    # info('PerceptualDecisionMaking-v0', show_code=True, show_fig=True)
-#    info_wrapper('ReactionTime-v0', show_code=True)

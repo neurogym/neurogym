@@ -46,7 +46,6 @@ def _get_envs(foldername=None, env_prefix=None, allow_list=None):
 
     env_dict = {}
     for filename in filenames:
-        # lib = 'neurogym.envs.collections.' + l
         lib = lib_root + filename
         module = importlib.import_module(lib)
         for name, _val in getmembers(module):
@@ -66,7 +65,7 @@ NATIVE_ALLOW_LIST = [
     "DelayMatchSample",
     "DelayMatchSampleDistractor1D",
     "DelayPairedAssociation",
-    # 'Detection',  # TODO: Temporary removing until bug fixed
+    # 'Detection',  # TODO: Temporary removing until bug fixed # noqa: ERA001
     "DualDelayMatchSample",
     "EconomicDecisionMaking",
     "GoNogo",
@@ -86,8 +85,8 @@ NATIVE_ALLOW_LIST = [
     "ReachingDelayResponse",
     "ReadySetGo",
     "SingleContextDecisionMaking",
-    # 'SpatialSuppressMotion',  # TODO: raises ModuleNotFound error since requires scipy, which is not in the requirements of neurogym
-    # 'ToneDetection'  # TODO: Temporary removing until bug fixed
+    # 'SpatialSuppressMotion',   # noqa: ERA001 TODO: raises ModuleNotFound error since requires scipy, which is not in the requirements of neurogym
+    # 'ToneDetection'  # TODO: Temporary removing until bug fixed # noqa: ERA001
 ]
 ALL_NATIVE_ENVS = _get_envs(
     foldername=None,
@@ -127,7 +126,6 @@ def _get_collection_envs():
     Each environment is named collection_name.env_name-v0
     """
     derived_envs = {}
-    # collection_libs = ['perceptualdecisionmaking', 'yang19', 'priors']
     # TODO: Temporary disabling priors task
     collection_libs = ["perceptualdecisionmaking", "yang19"]
     for l in collection_libs:

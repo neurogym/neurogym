@@ -251,7 +251,6 @@ class CVLearning(ngym.TrialEnv):
                 self.action_counter = new
 
     def set_phase(self) -> None:
-        # print(self.curr_ph)
         self.day_perf[self.trials_counter] = 1 * (self.rew == self.rewards["correct"])
         self.mov_perf[self.trials_counter % self.perf_len] = 1 * (self.rew == self.rewards["correct"])
         self.trials_counter += 1

@@ -36,15 +36,8 @@ def env_string(env, short=False):
         string += "Missing paper link\n"
     else:
         string += f"[{paper_name:s}]({paper_link:s})\n"
-    # add timing info
     # TODO: Add timing info back?
-    # if isinstance(env, TrialEnv):
-    #     timing = env.timing
-    #     string += '\nPeriod timing (ms) \n'
-    #     for key, val in timing.items():
-    #         dist, args = val
-    #         string +=\
-    #             key + ' : ' + tasktools.random_number_name(dist, args) + '\n'
+    # commented out code removed in PR #16
 
     if env.rewards is not None:  # if env.rewards is an array, if env.rewards will throw an error
         string += "\nReward structure \n"
@@ -315,7 +308,6 @@ class TrialEnv(BaseEnv):
             return
 
         if duration is None:
-            # duration = (self.timing_fn[period]() // self.dt) * self.dt
             duration = self.sample_time(period)
 
         if after is not None:
@@ -381,7 +373,6 @@ class TrialEnv(BaseEnv):
                 self._add_ob(value, p, where, reset=reset)
             return
 
-        # self.ob[self.start_ind[period]:self.end_ind[period]] = value
         ob = self.view_ob(period=period)
         if where is None:
             if reset:

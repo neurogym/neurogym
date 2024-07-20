@@ -179,7 +179,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.TrialEnv):
             "stimulus": 1150,
             #  TODO: sampling of delays follows exponential
             "delay": (300, 500, 700, 900, 1200, 2000, 3200, 4000),
-            # 'go_cue': 100, # TODO: Not implemented
+            # 'go_cue': 100,  # noqa: ERA001 TODO: Not implemented
             "decision": 1500,
         }
         if timing:

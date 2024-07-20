@@ -260,10 +260,8 @@ class _DMFamily(ngym.TrialEnv):
             trial["coh1" + mod] = coh1 = 0.5 + coh / 2
             trial["coh2" + mod] = coh2 = 0.5 - coh / 2
 
-        # stim = cosinebump(trial['theta1'], self.theta, coh1)
         stim = _gaussianbump(trial["theta1"], self.theta, coh1)
         self.add_ob(stim, period1, where="stimulus" + mod)
-        # stim = cosinebump(trial['theta2'], self.theta, coh2)
         stim = _gaussianbump(trial["theta2"], self.theta, coh2)
         self.add_ob(stim, period2, where="stimulus" + mod)
 

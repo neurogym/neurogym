@@ -141,7 +141,6 @@ class Dataset:
 
         self._seq_start = self._seq_end
         return inputs, target
-        # return inputs, np.expand_dims(target, axis=2)
 
     def seed(self, seed=None) -> None:
         for i, env in enumerate(self.envs):
@@ -164,5 +163,3 @@ if __name__ == "__main__":
     for _ in range(2):
         inputs, target = dataset()
         inputs_list.append(inputs)
-    # print(inputs.shape)
-    # print(target.shape)

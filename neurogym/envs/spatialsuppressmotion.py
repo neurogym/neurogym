@@ -76,18 +76,16 @@ class SpatialSuppressMotion(ngym.TrialEnv):
         self.directions_ortho = [[3, 4], [3, 4], [1, 2], [1, 2]]
 
     def _new_trial(self, diameter=None, contrast=None, direction=None):
-        """To define a stimulus, we need diameter, contrast, duration, direction
+        """To define a stimulus, we need diameter, contrast, duration, direction.
+
         <diameter>: 0~8, stimulus size in norm units
         <contrast>: 0~1, stimulus contrast
         <direction>: int(1/2/3/4), left/right/up/down.
         """
-        # import ipdb;ipdb.set_trace();import matplotlib.pyplot as plt;
-
         # if no stimulus information provided, we random sample stimulus parameters
         if direction is None:
             direction = self.rng.choice(self.directions)
         if contrast is None:
-            # contrast = self.rng.uniform(0, 1) # stimlus contrast
             contrast = self.rng.choice([0.05, 0.99])  # Low contrast, and high contrast
         # here we only consider small-low contrast and large-high contrast condition
         if contrast == 0.05:  # small low contrast
@@ -143,9 +141,6 @@ class SpatialSuppressMotion(ngym.TrialEnv):
         # rewards
         reward = 0
         gt = self.gt_now
-        # # observations
-        # if self.in_period('stimulus'): # start a new trial once step into decision stage
-        #          new_trial = True
         return (
             self.ob_now,
             reward,
@@ -161,11 +156,8 @@ class SpatialSuppressMotion(ngym.TrialEnv):
 
         We output a (4,) tuple indicate the probabilities to perceive left/right/up/down direction. This label comes from emprically measured human performance
         """
-        from numpy import zeros
         from scipy.interpolate import interp1d
 
-        # duration = [5, 7.296, 10.65, 15.54, 22.67, 33.08, 48.27, 70.44, 102.8]
-        # frame_ind = [self.envelope(i/1000)[1] for i in duration]
         frame_ind = [8, 9, 10, 13, 15, 18, 21, 28, 36, 37, 38, 39]
         xx = [1, 2, 3, 4, 5, 6, 7]
         yy = [0.249] * 7
@@ -204,11 +196,9 @@ class SpatialSuppressMotion(ngym.TrialEnv):
         direction_anti = self.directions_anti[direction] - 1
         direction_ortho = [i - 1 for i in self.directions_ortho[direction]]
 
-        gt = zeros((4, seq_len))
+        gt = np.zeros((4, seq_len))
         gt[direction, :] = corr_prob
         gt[direction_anti, :] = anti_prob
         gt[direction_ortho, :] = ortho_prob
 
-        # import ipdb;ipdb.set_trace();import matplotlib.pyplot as plt;
-        return gt.T
-        # gt is a seq_len x 4 numpy array
+        return gt.T  # gt is a seq_len x 4 numpy array

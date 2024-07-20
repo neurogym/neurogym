@@ -114,7 +114,6 @@ class LeverPressWithPoke(gym.Env):
         self.observation_space = spaces.Box(-high, high, dtype=np.float32)
 
         self.n_press = 4  # number of consecutive pressed needed
-        # self.n_press = 8
         self.reward_seq_complete = 1.0  # reward when sequence completed
 
         self.seed()
@@ -218,7 +217,6 @@ class LeverPressWithPokeRest(gym.Env):
         self.observation_space = spaces.Box(-high, high, dtype=np.float32)
 
         self.n_press = 4  # number of consecutive pressed needed
-        # self.n_press = 8
         self.reward_seq_complete = 2.0  # reward when sequence completed
 
         self.seed()

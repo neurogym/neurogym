@@ -50,9 +50,8 @@ class Pneumostomeopening(ngym.BaseEnv):
         self.observation_space = spaces.Discrete(4, name=name)
         name = {"breathingpneumostome": 0, "breathingskin": 1, "up": 2, "down": 3}
         self.action_space = spaces.Discrete(4, name=name)
-        # self.action_space = spaces.MultiDiscrete([(0, 2), (0, 2)])
 
-        ## TODO: can do breathingpneumostome only when at the surface ==depth 1
+        ## TODO: can do breathingpneumostome only when at the surface == depth 1
 
         ## task specific variables
         self.oxygen_level = 10
@@ -162,20 +161,7 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
     env = Pneumostomeopening()
-    # test_run(env)
-    # test_speed(env)
     from neurogym.utils.plotting import plot_env
 
-    # ngym.utils.plotting.run_env(env, num_steps=200)
     plot = plot_env(env, num_steps=100)
     plt.show(plot)
-    # test_plot(env)
-
-    # ob = data['ob']
-    # ob.shape
-    # actions = data['actions']
-    #
-    # ngym.utils.plotting.fig_(ob, actions, env=env)
-    #
-    # ob = np.array(ob)
-    # actions = np.array(actions)

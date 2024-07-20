@@ -124,9 +124,6 @@ class ToneDetection(ngym.TrialEnv):
         # rewards
         reward = 0
         gt = self.gt_now
-        # # observations
-        # if self.in_period('stimulus'): # start a new trial once step into decision stage
-        #          new_trial = True
         return (
             self.ob_now,
             reward,
@@ -139,5 +136,3 @@ class ToneDetection(ngym.TrialEnv):
 if __name__ == "__main__":
     env = ToneDetection(dt=50, timing=None)
     ngym.utils.plot_env(env, num_steps=100, def_act=1)
-    # env = PerceptualDecisionMakingDelayResponse()
-    # ngym.utils.plot_env(env, num_steps=100, def_act=1)

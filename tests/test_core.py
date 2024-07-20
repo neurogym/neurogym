@@ -1,7 +1,5 @@
 """Test core.py."""
 
-# import pytest
-
 import numpy as np
 
 import neurogym as ngym

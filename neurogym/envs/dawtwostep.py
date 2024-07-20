@@ -27,7 +27,7 @@ class DawTwoStep(ngym.TrialEnv):
         super().__init__(dt=dt)
         if timing is not None:
             print("Warning: Two-step task does not require timing variable.")
-        # Actions ('FIXATE', 'ACTION1', 'ACTION2')
+        # Actions are ('FIXATE', 'ACTION1', 'ACTION2')
         self.actions = [0, 1, 2]
 
         # trial conditions

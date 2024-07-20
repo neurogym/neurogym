@@ -51,7 +51,7 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
 
         self.timing = {
             "fixation": 300,
-            # 'target': 350,
+            # 'target': 350, # noqa: ERA001
             "stimulus": 750,
             "delay": ngym.random.TruncExp(600, 300, 3000),
             "decision": 100,
@@ -172,7 +172,7 @@ class ContextDecisionMaking(ngym.TrialEnv):
 
         self.timing = {
             "fixation": 300,
-            # 'target': 350,
+            # 'target': 350, # noqa: ERA001
             "stimulus": 750,
             "delay": ngym.random.TruncExp(600, 300, 3000),
             "decision": 100,

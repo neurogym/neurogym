@@ -24,7 +24,7 @@ class GoNogo(ngym.TrialEnv):
 
     def __init__(self, dt=100, rewards=None, timing=None) -> None:
         super().__init__(dt=dt)
-        # Actions (fixate, go)
+        # Actions are (FIXATE, GO)
         self.actions = [0, 1]
         # trial conditions
         self.choices = [0, 1]

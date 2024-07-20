@@ -66,7 +66,6 @@ def make_envs() -> None:
             string += "    Reference paper\n"
             paper_name = paper_name.replace("\n", " ")
             string += f"        `{paper_name:s} <{paper_link:s}>`__\n\n"
-            # string += '    .. __{:s}:\n        {:s}\n\n'.format(paper_name, paper_link)
 
         # Add tags
         string += "    Tags\n"
@@ -105,7 +104,6 @@ def make_envs() -> None:
                 string += " " * 8 + f".. video:: ../{image_path:s}\n"
                 string += " " * 12 + ":width: 300\n"
                 string += " " * 12 + ":height: 300\n"
-                # string += ' ' * 12 + ':autoplay:\n'
                 string += " " * 12 + ":loop:\n"
 
         with open(Path(__file__).parent / "envs" / (key + ".rst"), "w") as f:
