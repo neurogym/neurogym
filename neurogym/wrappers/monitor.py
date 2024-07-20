@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+from typing import ClassVar
 
 import numpy as np
 from gymnasium import Wrapper
@@ -26,7 +27,7 @@ class Monitor(Wrapper):
             (def: 100, int)
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "description": "Saves relevant behavioral information: rewards,"
         + " actions, observations, new trial, ground truth.",
         "paper_link": None,

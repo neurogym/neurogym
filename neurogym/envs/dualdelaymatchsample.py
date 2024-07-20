@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 import numpy as np
 
 import neurogym as ngym
@@ -16,7 +18,7 @@ class DualDelayMatchSample(ngym.TrialEnv):
     other sample stimulus matches the second test stimulus.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://science.sciencemag.org/content/354/6316/1136",
         "paper_name": """Reactivation of latent working memories with
         transcranial magnetic stimulation""",

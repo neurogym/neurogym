@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 import numpy as np
 
 import neurogym as ngym
@@ -20,7 +22,7 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
             focus on modality 0 (the first one)
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/nature12742",
         "paper_name": """Context-dependent computation by recurrent
          dynamics in prefrontal cortex""",
@@ -149,7 +151,7 @@ class ContextDecisionMaking(ngym.TrialEnv):
     modality is explicitly indicated by a rule signal.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/nature12742",
         "paper_name": """Context-dependent computation by recurrent
          dynamics in prefrontal cortex""",

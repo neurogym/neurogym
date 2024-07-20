@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """auditory tone detection task."""
 
+from typing import ClassVar
+
 import numpy as np
 from gymnasium import spaces
 
@@ -25,7 +27,7 @@ class ToneDetection(ngym.TrialEnv):
         <timing>: stimulus timing
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.jneurosci.org/content/jneuro/5/12/3261.full.pdf",
         "paper_name": "Representation of Tones in Noise in the Responses of Auditory Nerve Fibers  in Cats",
         "tags": ["auditory", "perceptual", "supervised", "decision"],

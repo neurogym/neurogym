@@ -1,5 +1,7 @@
 """Visual search task."""
 
+from typing import ClassVar
+
 import numpy as np
 from gymnasium import spaces
 from psychopy import visual
@@ -18,7 +20,7 @@ class VisualSearch(PsychopyEnv):
         line_width: float, line width
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://science.sciencemag.org/content/315/5820/1860",
         "paper_name": """Top-down versus bottom-up control of attention
         in the prefrontal and posterior parietal cortices""",

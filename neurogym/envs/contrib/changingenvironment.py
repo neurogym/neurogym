@@ -4,6 +4,8 @@
 @author: martafradera
 """
 
+from typing import ClassVar
+
 import numpy as np
 from gymnasium import spaces
 
@@ -21,7 +23,7 @@ class ChangingEnvironment(ngym.TrialEnv):
         cxt_cue: Whether to show context as a cue. (def: False, bool)
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.pnas.org/content/113/31/E4531",
         "paper_name": """Hierarchical decision processes that operate
         over distinct timescales underlie choice and changes in strategy""",

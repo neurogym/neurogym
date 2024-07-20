@@ -1,5 +1,7 @@
 """Random dot motion task."""
 
+from typing import ClassVar
+
 import numpy as np
 from psychopy import visual
 
@@ -17,7 +19,7 @@ class RandomDotMotion(PsychopyEnv):
         dim_ring: int, dimension of ring input and output
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.jneurosci.org/content/12/12/4745",
         "paper_name": """The analysis of visual motion: a comparison of
         neuronal and psychophysical performance""",

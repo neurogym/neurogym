@@ -3,6 +3,7 @@
 
 
 import sys
+from typing import ClassVar
 
 import numpy as np
 from gymnasium import spaces
@@ -29,7 +30,7 @@ class SpatialSuppressMotion(PsychopyEnv):
 
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/nature01800",
         "paper_name": """Perceptual consequences of centre–surround antagonism in visual motion processing """,
         "tags": ["perceptual", "plaid", "motion", "center-surround"],

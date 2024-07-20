@@ -1,5 +1,7 @@
 """Random dot motion task."""
 
+from typing import ClassVar
+
 import numpy as np
 
 import neurogym as ngym
@@ -22,7 +24,7 @@ class ProbabilisticReasoning(ngym.TrialEnv):
         n_loc: int, number of location of show shapes
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/nature05852",
         "paper_name": "Probabilistic reasoning by neurons",
         "tags": ["perceptual", "two-alternative", "supervised"],

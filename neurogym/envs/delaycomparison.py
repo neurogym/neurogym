@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 import numpy as np
 
 import neurogym as ngym
@@ -12,7 +14,7 @@ class DelayComparison(ngym.TrialEnv):
     during the decision period.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.jneurosci.org/content/30/28/9424",
         "paper_name": """Neuronal Population Coding of Parametric
         Working Memory""",

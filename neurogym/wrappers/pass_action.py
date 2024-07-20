@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from typing import ClassVar
+
 import numpy as np
 from gymnasium import Wrapper, spaces
 
@@ -7,7 +9,7 @@ from gymnasium import Wrapper, spaces
 class PassAction(Wrapper):
     """Modifies observation by adding the previous action."""
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "description": "Modifies observation by adding the previous action.",
         "paper_link": None,
         "paper_name": None,

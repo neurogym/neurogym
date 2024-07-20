@@ -1,15 +1,17 @@
+from typing import ClassVar
+
 import numpy as np
 from gymnasium import spaces
 
 import neurogym as ngym
 
-# XXX: are trials counted correctly in this task?
+# TODO: are trials counted correctly in this task?
 
 # TODO: No longer maintained, use existing task to build this task
 
 
 class IBL(ngym.TrialEnv):
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.sciencedirect.com/science/article/" + "pii/S0896627317311364",
         "paper_name": """An International Laboratory for Systems and ' +
         'Computational Neuroscience""",

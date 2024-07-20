@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from typing import ClassVar
+
 import numpy as np
 
 import neurogym as ngym
@@ -14,7 +16,7 @@ class DelayPairedAssociation(ngym.TrialEnv):
     The agent is rewarded if it chose the Go response correctly.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://elifesciences.org/articles/43191",
         "paper_name": "Active information maintenance in working memory" + " by a sensory cortex",
         "tags": ["perceptual", "working memory", "go-no-go", "supervised"],

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 
+from typing import ClassVar
+
 import numpy as np
 
 import neurogym as ngym
@@ -18,7 +20,7 @@ class PostDecisionWager(ngym.TrialEnv):
     option when it is uncertain about its perceptual decision.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://science.sciencemag.org/content/324/5928/" + "759.long",
         "paper_name": """Representation of Confidence Associated with a
          Decision by Neurons in the Parietal Cortex""",

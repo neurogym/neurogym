@@ -1,5 +1,7 @@
 """An example collection of tasks."""
 
+from typing import ClassVar
+
 import numpy as np
 
 import neurogym as ngym
@@ -58,7 +60,7 @@ class _Reach(ngym.TrialEnv):
     by the observation.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/nrn1345",
         "paper_name": """Look away: the anti-saccade task and
         the voluntary control of eye movement""",
@@ -342,7 +344,7 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
             if True (False), go to the last stimulus if match (non-match)
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/nature05078",
         "paper_name": """Experience-dependent representation
         of visual categories in parietal cortex""",

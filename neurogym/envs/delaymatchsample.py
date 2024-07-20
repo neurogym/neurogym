@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from typing import ClassVar
+
 import numpy as np
 
 import neurogym as ngym
@@ -16,7 +18,7 @@ class DelayMatchSample(ngym.TrialEnv):
     stimuli are equal, and report that decision during the decision period.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.jneurosci.org/content/jneuro/16/16/" + "5154.full.pdf",
         "paper_name": """Neural Mechanisms of Visual Working Memory in
         Prefrontal Cortex of the Macaque""",
@@ -125,7 +127,7 @@ class DelayMatchSampleDistractor1D(ngym.TrialEnv):
     then a second test stimulus follow, and so on.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.jneurosci.org/content/jneuro/16/16/" + "5154.full.pdf",
         "paper_name": """Neural Mechanisms of Visual Working Memory
         in Prefrontal Cortex of the Macaque""",

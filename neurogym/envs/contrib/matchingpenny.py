@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 
+from typing import ClassVar
+
 import numpy as np
 from gymnasium import spaces
 
@@ -17,7 +19,7 @@ class MatchingPenny(ngym.TrialEnv):
         learning_rate: learning rate in the mean_action opponent
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/nn1209",
         "paper_name": """Prefrontal cortex and decision making in a
          mixed-strategy game""",

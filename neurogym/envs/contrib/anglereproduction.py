@@ -1,5 +1,7 @@
 """Reproducing angles."""
 
+from typing import ClassVar
+
 import numpy as np
 from gymnasium import spaces
 
@@ -14,7 +16,7 @@ class AngleReproduction(ngym.TrialEnv):
     by a constant delay.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.pnas.org/content/114/43/E9115.short",
         "paper_name": """Visual perception as retrospective Bayesian
         decoding from high- to low-level features""",

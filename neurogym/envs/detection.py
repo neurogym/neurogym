@@ -5,6 +5,7 @@
 """
 
 import warnings
+from typing import ClassVar
 
 import numpy as np
 
@@ -23,7 +24,7 @@ class Detection(ngym.TrialEnv):
     """
 
     # TODO: Remains to be described.
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": None,
         "paper_name": None,
         "tags": ["perceptual", "reaction time", "go-no-go", "supervised"],

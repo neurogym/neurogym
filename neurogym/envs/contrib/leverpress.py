@@ -1,4 +1,4 @@
-from typing import NoReturn
+from typing import ClassVar, NoReturn
 
 import gymnasium as gym
 import numpy as np
@@ -9,7 +9,7 @@ from gymnasium.utils import seeding
 class LeverPress(gym.Env):
     """Lever pressing environment where a cue signals the sequence start."""
 
-    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
+    metadata: ClassVar[dict] = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
 
     def __init__(self) -> None:
         """Lever pressing environment where a cue signals the sequence start."""
@@ -106,7 +106,7 @@ class LeverPressWithPoke(gym.Env):
         1: pressing
     """
 
-    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
+    metadata: ClassVar[dict] = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
 
     def __init__(self) -> None:
         high = np.array([1])
@@ -209,7 +209,7 @@ class LeverPressWithPokeRest(gym.Env):
         2: poking reward port
     """
 
-    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
+    metadata: ClassVar[dict] = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
 
     def __init__(self) -> None:
         high = np.array([1])
@@ -314,7 +314,7 @@ class LeverPressWithPokeRest(gym.Env):
 class ContextSwitch(gym.Env):
     """ """
 
-    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
+    metadata: ClassVar[dict] = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
 
     def __init__(self) -> None:
         high = np.array([1, 1])

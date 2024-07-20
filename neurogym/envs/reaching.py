@@ -1,5 +1,7 @@
 """Reaching to target."""
 
+from typing import ClassVar
+
 import numpy as np
 
 import neurogym as ngym
@@ -19,7 +21,7 @@ class Reaching1D(ngym.TrialEnv):
     towards the stimulus direction.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://science.sciencemag.org/content/233/4771/1416",
         "paper_name": "Neuronal population coding of movement direction",
         "tags": ["motor", "steps action space"],
@@ -111,7 +113,7 @@ class Reaching1DWithSelfDistraction(ngym.TrialEnv):
     Similar phenomena in bats.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "description": """The agent has to reproduce the angle indicated
          by the observation. Furthermore, the reaching state itself
          generates strong inputs that overshadows the actual target input.""",

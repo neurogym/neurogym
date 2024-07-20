@@ -1,5 +1,7 @@
 """Multi-Sensory Integration."""
 
+from typing import ClassVar
+
 import numpy as np
 
 import neurogym as ngym
@@ -19,7 +21,7 @@ class MultiSensoryIntegration(ngym.TrialEnv):
     from both modalities equally.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "description": None,
         "paper_link": None,
         "paper_name": None,

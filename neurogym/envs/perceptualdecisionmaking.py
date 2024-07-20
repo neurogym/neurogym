@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from typing import ClassVar
+
 import numpy as np
 
 import neurogym as ngym
@@ -22,7 +24,7 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
         dim_ring: int, dimension of ring input and output
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.jneurosci.org/content/12/12/4745",
         "paper_name": """The analysis of visual motion: a comparison of
         neuronal and psychophysical performance""",
@@ -156,7 +158,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.TrialEnv):
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/s41586-019-0919-7",
         "paper_name": "Discrete attractor dynamics underlies persistent" + " activity in the frontal cortex",
         "tags": ["perceptual", "delayed response", "two-alternative", "supervised"],
@@ -265,7 +267,7 @@ class PulseDecisionMaking(ngym.TrialEnv):
         n_bin: int, number of stimulus bins
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://elifesciences.org/articles/11308",
         "paper_name": """Sources of noise during accumulation of evidence in
         unrestrained and voluntarily head-restrained rats""",

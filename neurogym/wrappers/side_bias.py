@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from typing import ClassVar
+
 import numpy as np
 
 import neurogym as ngym
@@ -15,7 +17,7 @@ class SideBias(ngym.TrialWrapper):
         block_dur: Number of trials per block. (def: 200, int)
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "description": "Changes the probability of ground truth.",
         "paper_link": None,
         "paper_name": None,

@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
+from typing import ClassVar
+
 import numpy as np
 from gymnasium import Wrapper, spaces
 
 
 class PassReward(Wrapper):
-    metadata = {
+    metadata: ClassVar[dict] = {
         "description": "Modifies observation by adding the previous reward.",
         "paper_link": None,
         "paper_name": None,
