@@ -186,8 +186,7 @@ class LeverPressWithPoke(gym.Env):
         self.steps_beyond_done = None
         if self.observe_state:
             return np.array([self.state]), {}
-        else:
-            return np.array([1.0]), {}
+        return np.array([1.0]), {}
 
     def render(self, mode="human") -> NoReturn:
         raise NotImplementedError
@@ -300,8 +299,7 @@ class LeverPressWithPokeRest(gym.Env):
         self.thirst = self._get_thirst(self.thirst_state)
         if self.observe_state:
             return np.array([self.state]), {}
-        else:
-            return np.array([self.thirst]), {}
+        return np.array([self.thirst]), {}
 
     def render(self, mode="human") -> NoReturn:
         raise NotImplementedError

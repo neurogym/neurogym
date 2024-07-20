@@ -19,8 +19,7 @@ def get_option(options, key, default):
 
     if type(default) == bool:
         return True
-    else:
-        return options[key]
+    return options[key]
 
 
 class video(nodes.General, nodes.Element):

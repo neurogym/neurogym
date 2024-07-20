@@ -159,19 +159,18 @@ def all_envs(tag=None, psychopy=False, contrib=False, collections=False):
     env_list = sorted(envs.keys())
     if tag is None:
         return env_list
-    else:
-        if not isinstance(tag, str):
-            msg = "tag must be str, but got "
-            raise ValueError(msg, type(tag))
+    if not isinstance(tag, str):
+        msg = "tag must be str, but got "
+        raise ValueError(msg, type(tag))
 
-        new_env_list = []
-        for env in env_list:
-            from_, class_ = envs[env].split(":")
-            imported = getattr(__import__(from_, fromlist=[class_]), class_)
-            env_tag = imported.metadata.get("tags", [])
-            if tag in env_tag:
-                new_env_list.append(env)
-        return new_env_list
+    new_env_list = []
+    for env in env_list:
+        from_, class_ = envs[env].split(":")
+        imported = getattr(__import__(from_, fromlist=[class_]), class_)
+        env_tag = imported.metadata.get("tags", [])
+        if tag in env_tag:
+            new_env_list.append(env)
+    return new_env_list
 
 
 def all_tags():
@@ -231,10 +230,10 @@ def _distance(s0, s1):
 def make(id, **kwargs):
     try:
         # TODO: disable gym 0.24 env_checker for now (raises warnings, even errors when ob not in observation_space)
+        # FIXME: is this still relevant for gymnasium?
         if version.parse(gym.__version__) >= version.parse("0.24.0"):
             return gym.make(id, disable_env_checker=True, **kwargs)
-        else:
-            return gym.make(id, **kwargs)
+        return gym.make(id, **kwargs)
 
     except gym.error.UnregisteredEnv:
         # backward compatibility with old versions of gym

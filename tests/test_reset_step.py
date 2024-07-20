@@ -10,9 +10,9 @@ disable_env_checker = False
 def make_env(name, **kwargs):
     if disable_env_checker:
         return ngym.make(name, disable_env_checker=True, **kwargs)
-    else:
-        # cannot add the arg disable_env_checker to gym.make in versions lower than 0.24
-        return ngym.make(name, **kwargs)
+    # cannot add the arg disable_env_checker to gym.make in versions lower than 0.24
+    # FIXME: given that we are using gymnasium, is this still relevant?
+    return ngym.make(name, **kwargs)
 
 
 class CstObTrialWrapper(ngym.TrialWrapper):

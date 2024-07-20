@@ -868,11 +868,10 @@ def check_blk_id(blk_id_mat, curr_blk, num_blk, sel_chs):
     # translate transitions t.i.a. selected choices
     if curr_blk in blk_id_mat:
         return blk_id_mat, np.argwhere(np.array(blk_id_mat) == curr_blk)
-    elif len(blk_id_mat) < num_blk:
+    if len(blk_id_mat) < num_blk:
         blk_id_mat.append(curr_blk)
         return blk_id_mat, len(blk_id_mat) - 1
-    else:
-        return blk_id_mat, -1
+    return blk_id_mat, -1
 
 
 @pytest.mark.skip(

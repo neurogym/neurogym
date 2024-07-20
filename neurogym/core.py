@@ -355,8 +355,7 @@ class TrialEnv(BaseEnv):
 
         if period is None:
             return self.ob
-        else:
-            return self.ob[self.start_ind[period] : self.end_ind[period]]
+        return self.ob[self.start_ind[period] : self.end_ind[period]]
 
     def _add_ob(self, value, period=None, where=None, reset=False) -> None:
         """Set observation in period to value.

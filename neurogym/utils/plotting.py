@@ -220,11 +220,11 @@ def fig_(
             fig_kwargs=fig_kwargs,
             env=env,
         )
-    elif len(ob.shape) == 4:
+    if len(ob.shape) == 4:
         return plot_env_3dbox(ob, actions, fname=fname, env=env)
-    else:
-        msg = f"ob shape {ob.shape!s} not supported"
-        raise ValueError(msg)
+
+    msg = f"ob shape {ob.shape!s} not supported"
+    raise ValueError(msg)
 
 
 def plot_env_1dbox(

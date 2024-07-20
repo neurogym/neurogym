@@ -30,15 +30,15 @@ def minmax_number(dist, args):
     """Given input to the random_number_fn function, return min and max."""
     if dist == "uniform":
         return args[0], args[1]
-    elif dist == "choice":
+    if dist == "choice":
         return np.min(args), np.max(args)
-    elif dist == "truncated_exponential":
+    if dist == "truncated_exponential":
         return args[1], args[2]
-    elif dist == "constant":
+    if dist == "constant":
         return args, args
-    else:
-        msg = "Unknown dist:"
-        raise ValueError(msg, str(dist))
+
+    msg = "Unknown dist:"
+    raise ValueError(msg, str(dist))
 
 
 def circular_dist(original_dist):

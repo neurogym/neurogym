@@ -45,9 +45,8 @@ def _collection_from_file(fname):
 def get_collection(collection):
     if collection == "":
         return []  # placeholder for named collections
-    else:
-        try:
-            return _collection_from_file(collection)
-        except ImportError:
-            msg = f"Unknown collection of envs, {collection}"
-            raise ValueError(msg)
+    try:
+        return _collection_from_file(collection)
+    except ImportError:
+        msg = f"Unknown collection of envs, {collection}"
+        raise ValueError(msg)

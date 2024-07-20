@@ -132,16 +132,16 @@ class MultiEnvs(TrialWrapper):
     def new_trial(self, **kwargs):
         if not self.env_input:
             return self.env.new_trial(**kwargs)
-        else:
-            trial = self.env.new_trial(**kwargs)
-            # Expand observation
-            env_ob = np.zeros(
-                (self.unwrapped.ob.shape[0], len(self.envs)),
-                dtype=self.unwrapped.ob.dtype,
-            )
-            env_ob[:, self.i_env] = 1.0
-            self.unwrapped.ob = np.concatenate((self.unwrapped.ob, env_ob), axis=-1)
-            return trial
+
+        trial = self.env.new_trial(**kwargs)
+        # Expand observation
+        env_ob = np.zeros(
+            (self.unwrapped.ob.shape[0], len(self.envs)),
+            dtype=self.unwrapped.ob.dtype,
+        )
+        env_ob[:, self.i_env] = 1.0
+        self.unwrapped.ob = np.concatenate((self.unwrapped.ob, env_ob), axis=-1)
+        return trial
 
 
 # TODO: EnvsWrapper or MultiEnvWrapper
