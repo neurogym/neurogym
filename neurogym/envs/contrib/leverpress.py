@@ -173,11 +173,10 @@ class LeverPressWithPoke(gym.Env):
     @property
     def optimal_chance_reward(self):
         """Optimal reward if agent chooses press and poking randomly."""
-        N = self.n_press
         # optimal random p when state 0 --> N is the only rewarding transition
-        p_opt = np.sqrt(N) / (1 + np.sqrt(N))
+        p_opt = np.sqrt(self.n_press) / (1 + np.sqrt(self.n_press))
         p = p_opt
-        r = p * (1 - p) / (N * (1 - p) + p)
+        r = p * (1 - p) / (self.n_press * (1 - p) + p)
         r *= self.reward_seq_complete
         return r
 

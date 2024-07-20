@@ -3,7 +3,6 @@
 
 
 import sys
-from typing import ClassVar
 
 import numpy as np
 from gymnasium import spaces
@@ -106,11 +105,11 @@ class SpatialSuppressMotion(PsychopyEnv):
 
         # define some motion parameters.
         # We assume 16 deg for the full FOV (8 deg radius)
-        degPerfov = 16
-        SF = 0.8  # cycles / degree
+        degrees = 16
+        cycles_per_degree = 0.8  # cycles / degree
         speed = 4  # deg / sec
-        SF_fov = SF * degPerfov  # cycles per fov
-        TF = SF * speed  # temporal frequency cycles / sec
+        cycles_per_fov = cycles_per_degree * degrees  # cycles per fov
+        temporal_frequency = cycles_per_degree * speed  # temporal frequency cycles / sec
         comp_direct = self.directions_component[trial["direction"] - 1]
 
         # obtain the temporal contrast profile and mv_length
@@ -134,7 +133,7 @@ class SpatialSuppressMotion(PsychopyEnv):
             mask="raisedCos",
             opacity=1.0,
             size=diameter,
-            sf=(SF_fov, 0),
+            sf=(cycles_per_fov, 0),
             ori=45,
             contrast=trial["contrast"],
         )
@@ -143,7 +142,7 @@ class SpatialSuppressMotion(PsychopyEnv):
             mask="raisedCos",
             opacity=0.5,
             size=diameter,
-            sf=(SF_fov, 0),
+            sf=(cycles_per_fov, 0),
             ori=135,
             contrast=trial["contrast"],
         )
@@ -153,11 +152,11 @@ class SpatialSuppressMotion(PsychopyEnv):
         for i in range(ob.shape[0]):
             grating1.contrast = trial["contrast"] * profile[i]
             # drift it, comp_direct control the direction
-            grating1.phase = comp_direct[0] * TF * i * self.dt / 1000
+            grating1.phase = comp_direct[0] * temporal_frequency * i * self.dt / 1000
             grating1.draw()
 
             grating2.contrast = trial["contrast"] * profile[i]
-            grating2.phase = comp_direct[1] * TF * i * self.dt / 1000
+            grating2.phase = comp_direct[1] * temporal_frequency * i * self.dt / 1000
             grating2.draw()
 
             self.win.flip()

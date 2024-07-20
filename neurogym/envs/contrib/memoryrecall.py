@@ -15,9 +15,9 @@ class MemoryRecall(ngym.TrialEnv):
         dt=1,
         stim_dim=10,
         store_signal_dim=1,
-        T_min=15,
-        T_max=25,
-        T_distribution="uniform",
+        t_min=15,
+        t_max=25,
+        t_distribution="uniform",
         p_recall=0.1,
         chance=0.7,
         balanced=True,
@@ -26,7 +26,7 @@ class MemoryRecall(ngym.TrialEnv):
         """Args:
         stim_dim: int, stimulus dimension
         store_signal_dim: int, storage signal dimension
-        T: int, sequence length
+        t: int, sequence length
         p_recall: proportion of patterns stored for recall
         chance: chance level performance.
         """
@@ -36,18 +36,18 @@ class MemoryRecall(ngym.TrialEnv):
         self.store_signal_dim = store_signal_dim
         self.input_dim = self.stim_dim + self.store_signal_dim
         self.output_dim = stim_dim
-        self.T_min = T_min
-        if T_max is None:
-            self.T_max = T_min
+        self.t_min = t_min
+        if t_max is None:
+            self.t_max = t_min
         else:
-            self.T_max = T_max
-        assert self.T_max >= self.T_min, "T_max must be larger than T_min"
-        self.T_distribution = T_distribution
-        if T_distribution == "uniform":
-            self.generate_T = lambda: self.rng.randint(self.T_min, self.T_max + 1)
+            self.t_max = t_max
+        assert self.t_max >= self.t_min, "t_max must be larger than t_min"
+        self.t_distribution = t_distribution
+        if t_distribution == "uniform":
+            self.generate_T = lambda: self.rng.randint(self.t_min, self.t_max + 1)
         else:
-            msg = "Not supported T distribution type"
-            raise ValueError(msg, str(T_distribution))
+            msg = "Not supported t distribution type"
+            raise ValueError(msg, str(t_distribution))
         self.p_recall = p_recall
         self.balanced = balanced
         self.chance = chance
@@ -82,9 +82,9 @@ class MemoryRecall(ngym.TrialEnv):
                 ("store_signal_dim", "Storage signal dimension"),
                 ("input_dim", "Input dimension"),
                 ("output_dim", "Output dimension"),
-                ("T_min", "Minimum sequence length"),
-                ("T_max", "Maximum sequence length"),
-                ("T_distribution", "Sequence length distribution"),
+                ("t_min", "Minimum sequence length"),
+                ("t_max", "Maximum sequence length"),
+                ("t_distribution", "Sequence length distribution"),
                 ("p_recall", "Proportion of recall"),
                 ("chance", "Chancel level accuracy"),
             ],
@@ -103,46 +103,46 @@ class MemoryRecall(ngym.TrialEnv):
         # TODO: Need to be updated
         stim_dim = self.stim_dim
 
-        T = self.generate_T()
+        t = self.generate_T()
 
-        T_recall = int(self.p_recall * T)
-        T_store = T - T_recall
+        t_recall = int(self.p_recall * t)
+        t_store = t - t_recall
 
-        X_stim = np.zeros((T, stim_dim))
-        X_store_signal = np.zeros((T, 1))
-        Y = np.zeros((T, stim_dim))
-        M = np.zeros(T)
+        x_stim = np.zeros((t, stim_dim))
+        x_store_signal = np.zeros((t, 1))
+        y = np.zeros((t, stim_dim))
+        m = np.zeros(t)
 
         # Storage phase
         if self.balanced:
-            X_stim[:T_store, :] = (self.rng.rand(T_store, stim_dim) > 0.5) * 2.0 - 1.0
+            x_stim[:t_store, :] = (self.rng.rand(t_store, stim_dim) > 0.5) * 2.0 - 1.0
         else:
-            X_stim[:T_store, :] = (self.rng.rand(T_store, stim_dim) > 0.5) * 1.0
+            x_stim[:t_store, :] = (self.rng.rand(t_store, stim_dim) > 0.5) * 1.0
 
-        store_signal = self.rng.choice(np.arange(T_store), T_recall, replace=False)
-        X_store_signal[store_signal, 0] = 1.0
+        store_signal = self.rng.choice(np.arange(t_store), t_recall, replace=False)
+        x_store_signal[store_signal, 0] = 1.0
 
         # Recall phase
-        X_stim_recall = X_stim[store_signal]
-        Y[T_store:, :] = X_stim_recall
-        M[T_store:] = 1.0
+        x_stim_recall = x_stim[store_signal]
+        y[t_store:, :] = x_stim_recall
+        m[t_store:] = 1.0
 
-        # Perturb X_stim_recall
+        # Perturb x_stim_recall
         # Flip probability
         if self.balanced:
-            known_matrix = (self.rng.rand(T_recall, stim_dim) > self.p_unknown) * 1.0
-            X_stim[T_store:, :stim_dim] = X_stim_recall * known_matrix
+            known_matrix = (self.rng.rand(t_recall, stim_dim) > self.p_unknown) * 1.0
+            x_stim[t_store:, :stim_dim] = x_stim_recall * known_matrix
         else:
-            flip_matrix = self.rng.rand(T_recall, stim_dim) < self.p_flip
-            X_stim[T_store:, :stim_dim] = X_stim_recall * (1 - flip_matrix) + (1 - X_stim_recall) * flip_matrix
+            flip_matrix = self.rng.rand(t_recall, stim_dim) < self.p_flip
+            x_stim[t_store:, :stim_dim] = x_stim_recall * (1 - flip_matrix) + (1 - x_stim_recall) * flip_matrix
 
-        X = np.concatenate((X_stim, X_store_signal), axis=1)
-        self.ob = X
-        self.gt = Y
-        self.mask = M
-        self.tmax = T * self.dt
+        x = np.concatenate((x_stim, x_store_signal), axis=1)
+        self.ob = x
+        self.gt = y
+        self.mask = m
+        self.tmax = t * self.dt
 
-        return X, Y, M
+        return x, y, m
 
     def _step(self, action):
         # ---------------------------------------------------------------------

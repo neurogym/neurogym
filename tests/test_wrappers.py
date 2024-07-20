@@ -594,14 +594,14 @@ def test_ttlpulse(env_name, num_steps=10000, verbose=False, **envArgs):
 )
 def test_transferLearning(num_steps=10000, verbose=False, **envArgs):
     task = "GoNogo-v0"
-    KWARGS = {
+    kwargs = {
         "dt": 100,
         "timing": {"fixation": 0, "stimulus": 100, "resp_delay": 100, "decision": 100},
     }
-    env1 = gym.make(task, **KWARGS)
+    env1 = gym.make(task, **kwargs)
     task = "PerceptualDecisionMaking-v0"
-    KWARGS = {"dt": 100, "timing": {"fixation": 100, "stimulus": 100, "decision": 100}}
-    env2 = gym.make(task, **KWARGS)
+    kwargs = {"dt": 100, "timing": {"fixation": 100, "stimulus": 100, "decision": 100}}
+    env2 = gym.make(task, **kwargs)
     env = TransferLearning([env1, env2], num_tr_per_task=[30], task_cue=True)
 
     env.reset()
@@ -644,13 +644,13 @@ def test_transferLearning(num_steps=10000, verbose=False, **envArgs):
 )
 def test_combine(num_steps=10000, verbose=False, **envArgs):
     task = "GoNogo-v0"
-    KWARGS = {
+    kwargs = {
         "dt": 100,
         "timing": {"fixation": 0, "stimulus": 100, "resp_delay": 100, "decision": 100},
     }
-    env1 = gym.make(task, **KWARGS)
+    env1 = gym.make(task, **kwargs)
     task = "DelayPairedAssociation-v0"
-    KWARGS = {
+    kwargs = {
         "dt": 100,
         "timing": {
             "fixation": 0,
@@ -661,7 +661,7 @@ def test_combine(num_steps=10000, verbose=False, **envArgs):
             "decision": 200,
         },
     }
-    env2 = gym.make(task, **KWARGS)
+    env2 = gym.make(task, **kwargs)
     env = Combine(
         env=env1,
         distractor=env2,
