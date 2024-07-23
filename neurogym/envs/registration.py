@@ -229,13 +229,13 @@ def _distance(s0, s1):
     return v0[len(s1)]
 
 
-def make(id, **kwargs):
+def make(id_, **kwargs):
     try:
         # TODO: disable gym 0.24 env_checker for now (raises warnings, even errors when ob not in observation_space)
         # FIXME: is this still relevant for gymnasium?
         if version.parse(gym.__version__) >= version.parse("0.24.0"):
-            return gym.make(id, disable_env_checker=True, **kwargs)
-        return gym.make(id, **kwargs)
+            return gym.make(id_, disable_env_checker=True, **kwargs)
+        return gym.make(id_, **kwargs)
 
     except gym.error.UnregisteredEnv as e:  # FIXME: check if this is still relevant when using gymnasium
         # backward compatibility with old versions of gym
@@ -244,11 +244,11 @@ def make(id, **kwargs):
         else:
             all_ids = [env.id for env in gym.envs.registry.values()]
 
-        dists = [_distance(id, env_id) for env_id in all_ids]
+        dists = [_distance(id_, env_id) for env_id in all_ids]
         # Python argsort
         sort_inds = sorted(range(len(dists)), key=dists.__getitem__)
         env_guesses = [all_ids[sort_inds[i]] for i in range(5)]
-        err_msg = f"No registered env with id: {id}.\nDo you mean:\n"
+        err_msg = f"No registered env with id_: {id_}.\nDo you mean:\n"
         for env_guess in env_guesses:
             err_msg += "    " + env_guess + "\n"
         raise gym.error.UnregisteredEnv(err_msg) from e
@@ -261,10 +261,10 @@ else:
     _all_gym_envs = [env.id for env in gym.envs.registry.values()]
 
 
-def register(id, **kwargs) -> None:
-    if id not in _all_gym_envs:
-        gym.envs.registration.register(id=id, **kwargs)
+def register(id_, **kwargs) -> None:
+    if id_ not in _all_gym_envs:
+        gym.envs.registration.register(id=id_, **kwargs)
 
 
 for env_id, entry_point in ALL_EXTENDED_ENVS.items():
-    register(id=env_id, entry_point=entry_point)
+    register(id_=env_id, entry_point=entry_point)
