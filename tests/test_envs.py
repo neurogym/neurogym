@@ -12,8 +12,7 @@ import neurogym as ngym
 from neurogym.utils.data import Dataset
 
 try:
-    import psychopy
-
+    import psychopy  # noqa: F401, I001
     _have_psychopy = True
 except ImportError:
     _have_psychopy = False
@@ -92,7 +91,7 @@ def test_dataset_all():
             test_dataset(env_name)
             print("Success")
             success_count += 1
-        except BaseException as e:
+        except BaseException as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
             print(f"Failure at running env: {env_name:s}")
             print(e)
 
@@ -186,6 +185,6 @@ def test_plot_envs():
         action = np.zeros_like(env.action_space.sample())
         try:
             ngym.utils.plot_env(env, num_trials=2, def_act=action)
-        except Exception as e:
+        except Exception as e: # noqa: BLE001 # FIXME: unclear which error is expected here.
             print(f"Error in plotting env: {env_name}, {e}")
             print(e)

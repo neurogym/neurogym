@@ -72,7 +72,7 @@ def test_speed_all():
         try:
             speed(env_name)
             print("Success")
-        except BaseException as e:
+        except Exception as e: # noqa: BLE001 # FIXME: unclear which error is expected here.
             print(f"Failure at running env: {env_name:s}")
             print(e)
 
@@ -105,7 +105,8 @@ def test_speed_dataset_all():
         try:
             speed_dataset(env_name)
             print("Success")
-        except BaseException as e:
+        except BaseException as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
+
             print(f"Failure at running env: {env_name:s}")
             print(e)
 

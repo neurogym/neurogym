@@ -87,7 +87,7 @@ def all_tags(verbose=0):
             env = ngym.make(env_name)
             metadata = env.metadata
             tags += metadata.get("tags", [])
-        except BaseException as e:
+        except BaseException as e:  # noqa: BLE001, PERF203 # FIXME: unclear which error is expected here.
             print("Failure in ", env_name)
             print(e)
     tags = set(tags)

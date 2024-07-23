@@ -16,6 +16,8 @@ from neurogym.wrappers import (
     SideBias,
 )
 
+# ruff: noqa: N803, F821
+
 
 @pytest.mark.skip(reason="This test is failing, needs more investigation")
 def test_sidebias(
@@ -735,7 +737,7 @@ def test_all(test_fn):
             test_fn(env_name)
             print("Success")
             success_count += 1
-        except BaseException as e:
+        except BaseException as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
             print(f"Failure at running env: {env_name:s}")
             print(e)
         print()

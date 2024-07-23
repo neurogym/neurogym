@@ -4,7 +4,7 @@ Each collection is a list of envs.
 """
 
 import importlib
-from inspect import getmembers, isclass, isfunction
+from inspect import getmembers, isfunction
 
 
 def _collection_from_file(fname):
