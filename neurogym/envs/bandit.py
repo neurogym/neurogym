@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Multi-arm Bandit task
-TODO: add the actual papers.
-"""
+"""Multi-arm Bandit task."""
+# TODO: add the actual papers.
 
 from typing import ClassVar
 

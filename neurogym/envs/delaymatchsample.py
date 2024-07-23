@@ -9,7 +9,7 @@ from neurogym import spaces
 
 
 class DelayMatchSample(ngym.TrialEnv):
-    r"""Delayed match-to-sample task.
+    """Delayed match-to-sample task.
 
     A sample stimulus is shown during the sample period. The stimulus is
     characterized by a one-dimensional variable, such as its orientation
@@ -115,8 +115,7 @@ class DelayMatchSample(ngym.TrialEnv):
 
 
 class DelayMatchSampleDistractor1D(ngym.TrialEnv):
-    r"""Delayed match-to-sample with multiple, potentially repeating
-    distractors.
+    """Delayed match-to-sample with multiple, potentially repeating distractors.
 
     A sample stimulus is shown during the sample period. The stimulus is
     characterized by a one-dimensional variable, such as its orientation

@@ -14,7 +14,7 @@ from neurogym import spaces
 
 
 class Detection(ngym.TrialEnv):
-    r"""The agent has to GO if a stimulus is presented.
+    """The agent has to GO if a stimulus is presented.
 
     Args:
         delay: If not None indicates the delay, from the moment of the start of

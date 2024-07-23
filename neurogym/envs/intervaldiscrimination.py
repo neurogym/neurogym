@@ -8,7 +8,7 @@ from neurogym import spaces
 
 # TODO: Getting duration is not intuitive, not clear to people
 class IntervalDiscrimination(ngym.TrialEnv):
-    r"""Comparing the time length of two stimuli.
+    """Comparing the time length of two stimuli.
 
     Two stimuli are shown sequentially, separated by a delay period. The
     duration of each stimulus is randomly sampled on each trial. The

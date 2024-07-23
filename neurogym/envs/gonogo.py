@@ -9,7 +9,7 @@ from neurogym import spaces
 
 
 class GoNogo(ngym.TrialEnv):
-    r"""Go/No-go task.
+    """Go/No-go task.
 
     A stimulus is shown during the stimulus period. The stimulus period is
     followed by a delay period, and then a decision period. If the stimulus is

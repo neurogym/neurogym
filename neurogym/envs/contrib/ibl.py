@@ -58,9 +58,9 @@ class IBL(ngym.TrialEnv):
         self.ob = obs
 
     def _new_trial(self, **kwargs) -> None:
-        """_new_trial() is called when a trial ends to get the specifications of
-        the next trial. Such specifications are stored in a dictionary with
-        the following items:
+        """Called when a trial ends to get the specifications of the next trial.
+
+        Such specifications are stored in a dictionary with the following items:
             durations, which stores the duration of the different periods (in
             the case of perceptualDecisionMaking: fixation, stimulus and decision periods)
             ground truth: correct response for the trial
@@ -104,9 +104,9 @@ class IBL_Block(IBL):
         self.block_size = 200
 
     def _new_trial(self, **kwargs) -> None:
-        """_new_trial() is called when a trial ends to get the specifications of
-        the next trial. Such specifications are stored in a dictionary with
-        the following items:
+        """Called when a trial ends to get the specifications of the next trial.
+
+        Such specifications are stored in a dictionary with the following items:
             durations, which stores the duration of the different periods (in
             the case of perceptualDecisionMaking: fixation, stimulus and decision periods)
             ground truth: correct response for the trial

@@ -133,7 +133,9 @@ def test_passreward(
     verbose=False,
 ):
     """Test pass-reward wrapper.
+
     TODO: explain wrapper
+
     Parameters.
     ----------
     env_name : str, optional
@@ -265,7 +267,9 @@ def test_variablemapping(
     min_sess_dur=20,
 ):
     """Test variable-mapping wrapper.
+
     TODO: explain wrapper
+
     Parameters.
     ----------
     env_name : str, optional
@@ -277,7 +281,7 @@ def test_variablemapping(
     mapp_ch_prob : float, optional
         probability of mapping change (0.1)
     min_mapp_dur : int, optional
-         minimum number of trials for a mapping block (3)
+        minimum number of trials for a mapping block (3)
     sess_end_prob: float, optional,
         probability of session to finish (0.0025)
     min_sess_dur: int, optional

@@ -333,7 +333,7 @@ class _DMFamily(ngym.TrialEnv):
 
 
 class _DelayMatch1DResponse(ngym.TrialEnv):
-    r"""Delay match-to-sample or category task.
+    """Delay match-to-sample or category task.
 
     A sample stimulus is followed by a delay and test. Agents are required
     to indicate if the sample and test are in the same category.

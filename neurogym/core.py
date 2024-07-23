@@ -128,7 +128,7 @@ class TrialEnv(BaseEnv):
 
         Receives an action and returns a new state, a reward, a flag variable
         indicating whether the experiment has ended and a dictionary with
-        useful information
+        useful information.
         """
         msg = "_step is not defined by user."
         raise NotImplementedError(msg)
@@ -146,8 +146,7 @@ class TrialEnv(BaseEnv):
     def post_step(self, ob, reward, terminated, truncated, info):
         """Optional task-specific wrapper applied at the end of step.
 
-        It allows to modify ob online (e.g. provide a specific observation for
-                                       different actions made by the agent)
+        It allows to modify ob online (e.g. provide a specific observation for different actions made by the agent)
         """
         return ob, reward, terminated, truncated, info
 
@@ -365,6 +364,7 @@ class TrialEnv(BaseEnv):
             value: np array (ob_space.shape, ...)
             period: string, must be name of an added period
             where: string or np array, location of stimulus to be added
+            reset: # FIXME: add description
         """
         if isinstance(period, str) or period is None:
             pass

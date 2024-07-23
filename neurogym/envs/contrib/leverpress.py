@@ -325,8 +325,6 @@ class LeverPressWithPokeRest(gym.Env):
 
 
 class ContextSwitch(gym.Env):
-    """ """
-
     metadata: ClassVar[dict] = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
 
     def __init__(self) -> None:

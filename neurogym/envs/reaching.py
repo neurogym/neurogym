@@ -13,7 +13,7 @@ from neurogym.utils import tasktools
 # making it difficult for SL and RL to work together
 # TODO: Need to clean up this task
 class Reaching1D(ngym.TrialEnv):
-    r"""Reaching to the stimulus.
+    """Reaching to the stimulus.
 
     The agent is shown a stimulus during the fixation period. The stimulus
     encodes a one-dimensional variable such as a movement direction. At the
@@ -104,7 +104,7 @@ class Reaching1D(ngym.TrialEnv):
 
 
 class Reaching1DWithSelfDistraction(ngym.TrialEnv):
-    r"""Reaching with self distraction.
+    """Reaching with self distraction.
 
     In this task, the reaching state itself generates strong inputs that
     overshadows the actual target input. This task is inspired by behavior

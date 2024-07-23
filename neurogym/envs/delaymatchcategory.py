@@ -9,7 +9,7 @@ from neurogym import spaces
 
 
 class DelayMatchCategory(ngym.TrialEnv):
-    r"""Delayed match-to-category task.
+    """Delayed match-to-category task.
 
     A sample stimulus is shown during the sample period. The stimulus is
     characterized by a one-dimensional variable, such as its orientation

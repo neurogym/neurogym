@@ -9,7 +9,7 @@ from neurogym import spaces
 
 
 class EconomicDecisionMaking(ngym.TrialEnv):
-    r"""Economic decision making task.
+    """Economic decision making task.
 
     A agent chooses between two options. Each option offers a certain amount of
     juice. Its amount is indicated by the stimulus. The two options offer

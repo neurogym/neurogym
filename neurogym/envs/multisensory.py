@@ -12,7 +12,7 @@ from neurogym import spaces
 # TODO: In this current implementation, the two stimuli always point to the
 #  same direction, check original
 class MultiSensoryIntegration(ngym.TrialEnv):
-    r"""Multi-sensory integration.
+    """Multi-sensory integration.
 
     Two stimuli are shown in two input modalities. Each stimulus points to
     one of the possible responses with a certain strength (coherence). The

@@ -10,7 +10,7 @@ from neurogym.utils import tasktools
 
 
 class AngleReproduction(ngym.TrialEnv):
-    r"""Angle reproduction.
+    """Angle reproduction.
 
     The agent has to reproduce to two angles separated
     by a constant delay.

@@ -10,9 +10,9 @@ import neurogym as ngym
 
 
 class CVLearning(ngym.TrialEnv):
-    r"""Implements shaping for the delay-response task, in which agents
-    have to integrate two stimuli and report which one is larger on
-    average after a delay.
+    """Implements shaping for the delay-response task.
+
+    Agents have to integrate two stimuli and report which one is larger on average after a delay.
 
     Args:
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)
@@ -139,7 +139,8 @@ class CVLearning(ngym.TrialEnv):
         )
 
     def _new_trial(self, **kwargs):
-        """new_trial() is called when a trial ends to generate the next trial.
+        """Called when a trial ends to generate the next trial.
+
         The following variables are created:
             durations: Stores the duration of the different periods.
             ground truth: Correct response for the trial.
@@ -243,9 +244,7 @@ class CVLearning(ngym.TrialEnv):
         return trial
 
     def count(self, action) -> None:
-        """Check the last three answers during stage 0 so the network has to
-        alternate between left and right.
-        """
+        """Check the last three answers during stage 0 so the network has to alternate between left and right."""
         if action != 0:
             new = action - 2 / action
             if np.sign(self.action_counter) == np.sign(new):

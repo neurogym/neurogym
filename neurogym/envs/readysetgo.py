@@ -10,7 +10,7 @@ from neurogym import spaces
 
 
 class ReadySetGo(ngym.TrialEnv):
-    r"""Agents have to measure and produce different time intervals.
+    """Agents have to measure and produce different time intervals.
 
     A stimulus is briefly shown during a ready period, then again during a
     set period. The ready and set periods are separated by a measure period,
@@ -120,12 +120,11 @@ class ReadySetGo(ngym.TrialEnv):
 
 
 class MotorTiming(ngym.TrialEnv):
-    """Agents have to produce different time intervals
-    using different effectors (actions).
+    """Agents have to produce different time intervals using different effectors (actions).
 
     Args:
         prod_margin: controls the interval around the ground truth production
-                    time within which the agent receives proportional reward
+            time within which the agent receives proportional reward.
     """
 
     #  TODO: different actions not implemented
@@ -222,7 +221,7 @@ class MotorTiming(ngym.TrialEnv):
 
 
 class OneTwoThreeGo(ngym.TrialEnv):
-    r"""Agents reproduce time intervals based on two samples.
+    """Agents reproduce time intervals based on two samples.
 
     Args:
         prod_margin: controls the interval around the ground truth production

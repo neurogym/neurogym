@@ -11,8 +11,7 @@ from .psychopy_env import PsychopyEnv
 
 
 class RandomDotMotion(PsychopyEnv):
-    """Two-alternative forced choice task in which the subject has to
-    integrate two stimuli to decide which one is higher on average.
+    """Two-alternative forced choice task: subject has to integrate two stimuli to decide which is higher on average.
 
     Args:
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)

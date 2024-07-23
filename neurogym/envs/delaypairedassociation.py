@@ -9,7 +9,7 @@ from neurogym import spaces
 
 
 class DelayPairedAssociation(ngym.TrialEnv):
-    r"""Delayed paired-association task.
+    """Delayed paired-association task.
 
     The agent is shown a pair of two stimuli separated by a delay period. For
     half of the stimuli-pairs shown, the agent should choose the Go response.

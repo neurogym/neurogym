@@ -7,7 +7,7 @@ from neurogym import spaces
 
 
 class DualDelayMatchSample(ngym.TrialEnv):
-    r"""Two-item Delay-match-to-sample.
+    """Two-item Delay-match-to-sample.
 
     The trial starts with a fixation period. Then during the sample period,
     two sample stimuli are shown simultaneously. Followed by the first delay

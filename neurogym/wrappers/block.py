@@ -6,7 +6,6 @@ from neurogym.core import TrialWrapper
 
 class RandomGroundTruth(TrialWrapper):
     # TODO: A better name?
-    """"""
 
     def __init__(self, env, p=None) -> None:
         super().__init__(env)
@@ -169,7 +168,9 @@ class ScheduleEnvs(TrialWrapper):
 
     def reset(self, **kwargs):
         # TODO: kwargs to specify the condition for new_trial
-        """Reset each environment in self.envs and use the scheduler to select the environment returning
+        """Resets environments.
+
+        Reset each environment in self.envs and use the scheduler to select the environment returning
         the initial observation. This environment is also used to set the current environment self.env.
         """
         self.schedule.reset()

@@ -10,7 +10,7 @@ from neurogym import spaces
 
 
 class PostDecisionWager(ngym.TrialEnv):
-    r"""Post-decision wagering task assessing confidence.
+    """Post-decision wagering task assessing confidence.
 
     The agent first performs a perceptual discrimination task (see for more
     details the PerceptualDecisionMaking task). On a random half of the

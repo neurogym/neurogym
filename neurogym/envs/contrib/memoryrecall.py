@@ -9,6 +9,16 @@ import neurogym as ngym
 
 
 class MemoryRecall(ngym.TrialEnv):
+    """Memory Recall.
+
+    Args:
+        stim_dim: int, stimulus dimension
+        store_signal_dim: int, storage signal dimension
+        t: int, sequence length
+        p_recall: proportion of patterns stored for recall
+        chance: chance level performance.
+    """
+
     # TODO: Need to be made more general by passing the memories
     def __init__(
         self,
@@ -23,13 +33,6 @@ class MemoryRecall(ngym.TrialEnv):
         balanced=True,
         **kwargs,
     ) -> None:
-        """Args:
-        stim_dim: int, stimulus dimension
-        store_signal_dim: int, storage signal dimension
-        t: int, sequence length
-        p_recall: proportion of patterns stored for recall
-        chance: chance level performance.
-        """
         super().__init__(dt=dt)
 
         self.stim_dim = stim_dim

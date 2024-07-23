@@ -10,7 +10,7 @@ from neurogym import spaces
 
 # TODO: Task need to be revisited
 class ReachingDelayResponse(ngym.TrialEnv):
-    r"""Reaching task with a delay period.
+    """Reaching task with a delay period.
 
     A reaching direction is presented by the stimulus during the stimulus
     period. Followed by a delay period, the agent needs to respond to the

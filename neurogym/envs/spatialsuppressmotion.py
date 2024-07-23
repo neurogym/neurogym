@@ -37,7 +37,7 @@ class SpatialSuppressMotion(ngym.TrialEnv):
 
     metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/nature01800",
-        "paper_name": """Perceptual consequences of centre–surround antagonism in visual motion processing """,
+        "paper_name": """Perceptual consequences of centre-surround antagonism in visual motion processing """,
         "tags": ["perceptual", "plaid", "motion", "center-surround"],
     }
 

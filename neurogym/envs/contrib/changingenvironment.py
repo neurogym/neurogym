@@ -14,8 +14,7 @@ import neurogym as ngym
 
 # TODO: Need a more intuitive name
 class ChangingEnvironment(ngym.TrialEnv):
-    r"""Random Dots Motion tasks in which the correct action
-    depends on a randomly changing context.
+    """Random Dots Motion tasks in which the correct action depends on a randomly changing context.
 
     Args:
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)

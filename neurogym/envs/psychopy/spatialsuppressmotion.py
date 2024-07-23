@@ -38,7 +38,7 @@ class SpatialSuppressMotion(PsychopyEnv):
 
     metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/nature01800",
-        "paper_name": """Perceptual consequences of centre–surround antagonism in visual motion processing """,
+        "paper_name": """Perceptual consequences of centre-surround antagonism in visual motion processing """,
         "tags": ["perceptual", "plaid", "motion", "center-surround"],
     }
 
@@ -90,11 +90,12 @@ class SpatialSuppressMotion(PsychopyEnv):
         self.directions_ortho = [[3, 4], [3, 4], [1, 2], [1, 2]]
 
     def _new_trial(self, diameter=None, contrast=None, direction=None):
-        """To define a stimulus, we need diameter, contrast, duration, direction
-        <diameter>: 0~1, stimulus size in norm units
-        <contrast>: 0~1, stimulus contrast
-        <direction>: int(1/2/3/4), left/right/up/down.
+        """Define a new stimulus.
 
+        Args:
+            diameter: 0~1, stimulus size in norm units
+            contrast: 0~1, stimulus contrast
+            direction: int(1/2/3/4), left/right/up/down.
         """
         # if no stimulus information provided, we random sample stimulus parameters
         if direction is None:
