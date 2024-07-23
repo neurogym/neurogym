@@ -31,10 +31,10 @@ class Pneumostomeopening(ngym.BaseEnv):
     def __init__(
         self,
         dt=100,
-        rewards=None,
-        timing=None,
-        sigma=1.0,
-        extra_input_param=None,
+        rewards=None,  # noqa: ARG002 # FIXME: are these really needed? Only rewards exists in the BaseEnv
+        timing=None,  # noqa: ARG002
+        sigma=1.0,  # noqa: ARG002
+        extra_input_param=None,  # noqa: ARG002
     ) -> None:
         super().__init__(dt=dt)
 

@@ -65,7 +65,7 @@ def test_addob_instep():
             self.add_ob(1)
             return trial
 
-        def _step(self, action):
+        def _step(self, action):  # noqa: ARG002
             new_trial = False
             terminated = False
             truncated = False

@@ -753,7 +753,6 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
     num_blocks=16,
     verbose=False,
     num_ch=8,
-    variable_nch=True,
     env_args=None,
 ):
     if env_args is None:
@@ -796,7 +795,7 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
             gt.append(info["gt"])
             sel_chs = list(info["sel_chs"].replace("-", ""))
             sel_chs = [int(x) - 1 for x in sel_chs]
-            blk_id, indx = check_blk_id(blk_id, info["curr_block"], num_blocks, sel_chs)
+            blk_id, indx = check_blk_id(blk_id, info["curr_block"], num_blocks)
             s_chs.append(info["sel_chs"])
             nch.append(info["nch"])
             if len(nch) > 2 and 2 * [nch[-1]] == nch[-3:-1] and 2 * [blk[-1]] == blk[-3:-1] and indx != -1:
@@ -864,7 +863,7 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
     }
 
 
-def check_blk_id(blk_id_mat, curr_blk, num_blk, sel_chs):
+def check_blk_id(blk_id_mat, curr_blk, num_blk):
     # translate transitions t.i.a. selected choices
     if curr_blk in blk_id_mat:
         return blk_id_mat, np.argwhere(np.array(blk_id_mat) == curr_blk)

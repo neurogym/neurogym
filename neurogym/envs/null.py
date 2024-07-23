@@ -25,5 +25,5 @@ class Null(ngym.TrialEnv):
         trial.update(kwargs)
         return trial
 
-    def _step(self, action):
+    def _step(self, action):  # noqa: ARG002
         return 0, 0, False, False, {}

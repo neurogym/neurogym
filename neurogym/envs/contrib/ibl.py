@@ -75,7 +75,7 @@ class IBL(ngym.TrialEnv):
 
         self.num_tr += 1
 
-    def _step(self, action):
+    def _step(self, action):  # noqa: ARG002
         info = {
             "continue": True,
             "gt": self.ground_truth[self.ind],

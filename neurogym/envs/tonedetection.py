@@ -118,7 +118,7 @@ class ToneDetection(ngym.TrialEnv):
 
         return trial
 
-    def _step(self, action):
+    def _step(self, action):  # noqa: ARG002
         """In this tone detection task, no need to define reward step function, just output the final choice."""
         new_trial = False
         terminated = False

@@ -131,7 +131,7 @@ class SpatialSuppressMotion(ngym.TrialEnv):
 
         return trial
 
-    def _step(self, action):
+    def _step(self, action):  # noqa: ARG002
         """We need output for every single step until to the end, no need to check action every step and calculate reward. Just let this function complete all steps.
 
         The _step function is useful for making a choice early in a trial or the situation when breaking the fixation.

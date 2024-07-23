@@ -221,7 +221,7 @@ def fig_(
             env=env,
         )
     if len(ob.shape) == 4:
-        return plot_env_3dbox(ob, actions, fname=fname, env=env)
+        return plot_env_3dbox(ob, fname=fname, env=env)
 
     msg = f"ob shape {ob.shape!s} not supported"
     raise ValueError(msg)
@@ -401,7 +401,7 @@ def plot_env_1dbox(
     return f
 
 
-def plot_env_3dbox(ob, actions=None, fname="", env=None) -> None:
+def plot_env_3dbox(ob, fname="", env=None) -> None:
     """Plot environment with 3-D Box observation space."""
     ob = ob.astype(np.uint8)  # TODO: Temporary
     fig = plt.figure()
