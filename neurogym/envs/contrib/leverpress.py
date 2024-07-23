@@ -5,6 +5,8 @@ import numpy as np
 from gymnasium import logger, spaces
 from gymnasium.utils import seeding
 
+from neurogym.core import InvalidOperationError
+
 
 class LeverPress(gym.Env):
     """Lever pressing environment where a cue signals the sequence start."""
@@ -33,7 +35,9 @@ class LeverPress(gym.Env):
         return [seed]
 
     def _step(self, action):
-        assert self.action_space.contains(action), f"{action!r} ({type(action)}) invalid"
+        if not self.action_space.contains(action):
+            msg = f"{action=!r} ({type(action)}) not found in action_space."
+            raise InvalidOperationError(msg)
         state = self.state
 
         reward = 0.0
@@ -128,7 +132,9 @@ class LeverPressWithPoke(gym.Env):
         return [seed]
 
     def _step(self, action):
-        assert self.action_space.contains(action), f"{action!r} ({type(action)}) invalid"
+        if not self.action_space.contains(action):
+            msg = f"{action=!r} ({type(action)}) not found in action_space."
+            raise InvalidOperationError(msg)
         state = self.state
 
         reward = 0.0
@@ -235,7 +241,9 @@ class LeverPressWithPokeRest(gym.Env):
         return (thirst_state > 0.0) * (thirst_state < 1.0) * thirst_state + (thirst_state > 1.0) * 1.0
 
     def _step(self, action):
-        assert self.action_space.contains(action), f"{action!r} ({type(action)}) invalid"
+        if not self.action_space.contains(action):
+            msg = f"{action=!r} ({type(action)}) not found in action_space."
+            raise InvalidOperationError(msg)
         state = self.state
 
         if action == 0:
@@ -334,7 +342,9 @@ class ContextSwitch(gym.Env):
         return [seed]
 
     def _step(self, action):
-        assert self.action_space.contains(action), f"{action!r} ({type(action)}) invalid"
+        if not self.action_space.contains(action):
+            msg = f"{action=!r} ({type(action)}) not found in action_space."
+            raise InvalidOperationError(msg)
         if self.rng.rand() < self.p_switch:
             self.context = 1 - self.context
 

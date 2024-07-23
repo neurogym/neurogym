@@ -27,21 +27,27 @@ class SideBias(ngym.TrialWrapper):
         super().__init__(env)
         try:
             self.choices = self.task.choices
-        except AttributeError:
-            msg = """SideBias requires task
-                                 to have attribute choices"""
-            raise AttributeError(msg)
-        assert isinstance(self.task, ngym.TrialEnv), "Task has to be TrialEnv"
-        assert probs is not None, "Please provide choices probabilities"
+        except AttributeError as e:
+            msg = "SideBias requires task to have attribute choices."
+            raise AttributeError(msg) from e
+        if not isinstance(self.task, ngym.TrialEnv):
+            msg = "Task has to be TrialEnv."
+            raise TypeError(msg)
+        if probs is None:
+            msg = "Please provide choices probabilities."
+            raise ValueError(msg)
         if isinstance(probs, float | int):
             mat = np.eye(len(self.choices)) * probs
             mat[mat == 0] = 1 - probs
             self.choice_prob = mat
         else:
             self.choice_prob = np.array(probs)
-        assert (
-            self.choice_prob.shape[1] == len(self.choices)
-        ), f"The number of choices {self.choice_prob.shape[1]:d} inferred from prob mismatchs {len(self.choices):d} inferred from choices"
+        if self.choice_prob.shape[1] != len(self.choices):
+            msg = (
+                f"The number of choices {self.choice_prob.shape[1]:d} inferred from prob mismatches",
+                f"{len(self.choices):d} inferred from choices.",
+            )
+            raise ValueError(msg)  # FIXME: error message is unclear
 
         self.n_block = self.choice_prob.shape[0]
         self.curr_block = self.task.rng.choice(range(self.n_block))

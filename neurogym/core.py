@@ -284,16 +284,17 @@ class TrialEnv(BaseEnv):
             last_period: bool, default False. If True, then this is last period
                 will generate self.tmax, self.tind, and self.ob
         """
-        assert not self._ob_built, "Cannot add period after ob is built, i.e. after running add_ob"
+        if self._ob_built:
+            msg = "Cannot add period after ob is built, i.e. after running add_ob."
+            raise InvalidOperationError(msg)
         if isinstance(period, str):
             pass
         else:
             if duration is None:
                 duration = [None] * len(period)
-            else:
-                assert len(duration) == len(
-                    period,
-                ), "duration and period must have same length"
+            elif len(duration) != len(period):
+                msg = f"{len(duration)=} and {len(period)=} must be the same."
+                raise ValueError(msg)
 
             # Recursively calling itself
             self.add_period(period[0], duration=duration[0], after=after)
@@ -465,11 +466,8 @@ class TrialWrapper(gym.Wrapper):
         super().__init__(env)
         self.env = env
         if not isinstance(self.unwrapped, TrialEnv):
-            msg = "Trial wrapper must be used on TrialEnvGot instead"
-            raise TypeError(
-                msg,
-                self.unwrapped,
-            )
+            msg = "Trial wrapper must be used on TrialEnvGot instead."
+            raise TypeError(msg, self.unwrapped)
         self.unwrapped.set_top(self)
 
     @property
@@ -479,3 +477,7 @@ class TrialWrapper(gym.Wrapper):
 
     def new_trial(self, **kwargs) -> NoReturn:
         raise NotImplementedError
+
+
+class InvalidOperationError(Exception):
+    """Raised when an operation is not allowed."""

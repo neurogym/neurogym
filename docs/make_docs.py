@@ -18,14 +18,13 @@ def write_doc(write_type) -> None:
         info_fn = info
         fname = "envs.md"
         all_items_dict = ngym.envs.registration.ALL_ENVS
-
     elif write_type == "wrappers":
         all_items = ngym.all_wrappers()
         info_fn = info_wrapper
         fname = "wrappers.md"
         all_items_dict = ngym.wrappers.ALL_WRAPPERS
     else:
-        raise ValueError
+        raise ValueError(f"{write_type=} must be 'tasks' or 'wrappers'.")
 
     string = ""
     names = ""

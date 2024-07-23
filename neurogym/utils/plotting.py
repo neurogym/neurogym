@@ -264,9 +264,9 @@ def plot_env_1dbox(
     ax = axes[i_ax]
     i_ax += 1
     if ob_traces:
-        assert len(ob_traces) == ob.shape[1], (
-            "Please provide label for each of the " + str(ob.shape[1]) + " traces in the observations"
-        )
+        if len(ob_traces) != ob.shape[1]:
+            msg = f"Please provide label for each of the {ob.shape[1]} traces in the observations."
+            raise ValueError(msg)
         yticks = []
         for ind_tr, tr in enumerate(ob_traces):
             ax.plot(ob[:, ind_tr], label=tr)
@@ -481,5 +481,5 @@ def put_together_files(folder):
 
 
 def order_by_sufix(file_list):
-    sfx = [int(x[x.rfind("_") + 1 : x.rfind(".")]) for x in file_list]
-    return [x for _, x in sorted(zip(sfx, file_list))]
+    sfx = [int(x[x.rfind("_") + 1 : x.rfind(".")]) for x in file_list]  # FIXME: use pathlib method to find extension
+    return [x for _, x in sorted(zip(sfx, file_list, strict=True))]

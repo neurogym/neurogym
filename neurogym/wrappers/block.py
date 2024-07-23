@@ -12,11 +12,9 @@ class RandomGroundTruth(TrialWrapper):
         super().__init__(env)
         try:
             self.n_ch = len(self.choices)  # max num of choices
-        except AttributeError:
-            msg = "RandomGroundTruth requires task to have attribute choices"
-            raise AttributeError(
-                msg,
-            )
+        except AttributeError as e:
+            msg = "RandomGroundTruth requires task to have attribute choices."
+            raise AttributeError(msg) from e
         if p is None:
             p = np.ones(self.n_ch) / self.n_ch
         self.p = p
@@ -102,11 +100,8 @@ class MultiEnvs(TrialWrapper):
         if env_input:
             env_shape = envs[0].observation_space.shape
             if len(env_shape) > 1:
-                msg = "Env must have 1-D Box shape"
-                raise ValueError(
-                    msg,
-                    "Instead got " + str(env_shape),
-                )
+                msg = f"Env must have 1-D Box shape but got {env_shape}."
+                raise ValueError(msg)
             _have_equal_shape(envs)
             self.observation_space = spaces.Box(
                 -np.inf,
@@ -167,11 +162,8 @@ class ScheduleEnvs(TrialWrapper):
         if env_input:
             env_shape = envs[0].observation_space.shape
             if len(env_shape) > 1:
-                msg = "Env must have 1-D Box shape"
-                raise ValueError(
-                    msg,
-                    "Instead got " + str(env_shape),
-                )
+                msg = f"Env must have 1-D Box shape but got {env_shape}."
+                raise ValueError(msg)
             _have_equal_shape(envs)
             self.observation_space = spaces.Box(
                 -np.inf,
@@ -229,9 +221,10 @@ class ScheduleEnvs(TrialWrapper):
             env_ob[:, self.i_env] = 1.0
             self.unwrapped.ob = np.concatenate((self.unwrapped.ob, env_ob), axis=-1)
 
-        # want self.ob to refer to the ob of the new trial, so can't change self.env here => use next_i_env
         self.next_i_env = self.schedule()
-        assert self.env == self.envs[self.i_env]
+        if self.env != self.envs[self.i_env]:
+            msg = "want self.ob to refer to the ob of the new trial, so can't change self.env here => use next_i_env"
+            raise ValueError(msg)
         return trial
 
     def set_i(self, i) -> None:
@@ -261,15 +254,15 @@ class TrialHistoryV2(TrialWrapper):
         super().__init__(env)
         try:
             self.n_ch = len(self.choices)  # max num of choices
-        except AttributeError:
-            msg = "TrialHistory requires task to have attribute choices"
-            raise AttributeError(
-                msg,
-            )
+        except AttributeError as e:
+            msg = "TrialHistory requires task to have attribute choices."
+            raise AttributeError(msg) from e
         if probs is None:
             probs = np.ones((self.n_ch, self.n_ch)) / self.n_ch  # uniform
         self.probs = probs
-        assert self.probs.shape == (self.n_ch, self.n_ch), "probs shape wrong, should be" + str((self.n_ch, self.n_ch))
+        if self.probs.shape != (self.n_ch, self.n_ch):
+            msg = f"{self.probs.shape=} should be {self.n_ch, self.n_ch=}."
+            raise ValueError(msg)
         self.prev_trial = self.rng.choice(self.n_ch)  # random initialization
 
     def new_trial(self, **kwargs):

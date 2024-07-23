@@ -46,14 +46,15 @@ def circular_dist(original_dist):
     return np.minimum(abs(original_dist), 2 * np.pi - abs(original_dist))
 
 
-def divide(x, y):
+def divide(x, y):  # FIXME: why is a custom division method needed?
     try:
         z = x / y
         if np.isnan(z):
-            raise ZeroDivisionError
-        return z
+            return 0
     except ZeroDivisionError:
         return 0
+    else:
+        return z
 
 
 def correct_2AFC(perf):

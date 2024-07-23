@@ -47,6 +47,6 @@ def get_collection(collection):
         return []  # placeholder for named collections
     try:
         return _collection_from_file(collection)
-    except ImportError:
-        msg = f"Unknown collection of envs, {collection}"
-        raise ValueError(msg)
+    except ImportError as e:
+        msg = f"Unknown collection of envs, {collection}."
+        raise ValueError(msg) from e

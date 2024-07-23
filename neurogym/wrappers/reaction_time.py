@@ -41,11 +41,13 @@ class ReactionTime(gym.Wrapper):  # TODO: Make this a trial wrapper instead?
     def step(self, action):
         dec = "decision"
         stim = "stimulus"
-        assert stim in self.env.start_t, "Reaction time wrapper requires a stimulus period"
-        assert dec in self.env.start_t, "Reaction time wrapper requires a decision period"
         if self.env.t_ind == 0:
             # set start of decision period
-            self.env.start_t[dec] = self.env.start_t[stim] + self.env.dt
+            try:
+                self.env.start_t[dec] = self.env.start_t[stim] + self.env.dt
+            except AttributeError as e:
+                msg = "Reaction time wrapper requires a stimulus period."
+                raise AttributeError(msg) from e
             # change ground truth accordingly
             self.env.gt[self.start_ind[stim] + 1 : self.env.end_ind[stim]] = self.env.gt[self.start_ind[dec]]
         obs, reward, terminated, truncated, info = self.env.step(action)

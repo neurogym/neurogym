@@ -51,15 +51,15 @@ class Detection(ngym.TrialEnv):
             self.extra_step = 1
             if delay is None:
                 warnings.warn(
-                    "Added an extra stp after the actual stimulus,"
-                    + " else model will not be able to respond "
-                    + "within response window (stimulus epoch)",
+                    "Added an extra stp after the actual stimulus, else model will not be able to respond",
+                    "within response window (stimulus epoch).",
+                    stacklevel=2,
                 )
         else:
             self.extra_step = 0
 
         if self.stim_dur < 1:
-            warnings.warn("Stimulus duration shorter than dt")
+            warnings.warn("Stimulus duration shorter than dt", stacklevel=2)
 
         # Rewards
         self.rewards = {"abort": -0.1, "correct": +1.0, "fail": -1.0, "miss": -1}

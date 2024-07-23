@@ -20,9 +20,11 @@ class Box(GymBox):
 
     def __init__(self, low, high, name=None, **kwargs) -> None:
         super().__init__(low, high, **kwargs)
-        if name is not None:
-            assert isinstance(name, dict)
+        if isinstance(name, dict):
             self.name = name
+        elif name is not None:
+            msg = f"{type(name)=} must be `dict` or `NoneType`."
+            raise TypeError(msg)
 
 
 class Discrete(GymDiscrete):
@@ -40,9 +42,11 @@ class Discrete(GymDiscrete):
 
     def __init__(self, n, name=None, **kwargs) -> None:
         super().__init__(n)
-        if name is not None:
-            assert isinstance(name, dict)
+        if isinstance(name, dict):
             self.name = name
+        elif name is not None:
+            msg = f"{type(name)=} must be `dict` or `NoneType`."
+            raise TypeError(msg)
 
 
 __all__ = [

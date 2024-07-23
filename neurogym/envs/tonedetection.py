@@ -60,7 +60,9 @@ class ToneDetection(ngym.TrialEnv):
         self.toneTiming = self.timing["toneTiming"]
         self.toneDur = self.timing["toneDur"]  # ms, the duration of a tone
 
-        assert dt <= self.toneDur, "note dt must <= tone duration (default:50)"
+        if dt > self.toneDur:
+            msg = f"{dt=} must be smaller or equal tp tone duration {self.toneDur} (default=50)."
+            raise ValueError(msg)
 
         self.toneDurIdx = int(self.toneDur / dt)  # how many data point it lasts
 

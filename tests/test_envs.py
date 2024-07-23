@@ -32,12 +32,11 @@ def test_run(env=None, num_steps=100, verbose=False, **kwargs):
     """Test if one environment can at least be run."""
     if env is None:
         env = ngym.all_envs()[0]
-
     if isinstance(env, str):
         env = make_env(env, **kwargs)
     elif not isinstance(env, gym.Env):
-        msg = "env must be a string or a gym.Env"
-        raise ValueError(msg)
+        msg = f"{type(env)=} must be a string or a gym.Env"
+        raise TypeError(msg)
 
     env.reset()
     for _ in range(num_steps):
@@ -120,8 +119,8 @@ def test_trialenv(env=None, **kwargs):
     if isinstance(env, str):
         env = make_env(env, **kwargs)
     elif not isinstance(env, gym.Env):
-        msg = "env must be a string or a gym.Env"
-        raise ValueError(msg)
+        msg = f"{type(env)=} must be a string or a gym.Env"
+        raise TypeError(msg)
 
     trial = env.new_trial()
     assert trial is not None, "TrialEnv should return trial info dict " + str(env)
@@ -145,8 +144,9 @@ def test_seeding(env=None, seed=0):
         kwargs = {"dt": 20}
         env = make_env(env, **kwargs)
     elif not isinstance(env, gym.Env):
-        msg = "env must be a string or a gym.Env"
-        raise ValueError(msg)
+        msg = f"{type(env)=} must be a string or a gym.Env"
+        raise TypeError(msg)
+
     env.seed(seed)
     env.reset()
     ob_mat = []

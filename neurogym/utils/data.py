@@ -33,10 +33,12 @@ class Dataset:
         batch_first=False,
         cache_len=None,
     ) -> None:
+        if not isinstance(env, str | gym.Env):
+            msg = f"{type(env)=} must be `gym.Env` or `str`."
+            raise TypeError(msg)
         if isinstance(env, gym.Env):
             self.envs = [copy.deepcopy(env) for _ in range(batch_size)]
         else:
-            assert isinstance(env, str), "env must be gym.Env or str"
             if env_kwargs is None:
                 env_kwargs = {}
             self.envs = [gym.make(env, **env_kwargs) for _ in range(batch_size)]

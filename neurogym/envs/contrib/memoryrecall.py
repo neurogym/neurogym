@@ -41,13 +41,15 @@ class MemoryRecall(ngym.TrialEnv):
             self.t_max = t_min
         else:
             self.t_max = t_max
-        assert self.t_max >= self.t_min, "t_max must be larger than t_min"
-        self.t_distribution = t_distribution
-        if t_distribution == "uniform":
-            self.generate_T = lambda: self.rng.randint(self.t_min, self.t_max + 1)
-        else:
-            msg = "Not supported t distribution type"
+        if self.t_max < self.t_min:
+            msg = f"{t_max=} must be larger than {t_min=}."
+            raise ValueError(msg)
+        if t_distribution != "uniform":
+            msg = f"{t_distribution=} only accepts 'uniform'."
             raise ValueError(msg, str(t_distribution))
+
+        self.t_distribution = t_distribution
+        self.generate_T = lambda: self.rng.randint(self.t_min, self.t_max + 1)
         self.p_recall = p_recall
         self.balanced = balanced
         self.chance = chance
