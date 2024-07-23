@@ -130,14 +130,14 @@ def _get_collection_envs():
     derived_envs = {}
     # TODO: Temporary disabling priors task
     collection_libs = ["perceptualdecisionmaking", "yang19"]
-    for l in collection_libs:
-        lib = "neurogym.envs.collections." + l
+    for collection_lib in collection_libs:
+        lib = "neurogym.envs.collections." + collection_lib
         module = importlib.import_module(lib)
         envs = [name for name, val in getmembers(module) if isfunction(val) or isclass(val)]
         envs = [env for env in envs if env[0] != "_"]  # ignore private members
         # TODO: check is instance gym.env
-        env_dict = {l + "." + env + "-v0": lib + ":" + env for env in envs}
-        valid_envs = get_collection(l)
+        env_dict = {f"{collection_lib}.{env}-v0": f"{lib}:{env}" for env in envs}
+        valid_envs = get_collection(collection_lib)
         derived_envs.update({key: env_dict[key] for key in valid_envs})
     return derived_envs
 
