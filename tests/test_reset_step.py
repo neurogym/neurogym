@@ -7,6 +7,7 @@ from neurogym.wrappers import ScheduleEnvs
 disable_env_checker = False
 rng = np.random.default_rng()
 
+
 def make_env(name, **kwargs):
     if disable_env_checker:
         return ngym.make(name, disable_env_checker=True, **kwargs)
@@ -68,8 +69,9 @@ def test_wrapper_step():
 
 
 def test_reset_with_scheduler():
-    """Test that ScheduleEnvs.reset() resets all the environments in its list envs, which is required before being able to
-    call step() (enforced by the gymnasium wrapper OrderEnforcing).
+    """Test that ScheduleEnvs.reset() resets all the environments in its list envs.
+
+    This is required before being able to call step() (enforced by the gymnasium wrapper OrderEnforcing).
     """
     tasks = ngym.get_collection("yang19")
     envs = [make_env(task) for task in tasks]

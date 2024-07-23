@@ -11,11 +11,18 @@ import neurogym as ngym
 
 
 class SpatialSuppressMotion(ngym.TrialEnv):
-    """Spatial suppression motion task. This task is useful to study center-surround interaction in monkey MT and human psychophysical performance in motion perception.
+    """Spatial suppression motion task.
 
-    Tha task is derived from (Tadin et al. Nature, 2003). In this task, there is no fixation or decision stage. We only present a stimulus and a subject needs to perform a 4-AFC motion direction judgement. The ground-truth is the probabilities for choosing the four directions at a given time point. The probabilities depend on stimulus contrast and size, and the probabilities are derived from emprically measured human psychophysical performance.
+    This task is useful to study center-surround interaction in monkey MT and human psychophysical performance in motion
+    perception.
 
-    In this version, the input size is 4 (directions) x 8 (size) = 32 neurons. This setting aims to simulate four pools (8 neurons in each pool) of neurons that are selective for four directions.
+    Tha task is derived from (Tadin et al. Nature, 2003). In this task, there is no fixation or decision stage. We only
+    present a stimulus and a subject needs to perform a 4-AFC motion direction judgement. The ground-truth is the
+    probabilities for choosing the four directions at a given time point. The probabilities depend on stimulus contrast
+    and size, and the probabilities are derived from emprically measured human psychophysical performance.
+
+    In this version, the input size is 4 (directions) x 8 (size) = 32 neurons. This setting aims to simulate four pools
+    (8 neurons in each pool) of neurons that are selective for four directions.
 
     Args:
         <dt>: millisecs per image frame, default: 8.3 (given 120HZ monitor)
@@ -24,8 +31,7 @@ class SpatialSuppressMotion(ngym.TrialEnv):
             This is the longest duration we need (i.e., probability reach ceilling)
 
     Note that please input default seq_len = 36 frames when creating dataset object.
-
-
+    # FIXME: find more stable way of enforcing above.
     """
 
     metadata: ClassVar[dict] = {
@@ -132,11 +138,10 @@ class SpatialSuppressMotion(ngym.TrialEnv):
         return trial
 
     def _step(self, action):  # noqa: ARG002
-        """We need output for every single step until to the end, no need to check action every step and calculate reward. Just let this function complete all steps.
+        # We need output for every single step until to the end, no need to check action every step and calculate reward
+        # Just let this function complete all steps.
+        # The _step function is useful for making a choice early in a trial or the situation when breaking the fixation.
 
-        The _step function is useful for making a choice early in a trial or the situation when breaking the fixation.
-
-        """
         new_trial = False
         terminated = False
         truncated = False
@@ -156,7 +161,8 @@ class SpatialSuppressMotion(ngym.TrialEnv):
 
         Input trial is a dict, contains fields <duration>, <contrast>, <diameter>
 
-        We output a (4,) tuple indicate the probabilities to perceive left/right/up/down direction. This label comes from emprically measured human performance
+        We output a (4,) tuple indicate the probabilities to perceive left/right/up/down direction. This label comes
+        from emprically measured human performance
         """
         from scipy.interpolate import interp1d
 

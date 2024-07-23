@@ -85,7 +85,9 @@ NATIVE_ALLOW_LIST = [
     "ReachingDelayResponse",
     "ReadySetGo",
     "SingleContextDecisionMaking",
-    # 'SpatialSuppressMotion',   # noqa: ERA001 TODO: raises ModuleNotFound error since requires scipy, which is not in the requirements of neurogym
+    # 'SpatialSuppressMotion',   # noqa: ERA001
+    # TODO: raises ModuleNotFound error since requires scipy, which is not in the requirements of neurogym.
+    # FIXME: I have added scipy to requirements (for other reason), does this mean SpatialSuppressMotion is valid?
     # 'ToneDetection'  # TODO: Temporary removing until bug fixed # noqa: ERA001
 ]
 ALL_NATIVE_ENVS = _get_envs(

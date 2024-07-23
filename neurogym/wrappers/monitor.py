@@ -12,8 +12,7 @@ from neurogym.utils.plotting import fig_
 class Monitor(Wrapper):
     """Monitor task.
 
-    Saves relevant behavioral information: rewards,actions, observations,
-    new trial, ground truth.
+    Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth.
 
     Args:
         folder: Folder where the data will be saved. (def: None, str)
@@ -28,8 +27,9 @@ class Monitor(Wrapper):
     """
 
     metadata: ClassVar[dict] = {
-        "description": "Saves relevant behavioral information: rewards,"
-        + " actions, observations, new trial, ground truth.",
+        "description": (
+            "Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth."
+        ),
         "paper_link": None,
         "paper_name": None,
     }

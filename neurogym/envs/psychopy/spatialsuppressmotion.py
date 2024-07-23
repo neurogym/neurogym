@@ -13,11 +13,15 @@ from .psychopy_env import PsychopyEnv
 
 
 class SpatialSuppressMotion(PsychopyEnv):
-    """By Ru-Yuan Zhang (ruyuanzhang@gmail.com).
+    """Spatial suppression motion task.
 
-    Spatial suppression motion task. This task is useful to study center-surround interaction in monkey MT and human psychophysical performance in motion perception.
+    This task is useful to study center-surround interaction in monkey MT and human
+    psychophysical performance in motion perception. By Ru-Yuan Zhang (ruyuanzhang@gmail.com).
 
-    Tha task is derived from (Tadin et al. Nature, 2003). In this task, there is no fixation or decision stage. We only present a stimulus and a subject needs to perform a 4-AFC motion direction judgement. The ground-truth is the probabilities for choosing the four directions at a given time point. The probabilities depend on stimulus contrast and size and the probabilities are derived from emprically measured human psychophysical performance.
+    Tha task is derived from (Tadin et al. Nature, 2003). In this task, there is no fixation or decision stage. We only
+    present a stimulus and a subject needs to perform a 4-AFC motion direction judgement. The ground-truth is the
+    probabilities for choosing the four directions at a given time point. The probabilities depend on stimulus contrast
+    and size and the probabilities are derived from emprically measured human psychophysical performance.
 
     Args:
         <dt>: millisecs per image frame, default: 8.3 (given 120HZ monitor)
@@ -175,11 +179,10 @@ class SpatialSuppressMotion(PsychopyEnv):
         return trial
 
     def _step(self, action):  # noqa: ARG002
-        """We only need output at very end, no need to check action every step and calculate reward. Just let this function complete all steps.
+        # We only need output at very end, no need to check action every step and calculate reward.
+        # Just let this function complete all steps.
+        # The _step function is useful for making a choice early in a trial or the situation when breaking the fixation.
 
-        The _step function is useful for making a choice early in a trial or the situation when breaking the fixation.
-
-        """
         new_trial = False
         terminated = False
         truncated = False
@@ -196,9 +199,9 @@ class SpatialSuppressMotion(PsychopyEnv):
 
     @staticmethod
     def envelope(time_sigma, frame_rate=120, cut_off=True, amplitude=128):
-        """envelope(time_sigma, frame_rate=120, cut_off=True):
+        """Create a temporal profile and mv_length to motion stimulus in the spatial suppression task.
 
-        Create a temporal profile and mv_length to motion stimulus in the spatial suppression task. This function is modified fron Duje Tadin's code.
+        This function is modified fron Duje Tadin's code.
 
         Not critical, we can use a square temporal profile
 

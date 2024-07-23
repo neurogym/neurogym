@@ -10,16 +10,20 @@ import neurogym as ngym
 
 
 class ToneDetection(ngym.TrialEnv):
-    """By Ru-Yuan Zhang (ruyuanzhang@gmail.com)
-    A subject is asked to report whether a pure tone is embeddied within a background noise. If yes, should indicate the position of the tone. The tone lasts 50ms and could appear at the 500ms, 1000ms, and 1500ms. The tone is embbeded within noises.
+    """A subject is asked to report whether a pure tone is embeddied within a background noise.
+
+    If yes, should indicate the position of the tone. The tone lasts 50ms and could appear at the 500ms, 1000ms, and
+    1500ms. The tone is embbeded within noises.
+
+    By Ru-Yuan Zhang (ruyuanzhang@gmail.com)
 
     Note in this version we did not consider the fixation period as we mainly aim to model human data.
 
-    For an animal version of this task, please consider to include fixation and saccade cues. See
-    https://www.nature.com/articles/nn1386
+    For an animal version of this task, please consider to include fixation and saccade cues.
+    See https://www.nature.com/articles/nn1386
 
-    Note that the output labels is of shape (seq_len, batch_size). For a human perceptual task, you can simply run labels = labels[-1, :] get the final output.
-
+    Note that the output labels is of shape (seq_len, batch_size). For a human perceptual task, you can simply run
+    labels = labels[-1, :] get the final output.
 
     Args:
         <dt>: milliseconds, delta time,
