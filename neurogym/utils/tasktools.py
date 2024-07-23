@@ -36,9 +36,8 @@ def minmax_number(dist, args):
         return args[1], args[2]
     if dist == "constant":
         return args, args
-
-    msg = "Unknown dist:"
-    raise ValueError(msg, str(dist))
+    msg = f"Unknown distribution: {dist}."
+    raise ValueError(msg)
 
 
 def circular_dist(original_dist):

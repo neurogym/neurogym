@@ -149,7 +149,8 @@ class LeverPressWithPoke(gym.Env):
             state -= 1
             state = max(0, state)
         else:
-            raise ValueError
+            msg = f"{action=} must be 0 or 1."
+            raise ValueError(msg)
 
         self.state = state
         terminated = False
@@ -263,6 +264,7 @@ class LeverPressWithPokeRest(gym.Env):
             # rest
             reward = 0.0
         else:
+            msg = f"{action=} must be 0 or 1 or 2."
             raise ValueError
 
         self.thirst_state += self.np_random.rand() * 0.4 + 0.8

@@ -260,8 +260,8 @@ class TrialEnv(BaseEnv):
                 # set period duration such that self.t_end[period] = args
                 t = args - self.tmax
             else:
-                msg = "Unknown dist:"
-                raise ValueError(msg, str(dist))
+                msg = f"Distribution {dist} not found."
+                raise ValueError(msg)
         return (t // self.dt) * self.dt
 
     def add_period(

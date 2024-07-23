@@ -223,7 +223,7 @@ def fig_(
     if len(ob.shape) == 4:
         return plot_env_3dbox(ob, fname=fname, env=env)
 
-    msg = f"ob shape {ob.shape!s} not supported"
+    msg = f"{ob.shape=} not supported."
     raise ValueError(msg)
 
 

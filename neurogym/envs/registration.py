@@ -160,8 +160,8 @@ def all_envs(tag=None, psychopy=False, contrib=False, collections=False):
     if tag is None:
         return env_list
     if not isinstance(tag, str):
-        msg = "tag must be str, but got "
-        raise ValueError(msg, type(tag))
+        msg = f"{type(tag)=} must be a string."
+        raise TypeError(msg)
 
     new_env_list = []
     for env in env_list:

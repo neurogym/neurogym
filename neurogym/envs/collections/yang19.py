@@ -33,7 +33,7 @@ class _MultiModalityStimulus(TrialWrapper):
         super().__init__(env)
         self.modality = modality
         if "stimulus" not in self.task.observation_space.name:
-            msg = "observation_space does not have name stimulus"
+            msg = "observation_space does not have name stimulus."
             raise KeyError(msg)
         ind_stimulus = np.array(self.task.observation_space.name["stimulus"])
         len_stimulus = len(ind_stimulus)
@@ -229,7 +229,7 @@ class _DMFamily(ngym.TrialEnv):
         self.choices = np.arange(dim_ring)
 
         if dim_ring < 2:
-            msg = "dim ring can not be smaller than 2"
+            msg = f"{dim_ring=} cannot be smaller than 2."
             raise ValueError(msg)
 
         name = {
@@ -363,8 +363,9 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
     ) -> None:
         super().__init__(dt=dt)
         self.matchto = matchto
-        if self.matchto not in ["sample", "category"]:
-            msg = "Match has to be either sample or category"
+        allowed_matches = ["sample", "category"]
+        if self.matchto not in allowed_matches:
+            msg = f"{matchto=} must be one of {allowed_matches}."
             raise ValueError(msg)
         self.matchgo = matchgo
         self.choices = ["match", "non-match"]  # match, non-match
@@ -389,7 +390,7 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
         self.abort = False
 
         if np.mod(dim_ring, 2) != 0:
-            msg = "dim ring should be an even number"
+            msg = f"{dim_ring=} must be an even number."
             raise ValueError(msg)
         self.dim_ring = dim_ring
         self.half_ring = int(self.dim_ring / 2)

@@ -46,7 +46,7 @@ class MemoryRecall(ngym.TrialEnv):
             raise ValueError(msg)
         if t_distribution != "uniform":
             msg = f"{t_distribution=} only accepts 'uniform'."
-            raise ValueError(msg, str(t_distribution))
+            raise ValueError(msg)
 
         self.t_distribution = t_distribution
         self.generate_T = lambda: self.rng.randint(self.t_min, self.t_max + 1)

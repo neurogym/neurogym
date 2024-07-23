@@ -41,9 +41,8 @@ def random_number_fn(dist, args, rng):
         return lambda: trunc_exp(rng, *args)
     if dist == "constant":
         return lambda: args
-
-    msg = "Unknown dist:"
-    raise ValueError(msg, str(dist))
+    msg = f"Unknown distribution: {dist}."
+    raise ValueError(msg)
 
 
 def random_number_name(dist, args):
@@ -61,6 +60,5 @@ def random_number_name(dist, args):
         return string
     if dist == "constant":
         return dist + " " + str(args)
-
-    msg = "Unknown dist:"
-    raise ValueError(msg, str(dist))
+    msg = f"Unknown distribution: {dist}."
+    raise ValueError(msg)
