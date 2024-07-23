@@ -7,7 +7,9 @@ from typing import ClassVar
 
 import numpy as np
 from gymnasium import spaces
+from numpy.polynomial.polynomial import polyfit
 from psychopy import visual
+from scipy.interpolate import interp1d
 
 from .psychopy_env import PsychopyEnv
 
@@ -215,29 +217,26 @@ class SpatialSuppressMotion(PsychopyEnv):
 
         This function is adoped from Duje Tadin. Some variables here are not clear.
         """
-        from numpy import arange, empty, exp, floor, ones, sqrt, sum
-        from numpy.polynomial.polynomial import polyfit
-
         time_sigma = time_sigma * 1000  # convert it to millisecs
         gauss_only = 0 if cut_off else 1
 
         fr = round(frame_rate / 20)  # this frame is determined arbitrarily
-        xx = arange(fr) + 1
+        xx = np.arange(fr) + 1
 
         k = 0
-        tt = arange(7, 25 + 0.25, 0.25)
-        x1, cum1 = empty(tt.size), empty(tt.size)
+        tt = np.arange(7, 25 + 0.25, 0.25)
+        x1, cum1 = np.empty(tt.size), np.empty(tt.size)
         for k, time1 in enumerate(tt):
             x1[k] = time1
             time = time1 / (1000 / frame_rate)
-            time_gauss = exp(-(((xx) / (sqrt(2) * time)) ** 2))
-            cum1[k] = sum(time_gauss) * 2
+            time_gauss = np.exp(-(((xx) / (np.sqrt(2) * time)) ** 2))
+            cum1[k] = np.sum(time_gauss) * 2
 
         # we obtain a relation between underlying area and time
         p, _ = polyfit(cum1, x1, deg=2, full=True)
         area = time_sigma * frame_rate / 400
         if cut_off > -1:
-            uniform = int(floor(area - 3))
+            uniform = int(np.floor(area - 3))
             if time_sigma > cut_off & ~gauss_only:  # we provide Gaussian edges and a plateao part
                 remd = area - uniform
                 time = p[2] * remd**2 + p[1] * remd + p[0]
@@ -245,11 +244,11 @@ class SpatialSuppressMotion(PsychopyEnv):
 
                 # calculate the gaussian part
                 del xx
-                xx = arange(fr) + 1
-                time_gauss = exp(-(((xx) / (sqrt(2) * time)) ** 2))
+                xx = np.arange(fr) + 1
+                time_gauss = np.exp(-(((xx) / (np.sqrt(2) * time)) ** 2))
 
                 # add time_gauss to both sides of the temporal profile
-                profile = ones(uniform + 2 * fr)
+                profile = np.ones(uniform + 2 * fr)
                 profile[:fr] = time_gauss[::-1]
                 profile[-time_gauss.size :] = time_gauss
 
@@ -257,9 +256,9 @@ class SpatialSuppressMotion(PsychopyEnv):
                 time = time_sigma / (1000 / frame_rate)
                 mv_length = time * (1000 / frame_rate) * 6
                 mv_length = round((round(mv_length / (1000 / frame_rate))) / 2) * 2 + 1
-                xx = arange(mv_length) + 1
+                xx = np.arange(mv_length) + 1
                 xx = xx - xx.mean()
-                profile = exp(-(((xx) / (sqrt(2) * time)) ** 2))
+                profile = np.exp(-(((xx) / (np.sqrt(2) * time)) ** 2))
 
             # we trim the frame that are very small
             small = (amplitude * profile < 0.5).sum() / 2
@@ -268,9 +267,7 @@ class SpatialSuppressMotion(PsychopyEnv):
 
         else:  # in this case, only give a flat envelope
             mv_length = round(area)
-            profile = ones(mv_length)
-
-        profile = profile
+            profile = np.ones(mv_length)
 
         return profile, mv_length
 
@@ -279,10 +276,9 @@ class SpatialSuppressMotion(PsychopyEnv):
 
         Input trial is a dict, contains fields <duration>, <contrast>, <diameter>, and <direction>.
 
-        We output a (4,) tuple indicate the probabilities to perceive left/right/up/down direction. This label comes from emprically measured human performance
+        We output a (4,) tuple indicate the probabilities to perceive left/right/up/down direction.
+        This label comes from emprically measured human performance.
         """
-        from scipy.interpolate import interp1d
-
         frame_ind = [8, 9, 10, 13, 15, 18, 21, 28, 36, 37, 38, 39]
         xx = [1, 2, 3, 4, 5, 6, 7]
         yy = [0.249] * 7

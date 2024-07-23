@@ -6,6 +6,7 @@ from typing import ClassVar
 
 import numpy as np
 from gymnasium import spaces
+from scipy.interpolate import interp1d
 
 import neurogym as ngym
 
@@ -45,8 +46,6 @@ class SpatialSuppressMotion(ngym.TrialEnv):
             timing = {"stimulus": 300}
         super().__init__(dt=dt)
 
-        from numpy import pi
-
         # Rewards
         self.rewards = {"abort": -0.1, "correct": +1.0, "fail": 0.0}
         if rewards:
@@ -79,7 +78,7 @@ class SpatialSuppressMotion(ngym.TrialEnv):
         # larger stimulus could elicit more neurons to fire
 
         self.directions = [1, 2, 3, 4]  # motion direction left/right/up/down
-        self.theta = [-pi / 2, pi / 2, 0, pi]  # direction angle of the four directions
+        self.theta = [-np.pi / 2, np.pi / 2, 0, np.pi]  # direction angle of the four directions
         self.directions_anti = [2, 1, 4, 3]
         self.directions_ortho = [[3, 4], [3, 4], [1, 2], [1, 2]]
 
@@ -164,8 +163,6 @@ class SpatialSuppressMotion(ngym.TrialEnv):
         We output a (4,) tuple indicate the probabilities to perceive left/right/up/down direction. This label comes
         from emprically measured human performance
         """
-        from scipy.interpolate import interp1d
-
         frame_ind = [8, 9, 10, 13, 15, 18, 21, 28, 36, 37, 38, 39]
         xx = [1, 2, 3, 4, 5, 6, 7]
         yy = [0.249] * 7
