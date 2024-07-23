@@ -5,7 +5,7 @@ from neurogym.utils.scheduler import RandomSchedule
 from neurogym.wrappers import ScheduleEnvs
 
 disable_env_checker = False
-
+rng = np.random.default_rng()
 
 def make_env(name, **kwargs):
     if disable_env_checker:
@@ -39,7 +39,7 @@ def _setup_env(cst_ob):
 
 def test_wrapper_new_trial():
     """Test that the ob returned by new_trial takes the wrapper correctly into account."""
-    cst_ob = np.random.random(10)
+    cst_ob = rng.random(10)
     env = _setup_env(cst_ob)
     env.new_trial()
     ob = env.ob[0]
@@ -49,7 +49,7 @@ def test_wrapper_new_trial():
 
 def test_wrapper_reset():
     """Test that the ob returned by reset takes the wrapper correctly into account."""
-    cst_ob = np.random.random(10)
+    cst_ob = rng.random(10)
     env = _setup_env(cst_ob)
     ob, _ = env.reset()
 
@@ -59,7 +59,7 @@ def test_wrapper_reset():
 
 def test_wrapper_step():
     """Test that the ob returned by step takes the wrapper correctly into account."""
-    cst_ob = np.random.random(10)
+    cst_ob = rng.random(10)
     env = _setup_env(cst_ob)
     env.reset()
     ob, _, _, _, _ = env.step(env.action_space.sample())

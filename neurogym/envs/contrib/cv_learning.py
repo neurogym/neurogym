@@ -205,7 +205,8 @@ class CVLearning(ngym.TrialEnv):
                 self.max_delays = True
             else:
                 self.max_delays = False
-            self.durs.update({"delay": np.random.choice(self.dur)})
+            rng = np.random.default_rng()
+            self.durs.update({"delay": rng.choice(self.dur)})
             # delay component is introduced
             trial.update({"coh": 100})
             trial.update({"sigma": 0})

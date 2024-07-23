@@ -99,7 +99,8 @@ class Pneumostomeopening(ngym.BaseEnv):
         return rewards
 
     def reset(self):
-        self.agent_pos = np.random.randint(7)
+        rng = np.random.default_rng()
+        self.agent_pos = rng.integers(7)
         self.terminated = False
         return self.agent_pos, {}
 
