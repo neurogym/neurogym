@@ -12,7 +12,8 @@ import neurogym as ngym
 from neurogym.utils.data import Dataset
 
 try:
-    import psychopy  # noqa: F401, I001
+    import psychopy  # noqa: F401
+
     _have_psychopy = True
 except ImportError:
     _have_psychopy = False
@@ -81,11 +82,9 @@ def test_dataset(env=None):
 def test_dataset_all():
     """Test if all environments can at least be run."""
     success_count = 0
-    total_count = 0
+    total_count = len(ngym.all_envs())
     supervised_count = len(ngym.all_envs(tag="supervised"))
     for env_name in sorted(ngym.all_envs()):
-        total_count += 1
-
         print(f"Running env: {env_name:s}")
         try:
             test_dataset(env_name)
@@ -101,9 +100,7 @@ def test_dataset_all():
 
 def test_print_all():
     """Test printing of all experiments."""
-    total_count = 0
     for env_name in sorted(ENVS):
-        total_count += 1
         print()
         print(f"Test printing env: {env_name:s}")
         env = make_env(env_name)
@@ -185,6 +182,6 @@ def test_plot_envs():
         action = np.zeros_like(env.action_space.sample())
         try:
             ngym.utils.plot_env(env, num_trials=2, def_act=action)
-        except Exception as e: # noqa: BLE001 # FIXME: unclear which error is expected here.
+        except Exception as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
             print(f"Error in plotting env: {env_name}, {e}")
             print(e)

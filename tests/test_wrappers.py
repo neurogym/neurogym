@@ -595,7 +595,7 @@ def test_ttlpulse(env_name, num_steps=10000, verbose=False, **envArgs):
 @pytest.mark.skip(
     reason="TransferLearning is not implemented in the current version of neurogym",
 )
-def test_transferLearning(num_steps=10000, verbose=False, **envArgs):
+def test_transfer_learning(num_steps=10000, verbose=False, **envArgs):
     task = "GoNogo-v0"
     kwargs = {
         "dt": 100,
@@ -879,7 +879,7 @@ def check_blk_id(blk_id_mat, curr_blk, num_blk):
 @pytest.mark.skip(
     reason="TrialHistoryEvolution is not implemented in the current version of neurogym",
 )
-def test_trialhistEv(
+def test_trialhistoryevolution(
     env_name,
     num_steps=10000,
     probs=0.8,

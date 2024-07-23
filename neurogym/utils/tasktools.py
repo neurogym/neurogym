@@ -56,7 +56,7 @@ def divide(x, y):  # FIXME: why is a custom division method needed?
         return z
 
 
-def correct_2AFC(perf):
+def correct_2AFC(perf):  # noqa: N802
     """Computes performance."""
     p_decision = perf.n_decision / perf.n_trials
     p_correct = divide(perf.n_correct, perf.n_decision)
