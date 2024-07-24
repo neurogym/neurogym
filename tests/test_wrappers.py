@@ -1,4 +1,5 @@
 import sys
+import warnings
 
 import gymnasium as gym
 import matplotlib.pyplot as plt
@@ -107,20 +108,25 @@ def test_passaction(
     None.
 
     """
-    env = gym.make(env_name)
-    env = PassAction(env)
-    env.reset()
-    for _ in range(num_steps):
-        action = env.action_space.sample()
-        obs, _rew, terminated, _truncated, _info = env.step(action)
-        assert obs[-1] == action, "Previous action is not part of observation"
-        if verbose:
-            print(obs)
-            print(action)
-            print("--------")
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        warnings.filterwarnings("ignore", message=".*is not within the observation space*")
+        warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
+        env = gym.make(env_name)
+        env = PassAction(env)
+        env.reset()
+        for _ in range(num_steps):
+            action = env.action_space.sample()
+            obs, _rew, terminated, _truncated, _info = env.step(action)
+            assert obs[-1] == action, "Previous action is not part of observation"
+            if verbose:
+                print(obs)
+                print(action)
+                print("--------")
 
-        if terminated:
-            env.reset()
+            if terminated:
+                env.reset()
 
 
 def test_passreward(
@@ -146,19 +152,24 @@ def test_passreward(
     None.
 
     """
-    env = gym.make(env_name)
-    env = PassReward(env)
-    obs, _ = env.reset()
-    for _ in range(num_steps):
-        action = env.action_space.sample()
-        obs, rew, terminated, _truncated, _info = env.step(action)
-        assert obs[-1] == rew, "Previous reward is not part of observation"
-        if verbose:
-            print(obs)
-            print(rew)
-            print("--------")
-        if terminated:
-            env.reset()
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        warnings.filterwarnings("ignore", message=".*is not within the observation space*")
+        warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
+        env = gym.make(env_name)
+        env = PassReward(env)
+        obs, _ = env.reset()
+        for _ in range(num_steps):
+            action = env.action_space.sample()
+            obs, rew, terminated, _truncated, _info = env.step(action)
+            assert obs[-1] == rew, "Previous reward is not part of observation"
+            if verbose:
+                print(obs)
+                print(rew)
+                print("--------")
+            if terminated:
+                env.reset()
 
 
 @pytest.mark.skip(reason="This test is failing, needs more investigation")
@@ -246,9 +257,7 @@ def test_reactiontime(
         ax[3].set_xlim([-0.5, len(actions) - 0.5])
 
 
-@pytest.mark.skip(
-    reason="VariableMapping is not implemented in the current version of neurogym",
-)
+@pytest.mark.skip(reason="VariableMapping is not implemented in the current version of neurogym")
 def test_variablemapping(
     env="NAltConditionalVisuomotor-v0",
     verbose=True,
@@ -437,9 +446,7 @@ def test_noise(
     assert np.abs(actual_perf - perf_th) < margin, f"Actual performance: {actual_perf}, expected: {perf_th}"
 
 
-@pytest.mark.skip(
-    reason="TimeOut is not implemented in the current version of neurogym",
-)
+@pytest.mark.skip(reason="TimeOut is not implemented in the current version of neurogym")
 def test_timeout(
     env="NAltPerceptualDecisionMaking-v0",
     time_out=500,
@@ -473,9 +480,7 @@ def test_timeout(
         ax[1].legend()
 
 
-@pytest.mark.skip(
-    reason="CatchTrials is not implemented in the current version of neurogym",
-)
+@pytest.mark.skip(reason="CatchTrials is not implemented in the current version of neurogym")
 def test_catchtrials(
     env_name,
     num_steps=10000,
@@ -498,9 +503,7 @@ def test_catchtrials(
             env.reset()
 
 
-@pytest.mark.skip(
-    reason="TrialHistory and Variable_nch are not implemented in the current version of neurogym",
-)
+@pytest.mark.skip(reason="TrialHistory and Variable_nch are not implemented in the current version of neurogym")
 def test_trialhist_and_variable_nch(
     env_name,
     num_steps=100000,
@@ -558,9 +561,7 @@ def test_trialhist_and_variable_nch(
                 ax[ind_blk][ind_ch].imshow(norm_counts)
 
 
-@pytest.mark.skip(
-    reason="TTLPulse is not implemented in the current version of neurogym",
-)
+@pytest.mark.skip(reason="TTLPulse is not implemented in the current version of neurogym")
 def test_ttlpulse(env_name, num_steps=10000, verbose=False, **envArgs):
     env = gym.make(env_name, **envArgs)
     env = TTLPulse(env, periods=[["stimulus"], ["decision"]])
@@ -588,9 +589,7 @@ def test_ttlpulse(env_name, num_steps=10000, verbose=False, **envArgs):
         plt.xlim([-0.5, num_steps - 0.5])
 
 
-@pytest.mark.skip(
-    reason="TransferLearning is not implemented in the current version of neurogym",
-)
+@pytest.mark.skip(reason="TransferLearning is not implemented in the current version of neurogym")
 def test_transfer_learning(num_steps=10000, verbose=False, **envArgs):
     task = "GoNogo-v0"
     kwargs = {
@@ -638,9 +637,7 @@ def test_transfer_learning(num_steps=10000, verbose=False, **envArgs):
         plt.xlim([-0.5, num_steps - 0.5])
 
 
-@pytest.mark.skip(
-    reason="Combine is not implemented in the current version of neurogym",
-)
+@pytest.mark.skip(reason="Combine is not implemented in the current version of neurogym")
 def test_combine(num_steps=10000, verbose=False, **envArgs):
     task = "GoNogo-v0"
     kwargs = {
@@ -707,9 +704,7 @@ def test_combine(num_steps=10000, verbose=False, **envArgs):
         plt.xlim([-0.5, num_steps - 0.5])
 
 
-@pytest.mark.skip(
-    reason="Identity is not implemented in the current version of neurogym",
-)
+@pytest.mark.skip(reason="Identity is not implemented in the current version of neurogym")
 def test_identity(env_name, num_steps=10000, **envArgs):
     env = gym.make(env_name, **envArgs)
     env = Identity(env)
@@ -742,9 +737,7 @@ def test_all(test_fn):
     print(f"Success {success_count}/{total_count} envs")
 
 
-@pytest.mark.skip(
-    reason="TrialHistoryEvolution and Variable_nch are not implemented in the current version of neurogym",
-)
+@pytest.mark.skip(reason="TrialHistoryEvolution and Variable_nch are not implemented in current version of neurogym")
 def test_concat_wrpprs_th_vch_pssr_pssa(
     env_name,
     num_steps=100000,
@@ -872,9 +865,7 @@ def check_blk_id(blk_id_mat, curr_blk, num_blk):
     return blk_id_mat, -1
 
 
-@pytest.mark.skip(
-    reason="TrialHistoryEvolution is not implemented in the current version of neurogym",
-)
+@pytest.mark.skip(reason="TrialHistoryEvolution is not implemented in the current version of neurogym")
 def test_trialhistoryevolution(
     env_name,
     num_steps=10000,
