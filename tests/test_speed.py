@@ -17,9 +17,7 @@ def speed(env, n_steps=100000, warmup_steps=10000):
     env.reset()
     for _ in range(warmup_steps):
         action = env.action_space.sample()
-        state, rew, terminated, truncated, info = env.step(
-            action,
-        )  # env.action_space.sample())
+        _state, _rew, terminated, _truncated, _info = env.step(action)
         if terminated:
             env.reset()
 
@@ -28,9 +26,7 @@ def speed(env, n_steps=100000, warmup_steps=10000):
     for _ in range(n_steps):
         action = env.action_space.sample()
         start_time = time.time()
-        state, rew, terminated, truncated, info = env.step(
-            action,
-        )  # env.action_space.sample())
+        _state, _rew, terminated, _truncated, _info = env.step(action)
         total_time += time.time() - start_time
         if terminated:
             env.reset()
@@ -106,7 +102,6 @@ def test_speed_dataset_all():
             speed_dataset(env_name)
             print("Success")
         except BaseException as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
-
             print(f"Failure at running env: {env_name:s}")
             print(e)
 

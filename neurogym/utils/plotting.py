@@ -116,7 +116,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         if isinstance(env, DummyVecEnv):
             ob, rew, terminated, info = env.step(action)
         else:
-            ob, rew, terminated, truncated, info = env.step(action)
+            ob, rew, terminated, _truncated, info = env.step(action)
         ob_cum_temp += ob
         ob_cum.append(ob_cum_temp.copy())
         if isinstance(info, list):

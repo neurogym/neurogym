@@ -71,7 +71,7 @@ def test_sidebias(
     block = env.curr_block
     for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        _obs, _rew, terminated, _truncated, info = env.step(action)
         if info["new_trial"]:
             probs_mat[block, info["gt"] - 1] += 1
             block = env.curr_block
@@ -116,7 +116,7 @@ def test_passaction(
     env.reset()
     for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        obs, _rew, terminated, _truncated, _info = env.step(action)
         assert obs[-1] == action, "Previous action is not part of observation"
         if verbose:
             print(obs)
@@ -155,7 +155,7 @@ def test_passreward(
     obs, _ = env.reset()
     for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        obs, rew, terminated, _truncated, _info = env.step(action)
         assert obs[-1] == rew, "Previous reward is not part of observation"
         if verbose:
             print(obs)
@@ -218,7 +218,7 @@ def test_reactiontime(
         else:
             action = 0
         end_of_trial = action != 0
-        obs, rew, terminated, truncated, info = env.step(action)
+        obs, rew, _terminated, _truncated, info = env.step(action)
         if info["new_trial"]:
             step = 0
             obs_cum = 0
@@ -327,7 +327,7 @@ def test_variablemapping(
     stims = env.stims.flatten()
     for _ in range(num_steps):
         action = def_act or env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        obs, rew, _terminated, _truncated, info = env.step(action)
         if info["new_trial"]:
             mapping.append(info["mapping"])
             assert (action == prev_mapp and rew == 1.0) or action != prev_mapp
@@ -424,7 +424,7 @@ def test_noise(
     for _ in range(num_steps):
         rng = np.random.default_rng()
         action = env.action_space.sample() if rng.random() < std_noise else env.gt_now
-        obs, rew, terminated, truncated, info = env.step(action)
+        _obs, _rew, terminated, _truncated, info = env.step(action)
         if "std_noise" in info:
             std_noise = info["std_noise"]
         if verbose and info["new_trial"]:
@@ -465,7 +465,7 @@ def test_timeout(
     observations = []
     for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        obs, rew, terminated, _truncated, _info = env.step(action)
         if verbose:
             reward.append(rew)
             observations.append(obs)
@@ -496,7 +496,7 @@ def test_catchtrials(
     env.reset()
     for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        _obs, rew, terminated, _truncated, info = env.step(action)
         if info["new_trial"] and verbose:
             print("Perfomance", (info["gt"] - action) < 0.00001)
             print("catch-trial", info["catch_trial"])
@@ -532,7 +532,7 @@ def test_trialhist_and_variable_nch(
     prev_gt = 1
     for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        _obs, _rew, terminated, _truncated, info = env.step(action)
         if terminated:
             env.reset()
         if info["new_trial"] and verbose:
@@ -577,7 +577,7 @@ def test_ttlpulse(env_name, num_steps=10000, verbose=False, **envArgs):
     signals = []
     for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        obs, _rew, terminated, _truncated, info = env.step(action)
         if verbose:
             obs_mat.append(obs)
             signals.append([info["signal_0"], info["signal_1"]])
@@ -618,7 +618,7 @@ def test_transfer_learning(num_steps=10000, verbose=False, **envArgs):
     action_mat = []
     for _ in range(num_steps):
         action = 1
-        obs, rew, terminated, truncated, info = env.step(action)
+        obs, rew, terminated, _truncated, info = env.step(action)
         if verbose:
             action_mat.append(action)
             rew_mat.append(rew)
@@ -687,7 +687,7 @@ def test_combine(num_steps=10000, verbose=False, **envArgs):
     action_mat = []
     for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        obs, rew, terminated, _truncated, info = env.step(action)
         if verbose:
             action_mat.append(action)
             rew_mat.append(rew)
@@ -725,7 +725,7 @@ def test_identity(env_name, num_steps=10000, **envArgs):
     env.reset()
     for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        _obs, _rew, terminated, _truncated, _info = env.step(action)
         if terminated:
             env.reset()
 
@@ -792,7 +792,7 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
     prev_gt = 1
     for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        obs, _rew, terminated, _truncated, info = env.step(action)
         obs_mat.append(obs)
         blk_stp.append(info["curr_block"])
         if terminated:
@@ -906,7 +906,7 @@ def test_trialhistoryevolution(
     num_tr = 0
     for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        _obs, _rew, terminated, _truncated, info = env.step(action)
         if terminated:
             env.reset()
         if info["new_trial"] and verbose:

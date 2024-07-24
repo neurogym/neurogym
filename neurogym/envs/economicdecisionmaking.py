@@ -122,7 +122,7 @@ class EconomicDecisionMaking(ngym.TrialEnv):
         elif self.in_period("decision") and action in {self.act_dict["choice1"], self.act_dict["choice2"]}:
             new_trial = True
 
-            juice1, juice2 = trial["juice"]
+            juice1, _juice2 = trial["juice"]
 
             n_b, n_a = trial["offer"]
             r_a = n_a * self.R_A

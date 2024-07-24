@@ -41,9 +41,7 @@ def test_run(env=None, num_steps=100, verbose=False, **kwargs):
     env.reset()
     for _ in range(num_steps):
         action = env.action_space.sample()
-        state, rew, terminated, truncated, info = env.step(
-            action,
-        )  # env.action_space.sample())
+        _state, _rew, terminated, _truncated, _info = env.step(action)
         if terminated:
             env.reset()
 
@@ -150,7 +148,7 @@ def test_seeding(env=None, seed=0):
     act_mat = []
     for _ in range(100):
         action = env.action_space.sample()
-        ob, rew, terminated, truncated, info = env.step(action)
+        ob, rew, terminated, _truncated, _info = env.step(action)
         ob_mat.append(ob)
         rew_mat.append(rew)
         act_mat.append(action)
