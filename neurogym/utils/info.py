@@ -2,7 +2,6 @@
 """Formatting information about envs and wrappers."""
 
 import inspect
-from typing import ClassVar
 
 import neurogym as ngym
 from neurogym.core import METADATA_DEF_KEYS, env_string
@@ -49,7 +48,7 @@ def info_wrapper(wrapper=None, show_code=False):
     metadata = imported.metadata
 
     if not isinstance(metadata, dict):
-        metadata: ClassVar[dict] = {}
+        metadata = {}
 
     string += f"### {wrapper}\n\n"
     paper_name = metadata.get("paper_name", None)
@@ -67,7 +66,7 @@ def info_wrapper(wrapper=None, show_code=False):
     if len(other_info) > 0:
         string += "Input parameters: \n\n"
         for key in other_info:
-            string += key + " : " + str(metadata[key]) + "\n\n"
+            string += f"{key} : {metadata[key]}\n\n"
 
     # show source code
     if show_code:

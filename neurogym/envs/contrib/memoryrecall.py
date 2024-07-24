@@ -101,7 +101,7 @@ class MemoryRecall(ngym.TrialEnv):
 
         string = ""
         for key, name in nicename_dict.items():
-            string += name + " : " + str(getattr(self, key)) + "\n"
+            string += f"{name} : {getattr(self, key)}\n"
         return string
 
     def _new_trial(self, **kwargs):

@@ -228,7 +228,7 @@ class ScheduleEnvs(TrialWrapper):
         string = f"<{type(self).__name__}"
         for env in self.envs:
             for line in str(env).splitlines():
-                string += "\n\t" + line
+                string += f"\n\t{line}"
         string += "\n>"
         return string
 

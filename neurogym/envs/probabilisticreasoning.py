@@ -55,7 +55,7 @@ class ProbabilisticReasoning(ngym.TrialEnv):
             "decision": 500,
         }
         for i_loc in range(n_loc):
-            self.timing["stimulus" + str(i_loc)] = 500
+            self.timing[f"stimulus{i_loc}"] = 500
         if timing:
             self.timing.update(timing)
 
@@ -64,7 +64,7 @@ class ProbabilisticReasoning(ngym.TrialEnv):
         name = {"fixation": 0}
         start = 1
         for i_loc in range(n_loc):
-            name["loc" + str(i_loc)] = range(start, start + dim_shape)
+            name[f"loc{i_loc}"] = range(start, start + dim_shape)
             start += dim_shape
         self.observation_space = spaces.Box(
             -np.inf,
@@ -99,7 +99,7 @@ class ProbabilisticReasoning(ngym.TrialEnv):
 
         # Periods
         periods = ["fixation"]
-        periods += ["stimulus" + str(i) for i in range(self.n_loc)]
+        periods += [f"stimulus{i}" for i in range(self.n_loc)]
         periods += ["delay", "decision"]
         self.add_period(periods)
 
@@ -110,8 +110,8 @@ class ProbabilisticReasoning(ngym.TrialEnv):
         for i_loc in range(self.n_loc):
             loc = locs[i_loc]
             shape = shapes[i_loc]
-            periods = ["stimulus" + str(j) for j in range(i_loc, self.n_loc)]
-            self.add_ob(self.shapes[shape], periods, where="loc" + str(loc))
+            periods = [f"stimulus{j}" for j in range(i_loc, self.n_loc)]
+            self.add_ob(self.shapes[shape], periods, where=f"loc{loc}")
 
         # Ground truth
         self.set_groundtruth(ground_truth, period="decision", where="choice")

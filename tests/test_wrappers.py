@@ -82,9 +82,7 @@ def test_sidebias(
         if terminated:
             env.reset()
     probs_mat /= np.sum(probs_mat, axis=1)
-    assert np.mean(np.abs(probs - probs_mat)) < margin, (
-        "Probs provided " + str(probs) + " probs. obtained " + str(probs_mat)
-    )
+    assert np.mean(np.abs(probs - probs_mat)) < margin, f"Probs provided {probs} probs. obtained {probs_mat}"
     print("-----")
     print("Side bias wrapper OK")
 
@@ -370,16 +368,14 @@ def test_variablemapping(
     assert (sess_durs > min_sess_dur).all()
     mean_sess_dur = np.mean(sess_durs)
     exp_sess_durs = min_sess_dur + 1 / sess_end_prob
-    assert np.abs(mean_sess_dur - exp_sess_durs) < margin, (
-        "Mean sess. dur.: " + str(mean_sess_dur) + ", expected: " + str(1 / sess_end_prob)
-    )
+    assert (
+        np.abs(mean_sess_dur - exp_sess_durs) < margin
+    ), f"Mean sess. dur.: {mean_sess_dur}, expected: {1 / sess_end_prob}"
     mapp_blck_durs = np.diff(mapp_ch)
     assert (mapp_blck_durs > min_mapp_dur).all()
     mean_durs = np.mean(mapp_blck_durs)
     exp_durs = min_mapp_dur + 1 / mapp_ch_prob
-    assert np.abs(mean_durs - exp_durs) < margin, (
-        "Mean mapp. block durations: " + str(mean_durs) + ", expected: " + str(exp_durs)
-    )
+    assert np.abs(mean_durs - exp_durs) < margin, f"Mean mapp. block durations: {mean_durs}, expected: {exp_durs}"
     sys.exit()
 
 
@@ -440,9 +436,7 @@ def test_noise(
         plt.plot(np.convolve(perf, np.ones((100,)) / 100, mode="valid"))
         plt.subplot(2, 1, 2)
         plt.plot(std_mat)
-    assert np.abs(actual_perf - perf_th) < margin, (
-        "Actual performance: " + str(actual_perf) + ", expected: " + str(perf_th)
-    )
+    assert np.abs(actual_perf - perf_th) < margin, f"Actual performance: {actual_perf}, expected: {perf_th}"
 
 
 @pytest.mark.skip(
@@ -848,14 +842,14 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
             norm_counts = transitions[ind_blk, :, :]
             ax1[ind_blk].imshow(norm_counts)
             ax1[ind_blk].set_title(
-                str(blk_id[ind_blk]) + " (N=" + str(num_tr_blks[ind_blk]) + ")",
+                f"{blk_id[ind_blk]} (N={num_tr_blks[ind_blk]})",
                 fontsize=6,
             )
             nxt_tr_counts = np.sum(norm_counts, axis=1).reshape((-1, 1))
             norm_counts /= nxt_tr_counts
             ax2[ind_blk].imshow(norm_counts)
             ax2[ind_blk].set_title(
-                str(blk_id[ind_blk]) + " (N=" + str(num_tr_blks[ind_blk]) + ")",
+                f"{blk_id[ind_blk]} (N={num_tr_blks[ind_blk]})",
                 fontsize=6,
             )
     return {

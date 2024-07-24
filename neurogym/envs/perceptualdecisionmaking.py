@@ -275,8 +275,8 @@ class PulseDecisionMaking(ngym.TrialEnv):
 
         self.timing = {"fixation": 500, "decision": 500}
         for i in range(n_bin):
-            self.timing["cue" + str(i)] = 10
-            self.timing["bin" + str(i)] = 240
+            self.timing[f"cue{i}"] = 10
+            self.timing[f"bin{i}"] = 240
         if timing:
             self.timing.update(timing)
 
@@ -311,15 +311,15 @@ class PulseDecisionMaking(ngym.TrialEnv):
         # Periods
         periods = ["fixation"]
         for i in range(self.n_bin):
-            periods += ["cue" + str(i), "bin" + str(i)]
+            periods += [f"cue{i}", f"bin{i}"]
         periods += ["decision"]
         self.add_period(periods)
 
         # Observations
         self.add_ob(1, where="fixation")
         for i in range(self.n_bin):
-            self.add_ob(pulse1[i], "cue" + str(i), where=1)
-            self.add_ob(pulse2[i], "cue" + str(i), where=2)
+            self.add_ob(pulse1[i], f"cue{i}", where=1)
+            self.add_ob(pulse2[i], f"cue{i}", where=2)
         self.set_ob(0, "decision")
 
         # Ground truth

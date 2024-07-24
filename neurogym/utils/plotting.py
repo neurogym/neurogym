@@ -294,7 +294,7 @@ def plot_env_1dbox(
         ax.spines["right"].set_visible(False)
 
     if name:
-        ax.set_title(name + " env")
+        ax.set_title(f"{name} env")
     ax.set_ylabel("Obs.")
     ax.set_xticks([])
     # actions
@@ -312,11 +312,11 @@ def plot_env_1dbox(
                 ax.plot(
                     steps,
                     gt[:, ind_gt],
-                    "--" + gt_colors[ind_gt],
-                    label="Ground truth " + str(ind_gt),
+                    f"--{gt_colors[ind_gt]}",
+                    label=f"Ground truth {ind_gt}",
                 )
         else:
-            ax.plot(steps, gt, "--" + gt_colors[0], label="Ground truth")
+            ax.plot(steps, gt, f"--{gt_colors[0]}", label="Ground truth")
     ax.set_xlim([-0.5, len(steps) - 0.5])
     ax.set_ylabel("Act.")
     ax.spines["top"].set_visible(False)
@@ -372,7 +372,7 @@ def plot_env_1dbox(
         ax.set_ylabel("Performance")
         performance = np.array(performance)
         mean_perf = np.mean(performance[performance != -1])
-        ax.set_title("Mean performance: " + str(np.round(mean_perf, 2)))
+        ax.set_title(f"Mean performance: {np.round(mean_perf, 2)}")
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         if legend:
@@ -456,7 +456,9 @@ def plot_rew_across_training(
         if zline:
             ax.axhline(0, c="k", ls=":")
         if sv_fig:
-            f.savefig(folder + "/mean_" + metric_name + "_across_training.png")
+            f.savefig(
+                folder + "/mean_" + metric_name + "_across_training.png",
+            )  # FIXME: use pathlib to specify location
     else:
         print("No data in: ", folder)
 
@@ -474,7 +476,7 @@ def put_together_files(folder):
             file_data = np.load(files[ind_f], allow_pickle=True)
             for key in file_data:
                 data[key] = np.concatenate((data[key], file_data[key]))
-        np.savez(folder + "/bhvr_data_all.npz", **data)
+        np.savez(folder + "/bhvr_data_all.npz", **data)  # FIXME: use pathlib to specify location
     return data
 
 

@@ -98,8 +98,8 @@ class EconomicDecisionMaking(ngym.TrialEnv):
         self.add_period(["fixation", "offer_on", "decision"])
 
         self.add_ob(1, ["fixation", "offer_on"], where="fixation")
-        self.add_ob(1, "offer_on", where=juice1 + "1")
-        self.add_ob(1, "offer_on", where=juice2 + "2")
+        self.add_ob(1, "offer_on", where=f"{juice1}1")
+        self.add_ob(1, "offer_on", where=f"{juice2}2")
         self.add_ob(n1 / 5.0, "offer_on", where="n1")
         self.add_ob(n2 / 5.0, "offer_on", where="n2")
 

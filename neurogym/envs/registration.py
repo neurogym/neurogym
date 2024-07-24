@@ -35,7 +35,7 @@ def _get_envs(foldername=None, env_prefix=None, allow_list=None):
     lib_root = "neurogym.envs."
     if foldername is not None:
         env_root /= foldername
-        lib_root = lib_root + foldername + "."
+        lib_root = f"{lib_root}{foldername}."
 
     # Only take .py files
     files = [p for p in env_root.iterdir() if p.suffix == ".py"]
@@ -50,7 +50,7 @@ def _get_envs(foldername=None, env_prefix=None, allow_list=None):
         module = importlib.import_module(lib)
         for name, _val in getmembers(module):
             if name in allow_list:
-                env_dict[env_prefix + name + "-v0"] = lib + ":" + name
+                env_dict[f"{env_prefix}{name}-v0"] = f"{lib}:{name}"
 
     return env_dict
 
@@ -131,7 +131,7 @@ def _get_collection_envs():
     # TODO: Temporary disabling priors task
     collection_libs = ["perceptualdecisionmaking", "yang19"]
     for collection_lib in collection_libs:
-        lib = "neurogym.envs.collections." + collection_lib
+        lib = f"neurogym.envs.collections.{collection_lib}"
         module = importlib.import_module(lib)
         envs = [name for name, val in getmembers(module) if isfunction(val) or isclass(val)]
         envs = [env for env in envs if env[0] != "_"]  # ignore private members
@@ -250,7 +250,7 @@ def make(id_, **kwargs):
         env_guesses = [all_ids[sort_inds[i]] for i in range(5)]
         err_msg = f"No registered env with id_: {id_}.\nDo you mean:\n"
         for env_guess in env_guesses:
-            err_msg += "    " + env_guess + "\n"
+            err_msg += f"    {env_guess}\n"
         raise gym.error.UnregisteredEnv(err_msg) from e
 
 

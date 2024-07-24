@@ -117,7 +117,7 @@ def test_trialenv(env=None, **kwargs):
         raise TypeError(msg)
 
     trial = env.new_trial()
-    assert trial is not None, "TrialEnv should return trial info dict " + str(env)
+    assert trial is not None, f"TrialEnv should return trial info dict {env}"
 
 
 def test_trialenv_all():

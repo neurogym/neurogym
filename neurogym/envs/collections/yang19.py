@@ -249,23 +249,23 @@ class _DMFamily(ngym.TrialEnv):
 
     def _add_singlemod(self, trial, mod=1) -> None:
         """Add stimulus to modality."""
-        mod = "_mod" + str(mod)
+        mod = f"_mod{mod}"
 
         if self.delaycomparison:
             period1, period2 = "stim1", "stim2"
             coh1, coh2 = self.rng.choice(self.cohs, 2, replace=False)
-            trial["coh1" + mod] = coh1
-            trial["coh2" + mod] = coh2
+            trial[f"coh1{mod}"] = coh1
+            trial[f"coh2{mod}"] = coh2
         else:
             period1, period2 = "stimulus", "stimulus"
             coh = self.rng.choice(self.cohs) * self.rng.choice([-1, +1])
-            trial["coh1" + mod] = coh1 = 0.5 + coh / 2
-            trial["coh2" + mod] = coh2 = 0.5 - coh / 2
+            trial[f"coh1{mod}"] = coh1 = 0.5 + coh / 2
+            trial[f"coh2{mod}"] = coh2 = 0.5 - coh / 2
 
         stim = _gaussianbump(trial["theta1"], self.theta, coh1)
-        self.add_ob(stim, period1, where="stimulus" + mod)
+        self.add_ob(stim, period1, where=f"stimulus{mod}")
         stim = _gaussianbump(trial["theta2"], self.theta, coh2)
-        self.add_ob(stim, period2, where="stimulus" + mod)
+        self.add_ob(stim, period2, where=f"stimulus{mod}")
 
     def _new_trial(self, **kwargs):
         trial = {}

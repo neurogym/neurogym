@@ -48,17 +48,17 @@ def random_number_fn(dist, args, rng):
 def random_number_name(dist, args):
     """Return a string explaining the dist and args."""
     if dist == "uniform":
-        return dist + " between " + str(args[0]) + " and " + str(args[1])
+        return f"{dist} between {args[0]} and {args[1]}"
     if dist == "choice":
-        return dist + " within " + str(args)
+        return f"{dist} within {args}"
     if dist == "truncated_exponential":
-        string = "truncated exponential with mean " + str(args[0])
+        string = f"truncated exponential with mean {args[0]}"
         if len(args) > 1:
-            string += ", min " + str(args[1])
+            string += f", min {args[1]}"
         if len(args) > 2:
-            string += ", max " + str(args[2])
+            string += f", max {args[2]}"
         return string
     if dist == "constant":
-        return dist + " " + str(args)
+        return f"dist{args}"
     msg = f"Unknown distribution: {dist}."
     raise ValueError(msg)

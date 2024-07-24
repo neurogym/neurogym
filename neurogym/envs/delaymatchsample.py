@@ -184,7 +184,7 @@ class DelayMatchSampleDistractor1D(ngym.TrialEnv):
         sample = trial["sample"]
         for i in [1, 2, 3]:
             tmp = sample if i == ground_truth else self.rng.uniform(0, 2 * np.pi)
-            trial["test" + str(i)] = tmp
+            trial[f"test{i}"] = tmp
 
         periods = [
             "fixation",
@@ -202,7 +202,7 @@ class DelayMatchSampleDistractor1D(ngym.TrialEnv):
         for period in ["sample", "test1", "test2", "test3"]:
             self.add_ob(np.cos(self.theta - trial[period]), period, "stimulus")
 
-        self.set_groundtruth(1, "test" + str(ground_truth))
+        self.set_groundtruth(1, f"test{ground_truth}")
 
         return trial
 

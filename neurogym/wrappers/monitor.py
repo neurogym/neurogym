@@ -65,7 +65,7 @@ class Monitor(Wrapper):
             self.folder = "tmp"
         Path(self.folder).mkdir(parents=True, exist_ok=True)
         # seeding
-        self.sv_name = self.folder + self.env.__class__.__name__ + "_bhvr_data_" + name + "_"
+        self.sv_name = self.folder + self.env.__class__.__name__ + "_bhvr_data_" + name + "_"  # FIXME: use pathlib
         # figure
         self.sv_fig = sv_fig
         if self.sv_fig:
@@ -104,7 +104,7 @@ class Monitor(Wrapper):
             save = False
             save = self.t >= self.sv_per if self.sv_stp == "timestep" else self.num_tr % self.sv_per == 0
             if save:
-                np.savez(self.sv_name + str(self.num_tr) + ".npz", **self.data)
+                np.savez(self.sv_name + str(self.num_tr) + ".npz", **self.data)  # FIXME: use pathlib
                 if self.verbose:
                     print("--------------------")
                     print("Number of steps: ", np.mean(self.num_tr))
@@ -136,7 +136,7 @@ class Monitor(Wrapper):
                 self.perf_mat.append(-1)
             self.stp_counter += 1
         elif len(self.rew_mat) > 0:
-            fname = self.sv_name + f"task_{self.num_tr:06d}." + self.fig_type
+            fname = self.sv_name + f"task_{self.num_tr:06d}.{self.fig_type}"
             obs_mat = np.array(self.ob_mat)
             act_mat = np.array(self.act_mat)
             fig_(

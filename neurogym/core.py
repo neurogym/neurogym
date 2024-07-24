@@ -43,7 +43,7 @@ def env_string(env, short=False):
         string += "\nReward structure \n"
         try:  # if the reward structure is a dictionary
             for key, val in env.rewards.items():
-                string += key + " : " + str(val) + "\n"
+                string += f"{key} : {val}\n"
         except AttributeError:  # otherwise just add the reward structure to the string?
             string += str(env.rewards)
 
@@ -52,13 +52,13 @@ def env_string(env, short=False):
     if len(other_info) > 0:
         string += "\nOther parameters: \n"
         for key in other_info:
-            string += key + " : " + _clean_string(str(metadata[key])) + "\n"
+            string += f"{key} : {_clean_string(str(metadata[key]))}\n"
     # tags
     if "tags" in metadata:
         tags = metadata["tags"]
         string += "\nTags: "
         for tag in tags:
-            string += tag + ", "
+            string += f"{tag}, "
         string = string[:-2] + ".\n"
 
     return string
@@ -466,8 +466,8 @@ class TrialWrapper(gym.Wrapper):
         super().__init__(env)
         self.env = env
         if not isinstance(self.unwrapped, TrialEnv):
-            msg = "Trial wrapper must be used on TrialEnvGot instead."
-            raise TypeError(msg, self.unwrapped)
+            msg = f"Trial wrapper must be used on TrialEnv, not {self.unwrapped}."
+            raise TypeError(msg)
         self.unwrapped.set_top(self)
 
     @property
