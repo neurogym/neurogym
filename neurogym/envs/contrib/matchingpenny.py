@@ -36,7 +36,7 @@ class MatchingPenny(ngym.TrialEnv):
     ) -> None:
         super().__init__(dt=dt)
         if timing is not None:
-            print("Warning: Matching-Penny task does not require" + " timing variable.")
+            print("Warning: Matching-Penny task does not require timing variable.")
         # TODO: remain to be carefully tested
         # Opponent Type
         self.opponent_type = opponent_type
@@ -70,7 +70,7 @@ class MatchingPenny(ngym.TrialEnv):
             opponent_action = 1 * (not np.round(self.mean_action))
         else:
             ot = self.opponent_type
-            msg = f"Unknown opponent type {ot:s}."
+            msg = f"Unknown opponent type {ot}."
             raise ValueError(msg)
 
         trial = {"opponent_action": opponent_action}

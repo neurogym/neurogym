@@ -20,22 +20,22 @@ def _clean_string(string):
 
 def env_string(env, short=False):
     if short:
-        return f"<{type(env).__name__:s}>"
+        return f"<{type(env).__name__}>"
 
     string = ""
     metadata = env.metadata
     docstring = env.__doc__
-    string += f"### {type(env).__name__:s}\n"
+    string += f"### {type(env).__name__}\n"
     paper_name = metadata.get("paper_name", None) or "Missing paper name"
     paper_name = _clean_string(paper_name)
     paper_link = metadata.get("paper_link", None)
-    string += f"Doc: {docstring:s}\n"
+    string += f"Doc: {docstring}\n"
     string += "Reference paper \n"
     if paper_link is None:
-        string += f"{paper_name:s}\n"
+        string += f"{paper_name}\n"
         string += "Missing paper link\n"
     else:
-        string += f"[{paper_name:s}]({paper_link:s})\n"
+        string += f"[{paper_name}]({paper_link})\n"
     # TODO: Add timing info back?
     # commented out code removed in PR #16
 

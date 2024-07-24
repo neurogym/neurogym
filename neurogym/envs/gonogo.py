@@ -20,7 +20,7 @@ class GoNogo(ngym.TrialEnv):
     # TODO: Find the original go-no-go paper
     metadata: ClassVar[dict] = {
         "paper_link": "https://elifesciences.org/articles/43191",
-        "paper_name": "Active information maintenance in working memory" + " by a sensory cortex",
+        "paper_name": "Active information maintenance in working memory by a sensory cortex",
         "tags": ["delayed response", "go-no-go", "supervised"],
     }
 

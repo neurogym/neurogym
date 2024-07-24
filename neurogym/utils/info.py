@@ -51,17 +51,17 @@ def info_wrapper(wrapper=None, show_code=False):
     if not isinstance(metadata, dict):
         metadata: ClassVar[dict] = {}
 
-    string += f"### {wrapper:s}\n\n"
+    string += f"### {wrapper}\n\n"
     paper_name = metadata.get("paper_name", None)
     paper_link = metadata.get("paper_link", None)
     wrapper_description = metadata.get("description", None) or "Missing description"
-    string += f"Logic: {wrapper_description:s}\n\n"
+    string += f"Logic: {wrapper_description}\n\n"
     if paper_name is not None:
         string += "Reference paper \n\n"
         if paper_link is None:
-            string += f"{paper_name:s}\n\n"
+            string += f"{paper_name}\n\n"
         else:
-            string += f"[{paper_name:s}]({paper_link:s})\n\n"
+            string += f"[{paper_name}]({paper_link})\n\n"
     # add extra info
     other_info = list(set(metadata.keys()) - set(METADATA_DEF_KEYS))
     if len(other_info) > 0:

@@ -19,7 +19,7 @@ class DelayMatchSample(ngym.TrialEnv):
     """
 
     metadata: ClassVar[dict] = {
-        "paper_link": "https://www.jneurosci.org/content/jneuro/16/16/" + "5154.full.pdf",
+        "paper_link": "https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf",
         "paper_name": """Neural Mechanisms of Visual Working Memory in
         Prefrontal Cortex of the Macaque""",
         "tags": ["perceptual", "working memory", "two-alternative", "supervised"],
@@ -127,7 +127,7 @@ class DelayMatchSampleDistractor1D(ngym.TrialEnv):
     """
 
     metadata: ClassVar[dict] = {
-        "paper_link": "https://www.jneurosci.org/content/jneuro/16/16/" + "5154.full.pdf",
+        "paper_link": "https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf",
         "paper_name": """Neural Mechanisms of Visual Working Memory
         in Prefrontal Cortex of the Macaque""",
         "tags": ["perceptual", "working memory", "two-alternative", "supervised"],

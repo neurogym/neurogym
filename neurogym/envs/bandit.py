@@ -25,7 +25,7 @@ class Bandit(ngym.TrialEnv):
 
     metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/s41593-018-0147-8",
-        "paper_name": "Prefrontal cortex as a meta-reinforcement learning" + " system",
+        "paper_name": "Prefrontal cortex as a meta-reinforcement learning system",
         "tags": ["n-alternative"],
     }
 

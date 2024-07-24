@@ -44,8 +44,8 @@ class SideBias(ngym.TrialWrapper):
             self.choice_prob = np.array(probs)
         if self.choice_prob.shape[1] != len(self.choices):
             msg = (
-                f"The number of choices {self.choice_prob.shape[1]:d} inferred from prob mismatches",
-                f"{len(self.choices):d} inferred from choices.",
+                f"The number of choices {self.choice_prob.shape[1]} inferred from prob mismatches",
+                f"{len(self.choices)} inferred from choices.",
             )
             raise ValueError(msg)  # FIXME: error message is unclear
 

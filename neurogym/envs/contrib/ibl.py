@@ -12,7 +12,7 @@ import neurogym as ngym
 
 class IBL(ngym.TrialEnv):
     metadata: ClassVar[dict] = {
-        "paper_link": "https://www.sciencedirect.com/science/article/" + "pii/S0896627317311364",
+        "paper_link": "https://www.sciencedirect.com/science/article/pii/S0896627317311364",
         "paper_name": """An International Laboratory for Systems and ' +
         'Computational Neuroscience""",
     }

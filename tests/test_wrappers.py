@@ -737,17 +737,17 @@ def test_all(test_fn):
     total_count = 0
     for env_name in sorted(ngym.all_envs()):
         total_count += 1
-        print(f"Running env: {env_name:s} Wrapped with SideBias")
+        print(f"Running env: {env_name} Wrapped with SideBias")
         try:
             test_fn(env_name)
             print("Success")
             success_count += 1
         except BaseException as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
-            print(f"Failure at running env: {env_name:s}")
+            print(f"Failure at running env: {env_name}")
             print(e)
         print()
 
-    print(f"Success {success_count:d}/{total_count:d} envs")
+    print(f"Success {success_count}/{total_count} envs")
 
 
 @pytest.mark.skip(

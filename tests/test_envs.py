@@ -49,7 +49,7 @@ def test_run(env=None, num_steps=100, verbose=False, **kwargs):
     all_tags = ngym.all_tags()
     for t in tags:
         if t not in all_tags:
-            print(f"Warning: env has tag {t:s} not in all_tags")
+            print(f"Warning: env has tag {t} not in all_tags")
 
     if verbose:
         print(env)
@@ -83,24 +83,24 @@ def test_dataset_all():
     total_count = len(ngym.all_envs())
     supervised_count = len(ngym.all_envs(tag="supervised"))
     for env_name in sorted(ngym.all_envs()):
-        print(f"Running env: {env_name:s}")
+        print(f"Running env: {env_name}")
         try:
             test_dataset(env_name)
             print("Success")
             success_count += 1
         except BaseException as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
-            print(f"Failure at running env: {env_name:s}")
+            print(f"Failure at running env: {env_name}")
             print(e)
 
-    print(f"Success {success_count:d}/{total_count:d} envs")
-    print(f"Expect {supervised_count:d} envs to support supervised learning")
+    print(f"Success {success_count}/{total_count} envs")
+    print(f"Expect {supervised_count} envs to support supervised learning")
 
 
 def test_print_all():
     """Test printing of all experiments."""
     for env_name in sorted(ENVS):
         print()
-        print(f"Test printing env: {env_name:s}")
+        print(f"Test printing env: {env_name}")
         env = make_env(env_name)
         print(env)
 
@@ -164,7 +164,7 @@ def test_seeding(env=None, seed=0):
 def test_seeding_all():
     """Test if all environments are replicable."""
     for env_name in sorted(ENVS_NOPSYCHOPY):
-        print(f"Running env: {env_name:s}")
+        print(f"Running env: {env_name}")
         obs1, rews1, acts1 = test_seeding(env_name, seed=0)
         obs2, rews2, acts2 = test_seeding(env_name, seed=0)
         assert (obs1 == obs2).all(), "obs are not identical"

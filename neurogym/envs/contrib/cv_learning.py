@@ -30,7 +30,7 @@ class CVLearning(ngym.TrialEnv):
 
     metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/s41586-019-0919-7",
-        "paper_name": "Discrete attractor dynamics underlies persistent" + " activity in the frontal cortex",
+        "paper_name": "Discrete attractor dynamics underlies persistent activity in the frontal cortex",
         "tags": ["perceptual", "delayed response", "two-alternative", "supervised"],
     }
 

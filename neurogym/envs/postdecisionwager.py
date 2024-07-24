@@ -21,7 +21,7 @@ class PostDecisionWager(ngym.TrialEnv):
     """
 
     metadata: ClassVar[dict] = {
-        "paper_link": "https://science.sciencemag.org/content/324/5928/" + "759.long",
+        "paper_link": "https://science.sciencemag.org/content/324/5928/759.long",
         "paper_name": """Representation of Confidence Associated with a
          Decision by Neurons in the Parietal Cortex""",
         "tags": ["perceptual", "delayed response", "confidence"],

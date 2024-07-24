@@ -18,7 +18,7 @@ class DelayPairedAssociation(ngym.TrialEnv):
 
     metadata: ClassVar[dict] = {
         "paper_link": "https://elifesciences.org/articles/43191",
-        "paper_name": "Active information maintenance in working memory" + " by a sensory cortex",
+        "paper_name": "Active information maintenance in working memory by a sensory cortex",
         "tags": ["perceptual", "working memory", "go-no-go", "supervised"],
     }
 

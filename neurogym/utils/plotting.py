@@ -354,7 +354,7 @@ def plot_env_1dbox(
             if isinstance(env.rewards, dict):
                 for key, val in env.rewards.items():
                     yticks.append(val)
-                    yticklabels.append(f"{key[:4]:s} {val:0.2f}")
+                    yticklabels.append(f"{key[:4]} {val:0.2f}")
             else:
                 for val in env.rewards:
                     yticks.append(val)
@@ -448,9 +448,7 @@ def plot_rew_across_training(
         ax.plot(mean_metric, **fkwargs)  # add color, label etc.
         ax.set_xlabel("trials")
         if not ytitle:
-            ax.set_ylabel(
-                "mean " + metric_name + " (running window" + f" of {window:d} trials)",
-            )
+            ax.set_ylabel(f"mean {metric_name} (running window of {window} trials)")
         else:
             ax.set_ylabel(ytitle)
         if legend:

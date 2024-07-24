@@ -18,7 +18,7 @@ class IntervalDiscrimination(ngym.TrialEnv):
     """
 
     metadata: ClassVar[dict] = {
-        "paper_link": "https://www.sciencedirect.com/science/article/pii/" + "S0896627309004887",
+        "paper_link": "https://www.sciencedirect.com/science/article/pii/S0896627309004887",
         "paper_name": """Feature- and Order-Based Timing Representations
          in the Frontal Cortex""",
         "tags": [

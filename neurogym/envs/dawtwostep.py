@@ -20,8 +20,8 @@ class DawTwoStep(ngym.TrialEnv):
     """
 
     metadata: ClassVar[dict] = {
-        "paper_link": "https://www.sciencedirect.com/science/article/" + "pii/S0896627311001255",
-        "paper_name": "Model-Based Influences on Humans" + " Choices and Striatal Prediction Errors",
+        "paper_link": "https://www.sciencedirect.com/science/article/pii/S0896627311001255",
+        "paper_name": "Model-Based Influences on Humans Choices and Striatal Prediction Errors",
         "tags": ["two-alternative"],
     }
 
