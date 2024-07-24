@@ -2,6 +2,7 @@ import warnings
 
 import gymnasium as gym
 import numpy as np
+from matplotlib import pyplot as plt
 
 import neurogym as ngym
 from neurogym.utils.data import Dataset
@@ -83,8 +84,10 @@ def test_dataset(env=None):
 def test_dataset_all():
     """Test if all environments can at least be run."""
     with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
-        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        warnings.filterwarnings("ignore", message=".*Casting input x to numpy array.*")
+        warnings.filterwarnings("ignore", message=".*is not within the observation space*")
+        warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
+        warnings.filterwarnings("ignore", message=".*method was expecting a numpy array*")
         success_count = 0
         total_count = len(ngym.all_envs())
         supervised_count = len(ngym.all_envs(tag="supervised"))
@@ -173,6 +176,10 @@ def test_seeding(env=None, seed=0):
         ob_mat = np.array(ob_mat)
         rew_mat = np.array(rew_mat)
         act_mat = np.array(act_mat)
+        # FIXME: given the returns below, it seems as though this should be the helper function for the test below
+        # rather than its own test, except that the first env is chosen seemingly arbitrarily. This can be done in next
+        # fucntion instead to avoid the returns in an actual test. This should maybe be implemented for other tests here
+        # as well
         return ob_mat, rew_mat, act_mat
 
 
@@ -202,3 +209,4 @@ def test_plot_envs():
             except Exception as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
                 print(f"Error in plotting env: {env_name}, {e}")
                 print(e)
+            plt.close()
