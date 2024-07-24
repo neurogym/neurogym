@@ -1,5 +1,7 @@
 """Test Dataset for supervised learning."""
 
+import warnings
+
 import gymnasium as gym
 import numpy as np
 
@@ -31,9 +33,12 @@ def _test_env(env):
 
 def test_registered_env():
     """Test if all environments can at least be run."""
-    for env_name in sorted(SLENVS):
-        print(env_name)
-        _test_env(env_name)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        for env_name in sorted(SLENVS):
+            print(env_name)
+            _test_env(env_name)
 
 
 def _test_examples_different(env) -> None:
@@ -56,17 +61,23 @@ def _test_examples_different(env) -> None:
 
 def test_examples_different_registered_env():
     """Test that each example in a batch is different in registered envs."""
-    for env_name in sorted(SLENVS):
-        print(env_name)
-        _test_examples_different(env_name)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        for env_name in sorted(SLENVS):
+            print(env_name)
+            _test_examples_different(env_name)
 
 
 def test_examples_different_made_env():
     """Test that each example in a batch is different in created envs."""
-    for env_name in sorted(SLENVS):
-        print(env_name)
-        env = gym.make(env_name)
-        _test_examples_different(env)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        for env_name in sorted(SLENVS):
+            print(env_name)
+            env = gym.make(env_name)
+            _test_examples_different(env)
 
 
 def test_examples_different_custom_env():

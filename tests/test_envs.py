@@ -1,3 +1,5 @@
+import warnings
+
 import gymnasium as gym
 import numpy as np
 
@@ -23,13 +25,15 @@ def make_env(env, **kwargs):
 
 def test_run(env=None, num_steps=100, verbose=False, **kwargs):
     """Test if one environment can at least be run."""
-    if env is None:
-        env = ngym.all_envs()[0]
-    if isinstance(env, str):
-        env = make_env(env, **kwargs)
-    elif not isinstance(env, gym.Env):
-        msg = f"{type(env)=} must be a string or a gym.Env"
-        raise TypeError(msg)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        if env is None:
+            env = ngym.all_envs()[0]
+        if isinstance(env, str):
+            env = make_env(env, **kwargs)
+        elif not isinstance(env, gym.Env):
+            msg = f"{type(env)=} must be a string or a gym.Env"
+            raise TypeError(msg)
 
     env.reset()
     for _ in range(num_steps):
@@ -52,105 +56,124 @@ def test_run(env=None, num_steps=100, verbose=False, **kwargs):
 
 def test_run_all(verbose_success=False):
     """Test if all environments can at least be run."""
-    for env_name in sorted(ENVS):
-        print(env_name)
-        test_run(env_name, verbose=verbose_success)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        for env_name in sorted(ENVS):
+            print(env_name)
+            test_run(env_name, verbose=verbose_success)
 
 
 def test_dataset(env=None):
     """Main function for testing if an environment is healthy."""
-    if env is None:
-        env = ngym.all_envs()[0]
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        if env is None:
+            env = ngym.all_envs()[0]
 
-    print("Testing Environment:", env)
-    kwargs = {"dt": 20}
-    dataset = Dataset(env, env_kwargs=kwargs, batch_size=16, seq_len=300, cache_len=1e4)
-    for _ in range(10):
-        inputs, target = dataset()
-        assert inputs.shape[0] == target.shape[0]
+        print("Testing Environment:", env)
+        kwargs = {"dt": 20}
+        dataset = Dataset(env, env_kwargs=kwargs, batch_size=16, seq_len=300, cache_len=1e4)
+        for _ in range(10):
+            inputs, target = dataset()
+            assert inputs.shape[0] == target.shape[0]
 
 
 def test_dataset_all():
     """Test if all environments can at least be run."""
-    success_count = 0
-    total_count = len(ngym.all_envs())
-    supervised_count = len(ngym.all_envs(tag="supervised"))
-    for env_name in sorted(ngym.all_envs()):
-        print(f"Running env: {env_name}")
-        try:
-            test_dataset(env_name)
-            print("Success")
-            success_count += 1
-        except BaseException as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
-            print(f"Failure at running env: {env_name}")
-            print(e)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        success_count = 0
+        total_count = len(ngym.all_envs())
+        supervised_count = len(ngym.all_envs(tag="supervised"))
+        for env_name in sorted(ngym.all_envs()):
+            print(f"Running env: {env_name}")
+            try:
+                test_dataset(env_name)
+                print("Success")
+                success_count += 1
+            except BaseException as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
+                print(f"Failure at running env: {env_name}")
+                print(e)
 
-    print(f"Success {success_count}/{total_count} envs")
-    print(f"Expect {supervised_count} envs to support supervised learning")
+        print(f"Success {success_count}/{total_count} envs")
+        print(f"Expect {supervised_count} envs to support supervised learning")
 
 
 def test_print_all():
     """Test printing of all experiments."""
-    for env_name in sorted(ENVS):
-        print()
-        print(f"Test printing env: {env_name}")
-        env = make_env(env_name)
-        print(env)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        for env_name in sorted(ENVS):
+            print()
+            print(f"Test printing env: {env_name}")
+            env = make_env(env_name)
+            print(env)
 
 
 def test_trialenv(env=None, **kwargs):
     """Test if a TrialEnv is behaving correctly."""
-    if env is None:
-        env = ngym.all_envs()[0]
-
-    if isinstance(env, str):
-        env = make_env(env, **kwargs)
-    elif not isinstance(env, gym.Env):
-        msg = f"{type(env)=} must be a string or a gym.Env"
-        raise TypeError(msg)
-
-    trial = env.new_trial()
-    assert trial is not None, f"TrialEnv should return trial info dict {env}"
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        if env is None:
+            env = ngym.all_envs()[0]
+        if isinstance(env, str):
+            env = make_env(env, **kwargs)
+        elif not isinstance(env, gym.Env):
+            msg = f"{type(env)=} must be a string or a gym.Env"
+            raise TypeError(msg)
+        trial = env.new_trial()
+        assert trial is not None, f"TrialEnv should return trial info dict {env}"
 
 
 def test_trialenv_all():
     """Test if all environments can at least be run."""
-    for env_name in sorted(ENVS):
-        env = make_env(env_name)
-        if not isinstance(env, ngym.TrialEnv):
-            continue
-        test_trialenv(env)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        for env_name in sorted(ENVS):
+            env = make_env(env_name)
+            if not isinstance(env, ngym.TrialEnv):
+                continue
+            test_trialenv(env)
 
 
 def test_seeding(env=None, seed=0):
     """Test if environments are replicable."""
-    if env is None:
-        env = ngym.all_envs()[0]
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        if env is None:
+            env = ngym.all_envs()[0]
 
-    if isinstance(env, str):
-        kwargs = {"dt": 20}
-        env = make_env(env, **kwargs)
-    elif not isinstance(env, gym.Env):
-        msg = f"{type(env)=} must be a string or a gym.Env"
-        raise TypeError(msg)
+        if isinstance(env, str):
+            kwargs = {"dt": 20}
+            env = make_env(env, **kwargs)
+        elif not isinstance(env, gym.Env):
+            msg = f"{type(env)=} must be a string or a gym.Env"
+            raise TypeError(msg)
 
-    env.seed(seed)
-    env.reset()
-    ob_mat = []
-    rew_mat = []
-    act_mat = []
-    for _ in range(100):
-        action = env.action_space.sample()
-        ob, rew, terminated, _truncated, _info = env.step(action)
-        ob_mat.append(ob)
-        rew_mat.append(rew)
-        act_mat.append(action)
-        if terminated:
-            env.reset()
-    ob_mat = np.array(ob_mat)
-    rew_mat = np.array(rew_mat)
-    act_mat = np.array(act_mat)
-    return ob_mat, rew_mat, act_mat
+        env.seed(seed)
+        env.reset()
+        ob_mat = []
+        rew_mat = []
+        act_mat = []
+        for _ in range(100):
+            action = env.action_space.sample()
+            ob, rew, terminated, _truncated, _info = env.step(action)
+            ob_mat.append(ob)
+            rew_mat.append(rew)
+            act_mat.append(action)
+            if terminated:
+                env.reset()
+        ob_mat = np.array(ob_mat)
+        rew_mat = np.array(rew_mat)
+        act_mat = np.array(act_mat)
+        return ob_mat, rew_mat, act_mat
 
 
 # TODO: there is one env for which it sometimes raises an error
@@ -166,13 +189,16 @@ def test_seeding_all():
 
 
 def test_plot_envs():
-    for env_name in sorted(ENVS):
-        if env_name == "Null-v0":
-            continue
-        env = make_env(env_name, dt=20)
-        action = np.zeros_like(env.action_space.sample())
-        try:
-            ngym.utils.plot_env(env, num_trials=2, def_act=action)
-        except Exception as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
-            print(f"Error in plotting env: {env_name}, {e}")
-            print(e)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        for env_name in sorted(ENVS):
+            if env_name == "Null-v0":
+                continue
+            env = make_env(env_name, dt=20)
+            action = np.zeros_like(env.action_space.sample())
+            try:
+                ngym.utils.plot_env(env, num_trials=2, def_act=action)
+            except Exception as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
+                print(f"Error in plotting env: {env_name}, {e}")
+                print(e)
