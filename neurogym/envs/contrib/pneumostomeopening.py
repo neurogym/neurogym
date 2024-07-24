@@ -66,7 +66,7 @@ class Pneumostomeopening(ngym.BaseEnv):
         elif action == 1:  # breathingskin
             self.oxygen_level += 1
         else:  # swimming actions
-            self.oxygen_level = self.oxygen_level * math.exp(-decay_constant * self.t)
+            self.oxygen_level *= math.exp(-decay_constant * self.t)
         self.oxygen_level = int(round(self.oxygen_level))
         print(f"oxygen_level: {self.oxygen_level}")
         return self.oxygen_level
@@ -120,9 +120,9 @@ class Pneumostomeopening(ngym.BaseEnv):
         else:  # up #down
             self.reward = self.rewards["swim"]
             if action == 2:
-                self.agent_pos = self.agent_pos + 1
+                self.agent_pos += 1
             if action == 3:
-                self.agent_pos = self.agent_pos - 1
+                self.agent_pos -= 1
 
         self.agent_pos = np.clip(self.agent_pos, 0, len(self.observation_space.name))
 
@@ -133,7 +133,7 @@ class Pneumostomeopening(ngym.BaseEnv):
         if self.oxygen_level <= 0:
             self.terminated = True
 
-        self.t = self.t + 1
+        self.t += 1
 
         # potential problems:
         # - limit number of consecutive pneumostome opening using t

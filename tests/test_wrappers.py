@@ -81,7 +81,7 @@ def test_sidebias(
                 print("Block", block)
         if terminated:
             env.reset()
-    probs_mat = probs_mat / np.sum(probs_mat, axis=1)
+    probs_mat /= np.sum(probs_mat, axis=1)
     assert np.mean(np.abs(probs - probs_mat)) < margin, (
         "Probs provided " + str(probs) + " probs. obtained " + str(probs_mat)
     )
@@ -562,7 +562,7 @@ def test_trialhist_and_variable_nch(
             for ind_blk in range(num_blocks):
                 norm_counts = transitions[ind_ch, ind_blk, :, :]
                 nxt_tr_counts = np.sum(norm_counts, axis=1).reshape((-1, 1))
-                norm_counts = norm_counts / nxt_tr_counts
+                norm_counts /= nxt_tr_counts
                 ax[ind_blk][ind_ch].imshow(norm_counts)
 
 
@@ -852,7 +852,7 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
                 fontsize=6,
             )
             nxt_tr_counts = np.sum(norm_counts, axis=1).reshape((-1, 1))
-            norm_counts = norm_counts / nxt_tr_counts
+            norm_counts /= nxt_tr_counts
             ax2[ind_blk].imshow(norm_counts)
             ax2[ind_blk].set_title(
                 str(blk_id[ind_blk]) + " (N=" + str(num_tr_blks[ind_blk]) + ")",

@@ -216,7 +216,7 @@ class SpatialSuppressMotion(PsychopyEnv):
 
         This function is adoped from Duje Tadin. Some variables here are not clear.
         """
-        time_sigma = time_sigma * 1000  # convert it to millisecs
+        time_sigma *= 1000  # convert it to millisecs
         gauss_only = 0 if cut_off else 1
 
         fr = round(frame_rate / 20)  # this frame is determined arbitrarily
@@ -239,7 +239,7 @@ class SpatialSuppressMotion(PsychopyEnv):
             if time_sigma > cut_off & ~gauss_only:  # we provide Gaussian edges and a plateao part
                 remd = area - uniform
                 time = p[2] * remd**2 + p[1] * remd + p[0]
-                time = time / (1000 / frame_rate)  # how many frame
+                time /= 1000 / frame_rate  # how many frame
 
                 # calculate the gaussian part
                 del xx
@@ -256,7 +256,7 @@ class SpatialSuppressMotion(PsychopyEnv):
                 mv_length = time * (1000 / frame_rate) * 6
                 mv_length = round((round(mv_length / (1000 / frame_rate))) / 2) * 2 + 1
                 xx = np.arange(mv_length) + 1
-                xx = xx - xx.mean()
+                xx -= xx.mean()
                 profile = np.exp(-(((xx) / (np.sqrt(2) * time)) ** 2))
 
             # we trim the frame that are very small

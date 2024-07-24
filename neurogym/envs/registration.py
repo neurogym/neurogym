@@ -25,7 +25,7 @@ def _get_envs(foldername=None, env_prefix=None, allow_list=None):
     if env_prefix is None:
         env_prefix = ""
     elif env_prefix[-1] != ".":
-        env_prefix = env_prefix + "."
+        env_prefix += "."
 
     if allow_list is None:
         allow_list = []
@@ -34,7 +34,7 @@ def _get_envs(foldername=None, env_prefix=None, allow_list=None):
     env_root = Path(__file__).resolve().parent
     lib_root = "neurogym.envs."
     if foldername is not None:
-        env_root = env_root / foldername
+        env_root /= foldername
         lib_root = lib_root + foldername + "."
 
     # Only take .py files
