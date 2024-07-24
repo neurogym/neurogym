@@ -43,7 +43,7 @@ def _collection_from_file(fname):
 
 
 def get_collection(collection):
-    if collection == "":
+    if not collection:
         return []  # placeholder for named collections
     try:
         return _collection_from_file(collection)

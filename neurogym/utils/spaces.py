@@ -50,13 +50,13 @@ class Discrete(GymDiscrete):
 
 
 __all__ = [
-    "Space",
     "Box",
-    "Discrete",
-    "MultiDiscrete",
-    "MultiBinary",
-    "Tuple",
     "Dict",
+    "Discrete",
+    "MultiBinary",
+    "MultiDiscrete",
+    "Space",
+    "Tuple",
     "flatdim",
     "flatten",
     "unflatten",

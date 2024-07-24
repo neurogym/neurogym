@@ -176,7 +176,7 @@ def test_seeding_all():
 
 def test_plot_envs():
     for env_name in sorted(ENVS):
-        if env_name in ["Null-v0"]:
+        if env_name == "Null-v0":
             continue
         env = make_env(env_name, dt=20)
         action = np.zeros_like(env.action_space.sample())

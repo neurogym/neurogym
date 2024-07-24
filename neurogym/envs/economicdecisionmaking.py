@@ -119,7 +119,7 @@ class EconomicDecisionMaking(ngym.TrialEnv):
             if action != self.act_dict["fixation"]:
                 new_trial = self.abort
                 reward = self.rewards["abort"]
-        elif self.in_period("decision") and action in [self.act_dict["choice1"], self.act_dict["choice2"]]:
+        elif self.in_period("decision") and action in {self.act_dict["choice1"], self.act_dict["choice2"]}:
             new_trial = True
 
             juice1, juice2 = trial["juice"]

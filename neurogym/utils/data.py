@@ -42,8 +42,8 @@ class Dataset:
             if env_kwargs is None:
                 env_kwargs = {}
             self.envs = [gym.make(env, **env_kwargs) for _ in range(batch_size)]
-        for env in self.envs:
-            env.reset()
+        for env_ in self.envs:
+            env_.reset()
         self.seed()
 
         env = self.envs[0]

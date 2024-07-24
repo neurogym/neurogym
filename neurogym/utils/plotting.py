@@ -1,6 +1,6 @@
 """Plotting functions."""
 
-import glob
+from pathlib import Path
 
 import gymnasium as gym
 import matplotlib as mpl
@@ -464,7 +464,7 @@ def plot_rew_across_training(
 
 
 def put_together_files(folder):
-    files = glob.glob(folder + "/*_bhvr_data*npz")
+    files = Path(folder).glob("/*_bhvr_data*npz")
     data = {}
     if len(files) > 0:
         files = order_by_sufix(files)

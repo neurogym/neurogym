@@ -95,8 +95,7 @@ class IBL(ngym.TrialEnv):
         return obs, reward, terminated, truncated, info
 
 
-class IBL_Block(IBL):
-    # pass
+class IBL_Block(IBL):  # noqa: N801
     def __init__(self, dt=100) -> None:
         super().__init__(dt=dt)
         self.probs = ((0.2, 0.8), (0.8, 0.2), (0.5, 0.5))

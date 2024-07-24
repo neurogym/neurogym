@@ -32,7 +32,7 @@ class PsychopyEnv(ngym.TrialEnv):
         self.win = visual.Window(**win_kwargs_tmp)
         self.win.backend.winHandle.set_visible(False)
         self.win.flip()
-        im = self.win._getFrame()
+        im = self.win._getFrame()  # noqa: SLF001
         value = np.array(im)
         self._default_ob_value = value[0, 0]  # corner pixel, array 3-channels
 
@@ -57,13 +57,13 @@ class PsychopyEnv(ngym.TrialEnv):
                 for i in range(ob.shape[0]):
                     value.draw()
                     self.win.flip()
-                    im = self.win._getFrame()
+                    im = self.win._getFrame()  # noqa: SLF001
                     ob[i] += np.array(im)
             else:
                 # Static stimuli
                 value.draw()
                 self.win.flip()
-                im = self.win._getFrame()
+                im = self.win._getFrame()  # noqa: SLF001
                 super().add_ob(np.array(im), period, where)
         else:
             super().add_ob(value, period, where)

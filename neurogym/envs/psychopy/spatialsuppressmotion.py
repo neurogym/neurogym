@@ -168,10 +168,8 @@ class SpatialSuppressMotion(PsychopyEnv):
             grating2.draw()
 
             self.win.flip()
-            im = self.win._getFrame()
-            im = np.array(
-                im,
-            )  # convert it to numpy array, it is a nPix x nPix x 3 array
+            im = self.win._getFrame()  # noqa: SLF001
+            im = np.array(im)  # convert it to numpy array, it is a nPix x nPix x 3 array
 
             # Here we did not use .add_ob function of psychopyEnv object
             ob[i] = im.copy()  # we switch the add, which seems wrong for image

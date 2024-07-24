@@ -72,7 +72,7 @@ def test_speed_all():
         try:
             speed(env_name)
             print("Success")
-        except Exception as e: # noqa: BLE001 # FIXME: unclear which error is expected here.
+        except Exception as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
             print(f"Failure at running env: {env_name:s}")
             print(e)
 

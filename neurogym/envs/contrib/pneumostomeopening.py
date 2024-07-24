@@ -40,21 +40,21 @@ class Pneumostomeopening(ngym.BaseEnv):
 
         self.t = 0
 
-        ## action and observation spaces:
-        ## action space
-        ## breathing actions: [breathing pneumostome, breathing skin]
-        ## swim actions: [up, down, left, right]
-        ## make it 3D (forward/backward) or 2D is enough ?
-        ## observation space
-        ## Discretizing beaker into level of depth
-        name = {"depth1": 0, "depth2": 1, "depth2": 2, "depth2": 3}
+        # action and observation spaces:
+        # action space
+        # breathing actions: [breathing pneumostome, breathing skin]
+        # swim actions: [up, down, left, right]
+        # make it 3D (forward/backward) or 2D is enough ?
+        # observation space
+        # Discretizing beaker into level of depth
+        name = {"depth1": 0, "depth2": 1, "depth3": 2, "depth4": 3}
         self.observation_space = spaces.Discrete(4, name=name)
         name = {"breathingpneumostome": 0, "breathingskin": 1, "up": 2, "down": 3}
         self.action_space = spaces.Discrete(4, name=name)
 
-        ## TODO: can do breathingpneumostome only when at the surface == depth 1
+        # TODO: can do breathingpneumostome only when at the surface == depth 1
 
-        ## task specific variables
+        # task specific variables
         self.oxygen_level = 10
 
     def _get_new_oxygen_level(self, action):
@@ -82,13 +82,13 @@ class Pneumostomeopening(ngym.BaseEnv):
         Testing_session test the respiratory behaviour change after training_session
         has been run.
         """
-        ## Rewards
+        # Rewards
         if phase == "set_default_behavior":
             rewards = {
                 "swim": +0.1,  # reward given for anything else
                 "skin": +0.5,  # reward given when breathing through the skin
                 "pneumostome": +1.0,  # reward given when breathing through the pneumostome
-                #'miss': # to force some type of trial duration limit if implementing trials in this task ?
+                # 'miss': # to force some type of trial duration limit if implementing trials in this task ?
             }
         elif phase == "training_session":
             rewards = {"swim": +0.1, "skin": +1.0, "pneumostome": -1.0}
@@ -135,11 +135,11 @@ class Pneumostomeopening(ngym.BaseEnv):
 
         self.t = self.t + 1
 
-        ## potential problems:
-        ## - limit number of consecutive pneumostome opening using t
-        ## - limit number of consecutive breathing event so that not only do that ?
-        ## by using breathing even only when below threshold of O2 ?
-        ## or use refractory period ?
+        # potential problems:
+        # - limit number of consecutive pneumostome opening using t
+        # - limit number of consecutive breathing event so that not only do that ?
+        # by using breathing even only when below threshold of O2 ?
+        # or use refractory period ?
 
         print([self.agent_pos], self.reward, self.terminated, {"new_trial": new_trial})
         return (

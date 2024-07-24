@@ -91,7 +91,7 @@ class ProbabilisticReasoning(ngym.TrialEnv):
 
         locs = trial["locs"]
         shapes = trial["shapes"]
-        log_odd = sum([self.shape_weight[shape] for shape in shapes])
+        log_odd = sum(self.shape_weight[shape] for shape in shapes)
         p = 1.0 / (10 ** (-log_odd) + 1.0)
         ground_truth = int(self.rng.rand() < p)
         trial["log_odd"] = log_odd

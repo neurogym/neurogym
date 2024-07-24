@@ -159,7 +159,7 @@ class CVLearning(ngym.TrialEnv):
         }
 
         # init durations with None
-        self.durs = {key: None for key in self.timing}
+        self.durs = dict.fromkeys(self.timing)
         self.firstcounts = True
 
         self.first_choice_rew = None
