@@ -1,5 +1,3 @@
-"""Test core.py."""
-
 import numpy as np
 
 import neurogym as ngym

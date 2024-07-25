@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-"""Test environments.
-
-All tests in this file can be run by running in command line
-pytest test_envs.py
-"""
-
 import gymnasium as gym
 import numpy as np
 

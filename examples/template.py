@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-"""Example template for contributing new tasks."""
+"""Example template for contributing new tasks."""  # noqa: INP001
 
 import numpy as np
 

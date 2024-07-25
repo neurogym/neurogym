@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from typing import ClassVar
 
 import numpy as np
@@ -18,8 +16,7 @@ class EconomicDecisionMaking(ngym.TrialEnv):
 
     metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/nature04676",
-        "paper_name": """Neurons in the orbitofrontal cortex encode
-         economic value""",
+        "paper_name": "Neurons in the orbitofrontal cortex encode economic value",
         "tags": ["perceptual", "value-based"],
     }
 

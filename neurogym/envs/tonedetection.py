@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """auditory tone detection task."""
 
 from typing import ClassVar

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # This is try to code spatial suppression motion task
 
 

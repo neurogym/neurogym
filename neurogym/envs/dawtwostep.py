@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-
-
 from typing import ClassVar
 
 import numpy as np

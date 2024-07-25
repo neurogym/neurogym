@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Formatting information about envs and wrappers."""
 
 import inspect

@@ -1,5 +1,3 @@
-"""Test wrappers."""
-
 import sys
 
 import gymnasium as gym

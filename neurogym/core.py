@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-
-
 import contextlib
 from typing import NoReturn
 
@@ -36,8 +33,7 @@ def env_string(env, short=False):
         string += "Missing paper link\n"
     else:
         string += f"[{paper_name}]({paper_link})\n"
-    # TODO: Add timing info back?
-    # commented out code removed in PR #16
+    # TODO: Add timing info back? # commented out code for this TODO removed in PR #16
 
     if env.rewards is not None:  # if env.rewards is an array, if env.rewards will throw an error
         string += "\nReward structure \n"

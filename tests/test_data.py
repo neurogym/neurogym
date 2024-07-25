@@ -1,8 +1,4 @@
-"""Test Dataset for supervised learning.
-
-All tests in this file can be run by running in command line
-pytest test_data.py
-"""
+"""Test Dataset for supervised learning."""
 
 import gymnasium as gym
 import numpy as np
