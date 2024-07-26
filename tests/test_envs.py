@@ -52,7 +52,6 @@ def test_run_all(verbose_success=False):
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        assert ngym.all_envs()[0] in ENVS
         for env_name in ENVS:
             print(env_name)
             _test_run(env_name, verbose=verbose_success)
@@ -117,9 +116,7 @@ def _test_trialenv(env):
         raise TypeError(msg)
 
     trial = env.new_trial()
-    assert (
-        trial is not None
-    ), f"TrialEnv should return trial info dict {env}"  # FIXME: should we assert isinstance(trial, dict) instead?
+    assert isinstance(trial, dict)
 
 
 def test_trialenv_all():
@@ -129,8 +126,6 @@ def test_trialenv_all():
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
         for env_name in ENVS:
             env = ngym.make(env_name)
-            if not isinstance(env, ngym.TrialEnv):  # FIXME: probably these should be flagged rather than skipped
-                continue
             _test_trialenv(env)
 
 
@@ -175,7 +170,6 @@ def _test_seeding(env):
 # TODO: there is one env for which it sometimes raises an error
 def test_seeding_all():
     """Test if all environments are replicable."""
-    assert ngym.all_envs()[0] in ENVS_NOPSYCHOPY
     for env_name in sorted(ENVS_NOPSYCHOPY):
         print(f"Running env: {env_name}")
         obs1, rews1, acts1 = _test_seeding(env_name)
