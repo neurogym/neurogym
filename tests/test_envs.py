@@ -22,13 +22,11 @@ SEED = 0
 
 def _test_run(env, num_steps=100, verbose=False):
     """Test if one environment can at least be run."""
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        if isinstance(env, str):
-            env = ngym.make(env)
-        elif not isinstance(env, gym.Env):
-            msg = f"{type(env)=} must be a string or a gym.Env"
-            raise TypeError(msg)
+    if isinstance(env, str):
+        env = ngym.make(env)
+    elif not isinstance(env, gym.Env):
+        msg = f"{type(env)=} must be a string or a gym.Env"
+        raise TypeError(msg)
 
     env.reset()
     for _ in range(num_steps):
@@ -112,18 +110,16 @@ def test_print_all():
 
 def _test_trialenv(env):
     """Test if a TrialEnv is behaving correctly."""
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
-        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        if isinstance(env, str):
-            env = ngym.make(env)
-        elif not isinstance(env, gym.Env):
-            msg = f"{type(env)=} must be a string or a gym.Env"
-            raise TypeError(msg)
-        trial = env.new_trial()
-        assert (
-            trial is not None
-        ), f"TrialEnv should return trial info dict {env}"  # FIXME: should we assert isinstance(trial, dict) instead?
+    if isinstance(env, str):
+        env = ngym.make(env)
+    elif not isinstance(env, gym.Env):
+        msg = f"{type(env)=} must be a string or a gym.Env"
+        raise TypeError(msg)
+
+    trial = env.new_trial()
+    assert (
+        trial is not None
+    ), f"TrialEnv should return trial info dict {env}"  # FIXME: should we assert isinstance(trial, dict) instead?
 
 
 def test_trialenv_all():
@@ -189,7 +185,7 @@ def test_seeding_all():
         assert (acts1 == acts2).all(), "actions are not identical"
 
 
-def test_plot_envs():
+def test_plot_all():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
