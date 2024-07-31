@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+from typing import ClassVar
 
 import numpy as np
 
@@ -8,8 +7,7 @@ from neurogym import spaces
 
 
 class PerceptualDecisionMaking(ngym.TrialEnv):
-    """Two-alternative forced choice task in which the subject has to
-    integrate two stimuli to decide which one is higher on average.
+    """Two-alternative forced choice task: subject has to integrate two stimuli to decide which is higher on average.
 
     A noisy stimulus is shown during the stimulus period. The strength (
     coherence) of the stimulus is randomly sampled every trial. Because the
@@ -23,7 +21,7 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
         dim_ring: int, dimension of ring input and output
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.jneurosci.org/content/12/12/4745",
         "paper_name": """The analysis of visual motion: a comparison of
         neuronal and psychophysical performance""",
@@ -31,8 +29,14 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
     }
 
     def __init__(
-        self, dt=100, rewards=None, timing=None, cohs=None, sigma=1.0, dim_ring=2
-    ):
+        self,
+        dt=100,
+        rewards=None,
+        timing=None,
+        cohs=None,
+        sigma=1.0,
+        dim_ring=2,
+    ) -> None:
         super().__init__(dt=dt)
         if cohs is None:
             self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])
@@ -56,21 +60,25 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
 
         name = {"fixation": 0, "stimulus": range(1, dim_ring + 1)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(1 + dim_ring,),
+            dtype=np.float32,
+            name=name,
         )
         name = {"fixation": 0, "choice": range(1, dim_ring + 1)}
         self.action_space = spaces.Discrete(1 + dim_ring, name=name)
 
     def _new_trial(self, **kwargs):
-        """
-        new_trial() is called when a trial ends to generate the next trial.
+        """Called when a trial ends to generate the next trial.
+
         The following variables are created:
             durations, which stores the duration of the different periods (in
             the case of perceptualDecisionMaking: fixation, stimulus and
             decision periods)
             ground truth: correct response for the trial
             coh: stimulus coherence (evidence) for the trial
-            obs: observation
+            obs: observation.
         """
         # Trial info
         trial = {
@@ -98,18 +106,6 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
         return trial
 
     def _step(self, action):
-        """
-        _step receives an action and returns:
-            a new observation, obs
-            reward associated with the action, reward
-            a boolean variable indicating whether the experiment has terminated, terminated
-                See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#termination
-            a boolean variable indicating whether the experiment has been truncated, truncated
-                See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#truncation
-            a dictionary with extra information:
-                ground truth correct response, info['gt']
-                boolean indicating the end of the trial, info['new_trial']
-        """
         new_trial = False
         terminated = False
         truncated = False
@@ -121,14 +117,13 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
             if action != 0:  # action = 0 means fixating
                 new_trial = self.abort
                 reward += self.rewards["abort"]
-        elif self.in_period("decision"):
-            if action != 0:
-                new_trial = True
-                if action == gt:
-                    reward += self.rewards["correct"]
-                    self.performance = 1
-                else:
-                    reward += self.rewards["fail"]
+        elif self.in_period("decision") and action != 0:
+            new_trial = True
+            if action == gt:
+                reward += self.rewards["correct"]
+                self.performance = 1
+            else:
+                reward += self.rewards["fail"]
 
         return (
             self.ob_now,
@@ -150,14 +145,13 @@ class PerceptualDecisionMakingDelayResponse(ngym.TrialEnv):
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/s41586-019-0919-7",
-        "paper_name": "Discrete attractor dynamics underlies persistent"
-        + " activity in the frontal cortex",
+        "paper_name": "Discrete attractor dynamics underlies persistent activity in the frontal cortex",
         "tags": ["perceptual", "delayed response", "two-alternative", "supervised"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.0, sigma=1.0):
+    def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.0, sigma=1.0) -> None:
         super().__init__(dt=dt)
         self.choices = [1, 2]
         # cohs specifies the amount of evidence (modulated by stim_scale)
@@ -174,7 +168,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.TrialEnv):
             "stimulus": 1150,
             #  TODO: sampling of delays follows exponential
             "delay": (300, 500, 700, 900, 1200, 2000, 3200, 4000),
-            # 'go_cue': 100, # TODO: Not implemented
+            # 'go_cue': 100,  # noqa: ERA001 TODO: Not implemented
             "decision": 1500,
         }
         if timing:
@@ -185,7 +179,10 @@ class PerceptualDecisionMakingDelayResponse(ngym.TrialEnv):
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3,), dtype=np.float32
+            -np.inf,
+            np.inf,
+            shape=(3,),
+            dtype=np.float32,
         )
 
     def _new_trial(self, **kwargs):
@@ -257,14 +254,14 @@ class PulseDecisionMaking(ngym.TrialEnv):
         n_bin: int, number of stimulus bins
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://elifesciences.org/articles/11308",
         "paper_name": """Sources of noise during accumulation of evidence in
         unrestrained and voluntarily head-restrained rats""",
         "tags": ["perceptual", "two-alternative", "supervised"],
     }
 
-    def __init__(self, dt=10, rewards=None, timing=None, p_pulse=(0.3, 0.7), n_bin=6):
+    def __init__(self, dt=10, rewards=None, timing=None, p_pulse=(0.3, 0.7), n_bin=6) -> None:
         super().__init__(dt=dt)
         self.p_pulse = p_pulse
         self.n_bin = n_bin
@@ -276,8 +273,8 @@ class PulseDecisionMaking(ngym.TrialEnv):
 
         self.timing = {"fixation": 500, "decision": 500}
         for i in range(n_bin):
-            self.timing["cue" + str(i)] = 10
-            self.timing["bin" + str(i)] = 240
+            self.timing[f"cue{i}"] = 10
+            self.timing[f"bin{i}"] = 240
         if timing:
             self.timing.update(timing)
 
@@ -285,7 +282,11 @@ class PulseDecisionMaking(ngym.TrialEnv):
 
         name = {"fixation": 0, "stimulus": [1, 2]}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(3,),
+            dtype=np.float32,
+            name=name,
         )
         name = {"fixation": 0, "choice": [1, 2]}
         self.action_space = spaces.Discrete(3, name=name)
@@ -308,15 +309,15 @@ class PulseDecisionMaking(ngym.TrialEnv):
         # Periods
         periods = ["fixation"]
         for i in range(self.n_bin):
-            periods += ["cue" + str(i), "bin" + str(i)]
+            periods += [f"cue{i}", f"bin{i}"]
         periods += ["decision"]
         self.add_period(periods)
 
         # Observations
         self.add_ob(1, where="fixation")
         for i in range(self.n_bin):
-            self.add_ob(pulse1[i], "cue" + str(i), where=1)
-            self.add_ob(pulse2[i], "cue" + str(i), where=2)
+            self.add_ob(pulse1[i], f"cue{i}", where=1)
+            self.add_ob(pulse2[i], f"cue{i}", where=2)
         self.set_ob(0, "decision")
 
         # Ground truth
@@ -340,10 +341,9 @@ class PulseDecisionMaking(ngym.TrialEnv):
                     self.performance = 1
                 else:
                     reward += self.rewards["fail"]
-        else:
-            if action != 0:  # action = 0 means fixating
-                new_trial = self.abort
-                reward += self.rewards["abort"]
+        elif action != 0:  # action = 0 means fixating
+            new_trial = self.abort
+            reward += self.rewards["abort"]
 
         return (
             self.ob_now,

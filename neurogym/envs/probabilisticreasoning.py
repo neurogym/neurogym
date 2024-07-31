@@ -1,5 +1,7 @@
 """Random dot motion task."""
 
+from typing import ClassVar
+
 import numpy as np
 
 import neurogym as ngym
@@ -22,13 +24,13 @@ class ProbabilisticReasoning(ngym.TrialEnv):
         n_loc: int, number of location of show shapes
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/nature05852",
         "paper_name": "Probabilistic reasoning by neurons",
         "tags": ["perceptual", "two-alternative", "supervised"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, shape_weight=None, n_loc=4):
+    def __init__(self, dt=100, rewards=None, timing=None, shape_weight=None, n_loc=4) -> None:
         super().__init__(dt=dt)
         # The evidence weight of each stimulus
         if shape_weight is not None:
@@ -53,7 +55,7 @@ class ProbabilisticReasoning(ngym.TrialEnv):
             "decision": 500,
         }
         for i_loc in range(n_loc):
-            self.timing["stimulus" + str(i_loc)] = 500
+            self.timing[f"stimulus{i_loc}"] = 500
         if timing:
             self.timing.update(timing)
 
@@ -62,10 +64,14 @@ class ProbabilisticReasoning(ngym.TrialEnv):
         name = {"fixation": 0}
         start = 1
         for i_loc in range(n_loc):
-            name["loc" + str(i_loc)] = range(start, start + dim_shape)
+            name[f"loc{i_loc}"] = range(start, start + dim_shape)
             start += dim_shape
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + dim_shape * n_loc,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(1 + dim_shape * n_loc,),
+            dtype=np.float32,
+            name=name,
         )
 
         name = {"fixation": 0, "choice": [1, 2]}
@@ -76,14 +82,16 @@ class ProbabilisticReasoning(ngym.TrialEnv):
         trial = {
             "locs": self.rng.choice(range(self.n_loc), size=self.n_loc, replace=False),
             "shapes": self.rng.choice(
-                range(self.n_shape), size=self.n_loc, replace=True
+                range(self.n_shape),
+                size=self.n_loc,
+                replace=True,
             ),
         }
         trial.update(kwargs)
 
         locs = trial["locs"]
         shapes = trial["shapes"]
-        log_odd = sum([self.shape_weight[shape] for shape in shapes])
+        log_odd = sum(self.shape_weight[shape] for shape in shapes)
         p = 1.0 / (10 ** (-log_odd) + 1.0)
         ground_truth = int(self.rng.rand() < p)
         trial["log_odd"] = log_odd
@@ -91,7 +99,7 @@ class ProbabilisticReasoning(ngym.TrialEnv):
 
         # Periods
         periods = ["fixation"]
-        periods += ["stimulus" + str(i) for i in range(self.n_loc)]
+        periods += [f"stimulus{i}" for i in range(self.n_loc)]
         periods += ["delay", "decision"]
         self.add_period(periods)
 
@@ -102,8 +110,8 @@ class ProbabilisticReasoning(ngym.TrialEnv):
         for i_loc in range(self.n_loc):
             loc = locs[i_loc]
             shape = shapes[i_loc]
-            periods = ["stimulus" + str(j) for j in range(i_loc, self.n_loc)]
-            self.add_ob(self.shapes[shape], periods, where="loc" + str(loc))
+            periods = [f"stimulus{j}" for j in range(i_loc, self.n_loc)]
+            self.add_ob(self.shapes[shape], periods, where=f"loc{loc}")
 
         # Ground truth
         self.set_groundtruth(ground_truth, period="decision", where="choice")
@@ -126,10 +134,9 @@ class ProbabilisticReasoning(ngym.TrialEnv):
                     self.performance = 1
                 else:
                     reward += self.rewards["fail"]
-        else:
-            if action != 0:  # action = 0 means fixating
-                new_trial = self.abort
-                reward += self.rewards["abort"]
+        elif action != 0:  # action = 0 means fixating
+            new_trial = self.abort
+            reward += self.rewards["abort"]
 
         return (
             self.ob_now,

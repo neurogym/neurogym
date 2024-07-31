@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Jan 30 13:47:15 2020
+"""Created on Thu Jan 30 13:47:15 2020.
 
 @author: martafradera
 """
+
+from typing import ClassVar
 
 import numpy as np
 from gymnasium import spaces
@@ -14,8 +13,7 @@ import neurogym as ngym
 
 # TODO: Need a more intuitive name
 class ChangingEnvironment(ngym.TrialEnv):
-    r"""Random Dots Motion tasks in which the correct action
-    depends on a randomly changing context.
+    """Random Dots Motion tasks in which the correct action depends on a randomly changing context.
 
     Args:
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)
@@ -23,7 +21,7 @@ class ChangingEnvironment(ngym.TrialEnv):
         cxt_cue: Whether to show context as a cue. (def: False, bool)
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.pnas.org/content/113/31/E4531",
         "paper_name": """Hierarchical decision processes that operate
         over distinct timescales underlie choice and changes in strategy""",
@@ -39,7 +37,7 @@ class ChangingEnvironment(ngym.TrialEnv):
         sigma=1.0,
         cxt_ch_prob=0.001,
         cxt_cue=False,
-    ):
+    ) -> None:
         super().__init__(dt=dt)
 
         # Possible contexts
@@ -73,7 +71,10 @@ class ChangingEnvironment(ngym.TrialEnv):
         self.action_space = spaces.Discrete(5)
         # observation space: [fixation cue, left stim, right stim]
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3 + 1 * cxt_cue,), dtype=np.float32
+            -np.inf,
+            np.inf,
+            shape=(3 + 1 * cxt_cue,),
+            dtype=np.float32,
         )
 
     def _new_trial(self, **kwargs):
@@ -150,14 +151,13 @@ class ChangingEnvironment(ngym.TrialEnv):
             if action != 0:  # if fixation break
                 new_trial = self.abort
                 reward = self.rewards["abort"]
-        elif self.in_period("decision"):  # during decision period
-            if action != 0:
-                new_trial = True
-                if action == gt:  # if correct
-                    reward = self.rewards["correct"]
-                    self.performance = 1
-                else:  # if incorrect
-                    reward = self.rewards["fail"]
+        elif self.in_period("decision") and action != 0:
+            new_trial = True
+            if action == gt:  # if correct
+                reward = self.rewards["correct"]
+                self.performance = 1
+            else:  # if incorrect
+                reward = self.rewards["fail"]
 
         return (
             obs,

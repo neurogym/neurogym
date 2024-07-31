@@ -1,7 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-import os
+from pathlib import Path
+from typing import ClassVar
 
 import numpy as np
 from gymnasium import Wrapper
@@ -12,8 +10,7 @@ from neurogym.utils.plotting import fig_
 class Monitor(Wrapper):
     """Monitor task.
 
-    Saves relevant behavioral information: rewards,actions, observations,
-    new trial, ground truth.
+    Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth.
 
     Args:
         folder: Folder where the data will be saved. (def: None, str)
@@ -27,9 +24,10 @@ class Monitor(Wrapper):
             (def: 100, int)
     """
 
-    metadata = {
-        "description": "Saves relevant behavioral information: rewards,"
-        + " actions, observations, new trial, ground truth.",
+    metadata: ClassVar[dict] = {
+        "description": (
+            "Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth."
+        ),
         "paper_link": None,
         "paper_name": None,
     }
@@ -47,7 +45,7 @@ class Monitor(Wrapper):
         name="",
         fig_type="png",
         step_fn=None,
-    ):
+    ) -> None:
         super().__init__(env)
         self.env = env
         self.num_tr = 0
@@ -60,16 +58,12 @@ class Monitor(Wrapper):
         if self.sv_stp == "timestep":
             self.t = 0
         self.verbose = verbose
-        if folder is not None:
-            self.folder = folder + "/"
-        else:
-            self.folder = "/tmp/"
-        if not os.path.exists(self.folder):
-            os.makedirs(self.folder)
+        if folder is None:
+            # FIXME is it ok to use tempfile.TemporaryDirectory instead or does this need to be stored locally always?
+            self.folder = "tmp"
+        Path(self.folder).mkdir(parents=True, exist_ok=True)
         # seeding
-        self.sv_name = (
-            self.folder + self.env.__class__.__name__ + "_bhvr_data_" + name + "_"
-        )
+        self.sv_name = self.folder + self.env.__class__.__name__ + "_bhvr_data_" + name + "_"  # FIXME: use pathlib
         # figure
         self.sv_fig = sv_fig
         if self.sv_fig:
@@ -99,19 +93,16 @@ class Monitor(Wrapper):
             self.data["action"].append(action)
             self.data["reward"].append(rew)
             for key in info:
-                if key not in self.data.keys():
+                if key not in self.data:
                     self.data[key] = [info[key]]
                 else:
                     self.data[key].append(info[key])
 
             # save data
             save = False
-            if self.sv_stp == "timestep":
-                save = self.t >= self.sv_per
-            else:
-                save = self.num_tr % self.sv_per == 0
+            save = self.t >= self.sv_per if self.sv_stp == "timestep" else self.num_tr % self.sv_per == 0
             if save:
-                np.savez(self.sv_name + str(self.num_tr) + ".npz", **self.data)
+                np.savez(self.sv_name + str(self.num_tr) + ".npz", **self.data)  # FIXME: use pathlib
                 if self.verbose:
                     print("--------------------")
                     print("Number of steps: ", np.mean(self.num_tr))
@@ -124,26 +115,26 @@ class Monitor(Wrapper):
                     self.t = 0
         return obs, rew, terminated, truncated, info
 
-    def reset_data(self):
-        for key in self.data.keys():
+    def reset_data(self) -> None:
+        for key in self.data:
             self.data[key] = []
 
-    def store_data(self, obs, action, rew, info):
+    def store_data(self, obs, action, rew, info) -> None:
         if self.stp_counter <= self.num_stps_sv_fig:
             self.ob_mat.append(obs)
             self.act_mat.append(action)
             self.rew_mat.append(rew)
-            if "gt" in info.keys():
+            if "gt" in info:
                 self.gt_mat.append(info["gt"])
             else:
                 self.gt_mat.append(-1)
-            if "performance" in info.keys():
+            if "performance" in info:
                 self.perf_mat.append(info["performance"])
             else:
                 self.perf_mat.append(-1)
             self.stp_counter += 1
         elif len(self.rew_mat) > 0:
-            fname = self.sv_name + "task_{0:06d}.".format(self.num_tr) + self.fig_type
+            fname = self.sv_name + f"task_{self.num_tr:06d}.{self.fig_type}"
             obs_mat = np.array(self.ob_mat)
             act_mat = np.array(self.act_mat)
             fig_(

@@ -1,5 +1,7 @@
 """Hierarchical reasoning tasks."""
 
+from typing import ClassVar
+
 import numpy as np
 
 import neurogym as ngym
@@ -20,13 +22,13 @@ class HierarchicalReasoning(ngym.TrialEnv):
     transtion is unannouced.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://science.sciencemag.org/content/364/6441/eaav8911",
         "paper_name": "Hierarchical reasoning by neural circuits in the frontal cortex",
         "tags": ["perceptual", "two-alternative", "supervised"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None) -> None:
         super().__init__(dt=dt)
         self.choices = [0, 1]
 
@@ -51,7 +53,11 @@ class HierarchicalReasoning(ngym.TrialEnv):
 
         name = {"fixation": 0, "rule": [1, 2], "stimulus": [3, 4]}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(5,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(5,),
+            dtype=np.float32,
+            name=name,
         )
         name = {"fixation": 0, "rule": [1, 2], "choice": [3, 4]}
         self.action_space = spaces.Discrete(5, name=name)
@@ -62,7 +68,7 @@ class HierarchicalReasoning(ngym.TrialEnv):
         self.block_size = 10
         self.new_block()
 
-    def new_block(self):
+    def new_block(self) -> None:
         self.block_size = self.rng.randint(10, 20 + 1)
         self.rule = 1 - self.rule  # alternate rule
         self.trial_in_block = 0
@@ -97,10 +103,7 @@ class HierarchicalReasoning(ngym.TrialEnv):
 
         # Observations
         stimulus = self.observation_space.name["stimulus"][trial["stimulus"]]
-        if pro_choice:
-            choice = trial["stimulus"]
-        else:
-            choice = 1 - trial["stimulus"]
+        choice = trial["stimulus"] if pro_choice else 1 - trial["stimulus"]
 
         self.add_ob(1, where="fixation")
         self.set_ob(0, "decision", where="fixation")
@@ -137,10 +140,9 @@ class HierarchicalReasoning(ngym.TrialEnv):
                     reward += self.rewards["fail"]
         elif self.in_period("rule_target"):
             self.chose_correct_rule = action == gt
-        else:
-            if action != 0:  # action = 0 means fixating
-                new_trial = self.abort
-                reward += self.rewards["abort"]
+        elif action != 0:  # action = 0 means fixating
+            new_trial = self.abort
+            reward += self.rewards["abort"]
 
         if new_trial:
             self.chose_correct_rule = False

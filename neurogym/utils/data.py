@@ -6,7 +6,7 @@ import gymnasium as gym
 import numpy as np
 
 
-class Dataset(object):
+class Dataset:
     """Make an environment into an iterable dataset for supervised learning.
 
     Create an iterator that at each call returns
@@ -32,16 +32,18 @@ class Dataset(object):
         max_batch=np.inf,
         batch_first=False,
         cache_len=None,
-    ):
+    ) -> None:
+        if not isinstance(env, str | gym.Env):
+            msg = f"{type(env)=} must be `gym.Env` or `str`."
+            raise TypeError(msg)
         if isinstance(env, gym.Env):
             self.envs = [copy.deepcopy(env) for _ in range(batch_size)]
         else:
-            assert isinstance(env, str), "env must be gym.Env or str"
             if env_kwargs is None:
                 env_kwargs = {}
             self.envs = [gym.make(env, **env_kwargs) for _ in range(batch_size)]
-        for env in self.envs:
-            env.reset()
+        for env_ in self.envs:
+            env_.reset()
         self.seed()
 
         env = self.envs[0]
@@ -80,7 +82,8 @@ class Dataset(object):
         self._cache_target_shape = shape2 + list(action_shape)
 
         self._inputs = np.zeros(
-            self._cache_inputs_shape, dtype=env.observation_space.dtype
+            self._cache_inputs_shape,
+            dtype=env.observation_space.dtype,
         )
         self._target = np.zeros(self._cache_target_shape, dtype=env.action_space.dtype)
 
@@ -89,7 +92,7 @@ class Dataset(object):
         self._i_batch = 0
         self.max_batch = max_batch
 
-    def _cache(self, **kwargs):
+    def _cache(self, **kwargs) -> None:
         for i in range(self.batch_size):
             env = self.envs[i]
             seq_start = 0
@@ -140,9 +143,8 @@ class Dataset(object):
 
         self._seq_start = self._seq_end
         return inputs, target
-        # return inputs, np.expand_dims(target, axis=2)
 
-    def seed(self, seed=None):
+    def seed(self, seed=None) -> None:
         for i, env in enumerate(self.envs):
             if seed is None:
                 env.seed(seed)
@@ -154,11 +156,12 @@ if __name__ == "__main__":
     import neurogym as ngym
 
     dataset = ngym.Dataset(
-        "PerceptualDecisionMaking-v0", env_kwargs={"dt": 100}, batch_size=32, seq_len=40
+        "PerceptualDecisionMaking-v0",
+        env_kwargs={"dt": 100},
+        batch_size=32,
+        seq_len=40,
     )
-    inputs_list = list()
-    for i in range(2):
+    inputs_list = []
+    for _ in range(2):
         inputs, target = dataset()
         inputs_list.append(inputs)
-    # print(inputs.shape)
-    # print(target.shape)

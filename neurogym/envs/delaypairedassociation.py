@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+from typing import ClassVar
 
 import numpy as np
 
@@ -8,21 +7,20 @@ from neurogym import spaces
 
 
 class DelayPairedAssociation(ngym.TrialEnv):
-    r"""Delayed paired-association task.
+    """Delayed paired-association task.
 
     The agent is shown a pair of two stimuli separated by a delay period. For
     half of the stimuli-pairs shown, the agent should choose the Go response.
     The agent is rewarded if it chose the Go response correctly.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://elifesciences.org/articles/43191",
-        "paper_name": "Active information maintenance in working memory"
-        + " by a sensory cortex",
+        "paper_name": "Active information maintenance in working memory by a sensory cortex",
         "tags": ["perceptual", "working memory", "go-no-go", "supervised"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0) -> None:
         super().__init__(dt=dt)
         self.choices = [0, 1]
         # trial conditions
@@ -51,7 +49,11 @@ class DelayPairedAssociation(ngym.TrialEnv):
         # action and observation spaces
         name = {"fixation": 0, "stimulus": range(1, 5)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(5,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(5,),
+            dtype=np.float32,
+            name=name,
         )
 
         self.action_space = spaces.Discrete(2, name={"fixation": 0, "go": 1})
@@ -102,14 +104,13 @@ class DelayPairedAssociation(ngym.TrialEnv):
             if action != 0:
                 new_trial = self.abort
                 reward = self.rewards["abort"]
-        elif self.in_period("decision"):
-            if action != 0:
-                if action == gt:
-                    reward = self.rewards["correct"]
-                    self.performance = 1
-                else:
-                    reward = self.rewards["fail"]
-                    self.performance = 0
-                new_trial = True
+        elif self.in_period("decision") and action != 0:
+            if action == gt:
+                reward = self.rewards["correct"]
+                self.performance = 1
+            else:
+                reward = self.rewards["fail"]
+                self.performance = 0
+            new_trial = True
 
         return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}

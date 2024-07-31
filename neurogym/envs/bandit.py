@@ -1,9 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Multi-arm Bandit task
-TODO: add the actual papers
-"""
+"""Multi-arm Bandit task."""
+# TODO: add the actual papers.
+
+from typing import ClassVar
 
 import numpy as np
 
@@ -24,13 +22,13 @@ class Bandit(ngym.TrialEnv):
         rewards: tuple of length n, describe the reward magnitude of each option when rewarded
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/s41593-018-0147-8",
-        "paper_name": "Prefrontal cortex as a meta-reinforcement learning" + " system",
+        "paper_name": "Prefrontal cortex as a meta-reinforcement learning system",
         "tags": ["n-alternative"],
     }
 
-    def __init__(self, dt=100, n=2, p=(0.5, 0.5), rewards=None, timing=None):
+    def __init__(self, dt=100, n=2, p=(0.5, 0.5), rewards=None, timing=None) -> None:
         super().__init__(dt=dt)
         if timing is not None:
             print("Warning: Bandit task does not require timing variable.")
@@ -44,7 +42,10 @@ class Bandit(ngym.TrialEnv):
         self.p = np.array(p)  # Reward probabilities
 
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1,), dtype=np.float32
+            -np.inf,
+            np.inf,
+            shape=(1,),
+            dtype=np.float32,
         )
         self.action_space = spaces.Discrete(n)
 

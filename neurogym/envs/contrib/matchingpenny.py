@@ -1,7 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-from __future__ import division
+from typing import ClassVar
 
 import numpy as np
 from gymnasium import spaces
@@ -19,7 +16,7 @@ class MatchingPenny(ngym.TrialEnv):
         learning_rate: learning rate in the mean_action opponent
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/nn1209",
         "paper_name": """Prefrontal cortex and decision making in a
          mixed-strategy game""",
@@ -33,10 +30,10 @@ class MatchingPenny(ngym.TrialEnv):
         timing=None,
         opponent_type="mean_action",
         learning_rate=0.2,
-    ):
+    ) -> None:
         super().__init__(dt=dt)
         if timing is not None:
-            print("Warning: Matching-Penny task does not require" + " timing variable.")
+            print("Warning: Matching-Penny task does not require timing variable.")
         # TODO: remain to be carefully tested
         # Opponent Type
         self.opponent_type = opponent_type
@@ -48,7 +45,10 @@ class MatchingPenny(ngym.TrialEnv):
 
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(2,), dtype=np.float32
+            -np.inf,
+            np.inf,
+            shape=(2,),
+            dtype=np.float32,
         )
         self.prev_opp_action = int(self.rng.rand() > 0.5)
         if self.opponent_type == "mean_action":
@@ -67,7 +67,8 @@ class MatchingPenny(ngym.TrialEnv):
             opponent_action = 1 * (not np.round(self.mean_action))
         else:
             ot = self.opponent_type
-            raise ValueError("Unknown opponent type {:s}".format(ot))
+            msg = f"Unknown opponent type {ot}."
+            raise ValueError(msg)
 
         trial = {"opponent_action": opponent_action}
         self.ob = np.zeros((1, self.observation_space.shape[0]))

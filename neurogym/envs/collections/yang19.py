@@ -1,5 +1,7 @@
 """An example collection of tasks."""
 
+from typing import ClassVar
+
 import numpy as np
 
 import neurogym as ngym
@@ -10,7 +12,7 @@ from neurogym.wrappers.block import ScheduleEnvs
 
 
 def _get_dist(original_dist):
-    """Get the distance in periodic boundary conditions"""
+    """Get the distance in periodic boundary conditions."""
     return np.minimum(abs(original_dist), 2 * np.pi - abs(original_dist))
 
 
@@ -27,11 +29,12 @@ def _cosinebump(loc, theta, strength):
 class _MultiModalityStimulus(TrialWrapper):
     """Move observation to specific modality."""
 
-    def __init__(self, env, modality=0, n_modality=1):
+    def __init__(self, env, modality=0, n_modality=1) -> None:
         super().__init__(env)
         self.modality = modality
         if "stimulus" not in self.task.observation_space.name:
-            raise KeyError("observation_space does not have name stimulus")
+            msg = "observation_space does not have name stimulus."
+            raise KeyError(msg)
         ind_stimulus = np.array(self.task.observation_space.name["stimulus"])
         len_stimulus = len(ind_stimulus)
         ob_space = self.task.observation_space
@@ -39,7 +42,11 @@ class _MultiModalityStimulus(TrialWrapper):
         # Shift stimulus
         name = {"fixation": 0, "stimulus": ind_stimulus + len_stimulus * modality}
         self.observation_space = self.task.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(ob_shape,), dtype=ob_space.dtype, name=name
+            -np.inf,
+            np.inf,
+            shape=(ob_shape,),
+            dtype=ob_space.dtype,
+            name=name,
         )
 
     def new_trial(self, **kwargs):
@@ -53,7 +60,7 @@ class _Reach(ngym.TrialEnv):
     by the observation.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/nrn1345",
         "paper_name": """Look away: the anti-saccade task and
         the voluntary control of eye movement""",
@@ -61,8 +68,14 @@ class _Reach(ngym.TrialEnv):
     }
 
     def __init__(
-        self, dt=100, anti=True, rewards=None, timing=None, dim_ring=16, reaction=False
-    ):
+        self,
+        dt=100,
+        anti=True,
+        rewards=None,
+        timing=None,
+        dim_ring=16,
+        reaction=False,
+    ) -> None:
         super().__init__(dt=dt)
 
         self.anti = anti
@@ -86,7 +99,11 @@ class _Reach(ngym.TrialEnv):
 
         name = {"fixation": 0, "stimulus": range(1, dim_ring + 1)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(1 + dim_ring,),
+            dtype=np.float32,
+            name=name,
         )
 
         name = {"fixation": 0, "choice": range(1, dim_ring + 1)}
@@ -101,10 +118,7 @@ class _Reach(ngym.TrialEnv):
         trial.update(kwargs)
 
         ground_truth = trial["ground_truth"]
-        if trial["anti"]:
-            stim_theta = np.mod(self.theta[ground_truth] + np.pi, 2 * np.pi)
-        else:
-            stim_theta = self.theta[ground_truth]
+        stim_theta = np.mod(self.theta[ground_truth] + np.pi, 2 * np.pi) if trial["anti"] else self.theta[ground_truth]
         stim = _gaussianbump(stim_theta, self.theta, 1)
 
         if not self.reaction:
@@ -136,14 +150,13 @@ class _Reach(ngym.TrialEnv):
             if action != 0:  # action = 0 means fixating
                 new_trial = self.abort
                 reward += self.rewards["abort"]
-        elif self.in_period("decision"):
-            if action != 0:
-                new_trial = True
-                if action == gt:
-                    reward += self.rewards["correct"]
-                    self.performance = 1
-                else:
-                    reward += self.rewards["fail"]
+        elif self.in_period("decision") and action != 0:
+            new_trial = True
+            if action == gt:
+                reward += self.rewards["correct"]
+                self.performance = 1
+            else:
+                reward += self.rewards["fail"]
 
         return (
             self.ob_now,
@@ -173,7 +186,7 @@ class _DMFamily(ngym.TrialEnv):
         w_mod=(1, 1),
         stim_mod=(True, True),
         delaycomparison=True,
-    ):
+    ) -> None:
         super().__init__(dt=dt)
 
         # trial conditions
@@ -216,7 +229,8 @@ class _DMFamily(ngym.TrialEnv):
         self.choices = np.arange(dim_ring)
 
         if dim_ring < 2:
-            raise ValueError("dim ring can not be smaller than 2")
+            msg = f"{dim_ring=} cannot be smaller than 2."
+            raise ValueError(msg)
 
         name = {
             "fixation": 0,
@@ -224,32 +238,34 @@ class _DMFamily(ngym.TrialEnv):
             "stimulus_mod2": range(dim_ring + 1, 2 * dim_ring + 1),
         }
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + 2 * dim_ring,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(1 + 2 * dim_ring,),
+            dtype=np.float32,
+            name=name,
         )
         name = {"fixation": 0, "choice": range(1, dim_ring + 1)}
         self.action_space = spaces.Discrete(1 + dim_ring, name=name)
 
-    def _add_singlemod(self, trial, mod=1):
+    def _add_singlemod(self, trial, mod=1) -> None:
         """Add stimulus to modality."""
-        mod = "_mod" + str(mod)
+        mod = f"_mod{mod}"
 
         if self.delaycomparison:
             period1, period2 = "stim1", "stim2"
             coh1, coh2 = self.rng.choice(self.cohs, 2, replace=False)
-            trial["coh1" + mod] = coh1
-            trial["coh2" + mod] = coh2
+            trial[f"coh1{mod}"] = coh1
+            trial[f"coh2{mod}"] = coh2
         else:
             period1, period2 = "stimulus", "stimulus"
             coh = self.rng.choice(self.cohs) * self.rng.choice([-1, +1])
-            trial["coh1" + mod] = coh1 = 0.5 + coh / 2
-            trial["coh2" + mod] = coh2 = 0.5 - coh / 2
+            trial[f"coh1{mod}"] = coh1 = 0.5 + coh / 2
+            trial[f"coh2{mod}"] = coh2 = 0.5 - coh / 2
 
-        # stim = cosinebump(trial['theta1'], self.theta, coh1)
         stim = _gaussianbump(trial["theta1"], self.theta, coh1)
-        self.add_ob(stim, period1, where="stimulus" + mod)
-        # stim = cosinebump(trial['theta2'], self.theta, coh2)
+        self.add_ob(stim, period1, where=f"stimulus{mod}")
         stim = _gaussianbump(trial["theta2"], self.theta, coh2)
-        self.add_ob(stim, period2, where="stimulus" + mod)
+        self.add_ob(stim, period2, where=f"stimulus{mod}")
 
     def _new_trial(self, **kwargs):
         trial = {}
@@ -305,20 +321,19 @@ class _DMFamily(ngym.TrialEnv):
             if action != 0:
                 new_trial = self.abort
                 reward = self.rewards["abort"]
-        elif self.in_period("decision"):
-            if action != 0:
-                new_trial = True
-                if action == gt:
-                    reward = self.rewards["correct"]
-                    self.performance = 1
-                else:
-                    reward = self.rewards["fail"]
+        elif self.in_period("decision") and action != 0:
+            new_trial = True
+            if action == gt:
+                reward = self.rewards["correct"]
+                self.performance = 1
+            else:
+                reward = self.rewards["fail"]
 
         return ob, reward, truncated, terminated, {"new_trial": new_trial, "gt": gt}
 
 
 class _DelayMatch1DResponse(ngym.TrialEnv):
-    r"""Delay match-to-sample or category task.
+    """Delay match-to-sample or category task.
 
     A sample stimulus is followed by a delay and test. Agents are required
     to indicate if the sample and test are in the same category.
@@ -329,7 +344,7 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
             if True (False), go to the last stimulus if match (non-match)
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/nature05078",
         "paper_name": """Experience-dependent representation
         of visual categories in parietal cortex""",
@@ -345,11 +360,13 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
         dim_ring=16,
         matchto="sample",
         matchgo=True,
-    ):
+    ) -> None:
         super().__init__(dt=dt)
         self.matchto = matchto
-        if self.matchto not in ["sample", "category"]:
-            raise ValueError("Match has to be either sample or category")
+        allowed_matches = ["sample", "category"]
+        if self.matchto not in allowed_matches:
+            msg = f"{matchto=} must be one of {allowed_matches}."
+            raise ValueError(msg)
         self.matchgo = matchgo
         self.choices = ["match", "non-match"]  # match, non-match
 
@@ -373,14 +390,19 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
         self.abort = False
 
         if np.mod(dim_ring, 2) != 0:
-            raise ValueError("dim ring should be an even number")
+            msg = f"{dim_ring=} must be an even number."
+            raise ValueError(msg)
         self.dim_ring = dim_ring
         self.half_ring = int(self.dim_ring / 2)
         self.theta = np.linspace(0, 2 * np.pi, dim_ring + 1)[:-1]
 
         name = {"fixation": 0, "stimulus": range(1, dim_ring + 1)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(1 + dim_ring,),
+            dtype=np.float32,
+            name=name,
         )
         name = {"fixation": 0, "choice": range(1, dim_ring + 1)}
         self.action_space = spaces.Discrete(1 + dim_ring, name=name)
@@ -396,18 +418,14 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
         i_sample_theta = self.rng.choice(self.dim_ring)
         if self.matchto == "category":
             sample_category = (i_sample_theta > self.half_ring) * 1
-            if ground_truth == "match":
-                test_category = sample_category
-            else:
-                test_category = 1 - sample_category
+            test_category = sample_category if ground_truth == "match" else 1 - sample_category
             i_test_theta = self.rng.choice(self.half_ring)
             i_test_theta += test_category * self.half_ring
-        else:  # match to sample
-            if ground_truth == "match":
-                i_test_theta = i_sample_theta
-            else:
-                # non-match is 180 degree apart
-                i_test_theta = np.mod(i_sample_theta + self.half_ring, self.dim_ring)
+        elif ground_truth == "match":
+            i_test_theta = i_sample_theta
+        else:
+            # non-match is 180 degree apart
+            i_test_theta = np.mod(i_sample_theta + self.half_ring, self.dim_ring)
 
         trial["sample_theta"] = sample_theta = self.theta[i_sample_theta]
         trial["test_theta"] = test_theta = self.theta[i_test_theta]
@@ -424,9 +442,7 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
         self.add_ob(stim_test, "test", where="stimulus")
         self.add_randn(0, self.sigma, ["sample", "test"], where="stimulus")
 
-        if (ground_truth == "match" and self.matchgo) or (
-            ground_truth == "non-match" and not self.matchgo
-        ):
+        if (ground_truth == "match" and self.matchgo) or (ground_truth == "non-match" and not self.matchgo):
             self.set_groundtruth(i_test_theta, period="decision", where="choice")
         else:
             self.set_groundtruth(0)
@@ -446,27 +462,25 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
             if action != 0:
                 new_trial = self.abort
                 reward = self.rewards["abort"]
-        elif self.in_period("decision"):
-            if action != 0:
-                new_trial = True
-                if action == gt:
-                    reward = self.rewards["correct"]
-                    self.performance = 1
-                else:
-                    reward = self.rewards["fail"]
+        elif self.in_period("decision") and action != 0:
+            new_trial = True
+            if action == gt:
+                reward = self.rewards["correct"]
+                self.performance = 1
+            else:
+                reward = self.rewards["fail"]
 
         return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}
 
 
 def _reach(**kwargs):
-    envs = list()
+    envs = []
     for modality in [0, 1]:
         env = _Reach(**kwargs)
         env = _MultiModalityStimulus(env, modality=modality, n_modality=2)
         envs.append(env)
     schedule = scheduler.RandomSchedule(len(envs))
-    env = ScheduleEnvs(envs, schedule, env_input=False)
-    return env
+    return ScheduleEnvs(envs, schedule, env_input=False)
 
 
 def go(**kwargs):
@@ -510,8 +524,7 @@ def dlyanti(**kwargs):
 
 
 def _dm_kwargs():
-    env_kwargs = {"cohs": [0.08, 0.16, 0.32, 0.64], "delaycomparison": False}
-    return env_kwargs
+    return {"cohs": [0.08, 0.16, 0.32, 0.64], "delaycomparison": False}
 
 
 def dm1(**kwargs):
@@ -550,8 +563,7 @@ def multidm(**kwargs):
 
 
 def _dlydm_kwargs():
-    env_kwargs = {"cohs": [0.3, 0.6, 1.0], "delaycomparison": True}
-    return env_kwargs
+    return {"cohs": [0.3, 0.6, 1.0], "delaycomparison": True}
 
 
 def dlydm1(**kwargs):
@@ -590,7 +602,7 @@ def multidlydm(**kwargs):
 
 
 def _dlymatch(matchto, matchgo, **kwargs):
-    envs = list()
+    envs = []
     for modality in [0, 1]:
         env_kwargs = {"matchto": matchto, "matchgo": matchgo}
         env_kwargs.update(kwargs)
@@ -598,8 +610,7 @@ def _dlymatch(matchto, matchgo, **kwargs):
         env = _MultiModalityStimulus(env, modality=modality, n_modality=2)
         envs.append(env)
     schedule = scheduler.RandomSchedule(len(envs))
-    env = ScheduleEnvs(envs, schedule, env_input=False)
-    return env
+    return ScheduleEnvs(envs, schedule, env_input=False)
 
 
 def dms(**kwargs):

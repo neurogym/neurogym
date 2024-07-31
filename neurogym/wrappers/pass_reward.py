@@ -1,25 +1,25 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+from typing import ClassVar
 
 import numpy as np
 from gymnasium import Wrapper, spaces
 
 
 class PassReward(Wrapper):
-    metadata = {
+    metadata: ClassVar[dict] = {
         "description": "Modifies observation by adding the previous reward.",
         "paper_link": None,
         "paper_name": None,
     }
 
-    def __init__(self, env):
-        """
-        Modifies observation by adding the previous reward.
-        """
+    def __init__(self, env) -> None:
+        """Modifies observation by adding the previous reward."""
         super().__init__(env)
         env_oss = env.observation_space.shape[0]
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(env_oss + 1,), dtype=np.float32
+            -np.inf,
+            np.inf,
+            shape=(env_oss + 1,),
+            dtype=np.float32,
         )
 
     def reset(self, options=None):

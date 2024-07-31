@@ -8,18 +8,18 @@ Modified by gryang
 # -*- coding: utf-8 -*-
 
 import os
+
 from docutils import nodes
-from docutils.parsers.rst import directives, Directive
+from docutils.parsers.rst import Directive, directives
 
 
 def get_option(options, key, default):
-    if key not in options.keys():
+    if key not in options:
         return default
 
-    if type(default) == type(True):
+    if type(default) == bool:
         return True
-    else:
-        return options[key]
+    return options[key]
 
 
 class video(nodes.General, nodes.Element):
@@ -57,11 +57,11 @@ class Video(Directive):
                 autoplay=autoplay,
                 nocontrols=nocontrols,
                 loop=loop,
-            )
+            ),
         ]
 
 
-def visit_video_node(self, node):
+def visit_video_node(self, node) -> None:
     extension = os.path.splitext(node["path"])[1][1:]
 
     html_block = """
@@ -82,10 +82,10 @@ def visit_video_node(self, node):
     self.body.append(html_block)
 
 
-def depart_video_node(self, node):
+def depart_video_node(self, node) -> None:
     pass
 
 
-def setup(app):
+def setup(app) -> None:
     app.add_node(video, html=(visit_video_node, depart_video_node))
     app.add_directive("video", Video)

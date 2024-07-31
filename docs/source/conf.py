@@ -32,8 +32,7 @@ author = "Manuel Molano, Guangyu Robert Yang, & contributors"
 # ones.
 # extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage',
 #               'sphinx.ext.napoleon',
-#               'sphinx_rtd_theme',
-# ]
+#               'sphinx_rtd_theme']
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
@@ -64,7 +63,6 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-# html_theme = 'alabaster'
 html_theme = "sphinx_rtd_theme"
 
 html_logo = "_static/img/neurogym_logo.svg"

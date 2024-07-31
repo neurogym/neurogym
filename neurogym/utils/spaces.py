@@ -18,11 +18,13 @@ class Box(GymBox):
                                 name={'fixation': 0, 'stimulus': [1, 2]})
     """
 
-    def __init__(self, low, high, name=None, **kwargs):
+    def __init__(self, low, high, name=None, **kwargs) -> None:
         super().__init__(low, high, **kwargs)
-        if name is not None:
-            assert isinstance(name, dict)
+        if isinstance(name, dict):
             self.name = name
+        elif name is not None:
+            msg = f"{type(name)=} must be `dict` or `NoneType`."
+            raise TypeError(msg)
 
 
 class Discrete(GymDiscrete):
@@ -38,21 +40,23 @@ class Discrete(GymDiscrete):
         observation_space = Discrete(n=3, name={'fixation': 0, 'stimulus': [1, 2]})
     """
 
-    def __init__(self, n, name=None, **kwargs):
+    def __init__(self, n, name=None, **kwargs) -> None:
         super().__init__(n)
-        if name is not None:
-            assert isinstance(name, dict)
+        if isinstance(name, dict):
             self.name = name
+        elif name is not None:
+            msg = f"{type(name)=} must be `dict` or `NoneType`."
+            raise TypeError(msg)
 
 
 __all__ = [
-    "Space",
     "Box",
-    "Discrete",
-    "MultiDiscrete",
-    "MultiBinary",
-    "Tuple",
     "Dict",
+    "Discrete",
+    "MultiBinary",
+    "MultiDiscrete",
+    "Space",
+    "Tuple",
     "flatdim",
     "flatten",
     "unflatten",

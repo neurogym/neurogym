@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+from typing import ClassVar
 
 import numpy as np
 
@@ -14,14 +14,14 @@ class DelayComparison(ngym.TrialEnv):
     during the decision period.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.jneurosci.org/content/30/28/9424",
         "paper_name": """Neuronal Population Coding of Parametric
         Working Memory""",
         "tags": ["perceptual", "working memory", "two-alternative", "supervised"],
     }
 
-    def __init__(self, dt=100, vpairs=None, rewards=None, timing=None, sigma=1.0):
+    def __init__(self, dt=100, vpairs=None, rewards=None, timing=None, sigma=1.0) -> None:
         super().__init__(dt=dt)
 
         # Pair of stimulus strengthes
@@ -57,7 +57,11 @@ class DelayComparison(ngym.TrialEnv):
         # action and observation space
         name = {"fixation": 0, "stimulus": 1}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(2,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(2,),
+            dtype=np.float32,
+            name=name,
         )
         name = {"fixation": 0, "choice": [1, 2]}
         self.action_space = spaces.Discrete(3, name=name)
@@ -113,13 +117,12 @@ class DelayComparison(ngym.TrialEnv):
             if action != 0:
                 new_trial = self.abort
                 reward = self.rewards["abort"]
-        elif self.in_period("decision"):
-            if action != 0:
-                new_trial = True
-                if action == gt:
-                    reward = self.rewards["correct"]
-                    self.performance = 1
-                else:
-                    reward = self.rewards["fail"]
+        elif self.in_period("decision") and action != 0:
+            new_trial = True
+            if action == gt:
+                reward = self.rewards["correct"]
+                self.performance = 1
+            else:
+                reward = self.rewards["fail"]
 
         return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}

@@ -3,13 +3,13 @@
 Each collection is a list of envs.
 """
 
-from inspect import getmembers, isfunction, isclass
 import importlib
+from inspect import getmembers, isfunction
 
 
 def _collection_from_file(fname):
     """Return list of envs from file."""
-    lib = "neurogym.envs.collections." + fname
+    lib = f"neurogym.envs.collections.{fname}"
     if fname == "yang19":
         envs = [
             "go",
@@ -39,15 +39,14 @@ def _collection_from_file(fname):
         envs = sorted(envs)
         envs = [env for env in envs if env[0] != "_"]
 
-    envs = [fname + "." + env + "-v0" for env in envs]
-    return envs
+    return [f"{fname}.{env}-v0" for env in envs]
 
 
 def get_collection(collection):
-    if collection == "":
+    if not collection:
         return []  # placeholder for named collections
-    else:
-        try:
-            return _collection_from_file(collection)
-        except ImportError:
-            raise ValueError("Unknown collection of envs, {}".format(collection))
+    try:
+        return _collection_from_file(collection)
+    except ImportError as e:
+        msg = f"Unknown collection of envs, {collection}."
+        raise ValueError(msg) from e

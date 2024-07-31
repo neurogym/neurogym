@@ -5,18 +5,19 @@ from neurogym.utils.scheduler import RandomSchedule
 from neurogym.wrappers import ScheduleEnvs
 
 disable_env_checker = False
+rng = np.random.default_rng()
 
 
 def make_env(name, **kwargs):
     if disable_env_checker:
         return ngym.make(name, disable_env_checker=True, **kwargs)
-    else:
-        # cannot add the arg disable_env_checker to gym.make in versions lower than 0.24
-        return ngym.make(name, **kwargs)
+    # cannot add the arg disable_env_checker to gym.make in versions lower than 0.24
+    # FIXME: given that we are using gymnasium, is this still relevant?
+    return ngym.make(name, **kwargs)
 
 
 class CstObTrialWrapper(ngym.TrialWrapper):
-    def __init__(self, env, cst_ob):
+    def __init__(self, env, cst_ob) -> None:
         super().__init__(env)
         self.cst_ob = cst_ob
 
@@ -34,56 +35,43 @@ class CstObTrialWrapper(ngym.TrialWrapper):
 
 def _setup_env(cst_ob):
     env = make_env(ngym.all_envs()[0])
-    env = CstObTrialWrapper(env, cst_ob)
-    return env
+    return CstObTrialWrapper(env, cst_ob)
 
 
 def test_wrapper_new_trial():
-    """
-    Test that the ob returned by new_trial takes the wrapper correctly into account
-    """
-    cst_ob = np.random.random(10)
+    """Test that the ob returned by new_trial takes the wrapper correctly into account."""
+    cst_ob = rng.random(10)
     env = _setup_env(cst_ob)
     env.new_trial()
     ob = env.ob[0]
-    assert ob.shape == cst_ob.shape, "Got shape {} but expected shape {}".format(
-        ob.shape, cst_ob.shape
-    )
+    assert ob.shape == cst_ob.shape, f"Got shape {ob.shape} but expected shape {cst_ob.shape}"
     assert np.all(ob == cst_ob)
 
 
 def test_wrapper_reset():
-    """
-    Test that the ob returned by reset takes the wrapper correctly into account.
-    """
-    cst_ob = np.random.random(10)
+    """Test that the ob returned by reset takes the wrapper correctly into account."""
+    cst_ob = rng.random(10)
     env = _setup_env(cst_ob)
     ob, _ = env.reset()
 
-    assert ob.shape == cst_ob.shape, "Got shape {} but expected shape {}".format(
-        ob.shape, cst_ob.shape
-    )
+    assert ob.shape == cst_ob.shape, f"Got shape {ob.shape} but expected shape {cst_ob.shape}"
     assert np.all(ob == cst_ob)
 
 
 def test_wrapper_step():
-    """
-    Test that the ob returned by step takes the wrapper correctly into account.
-    """
-    cst_ob = np.random.random(10)
+    """Test that the ob returned by step takes the wrapper correctly into account."""
+    cst_ob = rng.random(10)
     env = _setup_env(cst_ob)
     env.reset()
     ob, _, _, _, _ = env.step(env.action_space.sample())
-    assert ob.shape == cst_ob.shape, "Got shape {} but expected shape {}".format(
-        ob.shape, cst_ob.shape
-    )
+    assert ob.shape == cst_ob.shape, f"Got shape {ob.shape} but expected shape {cst_ob.shape}"
     assert np.all(ob == cst_ob)
 
 
 def test_reset_with_scheduler():
-    """
-    Test that ScheduleEnvs.reset() resets all the environments in its list envs, which is required before being able to
-    call step() (enforced by the gymnasium wrapper OrderEnforcing).
+    """Test that ScheduleEnvs.reset() resets all the environments in its list envs.
+
+    This is required before being able to call step() (enforced by the gymnasium wrapper OrderEnforcing).
     """
     tasks = ngym.get_collection("yang19")
     envs = [make_env(task) for task in tasks]

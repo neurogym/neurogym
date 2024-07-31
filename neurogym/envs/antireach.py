@@ -1,5 +1,7 @@
 """Anti-reach or anti-saccade task."""
 
+from typing import ClassVar
+
 import numpy as np
 
 import neurogym as ngym
@@ -19,14 +21,14 @@ class AntiReach(ngym.TrialEnv):
             pro-response, i.e. response towards the stimulus.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/nrn1345",
         "paper_name": """Look away: the anti-saccade task and
         the voluntary control of eye movement""",
         "tags": ["perceptual", "steps action space"],
     }
 
-    def __init__(self, dt=100, anti=True, rewards=None, timing=None, dim_ring=32):
+    def __init__(self, dt=100, anti=True, rewards=None, timing=None, dim_ring=32) -> None:
         super().__init__(dt=dt)
 
         self.anti = anti
@@ -49,7 +51,11 @@ class AntiReach(ngym.TrialEnv):
 
         name = {"fixation": 0, "stimulus": range(1, dim_ring + 1)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(1 + dim_ring,),
+            dtype=np.float32,
+            name=name,
         )
 
         name = {"fixation": 0, "choice": range(1, dim_ring + 1)}
@@ -64,10 +70,7 @@ class AntiReach(ngym.TrialEnv):
         trial.update(kwargs)
 
         ground_truth = trial["ground_truth"]
-        if trial["anti"]:
-            stim_theta = np.mod(self.theta[ground_truth] + np.pi, 2 * np.pi)
-        else:
-            stim_theta = self.theta[ground_truth]
+        stim_theta = np.mod(self.theta[ground_truth] + np.pi, 2 * np.pi) if trial["anti"] else self.theta[ground_truth]
 
         # Periods
         periods = ["fixation", "stimulus", "delay", "decision"]
@@ -93,14 +96,13 @@ class AntiReach(ngym.TrialEnv):
             if action != 0:  # action = 0 means fixating
                 new_trial = self.abort
                 reward += self.rewards["abort"]
-        elif self.in_period("decision"):
-            if action != 0:
-                new_trial = True
-                if action == gt:
-                    reward += self.rewards["correct"]
-                    self.performance = 1
-                else:
-                    reward += self.rewards["fail"]
+        elif self.in_period("decision") and action != 0:
+            new_trial = True
+            if action == gt:
+                reward += self.rewards["correct"]
+                self.performance = 1
+            else:
+                reward += self.rewards["fail"]
 
         return (
             self.ob_now,

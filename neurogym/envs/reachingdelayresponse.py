@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+from typing import ClassVar
 
 import numpy as np
 
@@ -9,14 +8,14 @@ from neurogym import spaces
 
 # TODO: Task need to be revisited
 class ReachingDelayResponse(ngym.TrialEnv):
-    r"""Reaching task with a delay period.
+    """Reaching task with a delay period.
 
     A reaching direction is presented by the stimulus during the stimulus
     period. Followed by a delay period, the agent needs to respond to the
     direction of the stimulus during the decision period.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": None,
         "paper_name": None,
         "tags": [
@@ -28,7 +27,7 @@ class ReachingDelayResponse(ngym.TrialEnv):
         ],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, lowbound=0.0, highbound=1.0):
+    def __init__(self, dt=100, rewards=None, timing=None, lowbound=0.0, highbound=1.0) -> None:
         super().__init__(dt=dt)
         self.lowbound = lowbound
         self.highbound = highbound
@@ -54,7 +53,9 @@ class ReachingDelayResponse(ngym.TrialEnv):
         )
 
         self.action_space = spaces.Box(
-            low=np.array((-1.0, -1.0)), high=np.array((1.0, 2.0)), dtype=np.float32
+            low=np.array((-1.0, -1.0)),
+            high=np.array((1.0, 2.0)),
+            dtype=np.float32,
         )
 
     def _new_trial(self, **kwargs):
@@ -87,11 +88,10 @@ class ReachingDelayResponse(ngym.TrialEnv):
             if not action[0] < 0:
                 new_trial = self.abort
                 reward = self.rewards["abort"]
-        elif self.in_period("decision"):
-            if action[0] > 0:
-                new_trial = True
-                reward = self.rewards["correct"] / ((1 + abs(action[1] - gt[1])) ** 2)
-                self.performance = reward / self.rewards["correct"]
+        elif self.in_period("decision") and action[0] > 0:
+            new_trial = True
+            reward = self.rewards["correct"] / ((1 + abs(action[1] - gt[1])) ** 2)
+            self.performance = reward / self.rewards["correct"]
 
         return (
             self.ob_now,

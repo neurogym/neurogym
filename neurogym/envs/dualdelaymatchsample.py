@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 import numpy as np
 
 import neurogym as ngym
@@ -5,7 +7,7 @@ from neurogym import spaces
 
 
 class DualDelayMatchSample(ngym.TrialEnv):
-    r"""Two-item Delay-match-to-sample.
+    """Two-item Delay-match-to-sample.
 
     The trial starts with a fixation period. Then during the sample period,
     two sample stimuli are shown simultaneously. Followed by the first delay
@@ -16,14 +18,14 @@ class DualDelayMatchSample(ngym.TrialEnv):
     other sample stimulus matches the second test stimulus.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://science.sciencemag.org/content/354/6316/1136",
         "paper_name": """Reactivation of latent working memories with
         transcranial magnetic stimulation""",
         "tags": ["perceptual", "working memory", "two-alternative", "supervised"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0) -> None:
         super().__init__(dt=dt)
         self.choices = [1, 2]
         self.cues = [0, 1]
@@ -58,7 +60,11 @@ class DualDelayMatchSample(ngym.TrialEnv):
             "cue2": 6,
         }
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(7,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(7,),
+            dtype=np.float32,
+            name=name,
         )
         name = {"fixation": 0, "match": 1, "non-match": 2}
         self.action_space = spaces.Discrete(3, name=name)
@@ -150,9 +156,8 @@ class DualDelayMatchSample(ngym.TrialEnv):
                     self.performance = 1
                 else:
                     reward = self.rewards["fail"]
-        else:
-            if action != 0:
-                new_trial = self.abort
-                reward = self.rewards["abort"]
+        elif action != 0:
+            new_trial = self.abort
+            reward = self.rewards["abort"]
 
         return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}

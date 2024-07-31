@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+from typing import ClassVar
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,9 +8,9 @@ import neurogym as ngym
 
 
 class CVLearning(ngym.TrialEnv):
-    r"""Implements shaping for the delay-response task, in which agents
-    have to integrate two stimuli and report which one is larger on
-    average after a delay.
+    """Implements shaping for the delay-response task.
+
+    Agents have to integrate two stimuli and report which one is larger on average after a delay.
 
     Args:
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)
@@ -27,10 +26,9 @@ class CVLearning(ngym.TrialEnv):
         stages: Stages used to train the agent. (def: [0, 1, 2, 3, 4], list)
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/s41586-019-0919-7",
-        "paper_name": "Discrete attractor dynamics underlies persistent"
-        + " activity in the frontal cortex",
+        "paper_name": "Discrete attractor dynamics underlies persistent activity in the frontal cortex",
         "tags": ["perceptual", "delayed response", "two-alternative", "supervised"],
     }
 
@@ -46,9 +44,11 @@ class CVLearning(ngym.TrialEnv):
         keep_days=1,
         trials_day=300,
         perf_len=20,
-        stages=[0, 1, 2, 3, 4],
+        stages=None,
         n_ch=10,
-    ):
+    ) -> None:
+        if stages is None:
+            stages = [0, 1, 2, 3, 4]
         super().__init__(dt=dt)
         self.choices = [1, 2]
         self.n_ch = n_ch  # number of obs and actions different from fixation
@@ -130,12 +130,15 @@ class CVLearning(ngym.TrialEnv):
         # action and observation spaces
         self.action_space = spaces.Discrete(n_ch + 1)
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(n_ch + 1,), dtype=np.float32
+            -np.inf,
+            np.inf,
+            shape=(n_ch + 1,),
+            dtype=np.float32,
         )
 
     def _new_trial(self, **kwargs):
-        """
-        new_trial() is called when a trial ends to generate the next trial.
+        """Called when a trial ends to generate the next trial.
+
         The following variables are created:
             durations: Stores the duration of the different periods.
             ground truth: Correct response for the trial.
@@ -154,7 +157,7 @@ class CVLearning(ngym.TrialEnv):
         }
 
         # init durations with None
-        self.durs = {key: None for key in self.timing}
+        self.durs = dict.fromkeys(self.timing)
         self.firstcounts = True
 
         self.first_choice_rew = None
@@ -193,10 +196,7 @@ class CVLearning(ngym.TrialEnv):
                 if self.inst_perf >= self.inc_delays_th and self.inc_delays < 1:
                     self.inc_delays += self.inc_factor
                     self.trials_delay = 0
-                elif (
-                    self.inst_perf <= self.dec_delays_th
-                    and self.inc_delays > self.delay_milestone
-                ):
+                elif self.inst_perf <= self.dec_delays_th and self.inc_delays > self.delay_milestone:
                     self.inc_delays -= self.inc_factor
                     self.trials_delay = 0
             self.dur = [int(d * self.inc_delays) for d in self.delay_durs]
@@ -204,7 +204,8 @@ class CVLearning(ngym.TrialEnv):
                 self.max_delays = True
             else:
                 self.max_delays = False
-            self.durs.update({"delay": np.random.choice(self.dur)})
+            rng = np.random.default_rng()
+            self.durs.update({"delay": rng.choice(self.dur)})
             # delay component is introduced
             trial.update({"coh": 100})
             trial.update({"sigma": 0})
@@ -240,11 +241,8 @@ class CVLearning(ngym.TrialEnv):
 
         return trial
 
-    def count(self, action):
-        """
-        check the last three answers during stage 0 so the network has to
-        alternate between left and right
-        """
+    def count(self, action) -> None:
+        """Check the last three answers during stage 0 so the network has to alternate between left and right."""
         if action != 0:
             new = action - 2 / action
             if np.sign(self.action_counter) == np.sign(new):
@@ -252,12 +250,9 @@ class CVLearning(ngym.TrialEnv):
             else:
                 self.action_counter = new
 
-    def set_phase(self):
-        # print(self.curr_ph)
+    def set_phase(self) -> None:
         self.day_perf[self.trials_counter] = 1 * (self.rew == self.rewards["correct"])
-        self.mov_perf[self.trials_counter % self.perf_len] = 1 * (
-            self.rew == self.rewards["correct"]
-        )
+        self.mov_perf[self.trials_counter % self.perf_len] = 1 * (self.rew == self.rewards["correct"])
         self.trials_counter += 1
         self.trials_delay += 1
 

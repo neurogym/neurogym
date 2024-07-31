@@ -1,5 +1,3 @@
-"""Test wrappers."""
-
 import sys
 
 import gymnasium as gym
@@ -16,6 +14,8 @@ from neurogym.wrappers import (
     SideBias,
 )
 
+# ruff: noqa: N803, F821
+
 
 @pytest.mark.skip(reason="This test is failing, needs more investigation")
 def test_sidebias(
@@ -25,10 +25,9 @@ def test_sidebias(
     num_ch=3,
     margin=0.01,
     blk_dur=10,
-    probs=[(0.005, 0.005, 0.99), (0.005, 0.99, 0.005), (0.99, 0.005, 0.005)],
+    probs=None,
 ):
-    """
-    Test side_bias wrapper.
+    """Test side_bias wrapper.
 
     The side-bias wrapper allows specifying the probabilities for each of the
     existing choices to be correct. These probabilities can varied in blocks of
@@ -55,20 +54,22 @@ def test_sidebias(
         corresponds to 3 blocks with each of them giving 0.99 probabilitiy to
         ground truth 3, 2 and 1, respectively.
 
-    Returns
+    Returns:
     -------
     None.
 
     """
+    if probs is None:
+        probs = [(0.005, 0.005, 0.99), (0.005, 0.99, 0.005), (0.99, 0.005, 0.005)]
     env_args["n_ch"] = num_ch
     env = gym.make(env_name, **env_args)
     env = SideBias(env, probs=probs, block_dur=blk_dur)
     env.reset()
     probs_mat = np.zeros((len(probs), num_ch))
     block = env.curr_block
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        _obs, _rew, terminated, _truncated, info = env.step(action)
         if info["new_trial"]:
             probs_mat[block, info["gt"] - 1] += 1
             block = env.curr_block
@@ -78,19 +79,18 @@ def test_sidebias(
                 print("Block", block)
         if terminated:
             env.reset()
-    probs_mat = probs_mat / np.sum(probs_mat, axis=1)
-    assert np.mean(np.abs(probs - probs_mat)) < margin, (
-        "Probs provided " + str(probs) + " probs. obtained " + str(probs_mat)
-    )
+    probs_mat /= np.sum(probs_mat, axis=1)
+    assert np.mean(np.abs(probs - probs_mat)) < margin, f"Probs provided {probs} probs. obtained {probs_mat}"
     print("-----")
     print("Side bias wrapper OK")
 
 
 def test_passaction(
-    env_name="PerceptualDecisionMaking-v0", num_steps=1000, verbose=True
+    env_name="PerceptualDecisionMaking-v0",
+    num_steps=1000,
+    verbose=True,
 ):
-    """
-    Test pass-action wrapper.
+    """Test pass-action wrapper.
 
     TODO: explain wrapper
     Parameters
@@ -102,7 +102,7 @@ def test_passaction(
     verbose : boolean, optional
         whether to print observation and action (False)
 
-    Returns
+    Returns:
     -------
     None.
 
@@ -110,9 +110,9 @@ def test_passaction(
     env = gym.make(env_name)
     env = PassAction(env)
     env.reset()
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        obs, _rew, terminated, _truncated, _info = env.step(action)
         assert obs[-1] == action, "Previous action is not part of observation"
         if verbose:
             print(obs)
@@ -124,12 +124,15 @@ def test_passaction(
 
 
 def test_passreward(
-    env_name="PerceptualDecisionMaking-v0", num_steps=1000, verbose=False
+    env_name="PerceptualDecisionMaking-v0",
+    num_steps=1000,
+    verbose=False,
 ):
-    """
-    Test pass-reward wrapper.
+    """Test pass-reward wrapper.
+
     TODO: explain wrapper
-    Parameters
+
+    Parameters.
     ----------
     env_name : str, optional
         enviroment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
@@ -138,7 +141,7 @@ def test_passreward(
     verbose : boolean, optional
         whether to print observation and reward (False)
 
-    Returns
+    Returns:
     -------
     None.
 
@@ -146,9 +149,9 @@ def test_passreward(
     env = gym.make(env_name)
     env = PassReward(env)
     obs, _ = env.reset()
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        obs, rew, terminated, _truncated, _info = env.step(action)
         assert obs[-1] == rew, "Previous reward is not part of observation"
         if verbose:
             print(obs)
@@ -163,11 +166,10 @@ def test_reactiontime(
     env_name="PerceptualDecisionMaking-v0",
     num_steps=10000,
     urgency=-0.1,
-    ths=[-0.5, 0.5],
+    ths=None,
     verbose=True,
 ):
-    """
-    Test reaction-time wrapper.
+    """Test reaction-time wrapper.
 
     The reaction-time wrapper allows converting a fix duration task into a reaction
     time task. It also allows addding a fix (negative) quantity (urgency) to force
@@ -185,11 +187,13 @@ def test_reactiontime(
     ths : list, optional
         list containing the threholds to make a decision ([-.5, .5])
 
-    Returns
+    Returns:
     -------
     None.
 
     """
+    if ths is None:
+        ths = [-0.5, 0.5]
     env_args = {"timing": {"fixation": 100, "stimulus": 2000, "decision": 200}}
     env = gym.make(env_name, **env_args)
     env = ReactionTime(env, urgency=urgency)
@@ -202,15 +206,15 @@ def test_reactiontime(
         reward = []
     obs_cum = 0
     end_of_trial = False
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         if obs_cum > ths[1]:
             action = 1
         elif obs_cum < ths[0]:
             action = 2
         else:
             action = 0
-        end_of_trial = True if action != 0 else False
-        obs, rew, terminated, truncated, info = env.step(action)
+        end_of_trial = action != 0
+        obs, rew, _terminated, _truncated, info = env.step(action)
         if info["new_trial"]:
             step = 0
             obs_cum = 0
@@ -243,7 +247,7 @@ def test_reactiontime(
 
 
 @pytest.mark.skip(
-    reason="VariableMapping is not implemented in the current version of neurogym"
+    reason="VariableMapping is not implemented in the current version of neurogym",
 )
 def test_variablemapping(
     env="NAltConditionalVisuomotor-v0",
@@ -258,10 +262,11 @@ def test_variablemapping(
     sess_end_prob=0.01,
     min_sess_dur=20,
 ):
-    """
-    Test variable-mapping wrapper.
+    """Test variable-mapping wrapper.
+
     TODO: explain wrapper
-    Parameters
+
+    Parameters.
     ----------
     env_name : str, optional
         enviroment to wrap.. The default is 'NAltConditionalVisuomotor-v0'.
@@ -272,7 +277,7 @@ def test_variablemapping(
     mapp_ch_prob : float, optional
         probability of mapping change (0.1)
     min_mapp_dur : int, optional
-         minimum number of trials for a mapping block (3)
+        minimum number of trials for a mapping block (3)
     sess_end_prob: float, optional,
         probability of session to finish (0.0025)
     min_sess_dur: int, optional
@@ -286,7 +291,7 @@ def test_variablemapping(
     margin : float, optional
         margin allowed when comparing actual and expected mean block durations (2)
 
-    Returns
+    Returns:
     -------
     None.
 
@@ -316,9 +321,9 @@ def test_variablemapping(
         new_session = []
     prev_mapp = env.curr_mapping[env.trial["ground_truth"]] + 1
     stims = env.stims.flatten()
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = def_act or env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        obs, rew, _terminated, _truncated, info = env.step(action)
         if info["new_trial"]:
             mapping.append(info["mapping"])
             assert (action == prev_mapp and rew == 1.0) or action != prev_mapp
@@ -361,19 +366,14 @@ def test_variablemapping(
     assert (sess_durs > min_sess_dur).all()
     mean_sess_dur = np.mean(sess_durs)
     exp_sess_durs = min_sess_dur + 1 / sess_end_prob
-    assert np.abs(mean_sess_dur - exp_sess_durs) < margin, (
-        "Mean sess. dur.: "
-        + str(mean_sess_dur)
-        + ", expected: "
-        + str(1 / sess_end_prob)
-    )
+    assert (
+        np.abs(mean_sess_dur - exp_sess_durs) < margin
+    ), f"Mean sess. dur.: {mean_sess_dur}, expected: {1 / sess_end_prob}"
     mapp_blck_durs = np.diff(mapp_ch)
     assert (mapp_blck_durs > min_mapp_dur).all()
     mean_durs = np.mean(mapp_blck_durs)
     exp_durs = min_mapp_dur + 1 / mapp_ch_prob
-    assert np.abs(mean_durs - exp_durs) < margin, (
-        "Mean mapp. block durations: " + str(mean_durs) + ", expected: " + str(exp_durs)
-    )
+    assert np.abs(mean_durs - exp_durs) < margin, f"Mean mapp. block durations: {mean_durs}, expected: {exp_durs}"
     sys.exit()
 
 
@@ -385,8 +385,7 @@ def test_noise(
     num_steps=100000,
     verbose=True,
 ):
-    """
-    Test noise wrapper.
+    """Test noise wrapper.
 
     The noise wrapper allows adding noise to the full observation received by the
     network. It also offers the option of fixxing a specific target performance
@@ -404,7 +403,7 @@ def test_noise(
     perf_th : float, optional
         target performance for the noise wrapper (0.7)
 
-    Returns
+    Returns:
     -------
     None.
 
@@ -416,18 +415,15 @@ def test_noise(
     perf = []
     std_mat = []
     std_noise = 0
-    for stp in range(num_steps):
-        if np.random.rand() < std_noise:
-            action = env.action_space.sample()
-        else:
-            action = env.gt_now
-        obs, rew, terminated, truncated, info = env.step(action)
+    for _ in range(num_steps):
+        rng = np.random.default_rng()
+        action = env.action_space.sample() if rng.random() < std_noise else env.gt_now
+        _obs, _rew, terminated, _truncated, info = env.step(action)
         if "std_noise" in info:
             std_noise = info["std_noise"]
-        if verbose:
-            if info["new_trial"]:
-                perf.append(info["performance"])
-                std_mat.append(std_noise)
+        if verbose and info["new_trial"]:
+            perf.append(info["performance"])
+            std_mat.append(std_noise)
         if terminated:
             env.reset()
     actual_perf = np.mean(perf[-5000:])
@@ -438,16 +434,17 @@ def test_noise(
         plt.plot(np.convolve(perf, np.ones((100,)) / 100, mode="valid"))
         plt.subplot(2, 1, 2)
         plt.plot(std_mat)
-    assert np.abs(actual_perf - perf_th) < margin, (
-        "Actual performance: " + str(actual_perf) + ", expected: " + str(perf_th)
-    )
+    assert np.abs(actual_perf - perf_th) < margin, f"Actual performance: {actual_perf}, expected: {perf_th}"
 
 
 @pytest.mark.skip(
-    reason="TimeOut is not implemented in the current version of neurogym"
+    reason="TimeOut is not implemented in the current version of neurogym",
 )
 def test_timeout(
-    env="NAltPerceptualDecisionMaking-v0", time_out=500, num_steps=100, verbose=True
+    env="NAltPerceptualDecisionMaking-v0",
+    time_out=500,
+    num_steps=100,
+    verbose=True,
 ):
     env_args = {
         "n_ch": 2,
@@ -458,9 +455,9 @@ def test_timeout(
     env.reset()
     reward = []
     observations = []
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        obs, rew, terminated, _truncated, _info = env.step(action)
         if verbose:
             reward.append(rew)
             observations.append(obs)
@@ -477,17 +474,21 @@ def test_timeout(
 
 
 @pytest.mark.skip(
-    reason="CatchTrials is not implemented in the current version of neurogym"
+    reason="CatchTrials is not implemented in the current version of neurogym",
 )
 def test_catchtrials(
-    env_name, num_steps=10000, verbose=False, catch_prob=0.1, alt_rew=0
+    env_name,
+    num_steps=10000,
+    verbose=False,
+    catch_prob=0.1,
+    alt_rew=0,
 ):
     env = gym.make(env_name)
     env = CatchTrials(env, catch_prob=catch_prob, alt_rew=alt_rew)
     env.reset()
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        _obs, rew, terminated, _truncated, info = env.step(action)
         if info["new_trial"] and verbose:
             print("Perfomance", (info["gt"] - action) < 0.00001)
             print("catch-trial", info["catch_trial"])
@@ -498,7 +499,7 @@ def test_catchtrials(
 
 
 @pytest.mark.skip(
-    reason="TrialHistory and Variable_nch are not implemented in the current version of neurogym"
+    reason="TrialHistory and Variable_nch are not implemented in the current version of neurogym",
 )
 def test_trialhist_and_variable_nch(
     env_name,
@@ -509,7 +510,7 @@ def test_trialhist_and_variable_nch(
     num_ch=4,
     variable_nch=False,
 ):
-    env = gym.make(env_name, **{"n_ch": num_ch})
+    env = gym.make(env_name, n_ch=num_ch)
     env = TrialHistory(env, probs=probs, block_dur=200, num_blocks=num_blocks)
     if variable_nch:
         env = Variable_nch(env, block_nch=1000, blocks_probs=[0.1, 0.45, 0.45])
@@ -521,9 +522,9 @@ def test_trialhist_and_variable_nch(
     gt = []
     nch = []
     prev_gt = 1
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        _obs, _rew, terminated, _truncated, info = env.step(action)
         if terminated:
             env.reset()
         if info["new_trial"] and verbose:
@@ -533,7 +534,10 @@ def test_trialhist_and_variable_nch(
                 nch.append(info["nch"])
                 if len(nch) > 1 and nch[-1] == nch[-2] and blk[-1] == blk[-2]:
                     transitions[
-                        info["nch"] - 2, info["curr_block"], prev_gt, info["gt"] - 1
+                        info["nch"] - 2,
+                        info["curr_block"],
+                        prev_gt,
+                        info["gt"] - 1,
                     ] += 1
             else:
                 nch.append(num_ch)
@@ -546,16 +550,16 @@ def test_trialhist_and_variable_nch(
         ax[1].plot(gt[:20000], "-+")
         ch_mat = np.unique(nch)
         _, ax = plt.subplots(nrows=num_blocks, ncols=len(ch_mat))
-        for ind_ch, ch in enumerate(ch_mat):
+        for ind_ch, _ in enumerate(ch_mat):
             for ind_blk in range(num_blocks):
                 norm_counts = transitions[ind_ch, ind_blk, :, :]
                 nxt_tr_counts = np.sum(norm_counts, axis=1).reshape((-1, 1))
-                norm_counts = norm_counts / nxt_tr_counts
+                norm_counts /= nxt_tr_counts
                 ax[ind_blk][ind_ch].imshow(norm_counts)
 
 
 @pytest.mark.skip(
-    reason="TTLPulse is not implemented in the current version of neurogym"
+    reason="TTLPulse is not implemented in the current version of neurogym",
 )
 def test_ttlpulse(env_name, num_steps=10000, verbose=False, **envArgs):
     env = gym.make(env_name, **envArgs)
@@ -563,9 +567,9 @@ def test_ttlpulse(env_name, num_steps=10000, verbose=False, **envArgs):
     env.reset()
     obs_mat = []
     signals = []
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        obs, _rew, terminated, _truncated, info = env.step(action)
         if verbose:
             obs_mat.append(obs)
             signals.append([info["signal_0"], info["signal_1"]])
@@ -585,18 +589,18 @@ def test_ttlpulse(env_name, num_steps=10000, verbose=False, **envArgs):
 
 
 @pytest.mark.skip(
-    reason="TransferLearning is not implemented in the current version of neurogym"
+    reason="TransferLearning is not implemented in the current version of neurogym",
 )
-def test_transferLearning(num_steps=10000, verbose=False, **envArgs):
+def test_transfer_learning(num_steps=10000, verbose=False, **envArgs):
     task = "GoNogo-v0"
-    KWARGS = {
+    kwargs = {
         "dt": 100,
         "timing": {"fixation": 0, "stimulus": 100, "resp_delay": 100, "decision": 100},
     }
-    env1 = gym.make(task, **KWARGS)
+    env1 = gym.make(task, **kwargs)
     task = "PerceptualDecisionMaking-v0"
-    KWARGS = {"dt": 100, "timing": {"fixation": 100, "stimulus": 100, "decision": 100}}
-    env2 = gym.make(task, **KWARGS)
+    kwargs = {"dt": 100, "timing": {"fixation": 100, "stimulus": 100, "decision": 100}}
+    env2 = gym.make(task, **kwargs)
     env = TransferLearning([env1, env2], num_tr_per_task=[30], task_cue=True)
 
     env.reset()
@@ -604,10 +608,9 @@ def test_transferLearning(num_steps=10000, verbose=False, **envArgs):
     signals = []
     rew_mat = []
     action_mat = []
-    for stp in range(num_steps):
-        # action = env.action_space.sample()
+    for _ in range(num_steps):
         action = 1
-        obs, rew, terminated, truncated, info = env.step(action)
+        obs, rew, terminated, _truncated, info = env.step(action)
         if verbose:
             action_mat.append(action)
             rew_mat.append(rew)
@@ -636,17 +639,17 @@ def test_transferLearning(num_steps=10000, verbose=False, **envArgs):
 
 
 @pytest.mark.skip(
-    reason="Combine is not implemented in the current version of neurogym"
+    reason="Combine is not implemented in the current version of neurogym",
 )
 def test_combine(num_steps=10000, verbose=False, **envArgs):
     task = "GoNogo-v0"
-    KWARGS = {
+    kwargs = {
         "dt": 100,
         "timing": {"fixation": 0, "stimulus": 100, "resp_delay": 100, "decision": 100},
     }
-    env1 = gym.make(task, **KWARGS)
+    env1 = gym.make(task, **kwargs)
     task = "DelayPairedAssociation-v0"
-    KWARGS = {
+    kwargs = {
         "dt": 100,
         "timing": {
             "fixation": 0,
@@ -657,7 +660,7 @@ def test_combine(num_steps=10000, verbose=False, **envArgs):
             "decision": 200,
         },
     }
-    env2 = gym.make(task, **KWARGS)
+    env2 = gym.make(task, **kwargs)
     env = Combine(
         env=env1,
         distractor=env2,
@@ -674,10 +677,9 @@ def test_combine(num_steps=10000, verbose=False, **envArgs):
     config_mat = []
     rew_mat = []
     action_mat = []
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
-        # action = 1
-        obs, rew, terminated, truncated, info = env.step(action)
+        obs, rew, terminated, _truncated, info = env.step(action)
         if verbose:
             action_mat.append(action)
             rew_mat.append(rew)
@@ -706,16 +708,16 @@ def test_combine(num_steps=10000, verbose=False, **envArgs):
 
 
 @pytest.mark.skip(
-    reason="Identity is not implemented in the current version of neurogym"
+    reason="Identity is not implemented in the current version of neurogym",
 )
 def test_identity(env_name, num_steps=10000, **envArgs):
     env = gym.make(env_name, **envArgs)
     env = Identity(env)
     env = Identity(env, id_="1")
     env.reset()
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        _obs, _rew, terminated, _truncated, _info = env.step(action)
         if terminated:
             env.reset()
 
@@ -727,21 +729,21 @@ def test_all(test_fn):
     total_count = 0
     for env_name in sorted(ngym.all_envs()):
         total_count += 1
-        print("Running env: {:s} Wrapped with SideBias".format(env_name))
+        print(f"Running env: {env_name} Wrapped with SideBias")
         try:
             test_fn(env_name)
             print("Success")
             success_count += 1
-        except BaseException as e:
-            print("Failure at running env: {:s}".format(env_name))
+        except BaseException as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
+            print(f"Failure at running env: {env_name}")
             print(e)
-        print("")
+        print()
 
-    print("Success {:d}/{:d} envs".format(success_count, total_count))
+    print(f"Success {success_count}/{total_count} envs")
 
 
 @pytest.mark.skip(
-    reason="TrialHistoryEvolution and Variable_nch are not implemented in the current version of neurogym"
+    reason="TrialHistoryEvolution and Variable_nch are not implemented in the current version of neurogym",
 )
 def test_concat_wrpprs_th_vch_pssr_pssa(
     env_name,
@@ -750,9 +752,10 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
     num_blocks=16,
     verbose=False,
     num_ch=8,
-    variable_nch=True,
-    env_args={},
+    env_args=None,
 ):
+    if env_args is None:
+        env_args = {}
     env_args["n_ch"] = num_ch
     env_args["zero_irrelevant_stim"] = True
     env_args["ob_histblock"] = True
@@ -779,29 +782,22 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
     nch = []
     obs_mat = []
     prev_gt = 1
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        obs, _rew, terminated, _truncated, info = env.step(action)
         obs_mat.append(obs)
         blk_stp.append(info["curr_block"])
         if terminated:
             env.reset()
         if info["new_trial"] and verbose:
-            # print(info['curr_block'])
-            # print('-------------')
             blk.append(info["curr_block"])
             gt.append(info["gt"])
             sel_chs = list(info["sel_chs"].replace("-", ""))
             sel_chs = [int(x) - 1 for x in sel_chs]
-            blk_id, indx = check_blk_id(blk_id, info["curr_block"], num_blocks, sel_chs)
+            blk_id, indx = check_blk_id(blk_id, info["curr_block"], num_blocks)
             s_chs.append(info["sel_chs"])
             nch.append(info["nch"])
-            if (
-                len(nch) > 2
-                and 2 * [nch[-1]] == nch[-3:-1]
-                and 2 * [blk[-1]] == blk[-3:-1]
-                and indx != -1
-            ):
+            if len(nch) > 2 and 2 * [nch[-1]] == nch[-3:-1] and 2 * [blk[-1]] == blk[-3:-1] and indx != -1:
                 num_tr_blks[indx] += 1
                 transitions[indx, prev_gt, info["gt"] - 1] += 1
                 if prev_gt > info["nch"] or info["gt"] - 1 > info["nch"]:
@@ -814,7 +810,8 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
         print(sel_choices)
         print(counts / np.sum(counts))
         tr_blks, counts = np.unique(
-            np.array(blk)[np.array(s_chs) == "1-2"], return_counts=1
+            np.array(blk)[np.array(s_chs) == "1-2"],
+            return_counts=1,
         )
         print("\n2AFC task transition matrices and frequencies:")
         print(tr_blks)
@@ -825,7 +822,9 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
         _, ax = plt.subplots(nrows=2, ncols=1, sharex=True)
         blk_int = [int(x.replace("-", "")) for x in blk]
         ax[0].plot(
-            np.array(blk_int[:20000]) / (10 ** (num_ch - 1)), "-+", label="tr-blck"
+            np.array(blk_int[:20000]) / (10 ** (num_ch - 1)),
+            "-+",
+            label="tr-blck",
         )
         ax[0].plot(nch[:20000], "-+", label="num choices")
         ax[1].plot(gt[:20000], "-+", label="correct side")
@@ -841,17 +840,17 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
             norm_counts = transitions[ind_blk, :, :]
             ax1[ind_blk].imshow(norm_counts)
             ax1[ind_blk].set_title(
-                str(blk_id[ind_blk]) + " (N=" + str(num_tr_blks[ind_blk]) + ")",
+                f"{blk_id[ind_blk]} (N={num_tr_blks[ind_blk]})",
                 fontsize=6,
             )
             nxt_tr_counts = np.sum(norm_counts, axis=1).reshape((-1, 1))
-            norm_counts = norm_counts / nxt_tr_counts
+            norm_counts /= nxt_tr_counts
             ax2[ind_blk].imshow(norm_counts)
             ax2[ind_blk].set_title(
-                str(blk_id[ind_blk]) + " (N=" + str(num_tr_blks[ind_blk]) + ")",
+                f"{blk_id[ind_blk]} (N={num_tr_blks[ind_blk]})",
                 fontsize=6,
             )
-    data = {
+    return {
         "transitions": transitions,
         "blk": blk,
         "blk_id": blk_id,
@@ -861,30 +860,30 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
         "obs_mat": obs_mat,
         "blk_stp": blk_stp,
     }
-    return data
 
 
-def check_blk_id(blk_id_mat, curr_blk, num_blk, sel_chs):
+def check_blk_id(blk_id_mat, curr_blk, num_blk):
     # translate transitions t.i.a. selected choices
-    # curr_blk_indx = list(curr_blk.replace('-', ''))
-    # curr_blk_indx = [sel_chs[int(x)-1] for x in curr_blk_indx]
-    # curr_blk = '-'.join([str(x) for x in curr_blk_indx])
     if curr_blk in blk_id_mat:
         return blk_id_mat, np.argwhere(np.array(blk_id_mat) == curr_blk)
-    elif len(blk_id_mat) < num_blk:
+    if len(blk_id_mat) < num_blk:
         blk_id_mat.append(curr_blk)
         return blk_id_mat, len(blk_id_mat) - 1
-    else:
-        return blk_id_mat, -1
+    return blk_id_mat, -1
 
 
 @pytest.mark.skip(
-    reason="TrialHistoryEvolution is not implemented in the current version of neurogym"
+    reason="TrialHistoryEvolution is not implemented in the current version of neurogym",
 )
-def test_trialhistEv(
-    env_name, num_steps=10000, probs=0.8, num_blocks=2, verbose=True, num_ch=4
+def test_trialhistoryevolution(
+    env_name,
+    num_steps=10000,
+    probs=0.8,
+    num_blocks=2,
+    verbose=True,
+    num_ch=4,
 ):
-    env = gym.make(env_name, **{"n_ch": num_ch})
+    env = gym.make(env_name, n_ch=num_ch)
     env = TrialHistoryEvolution(
         env,
         probs=probs,
@@ -897,16 +896,15 @@ def test_trialhistEv(
     transitions = []
     env.reset()
     num_tr = 0
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
-        obs, rew, terminated, truncated, info = env.step(action)
+        _obs, _rew, terminated, _truncated, info = env.step(action)
         if terminated:
             env.reset()
         if info["new_trial"] and verbose:
             num_tr += 1
-            # print(info['curr_block'])
             transitions.append(
-                np.array([np.where(x == 0.8)[0][0] for x in env.curr_tr_mat[0, :, :]])
+                np.array([np.where(x == 0.8)[0][0] for x in env.curr_tr_mat[0, :, :]]),
             )
         if info["new_generation"] and verbose:
             print("New generation")
@@ -921,7 +919,7 @@ if __name__ == "__main__":
         "stim_scale": 10,
         "timing": {"fixation": 100, "stimulus": 200, "decision": 200},
     }
-    # test_identity('Null-v0', num_steps=5)
+    # test_identity('Null-v0', num_steps=5) # noqa: ERA001
     test_reactiontime()
     sys.exit()
     test_timeout()

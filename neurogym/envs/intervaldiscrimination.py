@@ -1,4 +1,4 @@
-from __future__ import division
+from typing import ClassVar
 
 import numpy as np
 
@@ -8,7 +8,7 @@ from neurogym import spaces
 
 # TODO: Getting duration is not intuitive, not clear to people
 class IntervalDiscrimination(ngym.TrialEnv):
-    r"""Comparing the time length of two stimuli.
+    """Comparing the time length of two stimuli.
 
     Two stimuli are shown sequentially, separated by a delay period. The
     duration of each stimulus is randomly sampled on each trial. The
@@ -17,9 +17,8 @@ class IntervalDiscrimination(ngym.TrialEnv):
     choice options.
     """
 
-    metadata = {
-        "paper_link": "https://www.sciencedirect.com/science/article/pii/"
-        + "S0896627309004887",
+    metadata: ClassVar[dict] = {
+        "paper_link": "https://www.sciencedirect.com/science/article/pii/S0896627309004887",
         "paper_name": """Feature- and Order-Based Timing Representations
          in the Frontal Cortex""",
         "tags": [
@@ -31,7 +30,7 @@ class IntervalDiscrimination(ngym.TrialEnv):
         ],
     }
 
-    def __init__(self, dt=80, rewards=None, timing=None):
+    def __init__(self, dt=80, rewards=None, timing=None) -> None:
         super().__init__(dt=dt)
         # Rewards
         self.rewards = {"abort": -0.1, "correct": +1.0, "fail": 0.0}
@@ -53,7 +52,11 @@ class IntervalDiscrimination(ngym.TrialEnv):
 
         name = {"fixation": 0, "stim1": 1, "stim2": 2}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(3,),
+            dtype=np.float32,
+            name=name,
         )
         name = {"fixation": 0, "choice1": 1, "choice2": 2}
         self.action_space = spaces.Discrete(3, name=name)
@@ -96,14 +99,13 @@ class IntervalDiscrimination(ngym.TrialEnv):
             if action != 0:  # action = 0 means fixating
                 new_trial = self.abort
                 reward = self.rewards["abort"]
-        elif self.in_period("decision"):
-            if action != 0:
-                new_trial = True
-                if action == gt:
-                    reward = self.rewards["correct"]
-                    self.performance = 1
-                else:
-                    reward = self.rewards["fail"]
+        elif self.in_period("decision") and action != 0:
+            new_trial = True
+            if action == gt:
+                reward = self.rewards["correct"]
+                self.performance = 1
+            else:
+                reward = self.rewards["fail"]
 
         return (
             self.ob_now,

@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+from typing import ClassVar
 
 import numpy as np
 
@@ -8,7 +7,7 @@ from neurogym import spaces
 
 
 class DelayMatchCategory(ngym.TrialEnv):
-    r"""Delayed match-to-category task.
+    """Delayed match-to-category task.
 
     A sample stimulus is shown during the sample period. The stimulus is
     characterized by a one-dimensional variable, such as its orientation
@@ -19,14 +18,14 @@ class DelayMatchCategory(ngym.TrialEnv):
     category, and report that decision during the decision period.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/nature05078",
         "paper_name": """Experience-dependent representation
         of visual categories in parietal cortex""",
         "tags": ["perceptual", "working memory", "two-alternative", "supervised"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0, dim_ring=2):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0, dim_ring=2) -> None:
         super().__init__(dt=dt)
         self.choices = ["match", "non-match"]  # match, non-match
 
@@ -48,7 +47,11 @@ class DelayMatchCategory(ngym.TrialEnv):
 
         name = {"fixation": 0, "stimulus": range(1, dim_ring + 1)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(1 + dim_ring,),
+            dtype=np.float32,
+            name=name,
         )
 
         name = {"fixation": 0, "match": 1, "non-match": 2}
@@ -64,10 +67,7 @@ class DelayMatchCategory(ngym.TrialEnv):
 
         ground_truth = trial["ground_truth"]
         sample_category = trial["sample_category"]
-        if ground_truth == "match":
-            test_category = sample_category
-        else:
-            test_category = 1 - sample_category
+        test_category = sample_category if ground_truth == "match" else 1 - sample_category
 
         sample_theta = (sample_category + self.rng.rand()) * np.pi
         test_theta = (test_category + self.rng.rand()) * np.pi
@@ -102,13 +102,12 @@ class DelayMatchCategory(ngym.TrialEnv):
             if action != 0:
                 new_trial = self.abort
                 reward = self.rewards["abort"]
-        elif self.in_period("test"):
-            if action != 0:
-                new_trial = True
-                if action == gt:
-                    reward = self.rewards["correct"]
-                    self.performance = 1
-                else:
-                    reward = self.rewards["fail"]
+        elif self.in_period("test") and action != 0:
+            new_trial = True
+            if action == gt:
+                reward = self.rewards["correct"]
+                self.performance = 1
+            else:
+                reward = self.rewards["fail"]
 
         return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}

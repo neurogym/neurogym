@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""Example template for contributing new tasks."""
+"""Example template for contributing new tasks."""  # noqa: INP001
 
 import numpy as np
 
@@ -9,7 +7,7 @@ from neurogym import spaces
 
 
 class YourTask(ngym.TrialEnv):
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1) -> None:
         super().__init__(dt=dt)
         # Possible decisions at the end of the trial
         self.choices = [1, 2]  # e.g. [left, right]
@@ -30,15 +28,18 @@ class YourTask(ngym.TrialEnv):
         # Optional annotation of the observation space
         name = {"fixation": 0, "stimulus": [1, 2]}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(3,),
+            dtype=np.float32,
+            name=name,
         )
         # Optional annotation of the action space
         name = {"fixation": 0, "choice": [1, 2]}
         self.action_space = spaces.Discrete(3, name=name)
 
     def _new_trial(self, **kwargs):
-        """
-        self._new_trial() is called internally to generate a next trial.
+        """Called internally to generate a next trial.
 
         Typically, you need to
             set trial: a dictionary of trial information
@@ -53,7 +54,6 @@ class YourTask(ngym.TrialEnv):
         Returns:
             trial: dictionary of trial information
         """
-
         # Setting trial information
         trial = {"ground_truth": self.rng.choice(self.choices)}
         trial.update(kwargs)  # allows wrappers to modify the trial
@@ -79,17 +79,18 @@ class YourTask(ngym.TrialEnv):
         return trial
 
     def _step(self, action):
-        """
-        _step receives an action and returns:
-            a new observation, obs
-            reward associated with the action, reward
-            a boolean variable indicating whether the experiment has terminated, terminated
-                See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#termination
-            a boolean variable indicating whether the experiment has been truncated, truncated
-                See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#truncation
-            a dictionary with extra information:
-                ground truth correct response, info['gt']
-                boolean indicating the end of the trial, info['new_trial']
+        """Called internally to process one step.
+
+        Receives an action and returns:
+        a new observation, obs
+        reward associated with the action, reward
+        a boolean variable indicating whether the experiment has terminated, terminated
+            See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#termination
+        a boolean variable indicating whether the experiment has been truncated, truncated
+            See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#truncation
+        a dictionary with extra information:
+            ground truth correct response, info['gt']
+            boolean indicating the end of the trial, info['new_trial'].
         """
         terminated = False
         truncated = False
@@ -100,13 +101,9 @@ class YourTask(ngym.TrialEnv):
         if not self.in_period("decision"):
             if action != 0:  # if fixation break
                 reward = self.rewards["abort"]
-        else:
-            if action != 0:
-                terminated = True
-                if action == gt:  # if correct
-                    reward = self.rewards["correct"]
-                else:  # if incorrect
-                    reward = self.rewards["fail"]
+        elif action != 0:
+            terminated = True
+            reward = self.rewards["correct"] if action == gt else self.rewards["fail"]
 
         return (
             self.ob_now,

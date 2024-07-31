@@ -1,23 +1,24 @@
+from typing import ClassVar
+
 import numpy as np
 from gymnasium import spaces
 
 import neurogym as ngym
 
-# XXX: are trials counted correctly in this task?
+# TODO: are trials counted correctly in this task?
 
 # TODO: No longer maintained, use existing task to build this task
 
 
 class IBL(ngym.TrialEnv):
-    metadata = {
-        "paper_link": "https://www.sciencedirect.com/science/article/"
-        + "pii/S0896627317311364",
+    metadata: ClassVar[dict] = {
+        "paper_link": "https://www.sciencedirect.com/science/article/pii/S0896627317311364",
         "paper_name": """An International Laboratory for Systems and ' +
         'Computational Neuroscience""",
     }
 
-    def __init__(self, dt=100, rewards=None):
-        super(IBL, self).__init__(dt=dt)
+    def __init__(self, dt=100, rewards=None) -> None:
+        super().__init__(dt=dt)
         # TODO: Fix to use the default random number generator
         self._rng = self.rng.RandomState(0)
         self.sigma = 0.10  # noise
@@ -37,10 +38,13 @@ class IBL(ngym.TrialEnv):
 
         self.action_space = spaces.Discrete(2)
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(2,), dtype=np.float32
+            -np.inf,
+            np.inf,
+            shape=(2,),
+            dtype=np.float32,
         )
 
-    def new_block(self, n_trial, probs=None):
+    def new_block(self, n_trial, probs=None) -> None:
         self.ground_truth = self._rng.choice(self.choices, size=(n_trial,), p=probs)
         self.coh = self._rng.choice(self.cohs, size=(n_trial,))
 
@@ -53,15 +57,14 @@ class IBL(ngym.TrialEnv):
         obs += self._rng.randn(*obs.shape) * self.sigma
         self.ob = obs
 
-    def _new_trial(self, **kwargs):
-        """
-        _new_trial() is called when a trial ends to get the specifications of
-        the next trial. Such specifications are stored in a dictionary with
-        the following items:
+    def _new_trial(self, **kwargs) -> None:
+        """Called when a trial ends to get the specifications of the next trial.
+
+        Such specifications are stored in a dictionary with the following items:
             durations, which stores the duration of the different periods (in
             the case of perceptualDecisionMaking: fixation, stimulus and decision periods)
             ground truth: correct response for the trial
-            coh: stimulus coherence (evidence) for the trial
+            coh: stimulus coherence (evidence) for the trial.
         """
         # ---------------------------------------------------------------------
         # Trial
@@ -72,7 +75,7 @@ class IBL(ngym.TrialEnv):
 
         self.num_tr += 1
 
-    def _step(self, action):
+    def _step(self, action):  # noqa: ARG002
         info = {
             "continue": True,
             "gt": self.ground_truth[self.ind],
@@ -92,23 +95,21 @@ class IBL(ngym.TrialEnv):
         return obs, reward, terminated, truncated, info
 
 
-class IBL_Block(IBL):
-    # pass
-    def __init__(self, dt=100):
+class IBL_Block(IBL):  # noqa: N801
+    def __init__(self, dt=100) -> None:
         super().__init__(dt=dt)
         self.probs = ((0.2, 0.8), (0.8, 0.2), (0.5, 0.5))
         self.block = 0
         self.block_size = 200
 
-    def _new_trial(self, **kwargs):
-        """
-        _new_trial() is called when a trial ends to get the specifications of
-        the next trial. Such specifications are stored in a dictionary with
-        the following items:
+    def _new_trial(self, **kwargs) -> None:
+        """Called when a trial ends to get the specifications of the next trial.
+
+        Such specifications are stored in a dictionary with the following items:
             durations, which stores the duration of the different periods (in
             the case of perceptualDecisionMaking: fixation, stimulus and decision periods)
             ground truth: correct response for the trial
-            coh: stimulus coherence (evidence) for the trial
+            coh: stimulus coherence (evidence) for the trial.
         """
         # ---------------------------------------------------------------------
         # Trial

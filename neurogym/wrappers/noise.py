@@ -1,5 +1,4 @@
-"""
-Noise wrapper.
+"""Noise wrapper.
 
 Created on Thu Feb 28 15:07:21 2019
 
@@ -7,6 +6,8 @@ Created on Thu Feb 28 15:07:21 2019
 """
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+from typing import ClassVar
 
 import gymnasium as gym
 
@@ -23,13 +24,13 @@ class Noise(gym.Wrapper):
 
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "description": "Add Gaussian noise to the observations.",
         "paper_link": None,
         "paper_name": None,
     }
 
-    def __init__(self, env, std_noise=0.1):
+    def __init__(self, env, std_noise=0.1) -> None:
         super().__init__(env)
         self.env = env
         self.std_noise = std_noise

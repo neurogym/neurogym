@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""Test environments.
-
-All tests in this file can be run by running in command line
-pytest test_envs.py
-"""
-
 import gymnasium as gym
 import numpy as np
 
@@ -13,7 +5,7 @@ import neurogym as ngym
 from neurogym.utils.data import Dataset
 
 try:
-    import psychopy
+    import psychopy  # noqa: F401
 
     _have_psychopy = True
 except ImportError:
@@ -33,19 +25,16 @@ def test_run(env=None, num_steps=100, verbose=False, **kwargs):
     """Test if one environment can at least be run."""
     if env is None:
         env = ngym.all_envs()[0]
-
     if isinstance(env, str):
         env = make_env(env, **kwargs)
-    else:
-        if not isinstance(env, gym.Env):
-            raise ValueError("env must be a string or a gym.Env")
+    elif not isinstance(env, gym.Env):
+        msg = f"{type(env)=} must be a string or a gym.Env"
+        raise TypeError(msg)
 
     env.reset()
-    for stp in range(num_steps):
+    for _ in range(num_steps):
         action = env.action_space.sample()
-        state, rew, terminated, truncated, info = env.step(
-            action
-        )  # env.action_space.sample())
+        _state, _rew, terminated, _truncated, _info = env.step(action)
         if terminated:
             env.reset()
 
@@ -53,7 +42,7 @@ def test_run(env=None, num_steps=100, verbose=False, **kwargs):
     all_tags = ngym.all_tags()
     for t in tags:
         if t not in all_tags:
-            print("Warning: env has tag {:s} not in all_tags".format(t))
+            print(f"Warning: env has tag {t} not in all_tags")
 
     if verbose:
         print(env)
@@ -76,7 +65,7 @@ def test_dataset(env=None):
     print("Testing Environment:", env)
     kwargs = {"dt": 20}
     dataset = Dataset(env, env_kwargs=kwargs, batch_size=16, seq_len=300, cache_len=1e4)
-    for i in range(10):
+    for _ in range(10):
         inputs, target = dataset()
         assert inputs.shape[0] == target.shape[0]
 
@@ -84,32 +73,27 @@ def test_dataset(env=None):
 def test_dataset_all():
     """Test if all environments can at least be run."""
     success_count = 0
-    total_count = 0
+    total_count = len(ngym.all_envs())
     supervised_count = len(ngym.all_envs(tag="supervised"))
     for env_name in sorted(ngym.all_envs()):
-        total_count += 1
-
-        print("Running env: {:s}".format(env_name))
+        print(f"Running env: {env_name}")
         try:
             test_dataset(env_name)
             print("Success")
             success_count += 1
-        except BaseException as e:
-            print("Failure at running env: {:s}".format(env_name))
+        except BaseException as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
+            print(f"Failure at running env: {env_name}")
             print(e)
 
-    print("Success {:d}/{:d} envs".format(success_count, total_count))
-    print("Expect {:d} envs to support supervised learning".format(supervised_count))
+    print(f"Success {success_count}/{total_count} envs")
+    print(f"Expect {supervised_count} envs to support supervised learning")
 
 
 def test_print_all():
     """Test printing of all experiments."""
-    success_count = 0
-    total_count = 0
     for env_name in sorted(ENVS):
-        total_count += 1
-        print("")
-        print("Test printing env: {:s}".format(env_name))
+        print()
+        print(f"Test printing env: {env_name}")
         env = make_env(env_name)
         print(env)
 
@@ -121,12 +105,12 @@ def test_trialenv(env=None, **kwargs):
 
     if isinstance(env, str):
         env = make_env(env, **kwargs)
-    else:
-        if not isinstance(env, gym.Env):
-            raise ValueError("env must be a string or a gym.Env")
+    elif not isinstance(env, gym.Env):
+        msg = f"{type(env)=} must be a string or a gym.Env"
+        raise TypeError(msg)
 
     trial = env.new_trial()
-    assert trial is not None, "TrialEnv should return trial info dict " + str(env)
+    assert trial is not None, f"TrialEnv should return trial info dict {env}"
 
 
 def test_trialenv_all():
@@ -146,17 +130,18 @@ def test_seeding(env=None, seed=0):
     if isinstance(env, str):
         kwargs = {"dt": 20}
         env = make_env(env, **kwargs)
-    else:
-        if not isinstance(env, gym.Env):
-            raise ValueError("env must be a string or a gym.Env")
+    elif not isinstance(env, gym.Env):
+        msg = f"{type(env)=} must be a string or a gym.Env"
+        raise TypeError(msg)
+
     env.seed(seed)
     env.reset()
     ob_mat = []
     rew_mat = []
     act_mat = []
-    for stp in range(100):
+    for _ in range(100):
         action = env.action_space.sample()
-        ob, rew, terminated, truncated, info = env.step(action)
+        ob, rew, terminated, _truncated, _info = env.step(action)
         ob_mat.append(ob)
         rew_mat.append(rew)
         act_mat.append(action)
@@ -172,7 +157,7 @@ def test_seeding(env=None, seed=0):
 def test_seeding_all():
     """Test if all environments are replicable."""
     for env_name in sorted(ENVS_NOPSYCHOPY):
-        print("Running env: {:s}".format(env_name))
+        print(f"Running env: {env_name}")
         obs1, rews1, acts1 = test_seeding(env_name, seed=0)
         obs2, rews2, acts2 = test_seeding(env_name, seed=0)
         assert (obs1 == obs2).all(), "obs are not identical"
@@ -182,12 +167,12 @@ def test_seeding_all():
 
 def test_plot_envs():
     for env_name in sorted(ENVS):
-        if env_name in ["Null-v0"]:
+        if env_name == "Null-v0":
             continue
-        env = make_env(env_name, **{"dt": 20})
+        env = make_env(env_name, dt=20)
         action = np.zeros_like(env.action_space.sample())
         try:
             ngym.utils.plot_env(env, num_trials=2, def_act=action)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
             print(f"Error in plotting env: {env_name}, {e}")
             print(e)

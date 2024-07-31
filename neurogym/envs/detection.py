@@ -1,12 +1,10 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jan 27 11:00:26 2020
+"""Created on Mon Jan 27 11:00:26 2020.
 
 @author: martafradera
 """
 
 import warnings
+from typing import ClassVar
 
 import numpy as np
 
@@ -15,7 +13,7 @@ from neurogym import spaces
 
 
 class Detection(ngym.TrialEnv):
-    r"""The agent has to GO if a stimulus is presented.
+    """The agent has to GO if a stimulus is presented.
 
     Args:
         delay: If not None indicates the delay, from the moment of the start of
@@ -25,15 +23,21 @@ class Detection(ngym.TrialEnv):
     """
 
     # TODO: Remains to be described.
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": None,
         "paper_name": None,
         "tags": ["perceptual", "reaction time", "go-no-go", "supervised"],
     }
 
     def __init__(
-        self, dt=100, rewards=None, timing=None, sigma=1.0, delay=None, stim_dur=100
-    ):
+        self,
+        dt=100,
+        rewards=None,
+        timing=None,
+        sigma=1.0,
+        delay=None,
+        stim_dur=100,
+    ) -> None:
         super().__init__(dt=dt)
         # Possible decisions at the end of the trial
         self.choices = [0, 1]
@@ -46,15 +50,15 @@ class Detection(ngym.TrialEnv):
             self.extra_step = 1
             if delay is None:
                 warnings.warn(
-                    "Added an extra stp after the actual stimulus,"
-                    + " else model will not be able to respond "
-                    + "within response window (stimulus epoch)"
+                    "Added an extra stp after the actual stimulus, else model will not be able to respond",
+                    "within response window (stimulus epoch).",
+                    stacklevel=2,
                 )
         else:
             self.extra_step = 0
 
         if self.stim_dur < 1:
-            warnings.warn("Stimulus duration shorter than dt")
+            warnings.warn("Stimulus duration shorter than dt", stacklevel=2)
 
         # Rewards
         self.rewards = {"abort": -0.1, "correct": +1.0, "fail": -1.0, "miss": -1}
@@ -73,7 +77,11 @@ class Detection(ngym.TrialEnv):
 
         name = {"fixation": 0, "stimulus": 1}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(2,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(2,),
+            dtype=np.float32,
+            name=name,
         )
 
         self.action_space = spaces.Discrete(2, name={"fixation": 0, "go": 1})
@@ -136,17 +144,14 @@ class Detection(ngym.TrialEnv):
             if action != 0:  # if fixation break
                 new_trial = self.abort
                 reward = self.rewards["abort"]
-        elif self.in_period("stimulus"):  # during stimulus period
-            if action != 0:  # original
-                new_trial = True
-                if (action == self.trial["ground_truth"]) and (
-                    self.t >= self.end_t["fixation"] + self.delay_trial
-                ):
-                    reward = self.rewards["correct"]
-                    self.performance = 1
-                else:  # if incorrect
-                    reward = self.rewards["fail"]
-                    self.performance = 0
+        elif self.in_period("stimulus") and action != 0:  # original
+            new_trial = True
+            if (action == self.trial["ground_truth"]) and (self.t >= self.end_t["fixation"] + self.delay_trial):
+                reward = self.rewards["correct"]
+                self.performance = 1
+            else:  # if incorrect
+                reward = self.rewards["fail"]
+                self.performance = 0
 
         return (
             self.ob_now,

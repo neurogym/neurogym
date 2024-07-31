@@ -1,7 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-from __future__ import division
+from typing import ClassVar
 
 import numpy as np
 from gymnasium import spaces
@@ -19,19 +16,17 @@ class DawTwoStep(ngym.TrialEnv):
     with a different chance of receiving reward.
     """
 
-    metadata = {
-        "paper_link": "https://www.sciencedirect.com/science/article/"
-        + "pii/S0896627311001255",
-        "paper_name": "Model-Based Influences on Humans"
-        + " Choices and Striatal Prediction Errors",
+    metadata: ClassVar[dict] = {
+        "paper_link": "https://www.sciencedirect.com/science/article/pii/S0896627311001255",
+        "paper_name": "Model-Based Influences on Humans Choices and Striatal Prediction Errors",
         "tags": ["two-alternative"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None) -> None:
         super().__init__(dt=dt)
         if timing is not None:
             print("Warning: Two-step task does not require timing variable.")
-        # Actions ('FIXATE', 'ACTION1', 'ACTION2')
+        # Actions are ('FIXATE', 'ACTION1', 'ACTION2')
         self.actions = [0, 1, 2]
 
         # trial conditions
@@ -50,7 +45,10 @@ class DawTwoStep(ngym.TrialEnv):
 
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3,), dtype=np.float32
+            -np.inf,
+            np.inf,
+            shape=(3,),
+            dtype=np.float32,
         )
 
     def _new_trial(self, **kwargs):
@@ -77,20 +75,14 @@ class DawTwoStep(ngym.TrialEnv):
             hi_state, low_state = 1, 0
 
         reward = np.empty((2,))
-        reward[hi_state] = (self.rng.rand() < self.high_reward_p) * self.rewards[
-            "correct"
-        ]
-        reward[low_state] = (self.rng.rand() < self.low_reward_p) * self.rewards[
-            "correct"
-        ]
+        reward[hi_state] = (self.rng.rand() < self.high_reward_p) * self.rewards["correct"]
+        reward[low_state] = (self.rng.rand() < self.low_reward_p) * self.rewards["correct"]
         self.ground_truth = hi_state + 1  # assuming p1, p2 >= 0.5
-        trial = {
+        return {
             "transition": transition,
             "reward": reward,
             "hi_state": hi_state,
         }
-
-        return trial
 
     def _step(self, action):
         trial = self.trial
@@ -115,6 +107,7 @@ class DawTwoStep(ngym.TrialEnv):
                 reward = self.rewards["abort"]
             info["new_trial"] = True
         else:
-            raise ValueError("t is not 0 or 1")
+            msg = f"{self.t=} must be 0 or 1."
+            raise ValueError(msg)
 
         return ob, reward, terminated, truncated, info

@@ -1,5 +1,7 @@
 """Visual search task."""
 
+from typing import ClassVar
+
 import numpy as np
 from gymnasium import spaces
 from psychopy import visual
@@ -18,9 +20,9 @@ class VisualSearch(PsychopyEnv):
         line_width: float, line width
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://science.sciencemag.org/content/315/5820/1860",
-        "paper_name": """Top-down versus bottom-up control of attention 
+        "paper_name": """Top-down versus bottom-up control of attention
         in the prefrontal and posterior parietal cortices""",
         "tags": ["perceptual", "supervised"],
     }
@@ -28,7 +30,7 @@ class VisualSearch(PsychopyEnv):
     def __init__(
         self,
         dt=16,
-        win_kwargs={"size": (100, 100)},
+        win_kwargs=None,
         rewards=None,
         timing=None,
         target_centers=None,
@@ -36,7 +38,9 @@ class VisualSearch(PsychopyEnv):
         delta_angle=None,
         delta_color=None,
         line_width=3,
-    ):
+    ) -> None:
+        if win_kwargs is None:
+            win_kwargs = {"size": (100, 100)}
         super().__init__(dt=dt, win_kwargs=win_kwargs)
 
         # Rewards
@@ -75,7 +79,7 @@ class VisualSearch(PsychopyEnv):
         sample_color = self.rng.uniform(0, 1, size=(3,))
         angles = [sample_angle]
         colors = [sample_color]
-        for i in range(1, self.n_target):
+        for _ in range(1, self.n_target):
             if self.rng.rand() > 0.5:
                 new_angle = sample_angle + self.rng.choice([1, -1]) * self.delta_angle
                 new_angle = np.mod(new_angle, 2 * np.pi)
@@ -108,14 +112,22 @@ class VisualSearch(PsychopyEnv):
             color = tuple(trial["colors"][i])
             start, end = self._line_startend(center, angle, self.length)
             stim = visual.Line(
-                self.win, lineWidth=self.lw, lineColor=color, start=start, end=end
+                self.win,
+                lineWidth=self.lw,
+                lineColor=color,
+                start=start,
+                end=end,
             )
             self.add_ob(stim, "decision")
 
             if i == 0:
                 start, end = self._line_startend(fixation, angle, self.length)
                 stim = visual.Line(
-                    self.win, lineWidth=self.lw, lineColor=color, start=start, end=end
+                    self.win,
+                    lineWidth=self.lw,
+                    lineColor=color,
+                    start=start,
+                    end=end,
                 )
                 self.add_ob(stim, "sample")
 
@@ -136,14 +148,13 @@ class VisualSearch(PsychopyEnv):
             if np.sum(action**2) > 0.01:  # action = 0 means fixating
                 new_trial = self.abort
                 reward += self.rewards["abort"]
-        elif self.in_period("decision"):
-            if np.sum(action**2) > 0.01:
-                new_trial = True
-                if np.sum((action - gt) ** 2) < 0.01:
-                    reward += self.rewards["correct"]
-                    self.performance = 1
-                else:
-                    reward += self.rewards["fail"]
+        elif self.in_period("decision") and np.sum(action**2) > 0.01:
+            new_trial = True
+            if np.sum((action - gt) ** 2) < 0.01:
+                reward += self.rewards["correct"]
+                self.performance = 1
+            else:
+                reward += self.rewards["fail"]
 
         return (
             self.ob_now,

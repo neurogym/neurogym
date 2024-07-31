@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+from typing import ClassVar
 
 import numpy as np
 
@@ -8,21 +7,20 @@ from neurogym import spaces
 
 
 class EconomicDecisionMaking(ngym.TrialEnv):
-    r"""Economic decision making task.
+    """Economic decision making task.
 
     A agent chooses between two options. Each option offers a certain amount of
     juice. Its amount is indicated by the stimulus. The two options offer
     different types of juice, and the agent prefers one over another.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/nature04676",
-        "paper_name": """Neurons in the orbitofrontal cortex encode
-         economic value""",
+        "paper_name": "Neurons in the orbitofrontal cortex encode economic value",
         "tags": ["perceptual", "value-based"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None) -> None:
         super().__init__(dt=dt)
 
         # trial conditions
@@ -69,7 +67,11 @@ class EconomicDecisionMaking(ngym.TrialEnv):
             "n2": 6,  # amount for choice 1 or 2
         }
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(7,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(7,),
+            dtype=np.float32,
+            name=name,
         )
 
         self.act_dict = {"fixation": 0, "choice1": 1, "choice2": 2}
@@ -93,8 +95,8 @@ class EconomicDecisionMaking(ngym.TrialEnv):
         self.add_period(["fixation", "offer_on", "decision"])
 
         self.add_ob(1, ["fixation", "offer_on"], where="fixation")
-        self.add_ob(1, "offer_on", where=juice1 + "1")
-        self.add_ob(1, "offer_on", where=juice2 + "2")
+        self.add_ob(1, "offer_on", where=f"{juice1}1")
+        self.add_ob(1, "offer_on", where=f"{juice2}2")
         self.add_ob(n1 / 5.0, "offer_on", where="n1")
         self.add_ob(n2 / 5.0, "offer_on", where="n2")
 
@@ -114,26 +116,25 @@ class EconomicDecisionMaking(ngym.TrialEnv):
             if action != self.act_dict["fixation"]:
                 new_trial = self.abort
                 reward = self.rewards["abort"]
-        elif self.in_period("decision"):
-            if action in [self.act_dict["choice1"], self.act_dict["choice2"]]:
-                new_trial = True
+        elif self.in_period("decision") and action in {self.act_dict["choice1"], self.act_dict["choice2"]}:
+            new_trial = True
 
-                juice1, juice2 = trial["juice"]
+            juice1, _juice2 = trial["juice"]
 
-                n_b, n_a = trial["offer"]
-                r_a = n_a * self.R_A
-                r_b = n_b * self.R_B
+            n_b, n_a = trial["offer"]
+            r_a = n_a * self.R_A
+            r_b = n_b * self.R_B
 
-                if juice1 == "A":
-                    r1, r2 = r_a, r_b
-                else:
-                    r1, r2 = r_b, r_a
+            if juice1 == "A":
+                r1, r2 = r_a, r_b
+            else:
+                r1, r2 = r_b, r_a
 
-                if action == self.act_dict["choice1"]:
-                    reward = r1
-                    self.performance = r1 > r2
-                elif action == self.act_dict["choice2"]:
-                    reward = r2
-                    self.performance = r2 > r1
+            if action == self.act_dict["choice1"]:
+                reward = r1
+                self.performance = r1 > r2
+            elif action == self.act_dict["choice2"]:
+                reward = r2
+                self.performance = r2 > r1
 
         return obs, reward, terminated, truncated, {"new_trial": new_trial, "gt": 0}

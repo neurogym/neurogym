@@ -1,9 +1,7 @@
-import pytest
-
 import numpy as np
+
 from neurogym.utils.random import TruncExp
-from neurogym.wrappers import RandomGroundTruth
-from neurogym.utils.scheduler import RandomSchedule, RandomBlockSchedule
+from neurogym.utils.scheduler import RandomBlockSchedule, RandomSchedule
 
 
 def test_truncexp():
@@ -24,7 +22,7 @@ def test_randomschedule():
     schedule.reset()
     schedule.seed(0)
     b = [schedule() for i in range(1000)]
-    assert (np.array(a) == np.array(b)).all(), "RandomSchedule not " "reproducible"
+    assert (np.array(a) == np.array(b)).all(), "RandomSchedule not reproducible"
 
     schedule = RandomBlockSchedule(10, block_lens=[5] * 10)
     schedule.reset()
@@ -33,4 +31,4 @@ def test_randomschedule():
     schedule.reset()
     schedule.seed(0)
     b = [schedule() for i in range(1000)]
-    assert (np.array(a) == np.array(b)).all(), "RandomBlockSchedule not " "reproducible"
+    assert (np.array(a) == np.array(b)).all(), "RandomBlockSchedule not reproducible"

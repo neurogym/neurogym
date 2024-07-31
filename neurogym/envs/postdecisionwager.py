@@ -1,7 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-from __future__ import division
+from typing import ClassVar
 
 import numpy as np
 
@@ -10,7 +7,7 @@ from neurogym import spaces
 
 
 class PostDecisionWager(ngym.TrialEnv):
-    r"""Post-decision wagering task assessing confidence.
+    """Post-decision wagering task assessing confidence.
 
     The agent first performs a perceptual discrimination task (see for more
     details the PerceptualDecisionMaking task). On a random half of the
@@ -20,14 +17,14 @@ class PostDecisionWager(ngym.TrialEnv):
     option when it is uncertain about its perceptual decision.
     """
 
-    metadata = {
-        "paper_link": "https://science.sciencemag.org/content/324/5928/" + "759.long",
+    metadata: ClassVar[dict] = {
+        "paper_link": "https://science.sciencemag.org/content/324/5928/759.long",
         "paper_name": """Representation of Confidence Associated with a
          Decision by Neurons in the Parietal Cortex""",
         "tags": ["perceptual", "delayed response", "confidence"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, dim_ring=2, sigma=1.0):
+    def __init__(self, dt=100, rewards=None, timing=None, dim_ring=2, sigma=1.0) -> None:
         super().__init__(dt=dt)
 
         self.wagers = [True, False]
@@ -44,7 +41,7 @@ class PostDecisionWager(ngym.TrialEnv):
 
         self.timing = {
             "fixation": 100,
-            # 'target':  0,
+            # 'target':  0,  # noqa: ERA001
             "stimulus": ngym.random.TruncExp(180, 100, 900),
             "delay": ngym.random.TruncExp(1350, 1200, 1800),
             "pre_sure": lambda: self.rng.uniform(500, 750),
@@ -58,7 +55,11 @@ class PostDecisionWager(ngym.TrialEnv):
         # set action and observation space
         name = {"fixation": 0, "stimulus": [1, 2], "sure": 3}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(4,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(4,),
+            dtype=np.float32,
+            name=name,
         )
         name = {"fixation": 0, "choice": [1, 2], "sure": 3}
         self.action_space = spaces.Discrete(4, name=name)
@@ -123,18 +124,15 @@ class PostDecisionWager(ngym.TrialEnv):
             elif action == 3:  # sure option
                 if trial["wager"]:
                     reward = self.rewards["sure"]
-                    norm_rew = (reward - self.rewards["fail"]) / (
-                        self.rewards["correct"] - self.rewards["fail"]
-                    )
+                    norm_rew = (reward - self.rewards["fail"]) / (self.rewards["correct"] - self.rewards["fail"])
                     self.performance = norm_rew
                 else:
                     reward = self.rewards["abort"]
+            elif action == trial["ground_truth"]:
+                reward = self.rewards["correct"]
+                self.performance = 1
             else:
-                if action == trial["ground_truth"]:
-                    reward = self.rewards["correct"]
-                    self.performance = 1
-                else:
-                    reward = self.rewards["fail"]
+                reward = self.rewards["fail"]
 
         return (
             self.ob_now,

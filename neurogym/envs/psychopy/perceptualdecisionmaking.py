@@ -1,5 +1,7 @@
 """Random dot motion task."""
 
+from typing import ClassVar
+
 import numpy as np
 from psychopy import visual
 
@@ -9,15 +11,14 @@ from .psychopy_env import PsychopyEnv
 
 
 class RandomDotMotion(PsychopyEnv):
-    """Two-alternative forced choice task in which the subject has to
-    integrate two stimuli to decide which one is higher on average.
+    """Two-alternative forced choice task: subject has to integrate two stimuli to decide which is higher on average.
 
     Args:
         stim_scale: Controls the difficulty of the experiment. (def: 1., float)
         dim_ring: int, dimension of ring input and output
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.jneurosci.org/content/12/12/4745",
         "paper_name": """The analysis of visual motion: a comparison of
         neuronal and psychophysical performance""",
@@ -27,12 +28,14 @@ class RandomDotMotion(PsychopyEnv):
     def __init__(
         self,
         dt=16,
-        win_kwargs={"size": (100, 100)},
+        win_kwargs=None,
         rewards=None,
         timing=None,
         stim_scale=1.0,
         dim_ring=2,
-    ):
+    ) -> None:
+        if win_kwargs is None:
+            win_kwargs = {"size": (100, 100)}
         super().__init__(dt=dt, win_kwargs=win_kwargs)
         # The strength of evidence, modulated by stim_scale
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stim_scale
@@ -104,14 +107,13 @@ class RandomDotMotion(PsychopyEnv):
             if action != 0:  # action = 0 means fixating
                 new_trial = self.abort
                 reward += self.rewards["abort"]
-        elif self.in_period("decision"):
-            if action != 0:
-                new_trial = True
-                if action == gt:
-                    reward += self.rewards["correct"]
-                    self.performance = 1
-                else:
-                    reward += self.rewards["fail"]
+        elif self.in_period("decision") and action != 0:
+            new_trial = True
+            if action == gt:
+                reward += self.rewards["correct"]
+                self.performance = 1
+            else:
+                reward += self.rewards["fail"]
 
         return (
             self.ob_now,

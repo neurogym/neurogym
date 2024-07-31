@@ -1,5 +1,7 @@
 """Reaching to target."""
 
+from typing import ClassVar
+
 import numpy as np
 
 import neurogym as ngym
@@ -11,7 +13,7 @@ from neurogym.utils import tasktools
 # making it difficult for SL and RL to work together
 # TODO: Need to clean up this task
 class Reaching1D(ngym.TrialEnv):
-    r"""Reaching to the stimulus.
+    """Reaching to the stimulus.
 
     The agent is shown a stimulus during the fixation period. The stimulus
     encodes a one-dimensional variable such as a movement direction. At the
@@ -19,13 +21,13 @@ class Reaching1D(ngym.TrialEnv):
     towards the stimulus direction.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://science.sciencemag.org/content/233/4771/1416",
         "paper_name": "Neuronal population coding of movement direction",
         "tags": ["motor", "steps action space"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, dim_ring=16):
+    def __init__(self, dt=100, rewards=None, timing=None, dim_ring=16) -> None:
         super().__init__(dt=dt)
         # Rewards
         self.rewards = {"correct": +1.0, "fail": -0.1}
@@ -39,7 +41,11 @@ class Reaching1D(ngym.TrialEnv):
         # action and observation spaces
         name = {"self": range(dim_ring, 2 * dim_ring), "target": range(dim_ring)}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(2 * dim_ring,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(2 * dim_ring,),
+            dtype=np.float32,
+            name=name,
         )
         name = {"fixation": 0, "left": 1, "right": 2}
         self.action_space = spaces.Discrete(3, name=name)
@@ -84,23 +90,21 @@ class Reaching1D(ngym.TrialEnv):
                 (
                     self.rewards["correct"] - tasktools.circular_dist(self.state - gt),
                     self.rewards["fail"],
-                )
+                ),
             )
-            norm_rew = (reward - self.rewards["fail"]) / (
-                self.rewards["correct"] - self.rewards["fail"]
-            )
+            norm_rew = (reward - self.rewards["fail"]) / (self.rewards["correct"] - self.rewards["fail"])
             self.performance += norm_rew / self.dec_per_dur
 
         return self.ob_now, reward, terminated, truncated, {"new_trial": False}
 
     def post_step(self, ob, reward, terminated, truncated, info):
-        """Modify observation"""
+        """Modify observation."""
         ob[self.dim_ring :] = np.cos(self.theta - self.state)
         return ob, reward, terminated, truncated, info
 
 
 class Reaching1DWithSelfDistraction(ngym.TrialEnv):
-    r"""Reaching with self distraction.
+    """Reaching with self distraction.
 
     In this task, the reaching state itself generates strong inputs that
     overshadows the actual target input. This task is inspired by behavior
@@ -109,7 +113,7 @@ class Reaching1DWithSelfDistraction(ngym.TrialEnv):
     Similar phenomena in bats.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "description": """The agent has to reproduce the angle indicated
          by the observation. Furthermore, the reaching state itself
          generates strong inputs that overshadows the actual target input.""",
@@ -118,7 +122,7 @@ class Reaching1DWithSelfDistraction(ngym.TrialEnv):
         "tags": ["motor", "steps action space"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None):
+    def __init__(self, dt=100, rewards=None, timing=None) -> None:
         super().__init__(dt=dt)
         # Rewards
         self.rewards = {"correct": +1.0, "fail": -0.1}
@@ -132,7 +136,10 @@ class Reaching1DWithSelfDistraction(ngym.TrialEnv):
         # action and observation spaces
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(32,), dtype=np.float32
+            -np.inf,
+            np.inf,
+            shape=(32,),
+            dtype=np.float32,
         )
         self.theta = np.arange(0, 2 * np.pi, 2 * np.pi / 32)
         self.state = np.pi
@@ -177,11 +184,9 @@ class Reaching1DWithSelfDistraction(ngym.TrialEnv):
                 (
                     self.rewards["correct"] - tasktools.circular_dist(self.state - gt),
                     self.rewards["fail"],
-                )
+                ),
             )
-            norm_rew = (reward - self.rewards["fail"]) / (
-                self.rewards["correct"] - self.rewards["fail"]
-            )
+            norm_rew = (reward - self.rewards["fail"]) / (self.rewards["correct"] - self.rewards["fail"])
             self.performance += norm_rew / self.dec_per_dur
 
         return self.ob_now, reward, terminated, truncated, {"new_trial": False}

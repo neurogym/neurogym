@@ -22,22 +22,20 @@ def _get_envs(foldername=None, env_prefix=None, allow_list=None):
         env_prefix: str or None, if not None, add this prefix to all env ids
         allow_list: list of allowed env name, for manual curation
     """
-
     if env_prefix is None:
         env_prefix = ""
-    else:
-        if env_prefix[-1] != ".":
-            env_prefix = env_prefix + "."
+    elif env_prefix[-1] != ".":
+        env_prefix += "."
 
     if allow_list is None:
-        allow_list = list()
+        allow_list = []
 
     # Root path of neurogym.envs folder
     env_root = Path(__file__).resolve().parent
     lib_root = "neurogym.envs."
     if foldername is not None:
-        env_root = env_root / foldername
-        lib_root = lib_root + foldername + "."
+        env_root /= foldername
+        lib_root = f"{lib_root}{foldername}."
 
     # Only take .py files
     files = [p for p in env_root.iterdir() if p.suffix == ".py"]
@@ -48,12 +46,11 @@ def _get_envs(foldername=None, env_prefix=None, allow_list=None):
 
     env_dict = {}
     for filename in filenames:
-        # lib = 'neurogym.envs.collections.' + l
         lib = lib_root + filename
         module = importlib.import_module(lib)
-        for name, val in getmembers(module):
+        for name, _val in getmembers(module):
             if name in allow_list:
-                env_dict[env_prefix + name + "-v0"] = lib + ":" + name
+                env_dict[f"{env_prefix}{name}-v0"] = f"{lib}:{name}"
 
     return env_dict
 
@@ -68,7 +65,7 @@ NATIVE_ALLOW_LIST = [
     "DelayMatchSample",
     "DelayMatchSampleDistractor1D",
     "DelayPairedAssociation",
-    # 'Detection',  # TODO: Temporary removing until bug fixed
+    # 'Detection',  # TODO: Temporary removing until bug fixed # noqa: ERA001
     "DualDelayMatchSample",
     "EconomicDecisionMaking",
     "GoNogo",
@@ -88,20 +85,22 @@ NATIVE_ALLOW_LIST = [
     "ReachingDelayResponse",
     "ReadySetGo",
     "SingleContextDecisionMaking",
-    # 'SpatialSuppressMotion',  # TODO: raises ModuleNotFound error since requires scipy, which is not in the requirements of neurogym
-    # 'ToneDetection'  # TODO: Temporary removing until bug fixed
+    # 'SpatialSuppressMotion',   # noqa: ERA001
+    # TODO: raises ModuleNotFound error since requires scipy, which is not in the requirements of neurogym.
+    # FIXME: I have added scipy to requirements (for other reason), does this mean SpatialSuppressMotion is valid?
+    # 'ToneDetection'  # TODO: Temporary removing until bug fixed # noqa: ERA001
 ]
 ALL_NATIVE_ENVS = _get_envs(
-    foldername=None, env_prefix=None, allow_list=NATIVE_ALLOW_LIST
+    foldername=None,
+    env_prefix=None,
+    allow_list=NATIVE_ALLOW_LIST,
 )
 
 _psychopy_prefix = "neurogym.envs.psychopy."
 ALL_PSYCHOPY_ENVS = {
-    "psychopy.RandomDotMotion-v0": _psychopy_prefix
-    + "perceptualdecisionmaking:RandomDotMotion",
+    "psychopy.RandomDotMotion-v0": _psychopy_prefix + "perceptualdecisionmaking:RandomDotMotion",
     "psychopy.VisualSearch-v0": _psychopy_prefix + "visualsearch:VisualSearch",
-    "psychopy.SpatialSuppressMotion-v0": _psychopy_prefix
-    + "spatialsuppressmotion:SpatialSuppressMotion",
+    "psychopy.SpatialSuppressMotion-v0": _psychopy_prefix + "spatialsuppressmotion:SpatialSuppressMotion",
 }
 
 _contrib_name_prefix = "contrib."
@@ -116,7 +115,9 @@ CONTRIB_ALLOW_LIST = [
     # 'Pneumostomeopening'
 ]
 ALL_CONTRIB_ENVS = _get_envs(
-    foldername="contrib", env_prefix="contrib", allow_list=CONTRIB_ALLOW_LIST
+    foldername="contrib",
+    env_prefix="contrib",
+    allow_list=CONTRIB_ALLOW_LIST,
 )
 
 
@@ -127,19 +128,16 @@ def _get_collection_envs():
     Each environment is named collection_name.env_name-v0
     """
     derived_envs = {}
-    # collection_libs = ['perceptualdecisionmaking', 'yang19', 'priors']
     # TODO: Temporary disabling priors task
     collection_libs = ["perceptualdecisionmaking", "yang19"]
-    for l in collection_libs:
-        lib = "neurogym.envs.collections." + l
+    for collection_lib in collection_libs:
+        lib = f"neurogym.envs.collections.{collection_lib}"
         module = importlib.import_module(lib)
-        envs = [
-            name for name, val in getmembers(module) if isfunction(val) or isclass(val)
-        ]
+        envs = [name for name, val in getmembers(module) if isfunction(val) or isclass(val)]
         envs = [env for env in envs if env[0] != "_"]  # ignore private members
         # TODO: check is instance gym.env
-        env_dict = {l + "." + env + "-v0": lib + ":" + env for env in envs}
-        valid_envs = get_collection(l)
+        env_dict = {f"{collection_lib}.{env}-v0": f"{lib}:{env}" for env in envs}
+        valid_envs = get_collection(collection_lib)
         derived_envs.update({key: env_dict[key] for key in valid_envs})
     return derived_envs
 
@@ -160,21 +158,21 @@ def all_envs(tag=None, psychopy=False, contrib=False, collections=False):
         envs.update(ALL_CONTRIB_ENVS)
     if collections:
         envs.update(ALL_COLLECTIONS_ENVS)
-    env_list = sorted(list(envs.keys()))
+    env_list = sorted(envs.keys())
     if tag is None:
         return env_list
-    else:
-        if not isinstance(tag, str):
-            raise ValueError("tag must be str, but got ", type(tag))
+    if not isinstance(tag, str):
+        msg = f"{type(tag)=} must be a string."
+        raise TypeError(msg)
 
-        new_env_list = list()
-        for env in env_list:
-            from_, class_ = envs[env].split(":")
-            imported = getattr(__import__(from_, fromlist=[class_]), class_)
-            env_tag = imported.metadata.get("tags", [])
-            if tag in env_tag:
-                new_env_list.append(env)
-        return new_env_list
+    new_env_list = []
+    for env in env_list:
+        from_, class_ = envs[env].split(":")
+        imported = getattr(__import__(from_, fromlist=[class_]), class_)
+        env_tag = imported.metadata.get("tags", [])
+        if tag in env_tag:
+            new_env_list.append(env)
+    return new_env_list
 
 
 def all_tags():
@@ -201,9 +199,11 @@ def all_tags():
 def _distance(s0, s1):
     # Copyright (c) 2018 luozhouyang
     if s0 is None:
-        raise TypeError("Argument s0 is NoneType.")
+        msg = "Argument s0 is NoneType."
+        raise TypeError(msg)
     if s1 is None:
-        raise TypeError("Argument s1 is NoneType.")
+        msg = "Argument s1 is NoneType."
+        raise TypeError(msg)
     if s0 == s1:
         return 0.0
     if len(s0) == 0:
@@ -229,29 +229,29 @@ def _distance(s0, s1):
     return v0[len(s1)]
 
 
-def make(id, **kwargs):
+def make(id_, **kwargs):
     try:
         # TODO: disable gym 0.24 env_checker for now (raises warnings, even errors when ob not in observation_space)
+        # FIXME: is this still relevant for gymnasium?
         if version.parse(gym.__version__) >= version.parse("0.24.0"):
-            return gym.make(id, disable_env_checker=True, **kwargs)
-        else:
-            return gym.make(id, **kwargs)
+            return gym.make(id_, disable_env_checker=True, **kwargs)
+        return gym.make(id_, **kwargs)
 
-    except gym.error.UnregisteredEnv:
+    except gym.error.UnregisteredEnv as e:
         # backward compatibility with old versions of gym
         if hasattr(gym.envs.registry, "all"):
             all_ids = [env.id for env in gym.envs.registry.all()]
         else:
             all_ids = [env.id for env in gym.envs.registry.values()]
 
-        dists = [_distance(id, env_id) for env_id in all_ids]
+        dists = [_distance(id_, env_id) for env_id in all_ids]
         # Python argsort
         sort_inds = sorted(range(len(dists)), key=dists.__getitem__)
         env_guesses = [all_ids[sort_inds[i]] for i in range(5)]
-        err_msg = "No registered env with id: {}.\nDo you mean:\n".format(id)
+        err_msg = f"No registered env with id_: {id_}.\nDo you mean:\n"
         for env_guess in env_guesses:
-            err_msg += "    " + env_guess + "\n"
-        raise gym.error.UnregisteredEnv(err_msg)
+            err_msg += f"    {env_guess}\n"
+        raise gym.error.UnregisteredEnv(err_msg) from e
 
 
 # backward compatibility with old versions of gym
@@ -261,10 +261,10 @@ else:
     _all_gym_envs = [env.id for env in gym.envs.registry.values()]
 
 
-def register(id, **kwargs):
-    if id not in _all_gym_envs:
-        gym.envs.registration.register(id=id, **kwargs)
+def register(id_, **kwargs) -> None:
+    if id_ not in _all_gym_envs:
+        gym.envs.registration.register(id=id_, **kwargs)
 
 
 for env_id, entry_point in ALL_EXTENDED_ENVS.items():
-    register(id=env_id, entry_point=entry_point)
+    register(id_=env_id, entry_point=entry_point)

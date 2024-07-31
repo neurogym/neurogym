@@ -1,4 +1,6 @@
-"""Multi-Sensory Integration"""
+"""Multi-Sensory Integration."""
+
+from typing import ClassVar
 
 import numpy as np
 
@@ -10,7 +12,7 @@ from neurogym import spaces
 # TODO: In this current implementation, the two stimuli always point to the
 #  same direction, check original
 class MultiSensoryIntegration(ngym.TrialEnv):
-    r"""Multi-sensory integration.
+    """Multi-sensory integration.
 
     Two stimuli are shown in two input modalities. Each stimulus points to
     one of the possible responses with a certain strength (coherence). The
@@ -19,14 +21,14 @@ class MultiSensoryIntegration(ngym.TrialEnv):
     from both modalities equally.
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "description": None,
         "paper_link": None,
         "paper_name": None,
         "tags": ["perceptual", "two-alternative", "supervised"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0, dim_ring=2):
+    def __init__(self, dt=100, rewards=None, timing=None, sigma=1.0, dim_ring=2) -> None:
         super().__init__(dt=dt)
 
         # trial conditions
@@ -55,7 +57,11 @@ class MultiSensoryIntegration(ngym.TrialEnv):
             "stimulus_mod2": range(dim_ring + 1, 2 * dim_ring + 1),
         }
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(1 + 2 * dim_ring,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(1 + 2 * dim_ring,),
+            dtype=np.float32,
+            name=name,
         )
 
         name = {"fixation": 0, "choice": range(1, dim_ring + 1)}
@@ -103,11 +109,10 @@ class MultiSensoryIntegration(ngym.TrialEnv):
             if action != 0:
                 new_trial = self.abort
                 reward = self.rewards["abort"]
-        elif self.in_period("decision"):
-            if action != 0:  # broke fixation
-                new_trial = True
-                if action == gt:
-                    reward = self.rewards["correct"]
-                    self.performance = 1
+        elif self.in_period("decision") and action != 0:  # broke fixation
+            new_trial = True
+            if action == gt:
+                reward = self.rewards["correct"]
+                self.performance = 1
 
         return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}

@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Ready-set-go task."""
+
+from typing import ClassVar
 
 import numpy as np
 
@@ -9,7 +9,7 @@ from neurogym import spaces
 
 
 class ReadySetGo(ngym.TrialEnv):
-    r"""Agents have to measure and produce different time intervals.
+    """Agents have to measure and produce different time intervals.
 
     A stimulus is briefly shown during a ready period, then again during a
     set period. The ready and set periods are separated by a measure period,
@@ -24,15 +24,14 @@ class ReadySetGo(ngym.TrialEnv):
             time within which the agent receives proportional reward
     """
 
-    metadata = {
-        "paper_link": "https://www.sciencedirect.com/science/article/pii/"
-        + "S0896627318304185",
+    metadata: ClassVar[dict] = {
+        "paper_link": "https://www.sciencedirect.com/science/article/pii/S0896627318304185",
         "paper_name": """Flexible Sensorimotor Computations through Rapid
         Reconfiguration of Cortical Dynamics""",
         "tags": ["timing", "go-no-go", "supervised"],
     }
 
-    def __init__(self, dt=80, rewards=None, timing=None, gain=1, prod_margin=0.2):
+    def __init__(self, dt=80, rewards=None, timing=None, gain=1, prod_margin=0.2) -> None:
         super().__init__(dt=dt)
         self.prod_margin = prod_margin
 
@@ -56,7 +55,11 @@ class ReadySetGo(ngym.TrialEnv):
         # set action and observation space
         name = {"fixation": 0, "ready": 1, "set": 2}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(3,),
+            dtype=np.float32,
+            name=name,
         )
 
         name = {"fixation": 0, "go": 1}
@@ -94,47 +97,44 @@ class ReadySetGo(ngym.TrialEnv):
         ob = self.ob_now
         gt = self.gt_now
         new_trial = False
-        if self.in_period("fixation"):
-            if action != 0:
-                new_trial = self.abort
-                reward = self.rewards["abort"]
-        if self.in_period("production"):
-            if action == 1:
-                new_trial = True  # terminate
-                # time from end of measure:
-                t_prod = self.t - self.end_t["measure"]
-                eps = abs(t_prod - trial["production"])
-                # actual production time
-                eps_threshold = self.prod_margin * trial["production"] + 25
-                if eps > eps_threshold:
-                    reward = self.rewards["fail"]
-                else:
-                    reward = (1.0 - eps / eps_threshold) ** 1.5
-                    reward = max(reward, 0.1)
-                    reward *= self.rewards["correct"]
-                    self.performance = 1
+        if self.in_period("fixation") and action != 0:
+            new_trial = self.abort
+            reward = self.rewards["abort"]
+        if self.in_period("production") and action == 1:
+            new_trial = True  # terminate
+            # time from end of measure:
+            t_prod = self.t - self.end_t["measure"]
+            eps = abs(t_prod - trial["production"])
+            # actual production time
+            eps_threshold = self.prod_margin * trial["production"] + 25
+            if eps > eps_threshold:
+                reward = self.rewards["fail"]
+            else:
+                reward = (1.0 - eps / eps_threshold) ** 1.5
+                reward = max(reward, 0.1)
+                reward *= self.rewards["correct"]
+                self.performance = 1
 
         return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}
 
 
 class MotorTiming(ngym.TrialEnv):
-    """Agents have to produce different time intervals
-    using different effectors (actions).
+    """Agents have to produce different time intervals using different effectors (actions).
 
     Args:
         prod_margin: controls the interval around the ground truth production
-                    time within which the agent receives proportional reward
+            time within which the agent receives proportional reward.
     """
 
     #  TODO: different actions not implemented
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/s41593-017-0028-6",
         "paper_name": """Flexible timing by temporal scaling of
          cortical responses""",
         "tags": ["timing", "go-no-go", "supervised"],
     }
 
-    def __init__(self, dt=80, rewards=None, timing=None, prod_margin=0.2):
+    def __init__(self, dt=80, rewards=None, timing=None, prod_margin=0.2) -> None:
         super().__init__(dt=dt)
         self.prod_margin = prod_margin
         self.production_ind = [0, 1]
@@ -158,7 +158,10 @@ class MotorTiming(ngym.TrialEnv):
         self.action_space = spaces.Discrete(2)  # (fixate, go)
         # Fixation, Interval indicator x2, Set
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(4,), dtype=np.float32
+            -np.inf,
+            np.inf,
+            shape=(4,),
+            dtype=np.float32,
         )
 
     def _new_trial(self, **kwargs):
@@ -196,44 +199,41 @@ class MotorTiming(ngym.TrialEnv):
         ob = self.ob_now
         gt = self.gt_now
         new_trial = False
-        if self.in_period("fixation"):
-            if action != 0:
-                new_trial = self.abort
-                reward = self.rewards["abort"]
-        if self.in_period("production"):
-            if action == 1:
-                new_trial = True  # terminate
-                t_prod = self.t - self.end_t["set"]  # time from end of measure
-                eps = abs(t_prod - trial["production"])
-                # actual production time
-                eps_threshold = self.prod_margin * trial["production"] + 25
-                if eps > eps_threshold:
-                    reward = self.rewards["fail"]
-                else:
-                    reward = (1.0 - eps / eps_threshold) ** 1.5
-                    reward = max(reward, 0.1)
-                    reward *= self.rewards["correct"]
-                    self.performance = 1
+        if self.in_period("fixation") and action != 0:
+            new_trial = self.abort
+            reward = self.rewards["abort"]
+        if self.in_period("production") and action == 1:
+            new_trial = True  # terminate
+            t_prod = self.t - self.end_t["set"]  # time from end of measure
+            eps = abs(t_prod - trial["production"])
+            # actual production time
+            eps_threshold = self.prod_margin * trial["production"] + 25
+            if eps > eps_threshold:
+                reward = self.rewards["fail"]
+            else:
+                reward = (1.0 - eps / eps_threshold) ** 1.5
+                reward = max(reward, 0.1)
+                reward *= self.rewards["correct"]
+                self.performance = 1
 
         return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}
 
 
 class OneTwoThreeGo(ngym.TrialEnv):
-    r"""Agents reproduce time intervals based on two samples.
+    """Agents reproduce time intervals based on two samples.
 
     Args:
         prod_margin: controls the interval around the ground truth production
                     time within which the agent receives proportional reward
     """
 
-    metadata = {
+    metadata: ClassVar[dict] = {
         "paper_link": "https://www.nature.com/articles/s41593-019-0500-6",
-        "paper_name": "Internal models of sensorimotor integration "
-        "regulate cortical dynamics",
+        "paper_name": "Internal models of sensorimotor integration regulate cortical dynamics",
         "tags": ["timing", "go-no-go", "supervised"],
     }
 
-    def __init__(self, dt=80, rewards=None, timing=None, prod_margin=0.2):
+    def __init__(self, dt=80, rewards=None, timing=None, prod_margin=0.2) -> None:
         super().__init__(dt=dt)
 
         self.prod_margin = prod_margin
@@ -261,7 +261,11 @@ class OneTwoThreeGo(ngym.TrialEnv):
         # set action and observation space
         name = {"fixation": 0, "stimulus": 1, "target": 2}
         self.observation_space = spaces.Box(
-            -np.inf, np.inf, shape=(3,), dtype=np.float32, name=name
+            -np.inf,
+            np.inf,
+            shape=(3,),
+            dtype=np.float32,
+            name=name,
         )
         name = {"fixation": 0, "go": 1}
         self.action_space = spaces.Discrete(2, name=name)
@@ -316,9 +320,8 @@ class OneTwoThreeGo(ngym.TrialEnv):
                     reward = max(reward, 0.1)
                     reward *= self.rewards["correct"]
                     self.performance = 1
-        else:
-            if action != 0:
-                new_trial = self.abort
-                reward = self.rewards["abort"]
+        elif action != 0:
+            new_trial = self.abort
+            reward = self.rewards["abort"]
 
         return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}

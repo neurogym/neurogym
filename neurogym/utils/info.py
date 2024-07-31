@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Formatting information about envs and wrappers."""
 
 import inspect
@@ -10,18 +8,18 @@ from neurogym.envs.registration import ALL_ENVS, all_envs
 from neurogym.wrappers import ALL_WRAPPERS
 
 
-def all_tasks():
+def all_tasks() -> None:
     for task in sorted(ALL_ENVS):
         print(task)
 
 
-def all_wrappers():
+def all_wrappers() -> None:
     for wrapper in sorted(ALL_WRAPPERS):
         print(wrapper)
 
 
 def info(env=None, show_code=False):
-    """Script to get envs info"""
+    """Script to get envs info."""
     string = ""
     env_name = env
     env = ngym.make(env)
@@ -40,7 +38,7 @@ def info(env=None, show_code=False):
 
 
 def info_wrapper(wrapper=None, show_code=False):
-    """Script to get wrappers info"""
+    """Script to get wrappers info."""
     string = ""
 
     wrapp_ref = ALL_WRAPPERS[wrapper]
@@ -51,23 +49,23 @@ def info_wrapper(wrapper=None, show_code=False):
     if not isinstance(metadata, dict):
         metadata = {}
 
-    string += "### {:s}\n\n".format(wrapper)
+    string += f"### {wrapper}\n\n"
     paper_name = metadata.get("paper_name", None)
     paper_link = metadata.get("paper_link", None)
     wrapper_description = metadata.get("description", None) or "Missing description"
-    string += "Logic: {:s}\n\n".format(wrapper_description)
+    string += f"Logic: {wrapper_description}\n\n"
     if paper_name is not None:
         string += "Reference paper \n\n"
         if paper_link is None:
-            string += "{:s}\n\n".format(paper_name)
+            string += f"{paper_name}\n\n"
         else:
-            string += "[{:s}]({:s})\n\n".format(paper_name, paper_link)
+            string += f"[{paper_name}]({paper_link})\n\n"
     # add extra info
     other_info = list(set(metadata.keys()) - set(METADATA_DEF_KEYS))
     if len(other_info) > 0:
         string += "Input parameters: \n\n"
         for key in other_info:
-            string += key + " : " + str(metadata[key]) + "\n\n"
+            string += f"{key} : {metadata[key]}\n\n"
 
     # show source code
     if show_code:
@@ -79,7 +77,7 @@ def info_wrapper(wrapper=None, show_code=False):
 
 
 def all_tags(verbose=0):
-    """Script to get all tags"""
+    """Script to get all tags."""
     envs = all_envs()
     tags = []
     for env_name in sorted(envs):
@@ -87,7 +85,7 @@ def all_tags(verbose=0):
             env = ngym.make(env_name)
             metadata = env.metadata
             tags += metadata.get("tags", [])
-        except BaseException as e:
+        except BaseException as e:  # noqa: BLE001, PERF203 # FIXME: unclear which error is expected here.
             print("Failure in ", env_name)
             print(e)
     tags = set(tags)
@@ -100,8 +98,3 @@ def all_tags(verbose=0):
 
 if __name__ == "__main__":
     all_tasks()
-    # get_all_tags(verbose=1)
-    # info(tags=['supervised', 'n-alternative'])
-    # info('PerceptualDecisionMaking-v0', show_code=True)
-    # info('PerceptualDecisionMaking-v0', show_code=True, show_fig=True)
-#    info_wrapper('ReactionTime-v0', show_code=True)
