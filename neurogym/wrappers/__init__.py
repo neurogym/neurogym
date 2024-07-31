@@ -21,4 +21,4 @@ ALL_WRAPPERS = {
 
 
 def all_wrappers():
-    return sorted(ALL_WRAPPERS.keys())
+    return sorted(ALL_WRAPPERS)

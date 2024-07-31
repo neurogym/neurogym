@@ -237,7 +237,7 @@ def make(id_, **kwargs):
             return gym.make(id_, disable_env_checker=True, **kwargs)
         return gym.make(id_, **kwargs)
 
-    except gym.error.UnregisteredEnv as e:  # FIXME: check if this is still relevant when using gymnasium
+    except gym.error.UnregisteredEnv as e:
         # backward compatibility with old versions of gym
         if hasattr(gym.envs.registry, "all"):
             all_ids = [env.id for env in gym.envs.registry.all()]
