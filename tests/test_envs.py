@@ -59,16 +59,12 @@ def test_run_all(verbose_success=False):
 
 def _test_dataset(env):
     """Main function for testing if an environment is healthy."""
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
-        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-
-        print("Testing Environment:", env)
-        kwargs = {"dt": 20}
-        dataset = Dataset(env, env_kwargs=kwargs, batch_size=16, seq_len=300, cache_len=1e4)
-        for _ in range(10):
-            inputs, target = dataset()
-            assert inputs.shape[0] == target.shape[0]
+    print("Testing Environment:", env)
+    kwargs = {"dt": 20}
+    dataset = Dataset(env, env_kwargs=kwargs, batch_size=16, seq_len=300, cache_len=1e4)
+    for _ in range(10):
+        inputs, target = dataset()
+        assert inputs.shape[0] == target.shape[0]
 
 
 def test_dataset_all():
@@ -78,6 +74,8 @@ def test_dataset_all():
         warnings.filterwarnings("ignore", message=".*is not within the observation space*")
         warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
         warnings.filterwarnings("ignore", message=".*method was expecting a numpy array*")
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
         success_count = 0
         total_count = len(ngym.all_envs())
         supervised_count = len(ngym.all_envs(tag="supervised"))
@@ -131,52 +129,48 @@ def test_trialenv_all():
 
 def _test_seeding(env):
     """Test if environments are replicable."""
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
-        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        if env is None:
-            env = ngym.all_envs()[0]
+    if env is None:
+        env = ngym.all_envs()[0]
 
-        if isinstance(env, str):
-            kwargs = {"dt": 20}
-            env = ngym.make(env, **kwargs)
-        elif not isinstance(env, gym.Env):
-            msg = f"{type(env)=} must be a string or a gym.Env"
-            raise TypeError(msg)
+    if isinstance(env, str):
+        kwargs = {"dt": 20}
+        env = ngym.make(env, **kwargs)
+    elif not isinstance(env, gym.Env):
+        msg = f"{type(env)=} must be a string or a gym.Env"
+        raise TypeError(msg)
 
-        env.seed(SEED)
-        env.reset()
-        ob_mat = []
-        rew_mat = []
-        act_mat = []
-        for _ in range(100):
-            action = env.action_space.sample()
-            ob, rew, terminated, _truncated, _info = env.step(action)
-            ob_mat.append(ob)
-            rew_mat.append(rew)
-            act_mat.append(action)
-            if terminated:
-                env.reset()
-        ob_mat = np.array(ob_mat)
-        rew_mat = np.array(rew_mat)
-        act_mat = np.array(act_mat)
-        # FIXME: given the returns below, it seems as though this should be the helper function for the test below
-        # rather than its own test, except that the first env is chosen seemingly arbitrarily. This can be done in next
-        # fucntion instead to avoid the returns in an actual test. This should maybe be implemented for other tests here
-        # as well
-        return ob_mat, rew_mat, act_mat
+    env.seed(SEED)
+    env.reset()
+    ob_mat = []
+    rew_mat = []
+    act_mat = []
+    for _ in range(100):
+        action = env.action_space.sample()
+        ob, rew, terminated, _truncated, _info = env.step(action)
+        ob_mat.append(ob)
+        rew_mat.append(rew)
+        act_mat.append(action)
+        if terminated:
+            env.reset()
+    ob_mat = np.array(ob_mat)
+    rew_mat = np.array(rew_mat)
+    act_mat = np.array(act_mat)
+    return ob_mat, rew_mat, act_mat
 
 
 # TODO: there is one env for which it sometimes raises an error
 def test_seeding_all():
     """Test if all environments are replicable."""
-    for env_name in sorted(ENVS_NOPSYCHOPY):
-        print(f"Running env: {env_name}")
-        obs1, rews1, acts1 = _test_seeding(env_name)
-        obs2, rews2, acts2 = _test_seeding(env_name)
-        assert (obs1 == obs2).all(), "obs are not identical"
-        assert (rews1 == rews2).all(), "rewards are not identical"
-        assert (acts1 == acts2).all(), "actions are not identical"
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        for env_name in sorted(ENVS_NOPSYCHOPY):
+            print(f"Running env: {env_name}")
+            obs1, rews1, acts1 = _test_seeding(env_name)
+            obs2, rews2, acts2 = _test_seeding(env_name)
+            assert (obs1 == obs2).all(), "obs are not identical"
+            assert (rews1 == rews2).all(), "rewards are not identical"
+            assert (acts1 == acts2).all(), "actions are not identical"
 
 
 def test_plot_all():
