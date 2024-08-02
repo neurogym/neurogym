@@ -1,6 +1,7 @@
 """Test speed of various code."""
 
 import time
+import warnings
 
 import gymnasium as gym
 import pytest
@@ -63,14 +64,20 @@ def test_speed_with_new_trial(env):
 
 def test_speed_all():
     """Test speed of all experiments."""
-    for env_name in sorted(ngym.all_envs()):
-        print(f"Running env: {env_name:s}")
-        try:
-            speed(env_name)
-            print("Success")
-        except Exception as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
-            print(f"Failure at running env: {env_name:s}")
-            print(e)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        warnings.filterwarnings("ignore", message=".*is not within the observation space*")
+        warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
+        warnings.filterwarnings("ignore", message=".*method was expecting a numpy array*")
+        warnings.filterwarnings("ignore", message=".*Casting input x to numpy array.*")
+        for env_name in sorted(ngym.all_envs()):
+            print(f"Running env: {env_name:s}")
+            try:
+                speed(env_name)
+                print("Success")
+            except Exception as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
+                print(f"Failure at running env: {env_name:s}")
+                print(e)
 
 
 def speed_dataset(env):
@@ -96,14 +103,21 @@ def speed_dataset(env):
 
 def test_speed_dataset_all():
     """Test dataset speed of all experiments."""
-    for env_name in sorted(ngym.all_envs()):
-        print(f"Running env: {env_name:s}")
-        try:
-            speed_dataset(env_name)
-            print("Success")
-        except BaseException as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
-            print(f"Failure at running env: {env_name:s}")
-            print(e)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        warnings.filterwarnings("ignore", message=".*is not within the observation space*")
+        warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
+        warnings.filterwarnings("ignore", message=".*method was expecting a numpy array*")
+        warnings.filterwarnings("ignore", message=".*Casting input x to numpy array.*")
+        for env_name in sorted(ngym.all_envs()):
+            print(f"Running env: {env_name:s}")
+            try:
+                speed_dataset(env_name)
+                print("Success")
+            except BaseException as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
+                print(f"Failure at running env: {env_name:s}")
+                print(e)
 
 
 if __name__ == "__main__":
