@@ -88,6 +88,7 @@ class AnnubesEnv(TrialEnv):
         self.set_groundtruth(groundtruth, period="decision", where="choice")
 
         # Trial information
+        # TODO: align groundtruth to annubes
         trial = {
             "ground_truth": groundtruth,
         }
