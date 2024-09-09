@@ -18,6 +18,7 @@ class AnnubesEnv(TrialEnv):
         n_outputs=2,
         output_behavior=None,
         noise_std=0.01,
+        reward_dict=None,
         random_seed=None,
     ):
         if output_behavior is None:
@@ -48,6 +49,9 @@ class AnnubesEnv(TrialEnv):
             random_seed = rng.integers(2**32)
         self._rng = np.random.default_rng(random_seed)
         self._random_seed = random_seed
+        # Rewards
+        if reward_dict is None:
+            self.reward_dict = {"abort": -0.1, "correct": +1.0, "fail": 0.0}
         self.timing = {"fixation": self.fix_time, "stimulus": self.stim_time}
         # Set the name of each input dimension
         obs_space_name = {"fixation": 0, "start": 1, "v": 2, "a": 3}
@@ -63,8 +67,6 @@ class AnnubesEnv(TrialEnv):
             self.n_outputs,
             name={"fixation": self.output_behavior[0], "choice": self.output_behavior},
         )
-        # Rewards
-        self.rewards = {"abort": -0.1, "correct": +1.0, "fail": 0.0}
 
     def _new_trial(self):
         # Reset trial-related variables
