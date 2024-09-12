@@ -31,11 +31,9 @@ jobs:
           pip install gymnasium==${{ matrix.gymnasium-version }}
 
       - name: Test with pytest
-        continue-on-error: true
         run: pytest tests -v
 
       - name: Linting check
-        continue-on-error: true
         run: |
           ruff -V
           ruff check
