@@ -5,6 +5,45 @@ from neurogym import TrialEnv
 
 
 class AnnubesEnv(TrialEnv):
+    """General class for the Annubes type of tasks.
+
+    Args:
+        session: Configuration of the trials that can appear during a session.
+            It is given by a dictionary representing the ratio (values) of the different trials (keys) within the task.
+            Trials with a single modality (e.g., a visual trial) must be represented by single characters, while trials
+            with multiple modalities (e.g., an audiovisual trial) are represented by the character combination of those
+            trials. Note that values are read relative to each other, such that e.g. `{"v": 0.25, "a": 0.75}` is
+            equivalent to `{"v": 1, "a": 3}`.
+            Defaults to {"v": 0.5, "a": 0.5}.
+        stim_intensities: List of possible intensity values of each stimulus, when the stimulus is present. Note that
+            when the stimulus is not present, the intensity is set to 0.
+            Defaults to [0.8, 0.9, 1].
+        stim_time: Duration of each stimulus in ms.
+            Defaults to 1000.
+        decision_time: Duration of the decision period in ms.
+            Defaults to 100.
+        catch_prob: Probability of catch trials in the session. Must be between 0 and 1 (inclusive).
+            Defaults to 0.5.
+        fix_intensity: Intensity of input signal during fixation.
+            Defaults to 0.
+        fix_time: Fixation time in ms. Note that the duration of each input and output signal is increased by this time.
+            Defaults to 100.
+        dt: Time step in ms.
+            Defaults to 100.
+        tau: Time constant in ms.
+            Defaults to 100.
+        n_outputs: Number of possible outputs, signaling different behavioral choices.
+            Defaults to 2.
+        output_behavior: List of possible intensity values of the behavioral output. Currently only the smallest and
+            largest value of this list are used.
+            Defaults to [0, 1].
+        noise_std: Standard deviation of the input noise.
+            Defaults to 0.01.
+        random_seed: Seed for numpy's random number generator (rng). If an int is given, it will be used as the seed
+            for `np.random.default_rng()`.
+            Defaults to None (i.e. the initial state itself is random).
+    """
+
     def __init__(
         self,
         session=None,
@@ -21,6 +60,8 @@ class AnnubesEnv(TrialEnv):
         noise_std=0.01,
         random_seed=None,
     ):
+        if session is None:
+            session = {"v": 0.5, "a": 0.5}
         if output_behavior is None:
             output_behavior = [0, 1]
         if stim_intensities is None:
@@ -28,8 +69,7 @@ class AnnubesEnv(TrialEnv):
         if session is None:
             session = {"v": 0.5, "a": 0.5}
         super().__init__(dt=dt)
-
-        self.session = session
+        self.session = {i: session[i] / sum(session.values()) for i in session}
         self.stim_intensities = stim_intensities
         self.stim_time = stim_time
         self.decision_time = decision_time
@@ -63,6 +103,11 @@ class AnnubesEnv(TrialEnv):
         self.rewards = {"abort": -0.1, "correct": +1.0, "fail": 0.0}
 
     def _new_trial(self):
+        """Internal method to generate a new trial.
+
+        Returns:
+            A dictionary containing the information of the new trial.
+        """
         # Setting time periods and their order for this trial
         self.add_period(["fixation", "stimulus", "decision"])
 
@@ -87,14 +132,19 @@ class AnnubesEnv(TrialEnv):
         groundtruth = 1 if not catch else 0
         self.set_groundtruth(groundtruth, period="decision", where="choice")
 
-        # Trial information
-        trial = {
-            "ground_truth": groundtruth,
-        }
-
-        return trial
+        return {"ground_truth": groundtruth}
 
     def _step(self, action):
+        """Internal method to compute the environment's response to the agent's action.
+
+        Args:
+            action: The agent's action.
+
+        Returns:
+            A tuple containing the new observation, the reward, a boolean indicating whether the trial is
+                terminated, a boolean indicating whether the trial is truncated, and a dictionary containing additional
+                information.
+        """
         new_trial = False
         terminated = False
         truncated = False
