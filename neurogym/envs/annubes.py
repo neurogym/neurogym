@@ -46,19 +46,19 @@ class AnnubesEnv(TrialEnv):
 
     def __init__(
         self,
-        session=None,
-        stim_intensities=None,
-        stim_time=1000,
-        decision_time=100,
-        catch_prob=0.5,
-        fix_intensity=0,
-        fix_time=500,
-        dt=100,
-        tau=100,
-        n_outputs=2,
-        output_behavior=None,
-        noise_std=0.01,
-        random_seed=None,
+        session: dict[str, float] | None = None,
+        stim_intensities: list[float] | None = None,
+        stim_time: int = 1000,
+        decision_time: int = 100,
+        catch_prob: float = 0.5,
+        fix_intensity: float = 0,
+        fix_time: int = 100,
+        dt: int = 100,
+        tau: int = 100,
+        n_outputs: int = 2,
+        output_behavior: list[float] | None = None,
+        noise_std: float = 0.01,
+        random_seed: int | None = None,
     ):
         if session is None:
             session = {"v": 0.5, "a": 0.5}
@@ -102,7 +102,7 @@ class AnnubesEnv(TrialEnv):
         # Rewards
         self.rewards = {"abort": -0.1, "correct": +1.0, "fail": 0.0}
 
-    def _new_trial(self):
+    def _new_trial(self) -> dict:
         """Internal method to generate a new trial.
 
         Returns:
@@ -134,7 +134,7 @@ class AnnubesEnv(TrialEnv):
 
         return {"ground_truth": groundtruth}
 
-    def _step(self, action):
+    def _step(self, action: int) -> tuple:
         """Internal method to compute the environment's response to the agent's action.
 
         Args:
