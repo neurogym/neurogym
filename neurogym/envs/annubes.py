@@ -20,14 +20,12 @@ class AnnubesEnv(TrialEnv):
             Defaults to [0.8, 0.9, 1].
         stim_time: Duration of each stimulus in ms.
             Defaults to 1000.
-        decision_time: Duration of the decision period in ms.
-            Defaults to 100.
         catch_prob: Probability of catch trials in the session. Must be between 0 and 1 (inclusive).
             Defaults to 0.5.
         fix_intensity: Intensity of input signal during fixation.
             Defaults to 0.
         fix_time: Fixation time in ms. Note that the duration of each input and output signal is increased by this time.
-            Defaults to 100.
+            Defaults to 500.
         dt: Time step in ms.
             Defaults to 100.
         tau: Time constant in ms.
@@ -39,6 +37,8 @@ class AnnubesEnv(TrialEnv):
             Defaults to [0, 1].
         noise_std: Standard deviation of the input noise.
             Defaults to 0.01.
+        rewards: Dictionary of rewards for different outcomes. The keys are "abort", "correct", and "fail".
+            Defaults to {"abort": -0.1, "correct": +1.0, "fail": 0.0}.
         random_seed: Seed for numpy's random number generator (rng). If an int is given, it will be used as the seed
             for `np.random.default_rng()`.
             Defaults to None (i.e. the initial state itself is random).
@@ -49,15 +49,15 @@ class AnnubesEnv(TrialEnv):
         session: dict[str, float] | None = None,
         stim_intensities: list[float] | None = None,
         stim_time: int = 1000,
-        decision_time: int = 100,
         catch_prob: float = 0.5,
         fix_intensity: float = 0,
-        fix_time: int = 100,
+        fix_time: int = 500,
         dt: int = 100,
         tau: int = 100,
         n_outputs: int = 2,
         output_behavior: list[float] | None = None,
         noise_std: float = 0.01,
+        rewards: dict[str, float] | None = None,
         random_seed: int | None = None,
     ):
         if session is None:
@@ -72,7 +72,6 @@ class AnnubesEnv(TrialEnv):
         self.session = {i: session[i] / sum(session.values()) for i in session}
         self.stim_intensities = stim_intensities
         self.stim_time = stim_time
-        self.decision_time = decision_time
         self.catch_prob = catch_prob
         self.fix_intensity = fix_intensity
         self.fix_time = fix_time
@@ -89,7 +88,12 @@ class AnnubesEnv(TrialEnv):
             rng = np.random.default_rng(random_seed)
             self._random_seed = rng.integers(2**32)
         self._rng = np.random.default_rng(self._random_seed)
-        self.timing = {"fixation": self.fix_time, "stimulus": self.stim_time, "decision": self.decision_time}
+        # Rewards
+        if rewards is None:
+            self.rewards = {"abort": -0.1, "correct": +1.0, "fail": 0.0}
+        else:
+            self.rewards = rewards
+        self.timing = {"fixation": self.fix_time, "stimulus": self.stim_time}
         # Set the name of each input dimension
         obs_space_name = {"fixation": 0, "start": 1, **{trial: i for i, trial in enumerate(session, 2)}}
         self.observation_space = ngym.spaces.Box(low=0.0, high=1.0, shape=(len(obs_space_name),), name=obs_space_name)
@@ -98,8 +102,6 @@ class AnnubesEnv(TrialEnv):
             self.n_outputs,
             name={"fixation": self.output_behavior[0], "choice": self.output_behavior},
         )
-        # Rewards
-        self.rewards = {"abort": -0.1, "correct": +1.0, "fail": 0.0}
 
     def _new_trial(self) -> dict:
         """Internal method to generate a new trial.
@@ -108,30 +110,30 @@ class AnnubesEnv(TrialEnv):
             A dictionary containing the information of the new trial.
         """
         # Setting time periods and their order for this trial
-        self.add_period(["fixation", "stimulus", "decision"])
+        self.add_period(["fixation", "stimulus"])
 
         # Adding fixation and start signal values
         self.add_ob(self.fix_intensity, "fixation", where="fixation")
         self.add_ob(1, "stimulus", where="start")
 
         # Catch trial decision
-        catch = self.rng.choice([0, 1], p=[self.catch_prob, 1 - self.catch_prob])
+        catch = self._rng.choice([0, 1], p=[self.catch_prob, 1 - self.catch_prob])
+        stim_type = None
+        stim_value = None
         if not catch:
-            stim_type = self.rng.choice(list(self.session.keys()), p=list(self.session.values()))
+            stim_type = self._rng.choice(list(self.session.keys()), p=list(self.session.values()))
             stim_value = self._rng.choice(self.stim_intensities, 1)
+            for mod in self.session:
+                if stim_type == mod:
+                    self.add_ob(stim_value, "stimulus", where=mod)
+                    self.add_randn(0, self.noise_factor, "stimulus", where=mod)
+                self.set_groundtruth(0, period="fixation")
+                self.set_groundtruth(1, period="stimulus")
+        else:
+            self.set_groundtruth(0, period="fixation")
+            self.set_groundtruth(0, period="stimulus")
 
-        for mod in self.session:
-            stim = stim_value if not catch and stim_type == mod else 0
-            self.add_ob(stim, "stimulus", where=mod)
-
-        if not catch:
-            self.add_randn(0, self.noise_factor, "stimulus", where=stim_type)
-
-        # Set ground_truth
-        groundtruth = 1 if not catch else 0
-        self.set_groundtruth(groundtruth, period="decision", where="choice")
-
-        return {"ground_truth": groundtruth}
+        return {"catch": catch, "stim_type": stim_type, "stim_value": stim_value}
 
     def _step(self, action: int) -> tuple:
         """Internal method to compute the environment's response to the agent's action.
@@ -149,16 +151,28 @@ class AnnubesEnv(TrialEnv):
         truncated = False
         reward = 0
         gt = self.gt_now
+
         if self.in_period("fixation"):
             if action != 0:
-                new_trial = False
                 reward += self.rewards["abort"]
-        elif self.in_period("decision") and action != 0:
-            new_trial = True
+        elif self.in_period("stimulus"):
             if action == gt:
                 reward += self.rewards["correct"]
                 self.performance = 1
             else:
                 reward += self.rewards["fail"]
 
-        return self.ob_now, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}
+            # End trial when stimulus period is over
+            # self.t represents the current time step within a trial
+            # esch step is self.dt ms
+            # self.tmax is the maximum number of time steps within a trial
+            # see self.add_period in TrialEnv for more details
+            if self.t >= self.tmax - self.dt:
+                new_trial = True
+
+        info = {"new_trial": new_trial, "gt": gt}
+        if new_trial:
+            info["trial"] = self.trial
+            self.trial = {}
+
+        return self.ob_now, reward, terminated, truncated, info
