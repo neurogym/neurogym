@@ -87,12 +87,11 @@ class AnnubesEnv(TrialEnv):
         # Set random state
         if random_seed is None:
             rng = np.random.default_rng(random_seed)
-            random_seed = rng.integers(2**32)
-        self._rng = np.random.default_rng(random_seed)
-        self._random_seed = random_seed
+            self._random_seed = rng.integers(2**32)
+        self._rng = np.random.default_rng(self._random_seed)
         self.timing = {"fixation": self.fix_time, "stimulus": self.stim_time, "decision": self.decision_time}
         # Set the name of each input dimension
-        obs_space_name = {"fixation": 0, "start": 1, "v": 2, "a": 3}
+        obs_space_name = {"fixation": 0, "start": 1, **{trial: i for i, trial in enumerate(session, 2)}}
         self.observation_space = ngym.spaces.Box(low=0.0, high=1.0, shape=(len(obs_space_name),), name=obs_space_name)
         # Set the name of each action value
         self.action_space = ngym.spaces.Discrete(
