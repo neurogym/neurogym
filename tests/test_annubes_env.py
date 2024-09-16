@@ -8,11 +8,13 @@ RND_SEED = 42
 
 @pytest.fixture
 def default_env():
+    """Fixture for creating a default AnnubesEnv instance."""
     return AnnubesEnv()
 
 
 @pytest.fixture
 def custom_env():
+    """Fixture for creating a custom AnnubesEnv instance with specific parameters."""
     return AnnubesEnv(
         session={"v": 1},
         stim_intensities=[0.5, 1.0],
@@ -31,6 +33,12 @@ def custom_env():
 
 
 def test_observation_space(default_env, custom_env):
+    """Test the observation space of both default and custom environments.
+
+    This test checks:
+    1. The shape of the observation space
+    2. The names assigned to each dimension of the observation space
+    """
     assert default_env.observation_space.shape == (4,)
     assert custom_env.observation_space.shape == (3,)
 
@@ -39,6 +47,12 @@ def test_observation_space(default_env, custom_env):
 
 
 def test_action_space(default_env, custom_env):
+    """Test the action space of both default and custom environments.
+
+    This test checks:
+    1. The number of possible actions
+    2. The names and values assigned to each action
+    """
     assert default_env.action_space.n == 2
     assert custom_env.action_space.n == 3
 
@@ -48,17 +62,25 @@ def test_action_space(default_env, custom_env):
 
 @pytest.mark.parametrize("env", ["default_env", "custom_env"])
 def test_step(request, env):
+    """Test the step function of the environment.
+
+    This test checks:
+    1. Correct and incorrect actions during fixation period
+    2. Correct and incorrect actions during stimulus period
+    3. Rewards given for different actions
+    4. Termination conditions
+    """
     # Get the environment fixture
     env = request.getfixturevalue(env)
     env.reset()
 
     # Test fixation period
-    ob, reward, terminated, truncated, info = env.step(0)  # Correct fixation
+    _, reward, terminated, truncated, _ = env.step(0)  # Correct fixation
     assert not terminated
     assert not truncated
     assert reward == 0
 
-    ob, reward, terminated, truncated, info = env.step(1)  # Incorrect fixation
+    _, reward, terminated, truncated, _ = env.step(1)  # Incorrect fixation
     assert not terminated
     assert not truncated
     assert reward == env.rewards["abort"]
@@ -68,7 +90,7 @@ def test_step(request, env):
         env.step(0)
 
     # Test stimulus period
-    ob, reward, terminated, truncated, info = env.step(env.gt_now)  # Correct choice
+    _, reward, terminated, truncated, _ = env.step(env.gt_now)  # Correct choice
     assert not terminated
     assert not truncated
     assert reward == env.rewards["correct"]
@@ -77,7 +99,7 @@ def test_step(request, env):
     while env.in_period("fixation"):
         env.step(0)
 
-    ob, reward, terminated, truncated, info = env.step(
+    _, reward, terminated, truncated, _ = env.step(
         (env.gt_now + 1) % env.action_space.n,
     )  # Incorrect choice
     assert not terminated
@@ -86,6 +108,14 @@ def test_step(request, env):
 
 
 def test_initial_state_and_first_reset(default_env):
+    """Test the initial state of the environment and its state after the first reset.
+
+    This test checks:
+    1. Initial values of time step and trial number
+    2. Values of time step and trial number after first reset
+    3. Shape of the first observation
+    4. Presence of trial information after reset
+    """
     # Check initial state
     assert default_env.t == 0, "t should be 0 initially"
     assert default_env.num_tr == 0, "num_tr should be 0 initially"
@@ -99,6 +129,10 @@ def test_initial_state_and_first_reset(default_env):
 
 
 def test_random_seed_reproducibility():
+    """Test the reproducibility of the environment when using the same random seed.
+
+    This test checks if two environments initialized with the same seed produce identical trials.
+    """
     for _ in range(10):
         env1 = AnnubesEnv(random_seed=42)
         env2 = AnnubesEnv(random_seed=42)
@@ -109,6 +143,12 @@ def test_random_seed_reproducibility():
 
 @pytest.mark.parametrize("catch_prob", [0.0, 0.3, 0.7, 1.0])
 def test_catch_prob(catch_prob):
+    """Test if the catch trial probability is working as expected.
+
+    This test checks:
+    1. If the observed probability of catch trials matches the specified probability
+    2. If the probability works correctly for various values including edge cases (0.0 and 1.0)
+    """
     n_trials = 1000
     env = AnnubesEnv(catch_prob=catch_prob, random_seed=RND_SEED)
     catch_count = 0
