@@ -1,0 +1,29 @@
+{
+    "_comment": "Markdown Link Checker configuration, see https://github.com/gaurav-nelson/github-action-markdown-link-check and https://github.com/tcort/markdown-link-check",
+    "ignorePatterns": [
+      {
+        "pattern": "^http://localhost"
+      },
+      {
+        "pattern": "^https://doi.org/<replace-with-created-DOI>"
+      },
+      {
+        "pattern": "^https://github.com/.*/settings/secrets/actions$"
+      },
+      {
+        "pattern": "^https://github.com/organizations/.*/repositories/new"
+      },
+      {
+        "pattern": "^https://test.pypi.org"
+      },
+      {
+        "pattern": "^https://bestpractices.coreinfrastructure.org/projects/<replace-with-created-project-identifier>"
+      },
+      {
+        "pattern": "^https://readthedocs.org/dashboard/import.*"
+      }
+    ],
+    "replacementPatterns": [],
+    "retryOn429": true,
+    "timeout": "20s"
+  }
