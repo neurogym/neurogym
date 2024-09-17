@@ -1,14 +1,13 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+This project's full changelog is maintained in the GitHub releases page.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+For a comprehensive list of changes, new features, and bug fixes, please visit: https://github.com/ANNUBS/neurogym/releases.
 
-## [Unreleased]
+This page includes:
 
-[Unreleased]: https://github.com/neurogym/neurogym/compare/v0.0.1...dev
+- Detailed release notes for each version
+- Summary of changes
+- Links to relevant issues and pull requests
 
-## [0.0.1]
-
-[0.0.1]: https://github.com/neurogym/neurogym/releases/tag/v0.0.1
+For any questions or to report issues, please use the [GitHub issues page](https://github.com/ANNUBS/neurogym/issues).
