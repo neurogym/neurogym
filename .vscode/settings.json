@@ -31,5 +31,6 @@
   "rewrap.wrappingColumn": 120,
   "rewrap.autoWrap.enabled": true,
   "files.trimTrailingWhitespace": true,
-  "files.trimFinalNewlines": true
+  "files.trimFinalNewlines": true,
+  "files.insertFinalNewline": true
 }
