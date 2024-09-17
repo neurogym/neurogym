@@ -17,7 +17,7 @@ on:
       - "**.md"
       - "**.rst"
       # self
-      - ".github/workflows/markdown-link-check.yml"```
+      - ".github/workflows/markdown-link-check.yml"
 
 jobs:
   markdown-links-check:
