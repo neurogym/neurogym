@@ -1,3 +1,5 @@
+from typing import Any
+
 import numpy as np
 
 import neurogym as ngym
@@ -103,7 +105,7 @@ class AnnubesEnv(TrialEnv):
             name={"fixation": self.output_behavior[0], "choice": self.output_behavior},
         )
 
-    def _new_trial(self) -> dict:
+    def _new_trial(self, **kwargs: Any) -> dict[str, Any]:  # type: ignore[override]
         """Internal method to generate a new trial.
 
         Returns:
@@ -135,7 +137,7 @@ class AnnubesEnv(TrialEnv):
 
         return {"catch": catch, "stim_type": stim_type, "stim_value": stim_value}
 
-    def _step(self, action: int) -> tuple:
+    def _step(self, action: int) -> tuple:  # type: ignore[override]
         """Internal method to compute the environment's response to the agent's action.
 
         Args:
@@ -171,8 +173,5 @@ class AnnubesEnv(TrialEnv):
                 new_trial = True
 
         info = {"new_trial": new_trial, "gt": gt}
-        if new_trial:
-            info["trial"] = self.trial
-            self.trial = {}
 
         return self.ob_now, reward, terminated, truncated, info

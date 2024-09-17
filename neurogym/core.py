@@ -1,5 +1,5 @@
 import contextlib
-from typing import NoReturn
+from typing import Any, NoReturn
 
 import gymnasium as gym
 import numpy as np
@@ -69,7 +69,7 @@ class BaseEnv(gym.Env):
         self.t = self.t_ind = 0
         self.tmax = 10000  # maximum time steps
         self.performance = 0
-        self.rewards = {}
+        self.rewards: dict = {}
         self.rng = np.random.RandomState()
 
     def seed(self, seed=None):
@@ -96,16 +96,16 @@ class TrialEnv(BaseEnv):
         self._default_ob_value = None  # default to 0
 
         # For optional periods
-        self.timing = {}
-        self.start_t = {}
-        self.end_t = {}
-        self.start_ind = {}
-        self.end_ind = {}
+        self.timing: dict = {}
+        self.start_t: dict = {}
+        self.end_t: dict = {}
+        self.start_ind: dict = {}
+        self.end_ind: dict = {}
         self._tmax = 0  # Length of each trial
 
         self._top = self
 
-    def __str__(self) -> str:
+    def __str__(self) -> Any:
         """Information about task."""
         return env_string(self, short=True)
 

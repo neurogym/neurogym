@@ -61,21 +61,21 @@ class ProbabilisticReasoning(ngym.TrialEnv):
 
         self.abort = False
 
-        name = {"fixation": 0}
+        obs_name: dict[str, int | range] = {"fixation": 0}
         start = 1
         for i_loc in range(n_loc):
-            name[f"loc{i_loc}"] = range(start, start + dim_shape)
+            obs_name[f"loc{i_loc}"] = range(start, start + dim_shape)
             start += dim_shape
         self.observation_space = spaces.Box(
             -np.inf,
             np.inf,
             shape=(1 + dim_shape * n_loc,),
             dtype=np.float32,
-            name=name,
+            name=obs_name,
         )
 
-        name = {"fixation": 0, "choice": [1, 2]}
-        self.action_space = spaces.Discrete(3, name=name)
+        action_name = {"fixation": 0, "choice": [1, 2]}
+        self.action_space = spaces.Discrete(3, name=action_name)
 
     def _new_trial(self, **kwargs):
         # Trial info

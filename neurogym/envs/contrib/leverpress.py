@@ -408,7 +408,7 @@ class FullInput(gym.Wrapper):
         ob_shape = orig_ob_space.shape[0] + self.action_space.n + 1  # noqa: F841
         low = np.array(list(orig_ob_space.low) + [-1] + [0] * self.action_space.n)
         high = np.array(list(orig_ob_space.high) + [1] + [1] * self.action_space.n)
-        self.observation_space = spaces.Box(low, high, dtype=np.float32)
+        self.observation_space: spaces.Box = spaces.Box(low, high, dtype=np.float32)
 
     def step(self, action):
         obs, reward, terminated, truncated, info = self.env.step(action)

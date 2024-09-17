@@ -105,7 +105,7 @@ ALL_PSYCHOPY_ENVS = {
 
 _contrib_name_prefix = "contrib."
 _contrib_prefix = "neurogym.envs.contrib."
-CONTRIB_ALLOW_LIST = [
+CONTRIB_ALLOW_LIST: list = [
     # 'AngleReproduction',
     # 'CVLearning',
     # 'ChangingEnvironment',

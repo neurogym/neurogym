@@ -39,16 +39,16 @@ class Reaching1D(ngym.TrialEnv):
             self.timing.update(timing)
 
         # action and observation spaces
-        name = {"self": range(dim_ring, 2 * dim_ring), "target": range(dim_ring)}
+        obs_name = {"self": range(dim_ring, 2 * dim_ring), "target": range(dim_ring)}
         self.observation_space = spaces.Box(
             -np.inf,
             np.inf,
             shape=(2 * dim_ring,),
             dtype=np.float32,
-            name=name,
+            name=obs_name,
         )
-        name = {"fixation": 0, "left": 1, "right": 2}
-        self.action_space = spaces.Discrete(3, name=name)
+        action_name = {"fixation": 0, "left": 1, "right": 2}
+        self.action_space = spaces.Discrete(3, name=action_name)
 
         self.theta = np.arange(0, 2 * np.pi, 2 * np.pi / dim_ring)
         self.state = np.pi

@@ -28,18 +28,25 @@ class Bandit(ngym.TrialEnv):
         "tags": ["n-alternative"],
     }
 
-    def __init__(self, dt=100, n=2, p=(0.5, 0.5), rewards=None, timing=None) -> None:
+    def __init__(
+        self,
+        dt: int = 100,
+        n: int = 2,
+        p: tuple[float, ...] | list[float] = (0.5, 0.5),
+        rewards: None | list[float] | np.ndarray = None,
+        timing: None | dict = None,
+    ) -> None:
         super().__init__(dt=dt)
         if timing is not None:
             print("Warning: Bandit task does not require timing variable.")
 
-        if rewards:
-            self.rewards = rewards
-        else:
-            self.rewards = np.ones(n)  # 1 for every arm
-
         self.n = n
-        self.p = np.array(p)  # Reward probabilities
+        self._p = np.array(p)  # Reward probabilities
+
+        if rewards is not None:
+            self._rewards = np.array(rewards)
+        else:
+            self._rewards = np.ones(n)  # 1 for every arm
 
         self.observation_space = spaces.Box(
             -np.inf,
@@ -50,7 +57,8 @@ class Bandit(ngym.TrialEnv):
         self.action_space = spaces.Discrete(n)
 
     def _new_trial(self, **kwargs):
-        trial = {"p": self.p, "rewards": self.rewards}
+        # Create a new dictionary with NumPy arrays converted to lists
+        trial = {"p": self._p.tolist(), "rewards": self._rewards.tolist()}
         trial.update(kwargs)
 
         self.ob = np.zeros((1, self.observation_space.shape[0]))
@@ -63,7 +71,9 @@ class Bandit(ngym.TrialEnv):
         truncated = False
 
         ob = self.ob[0]
-        reward = (self.rng.random() < trial["p"][action]) * trial["rewards"][action]
+        p = np.array(trial["p"])
+        rewards = np.array(trial["rewards"])
+        reward = (self.rng.random() < p[action]) * rewards[action]
         info = {"new_trial": True}
 
         return ob, reward, terminated, truncated, info

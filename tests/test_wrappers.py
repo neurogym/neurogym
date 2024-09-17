@@ -930,7 +930,7 @@ if __name__ == "__main__":
         catch_prob=0.5,
         alt_rew=0,
     )
-    test_transferLearning(num_steps=200, verbose=True)
+    # test_transferLearning(num_steps=200, verbose=True)
     test_combine(num_steps=200, verbose=True)
     test_trialhist_and_variable_nch(
         "NAltPerceptualDecisionMaking-v0",

@@ -34,7 +34,7 @@ class SideBias(ngym.TrialWrapper):
         if probs is None:
             msg = "Please provide choices probabilities."
             raise ValueError(msg)
-        if isinstance(probs, float | int):
+        if isinstance(probs, (float, int)):
             mat = np.eye(len(self.choices)) * probs
             mat[mat == 0] = 1 - probs
             self.choice_prob = mat
@@ -42,10 +42,10 @@ class SideBias(ngym.TrialWrapper):
             self.choice_prob = np.array(probs)
         if self.choice_prob.shape[1] != len(self.choices):
             msg = (
-                f"The number of choices {self.choice_prob.shape[1]} inferred from prob mismatches",
-                f"{len(self.choices)} inferred from choices.",
+                f"The number of choices {self.choice_prob.shape[1]} inferred from prob mismatches "
+                f"{len(self.choices)} inferred from choices."
             )
-            raise ValueError(msg)  # FIXME: error message is unclear
+            raise ValueError(msg)
 
         self.n_block = self.choice_prob.shape[0]
         self.curr_block = self.task.rng.choice(range(self.n_block))

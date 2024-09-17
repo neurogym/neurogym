@@ -41,7 +41,6 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
         super().__init__(dt=dt)
 
         # trial conditions
-        self.choices = [1, 2]  # left, right choice
         self.cohs = [5, 15, 50]
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
         self.context = context

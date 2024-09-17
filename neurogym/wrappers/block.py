@@ -63,7 +63,7 @@ def _have_equal_shape(envs) -> None:
     for env in envs:
         if env.action_space.n != env_act_shape:
             msg = (
-                "Env must have equal action shape."
+                "Env must have equal action shape.",
                 f"Instead got {env.action_space.n}) for {env} and {env_act_shape} for {envs[0]}",
             )
             raise ValueError(msg)
@@ -92,7 +92,7 @@ class MultiEnvs(TrialWrapper):
                 msg = f"Env must have 1-D Box shape but got {env_shape}."
                 raise ValueError(msg)
             _have_equal_shape(envs)
-            self.observation_space = spaces.Box(
+            self.observation_space: spaces.Box = spaces.Box(
                 -np.inf,
                 np.inf,
                 shape=(env_shape[0] + len(self.envs),),
@@ -154,7 +154,7 @@ class ScheduleEnvs(TrialWrapper):
                 msg = f"Env must have 1-D Box shape but got {env_shape}."
                 raise ValueError(msg)
             _have_equal_shape(envs)
-            self.observation_space = spaces.Box(
+            self.observation_space: spaces.Box = spaces.Box(
                 -np.inf,
                 np.inf,
                 shape=(env_shape[0] + len(self.envs),),
