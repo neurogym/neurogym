@@ -4,9 +4,20 @@ on:
   push:
     branches:
       - main
+    paths:
+      # filetypes
+      - "**.md"
+      - "**.rst"
+      # self
+      - ".github/workflows/markdown-link-check.yml"
   pull_request:
-    branches:
-      - main
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      # filetypes
+      - "**.md"
+      - "**.rst"
+      # self
+      - ".github/workflows/markdown-link-check.yml"```
 
 jobs:
   markdown-links-check:
