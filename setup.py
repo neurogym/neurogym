@@ -22,7 +22,7 @@ extras["tutorials"] = [
 ]
 
 # For developers
-extras["ci"] = ["pytest", "ruff", "mypy"]
+extras["ci"] = ["pytest", "ruff", "mypy", "build"]
 
 extras["docs"] = [
     "sphinx",
