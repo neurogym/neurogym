@@ -55,8 +55,8 @@ def test_action_space(default_env, custom_env):
     assert default_env.action_space.n == 2
     assert custom_env.action_space.n == 3
 
-    assert default_env.action_space.name == {"fixation": 0, "choice": [0, 1]}
-    assert custom_env.action_space.name == {"fixation": 0, "choice": [0, 0.5, 1]}
+    assert default_env.action_space.name == {"fixation": 0, "choice": [1]}
+    assert custom_env.action_space.name == {"fixation": 0, "choice": [0.5, 1]}
 
 
 @pytest.mark.parametrize("env", ["default_env", "custom_env"])

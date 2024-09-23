@@ -98,7 +98,7 @@ class AnnubesEnv(TrialEnv):
         # Set the name of each action value
         self.action_space = ngym.spaces.Discrete(
             n=len(self.output_behavior),
-            name={"fixation": self.output_behavior[0], "choice": self.output_behavior},
+            name={"fixation": self.output_behavior[0], "choice": self.output_behavior[1:]},
         )
 
     def _new_trial(self) -> dict:
