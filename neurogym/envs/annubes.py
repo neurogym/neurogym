@@ -30,8 +30,6 @@ class AnnubesEnv(TrialEnv):
             Defaults to 100.
         tau: Time constant in ms.
             Defaults to 100.
-        n_outputs: Number of possible outputs, signaling different behavioral choices.
-            Defaults to 2.
         output_behavior: List of possible intensity values of the behavioral output. Currently only the smallest and
             largest value of this list are used.
             Defaults to [0, 1].
@@ -54,7 +52,6 @@ class AnnubesEnv(TrialEnv):
         fix_time: int = 500,
         dt: int = 100,
         tau: int = 100,
-        n_outputs: int = 2,
         output_behavior: list[float] | None = None,
         noise_std: float = 0.01,
         rewards: dict[str, float] | None = None,
@@ -77,7 +74,6 @@ class AnnubesEnv(TrialEnv):
         self.fix_time = fix_time
         self.dt = dt
         self.tau = tau
-        self.n_outputs = n_outputs
         self.output_behavior = output_behavior
         self.noise_std = noise_std
         self.random_seed = random_seed
@@ -101,7 +97,7 @@ class AnnubesEnv(TrialEnv):
         self.observation_space = ngym.spaces.Box(low=0.0, high=1.0, shape=(len(obs_space_name),), name=obs_space_name)
         # Set the name of each action value
         self.action_space = ngym.spaces.Discrete(
-            self.n_outputs,
+            n=len(self.output_behavior),
             name={"fixation": self.output_behavior[0], "choice": self.output_behavior},
         )
 

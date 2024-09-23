@@ -24,7 +24,6 @@ def custom_env():
         fix_time=300,
         dt=50,
         tau=80,
-        n_outputs=3,
         output_behavior=[0, 0.5, 1],
         noise_std=0.02,
         rewards={"abort": -0.2, "correct": +1.5, "fail": -0.5},
