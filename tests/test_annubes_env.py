@@ -134,8 +134,8 @@ def test_random_seed_reproducibility():
     This test checks if two environments initialized with the same seed produce identical trials.
     """
     for _ in range(10):
-        env1 = AnnubesEnv(random_seed=42)
-        env2 = AnnubesEnv(random_seed=42)
+        env1 = AnnubesEnv(random_seed=RND_SEED)
+        env2 = AnnubesEnv(random_seed=RND_SEED)
         trial1 = env1._new_trial()
         trial2 = env2._new_trial()
         assert trial1 == trial2
