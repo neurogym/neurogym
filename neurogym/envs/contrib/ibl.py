@@ -75,7 +75,7 @@ class IBL(ngym.TrialEnv):
 
         self.num_tr += 1
 
-    def _step(self, action: int) -> tuple:  # type: ignore[override]
+    def _step(self) -> tuple:  # type: ignore[override]
         info = {
             "continue": True,
             "gt": self.ground_truth[self.ind],

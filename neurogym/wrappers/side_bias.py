@@ -34,7 +34,7 @@ class SideBias(ngym.TrialWrapper):
         if probs is None:
             msg = "Please provide choices probabilities."
             raise ValueError(msg)
-        if isinstance(probs, (float, int)):
+        if isinstance(probs, float | int):
             mat = np.eye(len(self.choices)) * probs
             mat[mat == 0] = 1 - probs
             self.choice_prob = mat
