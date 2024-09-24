@@ -24,7 +24,6 @@ def custom_env():
         fix_time=300,
         dt=50,
         tau=80,
-        n_outputs=3,
         output_behavior=[0, 0.5, 1],
         noise_std=0.02,
         rewards={"abort": -0.2, "correct": +1.5, "fail": -0.5},
@@ -56,8 +55,8 @@ def test_action_space(default_env, custom_env):
     assert default_env.action_space.n == 2
     assert custom_env.action_space.n == 3
 
-    assert default_env.action_space.name == {"fixation": 0, "choice": [0, 1]}
-    assert custom_env.action_space.name == {"fixation": 0, "choice": [0, 0.5, 1]}
+    assert default_env.action_space.name == {"fixation": 0, "choice": [1]}
+    assert custom_env.action_space.name == {"fixation": 0, "choice": [0.5, 1]}
 
 
 @pytest.mark.parametrize("env", ["default_env", "custom_env"])
