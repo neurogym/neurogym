@@ -87,6 +87,8 @@ class AnnubesEnv(TrialEnv):
         if random_seed is None:
             rng = np.random.default_rng(random_seed)
             self._random_seed = rng.integers(2**32)
+        else:
+            self._random_seed = random_seed
         self._rng = np.random.default_rng(self._random_seed)
         # Rewards
         if rewards is None:
@@ -117,7 +119,7 @@ class AnnubesEnv(TrialEnv):
         self.add_ob(1, "stimulus", where="start")
 
         # Catch trial decision
-        catch = self._rng.choice([0, 1], p=[self.catch_prob, 1 - self.catch_prob])
+        catch = self._rng.random() < self.catch_prob
         stim_type = None
         stim_value = None
         if not catch:
@@ -133,7 +135,9 @@ class AnnubesEnv(TrialEnv):
             self.set_groundtruth(0, period="fixation")
             self.set_groundtruth(0, period="stimulus")
 
-        return {"catch": catch, "stim_type": stim_type, "stim_value": stim_value}
+        self.trial = {"catch": catch, "stim_type": stim_type, "stim_value": stim_value}
+
+        return self.trial
 
     def _step(self, action: int) -> tuple:
         """Internal method to compute the environment's response to the agent's action.
