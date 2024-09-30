@@ -104,6 +104,7 @@ class TrialEnv(BaseEnv):
         self._tmax = 0  # Length of each trial
 
         self._top = self
+        self._duration = {}
 
     def __str__(self) -> str:
         """Information about task."""
@@ -305,6 +306,9 @@ class TrialEnv(BaseEnv):
 
         if duration is None:
             duration = self.sample_time(period)
+            self._duration[period] = duration
+        else:
+            self._duration[period] = duration
 
         if after is not None:
             start = self.end_t[after] if isinstance(after, str) else after

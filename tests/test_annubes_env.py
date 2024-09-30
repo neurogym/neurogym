@@ -31,6 +31,77 @@ def custom_env():
     )
 
 
+@pytest.mark.parametrize(
+    ("fix_time", "expected_type"),
+    [
+        (500, int),  # Fixed integer duration
+        (500.0, float),  # Fixed float duration
+        (lambda: 500, int),  # Callable returning fixed duration
+        ([300, 400, 500], np.integer),  # List of durations for random choice
+        (("uniform", (300, 500)), float),  # Uniform distribution
+        (("choice", [300, 400, 500]), np.integer),  # Choice from list
+        (("truncated_exponential", (300, 500, 400)), int),  # Truncated exponential
+        (("constant", 500), int),  # Constant value
+        # (("until", 1000), int),  # Until specified time
+    ],
+)
+def test_fix_time_types(fix_time, expected_type):
+    """Test various types of fix_time specifications."""
+    env = AnnubesEnv(fix_time=fix_time)
+    # Be sure that at least one trial is run to sample the fix_time
+    env.reset()
+
+    # Check if the sampled fix_time is of the expected type
+    assert isinstance(
+        env._duration["fixation"],
+        expected_type,
+    ), f"Expected fix_time to be of type {expected_type}, but got {type(env._duration['fixation'])}"
+
+    # Check if the sampled fix_time is in the given list of values
+    if isinstance(fix_time, list):
+        assert (
+            env._duration["fixation"] in fix_time
+        ), f"Expected fix_time to be one of {fix_time}, but got {env._duration['fixation']}"
+    # Check if the sampled fix_time is in the given range
+    elif isinstance(fix_time, tuple) and fix_time[0] == "uniform":
+        fix_time_range = fix_time[1]
+        assert (
+            fix_time_range[0] <= env._duration["fixation"] <= fix_time_range[1]
+        ), f"""Expected fix_time to be between {fix_time_range[0]} and {fix_time_range[1]},
+        but got {env._duration['fixation']}"""
+    # Check if the sampled fix_time is in the given list of values
+    elif isinstance(fix_time, tuple) and fix_time[0] == "choice":
+        assert (
+            env._duration["fixation"] in fix_time[1]
+        ), f"Expected fix_time to be one of {fix_time[1]}, but got {env._duration['fixation']}"
+    # Check if the sampled fix_time is in the given range
+    elif isinstance(fix_time, tuple) and fix_time[0] == "truncated_exponential":
+        fix_time_range = fix_time[1]
+        assert (
+            fix_time_range[0] <= env._duration["fixation"] <= fix_time_range[1]
+        ), f"""Expected fix_time to be between {fix_time_range[0]} and {fix_time_range[1]},
+        but got {env._duration['fixation']}"""
+    # Check if the sampled fix_time is the given constant value
+    elif isinstance(fix_time, tuple) and fix_time[0] == "constant":
+        assert (
+            env._duration["fixation"] == fix_time[1]
+        ), f"Expected fix_time to be {fix_time[1]}, but got {env._duration['fixation']}"
+    # Check if the sampled fix_time is less than or equal to the given end time
+    elif isinstance(fix_time, tuple) and fix_time[0] == "until":
+        assert (
+            env._duration["fixation"] - env._duration <= fix_time[1]
+        ), f"Expected fix_time to be less than or equal to {fix_time[1]}, but got {env._duration['fixation']}"
+
+    # For callable fix_time, check if it's actually called
+    if callable(fix_time):
+        assert env._duration["fixation"] == 500, f"Expected fix_time to be 500, but got {env._duration['fixation']}"
+
+    # Ensure the sampled time is a multiple of dt
+    assert (
+        env._duration["fixation"] % env.dt == 0
+    ), f"Expected fix_time to be a multiple of dt ({env.dt}), but got {env._duration['fixation']}"
+
+
 def test_observation_space(default_env, custom_env):
     """Test the observation space of both default and custom environments.
 

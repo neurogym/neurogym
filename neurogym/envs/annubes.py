@@ -1,3 +1,5 @@
+from typing import Any
+
 import numpy as np
 
 import neurogym as ngym
@@ -24,7 +26,18 @@ class AnnubesEnv(TrialEnv):
             Defaults to 0.5.
         fix_intensity: Intensity of input signal during fixation.
             Defaults to 0.
-        fix_time: Fixation time in ms. Note that the duration of each input and output signal is increased by this time.
+        fix_time: Fixation time specification. Can be one of the following:
+            - A number (int or float): Fixed duration in milliseconds.
+            - A callable: Function that returns the duration when called.
+            - A list of numbers: Random choice from the list.
+            - A tuple specifying a distribution:
+                - ("uniform", min, max): Uniform distribution between min and max.
+                - ("choice", [options]): Random choice from the given options.
+                - ("truncated_exponential", [parameters]): Truncated exponential distribution.
+                - ("constant", value): Always returns the given value.
+                - ("until", end_time): Sets duration to reach the specified end time.
+            The final duration is rounded down to the nearest multiple of the simulation timestep (dt).
+            Note that the duration of each input and output signal is increased by this time.
             Defaults to 500.
         dt: Time step in ms.
             Defaults to 100.
@@ -49,7 +62,7 @@ class AnnubesEnv(TrialEnv):
         stim_time: int = 1000,
         catch_prob: float = 0.5,
         fix_intensity: float = 0,
-        fix_time: int = 500,
+        fix_time: Any = 500,
         dt: int = 100,
         tau: int = 100,
         output_behavior: list[float] | None = None,
