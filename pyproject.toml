@@ -60,7 +60,7 @@ dev = [
     "nbsphinx",
 ]
 publishing = ["build", "twine", "wheel"]
-tutorials = ["jupyter"]
+tutorials = ["notebook"]
 env_specific = ["psychopy"]
 
 
