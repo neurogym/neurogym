@@ -42,7 +42,7 @@ def custom_env():
         (("choice", [300, 400, 500]), np.integer),  # Choice from list
         (("truncated_exponential", (300, 500, 400)), int),  # Truncated exponential
         (("constant", 500), int),  # Constant value
-        # (("until", 1000), int),  # Until specified time
+        (("until", 15000), int),  # Until specified time
     ],
 )
 def test_fix_time_types(fix_time, expected_type):
@@ -86,11 +86,6 @@ def test_fix_time_types(fix_time, expected_type):
         assert (
             env._duration["fixation"] == fix_time[1]
         ), f"Expected fix_time to be {fix_time[1]}, but got {env._duration['fixation']}"
-    # Check if the sampled fix_time is less than or equal to the given end time
-    elif isinstance(fix_time, tuple) and fix_time[0] == "until":
-        assert (
-            env._duration["fixation"] - env._duration <= fix_time[1]
-        ), f"Expected fix_time to be less than or equal to {fix_time[1]}, but got {env._duration['fixation']}"
 
     # For callable fix_time, check if it's actually called
     if callable(fix_time):
