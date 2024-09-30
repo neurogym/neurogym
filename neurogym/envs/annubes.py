@@ -39,6 +39,8 @@ class AnnubesEnv(TrialEnv):
             The final duration is rounded down to the nearest multiple of the simulation timestep (dt).
             Note that the duration of each input and output signal is increased by this time.
             Defaults to 500.
+        iti: Inter-trial interval, or time window between sequential trials, in ms. Same format as `fix_time`.
+            Defaults to 0.
         dt: Time step in ms.
             Defaults to 100.
         tau: Time constant in ms.
@@ -63,6 +65,7 @@ class AnnubesEnv(TrialEnv):
         catch_prob: float = 0.5,
         fix_intensity: float = 0,
         fix_time: Any = 500,
+        iti: Any = 0,
         dt: int = 100,
         tau: int = 100,
         output_behavior: list[float] | None = None,
@@ -85,6 +88,7 @@ class AnnubesEnv(TrialEnv):
         self.catch_prob = catch_prob
         self.fix_intensity = fix_intensity
         self.fix_time = fix_time
+        self.iti = iti
         self.dt = dt
         self.tau = tau
         self.output_behavior = output_behavior
