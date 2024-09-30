@@ -32,8 +32,6 @@ class AnnubesEnv(TrialEnv):
             Defaults to 100.
         tau: Time constant in ms.
             Defaults to 100.
-        n_outputs: Number of possible outputs, signaling different behavioral choices.
-            Defaults to 2.
         output_behavior: List of possible intensity values of the behavioral output. Currently only the smallest and
             largest value of this list are used.
             Defaults to [0, 1].
@@ -56,7 +54,6 @@ class AnnubesEnv(TrialEnv):
         fix_time: int = 500,
         dt: int = 100,
         tau: int = 100,
-        n_outputs: int = 2,
         output_behavior: list[float] | None = None,
         noise_std: float = 0.01,
         rewards: dict[str, float] | None = None,
@@ -79,7 +76,6 @@ class AnnubesEnv(TrialEnv):
         self.fix_time = fix_time
         self.dt = dt
         self.tau = tau
-        self.n_outputs = n_outputs
         self.output_behavior = output_behavior
         self.noise_std = noise_std
         self.random_seed = random_seed
@@ -89,6 +85,8 @@ class AnnubesEnv(TrialEnv):
         if random_seed is None:
             rng = np.random.default_rng(random_seed)
             self._random_seed = rng.integers(2**32)
+        else:
+            self._random_seed = random_seed
         self._rng = np.random.default_rng(self._random_seed)
         # Rewards
         if rewards is None:
@@ -101,8 +99,8 @@ class AnnubesEnv(TrialEnv):
         self.observation_space = ngym.spaces.Box(low=0.0, high=1.0, shape=(len(obs_space_name),), name=obs_space_name)
         # Set the name of each action value
         self.action_space = ngym.spaces.Discrete(
-            self.n_outputs,
-            name={"fixation": self.output_behavior[0], "choice": self.output_behavior},
+            n=len(self.output_behavior),
+            name={"fixation": self.output_behavior[0], "choice": self.output_behavior[1:]},
         )
 
     def _new_trial(self, **kwargs: Any) -> dict[str, Any]:  # type: ignore[override]
@@ -119,7 +117,7 @@ class AnnubesEnv(TrialEnv):
         self.add_ob(1, "stimulus", where="start")
 
         # Catch trial decision
-        catch = self._rng.choice([0, 1], p=[self.catch_prob, 1 - self.catch_prob])
+        catch = self._rng.random() < self.catch_prob
         stim_type = None
         stim_value = None
         if not catch:
@@ -135,7 +133,9 @@ class AnnubesEnv(TrialEnv):
             self.set_groundtruth(0, period="fixation")
             self.set_groundtruth(0, period="stimulus")
 
-        return {"catch": catch, "stim_type": stim_type, "stim_value": stim_value}
+        self.trial = {"catch": catch, "stim_type": stim_type, "stim_value": stim_value}
+
+        return self.trial
 
     def _step(self, action: int) -> tuple:  # type: ignore[override]
         """Internal method to compute the environment's response to the agent's action.

@@ -1,0 +1,93 @@
+# see documentation, e.g.
+# - https://packaging.python.org/en/latest/specifications/declaring-project-metadata/#declaring-project-metadata
+# - https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
+# - https://www.python.org/dev/peps/pep-0621/
+
+[build-system]
+requires = ["setuptools>=64.0.0", "setuptools-scm", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+authors = [
+    { name = "Manuel Molano Mazon", email = "manuelmolanomazon@gmail.com" },
+    { name = "Guangyu Robert Yang", email = "gyyang.neuro@gmail.com" } ,
+    { name = "Giulia Crocioni", email = "g.crocioni@esciencecenter.nl" },
+    { name = "Dani Bodor", email = "d.bodor@esciencecenter.nl" },
+    { name = "Jorge Mejias", email = "j.f.mejias@uva.nl"},
+    { name = "Marta Fradera" },
+    { name = "Jordi Pastor-Ciurana"},
+    { name = "Jeremy Forest"},
+    { name = "Ru-Yuan Zhang"}
+]
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "numpy",
+    "gymnasium==0.29.*",
+    "matplotlib",
+    "stable-baselines3>=2.3.2",
+    "scipy"]
+description = "NeuroGym: Gymnasium-style Cognitive Neuroscience Tasks"
+keywords = ["neuroscience", "neural networks", "supervised learning", "reinforcement learning", "synthetic data"]
+license = { file = "LICENSE" }
+name = "neurogym"
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.10"
+version = "0.0.1"
+
+[project.optional-dependencies]
+dev = [
+    # packaging
+    "build",
+    # formatting and linting
+    "ruff >= 0.3.0",
+    # testing
+    "pytest",
+    "pytest-cov",
+    "coverage [toml]",
+    # static typing
+    "mypy",
+    # docs
+    "sphinx",
+    "sphinx_rtd_theme",
+    "sphinxcontrib.katex",
+    "nbsphinx",
+]
+publishing = ["build", "twine", "wheel"]
+tutorials = ["jupyter"]
+env_specific = ["psychopy"]
+
+
+[project.urls]
+Repository = "https://github.com/ANNUBS/annubes"
+Issues = "https://github.com/ANNUBS/annubes/issues"
+"Documentation" = "https://annubs.github.io/annubes"
+Changelog = "https://github.com/ANNUBS/annubes/CHANGELOG.md"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["neurogym"]
+command_line = "-m pytest"
+
+# For completeness, until we move to an src-based layout
+[tool.setuptools.packages.find]
+include = ["neurogym*"]
+exclude = ["tests*"]
+
+# Mypy: to check static type
+# see https://mypy.readthedocs.io/en/stable/config_file.html#example-pyproject-toml
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+show_error_codes = true
