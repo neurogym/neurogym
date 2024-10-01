@@ -31,7 +31,7 @@ class AnnubesEnv(TrialEnv):
             - A callable: Function that returns the duration when called.
             - A list of numbers: Random choice from the list.
             - A tuple specifying a distribution:
-                - ("uniform", min, max): Uniform distribution between min and max.
+                - ("uniform", (min, max)): Uniform distribution between min and max.
                 - ("choice", [options]): Random choice from the given options.
                 - ("truncated_exponential", [parameters]): Truncated exponential distribution.
                 - ("constant", value): Always returns the given value.
@@ -108,14 +108,14 @@ class AnnubesEnv(TrialEnv):
             self.rewards = {"abort": -0.1, "correct": +1.0, "fail": 0.0}
         else:
             self.rewards = rewards
-        self.timing = {"fixation": self.fix_time, "stimulus": self.stim_time}
+        self.timing = {"fixation": self.fix_time, "stimulus": self.stim_time, "iti": self.iti}
         # Set the name of each input dimension
         obs_space_name = {"fixation": 0, "start": 1, **{trial: i for i, trial in enumerate(session, 2)}}
         self.observation_space = ngym.spaces.Box(low=0.0, high=1.0, shape=(len(obs_space_name),), name=obs_space_name)
         # Set the name of each action value
         self.action_space = ngym.spaces.Discrete(
             n=len(self.output_behavior),
-            name={"fixation": self.output_behavior[0], "choice": self.output_behavior[1:]},
+            name={"fixation": self.fix_intensity, "choice": self.output_behavior[1:]},
         )
 
     def _new_trial(self) -> dict:
@@ -125,7 +125,7 @@ class AnnubesEnv(TrialEnv):
             A dictionary containing the information of the new trial.
         """
         # Setting time periods and their order for this trial
-        self.add_period(["fixation", "stimulus"])
+        self.add_period(["fixation", "stimulus", "iti"])
 
         # Adding fixation and start signal values
         self.add_ob(self.fix_intensity, "fixation", where="fixation")
@@ -144,9 +144,11 @@ class AnnubesEnv(TrialEnv):
                     self.add_randn(0, self.noise_factor, "stimulus", where=mod)
                 self.set_groundtruth(0, period="fixation")
                 self.set_groundtruth(1, period="stimulus")
+                self.set_groundtruth(0, period="iti")
         else:
             self.set_groundtruth(0, period="fixation")
             self.set_groundtruth(0, period="stimulus")
+            self.set_groundtruth(0, period="iti")
 
         self.trial = {"catch": catch, "stim_type": stim_type, "stim_value": stim_value}
 
@@ -169,7 +171,7 @@ class AnnubesEnv(TrialEnv):
         reward = 0
         gt = self.gt_now
 
-        if self.in_period("fixation"):
+        if self.in_period("fixation") or self.in_period("iti"):
             if action != 0:
                 reward += self.rewards["abort"]
         elif self.in_period("stimulus"):
