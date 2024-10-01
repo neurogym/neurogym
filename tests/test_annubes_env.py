@@ -4,6 +4,8 @@ import pytest
 from neurogym.envs.annubes import AnnubesEnv
 
 RND_SEED = 42
+FIX_INTENSITY = 0.1
+OUTPUT_BEHAVIOR = [0, 0.5, 1]
 
 
 @pytest.fixture
@@ -20,11 +22,11 @@ def custom_env():
         stim_intensities=[0.5, 1.0],
         stim_time=800,
         catch_prob=0.3,
-        fix_intensity=0.1,
+        fix_intensity=FIX_INTENSITY,
         fix_time=300,
         dt=50,
         tau=80,
-        output_behavior=[0, 0.5, 1],
+        output_behavior=OUTPUT_BEHAVIOR,
         noise_std=0.02,
         rewards={"abort": -0.2, "correct": +1.5, "fail": -0.5},
         random_seed=42,
@@ -120,10 +122,10 @@ def test_action_space(default_env, custom_env):
     2. The names and values assigned to each action
     """
     assert default_env.action_space.n == 2
-    assert custom_env.action_space.n == 3
+    assert custom_env.action_space.n == len(OUTPUT_BEHAVIOR)
 
     assert default_env.action_space.name == {"fixation": 0, "choice": [1]}
-    assert custom_env.action_space.name == {"fixation": 0, "choice": [0.5, 1]}
+    assert custom_env.action_space.name == {"fixation": FIX_INTENSITY, "choice": OUTPUT_BEHAVIOR[1:]}
 
 
 @pytest.mark.parametrize("env", ["default_env", "custom_env"])
