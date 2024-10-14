@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 import numpy as np
 import pytest
 
@@ -10,13 +12,13 @@ OUTPUT_BEHAVIOR = [0, 0.5, 1]
 
 
 @pytest.fixture
-def default_env():
+def default_env() -> AnnubesEnv:
     """Fixture for creating a default AnnubesEnv instance."""
     return AnnubesEnv()
 
 
 @pytest.fixture
-def custom_env():
+def custom_env() -> AnnubesEnv:
     """Fixture for creating a custom AnnubesEnv instance with specific parameters."""
     return AnnubesEnv(
         session={"v": 1},
@@ -48,7 +50,10 @@ def custom_env():
         (("until", 15000), int),  # Until specified time
     ],
 )
-def test_fix_time_types(time, expected_type):
+def test_fix_time_types(
+    time: float | Callable | list[int] | tuple[str, tuple[int, int] | list[int]],
+    expected_type: type,
+) -> None:
     """Test various types of fix_time specifications."""
     env = AnnubesEnv(fix_time=time, iti=time)
     # Be sure that at least one trial is run to sample the fix_time
@@ -102,7 +107,7 @@ def test_fix_time_types(time, expected_type):
 
 
 @pytest.mark.parametrize("catch_prob", [0.0, 0.3, 0.7, 1.0])
-def test_catch_prob(catch_prob):
+def test_catch_prob(catch_prob: float) -> None:
     """Test if the catch trial probability is working as expected.
 
     This test checks:
@@ -138,7 +143,7 @@ def test_catch_prob(catch_prob):
         ({"v": 0.3, "a": 0.3, "av": 0.3}, 0.7, 4),
     ],
 )
-def test_annubes_env_max_sequential(session, catch_prob, max_sequential):
+def test_annubes_env_max_sequential(session: dict, catch_prob: float, max_sequential: int) -> None:
     """Test the maximum sequential trial constraint in the AnnubesEnv.
 
     The test performs the following checks:
@@ -152,7 +157,7 @@ def test_annubes_env_max_sequential(session, catch_prob, max_sequential):
     """
     env = AnnubesEnv(session=session, catch_prob=catch_prob, max_sequential=max_sequential, random_seed=RND_SEED)
 
-    trial_types = []
+    trial_types: list[str | None] = []
     for _ in range(N_TRIALS):
         env.new_trial()
         trial_types.append(env.trial["stim_type"])
@@ -164,7 +169,7 @@ def test_annubes_env_max_sequential(session, catch_prob, max_sequential):
             assert len(set(sequence)) > 1, f"Found a sequence longer than {max_sequential} at index {i}"
 
     # Check that all the trial types occur
-    assert set(trial_types) - {None} == env.session.keys(), "Not all trial types occurred"
+    assert set(trial_types) - {None} == set(env.session.keys()), "Not all trial types occurred"
 
     # Check that the distribution is roughly balanced
     expected_non_catch = N_TRIALS * (1 - catch_prob)
@@ -185,7 +190,7 @@ def test_annubes_env_max_sequential(session, catch_prob, max_sequential):
     ), f"Catch trials are not balanced. Expected: {expected_catch:.2f}, Actual: {catch_count}"
 
 
-def test_observation_space(default_env, custom_env):
+def test_observation_space(default_env: AnnubesEnv, custom_env: AnnubesEnv) -> None:
     """Test the observation space of both default and custom environments.
 
     This test checks:
@@ -199,7 +204,7 @@ def test_observation_space(default_env, custom_env):
     assert custom_env.observation_space.name == {"fixation": 0, "start": 1, "v": 2}
 
 
-def test_action_space(default_env, custom_env):
+def test_action_space(default_env: AnnubesEnv, custom_env: AnnubesEnv) -> None:
     """Test the action space of both default and custom environments.
 
     This test checks:
@@ -214,7 +219,7 @@ def test_action_space(default_env, custom_env):
 
 
 @pytest.mark.parametrize("env", ["default_env", "custom_env"])
-def test_step(request, env):
+def test_step(request, env: str) -> None:
     """Test the step function of the environment.
 
     This test checks:
@@ -224,43 +229,43 @@ def test_step(request, env):
     4. Termination conditions
     """
     # Get the environment fixture
-    env = request.getfixturevalue(env)
-    env.reset()
+    env_test = request.getfixturevalue(env)
+    env_test.reset()
 
     # Test fixation period
-    _, reward, terminated, truncated, _ = env.step(0)  # Correct fixation
+    _, reward, terminated, truncated, _ = env_test.step(0)  # Correct fixation
     assert not terminated
     assert not truncated
     assert reward == 0
 
-    _, reward, terminated, truncated, _ = env.step(1)  # Incorrect fixation
+    _, reward, terminated, truncated, _ = env_test.step(1)  # Incorrect fixation
     assert not terminated
     assert not truncated
-    assert reward == env.rewards["abort"]
+    assert reward == env_test.rewards["abort"]
 
     # Move to stimulus period
-    while env.in_period("fixation"):
-        env.step(0)
+    while env_test.in_period("fixation"):
+        env_test.step(0)
 
     # Test stimulus period
-    _, reward, terminated, truncated, _ = env.step(env.gt_now)  # Correct choice
+    _, reward, terminated, truncated, _ = env_test.step(env_test.gt_now)  # Correct choice
     assert not terminated
     assert not truncated
-    assert reward == env.rewards["correct"]
+    assert reward == env_test.rewards["correct"]
 
-    env.reset()
-    while env.in_period("fixation"):
-        env.step(0)
+    env_test.reset()
+    while env_test.in_period("fixation"):
+        env_test.step(0)
 
-    _, reward, terminated, truncated, _ = env.step(
-        (env.gt_now + 1) % env.action_space.n,
+    _, reward, terminated, truncated, _ = env_test.step(
+        (env_test.gt_now + 1) % env_test.action_space.n,
     )  # Incorrect choice
     assert not terminated
     assert not truncated
-    assert reward == env.rewards["fail"]
+    assert reward == env_test.rewards["fail"]
 
 
-def test_initial_state_and_first_reset(default_env):
+def test_initial_state_and_first_reset(default_env: AnnubesEnv) -> None:
     """Test the initial state of the environment and its state after the first reset.
 
     This test checks:
@@ -283,7 +288,7 @@ def test_initial_state_and_first_reset(default_env):
     ), f"observation_space.shape={default_env.observation_space.shape}, should match the observation space"
 
 
-def test_random_seed_reproducibility():
+def test_random_seed_reproducibility() -> None:
     """Test the reproducibility of the environment when using the same random seed.
 
     This test checks if two environments initialized with the same seed produce identical trials.
