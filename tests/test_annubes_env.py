@@ -5,6 +5,7 @@ from neurogym.envs.annubes import AnnubesEnv
 
 RND_SEED = 42
 FIX_INTENSITY = 0.1
+N_TRIALS = 1000
 OUTPUT_BEHAVIOR = [0, 0.5, 1]
 
 
@@ -98,6 +99,79 @@ def test_fix_time_types(time, expected_type):
         assert (
             env._duration[t] % env.dt == 0
         ), f"Expected {t} time to be a multiple of dt ({env.dt}), but got {env._duration['fixation']}"
+
+
+@pytest.mark.parametrize("catch_prob", [0.0, 0.3, 0.7, 1.0])
+def test_catch_prob(catch_prob):
+    """Test if the catch trial probability is working as expected.
+
+    This test checks:
+    1. If the observed probability of catch trials matches the specified probability
+    2. If the probability works correctly for various values including edge cases (0.0 and 1.0)
+    """
+    n_trials = 1000
+    env = AnnubesEnv(catch_prob=catch_prob, random_seed=RND_SEED)
+    catch_count = 0
+
+    for _ in range(n_trials):
+        env.reset()
+        trial_info = env.trial
+        if trial_info["catch"]:
+            catch_count += 1
+
+    observed_prob = catch_count / n_trials
+    expected_prob = catch_prob
+
+    # Check if the observed probability is close to the expected probability
+    assert np.isclose(
+        observed_prob,
+        expected_prob,
+        atol=0.05,
+    ), f"Expected catch probability {expected_prob}, but got {observed_prob}"
+
+
+@pytest.mark.parametrize(
+    ("session", "catch_prob", "max_sequential"),
+    [
+        ({"v": 0.5, "a": 0.5}, 0.5, 3),
+        ({"v": 0.3, "a": 0.7}, 0.1, 4),
+        ({"v": 0.3, "a": 0.3, "av": 0.3}, 0.7, 4),
+    ],
+)
+def test_annubes_env_max_sequential(session, catch_prob, max_sequential):
+    env = AnnubesEnv(session=session, catch_prob=catch_prob, max_sequential=max_sequential, random_seed=RND_SEED)
+
+    trial_types = []
+    for _ in range(N_TRIALS):
+        env.new_trial()
+        trial_types.append(env.trial["stim_type"])
+
+    # Check for sequences longer than max_sequential, excluding None (catch trials)
+    for i in range(len(trial_types) - max_sequential):
+        sequence = [t for t in trial_types[i : i + max_sequential + 1] if t is not None]
+        if len(sequence) > max_sequential:
+            assert len(set(sequence)) > 1, f"Found a sequence longer than {max_sequential} at index {i}"
+
+    # Check that all the trial types occur
+    assert set(trial_types) - {None} == env.session.keys(), "Not all trial types occurred"
+
+    # Check that the distribution is roughly balanced
+    expected_non_catch = N_TRIALS * (1 - catch_prob)
+
+    for trial_type, expected_prob in session.items():
+        count = trial_types.count(trial_type)
+        expected_count = expected_non_catch * expected_prob
+        # Allow for 20% deviation from expected count
+        assert (
+            0.8 * expected_count <= count <= 1.2 * expected_count
+        ), f"{trial_type} trials are not balanced. Expected: {expected_count:.2f}, Actual: {count}"
+
+    # Check catch trial frequency
+    catch_count = trial_types.count(None)
+    expected_catch = N_TRIALS * catch_prob
+    assert (
+        0.8 * expected_catch <= catch_count <= 1.2 * expected_catch
+    ), f"Catch trials are not balanced. Expected: {expected_catch:.2f}, Actual: {catch_count}"
 
 
 def test_observation_space(default_env, custom_env):
@@ -209,32 +283,3 @@ def test_random_seed_reproducibility():
         trial1 = env1._new_trial()
         trial2 = env2._new_trial()
         assert trial1 == trial2
-
-
-@pytest.mark.parametrize("catch_prob", [0.0, 0.3, 0.7, 1.0])
-def test_catch_prob(catch_prob):
-    """Test if the catch trial probability is working as expected.
-
-    This test checks:
-    1. If the observed probability of catch trials matches the specified probability
-    2. If the probability works correctly for various values including edge cases (0.0 and 1.0)
-    """
-    n_trials = 1000
-    env = AnnubesEnv(catch_prob=catch_prob, random_seed=RND_SEED)
-    catch_count = 0
-
-    for _ in range(n_trials):
-        env.reset()
-        trial_info = env.trial
-        if trial_info["catch"]:
-            catch_count += 1
-
-    observed_prob = catch_count / n_trials
-    expected_prob = catch_prob
-
-    # Check if the observed probability is close to the expected probability
-    assert np.isclose(
-        observed_prob,
-        expected_prob,
-        atol=0.05,
-    ), f"Expected catch probability {expected_prob}, but got {observed_prob}"

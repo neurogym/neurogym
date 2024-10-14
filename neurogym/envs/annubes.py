@@ -90,7 +90,7 @@ class AnnubesEnv(TrialEnv):
         self.stim_time = stim_time
         self.catch_prob = catch_prob
         self.max_sequential = max_sequential
-        self.sequencial_count = 1
+        self.sequential_count = 1
         self.last_modality = None
         self.fix_intensity = fix_intensity
         self.fix_time = fix_time
@@ -142,19 +142,18 @@ class AnnubesEnv(TrialEnv):
         stim_type = None
         stim_value = None
         if not catch:
-            if self.max_sequential is not None and self.sequential_count >= self.max_sequential:
+            if len(self.session) == 1:
+                # Single modality task
+                stim_type = next(iter(self.session))
+            elif self.max_sequential is not None and self.sequential_count >= self.max_sequential:
                 # Force a different modality
                 available_modalities = [mod for mod in self.session if mod != self.last_modality]
                 stim_type = self._rng.choice(available_modalities)
-                self.sequential_count = 1
             else:
                 stim_type = self._rng.choice(list(self.session.keys()), p=list(self.session.values()))
                 # Update sequential count
-                if stim_type == self.last_modality:
-                    self.sequential_count += 1
-                else:
-                    self.sequential_count = 1
 
+            self.sequential_count = 1 if stim_type != self.last_modality else self.sequential_count + 1
             self.last_modality = stim_type
 
             stim_value = self._rng.choice(self.stim_intensities, 1)
