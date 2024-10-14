@@ -139,6 +139,17 @@ def test_catch_prob(catch_prob):
     ],
 )
 def test_annubes_env_max_sequential(session, catch_prob, max_sequential):
+    """Test the maximum sequential trial constraint in the AnnubesEnv.
+
+    The test performs the following checks:
+    1. Ensures no sequence of non-catch trials longer than `max_sequential`
+       of the same type occurs.
+    2. Verifies that all specified trial types in the session occur.
+    3. Checks if the distribution of trial types is roughly balanced
+       according to the specified probabilities.
+    4. Verifies that the frequency of catch trials matches the specified
+       `catch_prob`.
+    """
     env = AnnubesEnv(session=session, catch_prob=catch_prob, max_sequential=max_sequential, random_seed=RND_SEED)
 
     trial_types = []
