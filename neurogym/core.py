@@ -120,7 +120,7 @@ class TrialEnv(BaseEnv):
         msg = "_new_trial is not defined by user."
         raise NotImplementedError(msg)
 
-    def _step(self, action) -> NoReturn:  # noqa: ARG002
+    def _step(self, _action) -> NoReturn:
         """Private interface for the environment.
 
         Receives an action and returns a new state, a reward, a flag variable
