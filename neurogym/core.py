@@ -312,9 +312,7 @@ class TrialEnv(BaseEnv):
 
         if duration is None:
             duration = self.sample_time(period)
-            self._duration[period] = duration
-        else:
-            self._duration[period] = duration
+        self._duration[period] = duration
 
         if after is not None:
             start = self.end_t[after] if isinstance(after, str) else after
