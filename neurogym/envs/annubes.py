@@ -24,7 +24,7 @@ class AnnubesEnv(TrialEnv):
             Defaults to 1000.
         catch_prob: Probability of catch trials in the session. Must be between 0 and 1 (inclusive).
             Defaults to 0.5.
-        max_sequential: It sets the maximum number of sequential trials of the same modality.
+        max_sequential: Maximum number of sequential trials of the same modality.
             Defaults to None (no maximum).
         fix_intensity: Intensity of input signal during fixation.
             Defaults to 0.
