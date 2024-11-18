@@ -256,8 +256,10 @@ class TrialEnv(BaseEnv):
                 # set period duration such that self.t_end[period] = args
                 t = args - self.tmax
                 if t < 0:
-                    msg = f"""Invalid 'until' time for period {period}. Current max time: {self.tmax},
-                    Requested end time: {args}"""
+                    msg = (
+                        f"Invalid 'until' time for period {period}. Current max time: {self.tmax},",
+                        f"Requested end time: {args}",
+                    )
                     raise ValueError(msg)
             else:
                 msg = f"Distribution {dist} not found."
@@ -310,9 +312,7 @@ class TrialEnv(BaseEnv):
 
         if duration is None:
             duration = self.sample_time(period)
-            self._duration[period] = duration
-        else:
-            self._duration[period] = duration
+        self._duration[period] = duration
 
         if after is not None:
             start = self.end_t[after] if isinstance(after, str) else after
