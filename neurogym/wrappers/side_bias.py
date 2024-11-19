@@ -1,5 +1,3 @@
-from typing import ClassVar
-
 import numpy as np
 
 import neurogym as ngym
@@ -15,7 +13,7 @@ class SideBias(ngym.TrialWrapper):
         block_dur: Number of trials per block. (def: 200, int)
     """
 
-    metadata: ClassVar[dict] = {
+    metadata: dict[str, str | None] = {  # noqa: RUF012
         "description": "Changes the probability of ground truth.",
         "paper_link": None,
         "paper_name": None,
@@ -42,10 +40,10 @@ class SideBias(ngym.TrialWrapper):
             self.choice_prob = np.array(probs)
         if self.choice_prob.shape[1] != len(self.choices):
             msg = (
-                f"The number of choices {self.choice_prob.shape[1]} inferred from prob mismatches",
-                f"{len(self.choices)} inferred from choices.",
+                f"The number of choices {self.choice_prob.shape[1]} inferred from prob mismatches "
+                f"{len(self.choices)} inferred from choices."
             )
-            raise ValueError(msg)  # FIXME: error message is unclear
+            raise ValueError(msg)
 
         self.n_block = self.choice_prob.shape[0]
         self.curr_block = self.task.rng.choice(range(self.n_block))

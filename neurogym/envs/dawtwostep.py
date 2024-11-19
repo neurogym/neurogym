@@ -1,5 +1,3 @@
-from typing import ClassVar
-
 import numpy as np
 from gymnasium import spaces
 
@@ -16,7 +14,7 @@ class DawTwoStep(ngym.TrialEnv):
     with a different chance of receiving reward.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.sciencedirect.com/science/article/pii/S0896627311001255",
         "paper_name": "Model-Based Influences on Humans Choices and Striatal Prediction Errors",
         "tags": ["two-alternative"],

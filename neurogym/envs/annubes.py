@@ -91,7 +91,7 @@ class AnnubesEnv(TrialEnv):
         self.catch_prob = catch_prob
         self.max_sequential = max_sequential
         self.sequential_count = 1
-        self.last_modality = None
+        self.last_modality: str | None = None
         self.fix_intensity = fix_intensity
         self.fix_time = fix_time
         self.iti = iti
@@ -124,7 +124,7 @@ class AnnubesEnv(TrialEnv):
             name={"fixation": self.fix_intensity, "choice": self.output_behavior[1:]},
         )
 
-    def _new_trial(self) -> dict:
+    def _new_trial(self, **kwargs: Any) -> dict:  # type: ignore[override]
         """Internal method to generate a new trial.
 
         Returns:
@@ -181,7 +181,7 @@ class AnnubesEnv(TrialEnv):
 
         return self.trial
 
-    def _step(self, action: int) -> tuple:
+    def _step(self, action: int) -> tuple:  # type: ignore[override]
         """Internal method to compute the environment's response to the agent's action.
 
         Args:
@@ -217,6 +217,7 @@ class AnnubesEnv(TrialEnv):
                 new_trial = True
 
         info = {"new_trial": new_trial, "gt": gt}
+
         if new_trial:
             info["trial"] = self.trial
             self.trial = {}

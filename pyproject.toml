@@ -43,8 +43,6 @@ version = "0.0.1"
 
 [project.optional-dependencies]
 dev = [
-    # packaging
-    "build",
     # formatting and linting
     "ruff >= 0.3.0",
     # testing
@@ -60,7 +58,7 @@ dev = [
     "nbsphinx",
 ]
 publishing = ["build", "twine", "wheel"]
-tutorials = ["jupyter"]
+tutorials = ["notebook"]
 env_specific = ["psychopy"]
 
 

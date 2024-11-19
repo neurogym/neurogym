@@ -1,5 +1,5 @@
 import contextlib
-from typing import NoReturn
+from typing import Any, NoReturn
 
 import gymnasium as gym
 import numpy as np
@@ -69,7 +69,7 @@ class BaseEnv(gym.Env):
         self.t = self.t_ind = 0
         self.tmax = 10000  # maximum time steps
         self.performance = 0
-        self.rewards = {}
+        self.rewards: dict = {}
         self.rng = np.random.RandomState()
 
     def seed(self, seed=None):
@@ -88,7 +88,7 @@ class TrialEnv(BaseEnv):
         self.r_tmax = r_tmax
         self.num_tr = 0
         self.num_tr_exp = num_trials_before_reset
-        self.trial = None
+        self.trial: dict | None = None
         self._ob_built = False
         self._gt_built = False
         self._has_gt = False  # check if the task ever defined gt
@@ -96,17 +96,17 @@ class TrialEnv(BaseEnv):
         self._default_ob_value = None  # default to 0
 
         # For optional periods
-        self.timing = {}
-        self.start_t = {}
-        self.end_t = {}
-        self.start_ind = {}
-        self.end_ind = {}
+        self.timing: dict = {}
+        self.start_t: dict = {}
+        self.end_t: dict = {}
+        self.start_ind: dict = {}
+        self.end_ind: dict = {}
         self._tmax = 0  # Length of each trial
 
         self._top = self
-        self._duration = {}
+        self._duration: dict = {}
 
-    def __str__(self) -> str:
+    def __str__(self) -> Any:
         """Information about task."""
         return env_string(self, short=True)
 
@@ -332,6 +332,9 @@ class TrialEnv(BaseEnv):
     def _init_ob(self) -> None:
         """Initialize trial info with tmax, tind, ob."""
         tmax_ind = int(self._tmax / self.dt)
+        if self.observation_space.shape is None:
+            msg = "observation_space.shape cannot be None"
+            raise ValueError(msg)
         ob_shape = [tmax_ind, *list(self.observation_space.shape)]
         if self._default_ob_value is None:
             self.ob = np.zeros(ob_shape, dtype=self.observation_space.dtype)
@@ -346,6 +349,9 @@ class TrialEnv(BaseEnv):
     def _init_gt(self) -> None:
         """Initialize trial with ground_truth."""
         tmax_ind = int(self._tmax / self.dt)
+        if self.action_space.shape is None:
+            msg = "action_space.shape cannot be None"
+            raise ValueError(msg)
         self.gt = np.zeros(
             [tmax_ind, *list(self.action_space.shape)],
             dtype=self.action_space.dtype,
@@ -387,7 +393,7 @@ class TrialEnv(BaseEnv):
                 ob += value
         else:
             if isinstance(where, str):
-                where = self.observation_space.name[where]
+                where = self.observation_space.name[where]  # type: ignore[attr-defined]
             # TODO: This only works if the slicing is one one-dimension
             if reset:
                 ob[..., where] *= 0
@@ -419,7 +425,7 @@ class TrialEnv(BaseEnv):
             ob += mu + self.rng.randn(*ob.shape) * sigma
         else:
             if isinstance(where, str):
-                where = self.observation_space.name[where]
+                where = self.observation_space.name[where]  # type: ignore[attr-defined]
             # TODO: This only works if the slicing is one one-dimension
             ob[..., where] += mu + self.rng.randn(*ob[..., where].shape) * sigma
 
@@ -433,7 +439,7 @@ class TrialEnv(BaseEnv):
 
         if where is not None:
             # TODO: Only works for Discrete action_space, make it work for Box
-            value = self.action_space.name[where][value]
+            value = self.action_space.name[where][value]  # type: ignore[attr-defined]
         if isinstance(period, str):
             self.gt[self.start_ind[period] : self.end_ind[period]] = value
         elif period is None:

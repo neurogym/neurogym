@@ -1,5 +1,3 @@
-from typing import ClassVar
-
 import numpy as np
 from gymnasium import spaces
 
@@ -11,16 +9,16 @@ import neurogym as ngym
 
 
 class IBL(ngym.TrialEnv):
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.sciencedirect.com/science/article/pii/S0896627317311364",
         "paper_name": """An International Laboratory for Systems and ' +
         'Computational Neuroscience""",
     }
 
-    def __init__(self, dt=100, rewards=None) -> None:
+    def __init__(self, dt: int = 100, rewards: dict[str, float] | None = None) -> None:
         super().__init__(dt=dt)
-        # TODO: Fix to use the default random number generator
-        self._rng = self.rng.RandomState(0)
+        # Fix: Use numpy's default_rng instead of RandomState
+        self._rng = np.random.default_rng(0)
         self.sigma = 0.10  # noise
         self.num_tr = 0  # number of trials
         self.block = 0  # block id
@@ -43,21 +41,24 @@ class IBL(ngym.TrialEnv):
             shape=(2,),
             dtype=np.float32,
         )
+        self.observation_shape = self.observation_space.shape  # Add this line
 
-    def new_block(self, n_trial, probs=None) -> None:
+    def new_block(self, n_trial: int, probs: tuple[float, float] | None = None) -> None:
+        if probs is None:
+            probs = (0.5, 0.5)  # Default probabilities if none are provided
         self.ground_truth = self._rng.choice(self.choices, size=(n_trial,), p=probs)
         self.coh = self._rng.choice(self.cohs, size=(n_trial,))
 
-        obs = np.zeros((n_trial, self.observation_space.shape[0]))
+        obs = np.zeros((n_trial, int(self.observation_shape[0])))  # Use self.observation_shape
         ind = np.arange(n_trial)
         obs[ind, self.ground_truth] = 0.5 + self.coh / 200
         obs[ind, 1 - self.ground_truth] = 0.5 - self.coh / 200
 
         # Add observation noise
-        obs += self._rng.randn(*obs.shape) * self.sigma
+        obs += self._rng.standard_normal(obs.shape) * self.sigma
         self.ob = obs
 
-    def _new_trial(self, **kwargs) -> None:
+    def _new_trial(self, **kwargs) -> None:  # type: ignore[override]
         """Called when a trial ends to get the specifications of the next trial.
 
         Such specifications are stored in a dictionary with the following items:
@@ -75,7 +76,7 @@ class IBL(ngym.TrialEnv):
 
         self.num_tr += 1
 
-    def _step(self, action):  # noqa: ARG002
+    def _step(self) -> tuple:  # type: ignore[override]
         info = {
             "continue": True,
             "gt": self.ground_truth[self.ind],
@@ -96,13 +97,13 @@ class IBL(ngym.TrialEnv):
 
 
 class IBL_Block(IBL):  # noqa: N801
-    def __init__(self, dt=100) -> None:
+    def __init__(self, dt: int = 100) -> None:
         super().__init__(dt=dt)
         self.probs = ((0.2, 0.8), (0.8, 0.2), (0.5, 0.5))
         self.block = 0
         self.block_size = 200
 
-    def _new_trial(self, **kwargs) -> None:
+    def _new_trial(self, **kwargs) -> None:  # type: ignore[override]
         """Called when a trial ends to get the specifications of the next trial.
 
         Such specifications are stored in a dictionary with the following items:
@@ -116,7 +117,7 @@ class IBL_Block(IBL):  # noqa: N801
         # ---------------------------------------------------------------------
         self.ind = self.num_tr % self.block_size
         if self.ind == 0:
-            self.block = self._rng.choice([0, 1, 2])
+            self.block = self._rng.integers(0, 3)  # Choose 0, 1, or 2
             prob = self.probs[self.block]
             self.new_block(self.block_size, probs=prob)
 

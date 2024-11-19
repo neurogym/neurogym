@@ -4,7 +4,6 @@
 """
 
 import warnings
-from typing import ClassVar
 
 import numpy as np
 
@@ -23,7 +22,7 @@ class Detection(ngym.TrialEnv):
     """
 
     # TODO: Remains to be described.
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": None,
         "paper_name": None,
         "tags": ["perceptual", "reaction time", "go-no-go", "supervised"],
@@ -50,8 +49,9 @@ class Detection(ngym.TrialEnv):
             self.extra_step = 1
             if delay is None:
                 warnings.warn(
-                    "Added an extra stp after the actual stimulus, else model will not be able to respond",
+                    "Added an extra stp after the actual stimulus, else model will not be able to respond "
                     "within response window (stimulus epoch).",
+                    UserWarning,
                     stacklevel=2,
                 )
         else:

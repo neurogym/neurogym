@@ -1,5 +1,3 @@
-from typing import ClassVar
-
 import numpy as np
 
 import neurogym as ngym
@@ -18,7 +16,7 @@ class DelayMatchCategory(ngym.TrialEnv):
     category, and report that decision during the decision period.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.nature.com/articles/nature05078",
         "paper_name": """Experience-dependent representation
         of visual categories in parietal cortex""",

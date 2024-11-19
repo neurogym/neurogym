@@ -1,5 +1,3 @@
-from typing import ClassVar
-
 import numpy as np
 
 import neurogym as ngym
@@ -14,7 +12,7 @@ class EconomicDecisionMaking(ngym.TrialEnv):
     different types of juice, and the agent prefers one over another.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.nature.com/articles/nature04676",
         "paper_name": "Neurons in the orbitofrontal cortex encode economic value",
         "tags": ["perceptual", "value-based"],

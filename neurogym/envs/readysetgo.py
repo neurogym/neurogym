@@ -1,7 +1,5 @@
 """Ready-set-go task."""
 
-from typing import ClassVar
-
 import numpy as np
 
 import neurogym as ngym
@@ -24,7 +22,7 @@ class ReadySetGo(ngym.TrialEnv):
             time within which the agent receives proportional reward
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.sciencedirect.com/science/article/pii/S0896627318304185",
         "paper_name": """Flexible Sensorimotor Computations through Rapid
         Reconfiguration of Cortical Dynamics""",
@@ -127,7 +125,7 @@ class MotorTiming(ngym.TrialEnv):
     """
 
     #  TODO: different actions not implemented
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.nature.com/articles/s41593-017-0028-6",
         "paper_name": """Flexible timing by temporal scaling of
          cortical responses""",
@@ -227,7 +225,7 @@ class OneTwoThreeGo(ngym.TrialEnv):
                     time within which the agent receives proportional reward
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.nature.com/articles/s41593-019-0500-6",
         "paper_name": "Internal models of sensorimotor integration regulate cortical dynamics",
         "tags": ["timing", "go-no-go", "supervised"],

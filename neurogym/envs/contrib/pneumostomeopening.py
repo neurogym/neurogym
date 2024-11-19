@@ -1,5 +1,4 @@
 import math
-from typing import ClassVar
 
 import numpy as np
 
@@ -9,7 +8,7 @@ from neurogym import spaces
 
 # TODO: Move to collection
 class Pneumostomeopening(ngym.BaseEnv):
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://jeb.biologists.org/content/199/3/683.long",
         "paper_name": """Operant conditioning of aerial respiratory behaviour
         in Lymnaea stagnalis""",

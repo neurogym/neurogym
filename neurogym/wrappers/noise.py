@@ -7,8 +7,6 @@ Created on Thu Feb 28 15:07:21 2019
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from typing import ClassVar
-
 import gymnasium as gym
 
 
@@ -24,7 +22,7 @@ class Noise(gym.Wrapper):
 
     """
 
-    metadata: ClassVar[dict] = {
+    metadata: dict[str, str | None] = {  # noqa: RUF012
         "description": "Add Gaussian noise to the observations.",
         "paper_link": None,
         "paper_name": None,

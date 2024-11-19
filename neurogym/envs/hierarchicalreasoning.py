@@ -1,7 +1,5 @@
 """Hierarchical reasoning tasks."""
 
-from typing import ClassVar
-
 import numpy as np
 
 import neurogym as ngym
@@ -22,7 +20,7 @@ class HierarchicalReasoning(ngym.TrialEnv):
     transtion is unannouced.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://science.sciencemag.org/content/364/6441/eaav8911",
         "paper_name": "Hierarchical reasoning by neural circuits in the frontal cortex",
         "tags": ["perceptual", "two-alternative", "supervised"],

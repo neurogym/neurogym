@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import ClassVar
 
 import numpy as np
 from gymnasium import Wrapper
@@ -24,7 +23,7 @@ class Monitor(Wrapper):
             (def: 100, int)
     """
 
-    metadata: ClassVar[dict] = {
+    metadata: dict[str, str | None] = {  # noqa: RUF012
         "description": (
             "Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth."
         ),
@@ -51,7 +50,7 @@ class Monitor(Wrapper):
         self.num_tr = 0
         self.step_fn = step_fn
         # data to save
-        self.data = {"action": [], "reward": []}
+        self.data: dict[str, list] = {"action": [], "reward": []}
         self.sv_per = sv_per
         self.sv_stp = sv_stp
         self.fig_type = fig_type
@@ -69,11 +68,11 @@ class Monitor(Wrapper):
         if self.sv_fig:
             self.num_stps_sv_fig = num_stps_sv_fig
             self.stp_counter = 0
-            self.ob_mat = []
-            self.act_mat = []
-            self.rew_mat = []
-            self.gt_mat = []
-            self.perf_mat = []
+            self.ob_mat: list = []
+            self.act_mat: list = []
+            self.rew_mat: list = []
+            self.gt_mat: list = []
+            self.perf_mat: list = []
 
     def reset(self, seed=None):
         super().reset(seed=seed)

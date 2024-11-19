@@ -1,5 +1,3 @@
-from typing import ClassVar
-
 import numpy as np
 
 import neurogym as ngym
@@ -15,7 +13,7 @@ class ReachingDelayResponse(ngym.TrialEnv):
     direction of the stimulus during the decision period.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": None,
         "paper_name": None,
         "tags": [

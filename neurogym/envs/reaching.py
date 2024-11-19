@@ -1,7 +1,5 @@
 """Reaching to target."""
 
-from typing import ClassVar
-
 import numpy as np
 
 import neurogym as ngym
@@ -21,7 +19,7 @@ class Reaching1D(ngym.TrialEnv):
     towards the stimulus direction.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://science.sciencemag.org/content/233/4771/1416",
         "paper_name": "Neuronal population coding of movement direction",
         "tags": ["motor", "steps action space"],
@@ -39,16 +37,16 @@ class Reaching1D(ngym.TrialEnv):
             self.timing.update(timing)
 
         # action and observation spaces
-        name = {"self": range(dim_ring, 2 * dim_ring), "target": range(dim_ring)}
+        obs_name = {"self": range(dim_ring, 2 * dim_ring), "target": range(dim_ring)}
         self.observation_space = spaces.Box(
             -np.inf,
             np.inf,
             shape=(2 * dim_ring,),
             dtype=np.float32,
-            name=name,
+            name=obs_name,
         )
-        name = {"fixation": 0, "left": 1, "right": 2}
-        self.action_space = spaces.Discrete(3, name=name)
+        action_name = {"fixation": 0, "left": 1, "right": 2}
+        self.action_space = spaces.Discrete(3, name=action_name)
 
         self.theta = np.arange(0, 2 * np.pi, 2 * np.pi / dim_ring)
         self.state = np.pi
@@ -113,7 +111,7 @@ class Reaching1DWithSelfDistraction(ngym.TrialEnv):
     Similar phenomena in bats.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "description": """The agent has to reproduce the angle indicated
          by the observation. Furthermore, the reaching state itself
          generates strong inputs that overshadows the actual target input.""",

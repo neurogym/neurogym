@@ -1,5 +1,3 @@
-from typing import ClassVar
-
 import numpy as np
 
 import neurogym as ngym
@@ -17,7 +15,7 @@ class IntervalDiscrimination(ngym.TrialEnv):
     choice options.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.sciencedirect.com/science/article/pii/S0896627309004887",
         "paper_name": """Feature- and Order-Based Timing Representations
          in the Frontal Cortex""",

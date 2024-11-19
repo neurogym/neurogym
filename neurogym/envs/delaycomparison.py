@@ -1,5 +1,3 @@
-from typing import ClassVar
-
 import numpy as np
 
 import neurogym as ngym
@@ -14,7 +12,7 @@ class DelayComparison(ngym.TrialEnv):
     during the decision period.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.jneurosci.org/content/30/28/9424",
         "paper_name": """Neuronal Population Coding of Parametric
         Working Memory""",
@@ -55,7 +53,7 @@ class DelayComparison(ngym.TrialEnv):
         self.vmax = np.max(self.vall)
 
         # action and observation space
-        name = {"fixation": 0, "stimulus": 1}
+        name: dict[str, int | list] = {"fixation": 0, "stimulus": 1}
         self.observation_space = spaces.Box(
             -np.inf,
             np.inf,

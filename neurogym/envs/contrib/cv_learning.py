@@ -1,5 +1,3 @@
-from typing import ClassVar
-
 import matplotlib.pyplot as plt
 import numpy as np
 from gymnasium import spaces
@@ -26,7 +24,7 @@ class CVLearning(ngym.TrialEnv):
         stages: Stages used to train the agent. (def: [0, 1, 2, 3, 4], list)
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.nature.com/articles/s41586-019-0919-7",
         "paper_name": "Discrete attractor dynamics underlies persistent activity in the frontal cortex",
         "tags": ["perceptual", "delayed response", "two-alternative", "supervised"],
@@ -89,19 +87,19 @@ class CVLearning(ngym.TrialEnv):
         # PERFORMANCE VARIABLES
         self.trials_counter = 0
         # Day/session performance
-        self.curr_perf = 0
-        self.trials_day = trials_day
+        self.curr_perf: np.floating = np.float64(0)
+        self.trials_day: int = trials_day
         self.th_perf = th_stage
-        self.day_perf = np.empty(trials_day)
+        self.day_perf: np.ndarray = np.empty(trials_day)
         self.w_keep = [keep_days] * len(self.stages)  # TODO: simplify??
         # number of days to keep an agent on a stage
         # once it has reached th_perf
         self.days_keep = self.w_keep[self.ind]
         self.keep_stage = False  # wether the agent can move to the next stage
         # Instantaneous performance (moving window)
-        self.inst_perf = 0
+        self.inst_perf: np.floating = np.float64(0)
         self.perf_len = perf_len  # window length
-        self.mov_perf = np.zeros(perf_len)
+        self.mov_perf: np.ndarray = np.zeros(perf_len)
 
         # STAGE VARIABLES
         # stage 0
@@ -278,7 +276,6 @@ class CVLearning(ngym.TrialEnv):
             # Keeping or changing stage
             if self.curr_perf >= self.th_perf and self.max_delays:
                 self.keep_stage = True
-
             else:
                 self.keep_stage = False
                 self.days_keep = self.w_keep[self.ind]

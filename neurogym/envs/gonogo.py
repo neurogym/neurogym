@@ -1,5 +1,3 @@
-from typing import ClassVar
-
 import numpy as np
 
 import neurogym as ngym
@@ -16,7 +14,7 @@ class GoNogo(ngym.TrialEnv):
     """
 
     # TODO: Find the original go-no-go paper
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://elifesciences.org/articles/43191",
         "paper_name": "Active information maintenance in working memory by a sensory cortex",
         "tags": ["delayed response", "go-no-go", "supervised"],

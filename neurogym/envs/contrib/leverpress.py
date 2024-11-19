@@ -1,4 +1,4 @@
-from typing import ClassVar, NoReturn
+from typing import NoReturn
 
 import gymnasium as gym
 import numpy as np
@@ -11,7 +11,7 @@ from neurogym.core import InvalidOperationError
 class LeverPress(gym.Env):
     """Lever pressing environment where a cue signals the sequence start."""
 
-    metadata: ClassVar[dict] = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
+    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 50}  # noqa: RUF012
 
     def __init__(self) -> None:
         """Lever pressing environment where a cue signals the sequence start."""
@@ -112,7 +112,7 @@ class LeverPressWithPoke(gym.Env):
         1: pressing
     """
 
-    metadata: ClassVar[dict] = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
+    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}  # noqa: RUF012
 
     def __init__(self) -> None:
         high = np.array([1])
@@ -218,7 +218,7 @@ class LeverPressWithPokeRest(gym.Env):
         2: poking reward port
     """
 
-    metadata: ClassVar[dict] = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
+    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}  # noqa: RUF012
 
     def __init__(self) -> None:
         high = np.array([1])
@@ -325,7 +325,7 @@ class LeverPressWithPokeRest(gym.Env):
 
 
 class ContextSwitch(gym.Env):
-    metadata: ClassVar[dict] = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}
+    metadata = {"render.modes": ["human", "rgb_array"], "video.frames_per_second": 50}  # noqa: RUF012
 
     def __init__(self) -> None:
         high = np.array([1, 1])
@@ -405,15 +405,15 @@ class FullInput(gym.Wrapper):
         super().__init__(env)
         # Modify observation space to include reward and action
         orig_ob_space = self.observation_space
-        ob_shape = orig_ob_space.shape[0] + self.action_space.n + 1  # noqa: F841
-        low = np.array(list(orig_ob_space.low) + [-1] + [0] * self.action_space.n)
-        high = np.array(list(orig_ob_space.high) + [1] + [1] * self.action_space.n)
-        self.observation_space = spaces.Box(low, high, dtype=np.float32)
+        # ob_shape is not used, so it is removed
+        low = np.array(list(orig_ob_space.low) + [-1] + [0] * self.action_space.n)  # type: ignore[attr-defined]
+        high = np.array(list(orig_ob_space.high) + [1] + [1] * self.action_space.n)  # type: ignore[attr-defined]
+        self.observation_space: spaces.Box = spaces.Box(low, high, dtype=np.float32)
 
     def step(self, action):
         obs, reward, terminated, truncated, info = self.env.step(action)
         # include reward and action information
-        one_hot_action = [0.0] * self.action_space.n
+        one_hot_action = [0.0] * self.action_space.n  # type: ignore[attr-defined]
         one_hot_action[action] = 1.0
         obs = np.array([*list(obs), reward, *one_hot_action])
         return obs, reward, terminated, truncated, info

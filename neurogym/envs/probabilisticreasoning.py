@@ -1,7 +1,5 @@
 """Random dot motion task."""
 
-from typing import ClassVar
-
 import numpy as np
 
 import neurogym as ngym
@@ -24,7 +22,7 @@ class ProbabilisticReasoning(ngym.TrialEnv):
         n_loc: int, number of location of show shapes
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.nature.com/articles/nature05852",
         "paper_name": "Probabilistic reasoning by neurons",
         "tags": ["perceptual", "two-alternative", "supervised"],
@@ -61,21 +59,21 @@ class ProbabilisticReasoning(ngym.TrialEnv):
 
         self.abort = False
 
-        name = {"fixation": 0}
+        obs_name: dict[str, int | range] = {"fixation": 0}
         start = 1
         for i_loc in range(n_loc):
-            name[f"loc{i_loc}"] = range(start, start + dim_shape)
+            obs_name[f"loc{i_loc}"] = range(start, start + dim_shape)
             start += dim_shape
         self.observation_space = spaces.Box(
             -np.inf,
             np.inf,
             shape=(1 + dim_shape * n_loc,),
             dtype=np.float32,
-            name=name,
+            name=obs_name,
         )
 
-        name = {"fixation": 0, "choice": [1, 2]}
-        self.action_space = spaces.Discrete(3, name=name)
+        action_name = {"fixation": 0, "choice": [1, 2]}
+        self.action_space = spaces.Discrete(3, name=action_name)
 
     def _new_trial(self, **kwargs):
         # Trial info

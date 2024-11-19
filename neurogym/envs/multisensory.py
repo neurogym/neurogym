@@ -1,7 +1,5 @@
 """Multi-Sensory Integration."""
 
-from typing import ClassVar
-
 import numpy as np
 
 import neurogym as ngym
@@ -21,7 +19,7 @@ class MultiSensoryIntegration(ngym.TrialEnv):
     from both modalities equally.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "description": None,
         "paper_link": None,
         "paper_name": None,
@@ -32,7 +30,6 @@ class MultiSensoryIntegration(ngym.TrialEnv):
         super().__init__(dt=dt)
 
         # trial conditions
-        self.choices = [1, 2]  # left, right choice
         self.cohs = [5, 15, 50]
 
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
