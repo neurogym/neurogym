@@ -24,10 +24,25 @@ class AnnubesEnv(TrialEnv):
             Defaults to 1000.
         catch_prob: Probability of catch trials in the session. Must be between 0 and 1 (inclusive).
             Defaults to 0.5.
+        max_sequential: Maximum number of sequential trials of the same modality.
+            Defaults to None (no maximum).
         fix_intensity: Intensity of input signal during fixation.
             Defaults to 0.
-        fix_time: Fixation time in ms. Note that the duration of each input and output signal is increased by this time.
+        fix_time: Fixation time specification. Can be one of the following:
+            - A number (int or float): Fixed duration in milliseconds.
+            - A callable: Function that returns the duration when called.
+            - A list of numbers: Random choice from the list.
+            - A tuple specifying a distribution:
+                - ("uniform", (min, max)): Uniform distribution between min and max.
+                - ("choice", [options]): Random choice from the given options.
+                - ("truncated_exponential", [parameters]): Truncated exponential distribution.
+                - ("constant", value): Always returns the given value.
+                - ("until", end_time): Sets duration to reach the specified end time.
+            The final duration is rounded down to the nearest multiple of the simulation timestep (dt).
+            Note that the duration of each input and output signal is increased by this time.
             Defaults to 500.
+        iti: Inter-trial interval, or time window between sequential trials, in ms. Same format as `fix_time`.
+            Defaults to 0.
         dt: Time step in ms.
             Defaults to 100.
         tau: Time constant in ms.
@@ -50,8 +65,10 @@ class AnnubesEnv(TrialEnv):
         stim_intensities: list[float] | None = None,
         stim_time: int = 1000,
         catch_prob: float = 0.5,
+        max_sequential: int | None = None,
         fix_intensity: float = 0,
-        fix_time: int = 500,
+        fix_time: Any = 500,
+        iti: Any = 0,
         dt: int = 100,
         tau: int = 100,
         output_behavior: list[float] | None = None,
@@ -72,8 +89,12 @@ class AnnubesEnv(TrialEnv):
         self.stim_intensities = stim_intensities
         self.stim_time = stim_time
         self.catch_prob = catch_prob
+        self.max_sequential = max_sequential
+        self.sequential_count = 1
+        self.last_modality = None
         self.fix_intensity = fix_intensity
         self.fix_time = fix_time
+        self.iti = iti
         self.dt = dt
         self.tau = tau
         self.output_behavior = output_behavior
@@ -93,14 +114,14 @@ class AnnubesEnv(TrialEnv):
             self.rewards = {"abort": -0.1, "correct": +1.0, "fail": 0.0}
         else:
             self.rewards = rewards
-        self.timing = {"fixation": self.fix_time, "stimulus": self.stim_time}
+        self.timing = {"fixation": self.fix_time, "stimulus": self.stim_time, "iti": self.iti}
         # Set the name of each input dimension
         obs_space_name = {"fixation": 0, "start": 1, **{trial: i for i, trial in enumerate(session, 2)}}
         self.observation_space = ngym.spaces.Box(low=0.0, high=1.0, shape=(len(obs_space_name),), name=obs_space_name)
         # Set the name of each action value
         self.action_space = ngym.spaces.Discrete(
             n=len(self.output_behavior),
-            name={"fixation": self.output_behavior[0], "choice": self.output_behavior[1:]},
+            name={"fixation": self.fix_intensity, "choice": self.output_behavior[1:]},
         )
 
     def _new_trial(self, **kwargs: Any) -> dict[str, bool | Any | None]:  # type: ignore[override]
@@ -110,7 +131,7 @@ class AnnubesEnv(TrialEnv):
             A dictionary containing the information of the new trial.
         """
         # Setting time periods and their order for this trial
-        self.add_period(["fixation", "stimulus"])
+        self.add_period(["fixation", "stimulus", "iti"])
 
         # Adding fixation and start signal values
         self.add_ob(self.fix_intensity, "fixation", where="fixation")
@@ -121,7 +142,20 @@ class AnnubesEnv(TrialEnv):
         stim_type = None
         stim_value = None
         if not catch:
-            stim_type = self._rng.choice(list(self.session.keys()), p=list(self.session.values()))
+            if len(self.session) == 1:
+                # Single modality task
+                stim_type = next(iter(self.session))
+            elif self.max_sequential is not None and self.sequential_count >= self.max_sequential:
+                # Force a different modality
+                available_modalities = [mod for mod in self.session if mod != self.last_modality]
+                stim_type = self._rng.choice(available_modalities)
+            else:
+                stim_type = self._rng.choice(list(self.session.keys()), p=list(self.session.values()))
+                # Update sequential count
+
+            self.sequential_count = 1 if stim_type != self.last_modality else self.sequential_count + 1
+            self.last_modality = stim_type
+
             stim_value = self._rng.choice(self.stim_intensities, 1)
             for mod in self.session:
                 if stim_type == mod:
@@ -129,11 +163,21 @@ class AnnubesEnv(TrialEnv):
                     self.add_randn(0, self.noise_factor, "stimulus", where=mod)
                 self.set_groundtruth(0, period="fixation")
                 self.set_groundtruth(1, period="stimulus")
+                self.set_groundtruth(0, period="iti")
         else:
             self.set_groundtruth(0, period="fixation")
             self.set_groundtruth(0, period="stimulus")
+            self.set_groundtruth(0, period="iti")
+            # Reset sequential count for catch trials
+            self.sequential_count = 1
+            self.last_modality = None
 
-        return {"catch": catch, "stim_type": stim_type, "stim_value": stim_value}
+        self.trial = {
+            "catch": catch,
+            "stim_type": stim_type,
+            "stim_value": stim_value,
+            "sequential_count": self.sequential_count,
+        }
 
     def _step(self, action: int) -> tuple:  # type: ignore[override]
         """Internal method to compute the environment's response to the agent's action.
@@ -152,7 +196,7 @@ class AnnubesEnv(TrialEnv):
         reward = 0
         gt = self.gt_now
 
-        if self.in_period("fixation"):
+        if self.in_period("fixation") or self.in_period("iti"):
             if action != 0:
                 reward += self.rewards["abort"]
         elif self.in_period("stimulus"):
