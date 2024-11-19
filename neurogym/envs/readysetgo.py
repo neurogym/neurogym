@@ -1,7 +1,5 @@
 """Ready-set-go task."""
 
-from typing import ClassVar
-
 import numpy as np
 
 import neurogym as ngym

@@ -1,7 +1,5 @@
 """Hierarchical reasoning tasks."""
 
-from typing import ClassVar
-
 import numpy as np
 
 import neurogym as ngym

@@ -1,8 +1,6 @@
 """Multi-arm Bandit task."""
 # TODO: add the actual papers.
 
-from typing import ClassVar
-
 import numpy as np
 
 import neurogym as ngym

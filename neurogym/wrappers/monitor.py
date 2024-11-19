@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import ClassVar
 
 import numpy as np
 from gymnasium import Wrapper

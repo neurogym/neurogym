@@ -1,7 +1,5 @@
 """An example collection of tasks."""
 
-from typing import ClassVar
-
 import numpy as np
 
 import neurogym as ngym

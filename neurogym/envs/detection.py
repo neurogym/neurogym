@@ -4,7 +4,6 @@
 """
 
 import warnings
-from typing import ClassVar
 
 import numpy as np
 

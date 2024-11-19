@@ -1,7 +1,5 @@
 """Visual search task."""
 
-from typing import ClassVar
-
 import numpy as np
 from gymnasium import spaces
 from psychopy import visual

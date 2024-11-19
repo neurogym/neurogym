@@ -1,7 +1,5 @@
 """Random dot motion task."""
 
-from typing import ClassVar
-
 import numpy as np
 from psychopy import visual
 

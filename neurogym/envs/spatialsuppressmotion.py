@@ -1,8 +1,6 @@
 # This is try to code spatial suppression motion task
 
 
-from typing import ClassVar
-
 import numpy as np
 from gymnasium import spaces
 from scipy.interpolate import interp1d

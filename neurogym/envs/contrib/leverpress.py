@@ -1,4 +1,4 @@
-from typing import Any, ClassVar, NoReturn
+from typing import NoReturn
 
 import gymnasium as gym
 import numpy as np

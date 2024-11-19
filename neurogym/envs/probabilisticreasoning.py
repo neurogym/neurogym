@@ -1,7 +1,5 @@
 """Random dot motion task."""
 
-from typing import ClassVar
-
 import numpy as np
 
 import neurogym as ngym

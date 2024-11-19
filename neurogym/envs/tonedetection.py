@@ -1,7 +1,5 @@
 """auditory tone detection task."""
 
-from typing import ClassVar
-
 import numpy as np
 from gymnasium import spaces
 
