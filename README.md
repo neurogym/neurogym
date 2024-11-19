@@ -85,9 +85,6 @@ class YourTask(ngym.PeriodEnv):
 
 ```
 
-
-
-
 ### Authors
 * Contact
 
