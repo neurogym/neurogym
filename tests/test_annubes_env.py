@@ -4,6 +4,8 @@ import pytest
 from neurogym.envs.annubes import AnnubesEnv
 
 RND_SEED = 42
+FIX_INTENSITY = 0.1
+OUTPUT_BEHAVIOR = [0, 0.5, 1]
 
 
 @pytest.fixture
@@ -20,11 +22,11 @@ def custom_env():
         stim_intensities=[0.5, 1.0],
         stim_time=800,
         catch_prob=0.3,
-        fix_intensity=0.1,
+        fix_intensity=FIX_INTENSITY,
         fix_time=300,
         dt=50,
         tau=80,
-        output_behavior=[0, 0.5, 1],
+        output_behavior=OUTPUT_BEHAVIOR,
         noise_std=0.02,
         rewards={"abort": -0.2, "correct": +1.5, "fail": -0.5},
         random_seed=42,
@@ -32,7 +34,7 @@ def custom_env():
 
 
 @pytest.mark.parametrize(
-    ("fix_time", "expected_type"),
+    ("time", "expected_type"),
     [
         (500, int),  # Fixed integer duration
         (500.0, float),  # Fixed float duration
@@ -45,56 +47,57 @@ def custom_env():
         (("until", 15000), int),  # Until specified time
     ],
 )
-def test_fix_time_types(fix_time, expected_type):
+def test_fix_time_types(time, expected_type):
     """Test various types of fix_time specifications."""
-    env = AnnubesEnv(fix_time=fix_time)
+    env = AnnubesEnv(fix_time=time, iti=time)
     # Be sure that at least one trial is run to sample the fix_time
     env.reset()
 
     # Check if the sampled fix_time is of the expected type
-    assert isinstance(
-        env._duration["fixation"],
-        expected_type,
-    ), f"Expected fix_time to be of type {expected_type}, but got {type(env._duration['fixation'])}"
+    for t in ["fixation", "iti"]:
+        assert isinstance(
+            env._duration[t],
+            expected_type,
+        ), f"Expected {t} time to be of type {expected_type}, but got {type(env._duration['fixation'])}"
 
-    # Check if the sampled fix_time is in the given list of values
-    if isinstance(fix_time, list):
-        assert (
-            env._duration["fixation"] in fix_time
-        ), f"Expected fix_time to be one of {fix_time}, but got {env._duration['fixation']}"
-    # Check if the sampled fix_time is in the given range
-    elif isinstance(fix_time, tuple) and fix_time[0] == "uniform":
-        fix_time_range = fix_time[1]
-        assert (
-            fix_time_range[0] <= env._duration["fixation"] <= fix_time_range[1]
-        ), f"""Expected fix_time to be between {fix_time_range[0]} and {fix_time_range[1]},
-        but got {env._duration['fixation']}"""
-    # Check if the sampled fix_time is in the given list of values
-    elif isinstance(fix_time, tuple) and fix_time[0] == "choice":
-        assert (
-            env._duration["fixation"] in fix_time[1]
-        ), f"Expected fix_time to be one of {fix_time[1]}, but got {env._duration['fixation']}"
-    # Check if the sampled fix_time is in the given range
-    elif isinstance(fix_time, tuple) and fix_time[0] == "truncated_exponential":
-        fix_time_range = fix_time[1]
-        assert (
-            fix_time_range[0] <= env._duration["fixation"] <= fix_time_range[1]
-        ), f"""Expected fix_time to be between {fix_time_range[0]} and {fix_time_range[1]},
-        but got {env._duration['fixation']}"""
-    # Check if the sampled fix_time is the given constant value
-    elif isinstance(fix_time, tuple) and fix_time[0] == "constant":
-        assert (
-            env._duration["fixation"] == fix_time[1]
-        ), f"Expected fix_time to be {fix_time[1]}, but got {env._duration['fixation']}"
+        # Check if the sampled time is in the given list of values
+        if isinstance(time, list):
+            assert (
+                env._duration[t] in time
+            ), f"Expected {t} time to be one of {time}, but got {env._duration['fixation']}"
+        # Check if the sampled time is in the given range
+        elif isinstance(time, tuple) and time[0] == "uniform":
+            time_range = time[1]
+            assert (
+                time_range[0] <= env._duration[t] <= time_range[1]
+            ), f"""Expected {t} time to be between {time_range[0]} and {time_range[1]},
+            but got {env._duration['fixation']}"""
+        # Check if the sampled time is in the given list of values
+        elif isinstance(time, tuple) and time[0] == "choice":
+            assert (
+                env._duration[t] in time[1]
+            ), f"Expected {t} time to be one of {time[1]}, but got {env._duration['fixation']}"
+        # Check if the sampled time is in the given range
+        elif isinstance(time, tuple) and time[0] == "truncated_exponential":
+            time_range = time[1]
+            assert (
+                time_range[0] <= env._duration[t] <= time_range[1]
+            ), f"""Expected {t} time to be between {time_range[0]} and {time_range[1]},
+            but got {env._duration['fixation']}"""
+        # Check if the sampled time is the given constant value
+        elif isinstance(time, tuple) and time[0] == "constant":
+            assert (
+                env._duration[t] == time[1]
+            ), f"Expected {t} time to be {time[1]}, but got {env._duration['fixation']}"
 
-    # For callable fix_time, check if it's actually called
-    if callable(fix_time):
-        assert env._duration["fixation"] == 500, f"Expected fix_time to be 500, but got {env._duration['fixation']}"
+        # For callable time, check if it's actually called
+        if callable(time):
+            assert env._duration[t] == 500, f"Expected {t} time to be 500, but got {env._duration['fixation']}"
 
-    # Ensure the sampled time is a multiple of dt
-    assert (
-        env._duration["fixation"] % env.dt == 0
-    ), f"Expected fix_time to be a multiple of dt ({env.dt}), but got {env._duration['fixation']}"
+        # Ensure the sampled time is a multiple of dt
+        assert (
+            env._duration[t] % env.dt == 0
+        ), f"Expected {t} time to be a multiple of dt ({env.dt}), but got {env._duration['fixation']}"
 
 
 def test_observation_space(default_env, custom_env):
@@ -119,10 +122,10 @@ def test_action_space(default_env, custom_env):
     2. The names and values assigned to each action
     """
     assert default_env.action_space.n == 2
-    assert custom_env.action_space.n == 3
+    assert custom_env.action_space.n == len(OUTPUT_BEHAVIOR)
 
     assert default_env.action_space.name == {"fixation": 0, "choice": [1]}
-    assert custom_env.action_space.name == {"fixation": 0, "choice": [0.5, 1]}
+    assert custom_env.action_space.name == {"fixation": FIX_INTENSITY, "choice": OUTPUT_BEHAVIOR[1:]}
 
 
 @pytest.mark.parametrize("env", ["default_env", "custom_env"])
