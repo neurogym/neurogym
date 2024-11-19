@@ -91,7 +91,7 @@ class AnnubesEnv(TrialEnv):
         self.catch_prob = catch_prob
         self.max_sequential = max_sequential
         self.sequential_count = 1
-        self.last_modality = None
+        self.last_modality: str | None = None
         self.fix_intensity = fix_intensity
         self.fix_time = fix_time
         self.iti = iti
@@ -124,7 +124,7 @@ class AnnubesEnv(TrialEnv):
             name={"fixation": self.fix_intensity, "choice": self.output_behavior[1:]},
         )
 
-    def _new_trial(self, **kwargs: Any) -> dict[str, bool | Any | None]:  # type: ignore[override]
+    def _new_trial(self, **kwargs: Any):  # type: ignore[override]
         """Internal method to generate a new trial.
 
         Returns:

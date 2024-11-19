@@ -88,7 +88,7 @@ class TrialEnv(BaseEnv):
         self.r_tmax = r_tmax
         self.num_tr = 0
         self.num_tr_exp = num_trials_before_reset
-        self.trial = None
+        self.trial: dict | None = None
         self._ob_built = False
         self._gt_built = False
         self._has_gt = False  # check if the task ever defined gt
@@ -104,7 +104,7 @@ class TrialEnv(BaseEnv):
         self._tmax = 0  # Length of each trial
 
         self._top = self
-        self._duration = {}
+        self._duration: dict = {}
 
     def __str__(self) -> Any:
         """Information about task."""

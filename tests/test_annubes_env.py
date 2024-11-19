@@ -121,7 +121,7 @@ def test_catch_prob(catch_prob: float) -> None:
     for _ in range(n_trials):
         env.reset()
         trial_info = env.trial
-        if trial_info["catch"]:
+        if trial_info is not None and trial_info.get("catch"):
             catch_count += 1
 
     observed_prob = catch_count / n_trials
@@ -157,10 +157,11 @@ def test_annubes_env_max_sequential(session: dict, catch_prob: float, max_sequen
     """
     env = AnnubesEnv(session=session, catch_prob=catch_prob, max_sequential=max_sequential, random_seed=RND_SEED)
 
-    trial_types: list[str | None] = []
+    trial_types = []
     for _ in range(N_TRIALS):
         env.new_trial()
-        trial_types.append(env.trial["stim_type"])
+        if env.trial is not None:
+            trial_types.append(env.trial["stim_type"])
 
     # Check for sequences longer than max_sequential, excluding None (catch trials)
     for i in range(len(trial_types) - max_sequential):
@@ -200,8 +201,8 @@ def test_observation_space(default_env: AnnubesEnv, custom_env: AnnubesEnv) -> N
     assert default_env.observation_space.shape == (4,)
     assert custom_env.observation_space.shape == (3,)
 
-    assert default_env.observation_space.name == {"fixation": 0, "start": 1, "v": 2, "a": 3}
-    assert custom_env.observation_space.name == {"fixation": 0, "start": 1, "v": 2}
+    assert default_env.observation_space.name == {"fixation": 0, "start": 1, "v": 2, "a": 3}  # type: ignore[attr-defined]
+    assert custom_env.observation_space.name == {"fixation": 0, "start": 1, "v": 2}  # type: ignore[attr-defined]
 
 
 def test_action_space(default_env: AnnubesEnv, custom_env: AnnubesEnv) -> None:
@@ -211,11 +212,11 @@ def test_action_space(default_env: AnnubesEnv, custom_env: AnnubesEnv) -> None:
     1. The number of possible actions
     2. The names and values assigned to each action
     """
-    assert default_env.action_space.n == 2
-    assert custom_env.action_space.n == len(OUTPUT_BEHAVIOR)
+    assert default_env.action_space.n == 2  # type: ignore[attr-defined]
+    assert custom_env.action_space.n == len(OUTPUT_BEHAVIOR)  # type: ignore[attr-defined]
 
-    assert default_env.action_space.name == {"fixation": 0, "choice": [1]}
-    assert custom_env.action_space.name == {"fixation": FIX_INTENSITY, "choice": OUTPUT_BEHAVIOR[1:]}
+    assert default_env.action_space.name == {"fixation": 0, "choice": [1]}  # type: ignore[attr-defined]
+    assert custom_env.action_space.name == {"fixation": FIX_INTENSITY, "choice": OUTPUT_BEHAVIOR[1:]}  # type: ignore[attr-defined]
 
 
 @pytest.mark.parametrize("env", ["default_env", "custom_env"])
