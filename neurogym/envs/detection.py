@@ -23,7 +23,7 @@ class Detection(ngym.TrialEnv):
     """
 
     # TODO: Remains to be described.
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": None,
         "paper_name": None,
         "tags": ["perceptual", "reaction time", "go-no-go", "supervised"],

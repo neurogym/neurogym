@@ -16,7 +16,7 @@ class DelayMatchSample(ngym.TrialEnv):
     stimuli are equal, and report that decision during the decision period.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf",
         "paper_name": """Neural Mechanisms of Visual Working Memory in
         Prefrontal Cortex of the Macaque""",
@@ -124,7 +124,7 @@ class DelayMatchSampleDistractor1D(ngym.TrialEnv):
     then a second test stimulus follow, and so on.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.jneurosci.org/content/jneuro/16/16/5154.full.pdf",
         "paper_name": """Neural Mechanisms of Visual Working Memory
         in Prefrontal Cortex of the Macaque""",

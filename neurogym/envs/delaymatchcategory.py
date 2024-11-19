@@ -18,7 +18,7 @@ class DelayMatchCategory(ngym.TrialEnv):
     category, and report that decision during the decision period.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.nature.com/articles/nature05078",
         "paper_name": """Experience-dependent representation
         of visual categories in parietal cortex""",

@@ -24,7 +24,7 @@ class ProbabilisticReasoning(ngym.TrialEnv):
         n_loc: int, number of location of show shapes
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.nature.com/articles/nature05852",
         "paper_name": "Probabilistic reasoning by neurons",
         "tags": ["perceptual", "two-alternative", "supervised"],

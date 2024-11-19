@@ -19,9 +19,8 @@ class ReactionTime(gym.Wrapper):  # TODO: Make this a trial wrapper instead?
     any time after the fixation period.
     """
 
-    metadata: ClassVar[dict] = {
-        "description": "Modifies a given environment by allowing the network"
-        " to act at any time after the fixation period.",
+    metadata: dict[str, str | None] = {  # noqa: RUF012
+        "description": "Modifies a given environment by allowing the network to act at any time after the fixation period.",
         "paper_link": None,
         "paper_name": None,
     }

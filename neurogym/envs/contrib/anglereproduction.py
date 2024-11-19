@@ -16,7 +16,7 @@ class AngleReproduction(ngym.TrialEnv):
     by a constant delay.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.pnas.org/content/114/43/E9115.short",
         "paper_name": """Visual perception as retrospective Bayesian
         decoding from high- to low-level features""",

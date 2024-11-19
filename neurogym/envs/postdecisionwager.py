@@ -17,7 +17,7 @@ class PostDecisionWager(ngym.TrialEnv):
     option when it is uncertain about its perceptual decision.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://science.sciencemag.org/content/324/5928/759.long",
         "paper_name": """Representation of Confidence Associated with a
          Decision by Neurons in the Parietal Cortex""",

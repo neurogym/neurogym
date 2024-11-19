@@ -21,7 +21,7 @@ class MultiSensoryIntegration(ngym.TrialEnv):
     from both modalities equally.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "description": None,
         "paper_link": None,
         "paper_name": None,

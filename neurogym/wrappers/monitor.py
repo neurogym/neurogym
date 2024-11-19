@@ -24,7 +24,7 @@ class Monitor(Wrapper):
             (def: 100, int)
     """
 
-    metadata: ClassVar[dict] = {
+    metadata: dict[str, str | None] = {  # noqa: RUF012
         "description": (
             "Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth."
         ),

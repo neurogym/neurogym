@@ -5,7 +5,7 @@ from gymnasium import Wrapper, spaces
 
 
 class PassReward(Wrapper):
-    metadata: ClassVar[dict] = {
+    metadata: dict[str, str | None] = {  # noqa: RUF012
         "description": "Modifies observation by adding the previous reward.",
         "paper_link": None,
         "paper_name": None,

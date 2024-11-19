@@ -60,7 +60,7 @@ class _Reach(ngym.TrialEnv):
     by the observation.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.nature.com/articles/nrn1345",
         "paper_name": """Look away: the anti-saccade task and
         the voluntary control of eye movement""",
@@ -344,7 +344,7 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
             if True (False), go to the last stimulus if match (non-match)
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.nature.com/articles/nature05078",
         "paper_name": """Experience-dependent representation
         of visual categories in parietal cortex""",

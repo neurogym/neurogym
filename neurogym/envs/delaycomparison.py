@@ -14,7 +14,7 @@ class DelayComparison(ngym.TrialEnv):
     during the decision period.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.jneurosci.org/content/30/28/9424",
         "paper_name": """Neuronal Population Coding of Parametric
         Working Memory""",

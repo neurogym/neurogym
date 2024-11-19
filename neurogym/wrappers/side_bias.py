@@ -15,7 +15,7 @@ class SideBias(ngym.TrialWrapper):
         block_dur: Number of trials per block. (def: 200, int)
     """
 
-    metadata: ClassVar[dict] = {
+    metadata: dict[str, str | None] = {  # noqa: RUF012
         "description": "Changes the probability of ground truth.",
         "paper_link": None,
         "paper_name": None,

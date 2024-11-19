@@ -1,3 +1,5 @@
+from typing import Any
+
 import numpy as np
 from gymnasium import spaces
 
@@ -20,9 +22,9 @@ class RandomGroundTruth(TrialWrapper):
 
     def new_trial(self, **kwargs):
         p = kwargs.get("p", self.p)
-        ground_truth = self.rng.choice(self.env.choices, p=p)
+        ground_truth = self.rng.choice(self.env.choices, p=p)  # type: ignore[attr-defined]
         kwargs = {"ground_truth": ground_truth}
-        return self.env.new_trial(**kwargs)
+        return self.env.new_trial(**kwargs)  # type: ignore[attr-defined]
 
 
 class ScheduleAttr(TrialWrapper):
@@ -40,12 +42,12 @@ class ScheduleAttr(TrialWrapper):
 
     def seed(self, seed=None) -> None:
         self.schedule.seed(seed)
-        self.env.seed(seed)
+        self.env.seed(seed)  # type: ignore[attr-defined]
 
     def new_trial(self, **kwargs):
         i = self.schedule()
         kwargs.update(self.attr_list[i])
-        return self.env.new_trial(**kwargs)
+        return self.env.new_trial(**kwargs)  # type: ignore[attr-defined]
 
 
 def _have_equal_shape(envs) -> None:
@@ -96,17 +98,25 @@ class MultiEnvs(TrialWrapper):
                 -np.inf,
                 np.inf,
                 shape=(env_shape[0] + len(self.envs),),
-                dtype=self.observation_space.dtype,
+                dtype=self.envs[0].observation_space.dtype,
             )
 
-    def reset(self, **kwargs) -> None:
-        # return the initial ob of the first env in the list envs by default
+    def reset(
+        self,
+        *,
+        seed: int | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> tuple[Any, dict[str, Any]]:
+        reset_kwargs: dict[str, Any] = {}
 
-        for i, env in enumerate(self.envs):
-            self.set_i(i)
-            env.reset(**kwargs)
+        if seed is not None:
+            reset_kwargs["seed"] = seed
+        if options is not None:
+            reset_kwargs.update(options)
 
-        self.set_i(0)
+        ob = super().reset(**reset_kwargs)
+
+        return ob, {}
 
     def set_i(self, i) -> None:
         """Set the i-th environment."""
@@ -120,11 +130,11 @@ class MultiEnvs(TrialWrapper):
         trial = self.env.new_trial(**kwargs)
         # Expand observation
         env_ob = np.zeros(
-            (self.unwrapped.ob.shape[0], len(self.envs)),
-            dtype=self.unwrapped.ob.dtype,
+            (self.unwrapped.ob.shape[0], len(self.envs)),  # type: ignore[attr-defined]
+            dtype=self.unwrapped.ob.dtype,  # type: ignore[attr-defined]
         )
         env_ob[:, self.i_env] = 1.0
-        self.unwrapped.ob = np.concatenate((self.unwrapped.ob, env_ob), axis=-1)
+        self.unwrapped.ob = np.concatenate((self.unwrapped.ob, env_ob), axis=-1)  # type: ignore[attr-defined]
         return trial
 
 
@@ -158,7 +168,7 @@ class ScheduleEnvs(TrialWrapper):
                 -np.inf,
                 np.inf,
                 shape=(env_shape[0] + len(self.envs),),
-                dtype=self.observation_space.dtype,
+                dtype=np.float32,
             )
 
     def seed(self, seed=None) -> None:
@@ -206,11 +216,11 @@ class ScheduleEnvs(TrialWrapper):
             trial = self.env.new_trial(**kwargs)
             # Expand observation
             env_ob = np.zeros(
-                (self.unwrapped.ob.shape[0], len(self.envs)),
-                dtype=self.unwrapped.ob.dtype,
+                (self.unwrapped.ob.shape[0], len(self.envs)),  # type: ignore[attr-defined]
+                dtype=self.unwrapped.ob.dtype,  # type: ignore[attr-defined]
             )
             env_ob[:, self.i_env] = 1.0
-            self.unwrapped.ob = np.concatenate((self.unwrapped.ob, env_ob), axis=-1)
+            self.unwrapped.ob = np.concatenate((self.unwrapped.ob, env_ob), axis=-1)  # type: ignore[attr-defined]
 
         self.next_i_env = self.schedule()
         if self.env != self.envs[self.i_env]:
@@ -263,4 +273,4 @@ class TrialHistoryV2(TrialWrapper):
         self.prev_trial = self.rng.choice(self.n_ch, p=p)
         ground_truth = self.choices[self.prev_trial]
         kwargs.update({"ground_truth": ground_truth, "probs": probs})
-        return self.env.new_trial(**kwargs)
+        return self.env.new_trial(**kwargs)  # type: ignore[attr-defined]

@@ -1,10 +1,13 @@
 import contextlib
-from typing import Any, NoReturn
+from typing import TYPE_CHECKING, Any, NoReturn
 
 import gymnasium as gym
 import numpy as np
 
 from neurogym.utils.random import trunc_exp
+
+if TYPE_CHECKING:
+    import neurogym as ngym
 
 METADATA_DEF_KEYS = ["description", "paper_name", "paper_link", "timing", "tags"]
 
@@ -324,6 +327,9 @@ class TrialEnv(BaseEnv):
     def _init_ob(self) -> None:
         """Initialize trial info with tmax, tind, ob."""
         tmax_ind = int(self._tmax / self.dt)
+        if self.observation_space.shape is None:
+            msg = "observation_space.shape cannot be None"
+            raise ValueError(msg)
         ob_shape = [tmax_ind, *list(self.observation_space.shape)]
         if self._default_ob_value is None:
             self.ob = np.zeros(ob_shape, dtype=self.observation_space.dtype)
@@ -338,6 +344,9 @@ class TrialEnv(BaseEnv):
     def _init_gt(self) -> None:
         """Initialize trial with ground_truth."""
         tmax_ind = int(self._tmax / self.dt)
+        if self.action_space.shape is None:
+            msg = "action_space.shape cannot be None"
+            raise ValueError(msg)
         self.gt = np.zeros(
             [tmax_ind, *list(self.action_space.shape)],
             dtype=self.action_space.dtype,
@@ -379,7 +388,7 @@ class TrialEnv(BaseEnv):
                 ob += value
         else:
             if isinstance(where, str):
-                where = self.observation_space.name[where]
+                where = self.observation_space.name[where]  # type: ignore[attr-defined]
             # TODO: This only works if the slicing is one one-dimension
             if reset:
                 ob[..., where] *= 0
@@ -411,7 +420,7 @@ class TrialEnv(BaseEnv):
             ob += mu + self.rng.randn(*ob.shape) * sigma
         else:
             if isinstance(where, str):
-                where = self.observation_space.name[where]
+                where = self.observation_space.name[where]  # type: ignore[attr-defined]
             # TODO: This only works if the slicing is one one-dimension
             ob[..., where] += mu + self.rng.randn(*ob[..., where].shape) * sigma
 
@@ -425,7 +434,7 @@ class TrialEnv(BaseEnv):
 
         if where is not None:
             # TODO: Only works for Discrete action_space, make it work for Box
-            value = self.action_space.name[where][value]
+            value = self.action_space.name[where][value]  # type: ignore[attr-defined]
         if isinstance(period, str):
             self.gt[self.start_ind[period] : self.end_ind[period]] = value
         elif period is None:

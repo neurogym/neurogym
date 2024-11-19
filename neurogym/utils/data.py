@@ -99,8 +99,8 @@ class Dataset:
             seq_end = 0
             while seq_end < self._cache_len:
                 # TODO: Right now this only works for env with new_trial
-                env.new_trial(**kwargs)
-                ob, gt = env.ob, env.gt
+                env.new_trial(**kwargs)  # type: ignore[attr-defined]
+                ob, gt = env.ob, env.gt  # type: ignore[attr-defined]
                 seq_len = ob.shape[0]
                 seq_end = seq_start + seq_len
                 if seq_end > self._cache_len:
@@ -147,9 +147,9 @@ class Dataset:
     def seed(self, seed=None) -> None:
         for i, env in enumerate(self.envs):
             if seed is None:
-                env.seed(seed)
+                env.seed(seed)  # type: ignore[attr-defined]
             else:
-                env.seed(seed + i)
+                env.seed(seed + i)  # type: ignore[attr-defined]
 
 
 if __name__ == "__main__":

@@ -16,7 +16,7 @@ class MatchingPenny(ngym.TrialEnv):
         learning_rate: learning rate in the mean_action opponent
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.nature.com/articles/nn1209",
         "paper_name": """Prefrontal cortex and decision making in a
          mixed-strategy game""",

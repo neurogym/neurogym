@@ -11,7 +11,7 @@ import neurogym as ngym
 
 
 class IBL(ngym.TrialEnv):
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.sciencedirect.com/science/article/pii/S0896627317311364",
         "paper_name": """An International Laboratory for Systems and ' +
         'Computational Neuroscience""",
@@ -43,12 +43,15 @@ class IBL(ngym.TrialEnv):
             shape=(2,),
             dtype=np.float32,
         )
+        self.observation_shape = self.observation_space.shape  # Add this line
 
     def new_block(self, n_trial: int, probs: tuple[float, float] | None = None) -> None:
+        if probs is None:
+            probs = (0.5, 0.5)  # Default probabilities if none are provided
         self.ground_truth = self._rng.choice(self.choices, size=(n_trial,), p=probs)
         self.coh = self._rng.choice(self.cohs, size=(n_trial,))
 
-        obs = np.zeros((n_trial, self.observation_space.shape[0]))
+        obs = np.zeros((n_trial, int(self.observation_shape[0])))  # Use self.observation_shape
         ind = np.arange(n_trial)
         obs[ind, self.ground_truth] = 0.5 + self.coh / 200
         obs[ind, 1 - self.ground_truth] = 0.5 - self.coh / 200

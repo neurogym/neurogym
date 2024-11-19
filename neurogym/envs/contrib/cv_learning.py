@@ -26,7 +26,7 @@ class CVLearning(ngym.TrialEnv):
         stages: Stages used to train the agent. (def: [0, 1, 2, 3, 4], list)
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.nature.com/articles/s41586-019-0919-7",
         "paper_name": "Discrete attractor dynamics underlies persistent activity in the frontal cortex",
         "tags": ["perceptual", "delayed response", "two-alternative", "supervised"],

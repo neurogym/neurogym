@@ -30,7 +30,7 @@ class ToneDetection(ngym.TrialEnv):
         <timing>: stimulus timing
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.jneurosci.org/content/jneuro/5/12/3261.full.pdf",
         "paper_name": "Representation of Tones in Noise in the Responses of Auditory Nerve Fibers  in Cats",
         "tags": ["auditory", "perceptual", "supervised", "decision"],

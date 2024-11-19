@@ -18,7 +18,7 @@ class DualDelayMatchSample(ngym.TrialEnv):
     other sample stimulus matches the second test stimulus.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://science.sciencemag.org/content/354/6316/1136",
         "paper_name": """Reactivation of latent working memories with
         transcranial magnetic stimulation""",

@@ -21,7 +21,7 @@ class Reaching1D(ngym.TrialEnv):
     towards the stimulus direction.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://science.sciencemag.org/content/233/4771/1416",
         "paper_name": "Neuronal population coding of movement direction",
         "tags": ["motor", "steps action space"],
@@ -113,7 +113,7 @@ class Reaching1DWithSelfDistraction(ngym.TrialEnv):
     Similar phenomena in bats.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "description": """The agent has to reproduce the angle indicated
          by the observation. Furthermore, the reaching state itself
          generates strong inputs that overshadows the actual target input.""",

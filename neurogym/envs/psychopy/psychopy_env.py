@@ -1,4 +1,5 @@
 import sys
+from typing import Any
 
 import numpy as np
 
@@ -20,14 +21,13 @@ class PsychopyEnv(ngym.TrialEnv):
         super().__init__(*args, **kwargs)
 
         # fix the bug when multi windows with different sizes in a batch
-        win_kwargs_tmp = {"size": (100, 100), "color": "black"} if win_kwargs is None else win_kwargs.copy()
+        win_kwargs_tmp: dict[str, Any] = (
+            {"size": (100, 100), "color": "black"} if win_kwargs is None else win_kwargs.copy()
+        )
 
         if sys.platform == "darwin":
             # TODO: Check if this works across platform
-            win_kwargs_tmp["size"] = (
-                int(win_kwargs_tmp["size"][0] / 2),
-                int(win_kwargs_tmp["size"][1] / 2),
-            )
+            win_kwargs_tmp["size"] = tuple(int(dim) // 2 for dim in win_kwargs_tmp["size"])
         # psychopy window kwargs can be supplied by 'win_kws'
         self.win = visual.Window(**win_kwargs_tmp)
         self.win.backend.winHandle.set_visible(False)

@@ -21,7 +21,7 @@ class AntiReach(ngym.TrialEnv):
             pro-response, i.e. response towards the stimulus.
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.nature.com/articles/nrn1345",
         "paper_name": """Look away: the anti-saccade task and
         the voluntary control of eye movement""",

@@ -35,7 +35,7 @@ class SpatialSuppressMotion(PsychopyEnv):
 
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.nature.com/articles/nature01800",
         "paper_name": """Perceptual consequences of centre-surround antagonism in visual motion processing """,
         "tags": ["perceptual", "plaid", "motion", "center-surround"],

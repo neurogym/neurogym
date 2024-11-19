@@ -18,7 +18,7 @@ class RandomDotMotion(PsychopyEnv):
         dim_ring: int, dimension of ring input and output
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.jneurosci.org/content/12/12/4745",
         "paper_name": """The analysis of visual motion: a comparison of
         neuronal and psychophysical performance""",

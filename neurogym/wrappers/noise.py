@@ -24,7 +24,7 @@ class Noise(gym.Wrapper):
 
     """
 
-    metadata: ClassVar[dict] = {
+    metadata: dict[str, str | None] = {  # noqa: RUF012
         "description": "Add Gaussian noise to the observations.",
         "paper_link": None,
         "paper_name": None,

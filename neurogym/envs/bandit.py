@@ -22,7 +22,7 @@ class Bandit(ngym.TrialEnv):
         rewards: tuple of length n, describe the reward magnitude of each option when rewarded
     """
 
-    metadata: ClassVar[dict] = {
+    metadata = {  # noqa: RUF012
         "paper_link": "https://www.nature.com/articles/s41593-018-0147-8",
         "paper_name": "Prefrontal cortex as a meta-reinforcement learning system",
         "tags": ["n-alternative"],
