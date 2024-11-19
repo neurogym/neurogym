@@ -24,6 +24,8 @@ class AnnubesEnv(TrialEnv):
             Defaults to 1000.
         catch_prob: Probability of catch trials in the session. Must be between 0 and 1 (inclusive).
             Defaults to 0.5.
+        max_sequential: Maximum number of sequential trials of the same modality.
+            Defaults to None (no maximum).
         fix_intensity: Intensity of input signal during fixation.
             Defaults to 0.
         fix_time: Fixation time specification. Can be one of the following:
@@ -63,6 +65,7 @@ class AnnubesEnv(TrialEnv):
         stim_intensities: list[float] | None = None,
         stim_time: int = 1000,
         catch_prob: float = 0.5,
+        max_sequential: int | None = None,
         fix_intensity: float = 0,
         fix_time: Any = 500,
         iti: Any = 0,
@@ -86,6 +89,9 @@ class AnnubesEnv(TrialEnv):
         self.stim_intensities = stim_intensities
         self.stim_time = stim_time
         self.catch_prob = catch_prob
+        self.max_sequential = max_sequential
+        self.sequential_count = 1
+        self.last_modality = None
         self.fix_intensity = fix_intensity
         self.fix_time = fix_time
         self.iti = iti
@@ -136,7 +142,20 @@ class AnnubesEnv(TrialEnv):
         stim_type = None
         stim_value = None
         if not catch:
-            stim_type = self._rng.choice(list(self.session.keys()), p=list(self.session.values()))
+            if len(self.session) == 1:
+                # Single modality task
+                stim_type = next(iter(self.session))
+            elif self.max_sequential is not None and self.sequential_count >= self.max_sequential:
+                # Force a different modality
+                available_modalities = [mod for mod in self.session if mod != self.last_modality]
+                stim_type = self._rng.choice(available_modalities)
+            else:
+                stim_type = self._rng.choice(list(self.session.keys()), p=list(self.session.values()))
+                # Update sequential count
+
+            self.sequential_count = 1 if stim_type != self.last_modality else self.sequential_count + 1
+            self.last_modality = stim_type
+
             stim_value = self._rng.choice(self.stim_intensities, 1)
             for mod in self.session:
                 if stim_type == mod:
@@ -149,8 +168,16 @@ class AnnubesEnv(TrialEnv):
             self.set_groundtruth(0, period="fixation")
             self.set_groundtruth(0, period="stimulus")
             self.set_groundtruth(0, period="iti")
+            # Reset sequential count for catch trials
+            self.sequential_count = 1
+            self.last_modality = None
 
-        self.trial = {"catch": catch, "stim_type": stim_type, "stim_value": stim_value}
+        self.trial = {
+            "catch": catch,
+            "stim_type": stim_type,
+            "stim_value": stim_value,
+            "sequential_count": self.sequential_count,
+        }
 
         return self.trial
 
