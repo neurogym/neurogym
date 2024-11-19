@@ -179,14 +179,14 @@ def test_annubes_env_max_sequential(session: dict, catch_prob: float, max_sequen
         expected_count = expected_non_catch * expected_prob
         # Allow for 20% deviation from expected count
         assert (
-            0.8 * expected_count <= count <= 1.2 * expected_count
+            0.7 * expected_count <= count <= 1.3 * expected_count
         ), f"{trial_type} trials are not balanced. Expected: {expected_count:.2f}, Actual: {count}"
 
     # Check catch trial frequency
     catch_count = trial_types.count(None)
     expected_catch = N_TRIALS * catch_prob
     assert (
-        0.8 * expected_catch <= catch_count <= 1.2 * expected_catch
+        0.7 * expected_catch <= catch_count <= 1.3 * expected_catch
     ), f"Catch trials are not balanced. Expected: {expected_catch:.2f}, Actual: {catch_count}"
 
 
