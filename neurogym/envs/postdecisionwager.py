@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-from __future__ import division
-
 import numpy as np
 
 import neurogym as ngym
@@ -10,7 +5,7 @@ from neurogym import spaces
 
 
 class PostDecisionWager(ngym.TrialEnv):
-    r"""Post-decision wagering task assessing confidence.
+    """Post-decision wagering task assessing confidence.
 
     The agent first performs a perceptual discrimination task (see for more
     details the PerceptualDecisionMaking task). On a random half of the
@@ -19,15 +14,15 @@ class PostDecisionWager(ngym.TrialEnv):
     small reward. Therefore, the agent is encouraged to choose the sure-bet
     option when it is uncertain about its perceptual decision.
     """
-    metadata = {
-        'paper_link': 'https://science.sciencemag.org/content/324/5928/' +
-        '759.long',
-        'paper_name': '''Representation of Confidence Associated with a
-         Decision by Neurons in the Parietal Cortex''',
-        'tags': ['perceptual', 'delayed response', 'confidence']
+
+    metadata = {  # noqa: RUF012
+        "paper_link": "https://science.sciencemag.org/content/324/5928/759.long",
+        "paper_name": """Representation of Confidence Associated with a
+         Decision by Neurons in the Parietal Cortex""",
+        "tags": ["perceptual", "delayed response", "confidence"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, dim_ring=2, sigma=1.0):
+    def __init__(self, dt=100, rewards=None, timing=None, dim_ring=2, sigma=1.0) -> None:
         super().__init__(dt=dt)
 
         self.wagers = [True, False]
@@ -37,64 +32,70 @@ class PostDecisionWager(ngym.TrialEnv):
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
         # Rewards
-        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
+        self.rewards = {"abort": -0.1, "correct": +1.0, "fail": 0.0}
         if rewards:
             self.rewards.update(rewards)
-        self.rewards['sure'] = 0.7 * self.rewards['correct']
+        self.rewards["sure"] = 0.7 * self.rewards["correct"]
 
         self.timing = {
-            'fixation': 100,
-            # 'target':  0,
-            'stimulus': ngym.random.TruncExp(180, 100, 900),
-            'delay': ngym.random.TruncExp(1350, 1200, 1800),
-            'pre_sure': lambda: self.rng.uniform(500, 750),
-            'decision': 100}
+            "fixation": 100,
+            # 'target':  0,  # noqa: ERA001
+            "stimulus": ngym.random.TruncExp(180, 100, 900),
+            "delay": ngym.random.TruncExp(1350, 1200, 1800),
+            "pre_sure": lambda: self.rng.uniform(500, 750),
+            "decision": 100,
+        }
         if timing:
             self.timing.update(timing)
 
         self.abort = False
 
         # set action and observation space
-        name = {'fixation': 0, 'stimulus': [1, 2], 'sure': 3}
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(4,),
-                                            dtype=np.float32, name=name)
-        name = {'fixation': 0, 'choice': [1, 2], 'sure': 3}
+        name = {"fixation": 0, "stimulus": [1, 2], "sure": 3}
+        self.observation_space = spaces.Box(
+            -np.inf,
+            np.inf,
+            shape=(4,),
+            dtype=np.float32,
+            name=name,
+        )
+        name = {"fixation": 0, "choice": [1, 2], "sure": 3}
         self.action_space = spaces.Discrete(4, name=name)
 
     # Input scaling
     def scale(self, coh):
-        return (1 + coh/100)/2
+        return (1 + coh / 100) / 2
 
     def _new_trial(self, **kwargs):
         # Trial info
         trial = {
-            'wager': self.rng.choice(self.wagers),
-            'ground_truth': self.rng.choice(self.choices),
-            'coh': self.rng.choice(self.cohs),
+            "wager": self.rng.choice(self.wagers),
+            "ground_truth": self.rng.choice(self.choices),
+            "coh": self.rng.choice(self.cohs),
         }
         trial.update(kwargs)
-        coh = trial['coh']
-        ground_truth = trial['ground_truth']
+        coh = trial["coh"]
+        ground_truth = trial["ground_truth"]
         stim_theta = self.theta[ground_truth]
 
         # Periods
-        periods = ['fixation', 'stimulus', 'delay']
+        periods = ["fixation", "stimulus", "delay"]
         self.add_period(periods)
-        if trial['wager']:
-            self.add_period('pre_sure', after='stimulus')
-        self.add_period('decision', after='delay')
+        if trial["wager"]:
+            self.add_period("pre_sure", after="stimulus")
+        self.add_period("decision", after="delay")
 
         # Observations
-        self.add_ob(1, ['fixation', 'stimulus', 'delay'], where='fixation')
+        self.add_ob(1, ["fixation", "stimulus", "delay"], where="fixation")
         stim = np.cos(self.theta - stim_theta) * (coh / 200) + 0.5
-        self.add_ob(stim, 'stimulus', where='stimulus')
-        self.add_randn(0, self.sigma, 'stimulus')
-        if trial['wager']:
-            self.add_ob(1, ['delay', 'decision'], where='sure')
-            self.set_ob(0, 'pre_sure', where='sure')
+        self.add_ob(stim, "stimulus", where="stimulus")
+        self.add_randn(0, self.sigma, "stimulus")
+        if trial["wager"]:
+            self.add_ob(1, ["delay", "decision"], where="sure")
+            self.set_ob(0, "pre_sure", where="sure")
 
         # Ground truth
-        self.set_groundtruth(ground_truth, period='decision', where='choice')
+        self.set_groundtruth(ground_truth, period="decision", where="choice")
 
         return trial
 
@@ -104,31 +105,37 @@ class PostDecisionWager(ngym.TrialEnv):
         # ---------------------------------------------------------------------
         trial = self.trial
         new_trial = False
+        terminated = False
+        truncated = False
 
         reward = 0
         gt = self.gt_now
 
-        if self.in_period('fixation'):
+        if self.in_period("fixation"):
             if action != 0:
                 new_trial = self.abort
-                reward = self.rewards['abort']
-        elif self.in_period('decision'):
+                reward = self.rewards["abort"]
+        elif self.in_period("decision"):
             new_trial = True
             if action == 0:
                 new_trial = False
             elif action == 3:  # sure option
-                if trial['wager']:
-                    reward = self.rewards['sure']
-                    norm_rew = ((reward-self.rewards['fail'])/
-                                (self.rewards['correct']-self.rewards['fail']))
+                if trial["wager"]:
+                    reward = self.rewards["sure"]
+                    norm_rew = (reward - self.rewards["fail"]) / (self.rewards["correct"] - self.rewards["fail"])
                     self.performance = norm_rew
                 else:
-                    reward = self.rewards['abort']
+                    reward = self.rewards["abort"]
+            elif action == trial["ground_truth"]:
+                reward = self.rewards["correct"]
+                self.performance = 1
             else:
-                if action == trial['ground_truth']:
-                    reward = self.rewards['correct']
-                    self.performance = 1
-                else:
-                    reward = self.rewards['fail']
+                reward = self.rewards["fail"]
 
-        return self.ob_now, reward, False, {'new_trial': new_trial, 'gt': gt}
+        return (
+            self.ob_now,
+            reward,
+            terminated,
+            truncated,
+            {"new_trial": new_trial, "gt": gt},
+        )

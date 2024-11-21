@@ -1,2 +1,0 @@
-"""Test collections of tasks."""
-

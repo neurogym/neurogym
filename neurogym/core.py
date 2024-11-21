@@ -1,59 +1,46 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+import contextlib
+from typing import Any, NoReturn
 
-
+import gymnasium as gym
 import numpy as np
-import gym
-import warnings
 
 from neurogym.utils.random import trunc_exp
 
-METADATA_DEF_KEYS = ['description', 'paper_name', 'paper_link', 'timing',
-                     'tags']
+METADATA_DEF_KEYS = ["description", "paper_name", "paper_link", "timing", "tags"]
 
-OBNOW = 'ob_unknown_yet'  # TODO: temporary hack to create constant placeholder
+OBNOW = "ob_unknown_yet"  # TODO: temporary hack to create constant placeholder
 
 
 def _clean_string(string):
-    return ' '.join(string.replace('\n', '').split())
+    return " ".join(string.replace("\n", "").split())
 
 
 def env_string(env, short=False):
     if short:
-        string = "<{:s}>".format(type(env).__name__)
-        return string
+        return f"<{type(env).__name__}>"
 
-    string = ''
+    string = ""
     metadata = env.metadata
     docstring = env.__doc__
-    string += "### {:s}\n".format(type(env).__name__)
-    paper_name = metadata.get('paper_name',
-                              None) or 'Missing paper name'
+    string += f"### {type(env).__name__}\n"
+    paper_name = metadata.get("paper_name", None) or "Missing paper name"
     paper_name = _clean_string(paper_name)
-    paper_link = metadata.get('paper_link', None)
-    string += "Doc: {:s}\n".format(docstring)
+    paper_link = metadata.get("paper_link", None)
+    string += f"Doc: {docstring}\n"
     string += "Reference paper \n"
     if paper_link is None:
-        string += "{:s}\n".format(paper_name)
-        string += 'Missing paper link\n'
+        string += f"{paper_name}\n"
+        string += "Missing paper link\n"
     else:
-        string += "[{:s}]({:s})\n".format(paper_name, paper_link)
-    # add timing info
-    # TODO: Add timing info back?
-    # if isinstance(env, TrialEnv):
-    #     timing = env.timing
-    #     string += '\nPeriod timing (ms) \n'
-    #     for key, val in timing.items():
-    #         dist, args = val
-    #         string +=\
-    #             key + ' : ' + tasktools.random_number_name(dist, args) + '\n'
+        string += f"[{paper_name}]({paper_link})\n"
+    # TODO: Add timing info back? # commented out code for this TODO removed in PR #16
 
-    if env.rewards is not None: #if env.rewards is an array, if env.rewards will throw an error
-        string += '\nReward structure \n'
-        try: #if the reward structure is a dictionary
+    if env.rewards is not None:  # if env.rewards is an array, if env.rewards will throw an error
+        string += "\nReward structure \n"
+        try:  # if the reward structure is a dictionary
             for key, val in env.rewards.items():
-                string += key + ' : ' + str(val) + '\n'
-        except AttributeError: #otherwise just add the reward structure to the string?
+                string += f"{key} : {val}\n"
+        except AttributeError:  # otherwise just add the reward structure to the string?
             string += str(env.rewards)
 
     # add extra info
@@ -61,28 +48,28 @@ def env_string(env, short=False):
     if len(other_info) > 0:
         string += "\nOther parameters: \n"
         for key in other_info:
-            string += key + ' : ' + _clean_string(str(metadata[key])) + '\n'
+            string += f"{key} : {_clean_string(str(metadata[key]))}\n"
     # tags
-    if 'tags' in metadata:
-        tags = metadata['tags']
-        string += '\nTags: '
+    if "tags" in metadata:
+        tags = metadata["tags"]
+        string += "\nTags: "
         for tag in tags:
-            string += tag + ', '
-        string = string[:-2] + '.\n'
+            string += f"{tag}, "
+        string = string[:-2] + ".\n"
 
     return string
 
 
 class BaseEnv(gym.Env):
-    """The base Neurogym class to include dt"""
+    """The base Neurogym class to include dt."""
 
-    def __init__(self, dt=100):
-        super(BaseEnv, self).__init__()
+    def __init__(self, dt=100) -> None:
+        super().__init__()
         self.dt = dt
         self.t = self.t_ind = 0
         self.tmax = 10000  # maximum time steps
         self.performance = 0
-        self.rewards = {}
+        self.rewards: dict = {}
         self.rng = np.random.RandomState()
 
     def seed(self, seed=None):
@@ -92,21 +79,16 @@ class BaseEnv(gym.Env):
             self.action_space.seed(seed)
         return [seed]
 
-    # TODO: should return just the initial ob
-    # def reset(self):
-    #     """Do nothing. Run one step"""
-    #     return self.step(self.action_space.sample())
-
 
 class TrialEnv(BaseEnv):
     """The main Neurogym class for trial-based envs."""
 
-    def __init__(self, dt=100, num_trials_before_reset=10000000, r_tmax=0):
-        super(TrialEnv, self).__init__(dt=dt)
+    def __init__(self, dt=100, num_trials_before_reset=10000000, r_tmax=0) -> None:
+        super().__init__(dt=dt)
         self.r_tmax = r_tmax
         self.num_tr = 0
         self.num_tr_exp = num_trials_before_reset
-        self.trial = None
+        self.trial: dict | None = None
         self._ob_built = False
         self._gt_built = False
         self._has_gt = False  # check if the task ever defined gt
@@ -114,57 +96,56 @@ class TrialEnv(BaseEnv):
         self._default_ob_value = None  # default to 0
 
         # For optional periods
-        self.timing = {}
-        self.start_t = dict()
-        self.end_t = dict()
-        self.start_ind = dict()
-        self.end_ind = dict()
+        self.timing: dict = {}
+        self.start_t: dict = {}
+        self.end_t: dict = {}
+        self.start_ind: dict = {}
+        self.end_ind: dict = {}
         self._tmax = 0  # Length of each trial
 
         self._top = self
+        self._duration: dict = {}
 
-    def __str__(self):
+    def __str__(self) -> Any:
         """Information about task."""
         return env_string(self, short=True)
 
-    def _new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs) -> NoReturn:
         """Private interface for starting a new trial.
 
         Returns:
             trial: dict of trial information. Available to step function as
                 self.trial
         """
-        raise NotImplementedError('_new_trial is not defined by user.')
+        msg = "_new_trial is not defined by user."
+        raise NotImplementedError(msg)
 
-    def _step(self, action):
+    def _step(self, _action) -> NoReturn:
         """Private interface for the environment.
 
         Receives an action and returns a new state, a reward, a flag variable
         indicating whether the experiment has ended and a dictionary with
-        useful information
+        useful information.
         """
-        raise NotImplementedError('_step is not defined by user.')
+        msg = "_step is not defined by user."
+        raise NotImplementedError(msg)
 
     def seed(self, seed=None):
         """Set random seed."""
         self.rng = np.random.RandomState(seed)
-        if hasattr(self, 'action_space') and self.action_space is not None:
+        if hasattr(self, "action_space") and self.action_space is not None:
             self.action_space.seed(seed)
-        for key, val in self.timing.items():
-            try:
+        for val in self.timing.values():
+            with contextlib.suppress(AttributeError):
                 val.seed(seed)
-            except AttributeError:
-                pass
         return [seed]
 
-    def post_step(self, ob, reward, done, info):
-        """
-        Optional task-specific wrapper applied at the end of step.
+    def post_step(self, ob, reward, terminated, truncated, info):
+        """Optional task-specific wrapper applied at the end of step.
 
-        It allows to modify ob online (e.g. provide a specific observation for
-                                       different actions made by the agent)
+        It allows to modify ob online (e.g. provide a specific observation for different actions made by the agent)
         """
-        return ob, reward, done, info
+        return ob, reward, terminated, truncated, info
 
     def new_trial(self, **kwargs):
         """Public interface for starting a new trial.
@@ -185,103 +166,114 @@ class TrialEnv(BaseEnv):
 
     def step(self, action):
         """Public interface for the environment."""
-        ob, reward, done, info = self._step(action)
+        ob, reward, terminated, truncated, info = self._step(action)
 
-        if 'new_trial' not in info:
-            info['new_trial'] = False
+        if "new_trial" not in info:
+            info["new_trial"] = False
 
-        if self._has_gt and 'gt' not in info:
+        if self._has_gt and "gt" not in info:
             # If gt is built, default gt to gt_now
             # must run before incrementing t
-            info['gt'] = self.gt_now
+            info["gt"] = self.gt_now
 
         self.t += self.dt  # increment within trial time count
         self.t_ind += 1
 
-        if self.t + self.dt > self.tmax and not info['new_trial']:
-            info['new_trial'] = True
+        if self.t + self.dt > self.tmax and not info["new_trial"]:
+            info["new_trial"] = True
             reward += self.r_tmax
 
         # TODO: new_trial happens after step, so trial indx precedes obs change
-        if info['new_trial']:
-            info['performance'] = self.performance
+        if info["new_trial"]:
+            info["performance"] = self.performance
             self.t = self.t_ind = 0  # Reset within trial time count
             trial = self._top.new_trial()
             self.performance = 0
-            info['trial'] = trial
+            info["trial"] = trial
         if ob is OBNOW:
             ob = self.ob[self.t_ind]
-        return self.post_step(ob, reward, done, info)
+        return self.post_step(ob, reward, terminated, truncated, info)
 
-    def reset(self, seed=None, return_info=False, options=None, step_fn=None, no_step=False):
+    def reset(self, seed=None, options=None):
         """Reset the environment.
 
         Args:
             seed: random seed, overwrites self.seed if not None
-            return_info: if False, return only the initial observation, else return also some extra info
-            options: additional options used to reset the env
-            step_fn: function or None. If function, overwrite original
-                self.step function
-            no_step: bool. If True, no step is taken and observation randomly
-                sampled. Default False.
+            options: additional options used to reset the env.
+                Can include 'step_fn' and 'no_step'.
+                `step_fn` can be a function or None. If function, overwrite original
+                `self.step` method.
+                `no_step` is a bool. If True, no step is taken and observation randomly
+                sampled. It defaults to False.
         """
-        if seed is not None:
-            super().reset(seed=seed)  # set the random seed in gym.Env
-            self.seed(seed)
+        super().reset(seed=seed)
 
         self.num_tr = 0
         self.t = self.t_ind = 0
+
+        step_fn = options.get("step_fn") if options else None
+        no_step = options.get("no_step", False) if options else False
 
         self._top.new_trial()
 
         # have to also call step() to get the initial ob since some wrappers modify step() but not new_trial()
         self.action_space.seed(0)
         if no_step:
-            return self.observation_space.sample()
+            return self.observation_space.sample(), {}
         if step_fn is None:
-            ob, _, _, _ = self._top.step(self.action_space.sample())
+            ob, _, _, _, _ = self._top.step(self.action_space.sample())
         else:
-            ob, _, _, _ = step_fn(self.action_space.sample())
-        return ob
+            ob, _, _, _, _ = step_fn(self.action_space.sample())
+        return ob, {}
 
-    def render(self, mode='human'):
-        """
-        plots relevant variables/parameters
-        """
-        pass
+    def render(self, mode="human") -> None:
+        """Plots relevant variables/parameters."""
 
-    def set_top(self, wrapper):
+    def set_top(self, wrapper) -> None:
         """Set top to be wrapper."""
         self._top = wrapper
 
     def sample_time(self, period):
         timing = self.timing[period]
-        if isinstance(timing, (int, float)):
+        if isinstance(timing, int | float):
             t = timing
         elif callable(timing):
             t = timing()
-        elif isinstance(timing[0], (int, float)):
+        elif isinstance(timing[0], int | float):
             # Expect list of int/float, and use random choice
             t = self.rng.choice(timing)
         else:
             dist, args = timing
-            if dist == 'uniform':
+            if dist == "uniform":
                 t = self.rng.uniform(*args)
-            elif dist == 'choice':
+            elif dist == "choice":
                 t = self.rng.choice(args)
-            elif dist == 'truncated_exponential':
+            elif dist == "truncated_exponential":
                 t = trunc_exp(self.rng, *args)
-            elif dist == 'constant':
+            elif dist == "constant":
                 t = args
-            elif dist == 'until':
+            elif dist == "until":
                 # set period duration such that self.t_end[period] = args
                 t = args - self.tmax
+                if t < 0:
+                    msg = (
+                        f"Invalid 'until' time for period {period}. Current max time: {self.tmax},",
+                        f"Requested end time: {args}",
+                    )
+                    raise ValueError(msg)
             else:
-                raise ValueError('Unknown dist:', str(dist))
+                msg = f"Distribution {dist} not found."
+                raise ValueError(msg)
         return (t // self.dt) * self.dt
 
-    def add_period(self, period, duration=None, before=None, after=None,
-                   last_period=False):
+    def add_period(
+        self,
+        period,
+        duration=None,
+        before=None,
+        after=None,
+        last_period=False,
+    ) -> None:
         """Add an period.
 
         Args:
@@ -294,34 +286,36 @@ class TrialEnv(BaseEnv):
             last_period: bool, default False. If True, then this is last period
                 will generate self.tmax, self.tind, and self.ob
         """
-        assert not self._ob_built, 'Cannot add period after ob ' \
-                                   'is built, i.e. after running add_ob'
+        if self._ob_built:
+            msg = "Cannot add period after ob is built, i.e. after running add_ob."
+            raise InvalidOperationError(msg)
         if isinstance(period, str):
             pass
         else:
             if duration is None:
                 duration = [None] * len(period)
-            else:
-                assert len(duration) == len(period),\
-                    'duration and period must have same length'
+            elif len(duration) != len(period):
+                msg = f"{len(duration)=} and {len(period)=} must be the same."
+                raise ValueError(msg)
 
             # Recursively calling itself
             self.add_period(period[0], duration=duration[0], after=after)
             for i in range(1, len(period)):
                 is_last = (i == len(period) - 1) and last_period
-                self.add_period(period[i], duration=duration[i],
-                                after=period[i - 1], last_period=is_last)
+                self.add_period(
+                    period[i],
+                    duration=duration[i],
+                    after=period[i - 1],
+                    last_period=is_last,
+                )
             return
 
         if duration is None:
-            # duration = (self.timing_fn[period]() // self.dt) * self.dt
             duration = self.sample_time(period)
+        self._duration[period] = duration
 
         if after is not None:
-            if isinstance(after, str):
-                start = self.end_t[after]
-            else:
-                start = after
+            start = self.end_t[after] if isinstance(after, str) else after
         elif before is not None:
             start = self.start_t[before] - duration
         else:
@@ -329,28 +323,39 @@ class TrialEnv(BaseEnv):
 
         self.start_t[period] = start
         self.end_t[period] = start + duration
-        self.start_ind[period] = int(start/self.dt)
-        self.end_ind[period] = int((start + duration)/self.dt)
+        self.start_ind[period] = int(start / self.dt)
+        self.end_ind[period] = int((start + duration) / self.dt)
 
         self._tmax = max(self._tmax, start + duration)
-        self.tmax = int(self._tmax/self.dt) * self.dt
+        self.tmax = int(self._tmax / self.dt) * self.dt
 
-    def _init_ob(self):
-        """Initialize trial info with tmax, tind, ob"""
-        tmax_ind = int(self._tmax/self.dt)
-        ob_shape = [tmax_ind] + list(self.observation_space.shape)
+    def _init_ob(self) -> None:
+        """Initialize trial info with tmax, tind, ob."""
+        tmax_ind = int(self._tmax / self.dt)
+        if self.observation_space.shape is None:
+            msg = "observation_space.shape cannot be None"
+            raise ValueError(msg)
+        ob_shape = [tmax_ind, *list(self.observation_space.shape)]
         if self._default_ob_value is None:
             self.ob = np.zeros(ob_shape, dtype=self.observation_space.dtype)
         else:
-            self.ob = np.full(ob_shape, self._default_ob_value,
-                              dtype=self.observation_space.dtype)
+            self.ob = np.full(
+                ob_shape,
+                self._default_ob_value,
+                dtype=self.observation_space.dtype,
+            )
         self._ob_built = True
 
-    def _init_gt(self):
+    def _init_gt(self) -> None:
         """Initialize trial with ground_truth."""
         tmax_ind = int(self._tmax / self.dt)
-        self.gt = np.zeros([tmax_ind] + list(self.action_space.shape),
-                           dtype=self.action_space.dtype)
+        if self.action_space.shape is None:
+            msg = "action_space.shape cannot be None"
+            raise ValueError(msg)
+        self.gt = np.zeros(
+            [tmax_ind, *list(self.action_space.shape)],
+            dtype=self.action_space.dtype,
+        )
         self._gt_built = True
 
     def view_ob(self, period=None):
@@ -360,16 +365,16 @@ class TrialEnv(BaseEnv):
 
         if period is None:
             return self.ob
-        else:
-            return self.ob[self.start_ind[period]:self.end_ind[period]]
+        return self.ob[self.start_ind[period] : self.end_ind[period]]
 
-    def _add_ob(self, value, period=None, where=None, reset=False):
+    def _add_ob(self, value, period=None, where=None, reset=False) -> None:
         """Set observation in period to value.
 
         Args:
             value: np array (ob_space.shape, ...)
             period: string, must be name of an added period
             where: string or np array, location of stimulus to be added
+            reset: # FIXME: add description
         """
         if isinstance(period, str) or period is None:
             pass
@@ -378,7 +383,6 @@ class TrialEnv(BaseEnv):
                 self._add_ob(value, p, where, reset=reset)
             return
 
-        # self.ob[self.start_ind[period]:self.end_ind[period]] = value
         ob = self.view_ob(period=period)
         if where is None:
             if reset:
@@ -389,7 +393,7 @@ class TrialEnv(BaseEnv):
                 ob += value
         else:
             if isinstance(where, str):
-                where = self.observation_space.name[where]
+                where = self.observation_space.name[where]  # type: ignore[attr-defined]
             # TODO: This only works if the slicing is one one-dimension
             if reset:
                 ob[..., where] *= 0
@@ -398,7 +402,7 @@ class TrialEnv(BaseEnv):
             except TypeError:
                 ob[..., where] += value
 
-    def add_ob(self, value, period=None, where=None):
+    def add_ob(self, value, period=None, where=None) -> None:
         """Add value to observation.
 
         Args:
@@ -408,7 +412,7 @@ class TrialEnv(BaseEnv):
         """
         self._add_ob(value, period, where, reset=False)
 
-    def add_randn(self, mu=0, sigma=1, period=None, where=None):
+    def add_randn(self, mu=0, sigma=1, period=None, where=None) -> None:
         if isinstance(period, str) or period is None:
             pass
         else:
@@ -421,23 +425,23 @@ class TrialEnv(BaseEnv):
             ob += mu + self.rng.randn(*ob.shape) * sigma
         else:
             if isinstance(where, str):
-                where = self.observation_space.name[where]
+                where = self.observation_space.name[where]  # type: ignore[attr-defined]
             # TODO: This only works if the slicing is one one-dimension
             ob[..., where] += mu + self.rng.randn(*ob[..., where].shape) * sigma
 
-    def set_ob(self, value, period=None, where=None):
+    def set_ob(self, value, period=None, where=None) -> None:
         self._add_ob(value, period, where, reset=True)
 
-    def set_groundtruth(self, value, period=None, where=None):
+    def set_groundtruth(self, value, period=None, where=None) -> None:
         """Set groundtruth value."""
         if not self._gt_built:
             self._init_gt()
 
         if where is not None:
             # TODO: Only works for Discrete action_space, make it work for Box
-            value = self.action_space.name[where][value]
+            value = self.action_space.name[where][value]  # type: ignore[attr-defined]
         if isinstance(period, str):
-            self.gt[self.start_ind[period]: self.end_ind[period]] = value
+            self.gt[self.start_ind[period] : self.end_ind[period]] = value
         elif period is None:
             self.gt[:] = value
         else:
@@ -448,10 +452,10 @@ class TrialEnv(BaseEnv):
         """View observation of an period."""
         if not self._gt_built:
             self._init_gt()
-        return self.gt[self.start_ind[period]:self.end_ind[period]]
+        return self.gt[self.start_ind[period] : self.end_ind[period]]
 
     def in_period(self, period, t=None):
-        """Check if current time or time t is in period"""
+        """Check if current time or time t is in period."""
         if t is None:
             t = self.t  # Default
         return self.start_t[period] <= t < self.end_t[period]
@@ -466,14 +470,14 @@ class TrialEnv(BaseEnv):
 
 
 class TrialWrapper(gym.Wrapper):
-    """Base class for wrapping TrialEnv"""
+    """Base class for wrapping TrialEnv."""
 
-    def __init__(self, env):
+    def __init__(self, env) -> None:
         super().__init__(env)
         self.env = env
         if not isinstance(self.unwrapped, TrialEnv):
-            raise TypeError("Trial wrapper must be used on TrialEnv"
-                            "Got instead", self.unwrapped)
+            msg = f"Trial wrapper must be used on TrialEnv, not {self.unwrapped}."
+            raise TypeError(msg)
         self.unwrapped.set_top(self)
 
     @property
@@ -481,5 +485,9 @@ class TrialWrapper(gym.Wrapper):
         """Alias."""
         return self.unwrapped
 
-    def new_trial(self, **kwargs):
+    def new_trial(self, **kwargs) -> NoReturn:
         raise NotImplementedError
+
+
+class InvalidOperationError(Exception):
+    """Raised when an operation is not allowed."""

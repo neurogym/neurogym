@@ -2,11 +2,11 @@
 
 import copy
 
+import gymnasium as gym
 import numpy as np
-import gym
 
 
-class Dataset(object):
+class Dataset:
     """Make an environment into an iterable dataset for supervised learning.
 
     Create an iterator that at each call returns
@@ -23,19 +23,27 @@ class Dataset(object):
         cache_len: int, default length of caching
     """
 
-    def __init__(self, env, env_kwargs=None,
-                 batch_size=1, seq_len=None, max_batch=np.inf,
-                 batch_first=False, cache_len=None):
+    def __init__(
+        self,
+        env,
+        env_kwargs=None,
+        batch_size=1,
+        seq_len=None,
+        max_batch=np.inf,
+        batch_first=False,
+        cache_len=None,
+    ) -> None:
+        if not isinstance(env, str | gym.Env):
+            msg = f"{type(env)=} must be `gym.Env` or `str`."
+            raise TypeError(msg)
         if isinstance(env, gym.Env):
             self.envs = [copy.deepcopy(env) for _ in range(batch_size)]
         else:
-            assert isinstance(env, str), 'env must be gym.Env or str'
             if env_kwargs is None:
                 env_kwargs = {}
-            self.envs = [gym.make(env, **env_kwargs)
-                         for _ in range(batch_size)]
-        for env in self.envs:
-            env.reset()
+            self.envs = [gym.make(env, **env_kwargs) for _ in range(batch_size)]
+        for env_ in self.envs:
+            env_.reset()
         self.seed()
 
         env = self.envs[0]
@@ -56,7 +64,7 @@ class Dataset(object):
         if cache_len is None:
             # Infer cache len
             cache_len = 1e5  # Probably too low
-            cache_len /= (np.prod(obs_shape) + np.prod(action_shape))
+            cache_len /= np.prod(obs_shape) + np.prod(action_shape)
             cache_len /= batch_size
         cache_len = int((1 + (cache_len // seq_len)) * seq_len)
 
@@ -73,7 +81,10 @@ class Dataset(object):
         self._cache_inputs_shape = shape2 + list(obs_shape)
         self._cache_target_shape = shape2 + list(action_shape)
 
-        self._inputs = np.zeros(self._cache_inputs_shape, dtype=env.observation_space.dtype)
+        self._inputs = np.zeros(
+            self._cache_inputs_shape,
+            dtype=env.observation_space.dtype,
+        )
         self._target = np.zeros(self._cache_target_shape, dtype=env.action_space.dtype)
 
         self._cache()
@@ -81,15 +92,15 @@ class Dataset(object):
         self._i_batch = 0
         self.max_batch = max_batch
 
-    def _cache(self, **kwargs):
+    def _cache(self, **kwargs) -> None:
         for i in range(self.batch_size):
             env = self.envs[i]
             seq_start = 0
             seq_end = 0
             while seq_end < self._cache_len:
                 # TODO: Right now this only works for env with new_trial
-                env.new_trial(**kwargs)
-                ob, gt = env.ob, env.gt
+                env.new_trial(**kwargs)  # type: ignore[attr-defined]
+                ob, gt = env.ob, env.gt  # type: ignore[attr-defined]
                 seq_len = ob.shape[0]
                 seq_end = seq_start + seq_len
                 if seq_end > self._cache_len:
@@ -124,32 +135,33 @@ class Dataset(object):
             self._cache(**kwargs)
 
         if self.batch_first:
-            inputs = self._inputs[:, self._seq_start:self._seq_end, ...]
-            target = self._target[:, self._seq_start:self._seq_end, ...]
+            inputs = self._inputs[:, self._seq_start : self._seq_end, ...]
+            target = self._target[:, self._seq_start : self._seq_end, ...]
         else:
-            inputs = self._inputs[self._seq_start:self._seq_end]
-            target = self._target[self._seq_start:self._seq_end]
+            inputs = self._inputs[self._seq_start : self._seq_end]
+            target = self._target[self._seq_start : self._seq_end]
 
         self._seq_start = self._seq_end
         return inputs, target
-        # return inputs, np.expand_dims(target, axis=2)
 
-    def seed(self, seed=None):
+    def seed(self, seed=None) -> None:
         for i, env in enumerate(self.envs):
             if seed is None:
-                env.seed(seed)
+                env.seed(seed)  # type: ignore[attr-defined]
             else:
-                env.seed(seed + i)
+                env.seed(seed + i)  # type: ignore[attr-defined]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import neurogym as ngym
+
     dataset = ngym.Dataset(
-        'PerceptualDecisionMaking-v0', env_kwargs={'dt': 100}, batch_size=32,
-        seq_len=40)
-    inputs_list = list()
-    for i in range(2):
+        "PerceptualDecisionMaking-v0",
+        env_kwargs={"dt": 100},
+        batch_size=32,
+        seq_len=40,
+    )
+    inputs_list = []
+    for _ in range(2):
         inputs, target = dataset()
         inputs_list.append(inputs)
-    # print(inputs.shape)
-    # print(target.shape)

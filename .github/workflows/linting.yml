@@ -1,0 +1,51 @@
+name: linting
+
+on:
+    push:
+      paths-ignore:
+        # specific folder locations
+        - ".vscode/**"
+        - "docs/**"
+        # filetypes
+        - "**.md"
+        - "**.rst"
+        - "**.ipynb"
+        - "**.cff"
+        - "**.png"
+      branches:
+        - main
+    pull_request:
+      types: [opened, synchronize, reopened, ready_for_review]
+      paths-ignore:
+        # specific folder locations
+        - ".vscode/**"
+        - "docs/**"
+        # filetypes
+        - "**.md"
+        - "**.rst"
+        - "**.ipynb"
+        - "**.cff"
+        - "**.png"
+
+jobs:
+  lint:
+    name: Linting
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.11
+      - name: Python info
+        shell: bash -e {0}
+        run: |
+          which python
+          python --version
+      - name: Check linting and formatting using ruff
+        run: |
+          python3 -m pip install ruff
+          ruff check || (echo "Please ensure you have the latest version of ruff (`ruff -V`) installed locally." && (exit 1))
+          ruff format --check || (echo "Please ensure you have the latest version of ruff (`ruff -V`) installed locally." && (exit 1))

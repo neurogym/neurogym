@@ -1,5 +1,4 @@
-"""
-Noise wrapper.
+"""Noise wrapper.
 
 Created on Thu Feb 28 15:07:21 2019
 
@@ -8,8 +7,7 @@ Created on Thu Feb 28 15:07:21 2019
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
-import gym
+import gymnasium as gym
 
 
 class Noise(gym.Wrapper):
@@ -24,25 +22,25 @@ class Noise(gym.Wrapper):
 
     """
 
-    metadata = {
-        'description': 'Add Gaussian noise to the observations.',
-        'paper_link': None,
-        'paper_name': None,
+    metadata: dict[str, str | None] = {  # noqa: RUF012
+        "description": "Add Gaussian noise to the observations.",
+        "paper_link": None,
+        "paper_name": None,
     }
 
-    def __init__(self, env, std_noise=.1):
+    def __init__(self, env, std_noise=0.1) -> None:
         super().__init__(env)
         self.env = env
         self.std_noise = std_noise
 
-    def reset(self, step_fn=None):
+    def reset(self, options=None):
+        step_fn = options.get("step_fn") if options else None
         if step_fn is None:
             step_fn = self.step
-        return self.env.reset(step_fn=step_fn)
+        return self.env.reset(options={"step_fn": step_fn})
 
     def step(self, action):
-        obs, reward, done, info = self.env.step(action)
+        obs, reward, terminated, truncated, info = self.env.step(action)
         # add noise
-        obs += self.env.rng.normal(loc=0, scale=self.std_noise,
-                                   size=obs.shape)
-        return obs, reward, done, info
+        obs += self.env.rng.normal(loc=0, scale=self.std_noise, size=obs.shape)
+        return obs, reward, terminated, truncated, info
