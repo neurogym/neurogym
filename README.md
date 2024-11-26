@@ -1,6 +1,4 @@
-# ⚠️ Repository Archived ⚠️
-
-This repository is no longer actively maintained. All updates and future development have been moved to [NeuroGym's main repository](https://github.com/neurogym/neurogym). Please visit [NeuroGym](https://github.com/neurogym/neurogym) for the latest code, updates, and ongoing development efforts.
+**Status:** In Development. All tasks are subject to changes right now.
 
 # NeuroGym
 
