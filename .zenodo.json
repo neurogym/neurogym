@@ -1,33 +1,20 @@
 {
     "creators": [
 
-        {
-            "affiliation": "Institut d'Investigacions Biomèdiques August Pi i Sunyer, Istituto Italiano di Tecnologia",
+       {
+            "affiliation": "Universitat Politècnica de Catalunya",
             "name": "Manuel Molano Mazon",
             "orcid": "0000-0002-9140-3571"
         },
         {
-            "affiliation": "Columbia University, Massachusetts Institute of Technology, New York University, Peking University, Simons Foundation, Yale University",
+            "affiliation": "Altera.AL",
             "name": "Guangyu Robert Yang",
             "orcid": "0000-0002-8919-4248"
         },
         {
-            "name": "Marta Fradera"
-        },
-        {
-            "affiliation": "IDIBAPS, Institut d'Investigacions Biomèdiques August Pi i Sunyer, Universitat Autònoma de Barcelona, Universitat Autònoma de Barcelona Institut de Neurociències",
-            "name": "Jordi Pastor-Ciurana",
-            "orcid": "0000-0002-3050-1012"
-        },
-        {
-            "affiliation": "New York University",
-            "name": "Jeremy Forest",
-            "orcid": "0000-0002-8486-5559"
-        },
-        {
-            "affiliation": "National Institute of Health, Peking University, Shanghai Jiao Tong University, University of Minnesota, University of Rochester",
-            "name": "Ru-Yuan Zhang",
-            "orcid": "0000-0002-0654-715X"
+            "affiliation": "MIT Brain and Cognitive Sciences",
+            "name": "Nathan Cloos",
+            "orcid": ""
         },
         {
         "affiliation": "Netherlands eScience Center, Amsterdam, The Netherlands",
