@@ -3,22 +3,23 @@
 # NeuroGym
 
 NeuroGym is a curated collection of neuroscience tasks with a common interface.
-The goal is to facilitate training of neural network models on neuroscience tasks.
+The goal is to facilitate the training of neural network models on neuroscience tasks.
 
 Documentation: https://neurogym.github.io/
+
 - [NeuroGym](#neurogym)
-        - [Installation](#installation)
-        - [Tasks](#tasks)
-        - [Wrappers](#wrappers)
-        - [Examples](#examples)
-        - [Contributing](#contributing)
-        - [Authors](#authors)
+   - [Installation](#installation)
+   - [Tasks](#tasks)
+   - [Wrappers](#wrappers)
+   - [Examples](#examples)
+   - [Contributing](#contributing)
+   - [Authors](#authors)
 
 NeuroGym inherits from the machine learning toolkit [Gymnasium](https://gymnasium.farama.org/), a maintained fork of [OpenAI’s Gym library](https://github.com/openai/gym). It allows a wide range of well established machine learning algorithms to be easily trained on behavioral paradigms relevant for the neuroscience community.
 NeuroGym also incorporates several properties and functions (e.g. continuous-time and trial-based tasks) that are important for neuroscience applications.
 The toolkit also includes various modifier functions that allow easy configuration of new tasks.
 
-![alt tag](docs/pipeline.png)
+![alt tag](https://github.com/neurogym/neurogym/blob/main/docs/pipeline.png)
 
 ### Installation
 
@@ -96,4 +97,6 @@ class YourTask(ngym.PeriodEnv):
     [Marta Fradera](https://github.com/martafradera),
     [Jordi Pastor](https://github.com/pastorjordi),
     [Jeremy Forest](https://github.com/jeremyforest),
-    [Ru-Yuan Zhang](https://github.com/ruyuanzhang)
+    [Ru-Yuan Zhang](https://github.com/ruyuanzhang),
+    [gcroci2](https://github.com/gcroci2),
+    [DaniBodor](https://github.com/DaniBodor)
