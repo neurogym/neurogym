@@ -49,7 +49,7 @@ extend-safe-fixes = [
     "D415",   # First line should end with a period, question mark, or exclamation point
     "D300",   # Use triple double quotes `"""`
     "D200",   # One-line docstring should fit on one line
-    "TCH",    # Format type checking only imports
+    "TC",     # Format type checking only imports
     "ISC001", # Implicitly concatenated strings on a single line
     "EM",     # Exception message variables
     "RUF013", # Implicit Optional

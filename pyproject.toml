@@ -10,14 +10,15 @@ build-backend = "setuptools.build_meta"
 [project]
 authors = [
     { name = "Manuel Molano Mazon", email = "manuelmolanomazon@gmail.com" },
-    { name = "Guangyu Robert Yang", email = "gyyang.neuro@gmail.com" } ,
+    { name = "Guangyu Robert Yang", email = "gyyang.neuro@gmail.com" },
     { name = "Giulia Crocioni", email = "g.crocioni@esciencecenter.nl" },
     { name = "Dani Bodor", email = "d.bodor@esciencecenter.nl" },
-    { name = "Jorge Mejias", email = "j.f.mejias@uva.nl"},
+    { name = "Nathan Cloos", email = "cloosnathan@gmail.com" },
+    { name = "Jorge Mejias", email = "j.f.mejias@uva.nl" },
     { name = "Marta Fradera" },
-    { name = "Jordi Pastor-Ciurana"},
-    { name = "Jeremy Forest"},
-    { name = "Ru-Yuan Zhang"}
+    { name = "Jordi Pastor-Ciurana" },
+    { name = "Jeremy Forest" },
+    { name = "Ru-Yuan Zhang" },
 ]
 classifiers = [
     "Intended Audience :: Developers",
@@ -32,24 +33,30 @@ dependencies = [
     "gymnasium==0.29.*",
     "matplotlib",
     "stable-baselines3>=2.3.2",
-    "scipy"]
+    "scipy",
+]
 description = "NeuroGym: Gymnasium-style Cognitive Neuroscience Tasks"
-keywords = ["neuroscience", "neural networks", "supervised learning", "reinforcement learning", "synthetic data"]
+keywords = [
+    "neuroscience",
+    "neural networks",
+    "supervised learning",
+    "reinforcement learning",
+    "synthetic data",
+]
 license = { file = "LICENSE" }
 name = "neurogym"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
-version = "0.0.1"
+version = "0.1.0"
 
 [project.optional-dependencies]
 dev = [
-    # formatting and linting
-    "ruff >= 0.3.0",
     # testing
     "pytest",
     "pytest-cov",
     "coverage [toml]",
-    # static typing
+    # code style
+    "ruff >= 0.3.0",
     "mypy",
     # docs
     "mkdocs",
