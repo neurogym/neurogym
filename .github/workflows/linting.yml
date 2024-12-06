@@ -1,34 +1,35 @@
 name: linting
 
 on:
-    push:
-      paths-ignore:
-        # specific folder locations
-        - ".vscode/**"
-        - "docs/**"
-        # filetypes
-        - "**.md"
-        - "**.rst"
-        - "**.ipynb"
-        - "**.cff"
-        - "**.png"
-      branches:
-        - main
-    pull_request:
-      types: [opened, synchronize, reopened, ready_for_review]
-      paths-ignore:
-        # specific folder locations
-        - ".vscode/**"
-        - "docs/**"
-        # filetypes
-        - "**.md"
-        - "**.rst"
-        - "**.ipynb"
-        - "**.cff"
-        - "**.png"
+  push:
+    paths-ignore:
+      # specific folder locations
+      - ".vscode/**"
+      - "docs/**"
+      # filetypes
+      - "**.md"
+      - "**.rst"
+      - "**.ipynb"
+      - "**.cff"
+      - "**.png"
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths-ignore:
+      # specific folder locations
+      - ".vscode/**"
+      - "docs/**"
+      # filetypes
+      - "**.md"
+      - "**.rst"
+      - "**.ipynb"
+      - "**.cff"
+      - "**.png"
 
 jobs:
   lint:
+    if: github.event.pull_request.draft == false
     name: Linting
     runs-on: ubuntu-latest
     strategy:

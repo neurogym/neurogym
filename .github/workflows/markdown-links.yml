@@ -21,6 +21,7 @@ on:
 
 jobs:
   markdown-links-check:
+    if: github.event.pull_request.draft == false
     name: Check markdown links
     runs-on: ubuntu-latest
     steps:
