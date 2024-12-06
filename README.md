@@ -9,12 +9,16 @@ Documentation: https://neurogym.github.io/
 
 - [⚠️ Repository Archived ⚠️](#️-repository-archived-️)
 - [NeuroGym](#neurogym)
+  <<<<<<< HEAD
+  =======
+  <<<<<<< HEAD
+  > > > > > > > ad21010 (docs: simplify installation instructions)
+- [NeuroGym](#neurogym)
+- [\<\<\<\<\<\<\< HEAD](#-head)
   - [Installation](#installation)
-  - [Tasks](#tasks)
-  - [Wrappers](#wrappers)
-  - [Examples](#examples)
-  - [Custom tasks](#custom-tasks)
-  - [Authors](#authors)
+- [You can perform a minimal install of `neurogym` with:](#you-can-perform-a-minimal-install-of-neurogym-with)
+- [Or a full install by replacing the last command with `pip install -e '.[all]'`](#or-a-full-install-by-replacing-the-last-command-with-pip-install--e-all) - [Psychopy installation](#psychopy-installation) - [Tasks](#tasks) - [Wrappers](#wrappers) - [Examples](#examples) - [Custom tasks](#custom-tasks) - [Authors](#authors)
+  > > > > > > > ad21010 (docs: simplify installation instructions)
 
 NeuroGym inherits from the machine learning toolkit [Gymnasium](https://gymnasium.farama.org/), a maintained fork of [OpenAI’s Gym library](https://github.com/openai/gym). It allows a wide range of well established machine learning algorithms to be easily trained on behavioral paradigms relevant for the neuroscience community.
 NeuroGym also incorporates several properties and functions (e.g. continuous-time and trial-based tasks) that are important for neuroscience applications.
@@ -24,13 +28,41 @@ The toolkit also includes various modifier functions that allow easy configurati
 
 ### Installation
 
+<<<<<<< HEAD
 You can perform a minimal install of `neurogym` with:
+=======
+Create and activate a virtual environment to install the current package, e.g. using
+[conda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) (please refer to their
+site for questions about creating the environment):
 
-    git clone https://github.com/neurogym/neurogym.git
-    cd neurogym
-    pip install -e .
+> > > > > > > ad21010 (docs: simplify installation instructions)
 
+```bash
+conda activate # ensures you are in the base environment
+conda create -n neurogym python=3.11
+conda activate neurogym
+```
+
+<<<<<<< HEAD
 Or a full install by replacing the last command with `pip install -e '.[all]'`
+=======
+Then install neurogym as follows:
+
+```bash
+git clone https://github.com/neurogym/neurogym.git
+cd neurogym
+pip install -e .
+```
+
+#### Psychopy installation
+
+If you need psychopy for your project, additionally run
+
+```bash
+pip install psychopy"
+```
+
+> > > > > > > ad21010 (docs: simplify installation instructions)
 
 ### Tasks
 
@@ -92,15 +124,22 @@ class YourTask(ngym.PeriodEnv):
 ### Authors
 
 - Contact
+  <<<<<<< HEAD
 
   [Manuel Molano](https://github.com/manuelmolano) (manuelmolanomazon@gmail.com).
   [Guangyu Robert Yang](https://github.com/gyyang) (gyyang.neuro@gmail.com).
 
 - Contributors (listed in chronological order)
 
-  [Marta Fradera](https://github.com/martafradera),
-  [Jordi Pastor](https://github.com/pastorjordi),
-  [Jeremy Forest](https://github.com/jeremyforest),
-  [Ru-Yuan Zhang](https://github.com/ruyuanzhang),
-  [gcroci2](https://github.com/gcroci2),
-  [DaniBodor](https://github.com/DaniBodor)
+=======
+[Manuel Molano](https://github.com/manuelmolano) (manuelmolanomazon@gmail.com).
+[Guangyu Robert Yang](https://github.com/gyyang) (gyyang.neuro@gmail.com).
+
+- Contributors (listed in chronological order)
+  > > > > > > > ad21010 (docs: simplify installation instructions)
+  > > > > > > > [Marta Fradera](https://github.com/martafradera),
+  > > > > > > > [Jordi Pastor](https://github.com/pastorjordi),
+  > > > > > > > [Jeremy Forest](https://github.com/jeremyforest),
+  > > > > > > > [Ru-Yuan Zhang](https://github.com/ruyuanzhang),
+  > > > > > > > [gcroci2](https://github.com/gcroci2),
+  > > > > > > > [DaniBodor](https://github.com/DaniBodor)
