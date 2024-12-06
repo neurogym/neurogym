@@ -136,6 +136,7 @@ NOTE: the current token (associated to @DaniBodor) allowing to bypass branch pro
 3. Click green "Generate token" button on the bottom
 4. Copy the token immediately, as it will not be visible again later.
 5. Navigate to the [secrets settings](https://github.com/neurogym/neurogym/settings/secrets/actions).
+   - Note that you need admin priviliges to the current repo to access these settings.
 6. Edit the `GH_RELEASE` key giving your access token as the new value.
 
 ### Manually create a release
