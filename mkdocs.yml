@@ -98,10 +98,9 @@ watch:
 - docs
 
 plugins:
-- mknotebooks:
+- mkdocs-jupyter:
     execute: false
-    timeout: 100
-    allow_errors: false
+    include_source: true
 - mike:
     alias_type: symlink
     canonical_version: latest

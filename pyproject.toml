@@ -58,7 +58,7 @@ dev = [
     "mkdocs-redirects",
     "mkdocstrings-python",
     "mike",
-    "mknotebooks"
+    "mkdocs-jupyter"
 ]
 publishing = ["build", "twine", "wheel"]
 tutorials = ["notebook"]
