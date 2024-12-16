@@ -114,16 +114,11 @@ class YourTask(ngym.PeriodEnv):
 
 ```
 
-### Authors
+### Acknowledgements
 
-- Contact
-  [Manuel Molano](https://github.com/manuelmolano) (manuelmolanomazon@gmail.com).
-  [Guangyu Robert Yang](https://github.com/gyyang) (gyyang.neuro@gmail.com).
+Contributors (listed in chronological order)
 
-- Contributors (listed in chronological order)
-  [Marta Fradera](https://github.com/martafradera),
-  [Jordi Pastor](https://github.com/pastorjordi),
-  [Jeremy Forest](https://github.com/jeremyforest),
-  [Ru-Yuan Zhang](https://github.com/ruyuanzhang),
-  [gcroci2](https://github.com/gcroci2),
-  [DaniBodor](https://github.com/DaniBodor)
+- [Marta Fradera](https://github.com/martafradera)
+- [Jordi Pastor](https://github.com/pastorjordi)
+- [Jeremy Forest](https://github.com/jeremyforest)
+- [Ru-Yuan Zhang](https://github.com/ruyuanzhang)
