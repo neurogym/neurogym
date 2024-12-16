@@ -49,8 +49,8 @@ jobs:
         run: python -m pytest --cov --cov-report term --cov-report xml --junitxml=xunit-result.xml tests/
       - name: Correct coverage paths
         run: sed -i "s+$PWD/++g" coverage.xml
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4.1.0 # See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{secrets.SONAR_TOKEN }}
