@@ -28,6 +28,7 @@ on:
       - "**.png"
 jobs:
   sonarcloud:
+    if: github.event.pull_request.draft == false
     name: Tests coverage
     runs-on: ubuntu-latest
     steps:
