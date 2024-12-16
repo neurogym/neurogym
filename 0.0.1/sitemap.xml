@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://neurogym.github.io/latest/</loc>
+         <lastmod>2024-12-16</lastmod>
+    </url>
+    <url>
+         <loc>https://neurogym.github.io/latest/code_of_conduct/</loc>
+         <lastmod>2024-12-16</lastmod>
+    </url>
+    <url>
+         <loc>https://neurogym.github.io/latest/contributing/</loc>
+         <lastmod>2024-12-16</lastmod>
+    </url>
+    <url>
+         <loc>https://neurogym.github.io/latest/installation/</loc>
+         <lastmod>2024-12-16</lastmod>
+    </url>
+    <url>
+         <loc>https://neurogym.github.io/latest/license/</loc>
+         <lastmod>2024-12-16</lastmod>
+    </url>
+    <url>
+         <loc>https://neurogym.github.io/latest/neurogym/</loc>
+         <lastmod>2024-12-16</lastmod>
+    </url>
+    <url>
+         <loc>https://neurogym.github.io/latest/api/core/</loc>
+         <lastmod>2024-12-16</lastmod>
+    </url>
+    <url>
+         <loc>https://neurogym.github.io/latest/api/envs/annubesenv/</loc>
+         <lastmod>2024-12-16</lastmod>
+    </url>
+</urlset>
