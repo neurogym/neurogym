@@ -10,7 +10,7 @@ default [settings](.vscode/settings.json) for formatting. We recommend developer
 See [VS Code's settings guide](https://code.visualstudio.com/docs/getstarted/settings) for more info.
 
 If using a different IDE, we recommend creating a similar settings file. Feel free to recommend adding this to package
-using via a [pull request](#development-conventions)
+using via a [pull request](#development-conventions).
 
 ## Package setup
 
