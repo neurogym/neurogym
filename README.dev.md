@@ -63,7 +63,7 @@ We adhere to [semantic versioning](https://semver.org/) standards. In brief this
 - Y = `minor` version: representing added functionality that is backwards compatible to previous versions
 - Z = `patch` version: representing backward compatible bug fixes were made of previous version
 
-Bumping the version conistently is done using [bump-my-version](https://callowayproject.github.io/bump-my-version/),
+Bumping the version consistently is done using [bump-my-version](https://callowayproject.github.io/bump-my-version/),
 which automatically updates all mentions of the current version throughout the package, as defined in the tool's
 [settings](.bumpversion.toml). Use `major`, `minor`, or `patch` as the version level in the following command to update
 the version:
