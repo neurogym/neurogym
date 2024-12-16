@@ -1,0 +1,15 @@
+::: neurogym.envs.contextdecisionmaking.ContextDecisionMaking
+::: neurogym.envs.dawtwostep.DawTwoStep
+::: neurogym.envs.delaycomparison.DelayComparison
+::: neurogym.envs.delaymatchcategory.DelayMatchCategory
+::: neurogym.envs.delaymatchsample.DelayMatchSample
+::: neurogym.envs.delaymatchsample.DelayMatchSampleDistractor1D
+::: neurogym.envs.dualdelaymatchsample.DualDelayMatchSample
+::: neurogym.envs.hierarchicalreasoning.HierarchicalReasoning
+::: neurogym.envs.intervaldiscrimination.IntervalDiscrimination
+::: neurogym.envs.multisensory.MultiSensoryIntegration
+::: neurogym.envs.perceptualdecisionmaking.PerceptualDecisionMaking
+::: neurogym.envs.perceptualdecisionmaking.PerceptualDecisionMakingDelayResponse
+::: neurogym.envs.probabilisticreasoning.ProbabilisticReasoning
+::: neurogym.envs.perceptualdecisionmaking.PulseDecisionMaking
+::: neurogym.envs.contextdecisionmaking.SingleContextDecisionMaking

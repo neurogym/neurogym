@@ -1,1 +1,0 @@
-::: neurogym.envs.annubes.AnnubesEnv

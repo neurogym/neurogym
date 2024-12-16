@@ -1,0 +1,1 @@
+::: neurogym.envs.bandit.Bandit

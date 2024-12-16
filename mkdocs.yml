@@ -60,9 +60,26 @@ nav:
   - NeuroGym with Keras: examples/example_neurogym_keras.ipynb
 - API Documentation:
   - Core: api/core.md
-  - Environments:
-    - AnnubesEnv: api/envs/annubesenv.md # TODO: Add more environments, use also tags (https://github.com/neurogym/neurogym/blob/main/docs/source/tags.rst)
-    # TODO: add wrappers
+  - Environments: api/envs.md
+  - Tags:
+    - Confidence: api/tags/confidence.md
+    - Context Dependent: api/tags/context_dependent.md
+    - Continuous Action Space: api/tags/continuous_action_space.md
+    - Delayed Response: api/tags/delayed_response.md
+    - Go-No-Go: api/tags/go_no_go.md
+    - Motor: api/tags/motor.md
+    - Multidimensional Action Space: api/tags/multidimensional_action_space.md
+    - N-alternative: api/tags/n_alternative.md
+    - Perceptual: api/tags/perceptual.md
+    - Steps Action Space: api/tags/steps_action_space.md
+    - Supervised: api/tags/supervised.md
+    - Timing: api/tags/timing.md
+    - Two-Alternative: api/tags/two_alternative.md
+    - Value-Based: api/tags/value_based.md
+    - Working Memory: api/tags/working_memory.md
+
+  - Utils: api/utils.md
+  - Wrappers: api/wrappers.md
 - About:
   - Contributing: contributing.md
   - Code of Conduct: code_of_conduct.md
