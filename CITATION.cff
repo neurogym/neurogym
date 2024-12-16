@@ -16,7 +16,13 @@ authors:
   - given-names: Guangyu Robert
     family-names: Yang
     email: gyyang.neuro@gmail.com
+    affiliation: Altera.AL
     orcid: "https://orcid.org/0000-0002-8919-4248"
+  - given-names: Nathan
+    family-names: Cloos
+    email: cloosnathan@gmail.com
+    affiliation: MIT Brain and Cognitive Sciences
+    orcid: "https://orcid.org/0000-0001-6010-0044"
   - given-names: Giulia
     family-names: Crocioni
     email: g.crocioni@esciencecenter.nl
@@ -27,24 +33,11 @@ authors:
     email: d.bodor@esciencecenter.nl
     affiliation: Netherlands eScience Center
     orcid: "https://orcid.org/0000-0003-2109-2349"
-  - given-names: Nathan
-    family-names: Cloos
-    email: cloosnathan@gmail.com
-    affiliation: Universitat Politècnica de Catalunya
-    orcid: "https://orcid.org/0000-0001-6010-0044"
   - given-names: Jorge
     family-names: Mejias
     email: j.f.mejias@uva.nl
     affiliation: University of Amsterdam
     orcid: "https://orcid.org/0000-0002-8096-4891"
-  - given-names: Marta
-    family-names: Fradera
-  - given-names: Jordi
-    family-names: Pastor-Ciurana
-  - given-names: Jeremy
-    family-names: Forest
-  - given-names: Ru-Yuan
-    family-names: Zhang
 identifiers:
   - type: url
     value: "https://osf.io/preprints/psyarxiv/aqc9n"

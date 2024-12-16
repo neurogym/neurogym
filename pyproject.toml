@@ -11,14 +11,10 @@ build-backend = "setuptools.build_meta"
 authors = [
     { name = "Manuel Molano Mazon", email = "manuelmolanomazon@gmail.com" },
     { name = "Guangyu Robert Yang", email = "gyyang.neuro@gmail.com" },
+    { name = "Nathan Cloos", email = "cloosnathan@gmail.com" },
     { name = "Giulia Crocioni", email = "g.crocioni@esciencecenter.nl" },
     { name = "Dani Bodor", email = "d.bodor@esciencecenter.nl" },
-    { name = "Nathan Cloos", email = "cloosnathan@gmail.com" },
     { name = "Jorge Mejias", email = "j.f.mejias@uva.nl" },
-    { name = "Marta Fradera" },
-    { name = "Jordi Pastor-Ciurana" },
-    { name = "Jeremy Forest" },
-    { name = "Ru-Yuan Zhang" },
 ]
 classifiers = [
     "Intended Audience :: Developers",
