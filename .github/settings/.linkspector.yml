@@ -1,0 +1,5 @@
+dirs:
+  - .
+useGitIgnore: true
+ignorePatterns:
+  - pattern: "^https://github.com/.*/settings/secrets/actions$"
