@@ -1,51 +1,20 @@
-**Status:** In Development. All tasks are subject to changes right now.
-
 # NeuroGym
 
-NeuroGym is a curated collection of neuroscience tasks with a common interface.
-The goal is to facilitate the training of neural network models on neuroscience tasks.
-
-Documentation: https://neurogym.github.io/
-
-- [NeuroGym](#neurogym)
-  - [Installation](#installation)
-  - [Tasks](#tasks)
-  - [Wrappers](#wrappers)
-  - [Examples](#examples)
-  - [Custom tasks](#custom-tasks)
-  - [Authors](#authors)
-
-NeuroGym inherits from the machine learning toolkit [Gymnasium](https://gymnasium.farama.org/), a maintained fork of [OpenAI’s Gym library](https://github.com/openai/gym). It allows a wide range of well established machine learning algorithms to be easily trained on behavioral paradigms relevant for the neuroscience community.
-NeuroGym also incorporates several properties and functions (e.g. continuous-time and trial-based tasks) that are important for neuroscience applications.
-The toolkit also includes various modifier functions that allow easy configuration of new tasks.
-
-![alt tag](https://github.com/neurogym/neurogym/blob/main/docs/pipeline.png)
-
-### Installation
-
-You can perform a minimal install of `neurogym` with:
-
-    git clone https://github.com/neurogym/neurogym.git
-    cd neurogym
-    pip install -e .
-
-Or a full install by replacing the last command with `pip install -e '.[all]'`
-
-### Tasks
+## Tasks
 
 Currently implemented tasks can be found [here](https://neurogym.github.io/envs/index.html).
 
-### Wrappers
+## Wrappers
 
 Wrappers (see [list](https://github.com/gyyang/neurogym/blob/master/docs/wrappers.md))
 are short scripts that allow introducing modifications the original tasks. For instance, the Random Dots Motion task can be transformed into a reaction time task by passing it through the _reaction_time_ wrapper. Alternatively, the _combine_ wrapper allows training an agent in two different tasks simultaneously.
 
-### Examples
+## Examples
 
 NeuroGym is compatible with most packages that use gymnasium.
 In this [example](https://github.com/gyyang/neurogym/blob/master/examples/example_neurogym_rl.ipynb) jupyter notebook we show how to train a neural network with reinforcement learning algorithms using the [Stable-Baselines3](https://stable-baselines3.readthedocs.io/en/master/) toolbox.
 
-### Custom tasks
+## Custom tasks
 
 Creating custom new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure,
 this [template](https://github.com/gyyang/neurogym/blob/master/examples/template.py) provides the basic structure that we recommend a task to have:
@@ -87,19 +56,3 @@ class YourTask(ngym.PeriodEnv):
         return obs, reward, terminated, truncated, {'new_trial': new_trial, 'gt': gt}
 
 ```
-
-### Authors
-
-- Contact
-
-  [Manuel Molano](https://github.com/manuelmolano) (manuelmolanomazon@gmail.com).
-  [Guangyu Robert Yang](https://github.com/gyyang) (gyyang.neuro@gmail.com).
-
-- Contributors (listed in chronological order)
-
-  [Marta Fradera](https://github.com/martafradera),
-  [Jordi Pastor](https://github.com/pastorjordi),
-  [Jeremy Forest](https://github.com/jeremyforest),
-  [Ru-Yuan Zhang](https://github.com/ruyuanzhang),
-  [gcroci2](https://github.com/gcroci2),
-  [DaniBodor](https://github.com/DaniBodor)
