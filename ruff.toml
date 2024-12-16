@@ -20,8 +20,6 @@ ignore = [
     # Unwanted
     "FBT",    # Boolean function arguments
     "ANN003", # Missing type annotation for **{name} (e.g. **kwargs)
-    "ANN101", # Missing type annotation for `self` in method
-    "ANN102", # Missing type annotation for `cls` in classmethod
     "ANN204", # Missing return type annotation for special (dunder) method
     "PT011",  # pytest.raises without error messages
     "TD",     # TODO formatting
