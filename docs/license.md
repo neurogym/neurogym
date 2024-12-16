@@ -2,7 +2,10 @@
 
 **Apache License**
 
+Copyright 2020-2024, Manuel Molano, Guangyu Robert Yang, & contributors
 Copyright 2024, Giulia Crocioni, Dani L. Bodor, The Netherlands eScience Center
+
+This documentation was originally released under the MIT license and has been relicensed under the Apache License, Version 2.0.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
