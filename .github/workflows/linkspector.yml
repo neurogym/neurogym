@@ -11,6 +11,8 @@ on:
       # self
       - ".github/workflows/linkspector.yml"
       - ".github/settings/.linkspector.yml"
+    paths-ignore:
+      - "docs/api/tags/**"
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     paths:
@@ -20,6 +22,8 @@ on:
       # self
       - ".github/workflows/linkspector.yml"
       - ".github/settings/.linkspector.yml"
+    paths-ignore:
+      - "docs/api/tags/**"
 
 jobs:
   check-links:
