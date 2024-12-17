@@ -1459,42 +1459,41 @@ are short scripts that allow introducing modifications the original tasks. For i
 <p>NeuroGym is compatible with most packages that use gymnasium.
 In this <a href="https://github.com/gyyang/neurogym/blob/master/examples/example_neurogym_rl.ipynb">example</a> jupyter notebook we show how to train a neural network with reinforcement learning algorithms using the <a href="https://stable-baselines3.readthedocs.io/en/master/">Stable-Baselines3</a> toolbox.</p>
 <h2 id="custom-tasks">Custom tasks<a class="headerlink" href="#custom-tasks" title="Permanent link">&para;</a></h2>
-<p>Creating custom new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure,
-this <a href="https://github.com/gyyang/neurogym/blob/master/examples/template.py">template</a> provides the basic structure that we recommend a task to have:</p>
-<div class="language-text highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>from gymnasium import spaces
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>import neurogym as ngym
+<p>Creating custom new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure, this <a href="https://github.com/gyyang/neurogym/blob/master/examples/template.py">template</a> provides the basic structure that we recommend a task to have:</p>
+<div class="language-python highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">gymnasium</span> <span class="kn">import</span> <span class="n">spaces</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">import</span> <span class="nn">neurogym</span> <span class="k">as</span> <span class="nn">ngym</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>class YourTask(ngym.PeriodEnv):
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    metadata = {}
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">class</span> <span class="nc">YourTask</span><span class="p">(</span><span class="n">ngym</span><span class="o">.</span><span class="n">PeriodEnv</span><span class="p">):</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    def __init__(self, dt=100, timing=None, extra_input_param=None):
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        super().__init__(dt=dt)
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">timing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra_input_param</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    def new_trial(self, **kwargs):
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        &quot;&quot;&quot;
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        new_trial() is called when a trial ends to generate the next trial.
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>        Here you have to set:
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        The trial periods: fixation, stimulus...
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>        Optionally, you can set:
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>        The ground truth: the correct answer for the created trial.
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>        &quot;&quot;&quot;
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="k">def</span> <span class="nf">new_trial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="sd">        new_trial() is called when a trial ends to generate the next trial.</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="sd">        Here you have to set:</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="sd">        The trial periods: fixation, stimulus...</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="sd">        Optionally, you can set:</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="sd">        The ground truth: the correct answer for the created trial.</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="sd">        &quot;&quot;&quot;</span>
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    def _step(self, action):
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>        &quot;&quot;&quot;
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>        _step receives an action and returns:
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>            a new observation, obs
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>            reward associated with the action, reward
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>            a boolean variable indicating whether the experiment has terminated, terminated
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>                See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#termination
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>            a boolean variable indicating whether the experiment has been truncated, truncated
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>                See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#truncation
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>            a dictionary with extra information:
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>                ground truth correct response, info[&#39;gt&#39;]
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>                boolean indicating the end of the trial, info[&#39;new_trial&#39;]
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>        &quot;&quot;&quot;
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="k">def</span> <span class="nf">_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="sd">        _step receives an action and returns:</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="sd">            a new observation, obs</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="sd">            reward associated with the action, reward</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="sd">            a boolean variable indicating whether the experiment has terminated, terminated</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="sd">                See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#termination</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="sd">            a boolean variable indicating whether the experiment has been truncated, truncated</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="sd">                See more at https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/#truncation</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="sd">            a dictionary with extra information:</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="sd">                ground truth correct response, info[&#39;gt&#39;]</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="sd">                boolean indicating the end of the trial, info[&#39;new_trial&#39;]</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="sd">        &quot;&quot;&quot;</span>
 <a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>
-<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>        return obs, reward, terminated, truncated, {&#39;new_trial&#39;: new_trial, &#39;gt&#39;: gt}
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>        <span class="k">return</span> <span class="n">obs</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;new_trial&#39;</span><span class="p">:</span> <span class="n">new_trial</span><span class="p">,</span> <span class="s1">&#39;gt&#39;</span><span class="p">:</span> <span class="n">gt</span><span class="p">}</span>
 </code></pre></div>
 
 
