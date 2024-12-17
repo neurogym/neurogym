@@ -34,12 +34,12 @@ theme:
     - navigation.tabs
     - navigation.tabs.sticky
   icon:
-    logo: 'material/library-outline'
+    logo: material/rodent
     next: fontawesome/solid/angle-right
     previous: fontawesome/solid/angle-left
     repo: fontawesome/brands/github-alt
-    view: material/eye
-  favicon: 'mouse.png'
+    view: material/file-eye
+  favicon: 'rodent.png'
 
 repo_url: https://github.com/neurogym/neurogym
 repo_name: neurogym/neurogym
@@ -75,13 +75,12 @@ nav:
     - Two-Alternative: api/tags/two_alternative.md
     - Value-Based: api/tags/value_based.md
     - Working Memory: api/tags/working_memory.md
-
   - Utils: api/utils.md
   - Wrappers: api/wrappers.md
 - About:
   - Contributing: contributing.md
   - Code of Conduct: code_of_conduct.md
-  - License: license.md # TODO: Update license
+  - License: license.md
 
 extra:
   version:
