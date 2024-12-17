@@ -1,5 +1,7 @@
-::: neurogym.envs.gonogo.GoNogo
-::: neurogym.envs.intervaldiscrimination.IntervalDiscrimination
-::: neurogym.envs.perceptualdecisionmaking.PerceptualDecisionMakingDelayResponse
-::: neurogym.envs.postdecisionwager.PostDecisionWager
-::: neurogym.envs.reachingdelayresponse.ReachingDelayResponse
+The following tasks implement delayed response paradigms:
+
+- [GoNogo](../envs.md#neurogym.envs.gonogo.GoNogo)
+- [IntervalDiscrimination](../envs.md#neurogym.envs.intervaldiscrimination.IntervalDiscrimination)
+- [PerceptualDecisionMakingDelayResponse](../envs.md#neurogym.envs.perceptualdecisionmaking.PerceptualDecisionMakingDelayResponse)
+- [PostDecisionWager](../envs.md#neurogym.envs.postdecisionwager.PostDecisionWager)
+- [ReachingDelayResponse](../envs.md#neurogym.envs.reachingdelayresponse.ReachingDelayResponse)
