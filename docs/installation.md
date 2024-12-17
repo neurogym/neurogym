@@ -23,5 +23,5 @@ pip install -e .
 If you need psychopy for your project, additionally run
 
 ```bash
-pip install psychopy"
+pip install psychopy
 ```
