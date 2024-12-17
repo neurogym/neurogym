@@ -1,3 +1,4 @@
-neurogym
-tests
+neurogym/
+tests/
 *_cache
+site/
