@@ -1,4 +1,4 @@
-name: linting
+name: sonar-cloud
 
 on:
   push:
@@ -26,17 +26,16 @@ on:
       - "**.ipynb"
       - "**.cff"
       - "**.png"
-
 jobs:
-  lint:
+  sonarcloud:
     if: github.event.pull_request.draft == false
-    name: Linting
+    name: Tests coverage
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python 3.11
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Set up Python
         uses: actions/setup-python@v3
         with:
           python-version: 3.11
@@ -45,8 +44,14 @@ jobs:
         run: |
           which python
           python --version
-      - name: Check linting and formatting using ruff
-        run: |
-          python3 -m pip install ruff
-          ruff check || (echo "Please ensure you have the latest version of ruff (`ruff -V`) installed locally." && (exit 1))
-          ruff format --check || (echo "Please ensure you have the latest version of ruff (`ruff -V`) installed locally." && (exit 1))
+      - name: Install dependencies
+        run: python -m pip install .[dev]
+      - name: Run unit tests with coverage
+        run: python -m pytest --cov --cov-report term --cov-report xml --junitxml=xunit-result.xml tests/
+      - name: Correct coverage paths
+        run: sed -i "s+$PWD/++g" coverage.xml
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4.1.0
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{secrets.SONAR_TOKEN }}

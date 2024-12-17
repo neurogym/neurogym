@@ -9,11 +9,12 @@ Documentation: https://neurogym.github.io/
 
 - [NeuroGym](#neurogym)
   - [Installation](#installation)
+    - [Psychopy installation](#psychopy-installation)
   - [Tasks](#tasks)
   - [Wrappers](#wrappers)
   - [Examples](#examples)
   - [Custom tasks](#custom-tasks)
-  - [Authors](#authors)
+  - [Acknowledgements](#acknowledgements)
 
 NeuroGym inherits from the machine learning toolkit [Gymnasium](https://gymnasium.farama.org/), a maintained fork of [OpenAI’s Gym library](https://github.com/openai/gym). It allows a wide range of well established machine learning algorithms to be easily trained on behavioral paradigms relevant for the neuroscience community.
 NeuroGym also incorporates several properties and functions (e.g. continuous-time and trial-based tasks) that are important for neuroscience applications.
@@ -23,13 +24,31 @@ The toolkit also includes various modifier functions that allow easy configurati
 
 ### Installation
 
-You can perform a minimal install of `neurogym` with:
+Create and activate a virtual environment to install the current package, e.g. using
+[conda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) (please refer to their
+site for questions about creating the environment):
 
-    git clone https://github.com/neurogym/neurogym.git
-    cd neurogym
-    pip install -e .
+```bash
+conda activate # ensures you are in the base environment
+conda create -n neurogym python=3.11
+conda activate neurogym
+```
 
-Or a full install by replacing the last command with `pip install -e '.[all]'`
+Then install neurogym as follows:
+
+```bash
+git clone https://github.com/neurogym/neurogym.git
+cd neurogym
+pip install -e .
+```
+
+#### Psychopy installation
+
+If you need psychopy for your project, additionally run
+
+```bash
+pip install psychopy
+```
 
 ### Tasks
 
@@ -47,10 +66,9 @@ In this [example](https://github.com/gyyang/neurogym/blob/master/examples/exampl
 
 ### Custom tasks
 
-Creating custom new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure,
-this [template](https://github.com/gyyang/neurogym/blob/master/examples/template.py) provides the basic structure that we recommend a task to have:
+Creating custom new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure, this [template](https://github.com/gyyang/neurogym/blob/master/examples/template.py) provides the basic structure that we recommend a task to have:
 
-```
+```python
 from gymnasium import spaces
 import neurogym as ngym
 
@@ -88,18 +106,13 @@ class YourTask(ngym.PeriodEnv):
 
 ```
 
-### Authors
+### Acknowledgements
 
-- Contact
+For the authors of the package, please refer to the Zenodo link provided in the DOI badge above.
 
-  [Manuel Molano](https://github.com/manuelmolano) (manuelmolanomazon@gmail.com).
-  [Guangyu Robert Yang](https://github.com/gyyang) (gyyang.neuro@gmail.com).
+Other contributors:
 
-- Contributors (listed in chronological order)
-
-  [Marta Fradera](https://github.com/martafradera),
-  [Jordi Pastor](https://github.com/pastorjordi),
-  [Jeremy Forest](https://github.com/jeremyforest),
-  [Ru-Yuan Zhang](https://github.com/ruyuanzhang),
-  [gcroci2](https://github.com/gcroci2),
-  [DaniBodor](https://github.com/DaniBodor)
+- [Marta Fradera](https://github.com/martafradera)
+- [Jordi Pastor](https://github.com/pastorjordi)
+- [Jeremy Forest](https://github.com/jeremyforest)
+- [Ru-Yuan Zhang](https://github.com/ruyuanzhang)
