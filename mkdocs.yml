@@ -1,7 +1,5 @@
 site_name: NeuroGym
 site_description: A curated collection of neuroscience tasks with a common interface
-theme:
-  name: material
 strict: false
 site_url: https://neurogym.github.io/
 
