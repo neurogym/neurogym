@@ -22,7 +22,6 @@ NeuroGym is a curated collection of neuroscience tasks with a common interface. 
   - [Custom tasks](#custom-tasks)
   - [Acknowledgements](#acknowledgements)
 - [Other contributors:](#other-contributors)
-  > > > > > > > 69_mkdocs_gcroci2
 
 NeuroGym inherits from the machine learning toolkit [Gymnasium](https://gymnasium.farama.org/), a maintained fork of [OpenAI’s Gym library](https://github.com/openai/gym). It allows a wide range of well established machine learning algorithms to be easily trained on behavioral paradigms relevant for the neuroscience community.
 NeuroGym also incorporates several properties and functions (e.g. continuous-time and trial-based tasks) that are important for neuroscience applications.
@@ -116,16 +115,13 @@ class YourTask(ngym.PeriodEnv):
 
 ### Acknowledgements
 
-<<<<<<< HEAD
 For the authors of the package, please refer to the Zenodo link provided in the DOI badge above.
 
 # Other contributors:
 
 For the authors of the package, please refer to the zenodo DOI at the top of the page.
 
-Other contributors (listed in chronological order)
-
-> > > > > > > 69_mkdocs_gcroci2
+Other contributors (listed in chronological order):
 
 - [Marta Fradera](https://github.com/martafradera)
 - [Jordi Pastor](https://github.com/pastorjordi)
