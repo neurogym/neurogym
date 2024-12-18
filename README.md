@@ -8,13 +8,28 @@ The goal is to facilitate the training of neural network models on neuroscience 
 Documentation: https://neurogym.github.io/
 
 - [NeuroGym](#neurogym)
+  <<<<<<< HEAD
   - [Installation](#installation)
     - [Psychopy installation](#psychopy-installation)
   - [Tasks](#tasks)
   - [Wrappers](#wrappers)
   - [Examples](#examples)
   - [Custom tasks](#custom-tasks)
-  - [Authors](#authors)
+  - # [Authors](#authors)
+    <<<<<<< HEAD
+  - [Installation](#installation)
+  - [Tasks](#tasks)
+  - [Wrappers](#wrappers)
+  - [Examples](#examples)
+  - [Contributing](#contributing)
+  - # [Authors](#authors)
+  - [Installation](#installation)
+  - [Tasks](#tasks)
+  - [Wrappers](#wrappers)
+  - [Examples](#examples)
+  - [Contributing](#contributing)
+  - [Authors](#authors) > > > > > > > 1eb22a3 (docs: simplify installation instructions)
+    > > > > > > > dev
 
 NeuroGym inherits from the machine learning toolkit [Gymnasium](https://gymnasium.farama.org/), a maintained fork of [OpenAI’s Gym library](https://github.com/openai/gym). It allows a wide range of well established machine learning algorithms to be easily trained on behavioral paradigms relevant for the neuroscience community.
 NeuroGym also incorporates several properties and functions (e.g. continuous-time and trial-based tasks) that are important for neuroscience applications.
@@ -107,18 +122,13 @@ class YourTask(ngym.PeriodEnv):
 
 ```
 
-### Authors
+### Acknowledgements
 
-- Contact
+For the authors of the package, please refer to the zenodo DOI at the top of the page.
 
-  [Manuel Molano](https://github.com/manuelmolano) (manuelmolanomazon@gmail.com).
-  [Guangyu Robert Yang](https://github.com/gyyang) (gyyang.neuro@gmail.com).
+Other contributors (listed in chronological order)
 
-- Contributors (listed in chronological order)
-
-  [Marta Fradera](https://github.com/martafradera),
-  [Jordi Pastor](https://github.com/pastorjordi),
-  [Jeremy Forest](https://github.com/jeremyforest),
-  [Ru-Yuan Zhang](https://github.com/ruyuanzhang),
-  [gcroci2](https://github.com/gcroci2),
-  [DaniBodor](https://github.com/DaniBodor)
+- [Marta Fradera](https://github.com/martafradera)
+- [Jordi Pastor](https://github.com/pastorjordi)
+- [Jeremy Forest](https://github.com/jeremyforest)
+- [Ru-Yuan Zhang](https://github.com/ruyuanzhang)
