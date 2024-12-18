@@ -29,6 +29,8 @@ The toolkit also includes various modifier functions that allow easy configurati
 
 ![alt tag](https://github.com/neurogym/neurogym/blob/main/docs/pipeline.png)
 
+![alt tag](https://github.com/neurogym/neurogym/blob/main/docs/BROEKENLINK.png)
+
 ### Installation
 
 Create and activate a virtual environment to install the current package, e.g. using
