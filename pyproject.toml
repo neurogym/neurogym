@@ -52,10 +52,13 @@ dev = [
     # static typing
     "mypy",
     # docs
-    "sphinx",
-    "sphinx_rtd_theme",
-    "sphinxcontrib.katex",
-    "nbsphinx",
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocs-exclude",
+    "mkdocs-redirects",
+    "mkdocstrings-python",
+    "mike",
+    "mknotebooks"
 ]
 publishing = ["build", "twine", "wheel"]
 tutorials = ["notebook"]
