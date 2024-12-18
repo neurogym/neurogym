@@ -56,6 +56,6 @@ keywords:
   - supervised learning
   - reinforcement learning
   - synthetic data
-license: MIT
+license: Apache-2.0
 version: 0.1.0
 date-released: "2024-10-14"
