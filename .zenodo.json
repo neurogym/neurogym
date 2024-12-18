@@ -33,7 +33,7 @@
   ],
   "keywords": ["neuroscience", "neural networks", "reinforcement learning"],
   "license": {
-    "id": "MIT"
+    "id": "Apache-2.0"
   },
   "title": "NeuroGym"
 }
