@@ -61,17 +61,7 @@ We use [inline type annotation](https://typing.readthedocs.io/en/latest/source/l
 
 Since Python 3.11 is used as dev environment and NeuroGym must support Python version ≥3.10, you may see various typing issues at runtime. Here is [a guide to solve the potential runtime issues](https://mypy.readthedocs.io/en/stable/runtime_troubles.html).
 
-We use [Mypy](http://mypy-lang.org/) as static type checker:
-
-```
-# install mypy
-pip install mypy
-
-# run mypy
-mypy path-to-source-code
-```
-
-Mypy configurations are set in [pyproject.toml](pyproject.toml) file.
+We use [Mypy](http://mypy-lang.org/) as static type checker and the configurations are set in [pyproject.toml](pyproject.toml) file.
 
 For more info about static typing and mypy, see:
 
