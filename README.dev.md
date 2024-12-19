@@ -76,7 +76,11 @@ To watch the changes of current doc in real time, run:
 
 ```shell
 mkdocs serve
-# or to watch src and docs directories
+```
+
+or to watch src and docs directories
+
+```shell
 mkdocs serve -w docs -w src
 ```
 
@@ -86,13 +90,25 @@ Then open your browser and go to [http://127.0.0.1:8000/](http://127.0.0.1:8000/
 
 The docs are published on GitHub pages. We use [mike](https://github.com/jimporter/mike) to deploy the docs to the `gh-pages` branch and to manage the versions of docs.
 
-For example, to deploy the version 2.0 of the docs to the `gh-pages` branch and make it the latest version, run:
+Docs are automatically deployed upon each new release to PyPi as part of our [PyPi
+release](.github/workflows/release_pypi.yml) workflow and named identically to the newest GitHub version number (i.e. `vX.Y.Z`).
+
+To manually deploy (additional) versions of the docs, run:
 
 ```shell
-mike deploy -p -u 2.0 latest
+mike deploy -p -u `<docs_version_name>`
 ```
 
-If you are not happy with the changes you can run `mike delete [version]`. All these mike operations will be recorded as git commits of branch `gh-pages`.
+Add `latest` to the end of the command above, to make this the latest default version of the docs (i.e. the landing page
+of https://neurogym.github.io/).
+
+To remove a given version of the documentation, run
+
+```shell
+mike delete <docs_version_name>
+```
+
+Note that all mike operations above will be recorded as git commits to the `gh-pages` branch.
 
 Use `mike serve` to review all versions of the site that have been committed to the `gh-pages` branch. It’s part of the `mike` tool, which manages versioned documentation for `mkdocs`. This command is best for verifying the production website as it exists in the repository.
 
