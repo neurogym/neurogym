@@ -94,7 +94,9 @@ mike deploy -p -u 2.0 latest
 
 If you are not happy with the changes you can run `mike delete [version]`. All these mike operations will be recorded as git commits of branch `gh-pages`.
 
-`mike serve` is used to check all versions committed to branch `gh-pages`, which is for checking the production website. If you have changes but not commit them yet, you should use `mkdocs serve` instead of `mike serve` to check them.
+Use `mike serve` to review all versions of the site that have been committed to the `gh-pages` branch. It’s part of the `mike` tool, which manages versioned documentation for `mkdocs`. This command is best for verifying the production website as it exists in the repository.
+
+If you have uncommitted changes that you want to preview, use `mkdocs serve` instead of `mike serve`. This will allow you to view your changes locally without committing them first.
 
 ## Versioning
 
