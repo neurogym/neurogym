@@ -1,0 +1,76 @@
+target-version = "py310"
+line-length = 120
+output-format = "concise"
+exclude = ["*.ipynb"]
+
+[lint]
+pydocstyle.convention = "google"
+select = ["ALL"]
+ignore = [
+    # FIXME: these I still want to consider resolving
+    "T201",    # 86 print statements, consider leaving the test ones there for the time being?
+    "PLR2004", # 40 comparisons against non-constant? # FIXME: consider giving actions names instead of numbers?
+    # to be slowly updated while refactoring/updating code
+    "ANN",     # 878 type annotations missing!
+    "D10",     # 112 missing docstrings (this line ignores D101, D102, D103)
+    "C901",    # too high complexity
+    "PLR0912", # too many branches
+    "PLR0913", # too many arguments
+    "PLR0915", # too many statements
+    # Unwanted
+    "FBT",    # Boolean function arguments
+    "ANN003", # Missing type annotation for **{name} (e.g. **kwargs)
+    "ANN204", # Missing return type annotation for special (dunder) method
+    "PT011",  # pytest.raises without error messages
+    "TD",     # TODO formatting
+    "FIX",    # Resolve FIXME, TODO, XXX
+    "EXE002", # Executable but no shebang
+    # Unneeded docstrings
+    "D100",   # Missing module docstring
+    "D104",   # Missing public package docstring
+    "D105",   # Missing docstring in magic method
+    "D107",   # Missing docstring in `__init__`
+    "CPY001", # Missing copyright notice
+    # preview ignores
+    "PLR0917", # too many positional arguments
+    "PLR0914", # too many local arguments
+]
+
+# Autofix settings
+fixable = ["ALL"]
+unfixable = [
+    "F401",   # unused imports (should not disappear while editing)
+    "ERA001", # commented out code
+    "B905",   # zip-without-explicit-strict
+    "T201",   # print-statements
+    "RUF100", # remove unused noqa (preferable to control when this happens?)
+]
+extend-safe-fixes = [
+    "D415",   # First line should end with a period, question mark, or exclamation point
+    "D300",   # Use triple double quotes `"""`
+    "D200",   # One-line docstring should fit on one line
+    "TC",     # Format type checking only imports
+    "ISC001", # Implicitly concatenated strings on a single line
+    "EM",     # Exception message variables
+    "RUF013", # Implicit Optional
+    "B006",   # Mutable default argument
+]
+
+[lint.per-file-ignores]
+"*.ipynb" = ["ERA001"] # Commented out code
+"tests/*" = [
+    "S101",   # Use of `assert` detected
+    "ANN201", # Missing return type
+    "D103",   # Missing function docstring
+    "SLF001", # Private member access
+    "ANN401", # Function arguments annotated with too generic `Any` type
+    # "T201",   # Print statements
+]
+"__init__.py" = ["F401"] # unused imports
+# files and locations that will likely not be preserved into new version
+"docs/*" = ["ALL"]
+"setup.py" = ["ALL"]
+
+
+[lint.flake8-unused-arguments]
+ignore-variadic-names = true # Whether to allow unused variadic arguments, like *args and **kwargs.

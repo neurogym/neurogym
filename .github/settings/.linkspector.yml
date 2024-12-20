@@ -1,0 +1,8 @@
+dirs:
+  - .
+useGitIgnore: true
+ignorePatterns:
+  - pattern: "^https://github.com/.*/settings/secrets/actions$"
+  - pattern: "http://127\\.0\\.0\\.1:8000/?$"
+  - pattern: "docs/api/tags/.*"
+  - pattern: "envs\\.md#neurogym\\.envs\\..+"

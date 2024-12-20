@@ -1,0 +1,35 @@
+name: Linkspector
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      # filetypes
+      - "**.md"
+      - "**.rst"
+      # self
+      - ".github/workflows/linkspector.yml"
+      - ".github/settings/.linkspector.yml"
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      # filetypes
+      - "**.md"
+      - "**.rst"
+      # self
+      - ".github/workflows/linkspector.yml"
+      - ".github/settings/.linkspector.yml"
+
+jobs:
+  check-links:
+    if: github.event.pull_request.draft == false
+    name: linkspector
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run linkspector
+        uses: umbrelladocs/action-linkspector@v1
+        with:
+          fail_on_error: true
+          config_file: .github/settings/.linkspector.yml

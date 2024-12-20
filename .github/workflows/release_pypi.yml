@@ -1,0 +1,85 @@
+name: Build and upload to PyPI
+
+on:
+  workflow_dispatch:
+  release:
+    types:
+      - published
+
+jobs:
+  build:
+    name: Build universal wheel and source distribution
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest"]
+        python-version: ["3.10"]
+
+    # https://github.com/marketplace/actions/setup-miniconda#use-a-default-shell
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/install-python-and-package
+        with:
+          python-version: ${{ matrix.python-version }}
+          extras-require: publishing
+          pkg-installation-type: "repository"
+      - name: Build wheel and source distribution
+        run: python3 -m build
+      - uses: actions/upload-artifact@v3
+        with:
+          path: dist/*
+
+  upload_test_pypi:
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
+      - uses: pypa/gh-action-pypi-publish@v1.4.2
+        with:
+          user: __token__
+          password: ${{ secrets.TEST_PYPI_TOKEN_NEUROGYM }}
+          repository_url: https://test.pypi.org/legacy/
+
+  upload_pypi:
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
+      - uses: pypa/gh-action-pypi-publish@v1.4.2
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN_NEUROGYM }}
+
+  deploy_docs:
+    name: Deploy documentation
+    needs: upload_pypi
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Install Python
+        uses: actions/setup-python@v5.1.1
+        with:
+          python-version: "3.12"
+      - name: Install requirements
+        run: python3 -m pip install .[dev]
+      - name: Build documentation
+        run: |
+          version=$(git describe --tags --abbrev=0)
+          mike deploy -p -u $version latest
