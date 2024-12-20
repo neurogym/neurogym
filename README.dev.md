@@ -55,6 +55,49 @@ Otherwise, please ensure check both linting (`ruff check .`) and formatting (`ru
 
 We use [prettier](https://prettier.io/) for formatting most other files. If you are editing or adding non-python files and using VS code, the [Prettier extension](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) can be installed to auto-format these files as well.
 
+## Static typing
+
+We use [inline type annotation](https://typing.readthedocs.io/en/latest/source/libraries.html#how-to-provide-type-annotations) for static typing rather than stub files (i.e. `.pyi` files).
+
+Since Python 3.11 is used as dev environment and NeuroGym must support Python version ≥3.10, you may see various typing issues at runtime. Here is [a guide to solve the potential runtime issues](https://mypy.readthedocs.io/en/stable/runtime_troubles.html).
+
+We use [Mypy](http://mypy-lang.org/) as static type checker and the configurations are set in [pyproject.toml](pyproject.toml) file.
+
+For more info about static typing and mypy, see:
+
+- [Static typing with Python](https://typing.readthedocs.io/en/latest/index.html#)
+- [Mypy doc](https://mypy.readthedocs.io/en/stable/)
+
+## Docs
+
+We use [MkDocs](https://www.mkdocs.org/) and its theme [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) to generate documentations. The configurations of MkDocs are set in [mkdocs.yml](mkdocs.yml) file.
+
+To watch the changes of current doc in real time, run:
+
+```shell
+mkdocs serve
+# or to watch src and docs directories
+mkdocs serve -w docs -w src
+```
+
+Then open your browser and go to [http://127.0.0.1:8000/](http://127.0.0.1:8000/).
+
+### Publishing the docs
+
+The docs are published on GitHub pages. We use [mike](https://github.com/jimporter/mike) to deploy the docs to the `gh-pages` branch and to manage the versions of docs.
+
+For example, to deploy the version 2.0 of the docs to the `gh-pages` branch and make it the latest version, run:
+
+```shell
+mike deploy -p -u 2.0 latest
+```
+
+If you are not happy with the changes you can run `mike delete [version]`. All these mike operations will be recorded as git commits of branch `gh-pages`.
+
+Use `mike serve` to review all versions of the site that have been committed to the `gh-pages` branch. It’s part of the `mike` tool, which manages versioned documentation for `mkdocs`. This command is best for verifying the production website as it exists in the repository.
+
+If you have uncommitted changes that you want to preview, use `mkdocs serve` instead of `mike serve`. This will allow you to view your changes locally without committing them first.
+
 ## Versioning
 
 We adhere to [semantic versioning](https://semver.org/) standards. In brief this means using `X.Y.Z` versioning, where

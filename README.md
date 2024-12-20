@@ -8,20 +8,13 @@ The goal is to facilitate the training of neural network models on neuroscience 
 Documentation: https://neurogym.github.io/
 
 - [NeuroGym](#neurogym)
-  <<<<<<< HEAD
   - [Installation](#installation)
+    - [Psychopy installation](#psychopy-installation)
   - [Tasks](#tasks)
   - [Wrappers](#wrappers)
   - [Examples](#examples)
-  - [Contributing](#contributing)
-  - # [Authors](#authors)
-  - [Installation](#installation)
-  - [Tasks](#tasks)
-  - [Wrappers](#wrappers)
-  - [Examples](#examples)
-  - [Contributing](#contributing)
-  - [Authors](#authors)
-    > > > > > > > 1eb22a3 (docs: simplify installation instructions)
+  - [Custom tasks](#custom-tasks)
+  - [Acknowledgements](#acknowledgements)
 
 NeuroGym inherits from the machine learning toolkit [Gymnasium](https://gymnasium.farama.org/), a maintained fork of [OpenAI’s Gym library](https://github.com/openai/gym). It allows a wide range of well established machine learning algorithms to be easily trained on behavioral paradigms relevant for the neuroscience community.
 NeuroGym also incorporates several properties and functions (e.g. continuous-time and trial-based tasks) that are important for neuroscience applications.
@@ -54,7 +47,7 @@ pip install -e .
 If you need psychopy for your project, additionally run
 
 ```bash
-pip install psychopy"
+pip install psychopy
 ```
 
 ### Tasks
@@ -71,12 +64,12 @@ are short scripts that allow introducing modifications the original tasks. For i
 NeuroGym is compatible with most packages that use gymnasium.
 In this [example](https://github.com/gyyang/neurogym/blob/master/examples/example_neurogym_rl.ipynb) jupyter notebook we show how to train a neural network with reinforcement learning algorithms using the [Stable-Baselines3](https://stable-baselines3.readthedocs.io/en/master/) toolbox.
 
-### Contributing
+### Custom tasks
 
-Contributing new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure,
+Creating custom new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure,
 this [template](https://github.com/gyyang/neurogym/blob/master/examples/template.py) provides the basic structure that we recommend a task to have:
 
-```
+```python
 from gymnasium import spaces
 import neurogym as ngym
 
@@ -116,7 +109,9 @@ class YourTask(ngym.PeriodEnv):
 
 ### Acknowledgements
 
-Contributors (listed in chronological order)
+For the authors of the package, please refer to the zenodo DOI at the top of the page.
+
+Other contributors (listed in chronological order)
 
 - [Marta Fradera](https://github.com/martafradera)
 - [Jordi Pastor](https://github.com/pastorjordi)

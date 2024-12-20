@@ -18,7 +18,7 @@ authors = [
 ]
 classifiers = [
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
+    "License :: Apache License, Version 2.0",
     "Natural Language :: English",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -55,12 +55,13 @@ dev = [
     "ruff >= 0.8.0",
     "mypy",
     # docs
-    "sphinx",
-    "sphinx_rtd_theme",
-    "sphinxcontrib.katex",
-    "nbsphinx",
-    # release
-    "bump-my-version",
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocs-exclude",
+    "mkdocs-redirects",
+    "mkdocstrings-python",
+    "mike",
+    "mkdocs-jupyter"
 ]
 publishing = ["build", "twine", "wheel"]
 tutorials = ["notebook"]

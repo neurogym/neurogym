@@ -1,0 +1,17 @@
+The following tasks implement two-alternative paradigms:
+
+- [ContextDecisionMaking](../envs.md#neurogym.envs.contextdecisionmaking.ContextDecisionMaking)
+- [DawTwoStep](../envs.md#neurogym.envs.dawtwostep.DawTwoStep)
+- [DelayComparison](../envs.md#neurogym.envs.delaycomparison.DelayComparison)
+- [DelayMatchCategory](../envs.md#neurogym.envs.delaymatchcategory.DelayMatchCategory)
+- [DelayMatchSample](../envs.md#neurogym.envs.delaymatchsample.DelayMatchSample)
+- [DelayMatchSampleDistractor1D](../envs.md#neurogym.envs.delaymatchsample.DelayMatchSampleDistractor1D)
+- [DualDelayMatchSample](../envs.md#neurogym.envs.dualdelaymatchsample.DualDelayMatchSample)
+- [HierarchicalReasoning](../envs.md#neurogym.envs.hierarchicalreasoning.HierarchicalReasoning)
+- [IntervalDiscrimination](../envs.md#neurogym.envs.intervaldiscrimination.IntervalDiscrimination)
+- [MultiSensoryIntegration](../envs.md#neurogym.envs.multisensory.MultiSensoryIntegration)
+- [PerceptualDecisionMaking](../envs.md#neurogym.envs.perceptualdecisionmaking.PerceptualDecisionMaking)
+- [PerceptualDecisionMakingDelayResponse](../envs.md#neurogym.envs.perceptualdecisionmaking.PerceptualDecisionMakingDelayResponse)
+- [ProbabilisticReasoning](../envs.md#neurogym.envs.probabilisticreasoning.ProbabilisticReasoning)
+- [PulseDecisionMaking](../envs.md#neurogym.envs.perceptualdecisionmaking.PulseDecisionMaking)
+- [SingleContextDecisionMaking](../envs.md#neurogym.envs.contextdecisionmaking.SingleContextDecisionMaking)
