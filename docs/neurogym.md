@@ -2,11 +2,11 @@
 
 ## Tasks
 
-Currently implemented tasks can be found [here](https://neurogym.github.io/envs/index.html).
+Currently implemented tasks can be found [here](https://neurogym.github.io/neurogym/latest/api/envs/).
 
 ## Wrappers
 
-Wrappers (see [list](https://github.com/gyyang/neurogym/blob/master/docs/wrappers.md))
+Wrappers (see [here](https://neurogym.github.io/neurogym/latest/api/wrappers/))
 are short scripts that allow introducing modifications the original tasks. For instance, the Random Dots Motion task can be transformed into a reaction time task by passing it through the _reaction_time_ wrapper. Alternatively, the _combine_ wrapper allows training an agent in two different tasks simultaneously.
 
 ## Examples
