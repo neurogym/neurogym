@@ -1376,7 +1376,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../license/" class="md-nav__link">
+      <a href="../../license_info/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2048,7 +2048,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>Neurogym tasks follow basic <a href="https://gymnasium.farama.org/">Gymnasium</a> tasks format. Gymnasium is a maintained fork of <a href="https://gym.openai.com/">OpenAI’s Gym</a> library. Each task is defined as a Python class, inheriting from the <code>gymnasium.Env</code> class.</p>
+<p>Neurogym tasks follow basic <a href="https://gymnasium.farama.org/">Gymnasium</a> tasks format. Gymnasium is a maintained fork of <a href="https://github.com/openai/gym">OpenAI’s Gym</a> library. Each task is defined as a Python class, inheriting from the <code>gymnasium.Env</code> class.</p>
 <p>In this section we describe basic structure for an gymnasium task.</p>
 <p>In the <code>__init__</code> method, it is necessary to define two attributes, <code>self.observation_space</code> and <code>self.action_space</code> which describe the kind of spaces used by observations (network inputs) and actions (network outputs).</p>
 </div>
@@ -2076,38 +2076,42 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
 
+
 <span class="k">class</span> <span class="nc">MyEnv</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">Env</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>  <span class="c1"># Python boilerplate to initialize base class</span>
 
         <span class="c1"># A two-dimensional box with minimum and maximum value set by low and high</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,))</span>
 
         <span class="c1"># A discrete space with 3 possible values (0, 1, 2)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 
+
 <span class="c1"># Instantiate an environment</span>
 <span class="n">env</span> <span class="o">=</span> <span class="n">MyEnv</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Sample random observation value:'</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">sample</span><span class="p">())</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Sample random action value:'</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Sample random observation value:"</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">sample</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Sample random action value:"</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">())</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-2">import numpy as np
 import gymnasium as gym
+
 
 class MyEnv(gym.Env):
     def __init__(self):
         super().__init__()  # Python boilerplate to initialize base class
 
         # A two-dimensional box with minimum and maximum value set by low and high
-        self.observation_space = gym.spaces.Box(low=0., high=1., shape=(2,))
+        self.observation_space = gym.spaces.Box(low=0.0, high=1.0, shape=(2,))
 
         # A discrete space with 3 possible values (0, 1, 2)
         self.action_space = gym.spaces.Discrete(3)
 
+
 # Instantiate an environment
 env = MyEnv()
-print('Sample random observation value:', env.observation_space.sample())
-print('Sample random action value:', env.action_space.sample())</div>
+print("Sample random observation value:", env.observation_space.sample())
+print("Sample random action value:", env.action_space.sample())</div>
 </div>
 </div>
 </div>
@@ -2152,12 +2156,12 @@ a dictionary holding any additional information <code>info</code>.</p>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">class</span> <span class="nc">MyEnv</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">Env</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>  <span class="c1"># Python boilerplate to initialize base class</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">low</span><span class="o">=-</span><span class="mf">10.</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">low</span><span class="o">=-</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
         <span class="n">ob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>  <span class="c1"># random sampling</span>
-        <span class="n">reward</span> <span class="o">=</span> <span class="mf">1.</span>  <span class="c1"># reward</span>
+        <span class="n">reward</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># reward</span>
         <span class="n">terminated</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># never ending</span>
         <span class="n">truncated</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">info</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># empty dictionary</span>
@@ -2170,12 +2174,12 @@ a dictionary holding any additional information <code>info</code>.</p>
 <div class="clipboard-copy-txt" id="cell-3">class MyEnv(gym.Env):
     def __init__(self):
         super().__init__()  # Python boilerplate to initialize base class
-        self.observation_space = gym.spaces.Box(low=-10., high=10., shape=(1,))
+        self.observation_space = gym.spaces.Box(low=-10.0, high=10.0, shape=(1,))
         self.action_space = gym.spaces.Discrete(3)
 
     def step(self, action):
         ob = self.observation_space.sample()  # random sampling
-        reward = 1.  # reward
+        reward = 1.0  # reward
         terminated = False  # never ending
         truncated = False
         info = {}  # empty dictionary
@@ -2232,23 +2236,27 @@ a dictionary holding any additional information <code>info</code>.</p>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
+
 <span class="k">def</span> <span class="nf">get_reward</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
+
 
 <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">get_reward</span><span class="p">(</span><span class="n">xs</span><span class="p">))</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">'State value (observation)'</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">'Reward'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"State value (observation)"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"Reward"</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-4">import matplotlib.pyplot as plt
 
+
 def get_reward(x):
-    return np.sin(x) * np.exp(-np.abs(x)/3)
+    return np.sin(x) * np.exp(-np.abs(x) / 3)
+
 
 xs = np.linspace(-10, 10, 100)
 plt.plot(xs, get_reward(xs))
-plt.xlabel('State value (observation)')
-plt.ylabel('Reward')</div>
+plt.xlabel("State value (observation)")
+plt.ylabel("Reward")</div>
 </div>
 </div>
 </div>
@@ -2276,16 +2284,16 @@ plt.ylabel('Reward')</div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">class</span> <span class="nc">MyEnv</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">Env</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># A one-dimensional box with minimum and maximum value set by low and high</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">low</span><span class="o">=-</span><span class="mf">10.</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">low</span><span class="o">=-</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
 
         <span class="c1"># A discrete space with 3 possible values (0, 1, 2)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mf">0.0</span>
 
     <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
         <span class="c1"># Actions 0, 1, 2 correspond to state change of -0.1, 0, +0.1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">+=</span> <span class="p">(</span><span class="n">action</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">+=</span> <span class="p">(</span><span class="n">action</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 
         <span class="n">ob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span>  <span class="c1"># observation</span>
@@ -2303,16 +2311,16 @@ plt.ylabel('Reward')</div>
 <div class="clipboard-copy-txt" id="cell-5">class MyEnv(gym.Env):
     def __init__(self):
         # A one-dimensional box with minimum and maximum value set by low and high
-        self.observation_space = gym.spaces.Box(low=-10., high=10., shape=(1,))
+        self.observation_space = gym.spaces.Box(low=-10.0, high=10.0, shape=(1,))
 
         # A discrete space with 3 possible values (0, 1, 2)
         self.action_space = gym.spaces.Discrete(3)
 
-        self.state = 0.
+        self.state = 0.0
 
     def step(self, action):
         # Actions 0, 1, 2 correspond to state change of -0.1, 0, +0.1
-        self.state += (action - 1.) * 0.1
+        self.state += (action - 1.0) * 0.1
         self.state = np.clip(self.state, -10, 10)
 
         ob = self.state  # observation
@@ -2424,10 +2432,11 @@ plt.plot(ob_log, reward_log)</div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">neurogym</span> <span class="k">as</span> <span class="nn">ngym</span>
 <span class="kn">from</span> <span class="nn">neurogym</span> <span class="kn">import</span> <span class="n">TrialEnv</span>
 
+
 <span class="k">class</span> <span class="nc">MyTrialEnv</span><span class="p">(</span><span class="n">TrialEnv</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">low</span><span class="o">=-</span><span class="mf">1.</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">low</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">next_ob</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
@@ -2439,26 +2448,27 @@ plt.plot(ob_log, reward_log)</div>
 
         <span class="n">trial</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="c1"># Ground-truth is 1 if ob &gt; 0, else 0</span>
-        <span class="n">trial</span><span class="p">[</span><span class="s1">'ground_truth'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ob</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.0</span>
+        <span class="n">trial</span><span class="p">[</span><span class="s2">"ground_truth"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ob</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.0</span>
 
         <span class="k">return</span> <span class="n">trial</span>
 
     <span class="k">def</span> <span class="nf">_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
         <span class="n">ob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_ob</span>
         <span class="c1"># If action equals to ground_truth, reward=1, otherwise 0</span>
-        <span class="n">reward</span> <span class="o">=</span> <span class="p">(</span><span class="n">action</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">trial</span><span class="p">[</span><span class="s1">'ground_truth'</span><span class="p">])</span> <span class="o">*</span> <span class="mf">1.0</span>
+        <span class="n">reward</span> <span class="o">=</span> <span class="p">(</span><span class="n">action</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">trial</span><span class="p">[</span><span class="s2">"ground_truth"</span><span class="p">])</span> <span class="o">*</span> <span class="mf">1.0</span>
         <span class="n">terminated</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">truncated</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'new_trial'</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"new_trial"</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
         <span class="k">return</span> <span class="n">ob</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-7">import neurogym as ngym
 from neurogym import TrialEnv
 
+
 class MyTrialEnv(TrialEnv):
     def __init__(self):
         super().__init__()
-        self.observation_space = gym.spaces.Box(low=-1., high=1., shape=(1,))
+        self.observation_space = gym.spaces.Box(low=-1.0, high=1.0, shape=(1,))
         self.action_space = gym.spaces.Discrete(2)
 
         self.next_ob = np.random.uniform(-1, 1, size=(1,))
@@ -2470,17 +2480,17 @@ class MyTrialEnv(TrialEnv):
 
         trial = dict()
         # Ground-truth is 1 if ob &gt; 0, else 0
-        trial['ground_truth'] = (ob &gt; 0) * 1.0
+        trial["ground_truth"] = (ob &gt; 0) * 1.0
 
         return trial
 
     def _step(self, action):
         ob = self.next_ob
         # If action equals to ground_truth, reward=1, otherwise 0
-        reward = (action == self.trial['ground_truth']) * 1.0
+        reward = (action == self.trial["ground_truth"]) * 1.0
         terminated = False
         truncated = False
-        info = {'new_trial': True}
+        info = {"new_trial": True}
         return ob, reward, terminated, truncated, info</div>
 </div>
 </div>
@@ -2509,30 +2519,30 @@ class MyTrialEnv(TrialEnv):
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="n">env</span> <span class="o">=</span> <span class="n">MyTrialEnv</span><span class="p">()</span>
 <span class="n">ob</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Trial'</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Received observation'</span><span class="p">,</span> <span class="n">ob</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Trial"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Received observation"</span><span class="p">,</span> <span class="n">ob</span><span class="p">)</span>
 
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
     <span class="n">action</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>  <span class="c1"># A random agent</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">'Selected action'</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Selected action"</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
     <span class="n">ob</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">'Received reward'</span><span class="p">,</span> <span class="n">reward</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">'Trial'</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">'Received observation'</span><span class="p">,</span> <span class="n">ob</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Received reward"</span><span class="p">,</span> <span class="n">reward</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Trial"</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Received observation"</span><span class="p">,</span> <span class="n">ob</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-8">env = MyTrialEnv()
 ob, _ = env.reset()
 
-print('Trial', 0)
-print('Received observation', ob)
+print("Trial", 0)
+print("Received observation", ob)
 
 for i in range(5):
     action = env.action_space.sample()  # A random agent
-    print('Selected action', action)
+    print("Selected action", action)
     ob, reward, terminated, truncated, info = env.step(action)
-    print('Received reward', reward)
-    print('Trial', i+1)
-    print('Received observation', ob)</div>
+    print("Received reward", reward)
+    print("Trial", i + 1)
+    print("Received observation", ob)</div>
 </div>
 </div>
 </div>
@@ -2579,17 +2589,17 @@ for i in range(5):
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>  <span class="c1"># dt is passed to base task</span>
 
         <span class="c1"># Setting default task timing</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timing</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'stimulus'</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span> <span class="s1">'decision'</span><span class="p">:</span> <span class="mi">500</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timing</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"stimulus"</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span> <span class="s2">"decision"</span><span class="p">:</span> <span class="mi">500</span><span class="p">}</span>
         <span class="c1"># Update timing if provided externally</span>
         <span class="k">if</span> <span class="n">timing</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">timing</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">timing</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">low</span><span class="o">=-</span><span class="mf">1.</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">low</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_new_trial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Setting time periods for this trial</span>
-        <span class="n">periods</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'stimulus'</span><span class="p">,</span> <span class="s1">'decision'</span><span class="p">]</span>
+        <span class="n">periods</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"stimulus"</span><span class="p">,</span> <span class="s2">"decision"</span><span class="p">]</span>
         <span class="c1"># Will add stimulus and decision periods sequentially using self.timing info</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_period</span><span class="p">(</span><span class="n">periods</span><span class="p">)</span>
 
@@ -2597,26 +2607,26 @@ for i in range(5):
         <span class="n">stimulus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
 
         <span class="n">trial</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="n">trial</span><span class="p">[</span><span class="s1">'stimulus'</span><span class="p">]</span> <span class="o">=</span> <span class="n">stimulus</span>
+        <span class="n">trial</span><span class="p">[</span><span class="s2">"stimulus"</span><span class="p">]</span> <span class="o">=</span> <span class="n">stimulus</span>
         <span class="c1"># Ground-truth is 1 if stimulus &gt; 0, else 0</span>
-        <span class="n">trial</span><span class="p">[</span><span class="s1">'ground_truth'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">stimulus</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.0</span>
+        <span class="n">trial</span><span class="p">[</span><span class="s2">"ground_truth"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">stimulus</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.0</span>
 
         <span class="k">return</span> <span class="n">trial</span>
 
     <span class="k">def</span> <span class="nf">_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
         <span class="c1"># Check if the current time step is in stimulus period</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_period</span><span class="p">(</span><span class="s1">'stimulus'</span><span class="p">):</span>
-            <span class="n">ob</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">trial</span><span class="p">[</span><span class="s1">'stimulus'</span><span class="p">]])</span>
-            <span class="n">reward</span> <span class="o">=</span> <span class="mf">0.</span>  <span class="c1"># no reward</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_period</span><span class="p">(</span><span class="s2">"stimulus"</span><span class="p">):</span>
+            <span class="n">ob</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">trial</span><span class="p">[</span><span class="s2">"stimulus"</span><span class="p">]])</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># no reward</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">ob</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">])</span>  <span class="c1"># no observation</span>
+            <span class="n">ob</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">])</span>  <span class="c1"># no observation</span>
             <span class="c1"># If action equals to ground_truth, reward=1, otherwise 0</span>
-            <span class="n">reward</span> <span class="o">=</span> <span class="p">(</span><span class="n">action</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">trial</span><span class="p">[</span><span class="s1">'ground_truth'</span><span class="p">])</span> <span class="o">*</span> <span class="mf">1.0</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="p">(</span><span class="n">action</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">trial</span><span class="p">[</span><span class="s2">"ground_truth"</span><span class="p">])</span> <span class="o">*</span> <span class="mf">1.0</span>
 
         <span class="n">terminated</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">truncated</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="c1"># By default, the trial is not ended</span>
-        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'new_trial'</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"new_trial"</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
         <span class="k">return</span> <span class="n">ob</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-9">class MyDecisionEnv(TrialEnv):
@@ -2624,17 +2634,17 @@ for i in range(5):
         super().__init__(dt=dt)  # dt is passed to base task
 
         # Setting default task timing
-        self.timing = {'stimulus': 500, 'decision': 500}
+        self.timing = {"stimulus": 500, "decision": 500}
         # Update timing if provided externally
         if timing:
             self.timing.update(timing)
 
-        self.observation_space = gym.spaces.Box(low=-1., high=1., shape=(1,))
+        self.observation_space = gym.spaces.Box(low=-1.0, high=1.0, shape=(1,))
         self.action_space = gym.spaces.Discrete(2)
 
     def _new_trial(self):
         # Setting time periods for this trial
-        periods = ['stimulus', 'decision']
+        periods = ["stimulus", "decision"]
         # Will add stimulus and decision periods sequentially using self.timing info
         self.add_period(periods)
 
@@ -2642,26 +2652,26 @@ for i in range(5):
         stimulus = np.random.uniform(-1, 1, size=(1,))
 
         trial = dict()
-        trial['stimulus'] = stimulus
+        trial["stimulus"] = stimulus
         # Ground-truth is 1 if stimulus &gt; 0, else 0
-        trial['ground_truth'] = (stimulus &gt; 0) * 1.0
+        trial["ground_truth"] = (stimulus &gt; 0) * 1.0
 
         return trial
 
     def _step(self, action):
         # Check if the current time step is in stimulus period
-        if self.in_period('stimulus'):
-            ob = np.array([self.trial['stimulus']])
-            reward = 0.  # no reward
+        if self.in_period("stimulus"):
+            ob = np.array([self.trial["stimulus"]])
+            reward = 0.0  # no reward
         else:
-            ob = np.array([0.])  # no observation
+            ob = np.array([0.0])  # no observation
             # If action equals to ground_truth, reward=1, otherwise 0
-            reward = (action == self.trial['ground_truth']) * 1.0
+            reward = (action == self.trial["ground_truth"]) * 1.0
 
         terminated = False
         truncated = False
         # By default, the trial is not ended
-        info = {'new_trial': False}
+        info = {"new_trial": False}
         return ob, reward, terminated, truncated, info</div>
 </div>
 </div>
@@ -2699,51 +2709,51 @@ for i in range(5):
 </clipboard-copy>
 </div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="c1"># Logging</span>
-<span class="n">log</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'ob'</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">'gt'</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">'action'</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">'reward'</span><span class="p">:</span> <span class="p">[]}</span>
+<span class="n">log</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"ob"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"gt"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"action"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"reward"</span><span class="p">:</span> <span class="p">[]}</span>
 
 <span class="n">env</span> <span class="o">=</span> <span class="n">MyDecisionEnv</span><span class="p">(</span><span class="n">dt</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 <span class="n">ob</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-<span class="n">log</span><span class="p">[</span><span class="s1">'ob'</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">ob</span><span class="p">))</span>
-<span class="n">log</span><span class="p">[</span><span class="s1">'gt'</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">ob</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">))</span>
+<span class="n">log</span><span class="p">[</span><span class="s2">"ob"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">ob</span><span class="p">))</span>
+<span class="n">log</span><span class="p">[</span><span class="s2">"gt"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">ob</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">))</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">):</span>
     <span class="n">action</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>  <span class="c1"># A random agent</span>
     <span class="n">ob</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
 
-    <span class="n">log</span><span class="p">[</span><span class="s1">'action'</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">action</span><span class="p">))</span>
-    <span class="n">log</span><span class="p">[</span><span class="s1">'ob'</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">ob</span><span class="p">))</span>
-    <span class="n">log</span><span class="p">[</span><span class="s1">'gt'</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">ob</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">))</span>
-    <span class="n">log</span><span class="p">[</span><span class="s1">'reward'</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">reward</span><span class="p">))</span>
+    <span class="n">log</span><span class="p">[</span><span class="s2">"action"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">action</span><span class="p">))</span>
+    <span class="n">log</span><span class="p">[</span><span class="s2">"ob"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">ob</span><span class="p">))</span>
+    <span class="n">log</span><span class="p">[</span><span class="s2">"gt"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">ob</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">log</span><span class="p">[</span><span class="s2">"reward"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">reward</span><span class="p">))</span>
 
-<span class="n">log</span><span class="p">[</span><span class="s1">'ob'</span><span class="p">]</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="s1">'ob'</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># exclude last observation</span>
-<span class="n">log</span><span class="p">[</span><span class="s1">'gt'</span><span class="p">]</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="s1">'gt'</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># exclude last observation</span>
+<span class="n">log</span><span class="p">[</span><span class="s2">"ob"</span><span class="p">]</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="s2">"ob"</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># exclude last observation</span>
+<span class="n">log</span><span class="p">[</span><span class="s2">"gt"</span><span class="p">]</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="s2">"gt"</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># exclude last observation</span>
 <span class="c1"># Visualize</span>
 <span class="n">f</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">log</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">log</span><span class="p">):</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="s1">'.-'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="s2">".-"</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-10"># Logging
-log = {'ob': [], 'gt': [], 'action': [], 'reward': []}
+log = {"ob": [], "gt": [], "action": [], "reward": []}
 
 env = MyDecisionEnv(dt=100)
 ob, _ = env.reset()
-log['ob'].append(float(ob))
-log['gt'].append(float(ob &gt; 0))
+log["ob"].append(float(ob))
+log["gt"].append(float(ob &gt; 0))
 for i in range(30):
     action = env.action_space.sample()  # A random agent
     ob, reward, terminated, truncated, info = env.step(action)
 
-    log['action'].append(float(action))
-    log['ob'].append(float(ob))
-    log['gt'].append(float(ob &gt; 0))
-    log['reward'].append(float(reward))
+    log["action"].append(float(action))
+    log["ob"].append(float(ob))
+    log["gt"].append(float(ob &gt; 0))
+    log["reward"].append(float(reward))
 
-log['ob'] = log['ob'][:-1]  # exclude last observation
-log['gt'] = log['gt'][:-1]  # exclude last observation
+log["ob"] = log["ob"][:-1]  # exclude last observation
+log["gt"] = log["gt"][:-1]  # exclude last observation
 # Visualize
 f, axes = plt.subplots(len(log), 1, sharex=True)
 for ax, key in zip(axes, log):
-    ax.plot(log[key], '.-')
+    ax.plot(log[key], ".-")
     ax.set_ylabel(key)</div>
 </div>
 </div>
@@ -2787,21 +2797,22 @@ for ax, key in zip(axes, log):
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>  <span class="c1"># dt is passed to base task</span>
 
         <span class="c1"># Setting default task timing</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timing</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'stimulus'</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span> <span class="s1">'decision'</span><span class="p">:</span> <span class="mi">500</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timing</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"stimulus"</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span> <span class="s2">"decision"</span><span class="p">:</span> <span class="mi">500</span><span class="p">}</span>
         <span class="c1"># Update timing if provided externally</span>
         <span class="k">if</span> <span class="n">timing</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">timing</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">timing</span><span class="p">)</span>
 
         <span class="c1"># Here we use ngym.spaces, which allows setting name of each dimension</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'fixation'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'stimulus'</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"fixation"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"stimulus"</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="n">ngym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span>
-            <span class="n">low</span><span class="o">=-</span><span class="mf">1.</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'fixation'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'choice'</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]}</span>
+            <span class="n">low</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span>
+        <span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"fixation"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"choice"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">ngym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_new_trial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Setting time periods for this trial</span>
-        <span class="n">periods</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'stimulus'</span><span class="p">,</span> <span class="s1">'decision'</span><span class="p">]</span>
+        <span class="n">periods</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"stimulus"</span><span class="p">,</span> <span class="s2">"decision"</span><span class="p">]</span>
         <span class="c1"># Will add stimulus and decision periods sequentially using self.timing info</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_period</span><span class="p">(</span><span class="n">periods</span><span class="p">)</span>
 
@@ -2809,17 +2820,17 @@ for ax, key in zip(axes, log):
         <span class="n">stimulus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
 
         <span class="c1"># Add value 1 to stimulus period at fixation location</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_ob</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="s1">'stimulus'</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s1">'fixation'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_ob</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="s2">"stimulus"</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s2">"fixation"</span><span class="p">)</span>
         <span class="c1"># Add value stimulus to stimulus period at stimulus location</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_ob</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="s1">'stimulus'</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s1">'stimulus'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_ob</span><span class="p">(</span><span class="n">stimulus</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="s2">"stimulus"</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s2">"stimulus"</span><span class="p">)</span>
 
         <span class="c1"># Set ground_truth</span>
         <span class="n">groundtruth</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stimulus</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_groundtruth</span><span class="p">(</span><span class="n">groundtruth</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="s1">'decision'</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s1">'choice'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_groundtruth</span><span class="p">(</span><span class="n">groundtruth</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="s2">"decision"</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s2">"choice"</span><span class="p">)</span>
 
         <span class="n">trial</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="n">trial</span><span class="p">[</span><span class="s1">'stimulus'</span><span class="p">]</span> <span class="o">=</span> <span class="n">stimulus</span>
-        <span class="n">trial</span><span class="p">[</span><span class="s1">'ground_truth'</span><span class="p">]</span> <span class="o">=</span> <span class="n">groundtruth</span>
+        <span class="n">trial</span><span class="p">[</span><span class="s2">"stimulus"</span><span class="p">]</span> <span class="o">=</span> <span class="n">stimulus</span>
+        <span class="n">trial</span><span class="p">[</span><span class="s2">"ground_truth"</span><span class="p">]</span> <span class="o">=</span> <span class="n">groundtruth</span>
 
         <span class="k">return</span> <span class="n">trial</span>
 
@@ -2833,7 +2844,7 @@ for ax, key in zip(axes, log):
         <span class="n">terminated</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">truncated</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="c1"># By default, the trial is not ended</span>
-        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'new_trial'</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"new_trial"</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ob_now</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-11">class MyDecisionEnv(TrialEnv):
@@ -2841,21 +2852,22 @@ for ax, key in zip(axes, log):
         super().__init__(dt=dt)  # dt is passed to base task
 
         # Setting default task timing
-        self.timing = {'stimulus': 500, 'decision': 500}
+        self.timing = {"stimulus": 500, "decision": 500}
         # Update timing if provided externally
         if timing:
             self.timing.update(timing)
 
         # Here we use ngym.spaces, which allows setting name of each dimension
-        name = {'fixation': 0, 'stimulus': 1}
+        name = {"fixation": 0, "stimulus": 1}
         self.observation_space = ngym.spaces.Box(
-            low=-1., high=1., shape=(2,), name=name)
-        name = {'fixation': 0, 'choice': [1, 2]}
+            low=-1.0, high=1.0, shape=(2,), name=name
+        )
+        name = {"fixation": 0, "choice": [1, 2]}
         self.action_space = ngym.spaces.Discrete(3, name=name)
 
     def _new_trial(self):
         # Setting time periods for this trial
-        periods = ['stimulus', 'decision']
+        periods = ["stimulus", "decision"]
         # Will add stimulus and decision periods sequentially using self.timing info
         self.add_period(periods)
 
@@ -2863,17 +2875,17 @@ for ax, key in zip(axes, log):
         stimulus = np.random.uniform(-1, 1, size=(1,))
 
         # Add value 1 to stimulus period at fixation location
-        self.add_ob(1, period='stimulus', where='fixation')
+        self.add_ob(1, period="stimulus", where="fixation")
         # Add value stimulus to stimulus period at stimulus location
-        self.add_ob(stimulus, period='stimulus', where='stimulus')
+        self.add_ob(stimulus, period="stimulus", where="stimulus")
 
         # Set ground_truth
         groundtruth = int(stimulus &gt; 0)
-        self.set_groundtruth(groundtruth, period='decision', where='choice')
+        self.set_groundtruth(groundtruth, period="decision", where="choice")
 
         trial = dict()
-        trial['stimulus'] = stimulus
-        trial['ground_truth'] = groundtruth
+        trial["stimulus"] = stimulus
+        trial["ground_truth"] = groundtruth
 
         return trial
 
@@ -2887,7 +2899,7 @@ for ax, key in zip(axes, log):
         terminated = False
         truncated = False
         # By default, the trial is not ended
-        info = {'new_trial': False}
+        info = {"new_trial": False}
         return self.ob_now, reward, terminated, truncated, info</div>
 </div>
 </div>
@@ -2930,9 +2942,9 @@ for ax, key in zip(axes, log):
 <span class="n">trial</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">new_trial</span><span class="p">()</span>
 <span class="n">ob</span><span class="p">,</span> <span class="n">gt</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">ob</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">gt</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Trial information'</span><span class="p">,</span> <span class="n">trial</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Observation shape is (N_time, N_unit) ='</span><span class="p">,</span> <span class="n">ob</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Groundtruth shape is (N_time,) ='</span><span class="p">,</span> <span class="n">gt</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Trial information"</span><span class="p">,</span> <span class="n">trial</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Observation shape is (N_time, N_unit) ="</span><span class="p">,</span> <span class="n">ob</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Groundtruth shape is (N_time,) ="</span><span class="p">,</span> <span class="n">gt</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-12">env = MyDecisionEnv()
 env.reset()
@@ -2940,9 +2952,9 @@ env.reset()
 trial = env.new_trial()
 ob, gt = env.ob, env.gt
 
-print('Trial information', trial)
-print('Observation shape is (N_time, N_unit) =', ob.shape)
-print('Groundtruth shape is (N_time,) =', gt.shape)</div>
+print("Trial information", trial)
+print("Observation shape is (N_time, N_unit) =", ob.shape)
+print("Groundtruth shape is (N_time,) =", gt.shape)</div>
 </div>
 </div>
 </div>
@@ -2981,14 +2993,14 @@ print('Groundtruth shape is (N_time,) =', gt.shape)</div>
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="c1"># Run the environment for 2 trials using a random agent.</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">ngym</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">plot_env</span><span class="p">(</span>
     <span class="n">env</span><span class="p">,</span>
-    <span class="n">ob_traces</span><span class="o">=</span><span class="p">[</span><span class="s1">'stimulus'</span><span class="p">,</span> <span class="s1">'fixation'</span><span class="p">],</span>
+    <span class="n">ob_traces</span><span class="o">=</span><span class="p">[</span><span class="s2">"stimulus"</span><span class="p">,</span> <span class="s2">"fixation"</span><span class="p">],</span>
     <span class="n">num_trials</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-13"># Run the environment for 2 trials using a random agent.
 fig = ngym.utils.plot_env(
     env,
-    ob_traces=['stimulus', 'fixation'],
+    ob_traces=["stimulus", "fixation"],
     num_trials=2,
 )</div>
 </div>
@@ -3035,67 +3047,66 @@ fig = ngym.utils.plot_env(
 <span class="sd">        sigma: float, input noise level</span>
 <span class="sd">        dim_ring: int, dimension of ring input and output</span>
 <span class="sd">    """</span>
+
     <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">'paper_link'</span><span class="p">:</span> <span class="s1">'https://www.jneurosci.org/content/12/12/4745'</span><span class="p">,</span>
-        <span class="s1">'paper_name'</span><span class="p">:</span> <span class="s1">'''The analysis of visual motion: a comparison of</span>
-<span class="s1">        neuronal and psychophysical performance'''</span><span class="p">,</span>
-        <span class="s1">'tags'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'perceptual'</span><span class="p">,</span> <span class="s1">'two-alternative'</span><span class="p">,</span> <span class="s1">'supervised'</span><span class="p">]</span>
+        <span class="s2">"paper_link"</span><span class="p">:</span> <span class="s2">"https://www.jneurosci.org/content/12/12/4745"</span><span class="p">,</span>
+        <span class="s2">"paper_name"</span><span class="p">:</span> <span class="s2">"""The analysis of visual motion: a comparison of</span>
+<span class="s2">        neuronal and psychophysical performance"""</span><span class="p">,</span>
+        <span class="s2">"tags"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"perceptual"</span><span class="p">,</span> <span class="s2">"two-alternative"</span><span class="p">,</span> <span class="s2">"supervised"</span><span class="p">],</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">rewards</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stim_scale</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
-                 <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">dim_ring</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">rewards</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stim_scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">dim_ring</span><span class="o">=</span><span class="mi">2</span>
+    <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
         <span class="c1"># The strength of evidence, modulated by stim_scale</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cohs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mf">6.4</span><span class="p">,</span> <span class="mf">12.8</span><span class="p">,</span> <span class="mf">25.6</span><span class="p">,</span> <span class="mf">51.2</span><span class="p">])</span> <span class="o">*</span> <span class="n">stim_scale</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span>  <span class="c1"># Input noise</span>
 
         <span class="c1"># Rewards</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rewards</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'abort'</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="s1">'correct'</span><span class="p">:</span> <span class="o">+</span><span class="mf">1.</span><span class="p">,</span> <span class="s1">'fail'</span><span class="p">:</span> <span class="mf">0.</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rewards</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"abort"</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="s2">"correct"</span><span class="p">:</span> <span class="o">+</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">"fail"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">rewards</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">rewards</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">timing</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">'fixation'</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
-            <span class="s1">'stimulus'</span><span class="p">:</span> <span class="mi">2000</span><span class="p">,</span>
-            <span class="s1">'delay'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s1">'decision'</span><span class="p">:</span> <span class="mi">100</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timing</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"fixation"</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">"stimulus"</span><span class="p">:</span> <span class="mi">2000</span><span class="p">,</span> <span class="s2">"delay"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"decision"</span><span class="p">:</span> <span class="mi">100</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">timing</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">timing</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">timing</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">abort</span> <span class="o">=</span> <span class="kc">False</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">dim_ring</span><span class="o">+</span><span class="mi">1</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">dim_ring</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">dim_ring</span><span class="p">)</span>
 
-        <span class="n">name</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'fixation'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'stimulus'</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dim_ring</span><span class="o">+</span><span class="mi">1</span><span class="p">)}</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"fixation"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"stimulus"</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dim_ring</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="n">ngym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span>
-            <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">dim_ring</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'fixation'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'choice'</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dim_ring</span><span class="o">+</span><span class="mi">1</span><span class="p">)}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">ngym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">dim_ring</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+            <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">dim_ring</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span>
+        <span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"fixation"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"choice"</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dim_ring</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">ngym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">dim_ring</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_new_trial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># Trial info</span>
         <span class="n">trial</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">'ground_truth'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">),</span>
-            <span class="s1">'coh'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cohs</span><span class="p">),</span>
+            <span class="s2">"ground_truth"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">),</span>
+            <span class="s2">"coh"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cohs</span><span class="p">),</span>
         <span class="p">}</span>
         <span class="n">trial</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="n">coh</span> <span class="o">=</span> <span class="n">trial</span><span class="p">[</span><span class="s1">'coh'</span><span class="p">]</span>
-        <span class="n">ground_truth</span> <span class="o">=</span> <span class="n">trial</span><span class="p">[</span><span class="s1">'ground_truth'</span><span class="p">]</span>
+        <span class="n">coh</span> <span class="o">=</span> <span class="n">trial</span><span class="p">[</span><span class="s2">"coh"</span><span class="p">]</span>
+        <span class="n">ground_truth</span> <span class="o">=</span> <span class="n">trial</span><span class="p">[</span><span class="s2">"ground_truth"</span><span class="p">]</span>
         <span class="n">stim_theta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">[</span><span class="n">ground_truth</span><span class="p">]</span>
 
         <span class="c1"># Periods</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_period</span><span class="p">([</span><span class="s1">'fixation'</span><span class="p">,</span> <span class="s1">'stimulus'</span><span class="p">,</span> <span class="s1">'delay'</span><span class="p">,</span> <span class="s1">'decision'</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_period</span><span class="p">([</span><span class="s2">"fixation"</span><span class="p">,</span> <span class="s2">"stimulus"</span><span class="p">,</span> <span class="s2">"delay"</span><span class="p">,</span> <span class="s2">"decision"</span><span class="p">])</span>
 
         <span class="c1"># Observations</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_ob</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="p">[</span><span class="s1">'fixation'</span><span class="p">,</span> <span class="s1">'stimulus'</span><span class="p">,</span> <span class="s1">'delay'</span><span class="p">],</span> <span class="n">where</span><span class="o">=</span><span class="s1">'fixation'</span><span class="p">)</span>
-        <span class="n">stim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">-</span> <span class="n">stim_theta</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">coh</span><span class="o">/</span><span class="mi">200</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_ob</span><span class="p">(</span><span class="n">stim</span><span class="p">,</span> <span class="s1">'stimulus'</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s1">'stimulus'</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_randn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">,</span> <span class="s1">'stimulus'</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s1">'stimulus'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_ob</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="p">[</span><span class="s2">"fixation"</span><span class="p">,</span> <span class="s2">"stimulus"</span><span class="p">,</span> <span class="s2">"delay"</span><span class="p">],</span> <span class="n">where</span><span class="o">=</span><span class="s2">"fixation"</span><span class="p">)</span>
+        <span class="n">stim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">-</span> <span class="n">stim_theta</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">coh</span> <span class="o">/</span> <span class="mi">200</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_ob</span><span class="p">(</span><span class="n">stim</span><span class="p">,</span> <span class="s2">"stimulus"</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s2">"stimulus"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_randn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">,</span> <span class="s2">"stimulus"</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s2">"stimulus"</span><span class="p">)</span>
 
         <span class="c1"># Ground truth</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_groundtruth</span><span class="p">(</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="s1">'decision'</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s1">'choice'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_groundtruth</span><span class="p">(</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="s2">"decision"</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s2">"choice"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">trial</span>
 
@@ -3107,20 +3118,26 @@ fig = ngym.utils.plot_env(
         <span class="n">reward</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">gt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gt_now</span>
         <span class="c1"># observations</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_period</span><span class="p">(</span><span class="s1">'fixation'</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_period</span><span class="p">(</span><span class="s2">"fixation"</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">action</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># action = 0 means fixating</span>
                 <span class="n">new_trial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">abort</span>
-                <span class="n">reward</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rewards</span><span class="p">[</span><span class="s1">'abort'</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_period</span><span class="p">(</span><span class="s1">'decision'</span><span class="p">):</span>
+                <span class="n">reward</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rewards</span><span class="p">[</span><span class="s2">"abort"</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_period</span><span class="p">(</span><span class="s2">"decision"</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">action</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">new_trial</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="n">gt</span><span class="p">:</span>
-                    <span class="n">reward</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rewards</span><span class="p">[</span><span class="s1">'correct'</span><span class="p">]</span>
+                    <span class="n">reward</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rewards</span><span class="p">[</span><span class="s2">"correct"</span><span class="p">]</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">performance</span> <span class="o">=</span> <span class="mi">1</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">reward</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rewards</span><span class="p">[</span><span class="s1">'fail'</span><span class="p">]</span>
+                    <span class="n">reward</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rewards</span><span class="p">[</span><span class="s2">"fail"</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ob_now</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="p">{</span><span class="s1">'new_trial'</span><span class="p">:</span> <span class="n">new_trial</span><span class="p">,</span> <span class="s1">'gt'</span><span class="p">:</span> <span class="n">gt</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ob_now</span><span class="p">,</span>
+            <span class="n">reward</span><span class="p">,</span>
+            <span class="n">terminated</span><span class="p">,</span>
+            <span class="n">truncated</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">"new_trial"</span><span class="p">:</span> <span class="n">new_trial</span><span class="p">,</span> <span class="s2">"gt"</span><span class="p">:</span> <span class="n">gt</span><span class="p">},</span>
+        <span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-14">class PerceptualDecisionMaking(ngym.TrialEnv):
     """Two-alternative forced choice task in which the subject has to
@@ -3131,67 +3148,66 @@ fig = ngym.utils.plot_env(
         sigma: float, input noise level
         dim_ring: int, dimension of ring input and output
     """
+
     metadata = {
-        'paper_link': 'https://www.jneurosci.org/content/12/12/4745',
-        'paper_name': '''The analysis of visual motion: a comparison of
-        neuronal and psychophysical performance''',
-        'tags': ['perceptual', 'two-alternative', 'supervised']
+        "paper_link": "https://www.jneurosci.org/content/12/12/4745",
+        "paper_name": """The analysis of visual motion: a comparison of
+        neuronal and psychophysical performance""",
+        "tags": ["perceptual", "two-alternative", "supervised"],
     }
 
-    def __init__(self, dt=100, rewards=None, timing=None, stim_scale=1.,
-                 sigma=1.0, dim_ring=2):
+    def __init__(
+        self, dt=100, rewards=None, timing=None, stim_scale=1.0, sigma=1.0, dim_ring=2
+    ):
         super().__init__(dt=dt)
         # The strength of evidence, modulated by stim_scale
         self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2]) * stim_scale
         self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
         # Rewards
-        self.rewards = {'abort': -0.1, 'correct': +1., 'fail': 0.}
+        self.rewards = {"abort": -0.1, "correct": +1.0, "fail": 0.0}
         if rewards:
             self.rewards.update(rewards)
 
-        self.timing = {
-            'fixation': 100,
-            'stimulus': 2000,
-            'delay': 0,
-            'decision': 100}
+        self.timing = {"fixation": 100, "stimulus": 2000, "delay": 0, "decision": 100}
         if timing:
             self.timing.update(timing)
 
         self.abort = False
 
-        self.theta = np.linspace(0, 2*np.pi, dim_ring+1)[:-1]
+        self.theta = np.linspace(0, 2 * np.pi, dim_ring + 1)[:-1]
         self.choices = np.arange(dim_ring)
 
-        name = {'fixation': 0, 'stimulus': range(1, dim_ring+1)}
+        name = {"fixation": 0, "stimulus": range(1, dim_ring + 1)}
         self.observation_space = ngym.spaces.Box(
-            -np.inf, np.inf, shape=(1+dim_ring,), dtype=np.float32, name=name)
-        name = {'fixation': 0, 'choice': range(1, dim_ring+1)}
-        self.action_space = ngym.spaces.Discrete(1+dim_ring, name=name)
+            -np.inf, np.inf, shape=(1 + dim_ring,), dtype=np.float32, name=name
+        )
+        name = {"fixation": 0, "choice": range(1, dim_ring + 1)}
+        self.action_space = ngym.spaces.Discrete(1 + dim_ring, name=name)
 
     def _new_trial(self, **kwargs):
         # Trial info
         trial = {
-            'ground_truth': self.rng.choice(self.choices),
-            'coh': self.rng.choice(self.cohs),
+            "ground_truth": self.rng.choice(self.choices),
+            "coh": self.rng.choice(self.cohs),
         }
         trial.update(kwargs)
 
-        coh = trial['coh']
-        ground_truth = trial['ground_truth']
+        coh = trial["coh"]
+        ground_truth = trial["ground_truth"]
         stim_theta = self.theta[ground_truth]
 
         # Periods
-        self.add_period(['fixation', 'stimulus', 'delay', 'decision'])
+        self.add_period(["fixation", "stimulus", "delay", "decision"])
 
         # Observations
-        self.add_ob(1, period=['fixation', 'stimulus', 'delay'], where='fixation')
-        stim = np.cos(self.theta - stim_theta) * (coh/200) + 0.5
-        self.add_ob(stim, 'stimulus', where='stimulus')
-        self.add_randn(0, self.sigma, 'stimulus', where='stimulus')
+        self.add_ob(1, period=["fixation", "stimulus", "delay"], where="fixation")
+        stim = np.cos(self.theta - stim_theta) * (coh / 200) + 0.5
+        self.add_ob(stim, "stimulus", where="stimulus")
+        self.add_randn(0, self.sigma, "stimulus", where="stimulus")
 
         # Ground truth
-        self.set_groundtruth(ground_truth, period='decision', where='choice')
+        self.set_groundtruth(ground_truth, period="decision", where="choice")
 
         return trial
 
@@ -3203,20 +3219,26 @@ fig = ngym.utils.plot_env(
         reward = 0
         gt = self.gt_now
         # observations
-        if self.in_period('fixation'):
+        if self.in_period("fixation"):
             if action != 0:  # action = 0 means fixating
                 new_trial = self.abort
-                reward += self.rewards['abort']
-        elif self.in_period('decision'):
+                reward += self.rewards["abort"]
+        elif self.in_period("decision"):
             if action != 0:
                 new_trial = True
                 if action == gt:
-                    reward += self.rewards['correct']
+                    reward += self.rewards["correct"]
                     self.performance = 1
                 else:
-                    reward += self.rewards['fail']
+                    reward += self.rewards["fail"]
 
-        return self.ob_now, reward, terminated, truncated, {'new_trial': new_trial, 'gt': gt}</div>
+        return (
+            self.ob_now,
+            reward,
+            terminated,
+            truncated,
+            {"new_trial": new_trial, "gt": gt},
+        )</div>
 </div>
 </div>
 </div>
@@ -3244,14 +3266,14 @@ fig = ngym.utils.plot_env(
 <div class="highlight-ipynb hl-python"><pre><span></span><span class="n">env</span> <span class="o">=</span> <span class="n">PerceptualDecisionMaking</span><span class="p">()</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">ngym</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">plot_env</span><span class="p">(</span>
     <span class="n">env</span><span class="p">,</span>
-    <span class="n">ob_traces</span><span class="o">=</span><span class="p">[</span><span class="s1">'Stim1'</span><span class="p">,</span> <span class="s1">'Stim2'</span><span class="p">,</span> <span class="s1">'fixation'</span><span class="p">],</span>
+    <span class="n">ob_traces</span><span class="o">=</span><span class="p">[</span><span class="s2">"Stim1"</span><span class="p">,</span> <span class="s2">"Stim2"</span><span class="p">,</span> <span class="s2">"fixation"</span><span class="p">],</span>
     <span class="n">num_trials</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-15">env = PerceptualDecisionMaking()
 fig = ngym.utils.plot_env(
     env,
-    ob_traces=['Stim1', 'Stim2', 'fixation'],
+    ob_traces=["Stim1", "Stim2", "fixation"],
     num_trials=2,
 )</div>
 </div>
