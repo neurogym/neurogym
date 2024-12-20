@@ -34,7 +34,7 @@ jobs:
           python -m pip install .[dev,publishing]
       - name: Build wheel and source distribution
         run: python3 -m build
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@4
         with:
           path: dist/*
 
@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: artifact
           path: dist
@@ -58,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: artifact
           path: dist
