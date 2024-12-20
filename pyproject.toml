@@ -17,7 +17,7 @@ authors = [
     { name = "Jorge Mejias", email = "j.f.mejias@uva.nl" },
 ]
 classifiers = [
-    "License :: Apache License, Version 2.0",
+    "License :: OSI Approved :: Apache Software License",
     "Natural Language :: English",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -42,7 +42,7 @@ license = { file = "LICENSE" }
 name = "neurogym"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
-version = "1.0.2"
+version = "1.0.3"
 
 [project.optional-dependencies]
 dev = [
