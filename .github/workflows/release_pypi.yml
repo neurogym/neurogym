@@ -63,3 +63,23 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN_NEUROGYM }}
+
+  deploy_docs:
+    name: Deploy documentation
+    needs: upload_pypi
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Install Python
+        uses: actions/setup-python@v5.1.1
+        with:
+          python-version: "3.12"
+      - name: Install requirements
+        run: python3 -m pip install .[dev]
+      - name: Build documentation
+        run: |
+          version=$(git describe --tags --abbrev=0)
+          mike deploy -p -u $version latest
