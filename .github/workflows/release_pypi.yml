@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest"]
-        python-version: ["3.10"]
+        python-version: ["3.11"]
 
     # https://github.com/marketplace/actions/setup-miniconda#use-a-default-shell
     defaults:
@@ -23,12 +23,15 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/install-python-and-package
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          extras-require: publishing
-          pkg-installation-type: "repository"
+      - name: Upgrade pip, install dependencies and the package
+        run: |
+          python -m pip install --upgrade pip setuptools
+          python -m pip install .[dev,publishing]
       - name: Build wheel and source distribution
         run: python3 -m build
       - uses: actions/upload-artifact@v3
