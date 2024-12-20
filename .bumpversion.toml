@@ -1,7 +1,6 @@
 [tool.bumpversion]
 current_version = "1.0.3"
 tag_prefix = "v"
-tag = true
 
 [[tool.bumpversion.files]]
 filename = "pyproject.toml"
@@ -9,16 +8,16 @@ search = 'version = "{current_version}"'
 replace = 'version = "{new_version}"'
 
 [[tool.bumpversion.files]]
-# note that the it's not possible to do 2 search/replace actions to the same file in a single entry
-filename = "CITATION.cff"
-search = "date-released= '\\d{{4}}-\\d{{2}}-\\d{{2}}'"
-replace = "date-released = '{now:%Y-%m-%d}'"
-regex = true
-
-[[tool.bumpversion.files]]
 filename = "CITATION.cff"
 search = 'version: {current_version}'
 replace = 'version: {new_version}'
+
+[[tool.bumpversion.files]]
+# note that the it's not possible to do 2 search/replace actions to the same file in a single entry
+filename = "CITATION.cff"
+search = 'date-released: "\d{{4}}-\d{{2}}-\d{{2}}"'
+replace = "date-released: \"{now:%Y-%m-%d}\""
+regex = true
 
 [[tool.bumpversion.files]]
 filename = "neurogym/__init__.py"
