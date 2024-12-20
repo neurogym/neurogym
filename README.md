@@ -23,8 +23,7 @@ NeuroGym is a curated collection of neuroscience tasks with a common interface. 
   - [Acknowledgements](#acknowledgements)
 
 NeuroGym inherits from the machine learning toolkit [Gymnasium](https://gymnasium.farama.org/), a maintained fork of [OpenAI’s Gym library](https://github.com/openai/gym). It allows a wide range of well established machine learning algorithms to be easily trained on behavioral paradigms relevant for the neuroscience community.
-NeuroGym also incorporates several properties and functions (e.g. continuous-time and trial-based tasks) that are important for neuroscience applications.
-The toolkit also includes various modifier functions that allow easy configuration of new tasks.
+NeuroGym also incorporates several properties and functions (e.g. continuous-time and trial-based tasks) that are important for neuroscience applications. The toolkit also includes various modifier functions that allow easy configuration of new tasks.
 
 ![alt tag](https://github.com/neurogym/neurogym/blob/main/docs/pipeline.png)
 
