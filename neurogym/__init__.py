@@ -15,4 +15,4 @@ from neurogym.wrappers import all_wrappers
 from neurogym.utils.data import Dataset
 from neurogym.utils import random
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
