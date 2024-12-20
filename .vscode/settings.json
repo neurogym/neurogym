@@ -32,8 +32,5 @@
   "rewrap.autoWrap.enabled": true,
   "files.trimTrailingWhitespace": true,
   "files.trimFinalNewlines": true,
-  "files.insertFinalNewline": true,
-  "[properties]": {
-    "editor.defaultFormatter": "foxundermoon.shell-format"
-  }
+  "files.insertFinalNewline": true
 }
