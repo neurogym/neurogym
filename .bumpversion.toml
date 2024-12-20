@@ -1,6 +1,7 @@
 [tool.bumpversion]
 current_version = "1.0.0"
 tag_prefix = "v"
+tag = true
 
 [[tool.bumpversion.files]]
 filename = "pyproject.toml"
