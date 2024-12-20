@@ -8,28 +8,13 @@ The goal is to facilitate the training of neural network models on neuroscience 
 Documentation: https://neurogym.github.io/
 
 - [NeuroGym](#neurogym)
-  <<<<<<< HEAD
   - [Installation](#installation)
     - [Psychopy installation](#psychopy-installation)
   - [Tasks](#tasks)
   - [Wrappers](#wrappers)
   - [Examples](#examples)
   - [Custom tasks](#custom-tasks)
-  - # [Authors](#authors)
-    <<<<<<< HEAD
-  - [Installation](#installation)
-  - [Tasks](#tasks)
-  - [Wrappers](#wrappers)
-  - [Examples](#examples)
-  - [Contributing](#contributing)
-  - # [Authors](#authors)
-  - [Installation](#installation)
-  - [Tasks](#tasks)
-  - [Wrappers](#wrappers)
-  - [Examples](#examples)
-  - [Contributing](#contributing)
-  - [Authors](#authors) > > > > > > > 1eb22a3 (docs: simplify installation instructions)
-    > > > > > > > dev
+  - [Acknowledgements](#acknowledgements)
 
 NeuroGym inherits from the machine learning toolkit [Gymnasium](https://gymnasium.farama.org/), a maintained fork of [OpenAI’s Gym library](https://github.com/openai/gym). It allows a wide range of well established machine learning algorithms to be easily trained on behavioral paradigms relevant for the neuroscience community.
 NeuroGym also incorporates several properties and functions (e.g. continuous-time and trial-based tasks) that are important for neuroscience applications.
@@ -84,7 +69,7 @@ In this [example](https://github.com/gyyang/neurogym/blob/master/examples/exampl
 Creating custom new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure,
 this [template](https://github.com/gyyang/neurogym/blob/master/examples/template.py) provides the basic structure that we recommend a task to have:
 
-```
+```python
 from gymnasium import spaces
 import neurogym as ngym
 
