@@ -61,7 +61,9 @@ dev = [
     "mkdocs-redirects",
     "mkdocstrings-python",
     "mike",
-    "mkdocs-jupyter"
+    "mkdocs-jupyter",
+    # release
+    "bump-my-version",
 ]
 publishing = ["build", "twine", "wheel"]
 tutorials = ["notebook"]
