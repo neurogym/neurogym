@@ -78,7 +78,7 @@ nav:
   - About:
       - Contributing: contributing.md
       - Code of Conduct: code_of_conduct.md
-      - License: license.md
+      - License: project-license.md
 
 extra:
   version:
