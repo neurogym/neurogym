@@ -12,13 +12,6 @@ search = 'version: {current_version}'
 replace = 'version: {new_version}'
 
 [[tool.bumpversion.files]]
-# note that the it's not possible to do 2 search/replace actions to the same file in a single entry
-filename = "CITATION.cff"
-search = 'date-released: "\\d{4}-\\d{2}-\\d{2}"'
-replace = 'date-released: "{now}"'
-regex = true
-
-[[tool.bumpversion.files]]
 filename = "neurogym/__init__.py"
 search = '__version__ = "{current_version}"'
 replace = '__version__ = "{new_version}"'
