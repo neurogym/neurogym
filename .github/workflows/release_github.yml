@@ -118,16 +118,16 @@ jobs:
         if: steps.bump.outputs.bumped == 'true'
         run: echo "Version was bumped from ${{ steps.bump.outputs.previous-version }} to ${{ steps.bump.outputs.current-version }}!"
 
-      - name: Merge main into develop
+      - name: Merge main into dev
         run: |
-          git checkout develop
-          git merge main --no-ff --no-edit || { echo "Can't merge changes to develop. Manually merge PR and create GitHub release."; exit 1; }
+          git checkout dev
+          git merge main --no-ff --no-edit || { echo "Can't merge changes to dev. Manually merge PR and create GitHub release."; exit 1; }
 
-      - name: Push changes to develop
+      - name: Push changes to dev
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GH_RELEASE }}
-          branch: develop
+          branch: dev
           force_with_lease: true
 
       - name: Checkout main
@@ -163,13 +163,13 @@ jobs:
   remove_branch:
     name: Remove PR branch
     needs: draft_release
-    if: ${{ github.ref_name != 'develop' }}
+    if: ${{ github.ref_name != 'dev' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: develop
+          ref: dev
           fetch-depth: 0
 
       - name: Remove PR branch
