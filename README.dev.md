@@ -96,7 +96,7 @@ release](.github/workflows/release_pypi.yml) workflow and named identically to t
 To manually deploy (additional) versions of the docs, run:
 
 ```shell
-mike deploy -p -u `<docs_version_name>`
+mike deploy -p -u <docs_version_name>
 ```
 
 Add `latest` to the end of the command above, to make this the latest default version of the docs (i.e. the landing page
