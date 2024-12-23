@@ -70,10 +70,10 @@ env_specific = ["psychopy"]
 
 
 [project.urls]
-Repository = "https://github.com/ANNUBS/annubes"
-Issues = "https://github.com/ANNUBS/annubes/issues"
-"Documentation" = "https://annubs.github.io/annubes"
-Changelog = "https://github.com/ANNUBS/annubes/CHANGELOG.md"
+Repository = "https://github.com/neurogym/neurogym"
+Issues = "https://github.com/neurogym/neurogym"
+Documentation = "https://neurogym.github.io/neurogym"
+Changelog = "https://github.com/neurogym/neurogym/CHANGELOG.md"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
