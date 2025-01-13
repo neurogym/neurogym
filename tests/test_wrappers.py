@@ -375,9 +375,9 @@ def test_variablemapping(
     assert (sess_durs > min_sess_dur).all()
     mean_sess_dur = np.mean(sess_durs)
     exp_sess_durs = min_sess_dur + 1 / sess_end_prob
-    assert (
-        np.abs(mean_sess_dur - exp_sess_durs) < margin
-    ), f"Mean sess. dur.: {mean_sess_dur}, expected: {1 / sess_end_prob}"
+    assert np.abs(mean_sess_dur - exp_sess_durs) < margin, (
+        f"Mean sess. dur.: {mean_sess_dur}, expected: {1 / sess_end_prob}"
+    )
     mapp_blck_durs = np.diff(mapp_ch)
     assert (mapp_blck_durs > min_mapp_dur).all()
     mean_durs = np.mean(mapp_blck_durs)

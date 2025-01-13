@@ -68,42 +68,42 @@ def test_fix_time_types(
 
         # Check if the sampled time is in the given list of values
         if isinstance(time, list):
-            assert (
-                env._duration[t] in time
-            ), f"Expected {t} time to be one of {time}, but got {env._duration['fixation']}"
+            assert env._duration[t] in time, (
+                f"Expected {t} time to be one of {time}, but got {env._duration['fixation']}"
+            )
         # Check if the sampled time is in the given range
         elif isinstance(time, tuple) and time[0] == "uniform":
             time_range = time[1]
             assert (
                 time_range[0] <= env._duration[t] <= time_range[1]
             ), f"""Expected {t} time to be between {time_range[0]} and {time_range[1]},
-            but got {env._duration['fixation']}"""
+            but got {env._duration["fixation"]}"""
         # Check if the sampled time is in the given list of values
         elif isinstance(time, tuple) and time[0] == "choice":
-            assert (
-                env._duration[t] in time[1]
-            ), f"Expected {t} time to be one of {time[1]}, but got {env._duration['fixation']}"
+            assert env._duration[t] in time[1], (
+                f"Expected {t} time to be one of {time[1]}, but got {env._duration['fixation']}"
+            )
         # Check if the sampled time is in the given range
         elif isinstance(time, tuple) and time[0] == "truncated_exponential":
             time_range = time[1]
             assert (
                 time_range[0] <= env._duration[t] <= time_range[1]
             ), f"""Expected {t} time to be between {time_range[0]} and {time_range[1]},
-            but got {env._duration['fixation']}"""
+            but got {env._duration["fixation"]}"""
         # Check if the sampled time is the given constant value
         elif isinstance(time, tuple) and time[0] == "constant":
-            assert (
-                env._duration[t] == time[1]
-            ), f"Expected {t} time to be {time[1]}, but got {env._duration['fixation']}"
+            assert env._duration[t] == time[1], (
+                f"Expected {t} time to be {time[1]}, but got {env._duration['fixation']}"
+            )
 
         # For callable time, check if it's actually called
         if callable(time):
             assert env._duration[t] == 500, f"Expected {t} time to be 500, but got {env._duration['fixation']}"
 
         # Ensure the sampled time is a multiple of dt
-        assert (
-            env._duration[t] % env.dt == 0
-        ), f"Expected {t} time to be a multiple of dt ({env.dt}), but got {env._duration['fixation']}"
+        assert env._duration[t] % env.dt == 0, (
+            f"Expected {t} time to be a multiple of dt ({env.dt}), but got {env._duration['fixation']}"
+        )
 
 
 @pytest.mark.parametrize("catch_prob", [0.0, 0.3, 0.7, 1.0])
@@ -179,16 +179,16 @@ def test_annubes_env_max_sequential(session: dict, catch_prob: float, max_sequen
         count = trial_types.count(trial_type)
         expected_count = expected_non_catch * expected_prob
         # Allow for 20% deviation from expected count
-        assert (
-            0.7 * expected_count <= count <= 1.3 * expected_count
-        ), f"{trial_type} trials are not balanced. Expected: {expected_count}, Actual: {count}"
+        assert 0.7 * expected_count <= count <= 1.3 * expected_count, (
+            f"{trial_type} trials are not balanced. Expected: {expected_count}, Actual: {count}"
+        )
 
     # Check catch trial frequency
     catch_count = trial_types.count(None)
     expected_catch = N_TRIALS * catch_prob
-    assert (
-        0.7 * expected_catch <= catch_count <= 1.3 * expected_catch
-    ), f"Catch trials are not balanced. Expected: {expected_catch}, Actual: {catch_count}"
+    assert 0.7 * expected_catch <= catch_count <= 1.3 * expected_catch, (
+        f"Catch trials are not balanced. Expected: {expected_catch}, Actual: {catch_count}"
+    )
 
 
 def test_observation_space(default_env: AnnubesEnv, custom_env: AnnubesEnv) -> None:
@@ -284,9 +284,9 @@ def test_initial_state_and_first_reset(default_env: AnnubesEnv) -> None:
     assert default_env.t == 100, f"default_env={default_env.t}, should be 100 after first reset"
     assert default_env.num_tr == 1, f"num_tr={default_env.num_tr}, should be 1 after first reset"
     assert isinstance(default_env.trial, dict)
-    assert (
-        ob.shape == default_env.observation_space.shape
-    ), f"observation_space.shape={default_env.observation_space.shape}, should match the observation space"
+    assert ob.shape == default_env.observation_space.shape, (
+        f"observation_space.shape={default_env.observation_space.shape}, should match the observation space"
+    )
 
 
 def test_random_seed_reproducibility() -> None:
