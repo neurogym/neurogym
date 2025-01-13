@@ -4,6 +4,7 @@ import numpy as np
 
 import neurogym as ngym
 from neurogym import spaces
+from neurogym.utils.ngym_random import TruncExp
 
 
 class HierarchicalReasoning(ngym.TrialEnv):
@@ -35,9 +36,9 @@ class HierarchicalReasoning(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            "fixation": ngym.ngym_random.TruncExp(600, 400, 800),
+            "fixation": TruncExp(600, 400, 800),
             "rule_target": 1000,
-            "fixation2": ngym.ngym_random.TruncExp(600, 400, 900),
+            "fixation2": TruncExp(600, 400, 900),
             "flash1": 100,
             "delay": (530, 610, 690, 770, 850, 930, 1010, 1090, 1170),
             "flash2": 100,

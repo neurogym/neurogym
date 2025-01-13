@@ -4,6 +4,7 @@ import numpy as np
 
 import neurogym as ngym
 from neurogym import spaces
+from neurogym.utils.ngym_random import TruncExp
 
 
 class ReadySetGo(ngym.TrialEnv):
@@ -242,8 +243,8 @@ class OneTwoThreeGo(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            "fixation": ngym.ngym_random.TruncExp(400, 100, 800),
-            "target": ngym.ngym_random.TruncExp(1000, 500, 1500),
+            "fixation": TruncExp(400, 100, 800),
+            "target": TruncExp(1000, 500, 1500),
             "s1": 100,
             "interval1": (600, 700, 800, 900, 1000),
             "s2": 100,

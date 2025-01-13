@@ -9,6 +9,7 @@ import numpy as np
 
 import neurogym as ngym
 from neurogym import spaces
+from neurogym.utils.ngym_random import TruncExp
 
 
 class Detection(ngym.TrialEnv):
@@ -67,7 +68,7 @@ class Detection(ngym.TrialEnv):
 
         self.timing = {
             "fixation": 500,
-            "stimulus": ngym.ngym_random.TruncExp(1000, 500, 1500),
+            "stimulus": TruncExp(1000, 500, 1500),
         }
         if timing:
             self.timing.update(timing)

@@ -7,6 +7,7 @@ import numpy as np
 from gymnasium import spaces
 
 import neurogym as ngym
+from neurogym.utils.ngym_random import TruncExp
 
 
 # TODO: Need a more intuitive name
@@ -57,7 +58,7 @@ class ChangingEnvironment(ngym.TrialEnv):
 
         self.timing = {
             "fixation": 500,
-            "stimulus": ngym.ngym_random.TruncExp(1000, 500, 1500),
+            "stimulus": TruncExp(1000, 500, 1500),
             "decision": 500,
         }
         if timing:

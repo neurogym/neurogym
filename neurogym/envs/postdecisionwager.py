@@ -2,6 +2,7 @@ import numpy as np
 
 import neurogym as ngym
 from neurogym import spaces
+from neurogym.utils.ngym_random import TruncExp
 
 
 class PostDecisionWager(ngym.TrialEnv):
@@ -40,8 +41,8 @@ class PostDecisionWager(ngym.TrialEnv):
         self.timing = {
             "fixation": 100,
             # 'target':  0,  # noqa: ERA001
-            "stimulus": ngym.ngym_random.TruncExp(180, 100, 900),
-            "delay": ngym.ngym_random.TruncExp(1350, 1200, 1800),
+            "stimulus": TruncExp(180, 100, 900),
+            "delay": TruncExp(1350, 1200, 1800),
             "pre_sure": lambda: self.rng.uniform(500, 750),
             "decision": 100,
         }
