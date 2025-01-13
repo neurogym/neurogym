@@ -86,4 +86,4 @@ jobs:
       - name: Build documentation
         run: |
           version=$(git describe --tags --abbrev=0)
-          mike deploy -p -u $version latest --allow-empty
+          mike deploy -p -u $version latest
