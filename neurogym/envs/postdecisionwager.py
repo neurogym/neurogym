@@ -40,8 +40,8 @@ class PostDecisionWager(ngym.TrialEnv):
         self.timing = {
             "fixation": 100,
             # 'target':  0,  # noqa: ERA001
-            "stimulus": ngym.random.TruncExp(180, 100, 900),
-            "delay": ngym.random.TruncExp(1350, 1200, 1800),
+            "stimulus": ngym.ngym_random.TruncExp(180, 100, 900),
+            "delay": ngym.ngym_random.TruncExp(1350, 1200, 1800),
             "pre_sure": lambda: self.rng.uniform(500, 750),
             "decision": 100,
         }

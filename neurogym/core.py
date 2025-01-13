@@ -4,7 +4,7 @@ from typing import Any, NoReturn
 import gymnasium as gym
 import numpy as np
 
-from neurogym.utils.random import trunc_exp
+from neurogym.utils.ngym_random import trunc_exp
 
 METADATA_DEF_KEYS = ["description", "paper_name", "paper_link", "timing", "tags"]
 

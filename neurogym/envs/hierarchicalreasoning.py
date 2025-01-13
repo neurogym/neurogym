@@ -35,9 +35,9 @@ class HierarchicalReasoning(ngym.TrialEnv):
             self.rewards.update(rewards)
 
         self.timing = {
-            "fixation": ngym.random.TruncExp(600, 400, 800),
+            "fixation": ngym.ngym_random.TruncExp(600, 400, 800),
             "rule_target": 1000,
-            "fixation2": ngym.random.TruncExp(600, 400, 900),
+            "fixation2": ngym.ngym_random.TruncExp(600, 400, 900),
             "flash1": 100,
             "delay": (530, 610, 690, 770, 850, 930, 1010, 1090, 1170),
             "flash2": 100,
