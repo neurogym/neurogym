@@ -1,7 +1,6 @@
 # see documentation, e.g.
-# - https://packaging.python.org/en/latest/specifications/declaring-project-metadata/#declaring-project-metadata
+# - https://packaging.python.org/en/latest/specifications/pyproject-toml/
 # - https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
-# - https://www.python.org/dev/peps/pep-0621/
 
 [build-system]
 requires = ["setuptools>=64.0.0", "setuptools-scm", "wheel"]
@@ -38,7 +37,7 @@ keywords = [
     "reinforcement learning",
     "synthetic data",
 ]
-license = { file = "LICENSE" }
+license = { text = "Apache-2.0 License" }
 name = "neurogym"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
