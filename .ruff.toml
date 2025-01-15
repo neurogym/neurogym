@@ -32,8 +32,10 @@ ignore = [
     "D107",   # Missing docstring in `__init__`
     "CPY001", # Missing copyright notice
     # preview ignores
-    "PLR0917", # too many positional arguments
-    "PLR0914", # too many local arguments
+    "PLR0917", # Too many positional arguments
+    "PLR0914", # Too many local arguments
+    "DOC201",  # Return is not documented in docstring
+    "DOC501",  # Exception is not documented in docstring
 ]
 
 # Autofix settings
@@ -67,10 +69,6 @@ extend-safe-fixes = [
     # "T201",   # Print statements
 ]
 "__init__.py" = ["F401"] # unused imports
-# files and locations that will likely not be preserved into new version
-"docs/*" = ["ALL"]
-"setup.py" = ["ALL"]
-
 
 [lint.flake8-unused-arguments]
 ignore-variadic-names = true # Whether to allow unused variadic arguments, like *args and **kwargs.

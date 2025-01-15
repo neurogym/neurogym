@@ -140,7 +140,8 @@ class TrialEnv(BaseEnv):
                 val.seed(seed)
         return [seed]
 
-    def post_step(self, ob, reward, terminated, truncated, info):
+    @staticmethod
+    def post_step(ob, reward, terminated, truncated, info):
         """Optional task-specific wrapper applied at the end of step.
 
         It allows to modify ob online (e.g. provide a specific observation for different actions made by the agent)

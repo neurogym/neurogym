@@ -64,7 +64,8 @@ class PostDecisionWager(ngym.TrialEnv):
         self.action_space = spaces.Discrete(4, name=name)
 
     # Input scaling
-    def scale(self, coh):
+    @staticmethod
+    def scale(coh):
         return (1 + coh / 100) / 2
 
     def _new_trial(self, **kwargs):
