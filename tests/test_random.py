@@ -1,6 +1,6 @@
 import numpy as np
 
-from neurogym.utils.random import TruncExp
+from neurogym.utils.ngym_random import TruncExp
 from neurogym.utils.scheduler import RandomBlockSchedule, RandomSchedule
 
 

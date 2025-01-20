@@ -13,6 +13,6 @@ from neurogym.envs.registration import all_tags
 from neurogym.envs.collections import get_collection
 from neurogym.wrappers import all_wrappers
 from neurogym.utils.data import Dataset
-from neurogym.utils import random
+from neurogym.utils import ngym_random
 
 __version__ = "1.0.3"

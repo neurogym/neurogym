@@ -51,7 +51,7 @@ dev = [
     "pytest-cov",
     "coverage [toml]",
     # code style
-    "ruff==0.8.*",
+    "ruff==0.9.*",
     "mypy",
     # docs
     "mkdocs",

@@ -64,7 +64,7 @@ class Pneumostomeopening(ngym.BaseEnv):
             self.oxygen_level += 1
         else:  # swimming actions
             self.oxygen_level *= math.exp(-decay_constant * self.t)
-        self.oxygen_level = int(round(self.oxygen_level))
+        self.oxygen_level = round(self.oxygen_level)
         print(f"oxygen_level: {self.oxygen_level}")
         return self.oxygen_level
 
