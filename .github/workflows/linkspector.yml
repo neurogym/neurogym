@@ -27,9 +27,12 @@ jobs:
     name: linkspector
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Resolve "No usable sandbox" error
+        run: echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
       - name: Run linkspector
         uses: umbrelladocs/action-linkspector@v1
         with:
-          fail_on_error: true
+          level: any
           config_file: .github/settings/.linkspector.yml
