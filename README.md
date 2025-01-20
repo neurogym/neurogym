@@ -43,7 +43,7 @@ conda activate neurogym
 
 #### Step 2: Install neurogym
 
-Then install neurogym as follows:
+Then install the latest version of `neurogym` as follows:
 
 ```bash
 pip install neurogym
