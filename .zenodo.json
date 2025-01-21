@@ -1,27 +1,27 @@
 {
   "creators": [
     {
-      "affiliation": "Netherlands eScience Center, Amsterdam, The Netherlands",
+      "affiliation": "Netherlands eScience Center, Amsterdam, NL",
       "name": "Giulia Crocioni",
       "orcid": "0000-0002-0823-0121"
     },
     {
-      "affiliation": "Netherlands eScience Center, Amsterdam, The Netherlands",
+      "affiliation": "Netherlands eScience Center, Amsterdam, NL",
       "name": "Dani L. Bodor",
       "orcid": "0000-0003-2109-2349"
     },
     {
-      "affiliation": "MIT Brain and Cognitive Sciences",
+      "affiliation": "MIT, Cambridge, MA, USA",
       "name": "Nathan Cloos",
-      "orcid": "https://orcid.org/0000-0001-6010-0044"
+      "orcid": "0000-0001-6010-0044"
     },
     {
-      "affiliation": "Netherlands eScience Center, Amsterdam, The Netherlands",
+      "affiliation": "Netherlands eScience Center, Amsterdam, NL",
       "name": "Alexander Hadjiivanov",
       "orcid": "0000-0002-7045-1005"
     },
     {
-      "affiliation": "Altera.AL",
+      "affiliation": "Altera.AL, San Francisco, CA, USA",
       "name": "Guangyu Robert Yang",
       "orcid": "0000-0002-8919-4248"
     },
@@ -31,7 +31,7 @@
       "orcid": "0000-0002-8096-4891"
     },
     {
-      "affiliation": "Universitat Politècnica de Catalunya",
+      "affiliation": "Universitat Politècnica de Catalunya, Barcelona, ES",
       "name": "Manuel Molano Mazon",
       "orcid": "0000-0002-9140-3571"
     }
