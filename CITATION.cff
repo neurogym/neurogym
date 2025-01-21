@@ -8,36 +8,41 @@ message: >-
   metadata from this file.
 type: software
 authors:
-  - given-names: Manuel
-    family-names: Molano-Mazon
-    email: manuelmolanomazon@gmail.com
-    affiliation: Universitat Politècnica de Catalunya
-    orcid: "https://orcid.org/0000-0002-9140-3571"
-  - given-names: Guangyu Robert
-    family-names: Yang
-    email: gyyang.neuro@gmail.com
-    affiliation: Altera.AL
-    orcid: "https://orcid.org/0000-0002-8919-4248"
-  - given-names: Nathan
-    family-names: Cloos
-    email: cloosnathan@gmail.com
-    affiliation: MIT Brain and Cognitive Sciences
-    orcid: "https://orcid.org/0000-0001-6010-0044"
   - given-names: Giulia
     family-names: Crocioni
     email: g.crocioni@esciencecenter.nl
-    affiliation: Netherlands eScience Center
+    affiliation: Netherlands eScience Center, Amsterdam, NL
     orcid: "https://orcid.org/0000-0002-0823-0121"
   - given-names: Dani
     family-names: Bodor
     email: d.bodor@esciencecenter.nl
-    affiliation: Netherlands eScience Center
+    affiliation: Netherlands eScience Center, Amsterdam, NL
     orcid: "https://orcid.org/0000-0003-2109-2349"
+  - given-names: Nathan
+    family-names: Cloos
+    email: cloosnathan@gmail.com
+    affiliation: MIT, Cambridge, MA, USA
+    orcid: "https://orcid.org/0000-0001-6010-0044"
+  - given-names: Alexander
+    family-names: Hadjiivanov
+    email: a.hadjiivanov@esciencecenter.nl
+    affiliation: Netherlands eScience Center, Amsterdam, NL
+    orcid: "https://orcid.org/0000-0002-7045-1005"
+  - given-names: Guangyu Robert
+    family-names: Yang
+    email: gyyang.neuro@gmail.com
+    affiliation: Altera.AL, San Francisco, CA, USA
+    orcid: "https://orcid.org/0000-0002-8919-4248"
   - given-names: Jorge
     family-names: Mejias
     email: j.f.mejias@uva.nl
-    affiliation: University of Amsterdam
+    affiliation: University of Amsterdam, Amsterdam, NL
     orcid: "https://orcid.org/0000-0002-8096-4891"
+  - given-names: Manuel
+    family-names: Molano-Mazon
+    email: manuelmolanomazon@gmail.com
+    affiliation: Universitat Politècnica de Catalunya, Barcelona, ES
+    orcid: "https://orcid.org/0000-0002-9140-3571"
 identifiers:
   - type: url
     value: "https://osf.io/preprints/psyarxiv/aqc9n"
