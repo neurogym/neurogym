@@ -1,21 +1,6 @@
 {
   "creators": [
     {
-      "affiliation": "Universitat Politècnica de Catalunya",
-      "name": "Manuel Molano Mazon",
-      "orcid": "0000-0002-9140-3571"
-    },
-    {
-      "affiliation": "Altera.AL",
-      "name": "Guangyu Robert Yang",
-      "orcid": "0000-0002-8919-4248"
-    },
-    {
-      "affiliation": "MIT Brain and Cognitive Sciences",
-      "name": "Nathan Cloos",
-      "orcid": "https://orcid.org/0000-0001-6010-0044"
-    },
-    {
       "affiliation": "Netherlands eScience Center, Amsterdam, The Netherlands",
       "name": "Giulia Crocioni",
       "orcid": "0000-0002-0823-0121"
@@ -26,9 +11,29 @@
       "orcid": "0000-0003-2109-2349"
     },
     {
+      "affiliation": "MIT Brain and Cognitive Sciences",
+      "name": "Nathan Cloos",
+      "orcid": "https://orcid.org/0000-0001-6010-0044"
+    },
+    {
+      "affiliation": "Netherlands eScience Center, Amsterdam, The Netherlands",
+      "name": "Alexander Hadjiivanov",
+      "orcid": "0000-0002-7045-1005"
+    },
+    {
+      "affiliation": "Altera.AL",
+      "name": "Guangyu Robert Yang",
+      "orcid": "0000-0002-8919-4248"
+    },
+    {
       "affiliation": "University of Amsterdam, Amsterdam, NL",
       "name": "Jorge Mejias",
       "orcid": "0000-0002-8096-4891"
+    },
+    {
+      "affiliation": "Universitat Politècnica de Catalunya",
+      "name": "Manuel Molano Mazon",
+      "orcid": "0000-0002-9140-3571"
     }
   ],
   "keywords": ["neuroscience", "neural networks", "reinforcement learning"],
