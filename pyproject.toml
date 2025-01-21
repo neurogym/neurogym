@@ -8,12 +8,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 authors = [
-    { name = "Manuel Molano Mazon", email = "manuelmolanomazon@gmail.com" },
-    { name = "Guangyu Robert Yang", email = "gyyang.neuro@gmail.com" },
-    { name = "Nathan Cloos", email = "cloosnathan@gmail.com" },
     { name = "Giulia Crocioni", email = "g.crocioni@esciencecenter.nl" },
     { name = "Dani Bodor", email = "d.bodor@esciencecenter.nl" },
+    { name = "Nathan Cloos", email = "cloosnathan@gmail.com" },
+    { name = "Alexander Hadjiivanov", email = "a.hadjiivanov@esciencecenter.nl" },
+    { name = "Guangyu Robert Yang", email = "gyyang.neuro@gmail.com" },
     { name = "Jorge Mejias", email = "j.f.mejias@uva.nl" },
+    { name = "Manuel Molano Mazon", email = "manuelmolanomazon@gmail.com" },
 ]
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
