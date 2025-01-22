@@ -75,7 +75,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-tags: true
+      - name: Fetch gh-pages
+        run: git fetch origin gh-pages:gh-pages
       - name: Install Python
         uses: actions/setup-python@v5.1.1
         with:
