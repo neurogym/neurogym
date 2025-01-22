@@ -75,7 +75,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: main
           fetch-tags: true
       - name: Install Python
         uses: actions/setup-python@v5.1.1
