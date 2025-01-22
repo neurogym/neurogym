@@ -96,7 +96,7 @@ release](.github/workflows/release_pypi.yml) workflow and named identically to t
 To manually deploy (additional) versions of the docs, run:
 
 ```shell
-mike deploy -p -u `<docs_version_name>`
+mike deploy -p -u <docs_version_name>
 ```
 
 Add `latest` to the end of the command above, to make this the latest default version of the docs (i.e. the landing page
@@ -205,7 +205,7 @@ NOTE: the current token (associated to @DaniBodor) allowing to bypass branch pro
 2. Prepare the branch for the release (e.g., removing the unnecessary dev files, fix minor bugs if necessary). Do this by ensuring all tests pass `pytest -v` and that linting (`ruff check`) and formatting (`ruff format --check`) conventions are adhered to.
 3. Decide on the [version level increase](#versioning), following [semantic versioning
    conventions](https://semver.org/). Use [bump-my-version](https://github.com/callowayproject/bump-my-version):
-   `bump-my-version bump <level>` to update the version throughout the package.
+   `bump-my-version bump <level> --commit --tag -vv` to update the version throughout the package.
 4. Merge the release branch into `main` and `dev`.
 5. On the [Releases page](https://github.com/neurogym/neurogym/releases):
    1. Click "Draft a new release"

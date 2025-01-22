@@ -1,7 +1,6 @@
 # see documentation, e.g.
-# - https://packaging.python.org/en/latest/specifications/declaring-project-metadata/#declaring-project-metadata
+# - https://packaging.python.org/en/latest/specifications/pyproject-toml/
 # - https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
-# - https://www.python.org/dev/peps/pep-0621/
 
 [build-system]
 requires = ["setuptools>=64.0.0", "setuptools-scm", "wheel"]
@@ -9,12 +8,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 authors = [
-    { name = "Manuel Molano Mazon", email = "manuelmolanomazon@gmail.com" },
-    { name = "Guangyu Robert Yang", email = "gyyang.neuro@gmail.com" },
-    { name = "Nathan Cloos", email = "cloosnathan@gmail.com" },
     { name = "Giulia Crocioni", email = "g.crocioni@esciencecenter.nl" },
     { name = "Dani Bodor", email = "d.bodor@esciencecenter.nl" },
+    { name = "Nathan Cloos", email = "cloosnathan@gmail.com" },
+    { name = "Alexander Hadjiivanov", email = "a.hadjiivanov@esciencecenter.nl" },
+    { name = "Guangyu Robert Yang", email = "gyyang.neuro@gmail.com" },
     { name = "Jorge Mejias", email = "j.f.mejias@uva.nl" },
+    { name = "Manuel Molano Mazon", email = "manuelmolanomazon@gmail.com" },
 ]
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
@@ -38,7 +38,7 @@ keywords = [
     "reinforcement learning",
     "synthetic data",
 ]
-license = { file = "LICENSE" }
+license = { text = "Apache-2.0 License" }
 name = "neurogym"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
@@ -51,7 +51,7 @@ dev = [
     "pytest-cov",
     "coverage [toml]",
     # code style
-    "ruff >= 0.8.0",
+    "ruff==0.9.*",
     "mypy",
     # docs
     "mkdocs",
@@ -70,10 +70,10 @@ env_specific = ["psychopy"]
 
 
 [project.urls]
-Repository = "https://github.com/ANNUBS/annubes"
-Issues = "https://github.com/ANNUBS/annubes/issues"
-"Documentation" = "https://annubs.github.io/annubes"
-Changelog = "https://github.com/ANNUBS/annubes/CHANGELOG.md"
+Repository = "https://github.com/neurogym/neurogym"
+Issues = "https://github.com/neurogym/neurogym"
+Documentation = "https://neurogym.github.io/neurogym"
+Changelog = "https://github.com/neurogym/neurogym/CHANGELOG.md"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

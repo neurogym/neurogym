@@ -100,8 +100,9 @@ venv.bak/
 # mkdocs documentation
 /site
 
-# mypy
+# mypy & ruff
 .mypy_cache/
+.ruff_cache/
 
 # added by robert
 # Pycharm related

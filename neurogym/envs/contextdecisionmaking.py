@@ -2,6 +2,7 @@ import numpy as np
 
 import neurogym as ngym
 from neurogym import spaces
+from neurogym.utils.ngym_random import TruncExp
 
 
 class SingleContextDecisionMaking(ngym.TrialEnv):
@@ -52,7 +53,7 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
             "fixation": 300,
             # 'target': 350, # noqa: ERA001
             "stimulus": 750,
-            "delay": ngym.random.TruncExp(600, 300, 3000),
+            "delay": TruncExp(600, 300, 3000),
             "decision": 100,
         }
         if timing:
@@ -173,7 +174,7 @@ class ContextDecisionMaking(ngym.TrialEnv):
             "fixation": 300,
             # 'target': 350, # noqa: ERA001
             "stimulus": 750,
-            "delay": ngym.random.TruncExp(600, 300, 3000),
+            "delay": TruncExp(600, 300, 3000),
             "decision": 100,
         }
         if timing:
