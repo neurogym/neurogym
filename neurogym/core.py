@@ -378,30 +378,23 @@ class TrialEnv(BaseEnv):
             reset: # FIXME: add description
         """
         if isinstance(period, str) or period is None:
-            pass
-        else:
-            for p in period:
-                self._add_ob(value, p, where, reset=reset)
-            return
+            period = [period]
+        if isinstance(where, str):
+            where = self.observation_space.name[where]  # type: ignore[attr-defined]
 
-        ob = self.view_ob(period=period)
-        if where is None:
-            if reset:
-                ob *= 0
-            try:
-                ob += value(ob)
-            except TypeError:
-                ob += value
-        else:
-            if isinstance(where, str):
-                where = self.observation_space.name[where]  # type: ignore[attr-defined]
+        for p in period:
+            ob = self.view_ob(period=p)
+
+            if where is None:
+                if reset:
+                    ob = value(ob) if callable(value) else value
+                else:
+                    ob += value(ob) if callable(value) else value
             # TODO: This only works if the slicing is one one-dimension
-            if reset:
-                ob[..., where] *= 0
-            try:
-                ob[..., where] += value(ob[..., where])
-            except TypeError:
-                ob[..., where] += value
+            elif reset:
+                ob[..., where] = value(ob[..., where]) if callable(value) else value
+            else:
+                ob[..., where] += value(ob[..., where]) if callable(value) else value
 
     def add_ob(self, value, period=None, where=None) -> None:
         """Add value to observation.
