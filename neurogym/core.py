@@ -387,13 +387,12 @@ class TrialEnv(BaseEnv):
 
             if where is None:
                 if reset:
-                    ob = value(ob) if callable(value) else value
-                else:
-                    ob += value(ob) if callable(value) else value
-            # TODO: This only works if the slicing is one one-dimension
-            elif reset:
-                ob[..., where] = value(ob[..., where]) if callable(value) else value
+                    ob *= 0
+                ob += value(ob) if callable(value) else value
             else:
+                if reset:
+                    ob[..., where] *= 0
+                # TODO: This only works if the slicing is one one-dimension
                 ob[..., where] += value(ob[..., where]) if callable(value) else value
 
     def add_ob(self, value, period=None, where=None) -> None:
