@@ -3,6 +3,8 @@
 # FIXME: figure out why this is the case and solve
 
 from neurogym.version import VERSION as __version__  # noqa: N811
+from neurogym.config.conf import conf
+from neurogym.config.conf import logger
 from neurogym.core import BaseEnv
 from neurogym.core import TrialEnv
 from neurogym.core import TrialWrapper

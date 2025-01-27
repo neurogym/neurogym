@@ -10,14 +10,14 @@ build-backend = "setuptools.build_meta"
 [project]
 authors = [
     { name = "Manuel Molano Mazon", email = "manuelmolanomazon@gmail.com" },
-    { name = "Guangyu Robert Yang", email = "gyyang.neuro@gmail.com" } ,
+    { name = "Guangyu Robert Yang", email = "gyyang.neuro@gmail.com" },
     { name = "Giulia Crocioni", email = "g.crocioni@esciencecenter.nl" },
     { name = "Dani Bodor", email = "d.bodor@esciencecenter.nl" },
-    { name = "Jorge Mejias", email = "j.f.mejias@uva.nl"},
+    { name = "Jorge Mejias", email = "j.f.mejias@uva.nl" },
     { name = "Marta Fradera" },
-    { name = "Jordi Pastor-Ciurana"},
-    { name = "Jeremy Forest"},
-    { name = "Ru-Yuan Zhang"}
+    { name = "Jordi Pastor-Ciurana" },
+    { name = "Jeremy Forest" },
+    { name = "Ru-Yuan Zhang" },
 ]
 classifiers = [
     "Intended Audience :: Developers",
@@ -28,13 +28,25 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "numpy",
+    "pydantic-settings",
     "gymnasium==0.29.*",
+    "bokeh",
+    "loguru",
     "matplotlib",
+    "numpy",
+    "sb3-contrib",
+    "scipy",
     "stable-baselines3>=2.3.2",
-    "scipy"]
+    "tqdm",
+]
 description = "NeuroGym: Gymnasium-style Cognitive Neuroscience Tasks"
-keywords = ["neuroscience", "neural networks", "supervised learning", "reinforcement learning", "synthetic data"]
+keywords = [
+    "neuroscience",
+    "neural networks",
+    "supervised learning",
+    "reinforcement learning",
+    "synthetic data",
+]
 license = { file = "LICENSE" }
 name = "neurogym"
 readme = { file = "README.md", content-type = "text/markdown" }
@@ -55,12 +67,13 @@ dev = [
     "sphinx",
     "sphinx_rtd_theme",
     "sphinxcontrib.katex",
+    "ipykernel",
     "nbsphinx",
+    "stable_baselines3",
 ]
 publishing = ["build", "twine", "wheel"]
 tutorials = ["notebook"]
 env_specific = ["psychopy"]
-
 
 [project.urls]
 Repository = "https://github.com/ANNUBS/annubes"

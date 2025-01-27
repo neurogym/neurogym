@@ -82,7 +82,7 @@ celerybeat-schedule
 *.sage.py
 
 # Environments
-.env
+**.env
 .venv
 env/
 venv/
@@ -114,3 +114,12 @@ docs/source/_static/
 
 # example content
 examples/content/
+
+# Zip files
+**.zip
+
+# Local directory
+/local
+
+# settings.toml files anywhere in the directory hierarchy
+**settings.toml
