@@ -7,7 +7,6 @@ from neurogym import utils
 from neurogym.config.base import ConfBase
 from neurogym.config.components.paths import LOCAL_DIR
 
-
 class EnvParam(enum.StrEnum):
     Reward = enum.auto()
     Action = enum.auto()
