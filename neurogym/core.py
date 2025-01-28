@@ -161,7 +161,14 @@ class TrialEnv(BaseEnv):
         self._gt_built = False
         trial = self._new_trial(**kwargs)
         self.trial = trial
-        self.num_tr += 1  # Increment trial count
+
+        # REVIEW: Because new_trial() is called in reset(),
+        # this would increment the trial count
+        # *before* the first trial has even commenced,
+        # effectively starting the count from 1.
+        # Instead, num_tr should be incremented *after*
+        # a trial has finished (cf. step()).
+        # self.num_tr += 1  # Increment trial count
         self._has_gt = self._gt_built
         return trial
 
@@ -187,10 +194,24 @@ class TrialEnv(BaseEnv):
         # TODO: new_trial happens after step, so trial indx precedes obs change
         if info["new_trial"]:
             info["performance"] = self.performance
-            self.t = self.t_ind = 0  # Reset within trial time count
-            trial = self._top.new_trial()
             self.performance = 0
-            info["trial"] = trial
+
+            self.t = self.t_ind = 0  # Reset within trial time count
+
+            # REVIEW: This is done in the wrong order.
+            # We already have a trial stored in self.trial,
+            # so we should add that to the info dictionary *first*,
+            # and only after that should a new trial be instantiated.
+            info["trial"] = self.trial
+
+            # NOTE: No need to assign the returned trial to a variable,
+            # we are not using it here...
+            self._top.new_trial()
+
+            # NOTE: Increment the number of trials here, *not* in new_trial().
+            # REVIEW: The new_trial() method should probably be renamed
+            # to something more informative and reflective of the function it serves.
+            self.num_tr += 1
         if ob is OBNOW:
             ob = self.ob[self.t_ind]
         return self.post_step(ob, reward, terminated, truncated, info)
@@ -209,12 +230,17 @@ class TrialEnv(BaseEnv):
         """
         super().reset(seed=seed)
 
-        self.num_tr = 0
+        # REVIEW: The number of trials shouldn't be reset here.
+        # Policy algorithms call env.reset() after each
+        # trial during the learning phase, so the information
+        # about the trial count would be erased.
+        # self.num_tr = 0
         self.t = self.t_ind = 0
 
         step_fn = options.get("step_fn") if options else None
         no_step = options.get("no_step", False) if options else False
 
+        # NOTE: Cf. comment about incrementing num_tr in new_trial()
         self._top.new_trial()
 
         # have to also call step() to get the initial ob since some wrappers modify step() but not new_trial()
@@ -455,6 +481,30 @@ class TrialEnv(BaseEnv):
         if t is None:
             t = self.t  # Default
         return self.start_t[period] <= t < self.end_t[period]
+
+    def before_start(self, period, t=None):
+        """Check if current time or time t is before the period has started."""
+        if t is None:
+            t = self.t  # Default
+        return t < self.start_t[period]
+
+    def after_start(self, period, t=None):
+        """Check if current time or time t is after the period has started."""
+        if t is None:
+            t = self.t  # Default
+        return t >= self.start_t[period]
+
+    def before_end(self, period, t=None):
+        """Check if current time or time t is before the period has ended."""
+        if t is None:
+            t = self.t  # Default
+        return t < self.end_t[period]
+
+    def after_end(self, period, t=None):
+        """Check if current time or time t is after the period has ended."""
+        if t is None:
+            t = self.t  # Default
+        return t >= self.end_t[period]
 
     @property
     def ob_now(self):
