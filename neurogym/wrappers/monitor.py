@@ -2,6 +2,7 @@ from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
+# --------------------------------------
 import numpy as np
 import panel as pn
 from bokeh.models import Column, Paragraph, Tabs  # type: ignore[attr-defined]

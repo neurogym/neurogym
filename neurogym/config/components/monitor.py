@@ -5,6 +5,7 @@ from typing import Literal
 
 from neurogym import utils
 from neurogym.config.base import ConfBase
+from neurogym.config.components.log import LogConf
 from neurogym.config.components.paths import LOCAL_DIR
 
 
