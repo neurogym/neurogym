@@ -295,7 +295,7 @@ def plot_env_1dbox(
 
     if name:
         ax.set_title(f"{name} env")
-    ax.set_ylabel("Obs.")
+    ax.set_ylabel("Observation")
     ax.set_xticks([])
     # actions
     ax = axes[i_ax]
@@ -318,7 +318,7 @@ def plot_env_1dbox(
         else:
             ax.plot(steps, gt, f"--{gt_colors[0]}", label="Ground truth")
     ax.set_xlim([-0.5, len(steps) - 0.5])
-    ax.set_ylabel("Act.")
+    ax.set_ylabel("Action")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     if legend:
@@ -338,8 +338,8 @@ def plot_env_1dbox(
     if rewards is not None:
         ax = axes[i_ax]
         i_ax += 1
-        ax.plot(steps, rewards, "r", label="Rewards")
-        ax.set_ylabel("Rew.")
+        ax.plot(steps, rewards, "r", label="Reward")
+        ax.set_ylabel("Reward")
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         if legend:

@@ -1,27 +1,40 @@
-from pathlib import Path
+# --------------------------------------
+from typing import Callable
 
+# --------------------------------------
 import numpy as np
+
+# --------------------------------------
+from torch import nn
+
+# --------------------------------------
 from gymnasium import Wrapper
 
+# --------------------------------------
+from collections import defaultdict
+
+# --------------------------------------
+import panel as pn
+
+# --------------------------------------
+from dataclasses import dataclass
+from dataclasses import field
+
+# --------------------------------------
+from bokeh.models import Tabs
+from bokeh.models import Column
+from bokeh.models import Paragraph
+
+# --------------------------------------
+from neurogym import conf
+from neurogym import logger
+from neurogym import utils
+from neurogym import TrialEnv
 from neurogym.utils.plotting import fig_
+from neurogym.wrappers.bokehmon.model import ModelMonitor
 
 
 class Monitor(Wrapper):
-    """Monitor task.
-
-    Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth.
-
-    Args:
-        folder: Folder where the data will be saved. (def: None, str)
-            sv_per and sv_stp: Data will be saved every sv_per sv_stp's.
-            (def: 100000, int)
-        verbose: Whether to print information about average reward and number
-            of trials. (def: False, bool)
-        sv_fig: Whether to save a figure of the experiment structure. If True,
-            a figure will be updated every sv_per. (def: False, bool)
-        num_stps_sv_fig: Number of trial steps to include in the figure.
-            (def: 100, int)
-    """
 
     metadata: dict[str, str | None] = {  # noqa: RUF012
         "description": (
@@ -30,122 +43,311 @@ class Monitor(Wrapper):
         "paper_link": None,
         "paper_name": None,
     }
-    # TODO: use names similar to Tensorboard
+
+    @dataclass
+    class Trial:
+        actions: list[np.ndarray] = field(default_factory=list)
+        rewards: list[np.ndarray] = field(default_factory=list)
+        observations: list[np.ndarray] = field(default_factory=list)
+        info: dict = field(default_factory=lambda: defaultdict(list))
 
     def __init__(
         self,
-        env,
-        folder=None,
-        sv_per=100000,
-        sv_stp="trial",
-        verbose=False,
-        sv_fig=False,
-        num_stps_sv_fig=100,
-        name="",
-        fig_type="png",
-        step_fn=None,
-    ) -> None:
-        super().__init__(env)
-        self.env = env
-        self.num_tr = 0
-        self.step_fn = step_fn
-        # data to save
-        self.data: dict[str, list] = {"action": [], "reward": []}
-        self.sv_per = sv_per
-        self.sv_stp = sv_stp
-        self.fig_type = fig_type
-        if self.sv_stp == "timestep":
-            self.t = 0
-        self.verbose = verbose
-        if folder is None:
-            # FIXME is it ok to use tempfile.TemporaryDirectory instead or does this need to be stored locally always?
-            self.folder = "tmp"
-        Path(self.folder).mkdir(parents=True, exist_ok=True)
-        # seeding
-        self.sv_name = self.folder + self.env.__class__.__name__ + "_bhvr_data_" + name + "_"  # FIXME: use pathlib
-        # figure
-        self.sv_fig = sv_fig
-        if self.sv_fig:
-            self.num_stps_sv_fig = num_stps_sv_fig
-            self.stp_counter = 0
-            self.ob_mat: list = []
-            self.act_mat: list = []
-            self.rew_mat: list = []
-            self.gt_mat: list = []
-            self.perf_mat: list = []
+        env: TrialEnv,
+        step_fn: Callable = None,
+        name: str = None,
+    ):
+        """
+        A monitoring wrapper driven by Bokeh.
 
-    def reset(self, seed=None):
+        Saves relevant behavioral information:
+            - Rewards
+            - Actions
+            - Observations
+            - New trials
+            - Ground truth
+            - Policy (model) parameters and activations
+
+        Args:
+            env (TrialEnv):
+                The environment to work with on.
+
+            step_fn (Callable, optional):
+                An optional custom step function. Defaults to None.
+
+            name (str, optional):
+                The name of the monitor. Defaults to None.
+        """
+        super().__init__(env)
+
+        # Environment and step function
+        # ==================================================
+        self.env = env
+        if step_fn is None:
+            step_fn = env.step
+        self.step_fn = step_fn
+
+        # Global variable monitoring, such as rewards
+        # and observations
+        # ==================================================
+        self.trial = Monitor.Trial()
+        self.trials = []
+
+        # Paths and directory names for saving data
+        # ==================================================
+        # Root directory for saving data
+        self.save_dir = utils.mkdir(conf.monitor.save_dir)
+
+        # Location for saving data
+        self.data_dir = utils.mkdir(self.save_dir / "data")
+
+        # Location for saving plots
+        self.plot_dir = utils.mkdir(self.save_dir / "plots")
+
+        # Callbacks
+        self.callbacks = {}
+
+        # Monitor name
+        self.name = name
+
+        # Visualisation
+        # ==================================================
+        self.bm = None
+        self.server = None
+        self.max_t = 0
+        self.total_steps = 0
+
+        # Models being monitored.
+        #
+        # Each model will appear as a tab with sub-tabs
+        # representing layers, with further sub-tabs
+        # for activations, weights and other parameters.
+        # ==================================================
+        self.models: dict[str, ModelMonitor] = {}
+
+    @property
+    def cur_step(self) -> int:
+        """
+        The current step for the current the trial.
+        Note that this is not the same as t, which represents actual time
+        (# of time steps times the time delta).
+
+        Returns:
+            int:
+                The current time step.
+        """
+        return int(self.env.unwrapped.t)
+
+    @property
+    def cur_timestep(self) -> int:
+        """
+        The current time as determined by the time delta (dt).
+
+        Returns:
+            int:
+                The current time.
+        """
+        return int(self.env.unwrapped.t * self.env.dt)
+
+    @property
+    def cur_trial(self) -> int:
+        """
+        The number of trials that have been executed so far.
+
+        Returns:
+            int:
+                The number of trials.
+        """
+        return int(self.env.unwrapped.num_tr)
+
+    @property
+    def trigger(self) -> int:
+        """
+        A property that determines when the monitor should
+        save the data that is currently in the trial buffer.
+
+        Returns:
+            int:
+                The trigger variable.
+        """
+        return int(
+            self.cur_timestep if conf.monitor.trigger == "timestep" else self.cur_trial
+        )
+
+    def add_model(
+        self,
+        model: nn.Module,
+        name: str = None,
+    ) -> ModelMonitor:
+
+        if name is None:
+            name = f"Model {len(self.models)}"
+
+        self.models[name] = ModelMonitor(model, name)
+        return self.models[name]
+
+    def reset(self, seed=None, **kwargs):
         super().reset(seed=seed)
         return self.env.reset()
 
-    def step(self, action):
-        if self.step_fn:
-            obs, rew, terminated, truncated, info = self.step_fn(action)
-        else:
-            obs, rew, terminated, truncated, info = self.env.step(action)
-        if self.sv_fig:
-            self.store_data(obs, action, rew, info)
-        if self.sv_stp == "timestep":
-            self.t += 1
+    def step(
+        self,
+        action: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray, bool, bool, dict]:
+        """
+        This method makes the agent take a single action in the environment.
+
+        Args:
+            action (np.ndarray):
+                The action that the agent is taking.
+
+        Returns:
+            tuple[np.ndarray, np.ndarray, bool, bool, dict]:
+                A tuple containing:
+                    1. A new observation of the environment.
+                    2. The reward from the environment.
+                    3. A flag indicating if the trial was terminated.
+                    4. A flag indicating if the trial was truncated.
+                    5. Extra information about the environment.
+        """
+
+        # Take an action in the environment and
+        # retrieve the reward and a new observation.
+        observation, reward, terminated, truncated, info = self.step_fn(action)
+
+        # Store the action, reward, observation and
+        # other info from the environment
+        self.trial.actions.append(action)
+        self.trial.rewards.append(reward)
+        self.trial.observations.append(observation)
+        for k, v in info.items():
+            self.trial.info[k].append(v)
+
+        # Extract the trigger variable
+        trigger = self.trigger
+
+        # Create a plot
+        if (
+            conf.monitor.plot.save
+            and trigger > 0
+            and trigger % conf.monitor.plot.interval == 0
+        ):
+            self._save_plot()
+
+        self.total_steps += 1
+
+        # Update the trial information
         if info["new_trial"]:
-            self.num_tr += 1
-            self.data["action"].append(action)
-            self.data["reward"].append(rew)
-            for key in info:
-                if key not in self.data:
-                    self.data[key] = [info[key]]
-                else:
-                    self.data[key].append(info[key])
 
-            # save data
-            save = False
-            save = self.t >= self.sv_per if self.sv_stp == "timestep" else self.num_tr % self.sv_per == 0
-            if save:
-                np.savez(self.sv_name + str(self.num_tr) + ".npz", **self.data)  # FIXME: use pathlib
-                if self.verbose:
-                    print("--------------------")
-                    print("Number of steps: ", np.mean(self.num_tr))
-                    print("Average reward: ", np.mean(self.data["reward"]))
-                    print("--------------------")
-                self.reset_data()
-                if self.sv_fig:
-                    self.stp_counter = 0
-                if self.sv_stp == "timestep":
-                    self.t = 0
-        return obs, rew, terminated, truncated, info
+            # HACK
+            # Gymnasium expects a certain format for the info dictionary,
+            # and (at last) the `terminated` variable to be set.
+            # ==================================================
+            info["episode"] = {
+                "r": sum(self.trial.rewards),
+                "l": self.cur_timestep,
+            }
+            terminated = True
+            # ==================================================
 
-    def reset_data(self) -> None:
-        for key in self.data:
-            self.data[key] = []
+            if conf.log.verbose and trigger % conf.log.interval == 0:
+                # Display some progress info
+                self._update_log()
 
-    def store_data(self, obs, action, rew, info) -> None:
-        if self.stp_counter <= self.num_stps_sv_fig:
-            self.ob_mat.append(obs)
-            self.act_mat.append(action)
-            self.rew_mat.append(rew)
-            if "gt" in info:
-                self.gt_mat.append(info["gt"])
-            else:
-                self.gt_mat.append(-1)
-            if "performance" in info:
-                self.perf_mat.append(info["performance"])
-            else:
-                self.perf_mat.append(-1)
-            self.stp_counter += 1
-        elif len(self.rew_mat) > 0:
-            fname = self.sv_name + f"task_{self.num_tr:06d}.{self.fig_type}"
-            obs_mat = np.array(self.ob_mat)
-            act_mat = np.array(self.act_mat)
-            fig_(
-                ob=obs_mat,
-                actions=act_mat,
-                gt=self.gt_mat,
-                rewards=self.rew_mat,
-                performance=self.perf_mat,
-                fname=fname,
+                # Save the current trial data
+                self._store_data()
+
+            # Start a new trial
+            self._start_new_trial()
+
+        return observation, reward, terminated, truncated, info
+
+    def _start_new_trial(self):
+        """
+        Reset all buffers and variables associated with the current trial.
+        """
+
+        for model in self.models.values():
+            model._start_trial()
+
+    def _store_data(self):
+        """
+        Stores data about the current trial into a NumPy archive.
+        """
+
+        # Store the trial and start a new one
+        self.trials.append(self.trial)
+        self.trial = Monitor.Trial()
+
+        data = {
+            "actions": self.trial.actions,
+            "rewards": self.trial.rewards,
+            "observations": self.trial.observations,
+            "info": self.trial.info,
+            "steps": self.cur_timestep,
+        }
+
+        np.savez(self.data_dir / f"trial-{self.cur_trial}-info.npz", **data)
+
+    def _update_log(self):
+        """
+        Print some useful information about the progress of learning or evaluation.
+        """
+
+        # Log some output
+        # ==================================================
+        avg_reward = sum(self.trial.rewards) if len(self.trial.rewards) > 0 else 0
+        log_name = f"{self.name} | " if self.name else ""
+
+        if self.cur_timestep > self.max_t:
+            self.max_t = self.cur_timestep
+        logger.info(
+            f"{log_name}Trial: {self.cur_trial:>5d} | Time: {self.cur_timestep:>5d}  / (max {self.max_t:>5d}, total {self.total_steps * conf.monitor.dt:>5d}) | Avg. reward: {avg_reward:>2.3f}"
+        )
+
+    def _save_plot(self):
+        """
+        Produce and save a plot at a certain step.
+        """
+
+        actions = np.array(self.trial.actions)
+        rewards = np.array(self.trial.rewards)
+        observations = np.array(self.trial.observations)
+        ground_truth = self.trial.info.get("gt", np.full_like(rewards, -1))
+        performance = np.concatenate(
+            [
+                trial.info.get("performance", np.full_like(rewards, -1))
+                for trial in self.trials
+            ]
+        )
+
+        fname = self.plot_dir / f"task_{self.cur_trial:06d}.{conf.monitor.plot.ext}"
+
+        f = fig_(
+            ob=observations,
+            actions=actions,
+            gt=ground_truth,
+            rewards=rewards,
+            # performance=performance,
+            fname=fname,
+        )
+
+    def plot(self):
+        """
+        Display the Bokehmon app in a browser tab.
+        """
+
+        pn.extension()
+
+        if self.bm is None:
+            self.bm = Column(
+                Paragraph(text=self.name, styles={"font-size": "3em"}),
+                Tabs(
+                    tabs=[model._plot() for model in self.models.values()],
+                    tabs_location="left",
+                ),
             )
-            self.ob_mat = []
-            self.act_mat = []
-            self.rew_mat = []
-            self.gt_mat = []
-            self.perf_mat = []
+            self.server = pn.serve(self.bm)
+
+        else:
+            self.server.show("/")
