@@ -30,11 +30,15 @@ The sections below outline the steps in each case.
 
 1. (**important**) announce your plan to the rest of the community _before you start working_. This announcement should be in the form of a (new) issue;
 1. (**important**) wait until some kind of consensus is reached about your idea being a good idea;
-1. if needed, fork the repository to your own Github profile and create your own feature branch off of the latest master commit. While working on your feature branch, make sure to stay up to date with the master branch by pulling in changes, possibly from the 'upstream' repository (follow the instructions [here](https://help.github.com/articles/configuring-a-remote-for-a-fork/) and [here](https://help.github.com/articles/syncing-a-fork/));
+1. if needed, fork the repository to your own Github profile and create your own feature branch off of the latest master
+   commit. While working on your feature branch, make sure to stay up to date with the master branch by pulling in
+   changes, possibly from the 'upstream' repository (follow the instructions
+   [here](https://help.github.com/articles/configuring-a-remote-for-a-fork/) and
+   [here](https://help.github.com/articles/syncing-a-fork/));
+   - please ensure that your contribution follows our [style conventions](README.dev.md#style-conventions);
 1. make sure the existing tests still work by running `pytest`;
 1. add your own tests (if necessary);
 1. update or expand the documentation;
-1. update the `CHANGELOG.md` file with change;
 1. push your feature branch to (your fork of) the current repository on GitHub;
 1. create the pull request, e.g. following the instructions [here](https://help.github.com/articles/creating-a-pull-request/).
 
