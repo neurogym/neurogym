@@ -372,8 +372,11 @@ class TrialEnv(BaseEnv):
         """Set observation in period to value.
 
         Args:
-            value: np array (ob_space.shape, ...)
-            period: string, must be name of an added period
+            value: number, numpy array, or callable
+                If number: broadcast to full observation shape
+                If array: must match observation space dimensions (observation_space.shape[0], ...)
+                If callable: takes observation array as input and returns array of the same shape
+            period: string, must be the name of an added period
             where: string or np array, location of stimulus to be added
             reset: # FIXME: add description
         """
