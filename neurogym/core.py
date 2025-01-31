@@ -378,7 +378,7 @@ class TrialEnv(BaseEnv):
                 If callable: takes observation array as input and returns array of the same shape
             period: string, must be the name of an added period
             where: string or np array, location of stimulus to be added
-            reset: # FIXME: add description
+            reset: bool, whether to zero-out values before adding
         """
         if isinstance(period, str) or period is None:
             period = [period]
