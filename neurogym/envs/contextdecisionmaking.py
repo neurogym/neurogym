@@ -116,7 +116,8 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
         self.add_ob(stim, "stimulus", where="stimulus_mod1")
         stim = np.cos(self.theta - stim_theta_1) * (coh_1 / 200) + 0.5
         self.add_ob(stim, "stimulus", where="stimulus_mod2")
-        self.add_randn(0, self.sigma, "stimulus")
+        self.add_randn(0, self.sigma, period="stimulus", where="stimulus_mod1")
+        self.add_randn(0, self.sigma, period="stimulus", where="stimulus_mod2")
         self.set_ob(0, "decision")
 
         self.set_groundtruth(ground_truth, period="decision", where="choice")
