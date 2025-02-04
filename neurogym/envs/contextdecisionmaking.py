@@ -17,8 +17,13 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
     modality is not explicitly signaled.
 
     Args:
-        context: int, 0 or 1 for the two context (rules). If 0, need to
-            focus on modality 0 (the first one)
+        dt: int, timestep of the environment
+        context: int, which context to focus on (0 or 1). If 0, need to
+            focus on modality 0 (the first one), if 1, need to focus on modality 1
+        rewards: dict, rewards for correct, fail and abort responses
+        timing: dict, timing of the different events in the trial
+        sigma: float, standard deviation of the noise added to the inputs
+        dim_ring: int, number of possibilities for the choice (e.g., 2: left or right), dimension of ring input and output
     """
 
     metadata = {  # noqa: RUF012
