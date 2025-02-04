@@ -23,7 +23,8 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
         rewards: dict, rewards for correct, fail and abort responses
         timing: dict, timing of the different events in the trial
         sigma: float, standard deviation of the noise added to the inputs
-        dim_ring: int, number of possibilities for the choice (e.g., 2: left or right), dimension of ring input and output
+        dim_ring: int, number of possibilities for the choice (e.g., 2: left or right),
+            dimension of ring input and output
     """
 
     metadata = {  # noqa: RUF012
