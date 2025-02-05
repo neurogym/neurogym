@@ -70,7 +70,6 @@ class ComponentBase:
 
             step (int):
                 The current step in the current trial.
-
         Raises:
             NotImplementedError:
                 Raised when trying to use the base class directly.

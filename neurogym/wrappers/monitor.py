@@ -1,17 +1,22 @@
 from collections import defaultdict
+from dataclasses import field
+from dataclasses import dataclass
 from collections.abc import Callable
-from dataclasses import dataclass, field
 
 import numpy as np
 import panel as pn
-from bokeh.models import Column, Paragraph, Tabs  # type: ignore[attr-defined]
-from gymnasium import Wrapper
 from torch import nn
+from gymnasium import Wrapper
+from bokeh.models import Tabs  # type: ignore[attr-defined]
+from bokeh.models import Column  # type: ignore[attr-defined]
+from bokeh.models import Paragraph  # type: ignore[attr-defined]
 
-from neurogym import TrialEnv, conf, logger, utils
+from neurogym import TrialEnv
+from neurogym import conf
+from neurogym import utils
+from neurogym import logger
 from neurogym.utils.plotting import fig_
 from neurogym.wrappers.bokehmon.model import ModelMonitor
-
 
 class Monitor(Wrapper):
     metadata: dict[str, str | None] = {  # noqa: RUF012
