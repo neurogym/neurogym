@@ -1,12 +1,6 @@
 from pathlib import Path
 
-from neurogym.config.base import ConfBase
-
-# The root of the repository
-ROOT_DIR = Path(__file__).parent.parent.parent.parent
-PACKAGE_DIR = ROOT_DIR / "neurogym"
-LOCAL_DIR = ROOT_DIR / "local"
-CONFIG_DIR = PACKAGE_DIR / "config"
+from neurogym.config.base import CONFIG_DIR, LOCAL_DIR, PACKAGE_DIR, ROOT_DIR, ConfBase
 
 
 class PathConf(ConfBase):
