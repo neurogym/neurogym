@@ -1,16 +1,12 @@
-# --------------------------------------
-from datetime import datetime
-from datetime import UTC
-
-# --------------------------------------
+from datetime import UTC, datetime
 from pathlib import Path
 
 
 def mkdir(path: Path | str) -> Path:
-    """
-    A very thin shim over the Path class to
-    create a directory if it doesn't exist and
-    return the resolved and expanded path.
+    """A thin shim over the Path class.
+
+    Creates a directory if it doesn't exist and
+    returns the resolved and expanded path.
 
     Args:
         path (Path | str):
@@ -20,27 +16,22 @@ def mkdir(path: Path | str) -> Path:
         Path:
             The resolved and expanded path.
     """
-
     path = Path(path)
     path.mkdir(exist_ok=True, parents=True)
     return path.expanduser().resolve().absolute()
 
 
-def timestamp(ms: bool = False) -> tuple[str, str]:
-    """
-    Create a datestamp and a timestamp as formatted strings.
+def timestamp(ms: bool = False) -> str:
+    """Create a datestamp and a timestamp as formatted strings.
 
     Args:
         ms (bool, optional):
             Use millisecond precision. Defaults to False.
 
     Returns:
-        tuple[str, str]:
-            A tuple containing:
-                1. The formatted date.
-                2. The formatted time.
+        str:
+            The formatted timestamp.
     """
-
     # Simplified ISO format (no timezone, etc.).
     fmt = "%Y-%m-%d_%H-%M-%S"
     end = None

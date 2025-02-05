@@ -162,13 +162,12 @@ class TrialEnv(BaseEnv):
         trial = self._new_trial(**kwargs)
         self.trial = trial
 
-        # REVIEW: Because new_trial() is called in reset(),
+        # Because new_trial() is called in reset(),
         # this would increment the trial count
         # *before* the first trial has even commenced,
         # effectively starting the count from 1.
         # Instead, num_tr should be incremented *after*
         # a trial has finished (cf. step()).
-        # self.num_tr += 1  # Increment trial count
         self._has_gt = self._gt_built
         return trial
 
@@ -196,7 +195,8 @@ class TrialEnv(BaseEnv):
             info["performance"] = self.performance
             self.performance = 0
 
-            self.t = self.t_ind = 0  # Reset within trial time count
+            self.t = 0
+            self.t_ind = 0  # Reset within trial time count
 
             # REVIEW: This is done in the wrong order.
             # We already have a trial stored in self.trial,
@@ -230,17 +230,15 @@ class TrialEnv(BaseEnv):
         """
         super().reset(seed=seed)
 
-        # REVIEW: The number of trials shouldn't be reset here.
-        # Policy algorithms call env.reset() after each
-        # trial during the learning phase, so the information
+        # NOTE: The number of trials should not be reset to 0 here.
+        # Models can call env.reset() after each trial (=episode)
+        # during the training phase, so the information
         # about the trial count would be erased.
-        # self.num_tr = 0
-        self.t = self.t_ind = 0
+        self.t = 0
+        self.t_ind = 0
 
         step_fn = options.get("step_fn") if options else None
         no_step = options.get("no_step", False) if options else False
-
-        # NOTE: Cf. comment about incrementing num_tr in new_trial()
         self._top.new_trial()
 
         # have to also call step() to get the initial ob since some wrappers modify step() but not new_trial()
