@@ -9,4 +9,4 @@ class LinearLayerMonitor(LayerBase):
             int:
                 The number of neurons.
         """
-        return self.module.out_features # type: ignore[no-any-return]
+        return self.module.out_features  # type: ignore[no-any-return]
