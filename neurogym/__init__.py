@@ -2,9 +2,12 @@
 # fixing rule above leads to problems in pytest
 # FIXME: figure out why this is the case and solve
 
+<<<<<<< HEAD
 from neurogym.version import VERSION as __version__  # noqa: N811
 from neurogym.config.conf import conf
 from neurogym.config.conf import logger
+=======
+>>>>>>> dev
 from neurogym.core import BaseEnv
 from neurogym.core import TrialEnv
 from neurogym.core import TrialWrapper
@@ -16,4 +19,6 @@ from neurogym.envs.registration import all_tags
 from neurogym.envs.collections import get_collection
 from neurogym.wrappers import all_wrappers
 from neurogym.utils.data import Dataset
-from neurogym.utils import random
+from neurogym.utils import ngym_random
+
+__version__ = "1.0.8"

@@ -242,9 +242,6 @@ class LeverPressWithPokeRest(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def _get_thirst(self, thirst_state):
-        return (thirst_state > 0.0) * (thirst_state < 1.0) * thirst_state + (thirst_state > 1.0) * 1.0
-
     def _step(self, action):
         if not self.action_space.contains(action):
             msg = f"{action=!r} ({type(action)}) not found in action_space."
@@ -272,7 +269,7 @@ class LeverPressWithPokeRest(gym.Env):
             raise ValueError
 
         self.thirst_state += self.np_random.rand() * 0.4 + 0.8
-        self.thirst = self._get_thirst(self.thirst_state)
+        self.thirst = np.clip(self.thirst_state, 0.0, 1.0)
         self.state = state
         terminated = False
         truncated = False
@@ -311,7 +308,7 @@ class LeverPressWithPokeRest(gym.Env):
         self.state = self.n_press
         self.steps_beyond_done = None
         self.thirst_state = 1
-        self.thirst = self._get_thirst(self.thirst_state)
+        self.thirst = np.clip(self.thirst_state, 0.0, 1.0)
         if self.observe_state:
             return np.array([self.state]), {}
         return np.array([self.thirst]), {}

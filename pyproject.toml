@@ -1,7 +1,6 @@
 # see documentation, e.g.
-# - https://packaging.python.org/en/latest/specifications/declaring-project-metadata/#declaring-project-metadata
+# - https://packaging.python.org/en/latest/specifications/pyproject-toml/
 # - https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
-# - https://www.python.org/dev/peps/pep-0621/
 
 [build-system]
 requires = ["setuptools>=64.0.0", "setuptools-scm", "wheel"]
@@ -9,6 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 authors = [
+<<<<<<< HEAD
     { name = "Manuel Molano Mazon", email = "manuelmolanomazon@gmail.com" },
     { name = "Guangyu Robert Yang", email = "gyyang.neuro@gmail.com" },
     { name = "Giulia Crocioni", email = "g.crocioni@esciencecenter.nl" },
@@ -18,10 +18,18 @@ authors = [
     { name = "Jordi Pastor-Ciurana" },
     { name = "Jeremy Forest" },
     { name = "Ru-Yuan Zhang" },
+=======
+    { name = "Giulia Crocioni", email = "g.crocioni@esciencecenter.nl" },
+    { name = "Dani Bodor", email = "d.bodor@esciencecenter.nl" },
+    { name = "Nathan Cloos", email = "cloosnathan@gmail.com" },
+    { name = "Alexander Hadjiivanov", email = "a.hadjiivanov@esciencecenter.nl" },
+    { name = "Guangyu Robert Yang", email = "gyyang.neuro@gmail.com" },
+    { name = "Jorge Mejias", email = "j.f.mejias@uva.nl" },
+    { name = "Manuel Molano Mazon", email = "manuelmolanomazon@gmail.com" },
+>>>>>>> dev
 ]
 classifiers = [
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Natural Language :: English",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -37,7 +45,11 @@ dependencies = [
     "sb3-contrib",
     "scipy",
     "stable-baselines3>=2.3.2",
+<<<<<<< HEAD
     "tqdm",
+=======
+    "scipy",
+>>>>>>> dev
 ]
 description = "NeuroGym: Gymnasium-style Cognitive Neuroscience Tasks"
 keywords = [
@@ -47,39 +59,54 @@ keywords = [
     "reinforcement learning",
     "synthetic data",
 ]
+<<<<<<< HEAD
 license = { file = "LICENSE" }
+=======
+license = { text = "Apache-2.0 License" }
+>>>>>>> dev
 name = "neurogym"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
-version = "0.0.1"
+version = "1.0.8"
 
 [project.optional-dependencies]
 dev = [
-    # formatting and linting
-    "ruff >= 0.3.0",
     # testing
     "pytest",
     "pytest-cov",
     "coverage [toml]",
-    # static typing
+    # code style
+    "ruff==0.9.*",
     "mypy",
     # docs
+<<<<<<< HEAD
     "sphinx",
     "sphinx_rtd_theme",
     "sphinxcontrib.katex",
     "ipykernel",
     "nbsphinx",
     "stable_baselines3",
+=======
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocs-exclude",
+    "mkdocs-redirects",
+    "mkdocstrings-python",
+    "mike",
+    "mkdocs-jupyter",
+    # release
+    "bump-my-version",
+>>>>>>> dev
 ]
 publishing = ["build", "twine", "wheel"]
 tutorials = ["notebook"]
 env_specific = ["psychopy"]
 
 [project.urls]
-Repository = "https://github.com/ANNUBS/annubes"
-Issues = "https://github.com/ANNUBS/annubes/issues"
-"Documentation" = "https://annubs.github.io/annubes"
-Changelog = "https://github.com/ANNUBS/annubes/CHANGELOG.md"
+Repository = "https://github.com/neurogym/neurogym"
+Issues = "https://github.com/neurogym/neurogym"
+Documentation = "https://neurogym.github.io/neurogym"
+Changelog = "https://github.com/neurogym/neurogym/CHANGELOG.md"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -31,8 +31,8 @@ class Bandit(ngym.TrialEnv):
         dt: int = 100,
         n: int = 2,
         p: tuple[float, ...] | list[float] = (0.5, 0.5),
-        rewards: None | list[float] | np.ndarray = None,
-        timing: None | dict = None,
+        rewards: list[float] | np.ndarray | None = None,
+        timing: dict | None = None,
     ) -> None:
         super().__init__(dt=dt)
         if timing is not None:

@@ -4,7 +4,7 @@ from typing import Any, NoReturn
 import gymnasium as gym
 import numpy as np
 
-from neurogym.utils.random import trunc_exp
+from neurogym.utils.ngym_random import trunc_exp
 
 METADATA_DEF_KEYS = ["description", "paper_name", "paper_link", "timing", "tags"]
 
@@ -140,7 +140,8 @@ class TrialEnv(BaseEnv):
                 val.seed(seed)
         return [seed]
 
-    def post_step(self, ob, reward, terminated, truncated, info):
+    @staticmethod
+    def post_step(ob, reward, terminated, truncated, info):
         """Optional task-specific wrapper applied at the end of step.
 
         It allows to modify ob online (e.g. provide a specific observation for different actions made by the agent)
@@ -371,36 +372,31 @@ class TrialEnv(BaseEnv):
         """Set observation in period to value.
 
         Args:
-            value: np array (ob_space.shape, ...)
-            period: string, must be name of an added period
+            value: number, numpy array, or callable
+                If number: broadcast to full observation shape
+                If array: must match observation space dimensions (observation_space.shape[0], ...)
+                If callable: takes observation array as input and returns array of the same shape
+            period: string, must be the name of an added period
             where: string or np array, location of stimulus to be added
-            reset: # FIXME: add description
+            reset: bool, whether to zero-out values before adding
         """
         if isinstance(period, str) or period is None:
-            pass
-        else:
-            for p in period:
-                self._add_ob(value, p, where, reset=reset)
-            return
+            period = [period]
+        if isinstance(where, str):
+            where = self.observation_space.name[where]  # type: ignore[attr-defined]
 
-        ob = self.view_ob(period=period)
-        if where is None:
-            if reset:
-                ob *= 0
-            try:
-                ob += value(ob)
-            except TypeError:
-                ob += value
-        else:
-            if isinstance(where, str):
-                where = self.observation_space.name[where]  # type: ignore[attr-defined]
-            # TODO: This only works if the slicing is one one-dimension
-            if reset:
-                ob[..., where] *= 0
-            try:
-                ob[..., where] += value(ob[..., where])
-            except TypeError:
-                ob[..., where] += value
+        for p in period:
+            ob = self.view_ob(period=p)
+
+            if where is None:
+                if reset:
+                    ob *= 0
+                ob += value(ob) if callable(value) else value
+            else:
+                if reset:
+                    ob[..., where] *= 0
+                # TODO: This only works if the slicing is one one-dimension
+                ob[..., where] += value(ob[..., where]) if callable(value) else value
 
     def add_ob(self, value, period=None, where=None) -> None:
         """Add value to observation.

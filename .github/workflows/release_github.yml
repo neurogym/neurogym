@@ -1,0 +1,179 @@
+name: Draft GitHub Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_level:
+        description: Semantic version level increase
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+  packages: read
+  statuses: read
+  checks: read
+  pull-requests: write
+  actions: read
+  repository-projects: read
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GH_PAGER: cat
+
+jobs:
+  checks:
+    name: Check requirements
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if main branch was selected
+        if: ${{ github.ref_name == 'main' }}
+        run: |
+          echo "Cannot release from main branch, please select valid release branch."
+          exit 1
+
+      - name: Check GitHub token validity
+        run: |
+          echo "Validating GitHub Token"
+          status_code=$(curl -o /dev/null -s -w "%{http_code}" -H "Authorization: token ${{ secrets.GH_RELEASE }}" https://api.github.com/user)
+          if [ "$status_code" -ne 200 ]; then
+            echo "Error: GitHub token is invalid or expired. Please update your token in secrets."
+            echo "Instructions can be found at: https://github.com/neurogym/neurogym/README.dev.md#updating-the-token"
+            exit 1
+          else
+            echo "GitHub token is valid."
+          fi
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Check if PR exists
+        run: gh pr view ${{ github.ref_name }}
+      - name: Check if PR base is main
+        run: gh pr view ${{ github.ref_name }} --json baseRefName -q 'if .baseRefName == "main" then "PR base is main" else error("PR base is not main") end'
+      - name: Check if PR is mergeable
+        run: gh pr view ${{ github.ref_name }} --json mergeable -q 'if .mergeable == "MERGEABLE" then "PR is mergeable" else error("PR is not mergeable") end'
+      - name: Check whether all PR checks passed
+        run: |
+          gh pr checks ${{ github.ref_name }} --watch --fail-fast
+          gh pr checks ${{ github.ref_name }} --json state -q 'if . | length == 0 then "No checks found." elif map(.state == "SUCCESS") | all then "All checks passed" else error("Not all checks passed") end'
+
+  merge_and_bump:
+    name: Merge the changes into main and bump the version
+    needs: checks
+    runs-on: ubuntu-latest
+    outputs:
+      new-version: ${{ steps.bump.outputs.current-version }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # token with admin priviliges to override brach protection on main and dev
+          token: ${{ secrets.GH_RELEASE }}
+          ref: main
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.email "${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
+          git config user.name "GitHub Actions"
+          git config -l
+
+      - name: Merge branch into main
+        run: |
+          git switch main
+          git branch -f ${{ github.ref_name }} origin/${{ github.ref_name }}
+          git merge ${{ github.ref_name }} --no-ff --no-edit
+
+      - name: Install Python
+        uses: actions/setup-python@v5.1.1
+        with:
+          python-version: "3.12"
+
+      - name: Install bump-my-version
+        shell: bash
+        run: python3 -m pip install bump-my-version
+
+      - name: Pass Inputs to Shell
+        id: bump
+        shell: bash
+        run: |
+          echo "previous-version=$(bump-my-version show current_version)" >> $GITHUB_OUTPUT
+          bump-my-version bump ${{ inputs.version_level }} --commit --tag -vv
+          ([[ $? -gt 0 ]] && echo "bumped=false" || echo "bumped=true") >> $GITHUB_OUTPUT
+          echo "current-version=$(bump-my-version show current_version)" >> $GITHUB_OUTPUT
+
+      - name: Fail if bumping failes
+        if: steps.bump.outputs.bumped == 'false'
+        run: |
+          echo "Bumping failed."
+          git reset --hard HEAD^
+          exit 1
+
+      - name: Check new version number
+        if: steps.bump.outputs.bumped == 'true'
+        run: echo "Version was bumped from ${{ steps.bump.outputs.previous-version }} to ${{ steps.bump.outputs.current-version }}!"
+
+      - name: Merge main into dev
+        run: |
+          git checkout dev
+          git merge main --no-ff --no-edit || { echo "Can't merge changes to dev. Manually merge PR and create GitHub release."; exit 1; }
+
+      - name: Push changes to dev
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GH_RELEASE }}
+          branch: dev
+          force_with_lease: true
+
+      - name: Checkout main
+        run: git checkout main
+
+      - name: Push changes to main
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GH_RELEASE }}
+          branch: main
+          force_with_lease: true
+
+  draft_release:
+    name: Create a draft GitHub release
+    needs: merge_and_bump
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Create GitHub Release
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create v${{ needs.merge_and_bump.outputs.new-version }} \
+              --title="Release v${{ needs.merge_and_bump.outputs.new-version }}" \
+              --generate-notes \
+              --draft
+
+  remove_branch:
+    name: Remove PR branch
+    needs: draft_release
+    if: ${{ github.ref_name != 'dev' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      - name: Remove PR branch
+        uses: dawidd6/action-delete-branch@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branches: ${{ github.ref_name }}

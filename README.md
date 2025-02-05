@@ -1,54 +1,94 @@
-**Status:** In Development. All tasks are subject to changes right now.
-
 # NeuroGym
 
-NeuroGym is a curated collection of neuroscience tasks with a common interface.
-The goal is to facilitate the training of neural network models on neuroscience tasks.
+|     Badges     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| :------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|  **fairness**  | [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9839/badge)](https://www.bestpractices.dev/projects/9839) [![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F-green)](https://fair-software.eu)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|  **package**   | [![PyPI version](https://badge.fury.io/py/neurogym.svg)](https://badge.fury.io/py/neurogym)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+|    **docs**    | [![Documentation](https://img.shields.io/badge/docs-mkdocs-259482)](https://neurogym.github.io/neurogym/latest/) [![RSD](https://img.shields.io/badge/RSD-neurogym-3dffff)](https://research-software-directory.org/software/neurogym) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14508986.svg)](https://doi.org/10.5281/zenodo.14508986)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+|   **tests**    | [![build](https://github.com/neurogym/neurogym/actions/workflows/build.yml/badge.svg)](https://github.com/neurogym/neurogym/actions/workflows/build.yml) [![sonarcloud](https://github.com/neurogym/neurogym/actions/workflows/sonarcloud.yml/badge.svg)](https://github.com/neurogym/neurogym/actions/workflows/sonarcloud.yml) [![linkspector](https://github.com/neurogym/neurogym/actions/workflows/linkspector.yml/badge.svg)](https://github.com/neurogym/neurogym/actions/workflows/linkspector.yml) [![cffconvert](https://github.com/neurogym/neurogym/actions/workflows/cffconvert.yml/badge.svg)](https://github.com/neurogym/neurogym/actions/workflows/cffconvert.yml) [![linting](https://github.com/neurogym/neurogym/actions/workflows/linting.yml/badge.svg)](https://github.com/neurogym/neurogym/actions/workflows/linting.yml) [![static-typing](https://github.com/neurogym/neurogym/actions/workflows/static-typing.yml/badge.svg)](https://github.com/neurogym/neurogym/actions/workflows/static-typing.yml) [![workflow scq badge](https://sonarcloud.io/api/project_badges/measure?project=neurogym_neurogym&metric=alert_status)](https://sonarcloud.io/dashboard?id=neurogym_neurogym) [![workflow scc badge](https://sonarcloud.io/api/project_badges/measure?project=neurogym_neurogym&metric=coverage)](https://sonarcloud.io/dashboard?id=neurogym_neurogym) |
+| **running on** | [![ubuntu](https://img.shields.io/badge/ubuntu-latest-8A2BE2?style=plastic)](https://github.com/actions/runner-images?tab=readme-ov-file#available-images)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+|  **license**   | [![github license badge](https://img.shields.io/github/license/neurogym/neurogym)](https://github.com/neurogym/neurogym?tab=Apache-2.0-1-ov-file)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
-Documentation: https://neurogym.github.io/
+NeuroGym is a curated collection of neuroscience tasks with a common interface. The goal is to facilitate the training of neural network models on neuroscience tasks.
 
 - [NeuroGym](#neurogym)
-   - [Installation](#installation)
-   - [Tasks](#tasks)
-   - [Wrappers](#wrappers)
-   - [Examples](#examples)
-   - [Contributing](#contributing)
-   - [Authors](#authors)
+  - [Installation](#installation)
+    - [Psychopy installation](#psychopy-installation)
+  - [Tasks](#tasks)
+  - [Wrappers](#wrappers)
+  - [Examples](#examples)
+  - [Custom tasks](#custom-tasks)
+  - [Acknowledgements](#acknowledgements)
 
 NeuroGym inherits from the machine learning toolkit [Gymnasium](https://gymnasium.farama.org/), a maintained fork of [OpenAI’s Gym library](https://github.com/openai/gym). It allows a wide range of well established machine learning algorithms to be easily trained on behavioral paradigms relevant for the neuroscience community.
-NeuroGym also incorporates several properties and functions (e.g. continuous-time and trial-based tasks) that are important for neuroscience applications.
-The toolkit also includes various modifier functions that allow easy configuration of new tasks.
+NeuroGym also incorporates several properties and functions (e.g. continuous-time and trial-based tasks) that are important for neuroscience applications. The toolkit also includes various modifier functions that allow easy configuration of new tasks.
+
+Please see our extended project [documentation](https://neurogym.github.io/neurogym/latest/) for additional details.
 
 ![alt tag](https://github.com/neurogym/neurogym/blob/main/docs/pipeline.png)
 
 ### Installation
 
-You can perform a minimal install of ``neurogym`` with:
+#### Step 1: Create a virtual environment
 
-    git clone https://github.com/neurogym/neurogym.git
-    cd neurogym
-    pip install -e .
+Create and activate a virtual environment to install the current package, e.g. using
+[conda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) (please refer to their
+site for questions about creating the environment):
 
-Or a full install by replacing the last command with ``pip install -e '.[all]'``
+```bash
+conda activate # ensures you are in the base environment
+conda create -n neurogym python=3.11 -y
+conda activate neurogym
+```
+
+#### Step 2: Install neurogym
+
+Then install the latest version of `neurogym` as follows:
+
+```bash
+pip install neurogym
+```
+
+##### Step 2b: Install editable package
+
+Alternatively, get the latest updates by cloning the repo and installing the editable version of neurogym, by replacing
+step 2 above by:
+
+```bash
+git clone https://github.com/neurogym/neurogym.git
+cd neurogym
+pip install -e .
+```
+
+#### Step 3 (Optional): Psychopy installation
+
+**NOTE**: psycohopy installation is currently not working
+
+If you need psychopy for your project, additionally run
+
+```bash
+pip install psychopy
+```
 
 ### Tasks
+
 Currently implemented tasks can be found [here](https://neurogym.github.io/envs/index.html).
 
 ### Wrappers
+
 Wrappers (see [list](https://github.com/gyyang/neurogym/blob/master/docs/wrappers.md))
-are short scripts that allow introducing modifications the original tasks. For instance, the Random Dots Motion task can be transformed into a reaction time task by passing it through the *reaction_time* wrapper. Alternatively, the *combine* wrapper allows training an agent in two different tasks simultaneously.
+are short scripts that allow introducing modifications the original tasks. For instance, the Random Dots Motion task can be transformed into a reaction time task by passing it through the _reaction_time_ wrapper. Alternatively, the _combine_ wrapper allows training an agent in two different tasks simultaneously.
 
 ### Examples
 
 NeuroGym is compatible with most packages that use gymnasium.
 In this [example](https://github.com/gyyang/neurogym/blob/master/examples/example_neurogym_rl.ipynb) jupyter notebook we show how to train a neural network with reinforcement learning algorithms using the [Stable-Baselines3](https://stable-baselines3.readthedocs.io/en/master/) toolbox.
 
+### Custom tasks
 
-### Contributing
-Contributing new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure,
-this [template](https://github.com/gyyang/neurogym/blob/master/examples/template.py) provides the basic structure that we recommend a task to have:
+Creating custom new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure, this [template](https://github.com/gyyang/neurogym/blob/master/examples/template.py) provides the basic structure that we recommend a task to have:
 
-```
+```python
 from gymnasium import spaces
 import neurogym as ngym
 
@@ -86,17 +126,13 @@ class YourTask(ngym.PeriodEnv):
 
 ```
 
-### Authors
-* Contact
+### Acknowledgements
 
-    [Manuel Molano](https://github.com/manuelmolano) (manuelmolanomazon@gmail.com).
-    [Guangyu Robert Yang](https://github.com/gyyang) (gyyang.neuro@gmail.com).
+For the authors of the package, please refer to the zenodo DOI at the top of the page.
 
-* Contributors (listed in chronological order)
+Other contributors (listed in chronological order)
 
-    [Marta Fradera](https://github.com/martafradera),
-    [Jordi Pastor](https://github.com/pastorjordi),
-    [Jeremy Forest](https://github.com/jeremyforest),
-    [Ru-Yuan Zhang](https://github.com/ruyuanzhang),
-    [gcroci2](https://github.com/gcroci2),
-    [DaniBodor](https://github.com/DaniBodor)
+- [Marta Fradera](https://github.com/martafradera)
+- [Jordi Pastor](https://github.com/pastorjordi)
+- [Jeremy Forest](https://github.com/jeremyforest)
+- [Ru-Yuan Zhang](https://github.com/ruyuanzhang)

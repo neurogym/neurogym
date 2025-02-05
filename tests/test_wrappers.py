@@ -54,11 +54,6 @@ def test_sidebias(
         For example: [(.005, .005, .99), (.005, .99, .005), (.99, .005, .005)],
         corresponds to 3 blocks with each of them giving 0.99 probabilitiy to
         ground truth 3, 2 and 1, respectively.
-
-    Returns:
-    -------
-    None.
-
     """
     if probs is None:
         probs = [(0.005, 0.005, 0.99), (0.005, 0.99, 0.005), (0.99, 0.005, 0.005)]
@@ -102,11 +97,6 @@ def test_passaction(
         number of steps to run the environment (1000)
     verbose : boolean, optional
         whether to print observation and action (False)
-
-    Returns:
-    -------
-    None.
-
     """
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
@@ -146,11 +136,6 @@ def test_passreward(
         number of steps to run the environment (1000)
     verbose : boolean, optional
         whether to print observation and reward (False)
-
-    Returns:
-    -------
-    None.
-
     """
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
@@ -197,11 +182,6 @@ def test_reactiontime(
         whether to print observation and reward (False)
     ths : list, optional
         list containing the threholds to make a decision ([-.5, .5])
-
-    Returns:
-    -------
-    None.
-
     """
     if ths is None:
         ths = [-0.5, 0.5]
@@ -299,11 +279,6 @@ def test_variablemapping(
         number of channels (4)
     margin : float, optional
         margin allowed when comparing actual and expected mean block durations (2)
-
-    Returns:
-    -------
-    None.
-
     """
     env_args = {
         "n_stims": n_stims,
@@ -375,9 +350,9 @@ def test_variablemapping(
     assert (sess_durs > min_sess_dur).all()
     mean_sess_dur = np.mean(sess_durs)
     exp_sess_durs = min_sess_dur + 1 / sess_end_prob
-    assert (
-        np.abs(mean_sess_dur - exp_sess_durs) < margin
-    ), f"Mean sess. dur.: {mean_sess_dur}, expected: {1 / sess_end_prob}"
+    assert np.abs(mean_sess_dur - exp_sess_durs) < margin, (
+        f"Mean sess. dur.: {mean_sess_dur}, expected: {1 / sess_end_prob}"
+    )
     mapp_blck_durs = np.diff(mapp_ch)
     assert (mapp_blck_durs > min_mapp_dur).all()
     mean_durs = np.mean(mapp_blck_durs)
@@ -411,11 +386,6 @@ def test_noise(
         margin allowed when comparing actual and expected performances (0.01)
     perf_th : float, optional
         target performance for the noise wrapper (0.7)
-
-    Returns:
-    -------
-    None.
-
     """
     env_args = {"timing": {"fixation": 100, "stimulus": 200, "decision": 200}}
     env = gym.make(env, **env_args)

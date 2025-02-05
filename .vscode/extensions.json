@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "charliermarsh.ruff",
+    "foxundermoon.shell-format",
+    "ms-python.mypy-type-checker"
+  ]
+}

@@ -100,8 +100,9 @@ venv.bak/
 # mkdocs documentation
 /site
 
-# mypy
+# mypy & ruff
 .mypy_cache/
+.ruff_cache/
 
 # added by robert
 # Pycharm related
@@ -114,6 +115,7 @@ docs/source/_static/
 
 # example content
 examples/content/
+<<<<<<< HEAD
 
 # Zip files
 **.zip
@@ -123,3 +125,5 @@ examples/content/
 
 # settings.toml files anywhere in the directory hierarchy
 **settings.toml
+=======
+>>>>>>> dev

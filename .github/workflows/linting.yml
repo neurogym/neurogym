@@ -1,34 +1,35 @@
 name: linting
 
 on:
-    push:
-      paths-ignore:
-        # specific folder locations
-        - ".vscode/**"
-        - "docs/**"
-        # filetypes
-        - "**.md"
-        - "**.rst"
-        - "**.ipynb"
-        - "**.cff"
-        - "**.png"
-      branches:
-        - main
-    pull_request:
-      types: [opened, synchronize, reopened, ready_for_review]
-      paths-ignore:
-        # specific folder locations
-        - ".vscode/**"
-        - "docs/**"
-        # filetypes
-        - "**.md"
-        - "**.rst"
-        - "**.ipynb"
-        - "**.cff"
-        - "**.png"
+  push:
+    paths-ignore:
+      # specific folder locations
+      - ".vscode/**"
+      - "docs/**"
+      # filetypes
+      - "**.md"
+      - "**.rst"
+      - "**.ipynb"
+      - "**.cff"
+      - "**.png"
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths-ignore:
+      # specific folder locations
+      - ".vscode/**"
+      - "docs/**"
+      # filetypes
+      - "**.md"
+      - "**.rst"
+      - "**.ipynb"
+      - "**.cff"
+      - "**.png"
 
 jobs:
   lint:
+    if: github.event.pull_request.draft == false
     name: Linting
     runs-on: ubuntu-latest
     strategy:
@@ -44,8 +45,12 @@ jobs:
         run: |
           which python
           python --version
-      - name: Check linting and formatting using ruff
+      - name: Install ruff
         run: |
-          python3 -m pip install ruff
-          ruff check || (echo "Please ensure you have the latest version of ruff (`ruff -V`) installed locally." && (exit 1))
-          ruff format --check || (echo "Please ensure you have the latest version of ruff (`ruff -V`) installed locally." && (exit 1))
+          python3 -m pip install pyproject-deplister
+          pyproject-deplister --extra dev --path pyproject.toml | grep ruff | sed 's/ //g' | xargs -I{} python3 -m pip install "{}"
+          echo "Installed ruff version: $(ruff -V)"
+      - name: Check linting using ruff
+        run: ruff check || (echo "Please ensure you have a matching version of ruff (`ruff -V`) installed locally." && (exit 1))
+      - name: Check formatting using ruff
+        run: ruff format --check || (echo "Please ensure you have a matching version of ruff (`ruff -V`) installed locally." && (exit 1))
