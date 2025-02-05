@@ -1,52 +1,47 @@
-# --------------------------------------
-import numpy as np
+from functools import partial
+from typing import Any
 
-# --------------------------------------
+import numpy as np
 import torch
+from bokeh.models import (  # type: ignore[attr-defined]
+    Button,
+    ColorPicker,
+    Column,
+    Legend,
+    LegendItem,
+    Line,
+    Row,
+    Select,
+    Slider,
+    TabPanel,
+)
+from bokeh.palettes import Turbo256, linear_palette
+from bokeh.plotting import ColumnDataSource, figure
 from torch import nn
 
-# --------------------------------------
-from functools import partial
-
-# --------------------------------------
-from bokeh.models import Button
-from bokeh.models import Legend
-from bokeh.models import Select
-from bokeh.models import Slider
-from bokeh.models import Line
-from bokeh.models import TabPanel
-from bokeh.models import LegendItem
-from bokeh.models import ColorPicker
-from bokeh.models import Row
-from bokeh.models import Column
-from bokeh.palettes import Turbo256
-from bokeh.palettes import linear_palette
-from bokeh.plotting import ColumnDataSource
-from bokeh.plotting import figure
-
-# --------------------------------------
 from neurogym import conf
 from neurogym.wrappers.bokehmon.components.base import ComponentBase
 
 
 class ActivationComponent(ComponentBase):
-
     def __init__(
         self,
+        layer: Any,
         module: nn.Module,
     ):
-        '''
-        Activation monitoring component.
+        """Activation monitoring component.
 
         Args:
+            layer (Any):
+                The parent layer that this component is attached to.
+
             module (nn.Module):
                 The module being monitored.
-        '''
-
-        super().__init__(module)
+        """
+        super().__init__(layer, module)
 
         # The neuron count
-        self.neurons = self._get_neuron_count()
+        self.neurons = self.get_neuron_count()
 
         # Data
         # ==================================================
@@ -60,32 +55,18 @@ class ActivationComponent(ComponentBase):
         # ==================================================
         self.traces_muted = False
 
-    def _get_neuron_count(self) -> int:
-        '''
-        Method
-
-        Returns:
-            int: _description_
-        '''
-        return self.module.out_features
-
-    def _start_trial(self):
-        """
-        Start monitoring parameters for a new trial.
-        """
-
+    def start_trial(self):
+        """Start monitoring parameters for a new trial."""
         # Add a new entry in the activation tracker.
         self.activations.append([])
 
     def _make_figure(self) -> figure:
-        """
-        Make and return a Bokeh figure for plotting neuron activations.
+        """Make and return a Bokeh figure for plotting neuron activations.
 
         Returns:
             figure:
                 The figure.
         """
-
         # Figure
         # ==================================================
         fig = figure(
@@ -103,10 +84,10 @@ class ActivationComponent(ComponentBase):
 
         fig.width = 1000
         fig.height = 500
-        fig.toolbar.autohide = True
-        fig.border_fill_color = "white"
-        fig.background_fill_color = "white"
-        fig.outline_line_color = "black"
+        fig.toolbar.autohide = True  # type: ignore[attr-defined]
+        fig.border_fill_color = "white"  # type: ignore[assignment]
+        fig.background_fill_color = "white"  # type: ignore[assignment]
+        fig.outline_line_color = "black"  # type: ignore[assignment]
         fig.grid.grid_line_color = None
         fig.hover.tooltips = [
             ("Neuron", "$name"),
@@ -124,8 +105,7 @@ class ActivationComponent(ComponentBase):
         source: ColumnDataSource,
         labels: list[str],
     ) -> list[Line]:
-        """
-        Plot traces for neuron activations.
+        """Plot traces for neuron activations.
 
         Args:
             fig (figure):
@@ -141,7 +121,6 @@ class ActivationComponent(ComponentBase):
             list[Line]:
                 The traces.
         """
-
         # Activation traces as lines
         traces = [
             fig.line(
@@ -167,8 +146,7 @@ class ActivationComponent(ComponentBase):
         traces: list[Line],
         labels: list[str],
     ) -> Legend:
-        """
-        An interactive legend for the traces.
+        """An interactive legend for the traces.
 
         Args:
             fig (figure):
@@ -184,12 +162,8 @@ class ActivationComponent(ComponentBase):
             Legend:
                 The legend.
         """
-
         legend = Legend(
-            items=[
-                LegendItem(label=label, renderers=[traces[n]])
-                for n, label in enumerate(labels)
-            ],
+            items=[LegendItem(label=label, renderers=[traces[n]]) for n, label in enumerate(labels)],
             nrows=20,
             label_height=8,
             padding=0,
@@ -220,7 +194,11 @@ class ActivationComponent(ComponentBase):
         self,
         traces: list[Line],
     ):
-        def _inner(attr: str, old: float, new: float):
+        def _inner(
+            attr: str,  # noqa: ARG001
+            old: float,  # noqa: ARG001
+            new: float,
+        ):
             for ln in traces:
                 ln.glyph.line_alpha = new
 
@@ -230,7 +208,11 @@ class ActivationComponent(ComponentBase):
         self,
         traces: list[Line],
     ):
-        def _inner(attr: str, old: float, new: float):
+        def _inner(
+            attr: str,  # noqa: ARG001
+            old: float,  # noqa: ARG001
+            new: float,
+        ):
             for ln in traces:
                 ln.muted_glyph.line_alpha = new
 
@@ -242,7 +224,11 @@ class ActivationComponent(ComponentBase):
         traces: list[Line],
         selector: Select,
     ):
-        def _inner(attr: str, old: int, new: int):
+        def _inner(
+            attr: str,  # noqa: ARG001
+            old: int,  # noqa: ARG001
+            new: int,  # noqa: ARG001
+        ):
             cp_line.color = traces[selector.value].glyph.line_color
 
         return _inner
@@ -252,7 +238,11 @@ class ActivationComponent(ComponentBase):
         traces: list,
         selector: Select,
     ):
-        def _inner(attr: str, old: int, new: int):
+        def _inner(
+            attr: str,  # noqa: ARG001
+            old: int,  # noqa: ARG001
+            new: int,
+        ):
             traces[selector.value].glyph.line_color = new
             traces[selector.value].muted_glyph.line_color = new
 
@@ -260,14 +250,13 @@ class ActivationComponent(ComponentBase):
 
     def process(
         self,
-        module: nn.Module,
-        input_: torch.Tensor,
+        module: nn.Module,  # noqa: ARG002
+        input_: torch.Tensor,  # noqa: ARG002
         output: torch.Tensor,
-        trial: int,
-        step: int,
+        trial: int,  # noqa: ARG002
+        step: int,  # noqa: ARG002
     ):
-        """
-        This method processes new activations.
+        """This method processes new activations.
 
         Args:
             module (nn.Module):
@@ -285,32 +274,33 @@ class ActivationComponent(ComponentBase):
             step (int):
                 The current step in the current trial.
         """
-
         self.activations[-1].append(output)
 
-    def _plot(self) -> TabPanel:
-        """
-        Render this component as a tab.
+    def plot(self) -> TabPanel:
+        """Render this component as a tab.
 
         Returns:
             TabPanel:
                 The current component as a tab.
         """
-
         # Prepare the activations for plotting.
         # ==================================================
         # Eliminate empty activation sets
         activations = [a for a in self.activations if len(a) > 0]
-        max_len = max([len(arr) for arr in activations])
-        trials = [np.array(a) for a in activations]
-        mean = np.array([trial.mean(axis=1) for trial in trials])
-        # sd = np.sqrt(np.array([((trial - mean) ** 2).mean(axis=0) for trial in trials]).mean())
-        # trials = [(trial - mean) / sd for trial in trials]
 
-        # mean, sd = trials.mean(axis=2), trials.std(axis=2)
+        # Get the length of the longest run
+        max_len = max([len(arr) for arr in activations])
+
+        # Turn activations into arrays
+        trials = [np.array(a) for a in activations]
+
+        mean = np.array([trial.mean(axis=1) for trial in trials])
+        sd = np.sqrt(np.array([((trial - mean) ** 2).mean(axis=0) for trial in trials]).mean())
+        trials = [(trial - mean) / sd for trial in trials]
+
         data = {"x": np.arange(max_len) * conf.monitor.dt}
-        labels = [f"{l}" for l in range(self.neurons)]
-        data.update({l: mean[n] for n, l in enumerate(labels)})
+        labels = [f"{_}" for _ in range(self.neurons)]
+        data.update({_: mean[n] for n, _ in enumerate(labels)})
 
         # Columnar data source
         source = ColumnDataSource(data)
@@ -326,7 +316,7 @@ class ActivationComponent(ComponentBase):
         # Make a button to mute/highlight all traces
         btn_toggle_traces = Button(label="Mute all traces", width=180)
         btn_toggle_traces.on_click(
-            partial(self._toggle_traces, btn_toggle_traces, legend)
+            partial(self._toggle_traces, btn_toggle_traces, legend),
         )
 
         # Colour picker for the background colour
@@ -347,7 +337,8 @@ class ActivationComponent(ComponentBase):
             width=180,
         )
         sld_highlighed_trace_alpha.on_change(
-            "value_throttled", self._set_highlighted_trace_alpha(traces)
+            "value_throttled",
+            self._set_highlighted_trace_alpha(traces),
         )
 
         # Slider for adjusting the alpha of muted traces
@@ -360,7 +351,8 @@ class ActivationComponent(ComponentBase):
             width=180,
         )
         sld_muted_trace_alpha.on_change(
-            "value_throttled", self._set_muted_trace_alpha(traces)
+            "value_throttled",
+            self._set_muted_trace_alpha(traces),
         )
 
         # Dropdown list of neurons
@@ -378,7 +370,8 @@ class ActivationComponent(ComponentBase):
         )
 
         sel_neuron.on_change(
-            "value", self._sync_cp_line_colour(cp_line, traces, sel_neuron)
+            "value",
+            self._sync_cp_line_colour(cp_line, traces, sel_neuron),
         )
         cp_line.on_change("color", self._set_line_colour(traces, sel_neuron))
 

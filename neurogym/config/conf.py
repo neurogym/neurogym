@@ -1,16 +1,11 @@
-from __future__ import annotations
-
 import os
 import sys
+from pathlib import Path
 from typing import Any
 
 from loguru import logger
 from pydantic import field_validator
-from pydantic_settings import (
-    BaseSettings,
-    PydanticBaseSettingsSource,
-    TomlConfigSettingsSource,
-)
+from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, TomlConfigSettingsSource
 
 from neurogym.config.base import ConfBase
 from neurogym.config.components.log import LogConf

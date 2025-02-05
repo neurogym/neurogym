@@ -1,41 +1,19 @@
-# --------------------------------------
-from typing import Callable
+from collections import defaultdict
+from collections.abc import Callable
+from dataclasses import dataclass, field
 
-# --------------------------------------
 import numpy as np
-
-# --------------------------------------
+import panel as pn
+from bokeh.models import Column, Paragraph, Tabs  # type: ignore[attr-defined]
+from gymnasium import Wrapper
 from torch import nn
 
-# --------------------------------------
-from gymnasium import Wrapper
-
-# --------------------------------------
-from collections import defaultdict
-
-# --------------------------------------
-import panel as pn
-
-# --------------------------------------
-from dataclasses import dataclass
-from dataclasses import field
-
-# --------------------------------------
-from bokeh.models import Tabs
-from bokeh.models import Column
-from bokeh.models import Paragraph
-
-# --------------------------------------
-from neurogym import conf
-from neurogym import logger
-from neurogym import utils
-from neurogym import TrialEnv
+from neurogym import TrialEnv, conf, logger, utils
 from neurogym.utils.plotting import fig_
 from neurogym.wrappers.bokehmon.model import ModelMonitor
 
 
 class Monitor(Wrapper):
-
     metadata: dict[str, str | None] = {  # noqa: RUF012
         "description": (
             "Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth."
@@ -54,11 +32,10 @@ class Monitor(Wrapper):
     def __init__(
         self,
         env: TrialEnv,
-        step_fn: Callable = None,
-        name: str = None,
+        step_fn: Callable | None = None,
+        name: str | None = None,
     ):
-        """
-        A monitoring wrapper driven by Bokeh.
+        """A monitoring wrapper driven by Bokeh.
 
         Saves relevant behavioral information:
             - Rewards
@@ -91,7 +68,7 @@ class Monitor(Wrapper):
         # and observations
         # ==================================================
         self.trial = Monitor.Trial()
-        self.trials = []
+        self.trials: list[Monitor.Trial] = []
 
         # Paths and directory names for saving data
         # ==================================================
@@ -105,7 +82,7 @@ class Monitor(Wrapper):
         self.plot_dir = utils.mkdir(self.save_dir / "plots")
 
         # Callbacks
-        self.callbacks = {}
+        self.callbacks: dict[str, Callable] = {}
 
         # Monitor name
         self.name = name
@@ -127,8 +104,8 @@ class Monitor(Wrapper):
 
     @property
     def cur_step(self) -> int:
-        """
-        The current step for the current the trial.
+        """The current step for the current the trial.
+
         Note that this is not the same as t, which represents actual time
         (# of time steps times the time delta).
 
@@ -136,33 +113,32 @@ class Monitor(Wrapper):
             int:
                 The current time step.
         """
-        return int(self.env.unwrapped.t)
+        return int(self.env.unwrapped.t)  # type: ignore[attr-defined]
 
     @property
     def cur_timestep(self) -> int:
-        """
-        The current time as determined by the time delta (dt).
+        """The current time as determined by the time delta (dt).
 
         Returns:
             int:
                 The current time.
         """
-        return int(self.env.unwrapped.t * self.env.dt)
+        return int(self.env.unwrapped.t * self.env.dt)  # type: ignore[attr-defined]
 
     @property
     def cur_trial(self) -> int:
-        """
-        The number of trials that have been executed so far.
+        """The number of trials that have been executed so far.
 
         Returns:
             int:
                 The number of trials.
         """
-        return int(self.env.unwrapped.num_tr)
+        return int(self.env.unwrapped.num_tr)  # type: ignore[attr-defined]
 
     @property
     def trigger(self) -> int:
-        """
+        """Log / save trigger.
+
         A property that determines when the monitor should
         save the data that is currently in the trial buffer.
 
@@ -171,15 +147,14 @@ class Monitor(Wrapper):
                 The trigger variable.
         """
         return int(
-            self.cur_timestep if conf.monitor.trigger == "timestep" else self.cur_trial
+            self.cur_timestep if conf.monitor.trigger == "timestep" else self.cur_trial,
         )
 
     def add_model(
         self,
         model: nn.Module,
-        name: str = None,
+        name: str | None = None,
     ) -> ModelMonitor:
-
         if name is None:
             name = f"Model {len(self.models)}"
 
@@ -194,8 +169,7 @@ class Monitor(Wrapper):
         self,
         action: np.ndarray,
     ) -> tuple[np.ndarray, np.ndarray, bool, bool, dict]:
-        """
-        This method makes the agent take a single action in the environment.
+        """This method makes the agent take a single action in the environment.
 
         Args:
             action (np.ndarray):
@@ -210,7 +184,6 @@ class Monitor(Wrapper):
                     4. A flag indicating if the trial was truncated.
                     5. Extra information about the environment.
         """
-
         # Take an action in the environment and
         # retrieve the reward and a new observation.
         observation, reward, terminated, truncated, info = self.step_fn(action)
@@ -227,18 +200,13 @@ class Monitor(Wrapper):
         trigger = self.trigger
 
         # Create a plot
-        if (
-            conf.monitor.plot.save
-            and trigger > 0
-            and trigger % conf.monitor.plot.interval == 0
-        ):
+        if conf.monitor.plot.save and trigger > 0 and trigger % conf.monitor.plot.interval == 0:
             self._save_plot()
 
         self.total_steps += 1
 
         # Update the trial information
         if info["new_trial"]:
-
             # HACK
             # Gymnasium expects a certain format for the info dictionary,
             # and (at last) the `terminated` variable to be set.
@@ -255,26 +223,20 @@ class Monitor(Wrapper):
                 self._update_log()
 
                 # Save the current trial data
-                self._store_data()
+                self.store_data()
 
             # Start a new trial
-            self._start_new_trial()
+            self.start_new_trial()
 
         return observation, reward, terminated, truncated, info
 
-    def _start_new_trial(self):
-        """
-        Reset all buffers and variables associated with the current trial.
-        """
-
+    def start_new_trial(self):
+        """Reset all buffers and variables associated with the current trial."""
         for model in self.models.values():
-            model._start_trial()
+            model.start_trial()
 
-    def _store_data(self):
-        """
-        Stores data about the current trial into a NumPy archive.
-        """
-
+    def store_data(self):
+        """Stores data about the current trial into a NumPy archive."""
         # Store the trial and start a new one
         self.trials.append(self.trial)
         self.trial = Monitor.Trial()
@@ -290,60 +252,57 @@ class Monitor(Wrapper):
         np.savez(self.data_dir / f"trial-{self.cur_trial}-info.npz", **data)
 
     def _update_log(self):
-        """
-        Print some useful information about the progress of learning or evaluation.
-        """
-
+        """Print some useful information about the progress of learning or evaluation."""
         # Log some output
         # ==================================================
         avg_reward = sum(self.trial.rewards) if len(self.trial.rewards) > 0 else 0
         log_name = f"{self.name} | " if self.name else ""
 
-        if self.cur_timestep > self.max_t:
-            self.max_t = self.cur_timestep
-        logger.info(
-            f"{log_name}Trial: {self.cur_trial:>5d} | Time: {self.cur_timestep:>5d}  / (max {self.max_t:>5d}, total {self.total_steps * conf.monitor.dt:>5d}) | Avg. reward: {avg_reward:>2.3f}"
+        self.max_t = max(self.cur_timestep, self.max_t)
+
+        total_steps = self.total_steps * conf.monitor.dt
+
+        msg = " | ".join(
+            [
+                f"{log_name}Trial: {self.cur_trial:>5d}",
+                f"Time: {self.cur_timestep:>5d} / (max {self.max_t:>5d}, total {total_steps:>5d})",
+                f"Avg. reward: {avg_reward:>2.3f}",
+            ],
         )
 
-    def _save_plot(self):
-        """
-        Produce and save a plot at a certain step.
-        """
+        logger.info(msg)
 
+    def _save_plot(self):
+        """Produce and save a plot at a certain step."""
         actions = np.array(self.trial.actions)
         rewards = np.array(self.trial.rewards)
         observations = np.array(self.trial.observations)
         ground_truth = self.trial.info.get("gt", np.full_like(rewards, -1))
-        performance = np.concatenate(
-            [
-                trial.info.get("performance", np.full_like(rewards, -1))
-                for trial in self.trials
-            ]
+        # FIXME: This is not working at the moment because the performance
+        # is assigned only once at the end of a trial.
+        performance = np.concatenate(  # noqa: F841
+            [trial.info.get("performance", np.full_like(rewards, -1)) for trial in self.trials],
         )
 
         fname = self.plot_dir / f"task_{self.cur_trial:06d}.{conf.monitor.plot.ext}"
 
-        f = fig_(
+        fig_(
             ob=observations,
             actions=actions,
             gt=ground_truth,
             rewards=rewards,
-            # performance=performance,
             fname=fname,
         )
 
     def plot(self):
-        """
-        Display the Bokehmon app in a browser tab.
-        """
-
+        """Display the Bokehmon app in a browser tab."""
         pn.extension()
 
         if self.bm is None:
             self.bm = Column(
                 Paragraph(text=self.name, styles={"font-size": "3em"}),
                 Tabs(
-                    tabs=[model._plot() for model in self.models.values()],
+                    tabs=[model.plot() for model in self.models.values()],
                     tabs_location="left",
                 ),
             )

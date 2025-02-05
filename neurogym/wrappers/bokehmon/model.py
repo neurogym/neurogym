@@ -1,30 +1,28 @@
-# --------------------------------------
+from typing import TYPE_CHECKING, ClassVar
+
+from bokeh.models import TabPanel, Tabs
 from torch import nn
 
-# --------------------------------------
-from bokeh.models import Tabs
-from bokeh.models import TabPanel
-
-# --------------------------------------
 from neurogym import logger
+from neurogym.config.components.monitor import NetParam
 from neurogym.wrappers.bokehmon.layers.base import LayerBase
 from neurogym.wrappers.bokehmon.layers.linear import LinearLayerMonitor
-from neurogym.config.components.monitor import NetParam
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class ModelMonitor:
-
-    monitor_types = {
+    monitor_types: ClassVar = {
         nn.Linear: LinearLayerMonitor,
     }
 
     def __init__(
         self,
         model: nn.Module,
-        name: str = None,
+        name: str | None = None,
     ):
-        '''
-        A Torch model monitor.
+        """A Torch model monitor.
 
         Args:
             model (nn.Module):
@@ -32,8 +30,7 @@ class ModelMonitor:
 
             name (str, optional):
                 The name of this monitor. Defaults to None.
-        '''
-
+        """
         # The model that the modules belong to.
         self.model = model
 
@@ -41,24 +38,22 @@ class ModelMonitor:
         self.name = name
 
         # Model-level callbacks.
-        self.callbacks = {}
+        self.callbacks: dict[str, Callable] = {}
 
         # The layers being monitored.
         self.layers: dict[str, LayerBase] = {}
 
-    def _plot(self) -> TabPanel:
-        """
-        Render the information tracked by this monitor in a tab.
+    def plot(self) -> TabPanel:
+        """Render the information tracked by this monitor in a tab.
 
         Returns:
             TabPanel:
                 The tab containing sub-components with various types of information.
         """
-
         return TabPanel(
             title=self.name,
             child=Tabs(
-                tabs=[layer._plot() for layer in self.layers.values()],
+                tabs=[layer.plot() for layer in self.layers.values()],
             ),
         )
 
@@ -66,10 +61,9 @@ class ModelMonitor:
         self,
         module: nn.Module,
         params: list[NetParam],
-        name: str = None,
-    ) -> LayerBase:
-        """
-        Add a module to the list of modules to monitor.
+        name: str | None = None,
+    ) -> LayerBase | None:
+        """Add a module to the list of modules to monitor.
 
         Args:
             module (nn.Module):
@@ -81,7 +75,6 @@ class ModelMonitor:
             name (str):
                 The name of this module.
         """
-
         # Get the class of this module
         cls = module.__class__
 
@@ -93,20 +86,17 @@ class ModelMonitor:
         monitor_type = self.monitor_types.get(cls, None)
         if monitor_type is None:
             logger.error(
-                f"A monitor for layers of type '{cls}' has not been implemented yet."
+                f"A monitor for layers of type '{cls}' has not been implemented yet.",
             )
-            return
+            return None
 
         # Create a monitor
         self.layers[name] = monitor_type(module, params, name)
-        self.layers[name]._start_trial()
+        self.layers[name].start_trial()
 
         return self.layers[name]
 
-    def _start_trial(self):
-        """
-        Start monitoring parameters for a new trial.
-        """
-
+    def start_trial(self):
+        """Start monitoring parameters for a new trial."""
         for layer in self.layers.values():
-            layer._start_trial()
+            layer.start_trial()
