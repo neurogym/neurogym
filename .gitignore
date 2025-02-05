@@ -115,7 +115,6 @@ docs/source/_static/
 
 # example content
 examples/content/
-<<<<<<< HEAD
 
 # Zip files
 **.zip
@@ -125,5 +124,3 @@ examples/content/
 
 # settings.toml files anywhere in the directory hierarchy
 **settings.toml
-=======
->>>>>>> dev

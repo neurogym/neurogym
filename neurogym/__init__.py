@@ -2,12 +2,6 @@
 # fixing rule above leads to problems in pytest
 # FIXME: figure out why this is the case and solve
 
-<<<<<<< HEAD
-from neurogym.version import VERSION as __version__  # noqa: N811
-from neurogym.config.conf import conf
-from neurogym.config.conf import logger
-=======
->>>>>>> dev
 from neurogym.core import BaseEnv
 from neurogym.core import TrialEnv
 from neurogym.core import TrialWrapper

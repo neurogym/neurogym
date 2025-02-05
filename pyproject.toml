@@ -8,17 +8,6 @@ build-backend = "setuptools.build_meta"
 
 [project]
 authors = [
-<<<<<<< HEAD
-    { name = "Manuel Molano Mazon", email = "manuelmolanomazon@gmail.com" },
-    { name = "Guangyu Robert Yang", email = "gyyang.neuro@gmail.com" },
-    { name = "Giulia Crocioni", email = "g.crocioni@esciencecenter.nl" },
-    { name = "Dani Bodor", email = "d.bodor@esciencecenter.nl" },
-    { name = "Jorge Mejias", email = "j.f.mejias@uva.nl" },
-    { name = "Marta Fradera" },
-    { name = "Jordi Pastor-Ciurana" },
-    { name = "Jeremy Forest" },
-    { name = "Ru-Yuan Zhang" },
-=======
     { name = "Giulia Crocioni", email = "g.crocioni@esciencecenter.nl" },
     { name = "Dani Bodor", email = "d.bodor@esciencecenter.nl" },
     { name = "Nathan Cloos", email = "cloosnathan@gmail.com" },
@@ -26,7 +15,6 @@ authors = [
     { name = "Guangyu Robert Yang", email = "gyyang.neuro@gmail.com" },
     { name = "Jorge Mejias", email = "j.f.mejias@uva.nl" },
     { name = "Manuel Molano Mazon", email = "manuelmolanomazon@gmail.com" },
->>>>>>> dev
 ]
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
@@ -45,11 +33,7 @@ dependencies = [
     "sb3-contrib",
     "scipy",
     "stable-baselines3>=2.3.2",
-<<<<<<< HEAD
     "tqdm",
-=======
-    "scipy",
->>>>>>> dev
 ]
 description = "NeuroGym: Gymnasium-style Cognitive Neuroscience Tasks"
 keywords = [
@@ -59,11 +43,7 @@ keywords = [
     "reinforcement learning",
     "synthetic data",
 ]
-<<<<<<< HEAD
-license = { file = "LICENSE" }
-=======
 license = { text = "Apache-2.0 License" }
->>>>>>> dev
 name = "neurogym"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
@@ -78,15 +58,8 @@ dev = [
     # code style
     "ruff==0.9.*",
     "mypy",
+    "types-docutils",
     # docs
-<<<<<<< HEAD
-    "sphinx",
-    "sphinx_rtd_theme",
-    "sphinxcontrib.katex",
-    "ipykernel",
-    "nbsphinx",
-    "stable_baselines3",
-=======
     "mkdocs",
     "mkdocs-material",
     "mkdocs-exclude",
@@ -96,7 +69,6 @@ dev = [
     "mkdocs-jupyter",
     # release
     "bump-my-version",
->>>>>>> dev
 ]
 publishing = ["build", "twine", "wheel"]
 tutorials = ["notebook"]

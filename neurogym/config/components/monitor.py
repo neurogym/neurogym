@@ -1,17 +1,12 @@
-# --------------------------------------
 import enum
-
-# --------------------------------------
-from typing import Literal
-from typing import Callable
-
-# --------------------------------------
+from collections.abc import Callable
 from pathlib import Path
+from typing import Literal
 
-# --------------------------------------
 from neurogym import utils
 from neurogym.config.base import ConfBase
 from neurogym.config.components.paths import LOCAL_DIR
+
 
 class EnvParam(enum.StrEnum):
     Reward = enum.auto()
@@ -28,9 +23,7 @@ class NetParam(enum.StrEnum):
 
 
 class MonitorPlotConf(ConfBase):
-    """
-    Configuration options related to plotting.
-    """
+    """Configuration options related to plotting."""
 
     save: bool = True
     ext: str = "png"
@@ -38,9 +31,7 @@ class MonitorPlotConf(ConfBase):
 
 
 class MonitorConf(ConfBase):
-    """
-    Monitor configuration.
-    """
+    """Monitor configuration."""
 
     title: str = "Monitor"
     steps: int = 100000
