@@ -4,17 +4,17 @@ from pathlib import Path
 from typing import Literal
 
 from neurogym import utils
-from neurogym.config.base import ConfBase
+from neurogym.config.base import ConfBase, StrEnum
 from neurogym.config.components.paths import LOCAL_DIR
 
 
-class EnvParam(enum.StrEnum):
+class EnvParam(StrEnum):
     Reward = enum.auto()
     Action = enum.auto()
     Observation = enum.auto()
 
 
-class NetParam(enum.StrEnum):
+class NetParam(StrEnum):
     ActivationThreshold = enum.auto()
     MembranePotential = enum.auto()
     Activation = enum.auto()
