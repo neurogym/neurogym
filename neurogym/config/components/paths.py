@@ -3,7 +3,6 @@ from pathlib import Path
 from neurogym.config.base import CONFIG_DIR, LOCAL_DIR, PACKAGE_DIR, ROOT_DIR, ConfBase
 
 
-
 class PathConf(ConfBase):
     """Core path configuration."""
 

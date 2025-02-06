@@ -1,6 +1,5 @@
 import os
 import sys
-from pathlib import Path
 from typing import Any
 
 from loguru import logger
@@ -28,7 +27,7 @@ class Conf(ConfBase):
         settings_cls: type[BaseSettings],
         **kwargs,
     ) -> tuple[PydanticBaseSettingsSource, ...]:
-        return (TomlConfigSettingsSource(settings_cls, settings_cls.settings_file()),) #type: ignore[attr-defined]
+        return (TomlConfigSettingsSource(settings_cls, settings_cls.settings_file()),)  # type: ignore[attr-defined]
 
     @classmethod
     def settings_file(cls):
@@ -40,10 +39,7 @@ class Conf(ConfBase):
         if isinstance(value, str):
             return os.path.expandvars(value)
         if isinstance(value, dict):
-            return {
-                k: (os.path.expandvars(v) if isinstance(v, str) else v)
-                for k, v in value.items()
-            }
+            return {k: (os.path.expandvars(v) if isinstance(v, str) else v) for k, v in value.items()}
         if isinstance(value, list):
             return [(os.path.expandvars(v) if isinstance(v, str) else v) for v in value]
         return value
