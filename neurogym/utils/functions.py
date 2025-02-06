@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -42,4 +42,4 @@ def timestamp(ms: bool = False) -> str:
         end = -3
 
     # UTC time is used to avoid ambiguity.
-    return datetime.strftime(datetime.now(UTC), fmt)[:end]
+    return datetime.strftime(datetime.now(timezone.utc), fmt)[:end]
