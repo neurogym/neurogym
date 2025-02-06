@@ -34,6 +34,7 @@ dependencies = [
     "scipy",
     "stable-baselines3>=2.3.2",
     "tqdm",
+    "tomlkit",
 ]
 description = "NeuroGym: Gymnasium-style Cognitive Neuroscience Tasks"
 keywords = [
