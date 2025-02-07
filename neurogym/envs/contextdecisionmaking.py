@@ -90,46 +90,55 @@ class UnifiedContextDecisionMaking(ngym.TrialEnv):
         self.choices = np.arange(self.dim_ring)
 
         # Observation space: fixation + 2 modalities of ring inputs
-        name = {
+        obs_space_name = {
             "fixation": 0,
-            "stimulus_mod1": range(1, self.dim_ring + 1),
-            "stimulus_mod2": range(self.dim_ring + 1, 2 * self.dim_ring + 1),
+            **{f"stimulus{i + 1}_mod1": i + 1 for i in range(self.dim_ring)},
+            **{f"stimulus{i + 1}_mod2": i + 1 + self.dim_ring for i in range(self.dim_ring)},
         }
 
         self.observation_space = spaces.Box(
             -np.inf,
             np.inf,
-            shape=(1 + 2 * self.dim_ring,),
+            shape=(len(obs_space_name),),
             dtype=np.float32,
-            name=name,
+            name=obs_space_name,
         )
 
         # Action space: fixation + choices
-        name = {"fixation": 0, "choice": range(1, self.dim_ring + 1)}
-        self.action_space = spaces.Discrete(1 + self.dim_ring, name=name)
+        self.action_space = spaces.Discrete(
+            1 + self.dim_ring,
+            name={"fixation": 0, "choice": range(1, self.dim_ring + 1)},
+        )
 
     def _setup_direct_spaces(self):
         """Setup observation and action spaces for direct value representation (explicit context)."""
-        names = [
-            "fixation",
-            "stim1_mod1",
-            "stim2_mod1",
-            "stim1_mod2",
-            "stim2_mod2",
-            "context1",
-            "context2",
-        ]
-        name = {name: i for i, name in enumerate(names)}
+        obs_space_name = {
+            name: i
+            for i, name in enumerate(
+                [
+                    "fixation",
+                    "stim1_mod1",
+                    "stim2_mod1",
+                    "stim1_mod2",
+                    "stim2_mod2",
+                    "context1",
+                    "context2",
+                ],
+            )
+        }
         self.observation_space = spaces.Box(
             -np.inf,
             np.inf,
-            shape=(7,),
+            shape=(len(obs_space_name),),
             dtype=np.float32,
-            name=name,
+            name=obs_space_name,
         )
 
-        name = {"fixation": 0, "choice1": 1, "choice2": 2}
-        self.action_space = spaces.Discrete(3, name=name)
+        action_space_name = {"fixation": 0, "choice1": 1, "choice2": 2}
+        self.action_space = spaces.Discrete(
+            n=len(action_space_name),
+            name=action_space_name,
+        )
         self.choices = [1, 2]  # Fixed choices for direct representation
 
     def _new_trial(self, **kwargs):
@@ -174,13 +183,16 @@ class UnifiedContextDecisionMaking(ngym.TrialEnv):
         stim_theta_0 = self.theta[choice_0]
         stim_theta_1 = self.theta[choice_1]
 
-        stim = np.cos(self.theta - stim_theta_0) * (coh_0 / 200) + 0.5
-        self.add_ob(stim, "stimulus", where="stimulus_mod1")
-        stim = np.cos(self.theta - stim_theta_1) * (coh_1 / 200) + 0.5
-        self.add_ob(stim, "stimulus", where="stimulus_mod2")
+        stim_mod1 = np.cos(self.theta - stim_theta_0) * (coh_0 / 200) + 0.5
+        stim_mod2 = np.cos(self.theta - stim_theta_1) * (coh_1 / 200) + 0.5
 
-        self.add_randn(0, self.sigma, period="stimulus", where="stimulus_mod1")
-        self.add_randn(0, self.sigma, period="stimulus", where="stimulus_mod2")
+        # Add observations for each index
+        for i in range(self.dim_ring):
+            self.add_ob(stim_mod1[i], "stimulus", where=f"stimulus{i + 1}_mod1")
+            self.add_ob(stim_mod2[i], "stimulus", where=f"stimulus{i + 1}_mod2")
+            self.add_randn(0, self.sigma, period="stimulus", where=f"stimulus{i + 1}_mod1")
+            self.add_randn(0, self.sigma, period="stimulus", where=f"stimulus{i + 1}_mod2")
+
         self.set_ob(0, "decision")
 
     def _set_direct_observations(self, choice_0, choice_1, coh_0, coh_1):
