@@ -275,15 +275,37 @@ def plot_env_1dbox(
         if len(ob_traces) != ob.shape[1]:
             msg = f"Please provide label for each of the {ob.shape[1]} traces in the observations."
             raise ValueError(msg)
-        yticks = []
+
+        # Plot all traces first
         for ind_tr, tr in enumerate(ob_traces):
             ax.plot(ob[:, ind_tr], label=tr)
-            yticks.append(np.mean(ob[:, ind_tr]))
+
+        # Compute ticks and labels
+        yticks = []
+        yticklabels = []
+
+        # Find fixation index (if exists)
+        fix_idx = next((i for i, tr in enumerate(ob_traces) if "fix" in tr.lower()), None)
+
+        if fix_idx is not None:
+            yticks.append(np.mean(ob[:, fix_idx]))
+            yticklabels.append("Fix. Cue")
+
+            # All other indices are stimuli
+            stim_means = [np.mean(ob[:, i]) for i in range(len(ob_traces)) if i != fix_idx]
+            if stim_means:
+                yticks.append(np.mean(stim_means))
+                yticklabels.append("Stimuli")
+        else:
+            # No fixation, all are stimuli
+            yticks.append(np.mean([np.mean(ob[:, i]) for i in range(len(ob_traces))]))
+            yticklabels.append("Stimuli")
+
         if legend:
             ax.legend()
         ax.set_xlim([-0.5, len(steps) - 0.5])
         ax.set_yticks(yticks)
-        ax.set_yticklabels(ob_traces)
+        ax.set_yticklabels(yticklabels)
     else:
         ax.imshow(ob.T, aspect="auto", origin="lower")
         if env and hasattr(env.observation_space, "name"):
