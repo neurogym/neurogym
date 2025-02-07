@@ -228,6 +228,13 @@ def fig_(
     raise ValueError(msg)
 
 
+def _set_grid_style(ax):
+    """Set standard grid styling for plot background."""
+    ax.set_facecolor("whitesmoke")
+    ax.grid(True, color="white", linestyle="-", linewidth=1)
+    ax.set_axisbelow(True)
+
+
 def plot_env_1dbox(
     ob,
     actions,
@@ -257,8 +264,7 @@ def plot_env_1dbox(
 
     gt_colors = "gkmcry"
     if not fig_kwargs:
-        fig_kwargs = {"sharex": True, "figsize": (5, n_row * 1.2)}
-
+        fig_kwargs = {"sharex": True, "figsize": (6, n_row * 1.2)}
     f, axes = plt.subplots(n_row, 1, **fig_kwargs)
     i_ax = 0
 
@@ -301,6 +307,8 @@ def plot_env_1dbox(
     # Show step numbers on x-axis
     ax.set_xticks(np.arange(0, len(steps), 5))
     ax.set_xticklabels(np.arange(0, len(steps), 5))
+    # Add gray background grid with white lines
+    _set_grid_style(ax)
 
     # Plot actions
     ax = axes[i_ax]
@@ -339,6 +347,8 @@ def plot_env_1dbox(
     # Show step numbers on x-axis
     ax.set_xticks(np.arange(0, len(steps), 5))
     ax.set_xticklabels(np.arange(0, len(steps), 5))
+    # Add gray background grid with white lines
+    _set_grid_style(ax)
 
     # Plot rewards if provided
     if rewards is not None:
@@ -367,9 +377,11 @@ def plot_env_1dbox(
 
             ax.set_yticks(yticks)
             ax.set_yticklabels(yticklabels)
-    # Show step numbers on x-axis
-    ax.set_xticks(np.arange(0, len(steps), 5))
-    ax.set_xticklabels(np.arange(0, len(steps), 5))
+        # Show step numbers on x-axis
+        ax.set_xticks(np.arange(0, len(steps), 5))
+        ax.set_xticklabels(np.arange(0, len(steps), 5))
+        # Add gray background grid with white lines
+        _set_grid_style(ax)
 
     # Plot performance if provided
     if performance is not None:
@@ -385,6 +397,8 @@ def plot_env_1dbox(
         if legend:
             ax.legend()
         ax.set_xlim([-0.5, len(steps) - 0.5])
+        # Add gray background grid with white lines
+        _set_grid_style(ax)
 
     # Plot states if provided
     if states is not None:
