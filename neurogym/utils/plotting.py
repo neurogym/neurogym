@@ -27,6 +27,7 @@ def plot_env(
     ob_traces=None,
     fig_kwargs=None,
     fname=None,
+    plot_performance=True,
 ):
     """Plot environment with agent.
 
@@ -41,16 +42,16 @@ def plot_env(
                stable-baselines3 toolbox:
                    (https://stable-baselines3.readthedocs.io/en/master/)
         name: title to show on the rewards panel
-        legend: whether to show the legend for actions panel or not.
+        legend: whether to show the legend for actions panel or not
         ob_traces: if != [] observations will be plot as traces, with the labels
                     specified by ob_traces
-        fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
+        fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun
         fname: if not None, save fig or movie to fname
+        plot_performance: whether to show the performance subplot (default: True)
     """
     # We don't use monitor here because:
     # 1) env could be already prewrapped with monitor
     # 2) monitor will save data and so the function will need a folder
-
     if fig_kwargs is None:
         fig_kwargs = {}
     if ob_traces is None:
@@ -73,7 +74,7 @@ def plot_env(
         gt=data["gt"],
         rewards=data["rewards"],
         legend=legend,
-        performance=data["perf"],
+        performance=data["perf"] if plot_performance else None,
         states=data["states"],
         name=name,
         ob_traces=ob_traces,
@@ -189,15 +190,15 @@ def fig_(
         actions: np array of action (n_step, n_unit)
         gt: np array of groud truth
         rewards: np array of rewards
-        performance: np array of performance
+        performance: np array of performance (None to skip plotting performance)
         states: np array of network states
         name: title to show on the rewards panel and name to save figure
         fname: if != '', where to save the figure
-        legend: whether to show the legend for actions panel or not.
+        legend: whether to show the legend for actions panel or not
         ob_traces: None or list.
             If list, observations will be plot as traces, with the labels
             specified by ob_traces
-        fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
+        fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun
         env: environment class for extra information
     """
     if fig_kwargs is None:
@@ -247,7 +248,7 @@ def plot_env_1dbox(
     if len(ob.shape) != 2:
         msg = "ob has to be 2-dimensional."
         raise ValueError(msg)
-    steps = np.arange(ob.shape[0])  # XXX: +1? 1st ob doesn't have action/gt
+    steps = np.arange(ob.shape[0])
 
     n_row = 2  # observation and action
     n_row += rewards is not None
@@ -260,7 +261,8 @@ def plot_env_1dbox(
 
     f, axes = plt.subplots(n_row, 1, **fig_kwargs)
     i_ax = 0
-    # ob
+
+    # Plot observation
     ax = axes[i_ax]
     i_ax += 1
     if ob_traces:
@@ -297,7 +299,8 @@ def plot_env_1dbox(
         ax.set_title(f"{name} env")
     ax.set_ylabel("Obs.")
     ax.set_xticks([])
-    # actions
+
+    # Plot actions
     ax = axes[i_ax]
     i_ax += 1
     if len(actions.shape) > 1:
@@ -324,7 +327,6 @@ def plot_env_1dbox(
     if legend:
         ax.legend()
     if env and hasattr(env.action_space, "name"):
-        # Plot environment annotation
         yticks = []
         yticklabels = []
         for key, val in env.action_space.name.items():
@@ -334,7 +336,8 @@ def plot_env_1dbox(
         ax.set_yticklabels(yticklabels)
     if n_row > 2:
         ax.set_xticks([])
-    # rewards
+
+    # Plot rewards if provided
     if rewards is not None:
         ax = axes[i_ax]
         i_ax += 1
@@ -347,7 +350,6 @@ def plot_env_1dbox(
         ax.set_xlim([-0.5, len(steps) - 0.5])
 
         if env and hasattr(env, "rewards") and env.rewards is not None:
-            # Plot environment annotation
             yticks = []
             yticklabels = []
 
@@ -364,7 +366,8 @@ def plot_env_1dbox(
             ax.set_yticklabels(yticklabels)
     if n_row > 3:
         ax.set_xticks([])
-    # performance
+
+    # Plot performance if provided
     if performance is not None:
         ax = axes[i_ax]
         i_ax += 1
@@ -379,9 +382,10 @@ def plot_env_1dbox(
             ax.legend()
         ax.set_xlim([-0.5, len(steps) - 0.5])
 
-    # states
+    # Plot states if provided
     if states is not None:
-        ax.set_xticks([])
+        if performance is not None or rewards is not None:
+            ax.set_xticks([])
         ax = axes[i_ax]
         i_ax += 1
         plt.imshow(states[:, int(states.shape[1] / 2) :].T, aspect="auto")
