@@ -19,4 +19,3 @@ The following tasks implement supervised paradigms:
 - [PulseDecisionMaking](../envs.md#neurogym.envs.perceptualdecisionmaking.PulseDecisionMaking)
 - [ReachingDelayResponse](../envs.md#neurogym.envs.reachingdelayresponse.ReachingDelayResponse)
 - [ReadySetGo](../envs.md#neurogym.envs.readysetgo.ReadySetGo)
-- [UnifiedContextDecisionMaking](../envs.md#neurogym.envs.contextdecisionmaking.UnifiedContextDecisionMaking)
