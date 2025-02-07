@@ -298,7 +298,9 @@ def plot_env_1dbox(
     if name:
         ax.set_title(f"{name} env")
     ax.set_ylabel("Obs.")
-    ax.set_xticks([])
+    # Show step numbers on x-axis
+    ax.set_xticks(np.arange(0, len(steps), 5))
+    ax.set_xticklabels(np.arange(0, len(steps), 5))
 
     # Plot actions
     ax = axes[i_ax]
@@ -334,8 +336,9 @@ def plot_env_1dbox(
             yticklabels.append(key)
         ax.set_yticks(yticks)
         ax.set_yticklabels(yticklabels)
-    if n_row > 2:
-        ax.set_xticks([])
+    # Show step numbers on x-axis
+    ax.set_xticks(np.arange(0, len(steps), 5))
+    ax.set_xticklabels(np.arange(0, len(steps), 5))
 
     # Plot rewards if provided
     if rewards is not None:
@@ -364,8 +367,9 @@ def plot_env_1dbox(
 
             ax.set_yticks(yticks)
             ax.set_yticklabels(yticklabels)
-    if n_row > 3:
-        ax.set_xticks([])
+    # Show step numbers on x-axis
+    ax.set_xticks(np.arange(0, len(steps), 5))
+    ax.set_xticklabels(np.arange(0, len(steps), 5))
 
     # Plot performance if provided
     if performance is not None:
@@ -385,7 +389,9 @@ def plot_env_1dbox(
     # Plot states if provided
     if states is not None:
         if performance is not None or rewards is not None:
-            ax.set_xticks([])
+            # Show step numbers on x-axis
+            ax.set_xticks(np.arange(0, len(steps), 5))
+            ax.set_xticklabels(np.arange(0, len(steps), 5))
         ax = axes[i_ax]
         i_ax += 1
         plt.imshow(states[:, int(states.shape[1] / 2) :].T, aspect="auto")
