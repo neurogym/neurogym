@@ -363,7 +363,7 @@ def plot_env_1dbox(
         yticklabels = []
         for key, val in env.action_space.name.items():
             yticks.append((np.min(val) + np.max(val)) / 2)
-            yticklabels.append(key)
+            yticklabels.append(key.title())
         ax.set_yticks(yticks)
         ax.set_yticklabels(yticklabels)
     # Show step numbers on x-axis
@@ -391,7 +391,7 @@ def plot_env_1dbox(
             if isinstance(env.rewards, dict):
                 for key, val in env.rewards.items():
                     yticks.append(val)
-                    yticklabels.append(f"{key[:4]} {val:0.2f}")
+                    yticklabels.append(f"{key[:4].title()} {val:0.2f}")
             else:
                 for val in env.rewards:
                     yticks.append(val)
