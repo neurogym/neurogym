@@ -50,7 +50,7 @@ class UnifiedContextDecisionMaking(ngym.TrialEnv):
 
         # Task parameters
         self.explicit_context = explicit_context
-        self.fixed_context = fixed_context
+        self.context = fixed_context if not explicit_context else None  # Store fixed context for implicit case
         self.dim_ring = dim_ring
         self.sigma = sigma / np.sqrt(self.dt)
 
@@ -59,7 +59,7 @@ class UnifiedContextDecisionMaking(ngym.TrialEnv):
         if explicit_context:
             self.contexts = [0, 1]
         else:
-            self.contexts = [fixed_context]
+            self.contexts = [self.context]
 
         # Rewards
         self.rewards = {"abort": -0.1, "correct": +1.0}
@@ -137,7 +137,7 @@ class UnifiedContextDecisionMaking(ngym.TrialEnv):
         trial = {
             "ground_truth": self.rng.choice(self.choices),
             "other_choice": self.rng.choice(self.choices),
-            "context": self.context,
+            "context": self.rng.choice(self.contexts),
             "coh_0": self.rng.choice(self.cohs),
             "coh_1": self.rng.choice(self.cohs),
         }
