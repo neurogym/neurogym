@@ -10,21 +10,23 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
 
     The agent simultaneously receives stimulus inputs from two modalities (
     for example, a colored random dot motion pattern with color and motion
-    modalities). The agent needs to make a perceptual decision based on only
-    one of the two modalities, while ignoring the other. The agent reports
-    its decision during the decision period, with an optional delay period
-    in between the stimulus period and the decision period. The relevant
-    modality is not explicitly signaled.
+    modalities) and needs to make a perceptual decision based on one while
+    ignoring the other. The task can operate in two modes:
+    1. Implicit context: The relevant modality is fixed and must be learned (
+       it is not explicitly signaled). Uses ring representation.
+    2. Explicit context: The agent simultaneously receives stimulus inputs
+       from two modalities, and the relevant modality is explicitely indicated
+       by a context signal. Uses direct value representation.
 
     Args:
         dt: int, timestep of the environment
-        context: int, which context to focus on (0 or 1). If 0, need to
-            focus on modality 0 (the first one), if 1, need to focus on modality 1
+        explicit_context: bool, if True, context changes per trial and is signaled.
+            Also determines the representation type (direct values if True, ring if False)
+        fixed_context: int, which context to use if explicit_context=False (0 or 1)
+        dim_ring: int, number of choices when using ring representation (only used if explicit_context=False)
         rewards: dict, rewards for correct, fail and abort responses
         timing: dict, timing of the different events in the trial
         sigma: float, standard deviation of the noise added to the inputs
-        dim_ring: int, number of possibilities for the choice (e.g., 2: left or right),
-            dimension of ring input and output
     """
 
     metadata = {  # noqa: RUF012
@@ -37,27 +39,36 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
     def __init__(
         self,
         dt=100,
-        context=0,
+        explicit_context=False,
+        fixed_context=0,
+        dim_ring=2,
         rewards=None,
         timing=None,
         sigma=1.0,
-        dim_ring=2,
     ) -> None:
         super().__init__(dt=dt)
 
-        # trial conditions
+        # Task parameters
+        self.explicit_context = explicit_context
+        self.fixed_context = fixed_context
+        self.dim_ring = dim_ring
+        self.sigma = sigma / np.sqrt(self.dt)
+
+        # Trial conditions
         self.cohs = [5, 15, 50]
-        self.sigma = sigma / np.sqrt(self.dt)  # Input noise
-        self.context = context
+        if explicit_context:
+            self.contexts = [0, 1]
+        else:
+            self.contexts = [fixed_context]
 
         # Rewards
         self.rewards = {"abort": -0.1, "correct": +1.0}
         if rewards:
             self.rewards.update(rewards)
 
+        # Timing
         self.timing = {
             "fixation": 300,
-            # 'target': 350, # noqa: ERA001
             "stimulus": 750,
             "delay": TruncExp(600, 300, 3000),
             "decision": 100,
@@ -67,29 +78,62 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
 
         self.abort = False
 
-        # set action and observation space
-        self.theta = np.linspace(0, 2 * np.pi, dim_ring + 1)[:-1]
-        self.choices = np.arange(dim_ring)
+        # Setup spaces based on context type
+        if explicit_context:
+            self._setup_direct_spaces()
+        else:
+            self._setup_ring_spaces()
 
+    def _setup_ring_spaces(self):
+        """Setup observation and action spaces for ring representation."""
+        self.theta = np.linspace(0, 2 * np.pi, self.dim_ring + 1)[:-1]
+        self.choices = np.arange(self.dim_ring)
+
+        # Observation space: fixation + 2 modalities of ring inputs
         name = {
             "fixation": 0,
-            "stimulus_mod1": range(1, dim_ring + 1),
-            "stimulus_mod2": range(dim_ring + 1, 2 * dim_ring + 1),
+            "stimulus_mod1": range(1, self.dim_ring + 1),
+            "stimulus_mod2": range(self.dim_ring + 1, 2 * self.dim_ring + 1),
         }
-        shape = (1 + 2 * dim_ring,)
+
         self.observation_space = spaces.Box(
             -np.inf,
             np.inf,
-            shape=shape,
+            shape=(1 + 2 * self.dim_ring,),
             dtype=np.float32,
             name=name,
         )
 
-        name = {"fixation": 0, "choice": range(1, dim_ring + 1)}
-        self.action_space = spaces.Discrete(1 + dim_ring, name=name)
+        # Action space: fixation + choices
+        name = {"fixation": 0, "choice": range(1, self.dim_ring + 1)}
+        self.action_space = spaces.Discrete(1 + self.dim_ring, name=name)
+
+    def _setup_direct_spaces(self):
+        """Setup observation and action spaces for direct value representation (explicit context)."""
+        names = [
+            "fixation",
+            "stim1_mod1",
+            "stim2_mod1",
+            "stim1_mod2",
+            "stim2_mod2",
+            "context1",
+            "context2",
+        ]
+        name = {name: i for i, name in enumerate(names)}
+        self.observation_space = spaces.Box(
+            -np.inf,
+            np.inf,
+            shape=(7,),
+            dtype=np.float32,
+            name=name,
+        )
+
+        name = {"fixation": 0, "choice1": 1, "choice2": 2}
+        self.action_space = spaces.Discrete(3, name=name)
+        self.choices = [1, 2]  # Fixed choices for direct representation
 
     def _new_trial(self, **kwargs):
-        # Trial
+        # Trial parameters
         trial = {
             "ground_truth": self.rng.choice(self.choices),
             "other_choice": self.rng.choice(self.choices),
@@ -104,28 +148,56 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
             choice_1, choice_0 = choice_0, choice_1
         coh_0, coh_1 = trial["coh_0"], trial["coh_1"]
 
-        stim_theta_0 = self.theta[choice_0]
-        stim_theta_1 = self.theta[choice_1]
-        ground_truth = trial["ground_truth"]
-
-        # Periods
+        # Add periods
         periods = ["fixation", "stimulus", "delay", "decision"]
         self.add_period(periods)
 
+        # Set observations based on context type
         self.add_ob(1, where="fixation")
+
+        if self.explicit_context:
+            self._set_direct_observations(choice_0, choice_1, coh_0, coh_1)
+            # Add context signals
+            if trial["context"] == 0:
+                self.add_ob(1, where="context1")
+            else:
+                self.add_ob(1, where="context2")
+            self.set_groundtruth(trial["ground_truth"], "decision")  # Direct value case
+        else:
+            self._set_ring_observations(choice_0, choice_1, coh_0, coh_1)
+            self.set_groundtruth(trial["ground_truth"], "decision", where="choice")  # Ring case
+
+        return trial
+
+    def _set_ring_observations(self, choice_0, choice_1, coh_0, coh_1):
+        """Set observations for ring representation (implicit context)."""
+        stim_theta_0 = self.theta[choice_0]
+        stim_theta_1 = self.theta[choice_1]
+
         stim = np.cos(self.theta - stim_theta_0) * (coh_0 / 200) + 0.5
         self.add_ob(stim, "stimulus", where="stimulus_mod1")
         stim = np.cos(self.theta - stim_theta_1) * (coh_1 / 200) + 0.5
         self.add_ob(stim, "stimulus", where="stimulus_mod2")
+
         self.add_randn(0, self.sigma, period="stimulus", where="stimulus_mod1")
         self.add_randn(0, self.sigma, period="stimulus", where="stimulus_mod2")
         self.set_ob(0, "decision")
 
-        self.set_groundtruth(ground_truth, period="decision", where="choice")
+    def _set_direct_observations(self, choice_0, choice_1, coh_0, coh_1):
+        """Set observations for direct value representation (explicit context)."""
+        signed_coh_0 = coh_0 if choice_0 == 1 else -coh_0
+        signed_coh_1 = coh_1 if choice_1 == 1 else -coh_1
 
-        return trial
+        self.add_ob((1 + signed_coh_0 / 100) / 2, period="stimulus", where="stim1_mod1")
+        self.add_ob((1 - signed_coh_0 / 100) / 2, period="stimulus", where="stim2_mod1")
+        self.add_ob((1 + signed_coh_1 / 100) / 2, period="stimulus", where="stim1_mod2")
+        self.add_ob((1 - signed_coh_1 / 100) / 2, period="stimulus", where="stim2_mod2")
+
+        self.add_randn(0, self.sigma, "stimulus")
+        self.set_ob(0, "decision")
 
     def _step(self, action):
+        """Execute one step in the environment."""
         ob = self.ob_now
         gt = self.gt_now
 
@@ -133,11 +205,12 @@ class SingleContextDecisionMaking(ngym.TrialEnv):
         terminated = False
         truncated = False
         reward = 0
+
         if self.in_period("fixation"):
-            if action != 0:
+            if action != 0:  # Broke fixation
                 new_trial = self.abort
                 reward = self.rewards["abort"]
-        elif self.in_period("decision") and action != 0:  # broke fixation
+        elif self.in_period("decision") and action != 0:
             new_trial = True
             if action == gt:
                 reward = self.rewards["correct"]
