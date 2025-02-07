@@ -1,6 +1,6 @@
 The following tasks implement supervised paradigms:
 
-- [ContextDecisionMaking](../envs.md#neurogym.envs.contextdecisionmaking.ContextDecisionMaking)
+- [UnifiedContextDecisionMaking](../envs.md#neurogym.envs.contextdecisionmaking.UnifiedContextDecisionMaking)
 - [DelayComparison](../envs.md#neurogym.envs.delaycomparison.DelayComparison)
 - [DelayMatchCategory](../envs.md#neurogym.envs.delaymatchcategory.DelayMatchCategory)
 - [DelayMatchSample](../envs.md#neurogym.envs.delaymatchsample.DelayMatchSample)
@@ -19,4 +19,4 @@ The following tasks implement supervised paradigms:
 - [PulseDecisionMaking](../envs.md#neurogym.envs.perceptualdecisionmaking.PulseDecisionMaking)
 - [ReachingDelayResponse](../envs.md#neurogym.envs.reachingdelayresponse.ReachingDelayResponse)
 - [ReadySetGo](../envs.md#neurogym.envs.readysetgo.ReadySetGo)
-- [SingleContextDecisionMaking](../envs.md#neurogym.envs.contextdecisionmaking.SingleContextDecisionMaking)
+- [UnifiedContextDecisionMaking](../envs.md#neurogym.envs.contextdecisionmaking.UnifiedContextDecisionMaking)
