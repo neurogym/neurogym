@@ -302,7 +302,7 @@ def plot_env_1dbox(
             yticklabels.append("Stimuli")
 
         if legend:
-            ax.legend()
+            ax.legend(loc="upper right")
         ax.set_xlim([-0.5, len(steps) - 0.5])
         ax.set_yticks(yticks)
         ax.set_yticklabels(yticklabels)
@@ -357,7 +357,7 @@ def plot_env_1dbox(
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     if legend:
-        ax.legend()
+        ax.legend(loc="upper right")
     if env and hasattr(env.action_space, "name"):
         yticks = []
         yticklabels = []
@@ -381,7 +381,7 @@ def plot_env_1dbox(
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         if legend:
-            ax.legend()
+            ax.legend(loc="upper right")
         ax.set_xlim([-0.5, len(steps) - 0.5])
 
         if env and hasattr(env, "rewards") and env.rewards is not None:
@@ -417,7 +417,7 @@ def plot_env_1dbox(
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         if legend:
-            ax.legend()
+            ax.legend(loc="upper right")
         ax.set_xlim([-0.5, len(steps) - 0.5])
         # Add gray background grid with white lines
         _set_grid_style(ax)
