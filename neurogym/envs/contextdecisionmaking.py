@@ -1,3 +1,5 @@
+from typing import Any
+
 import numpy as np
 
 import neurogym as ngym
@@ -38,36 +40,36 @@ class UnifiedContextDecisionMaking(ngym.TrialEnv):
 
     def __init__(
         self,
-        dt=100,
-        explicit_context=False,
-        fixed_context=0,
-        dim_ring=2,
-        rewards=None,
-        timing=None,
-        sigma=1.0,
+        dt: int = 100,
+        explicit_context: bool = False,
+        fixed_context: int = 0,
+        dim_ring: int = 2,
+        rewards: dict[str, float] | None = None,
+        timing: dict[str, int | TruncExp] | None = None,
+        sigma: float = 0.1,
     ) -> None:
         super().__init__(dt=dt)
 
         # Task parameters
         self.explicit_context = explicit_context
-        self.context = fixed_context if not explicit_context else None  # Store fixed context for implicit case
+        self.context: int = fixed_context if not explicit_context else 0  # Initialize with 0 for explicit case
         self.dim_ring = dim_ring
         self.sigma = sigma / np.sqrt(self.dt)
 
         # Trial conditions
-        self.cohs = [5, 15, 50]
+        self.cohs: list[int] = [5, 15, 50]
         if explicit_context:
-            self.contexts = [0, 1]
+            self.contexts: list[int] = [0, 1]
         else:
             self.contexts = [self.context]
 
         # Rewards
-        self.rewards = {"abort": -0.1, "correct": +1.0}
+        self.rewards: dict[str, float] = {"abort": -0.1, "correct": +1.0}
         if rewards:
             self.rewards.update(rewards)
 
         # Timing
-        self.timing = {
+        self.timing: dict[str, int | TruncExp] = {
             "fixation": 300,
             "stimulus": 750,
             "delay": TruncExp(600, 300, 3000),
@@ -141,7 +143,12 @@ class UnifiedContextDecisionMaking(ngym.TrialEnv):
         )
         self.choices = [1, 2]  # Fixed choices for direct representation
 
-    def _new_trial(self, **kwargs):
+    def _new_trial(self, **kwargs: Any) -> dict[str, Any]:  # type: ignore[override]
+        """New trial within the current context.
+
+        Returns:
+            dict: Trial information
+        """
         # Trial parameters
         trial = {
             "ground_truth": self.rng.choice(self.choices),
@@ -171,10 +178,10 @@ class UnifiedContextDecisionMaking(ngym.TrialEnv):
                 self.add_ob(1, where="context1")
             else:
                 self.add_ob(1, where="context2")
-            self.set_groundtruth(trial["ground_truth"], "decision")  # Direct value case
+            self.set_groundtruth(trial["ground_truth"], "decision")
         else:
             self._set_ring_observations(choice_0, choice_1, coh_0, coh_1)
-            self.set_groundtruth(trial["ground_truth"], "decision", where="choice")  # Ring case
+            self.set_groundtruth(trial["ground_truth"], "decision", where="choice")
 
         return trial
 
@@ -208,15 +215,15 @@ class UnifiedContextDecisionMaking(ngym.TrialEnv):
         self.add_randn(0, self.sigma, "stimulus")
         self.set_ob(0, "decision")
 
-    def _step(self, action):
-        """Execute one step in the environment."""
+    def _step(self, action: int) -> tuple:  # type: ignore[override]
+        """Execute one timestep within the environment."""
         ob = self.ob_now
         gt = self.gt_now
 
         new_trial = False
         terminated = False
         truncated = False
-        reward = 0
+        reward = 0.0
 
         if self.in_period("fixation"):
             if action != 0:  # Broke fixation
