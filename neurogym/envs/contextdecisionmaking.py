@@ -117,13 +117,16 @@ class ContextDecisionMaking(ngym.TrialEnv):
     def _setup_impl_spaces(self):
         """Setup observation and action spaces for implicit context (ring representation)."""
         self.theta = np.linspace(0, 2 * np.pi, self.impl_dim_ring + 1)[:-1]
-        self.choices = np.arange(self.impl_dim_ring)
+        self.choices = np.arange(1, self.impl_dim_ring + 1)
 
         # Observation space: fixation + 2 modalities of ring inputs
         obs_space_name = {
             "fixation": 0,
             **{f"stimulus{i + 1}_mod1": i + 1 for i in range(self.impl_dim_ring)},
-            **{f"stimulus{i + 1}_mod2": i + 1 + self.impl_dim_ring for i in range(self.impl_dim_ring)},
+            **{
+                f"stimulus{i + 1}_mod2": i + 1 + self.impl_dim_ring
+                for i in range(self.impl_dim_ring)
+            },
         }
 
         self.observation_space = spaces.Box(
@@ -137,7 +140,7 @@ class ContextDecisionMaking(ngym.TrialEnv):
         # Action space: fixation + choices
         self.action_space = spaces.Discrete(
             1 + self.impl_dim_ring,
-            name={"fixation": 0, "choice": range(1, self.impl_dim_ring + 1)},
+            name={"fixation": 0, "choice": list(range(1, self.impl_dim_ring + 1))},
         )
 
     def _new_trial(self, **kwargs: Any) -> dict[str, Any]:  # type: ignore[override]
@@ -175,16 +178,15 @@ class ContextDecisionMaking(ngym.TrialEnv):
                 self.add_ob(1, where="context1")
             else:
                 self.add_ob(1, where="context2")
-            self.set_groundtruth(trial["ground_truth"], "decision")
         else:
             self._set_impl_observations(choice_1, choice_2, coh_1, coh_2)
-            self.set_groundtruth(trial["ground_truth"], "decision", where="choice")
+        self.set_groundtruth(trial["ground_truth"], "decision")
 
         return trial
 
     def _set_expl_observations(self, choice_1, choice_2, coh_1, coh_2):
         """Set observations for direct value representation (explicit context)."""
-        signed_coh_1 = coh_2 if choice_1 == 1 else -coh_1
+        signed_coh_1 = coh_1 if choice_1 == 1 else -coh_1
         signed_coh_2 = coh_2 if choice_2 == 1 else -coh_2
 
         self.add_ob((1 + signed_coh_1 / 100) / 2, period="stimulus", where="stim1_mod1")
@@ -197,8 +199,8 @@ class ContextDecisionMaking(ngym.TrialEnv):
 
     def _set_impl_observations(self, choice_1, choice_2, coh_1, coh_2):
         """Set observations for ring representation (implicit context)."""
-        stim_theta_1 = self.theta[choice_1]
-        stim_theta_2 = self.theta[choice_2]
+        stim_theta_1 = self.theta[choice_1 - 1]
+        stim_theta_2 = self.theta[choice_2 - 1]
 
         stim_mod1 = np.cos(self.theta - stim_theta_1) * (coh_1 / 200) + 0.5
         stim_mod2 = np.cos(self.theta - stim_theta_2) * (coh_2 / 200) + 0.5
@@ -207,8 +209,12 @@ class ContextDecisionMaking(ngym.TrialEnv):
         for i in range(self.impl_dim_ring):
             self.add_ob(stim_mod1[i], "stimulus", where=f"stimulus{i + 1}_mod1")
             self.add_ob(stim_mod2[i], "stimulus", where=f"stimulus{i + 1}_mod2")
-            self.add_randn(0, self.sigma, period="stimulus", where=f"stimulus{i + 1}_mod1")
-            self.add_randn(0, self.sigma, period="stimulus", where=f"stimulus{i + 1}_mod2")
+            self.add_randn(
+                0, self.sigma, period="stimulus", where=f"stimulus{i + 1}_mod1"
+            )
+            self.add_randn(
+                0, self.sigma, period="stimulus", where=f"stimulus{i + 1}_mod2"
+            )
 
         self.set_ob(0, "decision")
 
