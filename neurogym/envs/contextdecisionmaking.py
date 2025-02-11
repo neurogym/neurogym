@@ -123,10 +123,7 @@ class ContextDecisionMaking(ngym.TrialEnv):
         obs_space_name = {
             "fixation": 0,
             **{f"stimulus{i + 1}_mod1": i + 1 for i in range(self.impl_dim_ring)},
-            **{
-                f"stimulus{i + 1}_mod2": i + 1 + self.impl_dim_ring
-                for i in range(self.impl_dim_ring)
-            },
+            **{f"stimulus{i + 1}_mod2": i + 1 + self.impl_dim_ring for i in range(self.impl_dim_ring)},
         }
 
         self.observation_space = spaces.Box(
@@ -210,10 +207,16 @@ class ContextDecisionMaking(ngym.TrialEnv):
             self.add_ob(stim_mod1[i], "stimulus", where=f"stimulus{i + 1}_mod1")
             self.add_ob(stim_mod2[i], "stimulus", where=f"stimulus{i + 1}_mod2")
             self.add_randn(
-                0, self.sigma, period="stimulus", where=f"stimulus{i + 1}_mod1"
+                0,
+                self.sigma,
+                period="stimulus",
+                where=f"stimulus{i + 1}_mod1",
             )
             self.add_randn(
-                0, self.sigma, period="stimulus", where=f"stimulus{i + 1}_mod2"
+                0,
+                self.sigma,
+                period="stimulus",
+                where=f"stimulus{i + 1}_mod2",
             )
 
         self.set_ob(0, "decision")

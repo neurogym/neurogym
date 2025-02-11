@@ -1,13 +1,13 @@
-import pytest
-from neurogym.envs.contextdecisionmaking import ContextDecisionMaking
 import numpy as np
+import pytest
+
+from neurogym.envs.contextdecisionmaking import ContextDecisionMaking
 
 
 @pytest.fixture
 def default_env():
     """Create a default ContextDecisionMaking environment."""
-    env = ContextDecisionMaking()
-    return env
+    return ContextDecisionMaking()
 
 
 @pytest.mark.parametrize("use_expl_context", [True, False])
@@ -33,9 +33,7 @@ def test_detailed_observation_space(use_expl_context):
     env = ContextDecisionMaking(use_expl_context=use_expl_context)
 
     if not use_expl_context:
-        expected_implicit_dim = (
-            1 + 2 * env.impl_dim_ring
-        )  # fixation + stimuli for both modalities
+        expected_implicit_dim = 1 + 2 * env.impl_dim_ring  # fixation + stimuli for both modalities
         assert env.observation_space.shape == (expected_implicit_dim,)
 
         expected_obs_space = {"fixation": 0}
@@ -124,9 +122,7 @@ def test_step_mechanics(use_expl_context):
     # Test abort during fixation
     assert env.in_period("fixation"), "Environment should start in fixation period"
     _, reward, _, _, info = env.step(1)  # Non-fixation action
-    assert reward == env.rewards["abort"], (
-        "Should get abort penalty for breaking fixation"
-    )
+    assert reward == env.rewards["abort"], "Should get abort penalty for breaking fixation"
 
     # Test correct trial sequence
     env.reset()
@@ -150,9 +146,7 @@ def test_step_mechanics(use_expl_context):
     # If we reached decision period, test correct choice
     if env.in_period("decision"):
         _, reward, _, _, info = env.step(correct_choice)
-        assert reward == env.rewards["correct"], (
-            "Should get correct reward for right choice"
-        )
+        assert reward == env.rewards["correct"], "Should get correct reward for right choice"
         assert info["new_trial"], "Trial should end after decision"
 
 
@@ -175,9 +169,7 @@ def test_observation_noise(use_expl_context):
     env.new_trial()
     obs2 = get_stimulus_obs(env)
 
-    assert not np.array_equal(obs1, obs2), (
-        "Stimulus period observations should differ due to noise"
-    )
+    assert not np.array_equal(obs1, obs2), "Stimulus period observations should differ due to noise"
 
 
 @pytest.mark.parametrize(
