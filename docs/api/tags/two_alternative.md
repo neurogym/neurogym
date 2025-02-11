@@ -1,6 +1,6 @@
 The following tasks implement two-alternative paradigms:
 
-- [UnifiedContextDecisionMaking](../envs.md#neurogym.envs.contextdecisionmaking.UnifiedContextDecisionMaking)
+- [ContextDecisionMaking](../envs.md#neurogym.envs.contextdecisionmaking.ContextDecisionMaking)
 - [DawTwoStep](../envs.md#neurogym.envs.dawtwostep.DawTwoStep)
 - [DelayComparison](../envs.md#neurogym.envs.delaycomparison.DelayComparison)
 - [DelayMatchCategory](../envs.md#neurogym.envs.delaymatchcategory.DelayMatchCategory)

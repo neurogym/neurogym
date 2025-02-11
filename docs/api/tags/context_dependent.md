@@ -1,3 +1,3 @@
 The following tasks implement context-dependent paradigms:
 
-- [UnifiedContextDecisionMaking](../envs.md#neurogym.envs.contextdecisionmaking.UnifiedContextDecisionMaking)
+- [ContextDecisionMaking](../envs.md#neurogym.envs.contextdecisionmaking.ContextDecisionMaking)

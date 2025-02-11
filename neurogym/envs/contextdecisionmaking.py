@@ -7,7 +7,7 @@ from neurogym import spaces
 from neurogym.utils.ngym_random import TruncExp
 
 
-class UnifiedContextDecisionMaking(ngym.TrialEnv):
+class ContextDecisionMaking(ngym.TrialEnv):
     """Context-dependent decision-making task.
 
     The agent simultaneously receives stimulus inputs from two modalities (
