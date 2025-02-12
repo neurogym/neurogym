@@ -17,7 +17,7 @@ class ContextDecisionMaking(ngym.TrialEnv):
     1. Implicit context: The relevant modality is fixed and must be learned (
        it is not explicitly signaled). Uses ring representation.
     2. Explicit context: The agent simultaneously receives stimulus inputs
-       from two modalities, and the relevant modality is explicitely indicated
+       from two modalities, and the relevant modality is explicitly indicated
        by a context signal. Uses direct value representation.
 
     Args:
