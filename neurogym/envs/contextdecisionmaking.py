@@ -47,7 +47,7 @@ class ContextDecisionMaking(ngym.TrialEnv):
         impl_dim_ring: int = 2,
         rewards: dict[str, float] | None = None,
         timing: dict[str, int | TruncExp] | None = None,
-        sigma: float = 0.1,
+        sigma: float = 1.0,
     ) -> None:
         super().__init__(dt=dt)
 
