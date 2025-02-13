@@ -1,7 +1,7 @@
 The following tasks implement perceptual paradigms:
 
 - [AntiReach](../envs.md#neurogym.envs.antireach.AntiReach)
-- [UnifiedContextDecisionMaking](../envs.md#neurogym.envs.contextdecisionmaking.UnifiedContextDecisionMaking)
+- [ContextDecisionMaking](../envs.md#neurogym.envs.contextdecisionmaking.ContextDecisionMaking)
 - [DelayComparison](../envs.md#neurogym.envs.delaycomparison.DelayComparison)
 - [DelayMatchCategory](../envs.md#neurogym.envs.delaymatchcategory.DelayMatchCategory)
 - [DelayMatchSample](../envs.md#neurogym.envs.delaymatchsample.DelayMatchSample)
@@ -17,4 +17,4 @@ The following tasks implement perceptual paradigms:
 - [ProbabilisticReasoning](../envs.md#neurogym.envs.probabilisticreasoning.ProbabilisticReasoning)
 - [PulseDecisionMaking](../envs.md#neurogym.envs.perceptualdecisionmaking.PulseDecisionMaking)
 - [ReachingDelayResponse](../envs.md#neurogym.envs.reachingdelayresponse.ReachingDelayResponse)
-- [UnifiedContextDecisionMaking](../envs.md#neurogym.envs.contextdecisionmaking.UnifiedContextDecisionMaking)
+- [ContextDecisionMaking](../envs.md#neurogym.envs.contextdecisionmaking.ContextDecisionMaking)

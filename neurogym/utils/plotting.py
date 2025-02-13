@@ -45,7 +45,7 @@ def plot_env(
         legend: whether to show the legend for actions panel or not
         ob_traces: if != [] observations will be plot as traces, with the labels
                     specified by ob_traces
-        fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun
+        fig_kwargs: figure properties admitted by matplotlib.pyplot.subplots() function
         fname: if not None, save fig or movie to fname
         plot_performance: whether to show the performance subplot (default: True)
     """
@@ -190,7 +190,7 @@ def fig_(
         actions: np array of action (n_step, n_unit)
         gt: np array of groud truth
         rewards: np array of rewards
-        performance: np array of performance (None to skip plotting performance)
+        performance: np array of performance (if set to `None` performance plotting will be skipped)
         states: np array of network states
         name: title to show on the rewards panel and name to save figure
         fname: if != '', where to save the figure
@@ -198,7 +198,7 @@ def fig_(
         ob_traces: None or list.
             If list, observations will be plot as traces, with the labels
             specified by ob_traces
-        fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun
+        fig_kwargs: figure properties admitted by matplotlib.pyplot.subplots() function
         env: environment class for extra information
     """
     if fig_kwargs is None:

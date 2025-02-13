@@ -58,7 +58,7 @@ def _get_envs(foldername=None, env_prefix=None, allow_list=None):
 NATIVE_ALLOW_LIST = [
     "AntiReach",
     "Bandit",
-    "UnifiedContextDecisionMaking",
+    "ContextDecisionMaking",
     "DawTwoStep",
     "DelayComparison",
     "DelayMatchCategory",
