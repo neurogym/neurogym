@@ -30,6 +30,7 @@ class ContextDecisionMaking(ngym.TrialEnv):
         rewards: dict, rewards for correct, fail and abort responses.
         timing: dict, timing of the different events in the trial.
         sigma: float, standard deviation of the noise added to the inputs.
+        abort: bool, if True, incorrect actions during fixation lead to trial abortion.
     """
 
     metadata = {  # noqa: RUF012
@@ -48,6 +49,7 @@ class ContextDecisionMaking(ngym.TrialEnv):
         rewards: dict[str, float] | None = None,
         timing: dict[str, int | TruncExp] | None = None,
         sigma: float = 1.0,
+        abort: bool = False,
     ) -> None:
         super().__init__(dt=dt)
 
@@ -80,7 +82,7 @@ class ContextDecisionMaking(ngym.TrialEnv):
         if timing:
             self.timing.update(timing)
 
-        self.abort = False
+        self.abort = abort
 
     def _setup_spaces(self):
         """Setup observation and action spaces for both context types using ring representation."""
@@ -196,7 +198,6 @@ class ContextDecisionMaking(ngym.TrialEnv):
         reward = 0.0
 
         if self.in_period("fixation") and action != 0:
-            # TODO: add abort as input
             new_trial = self.abort
             reward = self.rewards["abort"]
         elif self.in_period("decision") and action != 0:
