@@ -15,7 +15,7 @@ def test_env_initialization(use_expl_context):
     """Test that environment initializes with expected parameters."""
     env = ContextDecisionMaking(use_expl_context=use_expl_context)
     assert env.use_expl_context == use_expl_context
-    assert env.impl_dim_ring == 2
+    assert env.dim_ring == 2
     assert env.sigma > 0
     assert isinstance(env.cohs, list)
     assert len(env.cohs) > 0
@@ -32,31 +32,25 @@ def test_detailed_observation_space(use_expl_context):
     """
     env = ContextDecisionMaking(use_expl_context=use_expl_context)
 
-    if not use_expl_context:
-        expected_implicit_dim = 1 + 2 * env.impl_dim_ring  # fixation + stimuli for both modalities
-        assert env.observation_space.shape == (expected_implicit_dim,)
+    expected_base_dim = 1 + 2 * env.dim_ring  # fixation + stimuli for both modalities
+    expected_context_dim = 2 if use_expl_context else 0  # Additional dimensions for context
+    assert env.observation_space.shape == (expected_base_dim + expected_context_dim,)
 
-        expected_obs_space = {"fixation": 0}
-        for i in range(env.impl_dim_ring):
-            expected_obs_space[f"stimulus{i + 1}_mod1"] = i + 1
-            expected_obs_space[f"stimulus{i + 1}_mod2"] = i + 1 + env.impl_dim_ring
-        assert env.observation_space.name == expected_obs_space
-    else:
-        n_basic_inputs = 5  # fixation + 2 stimuli per modality
-        n_context_inputs = len(env.contexts)  # number of context inputs
-        expected_explicit_dim = n_basic_inputs + n_context_inputs
-        assert env.observation_space.shape == (expected_explicit_dim,)
+    # Expected observation space structure
+    expected_obs_space = {"fixation": 0}
+    for i in range(env.dim_ring):
+        expected_obs_space[f"stim{i + 1}_mod1"] = i + 1
+        expected_obs_space[f"stim{i + 1}_mod2"] = i + 1 + env.dim_ring
 
-        expected_obs_space = {
-            "fixation": 0,
-            "stim1_mod1": 1,
-            "stim2_mod1": 2,
-            "stim1_mod2": 3,
-            "stim2_mod2": 4,
-            "context1": 5,
-            "context2": 6,
-        }
-        assert env.observation_space.name == expected_obs_space
+    if use_expl_context:
+        expected_obs_space.update(
+            {
+                "context1": 1 + 2 * env.dim_ring,
+                "context2": 2 + 2 * env.dim_ring,
+            },
+        )
+
+    assert env.observation_space.name == expected_obs_space
 
 
 @pytest.mark.parametrize("use_expl_context", [True, False])
@@ -69,21 +63,14 @@ def test_detailed_action_space(use_expl_context):
     """
     env = ContextDecisionMaking(use_expl_context=use_expl_context)
 
-    if not use_expl_context:
-        expected_n_actions = 1 + env.impl_dim_ring  # fixation + choices
-        assert env.action_space.n == expected_n_actions
+    expected_n_actions = 1 + env.dim_ring  # fixation + choices
+    assert env.action_space.n == expected_n_actions
 
-        expected_action_space = {
-            "fixation": 0,
-            "choice": list(range(1, env.impl_dim_ring + 1)),
-        }
-        assert env.action_space.name == expected_action_space
-    else:
-        expected_n_choices = len(env.choices)
-        assert env.action_space.n == 1 + expected_n_choices  # fixation + choices
-
-        expected_action_space = {"fixation": 0, "choice1": 1, "choice2": 2}
-        assert env.action_space.name == expected_action_space
+    expected_action_space = {
+        "fixation": 0,
+        "choice": list(range(1, env.dim_ring + 1)),
+    }
+    assert env.action_space.name == expected_action_space
 
 
 @pytest.mark.parametrize("use_expl_context", [True, False])
@@ -103,14 +90,20 @@ def test_new_trial_generation(use_expl_context):
     assert trial["coh_2"] in env.cohs
 
 
-@pytest.mark.parametrize("impl_dim_ring", [2, 4, 8])
-def test_implicit_ring_dimensions(impl_dim_ring):
-    """Test different ring dimensions for implicit context."""
-    env = ContextDecisionMaking(use_expl_context=False, impl_dim_ring=impl_dim_ring)
+@pytest.mark.parametrize("dim_ring", [2, 4, 8])
+@pytest.mark.parametrize("use_expl_context", [True, False])
+def test_ring_dimensions(dim_ring, use_expl_context):
+    """Test different ring dimensions for both context modes."""
+    env = ContextDecisionMaking(use_expl_context=use_expl_context, dim_ring=dim_ring)
 
-    assert len(env.theta) == impl_dim_ring
-    assert len(env.choices) == impl_dim_ring
-    assert env.action_space.n == impl_dim_ring + 1  # choices + fixation
+    assert len(env.theta) == dim_ring
+    assert len(env.choices) == dim_ring
+    assert env.action_space.n == dim_ring + 1  # choices + fixation
+
+    # Test observation space dimensions
+    expected_base_dim = 1 + 2 * dim_ring  # fixation + stimuli for both modalities
+    expected_context_dim = 2 if use_expl_context else 0
+    assert env.observation_space.shape == (expected_base_dim + expected_context_dim,)
 
 
 @pytest.mark.parametrize("use_expl_context", [True, False])
