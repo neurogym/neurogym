@@ -10,42 +10,51 @@ from bokeh.models import (  # type: ignore[attr-defined]
     Legend,
     LegendItem,
     Line,
+    Paragraph,
     Row,
     Select,
     Slider,
     TabPanel,
+    Tabs,
 )
 from bokeh.palettes import Turbo256, linear_palette
 from bokeh.plotting import ColumnDataSource, figure
 from torch import nn
 
-from neurogym import conf
-from neurogym.wrappers.bokehmon.components.base import ComponentBase
+import neurogym as ngym
+from neurogym.wrappers.monitors.parameters.base import ParamMonitorBase
 
 
-class ActivationComponent(ComponentBase):
+class ActivationMonitor(ParamMonitorBase):
+    param_type: ngym.NetParam = ngym.NetParam.Activation
+
     def __init__(
         self,
-        layer: Any,
-        module: nn.Module,
+        monitor: Any,
+        layer: nn.Module,
+        phases: set[ngym.MonitorPhase],
     ):
         """Activation monitoring component.
 
         Args:
-            layer (Any):
-                The parent layer that this component is attached to.
+            monitor (Any):
+                The parent monitor that this component is attached to.
 
-            module (nn.Module):
-                The module being monitored.
+            layer (nn.Module):
+                The layer being monitored.
+
+            phases (set[ngym.MonitorPhase]):
+                Phases during which the parameters should be monitored.
         """
-        super().__init__(layer, module)
+        super().__init__(monitor, layer, phases)
 
         # The neuron count
         self.neurons = self.get_neuron_count()
 
-        # Data
+        # Storage
         # ==================================================
-        self.activations: list[list] = []
+        self.activations: dict[ngym.MonitorPhase, list[list[np.ndarray]]] = {}
+        self._init_containers()
 
         # UI elements
         # ==================================================
@@ -55,10 +64,12 @@ class ActivationComponent(ComponentBase):
         # ==================================================
         self.traces_muted = False
 
-    def start_trial(self):
-        """Start monitoring parameters for a new trial."""
-        # Add a new entry in the activation tracker.
-        self.activations.append([])
+    def _init_containers(self):
+        """Initialise the container(s) for this monitor."""
+
+        # Create a list of lists for each phase.
+        for phase in self.phases:
+            self.activations[phase] = [[]]
 
     def _make_figure(self) -> figure:
         """Make and return a Bokeh figure for plotting neuron activations.
@@ -163,7 +174,10 @@ class ActivationComponent(ComponentBase):
                 The legend.
         """
         legend = Legend(
-            items=[LegendItem(label=label, renderers=[traces[n]]) for n, label in enumerate(labels)],
+            items=[
+                LegendItem(label=label, renderers=[traces[n]])
+                for n, label in enumerate(labels)
+            ],
             nrows=20,
             label_height=8,
             padding=0,
@@ -248,13 +262,20 @@ class ActivationComponent(ComponentBase):
 
         return _inner
 
+    def start_trial(self):
+        """Start monitoring parameters for a new trial."""
+        # Add a new entry in the activation tracker.
+        if self.phase is None:
+            raise ValueError("Please set the monitoring phase.")
+
+        if self.phase in self.phases:
+            self.activations[self.phase].append([])
+
     def process(
         self,
         module: nn.Module,  # noqa: ARG002
         input_: torch.Tensor,  # noqa: ARG002
         output: torch.Tensor,
-        trial: int,  # noqa: ARG002
-        step: int,  # noqa: ARG002
     ):
         """This method processes new activations.
 
@@ -267,26 +288,25 @@ class ActivationComponent(ComponentBase):
 
             output (torch.Tensor):
                 The module's output.
-
-            trial (int):
-                The current trial.
-
-            step (int):
-                The current step in the current trial.
         """
-        self.activations[-1].append(output)
+        self.activations[self.phase][-1].append(output)
 
-    def plot(self) -> TabPanel:
-        """Render this component as a tab.
+    def _make_tab(
+        self,
+        phase: ngym.MonitorPhase,
+        activations: list[list[np.ndarray]],
+    ) -> TabPanel:
+        """Render this monitor as a tab.
 
         Returns:
             TabPanel:
-                The current component as a tab.
+                A tab for  monitor as a tab.
         """
+
         # Prepare the activations for plotting.
         # ==================================================
         # Eliminate empty activation sets
-        activations = [a for a in self.activations if len(a) > 0]
+        activations = [a for a in activations if len(a) > 0]
 
         # Get the length of the longest run
         max_len = max([len(arr) for arr in activations])
@@ -295,10 +315,12 @@ class ActivationComponent(ComponentBase):
         trials = [np.array(a) for a in activations]
 
         mean = np.array([trial.mean(axis=1) for trial in trials])
-        sd = np.sqrt(np.array([((trial - mean) ** 2).mean(axis=0) for trial in trials]).mean())
-        trials = [(trial - mean) / sd for trial in trials]
+        # sd = np.sqrt(
+        #     np.array([((trial - mean) ** 2).mean(axis=0) for trial in trials]).mean()
+        # )
+        # trials = [(trial - mean) / sd for trial in trials]
 
-        data = {"x": np.arange(max_len) * conf.monitor.dt}
+        data = {"x": np.arange(max_len) * ngym.conf.monitor.dt}
         labels = [f"{_}" for _ in range(self.neurons)]
         data.update({_: mean[n] for n, _ in enumerate(labels)})
 
@@ -376,7 +398,7 @@ class ActivationComponent(ComponentBase):
         cp_line.on_change("color", self._set_line_colour(traces, sel_neuron))
 
         return TabPanel(
-            title="Activations",
+            title=phase.name,
             child=Row(
                 Column(
                     btn_toggle_traces,
@@ -390,5 +412,27 @@ class ActivationComponent(ComponentBase):
                 Column(
                     fig,
                 ),
+            ),
+        )
+
+    def plot(self) -> Tabs:
+        """A set of tabs with results for different phases.
+
+        Returns:
+            Tabs:
+                A tab set.
+        """
+
+        # Separate tabs for each phase.
+        tabs = []
+
+        for phase, data in self.activations.items():
+            tabs.append(self._make_tab(phase, data))
+
+        return TabPanel(
+            title="Activations",
+            child=Tabs(
+                tabs=tabs,
+                tabs_location="left",
             ),
         )

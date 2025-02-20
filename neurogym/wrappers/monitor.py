@@ -2,16 +2,15 @@ from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
-# --------------------------------------
 import numpy as np
 import panel as pn
 from bokeh.models import Column, Paragraph, Tabs  # type: ignore[attr-defined]
 from gymnasium import Wrapper
 from torch import nn
 
-from neurogym import TrialEnv, conf, logger, utils
+import neurogym as ngym
 from neurogym.utils.plotting import fig_
-from neurogym.wrappers.bokehmon.model import ModelMonitor
+from neurogym.wrappers.monitors.network import NetworkMonitor
 
 
 class Monitor(Wrapper):
@@ -32,7 +31,7 @@ class Monitor(Wrapper):
 
     def __init__(
         self,
-        env: TrialEnv,
+        env: ngym.TrialEnv,
         step_fn: Callable | None = None,
         name: str | None = None,
     ):
@@ -65,6 +64,9 @@ class Monitor(Wrapper):
             step_fn = env.step
         self.step_fn = step_fn
 
+        # Monitor name
+        self.name = name
+
         # Global variable monitoring, such as rewards
         # and observations
         # ==================================================
@@ -74,19 +76,16 @@ class Monitor(Wrapper):
         # Paths and directory names for saving data
         # ==================================================
         # Root directory for saving data
-        self.save_dir = utils.mkdir(conf.monitor.save_dir)
+        self.save_dir = ngym.utils.mkdir(ngym.conf.monitor.save_dir)
 
         # Location for saving data
-        self.data_dir = utils.mkdir(self.save_dir / "data")
+        self.data_dir = ngym.utils.mkdir(self.save_dir / "data")
 
         # Location for saving plots
-        self.plot_dir = utils.mkdir(self.save_dir / "plots")
+        self.plot_dir = ngym.utils.mkdir(self.save_dir / "plots")
 
         # Callbacks
         self.callbacks: dict[str, Callable] = {}
-
-        # Monitor name
-        self.name = name
 
         # Visualisation
         # ==================================================
@@ -101,7 +100,7 @@ class Monitor(Wrapper):
         # representing layers, with further sub-tabs
         # for activations, weights and other parameters.
         # ==================================================
-        self.models: dict[str, ModelMonitor] = {}
+        self.networks: dict[str, NetworkMonitor] = {}
 
     @property
     def cur_step(self) -> int:
@@ -148,19 +147,24 @@ class Monitor(Wrapper):
                 The trigger variable.
         """
         return int(
-            self.cur_timestep if conf.monitor.trigger == "timestep" else self.cur_trial,
+            (
+                self.cur_timestep
+                if ngym.conf.monitor.trigger == "timestep"
+                else self.cur_trial
+            ),
         )
 
-    def add_model(
+    def add_network(
         self,
-        model: nn.Module,
+        network: nn.Module,
+        phases: set[ngym.MonitorPhase] | None = None,
         name: str | None = None,
-    ) -> ModelMonitor:
+    ) -> NetworkMonitor:
         if name is None:
-            name = f"Model {len(self.models)}"
+            name = f"Network {len(self.networks)}"
 
-        self.models[name] = ModelMonitor(model, name)
-        return self.models[name]
+        self.networks[name] = NetworkMonitor(network, phases, name)
+        return self.networks[name]
 
     def reset(self, seed=None, **kwargs):
         super().reset(seed=seed)
@@ -201,7 +205,11 @@ class Monitor(Wrapper):
         trigger = self.trigger
 
         # Create a plot
-        if conf.monitor.plot.save and trigger > 0 and trigger % conf.monitor.plot.interval == 0:
+        if (
+            ngym.conf.monitor.plot.save
+            and trigger > 0
+            and trigger % ngym.conf.monitor.plot.interval == 0
+        ):
             self._save_plot()
 
         self.total_steps += 1
@@ -219,7 +227,7 @@ class Monitor(Wrapper):
             terminated = True
             # ==================================================
 
-            if conf.log.verbose and trigger % conf.log.interval == 0:
+            if ngym.conf.log.verbose and trigger % ngym.conf.log.interval == 0:
                 # Display some progress info
                 self._update_log()
 
@@ -233,8 +241,24 @@ class Monitor(Wrapper):
 
     def start_new_trial(self):
         """Reset all buffers and variables associated with the current trial."""
-        for model in self.models.values():
+        for model in self.networks.values():
             model.start_trial()
+
+    def set_phase(
+        self,
+        phase: ngym.MonitorPhase,
+    ):
+        """Set the current phase.
+
+        This can be used to switch monitoring on and off.
+
+        Args:
+            phase (ngym.MonitorPhase):
+                A MonitorPhase enum indicating a phase in the
+                pipeline, such as training or evaluation.
+        """
+        for network in self.networks.values():
+            network.set_phase(phase)
 
     def store_data(self):
         """Stores data about the current trial into a NumPy archive."""
@@ -261,7 +285,7 @@ class Monitor(Wrapper):
 
         self.max_t = max(self.cur_timestep, self.max_t)
 
-        total_steps = self.total_steps * conf.monitor.dt
+        total_steps = self.total_steps * ngym.conf.monitor.dt
 
         msg = " | ".join(
             [
@@ -271,7 +295,7 @@ class Monitor(Wrapper):
             ],
         )
 
-        logger.info(msg)
+        ngym.logger.info(msg)
 
     def _save_plot(self):
         """Produce and save a plot at a certain step."""
@@ -282,10 +306,15 @@ class Monitor(Wrapper):
         # FIXME: This is not working at the moment because the performance
         # is assigned only once at the end of a trial.
         performance = np.concatenate(  # noqa: F841
-            [trial.info.get("performance", np.full_like(rewards, -1)) for trial in self.trials],
+            [
+                trial.info.get("performance", np.full_like(rewards, -1))
+                for trial in self.trials
+            ],
         )
 
-        fname = self.plot_dir / f"task_{self.cur_trial:06d}.{conf.monitor.plot.ext}"
+        fname = (
+            self.plot_dir / f"task_{self.cur_trial:06d}.{ngym.conf.monitor.plot.ext}"
+        )
 
         fig_(
             ob=observations,
@@ -303,7 +332,7 @@ class Monitor(Wrapper):
             self.bm = Column(
                 Paragraph(text=self.name, styles={"font-size": "3em"}),
                 Tabs(
-                    tabs=[model.plot() for model in self.models.values()],
+                    tabs=[model.plot() for model in self.networks.values()],
                     tabs_location="left",
                 ),
             )

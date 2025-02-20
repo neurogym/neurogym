@@ -6,10 +6,11 @@ from loguru import logger
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, TomlConfigSettingsSource
 
+import neurogym as ngym
 from neurogym.config.base import ConfBase
 from neurogym.config.components.log import LogConf
 from neurogym.config.components.monitor import MonitorConf
-from neurogym.config.components.paths import CONFIG_DIR, PathConf
+from neurogym.config.components.paths import PathConf
 
 
 class Conf(ConfBase):
@@ -31,7 +32,7 @@ class Conf(ConfBase):
 
     @classmethod
     def settings_file(cls):
-        return CONFIG_DIR / "settings.toml"
+        return ngym.CONFIG_DIR / "settings.toml"
 
     @field_validator("*", mode="before", check_fields=False)
     @classmethod

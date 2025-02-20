@@ -1,5 +1,3 @@
-import enum
-import sys
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -9,16 +7,6 @@ ROOT_DIR = Path(__file__).parent.parent.parent
 PACKAGE_DIR = ROOT_DIR / "neurogym"
 LOCAL_DIR = ROOT_DIR / "local"
 CONFIG_DIR = PACKAGE_DIR / "config"
-
-# HACK: Revise this if the minimal Python version
-# is bumped to >= 3.11
-if sys.version_info[:2] <= (3, 10):
-
-    class StrEnum(str, enum.Enum):
-        pass
-
-else:
-    StrEnum = enum.StrEnum
 
 
 class ConfBase(BaseSettings):

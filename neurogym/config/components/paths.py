@@ -1,12 +1,13 @@
 from pathlib import Path
 
-from neurogym.config.base import CONFIG_DIR, LOCAL_DIR, PACKAGE_DIR, ROOT_DIR, ConfBase
+import neurogym as ngym
+from neurogym.config.base import ConfBase
 
 
 class PathConf(ConfBase):
     """Core path configuration."""
 
-    root_dir: Path = ROOT_DIR
-    package_dir: Path = PACKAGE_DIR
-    config_dir: Path = CONFIG_DIR
-    local_dir: Path = LOCAL_DIR
+    root_dir: Path = ngym.ROOT_DIR
+    package_dir: Path = ngym.PACKAGE_DIR
+    config_dir: Path = ngym.CONFIG_DIR
+    local_dir: Path = ngym.LOCAL_DIR
