@@ -1,0 +1,84 @@
+# ==============================================================================
+# Neurogym configuration template.
+# This template contains all the variables supported by the configuration module.
+# Please uncomment any variables that you would like to customise.
+# ==============================================================================
+
+# The local directory used for saving generated or downloaded data.
+# The default (./local) is already in the .gitignore file, and therefore excluded from commits.
+# If you change this, make sure that the custom path is either outside the repository
+# tree or otherwise excluded from git commits.
+# If you uncomment this option, please the placeholder with a valid path.
+# local_dir = <path-to-some-directory>
+
+# Logging configuration
+# Logging relies on the Loguru library.
+# Please check the documentation for Loguru at
+# https://loguru.readthedocs.io/en/stable/api/logger.html#
+# ==================================================
+[log]
+
+# Verbosity switch (switches logging on or off).
+verbose = true
+
+# Log format (passed to the Loguru configuration).
+format = "<magenta>Neurogym</magenta> | <cyan>{time:YYYY-MM-DD@HH:mm:ss}</cyan> | <level>{message}</level>"
+
+# Default log level.
+# The options for this variable and the corresponding
+# logger methods are as follows:
+# TRACE: logger.trace()
+# DEBUG: logger.debug()
+# INFO: logger.info()
+# SUCCESS: logger.success()
+# WARNING: logger.warning()
+# ERROR: logger.error()
+# CRITICAL: logger.critical()
+level = "INFO"
+
+# Logging interval.
+# Can be used in combination with the 'trigger' option
+# in the monitor configuration below.
+interval = 10
+
+# Environment configuration.
+# ==================================================
+[env]
+# Name of the environment.
+name = "TrialEnv"
+
+# Number of trials to run.
+trials = 100
+
+# Total number of steps.
+steps = 100000
+
+# Time step duration.
+dt = 10 # [ms]
+
+# Monitoring configuration.
+# ==================================================
+[monitor]
+# Metric to use as a trigger for producing any
+# monitoring output, such as plots and logs.
+# Possible options: 'trial', 'step'.
+trigger = "trial"
+
+# Plotting interval.
+# Tied to the 'trigger' option above .
+interval = 10
+
+# Configuration for plots produced during monitoring.
+# ==================================================
+[monitor.plot]
+# Plot title.
+title = "NeuroGym"
+
+# Switch plotting on or off.
+save = true
+
+# Extension for plots saved as images.
+ext = "png"
+
+# Interval for saving plots.
+interval = 10

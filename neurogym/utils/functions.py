@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-def mkdir(path: Path | str) -> Path:
+def ensure_dir(path: Path | str) -> Path:
     """A thin shim over the Path class.
 
     Creates a directory if it doesn't exist and
@@ -21,8 +21,13 @@ def mkdir(path: Path | str) -> Path:
     return path.expanduser().resolve().absolute()
 
 
-def timestamp(ms: bool = False) -> str:
-    """Create a datestamp and a timestamp as formatted strings.
+def iso_datetime(ms: bool = False) -> str:
+    """Create a date-timestamp as an ISO-formatted string.
+
+    Useful for adding a unique but meaningful string to the
+    name of a directory or a file that might be created
+    repeatedly with the same name (for instance, when
+    running the same experiment multiple times).
 
     Args:
         ms (bool, optional):

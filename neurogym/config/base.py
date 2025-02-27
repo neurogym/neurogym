@@ -6,9 +6,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # The root of the repository
 ROOT_DIR = Path(__file__).parent.parent.parent
-PACKAGE_DIR = ROOT_DIR / "neurogym"
+PKG_DIR = ROOT_DIR / "neurogym"
+CONF_DIR = PKG_DIR / "config"
 LOCAL_DIR = ROOT_DIR / "local"
-CONFIG_DIR = PACKAGE_DIR / "config"
 
 # HACK: Revise this if the minimal Python version
 # is bumped to >= 3.11
@@ -24,4 +24,9 @@ else:
 class ConfBase(BaseSettings):
     """Configuration base class."""
 
-    model_config = SettingsConfigDict(env_prefix="NGYM_", case_sensitive=True)
+    model_config = SettingsConfigDict(
+        env_prefix="NGYM_",
+        case_sensitive=True,
+        nested_model_default_partial_update=True,
+        extra="allow",
+    )

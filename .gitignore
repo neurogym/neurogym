@@ -122,5 +122,8 @@ examples/content/
 # Local directory
 /local
 
-# settings.toml files anywhere in the directory hierarchy
-**settings.toml
+# Environment configuration files anywhere in the directory hierarchy.
+# Any files ending in ".toml" will be ignored, except the ones
+# at the repository root (such as pyproject.toml).
+**/**.toml
+!/*.toml
