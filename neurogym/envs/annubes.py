@@ -208,7 +208,7 @@ class AnnubesEnv(TrialEnv):
         else:
             catch = len(available_modalities) == 0 or self._rng.random() < self.catch_prob
         stim_types = set()
-        stim_values = dict()
+        stim_values = {}
 
         if catch:
             self.set_groundtruth(0, period="fixation")
