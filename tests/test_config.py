@@ -43,12 +43,7 @@ def test_config_custom_toml_file():
 
         # Create a new configuration
         # ==================================================
-        class CustomConf(Conf):
-            @classmethod
-            def settings_file(cls):
-                return config_file
-
-        conf = CustomConf()
+        conf = Conf(conf_file=config_file)
 
         # Check that the log level in the configuration
         # is the same as the `level` variable
