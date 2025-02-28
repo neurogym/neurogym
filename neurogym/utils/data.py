@@ -55,12 +55,9 @@ class Dataset:
             # TODO: infer sequence length from task
             seq_len = 1000
 
-        obs_shape = env.observation_space.shape
-        action_shape = env.action_space.shape
-        if len(action_shape) == 0:
-            self._expand_action = True
-        else:
-            self._expand_action = False
+        obs_shape = tuple(env.observation_space.shape) # type: ignore[arg-type]
+        action_shape = tuple(env.action_space.shape)  # type: ignore[arg-type]
+        self._expand_action = len(action_shape) == 0
         if cache_len is None:
             # Infer cache len
             cache_len = 1e5  # Probably too low

@@ -17,6 +17,7 @@ ignore = [
     "PLR0912", # too many branches
     "PLR0913", # too many arguments
     "PLR0915", # too many statements
+    "COM812",   # Recommended by Ruff
     # Unwanted
     "FBT",    # Boolean function arguments
     "ANN003", # Missing type annotation for **{name} (e.g. **kwargs)
