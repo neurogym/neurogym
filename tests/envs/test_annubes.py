@@ -69,9 +69,9 @@ def test_fix_time_types(
 
         # Check if the sampled time is in the given list of values
         if isinstance(time, list):
-            assert (
-                env._duration[t] in time
-            ), f"Expected {t} time to be one of {time}, but got {env._duration['fixation']}"
+            assert env._duration[t] in time, (
+                f"Expected {t} time to be one of {time}, but got {env._duration['fixation']}"
+            )
         # Check if the sampled time is in the given range
         elif isinstance(time, tuple) and time[0] == "uniform":
             time_range = time[1]
@@ -81,9 +81,9 @@ def test_fix_time_types(
             but got {env._duration["fixation"]}"""
         # Check if the sampled time is in the given list of values
         elif isinstance(time, tuple) and time[0] == "choice":
-            assert (
-                env._duration[t] in time[1]
-            ), f"Expected {t} time to be one of {time[1]}, but got {env._duration['fixation']}"
+            assert env._duration[t] in time[1], (
+                f"Expected {t} time to be one of {time[1]}, but got {env._duration['fixation']}"
+            )
         # Check if the sampled time is in the given range
         elif isinstance(time, tuple) and time[0] == "truncated_exponential":
             time_range = time[1]
@@ -93,20 +93,18 @@ def test_fix_time_types(
             but got {env._duration["fixation"]}"""
         # Check if the sampled time is the given constant value
         elif isinstance(time, tuple) and time[0] == "constant":
-            assert (
-                env._duration[t] == time[1]
-            ), f"Expected {t} time to be {time[1]}, but got {env._duration['fixation']}"
+            assert env._duration[t] == time[1], (
+                f"Expected {t} time to be {time[1]}, but got {env._duration['fixation']}"
+            )
 
         # For callable time, check if it's actually called
         if callable(time):
-            assert (
-                env._duration[t] == 500
-            ), f"Expected {t} time to be 500, but got {env._duration['fixation']}"
+            assert env._duration[t] == 500, f"Expected {t} time to be 500, but got {env._duration['fixation']}"
 
         # Ensure the sampled time is a multiple of dt
-        assert (
-            env._duration[t] % env.dt == 0
-        ), f"Expected {t} time to be a multiple of dt ({env.dt}), but got {env._duration['fixation']}"
+        assert env._duration[t] % env.dt == 0, (
+            f"Expected {t} time to be a multiple of dt ({env.dt}), but got {env._duration['fixation']}"
+        )
 
 
 @pytest.mark.parametrize("catch_prob", [0.0, 0.3, 0.7, 1.0])
@@ -152,9 +150,7 @@ def test_catch_prob(catch_prob: float) -> None:
         ({"v": 0.0, "a": 0.0, "o": 0.0}, 0.5, 4, True),
     ],
 )
-def test_annubes_env_max_sequential(
-    session: dict, catch_prob: float, max_sequential: int, exclusive: bool
-) -> None:
+def test_annubes_env_max_sequential(session: dict, catch_prob: float, max_sequential: int, exclusive: bool) -> None:
     """Test the maximum sequential trial constraint in the AnnubesEnv.
 
     The test performs the following checks:
@@ -176,10 +172,7 @@ def test_annubes_env_max_sequential(
                 exclusive=exclusive,
                 random_seed=RND_SEED,
             )
-        assert (
-            str(e.value)
-            == "Please ensure that at least one modality has a non-zero probability."
-        )
+        assert str(e.value) == "Please ensure that at least one modality has a non-zero probability."
         return
 
     env = AnnubesEnv(
@@ -235,16 +228,12 @@ def test_annubes_env_max_sequential(
         # Get the indices of trials where the stimulus
         # occurred more than max_sequential times in a row.
         error_idx = np.argwhere(np.array(sequences, dtype=np.uint32) > max_sequential)
-        assert (
-            len(error_idx) == 0
-        ), f"Found a sequence longer than {max_sequential} at trials {error_idx}"
+        assert len(error_idx) == 0, f"Found a sequence longer than {max_sequential} at trials {error_idx}"
 
     # Check that all the modalities occur,
     # unless the probability is 0.
     # ==================================================
-    assert (
-        set(occurrences) - {None} == mod_combinations
-    ), "Not all modalities appeared in the trials"
+    assert set(occurrences) - {None} == mod_combinations, "Not all modalities appeared in the trials"
 
     # Check that the distribution is roughly balanced.
     # We need to account for cases where multiple sensory modalities
@@ -256,9 +245,7 @@ def test_annubes_env_max_sequential(
     # ==================================================
     # Sum all the probabilities, excluding the catch probability
     session_sum = sum(session.values())
-    session_rel_prob = np.array(
-        [session[k] / session_sum for k in session] + [catch_prob]
-    )
+    session_rel_prob = np.array([session[k] / session_sum for k in session] + [catch_prob])
 
     # Relative probabilities for the session variables
     actual = {k: 0.0 for k in session}
@@ -271,9 +258,7 @@ def test_annubes_env_max_sequential(
     actual_sum = sum(actual.values())
 
     # The actual probabilities as computed from the rollouts.
-    actual_rel_prob = np.array(
-        [actual[k] / actual_sum for k in actual] + [occurrences[None]]
-    )
+    actual_rel_prob = np.array([actual[k] / actual_sum for k in actual] + [occurrences[None]])
 
     # Ensure that the corresponding probabilities in the two arrays are within 5% of each other.
     assert np.allclose(session_rel_prob, actual_rel_prob, atol=5e-2, rtol=5e-2)
@@ -337,9 +322,7 @@ def test_step(request, env: str) -> None:
         env_test.step(0)
 
     # Test stimulus period
-    _, reward, terminated, truncated, _ = env_test.step(
-        env_test.gt_now
-    )  # Correct choice
+    _, reward, terminated, truncated, _ = env_test.step(env_test.gt_now)  # Correct choice
     assert not terminated
     assert not truncated
     assert reward == env_test.rewards["correct"]
@@ -367,22 +350,16 @@ def test_initial_state_and_first_reset(default_env: AnnubesEnv) -> None:
     """
     # Check initial state
     assert default_env.t == 0, f"t={default_env.t}, should be 0 initially"
-    assert (
-        default_env.num_tr == 0
-    ), f"num_tr={default_env.num_tr}, should be 0 initially"
+    assert default_env.num_tr == 0, f"num_tr={default_env.num_tr}, should be 0 initially"
 
     # Check state after first reset
     ob, _ = default_env.reset()
-    assert (
-        default_env.t == 100
-    ), f"default_env={default_env.t}, should be 100 after first reset"
-    assert (
-        default_env.num_tr == 1
-    ), f"num_tr={default_env.num_tr}, should be 1 after first reset"
+    assert default_env.t == 100, f"default_env={default_env.t}, should be 100 after first reset"
+    assert default_env.num_tr == 1, f"num_tr={default_env.num_tr}, should be 1 after first reset"
     assert isinstance(default_env.trial, dict)
-    assert (
-        ob.shape == default_env.observation_space.shape
-    ), f"observation_space.shape={default_env.observation_space.shape}, should match the observation space"
+    assert ob.shape == default_env.observation_space.shape, (
+        f"observation_space.shape={default_env.observation_space.shape}, should match the observation space"
+    )
 
 
 def test_random_seed_reproducibility() -> None:
