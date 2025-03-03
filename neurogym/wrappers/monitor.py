@@ -149,3 +149,46 @@ class Monitor(Wrapper):
             self.rew_mat = []
             self.gt_mat = []
             self.perf_mat = []
+
+
+def evaluate_performance(env, num_trials=100, model=None, verbose=True):
+    """Evaluates the average performance given a model and environment."""
+    # Reset environment
+    obs, _ = env.reset()
+
+    # Tracking variables
+    performances = []
+    rewards = []
+    trial_count = 0
+
+    # Run trials
+    while trial_count < num_trials:
+        if model is not None:
+            action, _ = model.predict(obs)
+        else:
+            action = env.action_space.sample()
+
+        obs, reward, terminated, _, info = env.step(action)
+
+        if info.get("new_trial", False):
+            trial_count += 1
+            rewards.append(reward)
+            if "performance" in info:
+                performances.append(info["performance"])
+
+            if verbose and trial_count % 1000 == 0:
+                print(f"Completed {trial_count}/{num_trials} trials")
+
+        if terminated:
+            obs, _ = env.reset()
+
+    # Calculate metrics
+    performance_array = np.array([p for p in performances if p != -1])
+    reward_array = np.array(rewards)
+
+    return {
+        "mean_performance": np.mean(performance_array) if len(performance_array) > 0 else 0,
+        "mean_reward": np.mean(reward_array > 0) if len(reward_array) > 0 else 0,
+        "performances": performances,
+        "rewards": rewards,
+    }
