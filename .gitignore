@@ -115,6 +115,7 @@ docs/source/_static/
 
 # example content
 examples/content/
+examples/tmp/
 
 # Zip files
 **.zip

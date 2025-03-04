@@ -129,10 +129,3 @@ class YourTask(ngym.PeriodEnv):
 ### Acknowledgements
 
 For the authors of the package, please refer to the zenodo DOI at the top of the page.
-
-Other contributors (listed in chronological order)
-
-- [Marta Fradera](https://github.com/martafradera)
-- [Jordi Pastor](https://github.com/pastorjordi)
-- [Jeremy Forest](https://github.com/jeremyforest)
-- [Ru-Yuan Zhang](https://github.com/ruyuanzhang)
