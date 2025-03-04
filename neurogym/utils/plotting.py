@@ -325,11 +325,6 @@ def plot_env_1dbox(
 
     if name:
         ax.set_title(f"{name} env")
-<<<<<<< HEAD
-    ax.set_ylabel("Observation")
-    ax.set_xticks([])
-    # actions
-=======
     ax.set_ylabel("Obs.")
     # Show step numbers on x-axis
     ax.set_xticks(np.arange(0, len(steps), 5))
@@ -338,7 +333,6 @@ def plot_env_1dbox(
     _set_grid_style(ax)
 
     # Plot actions
->>>>>>> dev
     ax = axes[i_ax]
     i_ax += 1
     if len(actions.shape) > 1:
