@@ -1,5 +1,9 @@
+import glob
+import os
+import tempfile
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import numpy as np
 from gymnasium import Wrapper
 
@@ -7,30 +11,45 @@ from neurogym.utils.plotting import fig_
 
 
 class Monitor(Wrapper):
-    """Monitor task.
+    """Monitor wrapper for NeuroGym environments.
 
-    Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth.
+    This class wraps NeuroGym environments to monitor and collect behavioral data
+    during training and evaluation. It saves relevant behavioral information such as
+    rewards, actions, observations, new trial flags, and ground truth.
+
+    DATA COLLECTION BEHAVIOR:
+    - The Monitor records data points ONLY at the end of trials (when info["new_trial"]=True).
+    - Each data point represents one complete behavioral trial, not individual timesteps.
+    - For NeuroGym tasks, this typically occurs when the agent makes a decision in the
+      decision period, or when the trial is aborted.
+    - Data is saved to disk at regular intervals (e.g., every 1000 trials) and internal
+      data containers are reset after each save.
 
     Args:
-        folder: Folder where the data will be saved. (def: None, str)
-            sv_per and sv_stp: Data will be saved every sv_per sv_stp's.
-            (def: 100000, int)
-        verbose: Whether to print information about average reward and number
-            of trials. (def: False, bool)
-        sv_fig: Whether to save a figure of the experiment structure. If True,
-            a figure will be updated every sv_per. (def: False, bool)
-        num_stps_sv_fig: Number of trial steps to include in the figure.
-            (def: 100, int)
+        env: The NeuroGym environment to wrap
+        folder: Path to folder where data will be saved. If None, uses a temporary directory.
+        sv_per: How often to save data (in trials or timesteps, depending on sv_stp)
+        sv_stp: Unit for sv_per, either "trial" or "timestep"
+        verbose: If True, prints information about average reward and number of trials
+        sv_fig: If True, saves figures visualizing the experiment structure
+        num_stps_sv_fig: Number of trial steps to include in each visualization figure
+        name: Optional name suffix for saved files
+        fig_type: File format for saved figures (e.g., 'png', 'svg', 'pdf')
+        step_fn: Optional custom step function to use instead of env.step
+
+    Attributes:
+        data: Dictionary containing behavioral data (actions, rewards, etc.)
+        num_tr: Number of trials completed
+        t: Number of timesteps completed (when sv_stp="timestep")
     """
 
-    metadata: dict[str, str | None] = {  # noqa: RUF012
+    metadata = {  # noqa: RUF012
         "description": (
             "Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth."
         ),
         "paper_link": None,
         "paper_name": None,
     }
-    # TODO: use names similar to Tensorboard
 
     def __init__(
         self,
@@ -58,11 +77,16 @@ class Monitor(Wrapper):
             self.t = 0
         self.verbose = verbose
         if folder is None:
-            # FIXME is it ok to use tempfile.TemporaryDirectory instead or does this need to be stored locally always?
-            self.folder = "tmp"
+            temp_dir = tempfile.mkdtemp(prefix="neurogym_monitor_")
+            self.folder = temp_dir
+        else:
+            self.folder = str(folder)
         Path(self.folder).mkdir(parents=True, exist_ok=True)
-        # seeding
-        self.sv_name = self.folder + self.env.__class__.__name__ + "_bhvr_data_" + name + "_"  # FIXME: use pathlib
+        self.name = name
+
+        # Create save name using pathlib for cross-platform compatibility
+        self.sv_name = Path(self.folder) / f"{self.env.unwrapped.__class__.__name__}_bhvr_data_{name}_"
+
         # figure
         self.sv_fig = sv_fig
         if self.sv_fig:
@@ -75,10 +99,30 @@ class Monitor(Wrapper):
             self.perf_mat: list = []
 
     def reset(self, seed=None):
-        super().reset(seed=seed)
-        return self.env.reset()
+        """Reset the environment.
+
+        Args:
+            seed: Random seed for the environment
+
+        Returns:
+            The initial observation from the environment reset
+        """
+        return super().reset(seed=seed)
 
     def step(self, action):
+        """Execute one environment step.
+
+        This method:
+        1. Takes a step in the environment
+        2. Collects data if sv_fig is enabled
+        3. Saves data when a trial completes and saving conditions are met
+
+        Args:
+            action: The action to take in the environment
+
+        Returns:
+            Tuple of (observation, reward, terminated, truncated, info)
+        """
         if self.step_fn:
             obs, rew, terminated, truncated, info = self.step_fn(action)
         else:
@@ -87,7 +131,7 @@ class Monitor(Wrapper):
             self.store_data(obs, action, rew, info)
         if self.sv_stp == "timestep":
             self.t += 1
-        if info["new_trial"]:
+        if info.get("new_trial", False):
             self.num_tr += 1
             self.data["action"].append(action)
             self.data["reward"].append(rew)
@@ -101,11 +145,15 @@ class Monitor(Wrapper):
             save = False
             save = self.t >= self.sv_per if self.sv_stp == "timestep" else self.num_tr % self.sv_per == 0
             if save:
-                np.savez(self.sv_name + str(self.num_tr) + ".npz", **self.data)  # FIXME: use pathlib
+                # Create save path with pathlib for cross-platform compatibility
+                save_path = f"{self.sv_name}{self.num_tr}.npz"
+                np.savez(save_path, **self.data)
+
                 if self.verbose:
                     print("--------------------")
-                    print("Number of steps: ", np.mean(self.num_tr))
-                    print("Average reward: ", np.mean(self.data["reward"]))
+                    print(f"Data saved to: {save_path}")
+                    print(f"Number of trials: {self.num_tr}")
+                    print(f"Average reward: {np.mean(self.data['reward'])}")
                     print("--------------------")
                 self.reset_data()
                 if self.sv_fig:
@@ -115,10 +163,19 @@ class Monitor(Wrapper):
         return obs, rew, terminated, truncated, info
 
     def reset_data(self) -> None:
+        """Reset all data containers to empty lists."""
         for key in self.data:
             self.data[key] = []
 
     def store_data(self, obs, action, rew, info) -> None:
+        """Store data for visualization figures.
+
+        Args:
+            obs: Current observation
+            action: Current action
+            rew: Current reward
+            info: Info dictionary from environment
+        """
         if self.stp_counter <= self.num_stps_sv_fig:
             self.ob_mat.append(obs)
             self.act_mat.append(action)
@@ -133,7 +190,9 @@ class Monitor(Wrapper):
                 self.perf_mat.append(-1)
             self.stp_counter += 1
         elif len(self.rew_mat) > 0:
-            fname = self.sv_name + f"task_{self.num_tr:06d}.{self.fig_type}"
+            fname = (
+                Path(self.folder) / f"{self.env.unwrapped.__class__.__name__}_task_{self.num_tr:06d}.{self.fig_type}"
+            )
             obs_mat = np.array(self.ob_mat)
             act_mat = np.array(self.act_mat)
             fig_(
@@ -150,9 +209,188 @@ class Monitor(Wrapper):
             self.gt_mat = []
             self.perf_mat = []
 
+    def plot_training_history(self, window_size=None, figsize=(12, 6), save_fig=True):
+        """Plot training history from saved data files with one data point per trial.
+
+        Args:
+            window_size: Size of the moving average window (default: auto-calculate based on data size)
+            figsize: Figure size as (width, height) tuple
+            save_fig: Whether to save the figure to disk
+
+        Returns:
+            matplotlib figure object
+        """
+        env_name = self.env.unwrapped.__class__.__name__
+        log_folder = self.folder
+
+        pattern = os.path.join(log_folder, f"{env_name}_bhvr_data_{self.name}_*.npz")
+        files = sorted(glob.glob(pattern))
+
+        if not files:
+            print(f"No data files found matching pattern: {pattern}")
+            return None
+
+        print(f"Found {len(files)} data files")
+
+        all_rewards = []
+        all_performances = []
+        current_trial = 0
+
+        for file in files:
+            data = np.load(file, allow_pickle=True)
+
+            if "reward" in data:
+                rewards = data["reward"]
+                all_rewards.extend(rewards)
+                current_trial += len(rewards)
+
+            if "performance" in data:
+                perfs = data["performance"]
+                all_performances.extend(perfs)
+
+        if window_size is None:
+            window_size = max(1, min(100, len(all_rewards) // 20))
+
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize)
+
+        # 1. Rewards plot
+        if len(all_rewards) > 0:
+            trial_indices = np.arange(1, len(all_rewards) + 1)
+            ax1.plot(trial_indices, all_rewards, alpha=0.4, color="blue", label="Raw")
+
+            # Calculate moving average for smoothing
+            if len(all_rewards) > window_size:
+                weights = np.ones(window_size) / window_size
+                smoothed_rewards = np.convolve(all_rewards, weights, mode="valid")
+                # Adjust x-axis for convolution
+                smoothed_indices = trial_indices[window_size - 1 :]
+
+                ax1.plot(
+                    smoothed_indices,
+                    smoothed_rewards,
+                    linewidth=2,
+                    color="blue",
+                    label=f"Moving Avg (w={window_size})",
+                )
+
+            ax1.set_title("Reward per Trial")
+            ax1.set_xlabel("Trial Number")
+            ax1.set_ylabel("Reward")
+            ax1.legend(loc="upper right")
+
+            avg_reward = np.mean(all_rewards)
+            ax1.text(
+                0.05,
+                0.95,
+                f"Overall Avg: {avg_reward:.4f}",
+                transform=ax1.transAxes,
+                verticalalignment="top",
+                bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
+            )
+        else:
+            ax1.text(
+                0.5,
+                0.5,
+                "Insufficient reward data",
+                horizontalalignment="center",
+                verticalalignment="center",
+                transform=ax1.transAxes,
+            )
+
+        # 2. Performance plot
+        if len(all_performances) > 0:
+            trial_indices = np.arange(1, len(all_performances) + 1)
+            valid_mask = np.array(all_performances) != -1
+            valid_indices = trial_indices[valid_mask]
+            valid_performances = np.array(all_performances)[valid_mask]
+
+            if len(valid_performances) > 0:
+                ax2.plot(valid_indices, valid_performances, alpha=0.4, color="green", label="Raw")
+
+                # Calculate moving average for smoothing
+                if len(valid_performances) > window_size:
+                    weights = np.ones(window_size) / window_size
+                    smoothed_perf = np.convolve(valid_performances, weights, mode="valid")
+                    # Adjust x-axis for convolution
+                    smoothed_indices = valid_indices[window_size - 1 :]
+                    if len(smoothed_indices) > len(smoothed_perf):
+                        smoothed_indices = smoothed_indices[: len(smoothed_perf)]
+
+                    ax2.plot(
+                        smoothed_indices,
+                        smoothed_perf,
+                        linewidth=2,
+                        color="green",
+                        label=f"Moving Avg (w={window_size})",
+                    )
+
+                ax2.set_title("Performance per Trial")
+                ax2.set_xlabel("Trial Number")
+                ax2.set_ylabel("Performance (0-1)")
+                ax2.set_ylim(-0.05, 1.05)  # Performance is typically 0-1
+                ax2.legend(loc="upper right")
+
+                # Add text with overall average performance
+                avg_perf = np.mean(valid_performances)
+                ax2.text(
+                    0.05,
+                    0.95,
+                    f"Overall Avg: {avg_perf:.4f}",
+                    transform=ax2.transAxes,
+                    verticalalignment="top",
+                    bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
+                )
+            else:
+                ax2.text(
+                    0.5,
+                    0.5,
+                    "No valid performance data (all -1)",
+                    horizontalalignment="center",
+                    verticalalignment="center",
+                    transform=ax2.transAxes,
+                )
+        else:
+            ax2.text(
+                0.5,
+                0.5,
+                "No performance data available",
+                horizontalalignment="center",
+                verticalalignment="center",
+                transform=ax2.transAxes,
+            )
+
+        plt.tight_layout()
+        plt.suptitle(f"Training History for {env_name}\n({len(all_rewards)} total trials)", fontsize=14, y=1.05)
+
+        # Save the figure
+        if save_fig:
+            save_path = Path(log_folder) / f"{env_name}_training_history.png"
+            plt.savefig(save_path, dpi=300, bbox_inches="tight")
+            print(f"Figure saved to {save_path}")
+
+        return fig
+
 
 def evaluate_performance(env, num_trials=100, model=None, verbose=True):
-    """Evaluates the average performance given a model and environment."""
+    """Evaluates the average performance of a model in an environment.
+
+    This function runs the given model (or random policy if None) on the
+    environment for a specified number of trials and collects performance
+    metrics.
+
+    Args:
+        env: The NeuroGym environment to evaluate
+        num_trials: Number of trials to run for evaluation
+        model: The policy model to evaluate (if None, uses random actions)
+        verbose: If True, prints progress information
+
+    Returns:
+        dict: Dictionary containing performance metrics:
+            - mean_performance: Average performance (if reported by environment)
+            - mean_reward: Proportion of positive rewards
+            - performances: List of performance values for each trial
+            - rewards: List of rewards for each trial
+    """
     # Reset environment
     obs, _ = env.reset()
 
