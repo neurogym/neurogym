@@ -117,5 +117,5 @@ docs/source/_static/
 docs/examples/content/
 docs/examples/tmp/
 **.zip
-docs/examples/**.png
-docs/examples/**.npz
+docs/examples/**/**.png
+docs/examples/**/**.npz
