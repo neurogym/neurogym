@@ -1,5 +1,3 @@
-import glob
-import os
 import tempfile
 from pathlib import Path
 
@@ -109,7 +107,7 @@ class Monitor(Wrapper):
         """
         return super().reset(seed=seed)
 
-    def step(self, action):
+    def step(self, action, collect_data=True):
         """Execute one environment step.
 
         This method:
@@ -119,6 +117,7 @@ class Monitor(Wrapper):
 
         Args:
             action: The action to take in the environment
+            collect_data: If True, collect and save data
 
         Returns:
             Tuple of (observation, reward, terminated, truncated, info)
@@ -144,7 +143,7 @@ class Monitor(Wrapper):
             # save data
             save = False
             save = self.t >= self.sv_per if self.sv_stp == "timestep" else self.num_tr % self.sv_per == 0
-            if save:
+            if save and collect_data:
                 # Create save path with pathlib for cross-platform compatibility
                 save_path = f"{self.sv_name}{self.num_tr}.npz"
                 np.savez(save_path, **self.data)
@@ -223,11 +222,11 @@ class Monitor(Wrapper):
         env_name = self.env.unwrapped.__class__.__name__
         log_folder = self.folder
 
-        pattern = os.path.join(log_folder, f"{env_name}_bhvr_data_{self.name}_*.npz")
-        files = sorted(glob.glob(pattern))
+        base_path = Path(log_folder)
+        files = sorted(base_path.glob(f"{env_name}_bhvr_data_{self.name}_*.npz"))
 
         if not files:
-            print(f"No data files found matching pattern: {pattern}")
+            print(f"No data files found matching pattern: {env_name}_bhvr_data_{self.name}_*.npz")
             return None
 
         print(f"Found {len(files)} data files")
@@ -406,7 +405,10 @@ def evaluate_performance(env, num_trials=100, model=None, verbose=True):
         else:
             action = env.action_space.sample()
 
-        obs, reward, terminated, _, info = env.step(action)
+        if model is not None:
+            obs, reward, terminated, _, info = env.step(action, collect_data=False)
+        else:
+            obs, reward, terminated, _, info = env.step(action)
 
         if info.get("new_trial", False):
             trial_count += 1
