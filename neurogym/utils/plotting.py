@@ -150,9 +150,10 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
             actions_end_of_trial.append(-1)
             perf.append(-1)
 
-    if model is not None and len(state_mat) > 0:
-        states = np.array(state_mat)
-        states = states[:, 0, :]
+    if model is not None and len(state_mat) > 0:  # noqa: SIM108
+        # states = np.array(state_mat)  # noqa: ERA001
+        # states = states[:, 0, :]  # noqa: ERA001
+        states = None  # TODO: Fix this
     else:
         states = None
 
