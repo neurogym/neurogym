@@ -36,7 +36,7 @@ jobs:
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: 3.11
       - name: Python info
@@ -51,7 +51,7 @@ jobs:
       - name: Correct coverage paths
         run: sed -i "s+$PWD/++g" coverage.xml
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v4.1.0
+        uses: SonarSource/sonarqube-scan-action@v5.0.0
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{secrets.SONAR_TOKEN }}
