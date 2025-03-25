@@ -2,16 +2,19 @@ from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
+import bokeh.resources
 import numpy as np
 import panel as pn
-from bokeh.models import Column, Paragraph, Tabs  # type: ignore[attr-defined]
+from bokeh.models import Column, Paragraph, Row, Tabs  # type: ignore[attr-defined]
+
 from gymnasium import Wrapper
 from torch import nn
+
+import bokeh
 
 import neurogym as ngym
 from neurogym.utils.plotting import fig_
 from neurogym.wrappers.monitors.network import NetworkMonitor
-
 
 class Monitor(Wrapper):
     metadata: dict[str, str | None] = {  # noqa: RUF012
@@ -90,7 +93,7 @@ class Monitor(Wrapper):
         # Visualisation
         # ==================================================
         self.bm = None
-        self.server = None
+        self.server: pn.Server = None
         self.max_t = 0
         self.total_steps = 0
 
@@ -225,8 +228,8 @@ class Monitor(Wrapper):
                 "l": self.cur_timestep,
             }
             terminated = True
-            # ==================================================
 
+            # ==================================================
             if ngym.conf.log.verbose and trigger % ngym.conf.log.interval == 0:
                 # Display some progress info
                 self._update_log()
@@ -242,7 +245,7 @@ class Monitor(Wrapper):
     def start_new_trial(self):
         """Reset all buffers and variables associated with the current trial."""
         for model in self.networks.values():
-            model.start_trial()
+            model.start_new_trial()
 
     def set_phase(
         self,
@@ -324,19 +327,102 @@ class Monitor(Wrapper):
             fname=fname,
         )
 
-    def plot(self):
-        """Display the Bokehmon app in a browser tab."""
-        pn.extension()
+    def _get_model(self):
 
-        if self.bm is None:
-            self.bm = Column(
-                Paragraph(text=self.name, styles={"font-size": "3em"}),
-                Tabs(
-                    tabs=[model.plot() for model in self.networks.values()],
+        return pn.Row(
+            pn.Column(
+                pn.pane.Str(
+                    self.name,
+                    styles={"font-size": "3em"},
+                ),
+                pn.Tabs(
+                    *[(name, mon.plot()) for name, mon in self.networks.items()],
                     tabs_location="left",
                 ),
             )
-            self.server = pn.serve(self.bm)
+        )
 
-        else:
-            self.server.show("/")
+    def plot_browser(self):
+        """Display the plot in a browser tab."""
+
+        self._get_model().show()
+
+        # pn.extension()
+        # if self.server is not None:
+        #     self.server.stop()
+        #     self.server = None
+        # self.server = pn.serve(self._get_model().servable(), threaded=True)
+
+    def plot_notebook(self):
+        """Display the plot inside a notebook."""
+
+        if not ngym.utils.is_notebook():
+            ngym.logger.error("Not running inside a notebook.")
+            return
+
+        pn.extension()
+        return self._get_model()
+
+    def get_traces(
+        self,
+        nets: str | list[str] | None = None,
+        layers: str | list[str] | None = None,
+        params: ngym.NetParam | list[ngym.NetParam] | None = None,
+        phases: ngym.MonitorPhase | list[ngym.MonitorPhase] | None = None,
+    ):
+
+        # Make sure that if the arguments are single elements,
+        # they are converted to lists
+        nets = [nets] if isinstance(nets, str) else nets
+        layers = [layers] if isinstance(layers, str) else layers
+        params = [params] if isinstance(params, ngym.NetParam) else params
+        phases = [phases] if isinstance(phases, ngym.MonitorPhase) else phases
+
+        traces = {}
+        # Extract the monitors for the requested networks
+        # ==================================================
+        if nets is None:
+            nets = list(self.networks.keys())
+        net_monitors = {k: self.networks[k] for k in nets if k in self.networks}
+
+        for net_name, net_mon in net_monitors.items():
+            net_traces = traces.setdefault(net_name, {})
+
+            # Extract the monitors for the requested layers
+            # ==================================================
+            if layers is None:
+                layers = list(net_mon.layer_monitors.keys())
+
+            layer_monitors = {
+                k: net_mon.layer_monitors[k]
+                for k in layers
+                if k in net_mon.layer_monitors
+            }
+
+            for layer_name, layer_mon in layer_monitors.items():
+                layer_traces = net_traces.setdefault(layer_name, {})
+
+                # Extract the monitors for the requested parameters
+                # ==================================================
+                if params is None:
+                    params = list(layer_mon.param_monitors.keys())
+
+                param_monitors = {
+                    k: layer_mon.param_monitors[k]
+                    for k in params
+                    if k in layer_mon.param_monitors
+                }
+
+                for param_name, param_mon in param_monitors.items():
+                    param_traces = layer_traces.setdefault(param_name, {})
+
+                    # Extract the monitors for the requested phases
+                    # ==================================================
+                    if phases is None:
+                        phases = list(param_mon.history.keys())
+
+                    for k in phases:
+                        if k in param_mon.history:
+                            param_traces[k] = param_mon.history[k]
+
+        return traces

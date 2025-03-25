@@ -5,6 +5,8 @@ import torch
 from bokeh.models import TabPanel, Tabs
 from torch import nn
 
+import panel as pn
+
 import neurogym as ngym
 from neurogym.wrappers.monitors.parameters.base import ParamMonitorBase
 
@@ -61,10 +63,10 @@ class LayerMonitorBase:
         self.trial = 0
         self.step = 0
 
-        # Components
+        # Parameter monitors
         # ==================================================
-        self.monitors: dict[ngym.NetParam, ParamMonitorBase] = {}
-        self._register_monitors()
+        self.param_monitors: dict[ngym.NetParam, ParamMonitorBase] = {}
+        self._register_param_monitors()
 
         # Register a forward hook with the monitored layer.
         # ==================================================
@@ -82,7 +84,7 @@ class LayerMonitorBase:
             msg = f"Please use {cls.layer_types} layers with monitors of type {cls}."
             raise TypeError(msg)
 
-    def _register_monitors(self):
+    def _register_param_monitors(self):
         """Register monitoring components based on the requested parameter types."""
 
         available_monitors = ParamMonitorBase.param_monitor_types()
@@ -99,7 +101,7 @@ class LayerMonitorBase:
             # Get the monitoring component for this parameter
             param_monitor = available_monitors.get(param)
             if param_monitor is not None:
-                self.monitors[param] = param_monitor(
+                self.param_monitors[param] = param_monitor(
                     self, self.layer, self.phases
                 )
 
@@ -124,16 +126,16 @@ class LayerMonitorBase:
         # Only do something if we are in a monitoring phase.
         if self.phase in self.phases:
 
-            # Compute the batch mean.
-            # TODO: Pass the raw output and let each component deal with it.
-            batch_mean_output = np.mean(output.detach().clone().cpu().numpy(), axis=0)
+            # Extract the relevant output for this layer
+            # since the output could consist of multiple tensors.
+            output = self._get_layer_output(output)
 
-            for monitor in self.monitors.values():
-                monitor.process(module, input_, batch_mean_output)
+            for monitor in self.param_monitors.values():
+                monitor.process(module, input_, output)
 
         self.step += 1
 
-    def get_neuron_count(self) -> int:
+    def _get_neuron_count(self) -> int:
         """Get the neuron count for this layer.
 
         This should be overridden in derived classes.
@@ -145,7 +147,22 @@ class LayerMonitorBase:
         msg = "Please implement this method in a derived class."
         raise NotImplementedError(msg)
 
-    def get_channel_count(self) -> int:
+    def _get_layer_output(
+        self,
+        output: torch.Tensor | tuple[torch.Tensor],
+    ) -> torch.Tensor:
+        """Get the output for this layer.
+
+        Potentially unpack a tuple of tensors, such as in the case of LSTM.
+
+        Returns:
+            torch.Tensor:
+                A single tensor representing the output of this layer.
+        """
+        msg = "Please implement this method in a derived class."
+        raise NotImplementedError(msg)
+
+    def _get_channel_count(self) -> int:
         """Get the channel count for this layer.
 
         This should be overridden in derived classes.
@@ -164,17 +181,20 @@ class LayerMonitorBase:
             TabPanel:
                 The components for this layer encapsulated in a tab.
         """
-        return TabPanel(
-            title=self.name,
-            child=Tabs(
-                tabs=[monitor.plot() for monitor in self.monitors.values()],
-            ),
+        # return pn.Tabs(
+        #     title=self.name,
+        #     child=Tabs(
+        #         tabs=[monitor.plot() for monitor in self.param_monitors.values()],
+        #     ),
+        # )
+        return pn.Tabs(
+            *[(name.capitalize(), mon.plot()) for name, mon in self.param_monitors.items()],
         )
 
-    def start_trial(self):
+    def start_new_trial(self):
         """Start monitoring parameters for a new trial."""
-        for monitor in self.monitors.values():
-            monitor.start_trial()
+        for monitor in self.param_monitors.values():
+            monitor.start_new_trial()
 
         self.trial += 1
         self.step = 0
@@ -194,5 +214,5 @@ class LayerMonitorBase:
         """
         self.phase = phase
 
-        for monitor in self.monitors.values():
+        for monitor in self.param_monitors.values():
             monitor.set_phase(phase)

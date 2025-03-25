@@ -1,6 +1,7 @@
 from typing import ClassVar
 
 from bokeh.models import TabPanel, Tabs
+import panel as pn
 from torch import nn
 
 import neurogym as ngym
@@ -38,8 +39,8 @@ class NetworkMonitor:
             phases = set()
         self.phases = set(phases)
 
-        # The layers being monitored.
-        self.layers: dict[str, LayerMonitorBase] = {}
+        # Layer monitors
+        self.layer_monitors: dict[str, LayerMonitorBase] = {}
 
     def plot(self) -> TabPanel:
         """Render the information tracked by this monitor in a tab.
@@ -48,11 +49,10 @@ class NetworkMonitor:
             TabPanel:
                 The tab containing sub-components with various types of information.
         """
-        return TabPanel(
-            title=self.name,
-            child=Tabs(
-                tabs=[layer.plot() for layer in self.layers.values()],
-            ),
+
+        # return [(self.name, pn.Tabs()) [ for layer in self.layer_monitors.values()],]
+        return pn.Tabs(
+            *[(name, mon.plot()) for name, mon in self.layer_monitors.items()]
         )
 
     def register_hooks(self):
@@ -85,7 +85,7 @@ class NetworkMonitor:
 
         # Make sure that we have a name for the layer
         if name is None:
-            name = f"Layer {len(self.layers)} | {cls.__name__}"
+            name = f"Layer {len(self.layer_monitors)} | {cls.__name__}"
 
         # Get the monitor class for this parameter type.
         monitor_type = LayerMonitorBase.layer_monitors().get(cls)
@@ -96,13 +96,13 @@ class NetworkMonitor:
             return None
 
         # Create a monitor
-        self.layers[name] = monitor_type(layer, params, self.phases, name)
-        return self.layers[name]
+        self.layer_monitors[name] = monitor_type(layer, params, self.phases, name)
+        return self.layer_monitors[name]
 
-    def start_trial(self):
+    def start_new_trial(self):
         """Start monitoring parameters for a new trial."""
-        for layer in self.layers.values():
-            layer.start_trial()
+        for layer in self.layer_monitors.values():
+            layer.start_new_trial()
 
     def set_phase(
         self,
@@ -117,6 +117,6 @@ class NetworkMonitor:
                 A MonitorPhase enum indicating a phase in the
                 pipeline, such as training or evaluation.
         """
-        for layer in self.layers.values():
+        for layer in self.layer_monitors.values():
             layer.set_phase(phase)
-            layer.start_trial()
+            layer.start_new_trial()

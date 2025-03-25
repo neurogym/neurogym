@@ -6,7 +6,30 @@ import torch
 from bokeh.models import TabPanel
 from torch import nn
 
+import panel as pn
+
+import numpy as np
+
 import neurogym as ngym
+
+import param
+
+
+class PlotParams(param.Parameterized):
+
+    muted = param.Boolean(
+        instantiate=True,
+        label="Mute all traces",
+        doc="Parameter for muting / unmuting traces.",
+        precedence=-1,
+    )
+
+    bg_colour = param.Color(
+        default="#ffffff",
+        instantiate=True,
+        doc="Background colour for the figure.",
+        label="Background colour.",
+    )
 
 
 class ParamMonitorBase:
@@ -32,7 +55,7 @@ class ParamMonitorBase:
         layer: nn.Module,
         phases: set[ngym.MonitorPhase],
     ):
-        """A base class for all monitor components.
+        """A base class for all parameter monitor components.
 
         Args:
             monitor (Any):
@@ -48,38 +71,27 @@ class ParamMonitorBase:
         self.layer = layer
         self.phases = phases
         self.phase: ngym.MonitorPhase = None
+        self.history: dict[ngym.MonitorPhase, list[list[np.ndarray]]] = {
+            phase: [] for phase in self.phases
+        }
 
-    def _init_containers(self):
-        """Initialise the data container(s).
-
-        This cannot and should not be implemented here because
-        each parameter monitor would likely have a different
-        storage structure and mechanisms for modifying it.
-
-        Raises:
-            NotImplementedError:
-                Raised when trying to use the base class directly.
-        """
-        msg = "Please implement this method in a derived class."
-        raise NotImplementedError(msg)
-
-    def get_neuron_count(self) -> int:
+    def _get_neuron_count(self) -> int:
         """Get the total neuron count for the parent layer.
 
         Returns:
             int:
                 The number of neurons in the layer.
         """
-        return self.monitor.get_neuron_count()  # type: ignore[no-any-return]
+        return self.monitor._get_neuron_count()  # type: ignore[no-any-return]
 
-    def get_channel_count(self) -> int:
+    def _get_channel_count(self) -> int:
         """Get the channel count for the parent layer.
 
         Returns:
             int:
                 The number of channels in the layer.
         """
-        return self.monitor.get_channel_count()  # type: ignore[no-any-return]
+        return self.monitor._get_channel_count()  # type: ignore[no-any-return]
 
     def process(
         self,
@@ -112,17 +124,24 @@ class ParamMonitorBase:
         msg = "Please implement this method in a derived class."
         raise NotImplementedError(msg)
 
-    def start_trial(self):
+    def start_new_trial(self):
         """Start monitoring parameters for a new trial.
         Raises:
             NotImplementedError:
                 Raised when trying to use the base class directly.
         """
 
-        msg = "Please implement this method in a derived class."
-        raise NotImplementedError(msg)
+        if self.phase is None:
+            raise ValueError("Please set the monitoring phase.")
 
-    def plot(self) -> TabPanel:
+        if self.phase in self.phases:
+            if (
+                len(self.history[self.phase]) == 0
+                or len(self.history[self.phase][-1]) > 0
+            ):
+                self.history[self.phase].append([])
+
+    def plot(self) -> pn.Tabs:
         """Render this component as a tab.
 
         Raises:

@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from pathlib import Path
-
+from IPython import get_ipython
 
 def mkdir(path: Path | str) -> Path:
     """A thin shim over the Path class.
@@ -43,3 +43,29 @@ def timestamp(ms: bool = False) -> str:
 
     # UTC time is used to avoid ambiguity.
     return datetime.strftime(datetime.now(timezone.utc), fmt)[:end]
+
+
+def is_notebook() -> bool:
+    """Determine if the caller is running in a Jupyter notebook.
+
+    Courtesy of https://stackoverflow.com/a/39662359/4639195.
+
+    Returns:
+        bool:
+            True if running in a notebook.
+    """
+    try:
+        shell = get_ipython().__class__.__name__
+        match (shell):
+            case "ZMQInteractiveShell":
+                # Jupyter notebook or qtconsole
+                return True
+            case "TerminalInteractiveShell":
+                # Terminal running IPython
+                return False
+            case _:
+                # Other type (?)
+                return False
+    except NameError:
+        # Probably standard Python interpreter
+        return False
