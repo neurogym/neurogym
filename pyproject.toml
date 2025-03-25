@@ -24,11 +24,17 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "numpy",
+    "pydantic-settings",
     "gymnasium==0.29.*",
+    "bokeh",
+    "loguru",
     "matplotlib",
-    "stable-baselines3>=2.3.2",
+    "numpy",
+    "sb3-contrib",
     "scipy",
+    "stable-baselines3>=2.3.2",
+    "tqdm",
+    "tomlkit",
 ]
 description = "NeuroGym: Gymnasium-style Cognitive Neuroscience Tasks"
 keywords = [
@@ -53,6 +59,7 @@ dev = [
     # code style
     "ruff==0.9.*",
     "mypy",
+    "types-docutils",
     # docs
     "mkdocs",
     "mkdocs-material",
@@ -67,7 +74,6 @@ dev = [
 publishing = ["build", "twine", "wheel"]
 tutorials = ["notebook"]
 env_specific = ["psychopy"]
-
 
 [project.urls]
 Repository = "https://github.com/neurogym/neurogym"

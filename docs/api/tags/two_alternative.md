@@ -14,4 +14,3 @@ The following tasks implement two-alternative paradigms:
 - [PerceptualDecisionMakingDelayResponse](../envs.md#neurogym.envs.perceptualdecisionmaking.PerceptualDecisionMakingDelayResponse)
 - [ProbabilisticReasoning](../envs.md#neurogym.envs.probabilisticreasoning.ProbabilisticReasoning)
 - [PulseDecisionMaking](../envs.md#neurogym.envs.perceptualdecisionmaking.PulseDecisionMaking)
-- [SingleContextDecisionMaking](../envs.md#neurogym.envs.contextdecisionmaking.SingleContextDecisionMaking)

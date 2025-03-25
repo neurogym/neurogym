@@ -17,4 +17,4 @@ The following tasks implement perceptual paradigms:
 - [ProbabilisticReasoning](../envs.md#neurogym.envs.probabilisticreasoning.ProbabilisticReasoning)
 - [PulseDecisionMaking](../envs.md#neurogym.envs.perceptualdecisionmaking.PulseDecisionMaking)
 - [ReachingDelayResponse](../envs.md#neurogym.envs.reachingdelayresponse.ReachingDelayResponse)
-- [SingleContextDecisionMaking](../envs.md#neurogym.envs.contextdecisionmaking.SingleContextDecisionMaking)
+- [ContextDecisionMaking](../envs.md#neurogym.envs.contextdecisionmaking.ContextDecisionMaking)

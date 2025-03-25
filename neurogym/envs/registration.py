@@ -84,7 +84,6 @@ NATIVE_ALLOW_LIST = [
     "Reaching1DWithSelfDistraction",
     "ReachingDelayResponse",
     "ReadySetGo",
-    "SingleContextDecisionMaking",
     # 'SpatialSuppressMotion',   # noqa: ERA001
     # TODO: raises ModuleNotFound error since requires scipy, which is not in the requirements of neurogym.
     # FIXME: I have added scipy to requirements (for other reason), does this mean SpatialSuppressMotion is valid?

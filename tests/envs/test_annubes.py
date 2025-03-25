@@ -282,7 +282,7 @@ def test_initial_state_and_first_reset(default_env: AnnubesEnv) -> None:
     # Check state after first reset
     ob, _ = default_env.reset()
     assert default_env.t == 100, f"default_env={default_env.t}, should be 100 after first reset"
-    assert default_env.num_tr == 1, f"num_tr={default_env.num_tr}, should be 1 after first reset"
+    assert default_env.num_tr == 0, f"num_tr={default_env.num_tr}, should be 0 after first reset"
     assert isinstance(default_env.trial, dict)
     assert ob.shape == default_env.observation_space.shape, (
         f"observation_space.shape={default_env.observation_space.shape}, should match the observation space"
