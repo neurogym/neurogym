@@ -10,7 +10,7 @@ from neurogym.conf.conf import Conf
 
 def test_load_default_config():
     """Test if the default configuration can be loaded."""
-    ngym.logger.info(f"Logging level: {ngym.conf.log.level}")
+    ngym.logger.info(f"Logging level: {ngym.conf.monitor.log.level}")
     ngym.logger.info("Neurogym configuration loaded successfully.")
 
 
@@ -32,9 +32,11 @@ def test_config_custom_toml_file():
         doc.add(tkit.comment("This is a Neurogym configuration file."))
         doc.add(tkit.nl())
 
+        monitor = tkit.table()
         log = tkit.table()
+        monitor.append("log", log)
         log.add("level", level)
-        doc.add("log", log)
+        doc.add("monitor", monitor)
 
         # Store the file
         # ==================================================
@@ -47,7 +49,7 @@ def test_config_custom_toml_file():
 
         # Check that the log level in the configuration
         # is the same as the `level` variable
-        assert conf.log.level == level
+        assert conf.monitor.log.level == level
 
     finally:
         # Clean up

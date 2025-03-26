@@ -25,7 +25,7 @@ class ConfBase(BaseSettings):
     """Configuration base class."""
 
     # This is a built-in attribute that is overriden here.
-    model_config: SettingsConfigDict = SettingsConfigDict(
+    model_config = SettingsConfigDict(
         env_prefix="NGYM_",
         case_sensitive=True,
         nested_model_default_partial_update=True,

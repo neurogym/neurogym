@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-
 from pydantic import Field, field_validator
 from pydantic_settings import (
     PydanticBaseSettingsSource,
@@ -70,10 +69,7 @@ class Conf(ConfBase):
         if isinstance(value, str):
             return os.path.expandvars(value)
         if isinstance(value, dict):
-            return {
-                k: (os.path.expandvars(v) if isinstance(v, str) else v)
-                for k, v in value.items()
-            }
+            return {k: (os.path.expandvars(v) if isinstance(v, str) else v) for k, v in value.items()}
         if isinstance(value, list):
             return [(os.path.expandvars(v) if isinstance(v, str) else v) for v in value]
         return value

@@ -135,9 +135,7 @@ class Monitor(Wrapper):
                 self.perf_mat.append(-1)
             self.stp_counter += 1
         elif len(self.rew_mat) > 0:
-            fname = (
-                self.save_dir / f"task_{self.num_tr:06d}.{self.conf.monitor.plot.ext}"
-            )
+            fname = self.save_dir / f"task_{self.num_tr:06d}.{self.conf.monitor.plot.ext}"
             obs_mat = np.array(self.ob_mat)
             act_mat = np.array(self.act_mat)
             fig_(
