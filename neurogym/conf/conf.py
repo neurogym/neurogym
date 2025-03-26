@@ -1,36 +1,43 @@
 import os
 from pathlib import Path
 
-from loguru import logger
+
 from pydantic import Field, field_validator
 from pydantic_settings import (
-    BaseSettings,
     PydanticBaseSettingsSource,
     TomlConfigSettingsSource,
 )
 
-from neurogym.config.base import CONF_DIR, LOCAL_DIR, PKG_DIR, ROOT_DIR, ConfBase
-from neurogym.config.components.env import EnvConf
-from neurogym.config.components.log import LogConf
-from neurogym.config.components.monitor import MonitorConf
+from neurogym.conf.base import CONF_DIR, LOCAL_DIR, PKG_DIR, ROOT_DIR, ConfBase
+from neurogym.conf.components.agent import AgentConf
+from neurogym.conf.components.env import EnvConf
+from neurogym.conf.components.monitor import MonitorConf
 
 
 class Conf(ConfBase):
-    """Main configuration."""
+    """Main configuration.
 
-    # Configuration file
+    conf_file: A user-settable configuration file in TOML format.
+    root_dir: The root directory of the repository.
+    pkg_dir: The directory where the neurogym package is located.
+    conf_dir: The directory of the configuration module.
+    local_dir: A local directory that should receive all kinds of program output (e.g., plots).
+    agent: Options for agents (cf. :ref:`AgentConf`).
+    env: Options for environments (cf. :ref:`EnvConf`).
+    monitor: Subconfiguration for monitoring options (cf. :ref:`MonitorConf`).
+    """
+
+    # TOML configuration file
     conf_file: Path | None = Path.cwd() / "conf.toml"
 
-    # Some useful paths.
-    # Except for local_dir, the others cannot be modified.
     root_dir: Path = Field(frozen=True, default=ROOT_DIR)
     pkg_dir: Path = Field(frozen=True, default=PKG_DIR)
     conf_dir: Path = Field(frozen=True, default=CONF_DIR)
     local_dir: Path = LOCAL_DIR
 
     # Subconfiguration
+    agent: AgentConf = AgentConf()
     env: EnvConf = EnvConf()
-    log: LogConf = LogConf()
     monitor: MonitorConf = MonitorConf()
 
     def __init__(
@@ -52,10 +59,10 @@ class Conf(ConfBase):
     @classmethod
     def settings_customise_sources(  # type: ignore[override]
         cls,
-        settings_cls: type[BaseSettings],
+        settings_cls: type[ConfBase],
         **kwargs,
     ) -> tuple[PydanticBaseSettingsSource, ...]:
-        return (TomlConfigSettingsSource(settings_cls, cls.conf_file),)  # type: ignore[attr-defined]
+        return (TomlConfigSettingsSource(settings_cls, cls.conf_file),)
 
     @field_validator("*", mode="before", check_fields=False)
     @classmethod
@@ -63,20 +70,15 @@ class Conf(ConfBase):
         if isinstance(value, str):
             return os.path.expandvars(value)
         if isinstance(value, dict):
-            return {k: (os.path.expandvars(v) if isinstance(v, str) else v) for k, v in value.items()}
+            return {
+                k: (os.path.expandvars(v) if isinstance(v, str) else v)
+                for k, v in value.items()
+            }
         if isinstance(value, list):
             return [(os.path.expandvars(v) if isinstance(v, str) else v) for v in value]
         return value
 
 
-# Configuration object
+# Default donfiguration object
 # ==================================================
 conf = Conf()
-
-# Logger configuration
-# ==================================================
-logger.remove()
-logger.configure(**conf.log.make_config())
-
-# Enable colour tags in messages.
-logger = logger.opt(colors=True)

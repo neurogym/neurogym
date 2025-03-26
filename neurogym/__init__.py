@@ -2,8 +2,9 @@
 # fixing rule above leads to problems in pytest
 # FIXME: figure out why this is the case and solve
 
-from neurogym.config.conf import conf
-from neurogym.config.conf import logger
+from neurogym.conf.conf import Conf
+from neurogym.conf.conf import conf
+from neurogym.conf.logging import logger
 from neurogym import utils
 from neurogym.core import BaseEnv
 from neurogym.core import TrialEnv

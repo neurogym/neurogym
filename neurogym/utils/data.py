@@ -57,14 +57,16 @@ class Dataset:
 
         obs_shape = env.observation_space.shape
         action_shape = env.action_space.shape
-        if len(action_shape) == 0:  # type: ignore[arg-type]
-            self._expand_action = True
-        else:
-            self._expand_action = False
+        if obs_shape is None or action_shape is None:
+            msg = "The observation and action spaces must have a shape."
+            raise ValueError(msg)
+
+        self._expand_action = len(action_shape) == 0
+
         if cache_len is None:
             # Infer cache len
             cache_len = 1e5  # Probably too low
-            cache_len /= np.prod(obs_shape) + np.prod(action_shape)  # type: ignore[arg-type]
+            cache_len /= np.prod(obs_shape) + np.prod(action_shape)
             cache_len /= batch_size
         cache_len = int((1 + (cache_len // seq_len)) * seq_len)
 
@@ -76,10 +78,10 @@ class Dataset:
         else:
             shape1, shape2 = [seq_len, batch_size], [cache_len, batch_size]
 
-        self.inputs_shape = shape1 + list(obs_shape)  # type: ignore[arg-type]
-        self.target_shape = shape1 + list(action_shape)  # type: ignore[arg-type]
-        self._cache_inputs_shape = shape2 + list(obs_shape)  # type: ignore[arg-type]
-        self._cache_target_shape = shape2 + list(action_shape)  # type: ignore[arg-type]
+        self.inputs_shape = shape1 + list(obs_shape)
+        self.target_shape = shape1 + list(action_shape)
+        self._cache_inputs_shape = shape2 + list(obs_shape)
+        self._cache_target_shape = shape2 + list(action_shape)
 
         self._inputs = np.zeros(
             self._cache_inputs_shape,

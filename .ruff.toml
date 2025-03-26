@@ -11,7 +11,6 @@ ignore = [
     "T201",    # 86 print statements, consider leaving the test ones there for the time being?
     "PLR2004", # 40 comparisons against non-constant? # FIXME: consider giving actions names instead of numbers?
     # to be slowly updated while refactoring/updating code
-    "TC001", # Move application import into a type-checking block.
     "ANN",     # 878 type annotations missing!
     "D10",     # 112 missing docstrings (this line ignores D101, D102, D103)
     "C901",    # too high complexity
@@ -26,7 +25,6 @@ ignore = [
     "TD",     # TODO formatting
     "FIX",    # Resolve FIXME, TODO, XXX
     "EXE002", # Executable but no shebang
-    "COM812", # Recommended to ignore by Ruff itself
     # Unneeded docstrings
     "D100",   # Missing module docstring
     "D104",   # Missing public package docstring

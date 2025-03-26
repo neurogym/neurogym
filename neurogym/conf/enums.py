@@ -1,6 +1,6 @@
 import enum
 
-from neurogym.config.base import StrEnum
+from neurogym.conf.base import StrEnum
 
 
 class EnvParam(StrEnum):

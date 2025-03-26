@@ -5,7 +5,7 @@ from pathlib import Path
 import tomlkit as tkit
 
 import neurogym as ngym
-from neurogym.config.conf import Conf
+from neurogym.conf.conf import Conf
 
 
 def test_load_default_config():
@@ -43,7 +43,7 @@ def test_config_custom_toml_file():
 
         # Create a new configuration
         # ==================================================
-        conf = Conf(conf_file=config_file)
+        conf = Conf(config_file)
 
         # Check that the log level in the configuration
         # is the same as the `level` variable

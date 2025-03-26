@@ -120,9 +120,3 @@ examples/tmp/
 
 # Local directory
 /local
-
-# Environment configuration files anywhere in the directory hierarchy.
-# Any files ending in ".toml" will be ignored, except the ones
-# at the repository root (such as pyproject.toml).
-**/**.toml
-!/*.toml

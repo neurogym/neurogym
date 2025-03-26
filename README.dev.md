@@ -107,10 +107,6 @@ mkdocs serve -w docs -w src
 
 Then open your browser and go to [http://127.0.0.1:8000/](http://127.0.0.1:8000/).
 
-### Committing TOML configuration files
-
-By default, TOML configuration files anywhere in the repository tree are ignored, except top-level ones such as `pyprojects.toml`. This is a deliberate decision to allow users to put configuration files anywhere in the repository tree when running experiments. However, there is a template file called `conf.template.toml` as well as a few TOML files used for demonstration purposes under `docs/examples`. Those files have been committed by using the force add option in `git add -f` to override the `.gitignore` settings. If these files need to be updated for any reason (such as adding new options to the configuration system), you can again force-add them in order to make `git` recognise them as changed.
-
 ### Publishing the docs
 
 The docs are published on GitHub pages. We use [mike](https://github.com/jimporter/mike) to deploy the docs to the `gh-pages` branch and to manage the versions of docs.

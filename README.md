@@ -81,14 +81,20 @@ Wrappers (see [list](https://github.com/gyyang/neurogym/blob/master/docs/wrapper
 are short scripts that allow introducing modifications the original tasks. For instance, the Random Dots Motion task can be transformed into a reaction time task by passing it through the _reaction_time_ wrapper. Alternatively, the _combine_ wrapper allows training an agent in two different tasks simultaneously.
 
 ### Configuration
-The `Neurogym` `Monitor` class employs a configuration system based on [`Pydantic Settings`](https://docs.pydantic.dev/latest/concepts/pydantic_settings/). It accepts a path to a TOML configuration file (outlined below) or a `Conf` object (cf. [`neurogym/config/conf.py`](neurogym/config/conf.py)). The supplied configuration template ([`docs/conf.template.toml`](docs/conf.template.toml)) contains all the currently available options, which mirror the default options in the code.
+`Neurogym` employs a configuration system based on [`Pydantic Settings`](https://docs.pydantic.dev/latest/concepts/pydantic_settings/). You can use a TOML configuration file to create a configuration that can be used throughout the library, for instance, in existing and custom environments (cf. [`neurogym/conf/conf.py`](neurogym/conf/conf.py)). The supplied configuration template ([`docs/conf.template.toml`](docs/conf.template.toml)) contains all the currently available options, which mirror the default options in the code.
 
-All options in the configuration code have default values. Rather than changing the values in the code, you can override them by using a TOML configuration file as follows:
+All options in the configuration code have default values. Rather than changing the values in the code, you can use a TOML file to override the defaults. To do that, just copy the [template configuration](docs/conf.template.toml), change the values of any options that you need to customise, and save it somewhere convenient. You can pass that file to the `Conf` class to create a custom configuration object:
 
-- **Create `neurogym/config/conf.toml`**: Create a TOML file or copy the [template](docs/conf.template.toml) to `neurogym/config/conf.toml`. This will override the default configuration options **globally**, meaning that it will affect all the environments. You don't have to pass the new configuration to the Monitor class - it will be picked up automatically.
+```python
+from neurogym import Conf
+conf = Conf(conf_file = '<path-to-TOML-file>')
+```
+
+. This will override the default configuration options **globally**, meaning that it will affect all the environments. You don't have to pass the new configuration to the `Monitor` class - it will be picked up automatically.
+
+
+
 - **Create a bespoke TOML configuration**: Follow the same steps as above, but either put the file elsewhere (i.e., _not_ under `neurogym/config/`) or, if you put it under `neurogym/config`, give it a different name (i.e., _not_ `conf.toml`). In this case, pass the path to your custom configuration file to the `Monitor` class when instantiating it (using the `conf` argument). This will override the default configuration options only for that monitor object. You can also instantiate a new [`Conf`](neurogym/config/conf.py) object by passing the path to your modified TOML file to the `Conf` constructor (using the `conf_file` argument) and pass the `Conf` object to the `Monitor` class.
-
-:warning: <span style="color: red;">Note</span>: Any files ending in `.toml` will be ignored by `git`, except the ones at the top level of the repository (such as `pyproject.toml`). This allows you to put configuration files anywhere in the repository hierarchy.
 
 ### Examples
 

@@ -5,7 +5,6 @@ import numpy as np
 from gymnasium import Wrapper
 
 import neurogym as ngym
-from neurogym.config import Conf
 from neurogym.utils.plotting import fig_
 
 
@@ -15,15 +14,11 @@ class Monitor(Wrapper):
     Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth.
 
     Args:
-        folder: Folder where the data will be saved. (def: None, str)
-            sv_per and sv_stp: Data will be saved every sv_per sv_stp's.
-            (def: 100000, int)
-        verbose: Whether to print information about average reward and number
-            of trials. (def: False, bool)
-        sv_fig: Whether to save a figure of the experiment structure. If True,
-            a figure will be updated every sv_per. (def: False, bool)
-        num_stps_sv_fig: Number of trial steps to include in the figure.
-            (def: 100, int)
+        env: The wrapped environment.
+        conf: An optional configuration (either a `Conf` object or a `str` or `Path` object
+            pointing to a TOML configuration file). Defaults to None.
+        step_function: An optional step function to override the built-in `step()`
+            method provided by the environment. Defaults to None.
     """
 
     metadata: dict[str, str | None] = {  # noqa: RUF012
@@ -38,21 +33,21 @@ class Monitor(Wrapper):
     def __init__(
         self,
         env: ngym.TrialEnv,
-        conf: Conf | str | Path | None = None,
-        step_fn: Callable | None = None,
+        conf: ngym.Conf | str | Path | None = None,
+        step_function: Callable | None = None,
     ) -> None:
         super().__init__(env)
         self.env = env
-        self.step_fn = step_fn
+        self.step_function = step_function
         if conf is None:
             conf = ngym.conf
         elif isinstance(conf, (str | Path)):
-            conf = Conf(conf_file=conf)
-        self.conf = conf
+            conf = ngym.Conf(conf_file=conf)
+        self.conf: ngym.Conf = conf
         self._configure_logger()
 
         self.data: dict[str, list] = {"action": [], "reward": []}
-        if self.conf.monitor.trigger == "timestep":
+        if self.conf.monitor.plot.trigger == "timestep":
             self.t = 0
         self.num_tr = 0
 
@@ -61,11 +56,11 @@ class Monitor(Wrapper):
             self.conf.env.name = self.env.__class__.__name__
 
         # Directory for saving plots
-        save_dir_name = f"{self.conf.env.name}/{ngym.utils.iso_datetime()}"
+        save_dir_name = f"{self.conf.env.name}/{ngym.utils.iso_timestamp()}"
         self.save_dir = ngym.utils.ensure_dir(self.conf.local_dir / save_dir_name)
 
         # Figures
-        if self.conf.monitor.plot.save:
+        if self.conf.monitor.plot.create:
             self.stp_counter = 0
             self.ob_mat: list = []
             self.act_mat: list = []
@@ -78,13 +73,13 @@ class Monitor(Wrapper):
         return self.env.reset()
 
     def step(self, action):
-        if self.step_fn:
-            obs, rew, terminated, truncated, info = self.step_fn(action)
+        if self.step_function:
+            obs, rew, terminated, truncated, info = self.step_function(action)
         else:
             obs, rew, terminated, truncated, info = self.env.step(action)
-        if self.conf.monitor.plot.save:
+        if self.conf.monitor.plot.create:
             self.store_data(obs, action, rew, info)
-        if self.conf.monitor.trigger == "timestep":
+        if self.conf.monitor.plot.trigger == "timestep":
             self.t += 1
         if info["new_trial"]:
             self.num_tr += 1
@@ -97,29 +92,28 @@ class Monitor(Wrapper):
                     self.data[key].append(info[key])
 
             # save data
-            save = False
             save = (
                 self.t >= self.conf.monitor.plot.interval
-                if self.conf.monitor.trigger == "timestep"
+                if self.conf.monitor.plot.trigger == "timestep"
                 else self.num_tr % self.conf.monitor.plot.interval == 0
             )
             if save:
                 np.savez(self.save_dir / f"trial-{self.num_tr!s}.npz", **self.data)
-                if self.conf.log.verbose:
+                if self.conf.monitor.log.verbose:
                     print("--------------------")
                     print("Number of steps: ", np.mean(self.num_tr))
                     print("Average reward: ", np.mean(self.data["reward"]))
                     print("--------------------")
                 self.reset_data()
-                if self.conf.monitor.plot.save:
+                if self.conf.monitor.plot.create:
                     self.stp_counter = 0
-                if self.conf.monitor.trigger == "timestep":
+                if self.conf.monitor.plot.trigger == "timestep":
                     self.t = 0
         return obs, rew, terminated, truncated, info
 
     def _configure_logger(self):
         ngym.logger.remove()
-        ngym.logger.configure(**self.conf.log.make_config())
+        ngym.logger.configure(**self.conf.monitor.log.make_conf())
         ngym.logger.info("Logger configured.")
 
     def reset_data(self) -> None:
@@ -141,7 +135,9 @@ class Monitor(Wrapper):
                 self.perf_mat.append(-1)
             self.stp_counter += 1
         elif len(self.rew_mat) > 0:
-            fname = self.save_dir / f"task_{self.num_tr:06d}.{self.conf.monitor.plot.ext}"
+            fname = (
+                self.save_dir / f"task_{self.num_tr:06d}.{self.conf.monitor.plot.ext}"
+            )
             obs_mat = np.array(self.ob_mat)
             act_mat = np.array(self.act_mat)
             fig_(
