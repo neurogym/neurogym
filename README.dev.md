@@ -165,6 +165,15 @@ During the development cycle, three main supporting branches are used:
 - Hotfix branches - Branches that branch off from `main` and must merge into `main` and `dev`: necessary to act immediately upon an undesired status of `main`.
 - Release branches - Branches that branch off from `dev` and must merge into `main` and `dev`: support preparation of a new production release. They allow many minor bug to be fixed and preparation of meta-data for a release.
 
+### Committing (changes to) Jupyter notebooks
+
+Please commit any (changes to) Jupyter notebooks as empty notebooks to improve the reviewability. Do this by:
+
+1. clearing all outputs to remove from the notebook, and
+2. restarting the kernel ("restart" button) to reset which will the `execution_count` of all cells.
+
+Jupyter notebooks are notoriously difficult to review effectively. In this way, it is kept at least somewhat manageable.
+
 ## Development conventions
 
 We highly appreciate external contributions to our package! We do request developers to adhere to the following conventions:
