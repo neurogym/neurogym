@@ -81,9 +81,9 @@ Wrappers (see [list](https://github.com/gyyang/neurogym/blob/master/docs/wrapper
 are short scripts that allow introducing modifications the original tasks. For instance, the Random Dots Motion task can be transformed into a reaction time task by passing it through the _reaction_time_ wrapper. Alternatively, the _combine_ wrapper allows training an agent in two different tasks simultaneously.
 
 ### Configuration
-`Neurogym` employs a configuration system based on [`Pydantic Settings`](https://docs.pydantic.dev/latest/concepts/pydantic_settings/). You can use a TOML configuration file to create a configuration that can be used throughout the library, for instance, in existing and custom environments (cf. [`neurogym/conf/conf.py`](neurogym/conf/conf.py)). The supplied configuration template ([`docs/conf.template.toml`](docs/conf.template.toml)) contains all the currently available options, which mirror the default options in the code.
+`Neurogym` employs a configuration system based on [`Pydantic Settings`](https://docs.pydantic.dev/latest/concepts/pydantic_settings/). You can use a TOML configuration file to create a configuration that can be used throughout the library, for instance, in existing and custom environments (cf. [`neurogym/conf/conf.py`](neurogym/conf/conf.py)). The supplied configuration template ([`docs/examples/conf.toml`](docs/examples/conf.toml)) contains all the currently available options, which mirror the default options in the code.
 
-All options in the configuration code have default values. Rather than changing the values in the code, you can use a TOML file to override the defaults. To do that, just copy the [template configuration](docs/conf.template.toml), change the values of any options that you need to customise, and save it somewhere convenient. You can pass that file to the `Conf` class to create a custom configuration object:
+All options in the configuration code have default values. Rather than changing the values in the code, you can use a TOML file to override the defaults. To do that, just copy the [template configuration](docs/examples/conf.toml), change the values of any options that you need to customise, and save it somewhere convenient. You can pass that file to the `Conf` class to create a custom configuration object:
 
 ```python
 from neurogym import Conf
