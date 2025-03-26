@@ -83,18 +83,22 @@ are short scripts that allow introducing modifications the original tasks. For i
 ### Configuration
 `Neurogym` employs a configuration system based on [`Pydantic Settings`](https://docs.pydantic.dev/latest/concepts/pydantic_settings/). You can use a TOML configuration file to create a configuration that can be used throughout the library, for instance, in existing and custom environments (cf. [`neurogym/conf/conf.py`](neurogym/conf/conf.py)). The supplied configuration template ([`docs/examples/conf.toml`](docs/examples/conf.toml)) contains all the currently available options, which mirror the default options in the code.
 
-All options in the configuration code have default values. Rather than changing the values in the code, you can use a TOML file to override the defaults. To do that, just copy the [template configuration](docs/examples/conf.toml), change the values of any options that you need to customise, and save it somewhere convenient. You can pass that file to the `Conf` class to create a custom configuration object:
+All options in the configuration code have default values. Rather than changing the values in the code, you can use a TOML file to override the defaults. To do that, just copy the [template configuration](docs/examples/conf.toml), change the values of any options that you need to customise, and save it somewhere convenient. You can pass that file to the `Conf` class to create a custom configuration vobject:
 
 ```python
 from neurogym import Conf
-conf = Conf(conf_file = '<path-to-TOML-file>')
+conf = Conf('<path-to-TOML-file>')
 ```
 
-. This will override the default configuration options **globally**, meaning that it will affect all the environments. You don't have to pass the new configuration to the `Monitor` class - it will be picked up automatically.
+The resulting object can be used on its own, or it can be passed to a wrapper (such as a monitor). It is also possible to pass the path to the TOML configuration file directly to the monitor when instantiating it:
 
+```python
+from neurogym.wrappers import monitor
+env = gym.make('GoNogo-v0')
+env = monitor.Monitor(env, conf="conf.toml") # You can also pass a conf object instead of a path.
+```
 
-
-- **Create a bespoke TOML configuration**: Follow the same steps as above, but either put the file elsewhere (i.e., _not_ under `neurogym/config/`) or, if you put it under `neurogym/config`, give it a different name (i.e., _not_ `conf.toml`). In this case, pass the path to your custom configuration file to the `Monitor` class when instantiating it (using the `conf` argument). This will override the default configuration options only for that monitor object. You can also instantiate a new [`Conf`](neurogym/config/conf.py) object by passing the path to your modified TOML file to the `Conf` constructor (using the `conf_file` argument) and pass the `Conf` object to the `Monitor` class.
+Please refer to the [template configuration](docs/examples/conf.toml) for more details about the available options. The goal is to implement as many configurable options as possible in this configuration system in order to allow for environments, agents, experiments and so on to be instantiated just by passing a configuration file.
 
 ### Examples
 
