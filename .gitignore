@@ -120,3 +120,6 @@ examples/tmp/
 
 # sandbox files
 _Untitled.*
+
+# results
+**/tmp
