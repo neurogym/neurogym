@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 import neurogym as ngym
 
@@ -76,3 +77,48 @@ def test_addob_instep():
     for i in range(10):
         ob, _rew, _terminated, _truncated, _info = env.step(action=0)
         assert ob[0] == ((i + 1) % 5) + 1  # each trial is 5 steps
+
+
+class TestEnv(ngym.TrialEnv):
+    def __init__(self, dt=100, timing=None) -> None:
+        super().__init__(dt=dt)
+        self.timing = timing or {}
+        self.observation_space = ngym.spaces.Box(
+            -np.inf,
+            np.inf,
+            shape=(1,),
+            dtype=np.float32,
+        )
+        self.action_space = ngym.spaces.Discrete(2)
+
+    def _new_trial(self, **kwargs):
+        return {}
+
+    def _step(self, action):  # noqa: ARG002
+        return self.ob_now, 0, False, False, {"new_trial": False}
+
+
+@pytest.mark.parametrize(
+    ("timing", "expected_timesteps"),
+    [
+        # Simple integer/float timing values
+        ({"fixation": 300, "stimulus": 500, "decision": 200}, 10),
+        # Uniform distribution
+        ({"fixation": 300, "stimulus": ["uniform", [400, 600]], "decision": 200}, 10),
+        # Truncated exponential distribution
+        ({"fixation": 300, "stimulus": ["truncated_exponential", [400, 100, 300, 500]], "decision": 200}, 9),
+        # Choice distribution
+        ({"fixation": 300, "stimulus": ["choice", [300, 400, 500]], "decision": 200}, 9),
+        # List of values for random choice
+        ({"fixation": 300, "stimulus": [400, 500, 600], "decision": 200}, 10),
+        # Constant value
+        ({"fixation": 300, "stimulus": ["constant", 450], "decision": 200}, 9.5),
+        # Empty timing
+        ({}, 0),
+    ],
+)
+def test_avg_timesteps_per_trial(timing, expected_timesteps):
+    """Test the avg_timesteps_per_trial property with different timing configurations."""
+    dt = 100
+    env = TestEnv(dt=dt, timing=timing)
+    assert env.avg_timesteps_per_trial == expected_timesteps
