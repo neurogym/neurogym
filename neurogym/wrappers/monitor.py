@@ -58,11 +58,11 @@ class Monitor(Wrapper):
             self.t = 0
         self.verbose = verbose
         if folder is None:
-            # FIXME is it ok to use tempfile.TemporaryDirectory instead or does this need to be stored locally always?
             self.folder = "tmp"
         Path(self.folder).mkdir(parents=True, exist_ok=True)
+
         # seeding
-        self.sv_name = self.folder + self.env.__class__.__name__ + "_bhvr_data_" + name + "_"  # FIXME: use pathlib
+        self.sv_name = str(Path(self.folder) / f"{self.env.__class__.__name__}_bhvr_data_{name}_")
         # figure
         self.sv_fig = sv_fig
         if self.sv_fig:

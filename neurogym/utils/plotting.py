@@ -13,7 +13,6 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 mpl.rcParams["font.size"] = 7
 mpl.rcParams["pdf.fonttype"] = 42
 mpl.rcParams["ps.fonttype"] = 42
-mpl.rcParams["font.family"] = "arial"
 
 
 def plot_env(

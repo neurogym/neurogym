@@ -117,3 +117,9 @@ docs/source/_static/
 examples/content/
 examples/tmp/
 **.zip
+
+# sandbox files
+_Untitled.*
+
+# results
+**/tmp
