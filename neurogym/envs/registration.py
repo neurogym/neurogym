@@ -195,7 +195,23 @@ def all_tags():
     ]
 
 
-def make(id_, **kwargs):
+def make(id_: str, **kwargs) -> gym.Env:
+    """Creates an environment previously registered with :meth:`ngym.register`.
+
+    This function attempts to create an environment using the given `id_`. If the environment
+    is not registered, it raises an error and suggests the closest matching environment IDs.
+
+    Args:
+        id_: A string representing the environment ID.
+        kwargs: Additional arguments to pass to the environment constructor.
+
+    Returns:
+        An instance of the environment.
+
+    Raises:
+        gym.error.UnregisteredEnv: If the `id_` doesn't exist in the Neurogym's registry. The error
+            message will include suggestions for the closest matching environment IDs.
+    """
     try:
         # built in env_checker raises warnings or errors when ob not in observation_space
         return gym.make(id_, disable_env_checker=True, **kwargs)
