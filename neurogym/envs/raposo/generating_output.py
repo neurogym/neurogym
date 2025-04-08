@@ -20,7 +20,7 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 n_networks = 100 #number of networks
 first_network = 1 # number for the first network
 
-save_path = '/Users/lexotto/Documents_Mac/Stage/UVA/Code/BehavioralVariabilityRNN-main/data'
+save_path = '/Users/lexotto/Documents_Mac/Stage/UVA/Code/neurogym/neurogym/envs/raposo/data'
 n_rnn_output_split = 2
 
 # instantiate task class
