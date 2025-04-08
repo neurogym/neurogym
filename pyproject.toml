@@ -27,6 +27,7 @@ dependencies = [
     "numpy",
     "gymnasium==0.29.*",
     "matplotlib",
+    "rapidfuzz==3.13.*",
     "stable-baselines3>=2.3.2",
     "scipy",
 ]

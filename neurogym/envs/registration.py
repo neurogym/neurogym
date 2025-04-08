@@ -3,6 +3,7 @@ from inspect import getmembers, isclass, isfunction
 from pathlib import Path
 
 import gymnasium as gym
+from rapidfuzz.distance import Levenshtein
 
 from neurogym.envs.collections import get_collection
 
@@ -194,39 +195,6 @@ def all_tags():
     ]
 
 
-def _distance(s0, s1):
-    # Copyright (c) 2018 luozhouyang
-    if s0 is None:
-        msg = "Argument s0 is NoneType."
-        raise TypeError(msg)
-    if s1 is None:
-        msg = "Argument s1 is NoneType."
-        raise TypeError(msg)
-    if s0 == s1:
-        return 0.0
-    if len(s0) == 0:
-        return len(s1)
-    if len(s1) == 0:
-        return len(s0)
-
-    v0 = [0] * (len(s1) + 1)
-    v1 = [0] * (len(s1) + 1)
-
-    for i in range(len(v0)):
-        v0[i] = i
-
-    for i in range(len(s0)):
-        v1[0] = i + 1
-        for j in range(len(s1)):
-            cost = 1
-            if s0[i] == s1[j]:
-                cost = 0
-            v1[j + 1] = min(v1[j] + 1, v0[j + 1] + 1, v0[j] + cost)
-        v0, v1 = v1, v0
-
-    return v0[len(s1)]
-
-
 def make(id_, **kwargs):
     try:
         # built in env_checker raises warnings or errors when ob not in observation_space
@@ -239,7 +207,7 @@ def make(id_, **kwargs):
         else:
             all_ids = [env.id for env in gym.envs.registry.values()]
 
-        dists = [_distance(id_, env_id) for env_id in all_ids]
+        dists = [Levenshtein.distance(id_, env_id) for env_id in all_ids]
         # Python argsort
         sort_inds = sorted(range(len(dists)), key=dists.__getitem__)
         env_guesses = [all_ids[sort_inds[i]] for i in range(5)]
