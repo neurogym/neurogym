@@ -8,7 +8,11 @@ from rapidfuzz import process
 from neurogym.envs.collections import get_collection
 
 
-def _get_envs(foldername=None, env_prefix=None, allow_list=None):
+def _get_envs(
+    foldername: str | None = None,
+    env_prefix: str | None = None,
+    allow_list: list[str] | None = None,
+) -> dict[str, str]:
     """A helper function to get all environments in a folder.
 
     Example usage:
@@ -18,9 +22,12 @@ def _get_envs(foldername=None, env_prefix=None, allow_list=None):
     The results still need to be manually cleaned up, so this is just a helper
 
     Args:
-        foldername: str or None. If str, in the form of contrib, etc.
-        env_prefix: str or None, if not None, add this prefix to all env ids
+        foldername: If str, in the form of contrib, etc.
+        env_prefix: add this prefix to all env ids
         allow_list: list of allowed env name, for manual curation
+
+    Returns:
+        A dictionary mapping environment IDs to their entry points.
     """
     if env_prefix is None:
         env_prefix = ""
@@ -44,7 +51,7 @@ def _get_envs(foldername=None, env_prefix=None, allow_list=None):
     filenames = [f.name[:-3] for f in files]  # remove .py suffix
     filenames = sorted(filenames)
 
-    env_dict = {}
+    env_dict: dict[str, str] = {}
     for filename in filenames:
         lib = lib_root + filename
         module = importlib.import_module(lib)
@@ -121,7 +128,7 @@ ALL_CONTRIB_ENVS = _get_envs(
 
 
 # Automatically register all tasks in collections
-def _get_collection_envs():
+def _get_collection_envs() -> dict[str, str]:
     """Register collection tasks in collections folder.
 
     Each environment is named collection_name.env_name-v0
@@ -148,7 +155,12 @@ ALL_ENVS = {**ALL_NATIVE_ENVS, **ALL_PSYCHOPY_ENVS, **ALL_CONTRIB_ENVS}
 ALL_EXTENDED_ENVS = {**ALL_ENVS, **ALL_COLLECTIONS_ENVS}
 
 
-def all_envs(tag=None, psychopy=False, contrib=False, collections=False):
+def all_envs(
+    tag: str | None = None,
+    psychopy: bool = False,
+    contrib: bool = False,
+    collections: bool = False,
+) -> list[str]:
     """Return a list of all envs in neurogym."""
     envs = ALL_NATIVE_ENVS.copy()
     if psychopy:
@@ -164,7 +176,7 @@ def all_envs(tag=None, psychopy=False, contrib=False, collections=False):
         msg = f"{type(tag)=} must be a string."
         raise TypeError(msg)
 
-    new_env_list = []
+    new_env_list: list[str] = []
     for env in env_list:
         from_, class_ = envs[env].split(":")
         imported = getattr(__import__(from_, fromlist=[class_]), class_)
@@ -268,7 +280,7 @@ else:
     _all_gym_envs = [env.id for env in gym.envs.registry.values()]
 
 
-def register(id_, **kwargs) -> None:
+def register(id_: str, **kwargs) -> None:
     if id_ not in _all_gym_envs:
         gym.envs.registration.register(id=id_, **kwargs)
 
