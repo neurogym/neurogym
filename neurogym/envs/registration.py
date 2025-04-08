@@ -3,7 +3,6 @@ from inspect import getmembers, isclass, isfunction
 from pathlib import Path
 
 import gymnasium as gym
-from packaging import version
 
 from neurogym.envs.collections import get_collection
 
@@ -230,11 +229,8 @@ def _distance(s0, s1):
 
 def make(id_, **kwargs):
     try:
-        # TODO: disable gym 0.24 env_checker for now (raises warnings, even errors when ob not in observation_space)
-        # FIXME: is this still relevant for gymnasium?
-        if version.parse(gym.__version__) >= version.parse("0.24.0"):
-            return gym.make(id_, disable_env_checker=True, **kwargs)
-        return gym.make(id_, **kwargs)
+        # built in env_checker raises warnings or errors when ob not in observation_space
+        return gym.make(id_, disable_env_checker=True, **kwargs)
 
     except gym.error.UnregisteredEnv as e:
         # backward compatibility with old versions of gym
@@ -253,15 +249,9 @@ def make(id_, **kwargs):
         raise gym.error.UnregisteredEnv(err_msg) from e
 
 
-# backward compatibility with old versions of gym
-if hasattr(gym.envs.registry, "all"):
-    _all_gym_envs = [env.id for env in gym.envs.registry.all()]
-else:
-    _all_gym_envs = [env.id for env in gym.envs.registry.values()]
-
-
 def register(id_, **kwargs) -> None:
-    if id_ not in _all_gym_envs:
+    all_gym_envs = [env.id for env in gym.envs.registry.values()]
+    if id_ not in all_gym_envs:
         gym.envs.registration.register(id=id_, **kwargs)
 
 
