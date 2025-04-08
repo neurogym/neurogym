@@ -3,7 +3,7 @@ from inspect import getmembers, isclass, isfunction
 from pathlib import Path
 
 import gymnasium as gym
-from rapidfuzz.distance import Levenshtein
+from rapidfuzz import process
 
 from neurogym.envs.collections import get_collection
 
@@ -217,20 +217,48 @@ def make(id_: str, **kwargs) -> gym.Env:
         return gym.make(id_, disable_env_checker=True, **kwargs)
 
     except gym.error.UnregisteredEnv as e:
-        # backward compatibility with old versions of gym
-        if hasattr(gym.envs.registry, "all"):
-            all_ids = [env.id for env in gym.envs.registry.all()]
-        else:
-            all_ids = [env.id for env in gym.envs.registry.values()]
+        raise _handle_unregistered_env_error(id_) from e
 
-        dists = [Levenshtein.distance(id_, env_id) for env_id in all_ids]
-        # Python argsort
-        sort_inds = sorted(range(len(dists)), key=dists.__getitem__)
-        env_guesses = [all_ids[sort_inds[i]] for i in range(5)]
-        err_msg = f"No registered env with id_: {id_}.\nDo you mean:\n"
-        for env_guess in env_guesses:
-            err_msg += f"    {env_guess}\n"
-        raise gym.error.UnregisteredEnv(err_msg) from e
+
+def _handle_unregistered_env_error(id_: str) -> gym.error.UnregisteredEnv:
+    registered_envs = [env.id for env in gym.envs.registry.values()]
+    env_guesses = _get_closest_matches(id_, registered_envs)
+
+    error_msg = f"No registered env with id_: {id_}."
+    if env_guesses:
+        error_msg += "\nPerhaps you meant one of the following:\n"
+        for guess in env_guesses:
+            error_msg += f"    {guess}\n"
+
+    return gym.error.UnregisteredEnv(error_msg)
+
+
+def _get_closest_matches(
+    id_: str,
+    registered_envs: list[str],
+    n_guesses: int = 5,
+) -> list[str]:
+    """Find the closest matching strings to a given ID from a list of IDs.
+
+    This function uses fuzzy string matching to identify the closest matches to the provided `id_` from the
+    `registered_envs` list. The number of matches returned is limited by `n_guesses`.
+
+    Args:
+        id_: The target string to match against the list of IDs.
+        registered_envs: A list of strings to search for matches.
+        n_guesses: The maximum number of closest matches to return.
+            Defaults to 5.
+
+    Returns:
+        A list of the closest matching strings from `registered_envs`.
+    """
+    closest_matches = process.extract(
+        id_,
+        registered_envs,
+        limit=n_guesses,
+    )
+
+    return [match for match, _, _ in closest_matches]
 
 
 # backward compatibility with old versions of gym
