@@ -216,6 +216,7 @@ def psych_analysis_v2(data_path, th, frequencies):
 
 
 def  psych_analysis_v3(data_path, th, frequencies):
+
     net_out = np.load(os.path.join(data_path, 'test_output.npy'))
     with open(os.path.join(data_path, 'test_trials.pkl'), 'rb') as f:
         trials = pickle.load(f)
@@ -360,7 +361,9 @@ def psych_plot_all(data_path, frequencies):
     ax.spines['bottom'].set_linewidth(2)
     # save the figure
     plt.tight_layout()
-    plt.savefig(os.path.join(f'../../stopping_figures/vis_psych_plot_all__{IDENTIFIER}.png'))
+
+    print(f'current directory: {os.getcwd()}')
+    plt.savefig(os.path.join(f'stopping_figures/vis_psych_plot_all_{IDENTIFIER}.png'))
     plt.show()
     plt.close()
 
@@ -380,7 +383,9 @@ def psych_plot_all(data_path, frequencies):
     ax.spines['bottom'].set_linewidth(2)
     # save the figure
     plt.tight_layout()
-    plt.savefig(os.path.join(f'../../stopping_figures/aud_psych_plot_all__{IDENTIFIER}.png'))
+
+    print(f'current directory: {os.getcwd()}')
+    plt.savefig(os.path.join(f'stopping_figures/aud_psych_plot_all__{IDENTIFIER}.png'))
     plt.show()
     plt.close()
 
@@ -400,7 +405,9 @@ def psych_plot_all(data_path, frequencies):
     ax.spines['bottom'].set_linewidth(2)
     # save the figure
     plt.tight_layout()
-    plt.savefig(os.path.join(f'../../stopping_figures/ms_psych_plot_all__{IDENTIFIER}.png'))
+
+    print(f'current directory: {os.getcwd()}')
+    plt.savefig(os.path.join(f'stopping_figures/ms_psych_plot_all__{IDENTIFIER}.png'))
     #plt.show()
     plt.close()
 
@@ -416,12 +423,15 @@ def fit_psych_data(data_path, fit_function, frequencies, sel_th=True, show_plots
     freq_step_plot = 0.01  # used for plotting fitted function
 
     data_path = data_path + pertubation_path
+
+    # We need to specify which network!
+    netw = "10"
     # psychometric analysis
     if sel_th is True:
-        psych_results, th = sel_threshold(data_path, frequencies)
+        psych_results, th = sel_threshold(os.path.join(data_path,netw), frequencies)
 
     else:
-        psych_results, _, _ = psych_analysis_v2(data_path, th, frequencies)
+        psych_results, _, _ = psych_analysis_v2(os.path.join(data_path, netw), th, frequencies)
 
     #print(psych_results)
     vis_perf, aud_perf, ms_perf = psych_plot(psych_results, frequencies, th, data_path, show_plots)
@@ -585,7 +595,9 @@ def fit_psych_data_all(data_path, fit_function, frequencies, show_plot=True, per
         plt.legend(prop={'size': 12})
         plt.tight_layout()
 
-        plt.savefig(os.path.join(f'../../stopping_figures/psych_fit_sem_plot_{IDENTIFIER}.png'))
+        print(f'current directory: {os.getcwd()}')
+
+        plt.savefig(os.path.join(f'stopping_figures/psych_fit_sem_plot_{IDENTIFIER}.png'))
         plt.show()
         plt.close()
 
@@ -594,19 +606,21 @@ def fit_psych_data_all(data_path, fit_function, frequencies, show_plot=True, per
 
 def begin():
 
-    data_path = '/Volumes/LaCie/ThesisWierda/ms-rnn/'
+    data_path = '/Users/lexotto/Documents_Mac/Stage/UVA/Code/BehavioralVariabilityRNN-main/data'
     # task related data
     frequencies = np.arange(9, 17, 1)
 
     # analyze and plot psychometric curves
-    # psych_results, th = sel_threshold(data_path, frequencies)  # select threshold automatically
-    # psych_plot(psych_results, frequencies, th, data_path, True)
+    # Specify the network that needs to be analysed
+    netw = "10"
+    psych_results, th = sel_threshold(os.path.join(data_path, netw), frequencies)  # select threshold automatically
+    psych_plot(psych_results, frequencies, th, data_path, True)
 
     # plot psychometric data for all networks
-    #psych_plot_all(data_path, frequencies)
+    psych_plot_all(data_path, frequencies)
 
     # fit psychometric data for a single network
-    # fit_psych_data(data_path, sigmoid, frequencies, show_plots=True)
+    fit_psych_data(data_path, sigmoid, frequencies, show_plots=True)
 
     # fit psychometric data for all networks
     fit_psych_data_all(data_path, sigmoid, frequencies)
