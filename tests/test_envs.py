@@ -2,6 +2,7 @@ import warnings
 
 import gymnasium as gym
 import numpy as np
+import pytest
 from matplotlib import pyplot as plt
 
 import neurogym as ngym
@@ -188,3 +189,16 @@ def test_plot_all():
                 print(f"Error in plotting env: {env_name}, {e}")
                 print(e)
             plt.close()
+
+
+def test_get_envs():
+    for task in ["GoNogo-v0", "GoNogo"]:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message=".*Using the latest versioned environment*")
+            warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include*")
+            env = gym.make(task)
+        assert isinstance(env, gym.Env)
+        assert env.spec.id == "GoNogo-v0"
+    for invalid in ["GoNogo-v99", "GoGoNo"]:
+        with pytest.raises(gym.error.UnregisteredEnv):
+            _env = gym.make(invalid)
