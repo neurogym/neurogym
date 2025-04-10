@@ -274,13 +274,13 @@ def _get_closest_matches(
 
 
 # backward compatibility with old versions of gym
-if hasattr(gym.envs.registry, "all"):
-    _all_gym_envs = [env.id for env in gym.envs.registry.all()]
-else:
-    _all_gym_envs = [env.id for env in gym.envs.registry.values()]
-
-
+# FIXME: check if backward compatibility is still required
 def register(id_: str, **kwargs) -> None:
+    if hasattr(gym.envs.registry, "all"):
+        _all_gym_envs = [env.id for env in gym.envs.registry.all()]
+    else:
+        _all_gym_envs = [env.id for env in gym.envs.registry.values()]
+
     if id_ not in _all_gym_envs:
         gym.envs.registration.register(id=id_, **kwargs)
 
