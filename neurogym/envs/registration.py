@@ -7,6 +7,60 @@ from rapidfuzz import process
 
 from neurogym.envs.collections import get_collection
 
+NATIVE_ENVS = [
+    "AntiReach",
+    "Bandit",
+    "ContextDecisionMaking",
+    "DawTwoStep",
+    "DelayComparison",
+    "DelayMatchCategory",
+    "DelayMatchSample",
+    "DelayMatchSampleDistractor1D",
+    "DelayPairedAssociation",
+    # 'Detection',  # TODO: Temporary removing until bug fixed # noqa: ERA001
+    "DualDelayMatchSample",
+    "EconomicDecisionMaking",
+    "GoNogo",
+    "HierarchicalReasoning",
+    "IntervalDiscrimination",
+    "MotorTiming",
+    "MultiSensoryIntegration",
+    "Null",
+    "OneTwoThreeGo",
+    "PerceptualDecisionMaking",
+    "PerceptualDecisionMakingDelayResponse",
+    "PostDecisionWager",
+    "ProbabilisticReasoning",
+    "PulseDecisionMaking",
+    "Reaching1D",
+    "Reaching1DWithSelfDistraction",
+    "ReachingDelayResponse",
+    "ReadySetGo",
+    # "SpatialSuppressMotion",  # noqa: ERA001
+    # TODO: raises ModuleNotFound error since requires scipy, which is not in the requirements of neurogym.
+    # FIXME: I have added scipy to requirements (for other reason), does this mean SpatialSuppressMotion is valid?
+    # "ToneDetection",  # TODO: Temporary removing until bug fixed # noqa: ERA001
+]
+
+_PSYCHOPY_PREFIX = "neurogym.envs.psychopy."
+PSYCHOPY_ENVS = [
+    "RandomDotMotion",
+    "VisualSearch",
+    "SpatialSuppressMotion",  # NOTE: this is different from the SpatialSuppressMotion native env. Consider renaming.
+]
+
+_CONTRIB_NAME_PREFIX = "contrib."
+_CONTRIB_PREFIX = "neurogym.envs.contrib."
+CONTRIB_ENVS: list[str] = [  # FIXME: why are these commented out? NOTE: mypy requires type hint for empty list
+    # "AngleReproduction",
+    # "CVLearning",
+    # "ChangingEnvironment",
+    # "IBL",
+    # "MatchingPenny",
+    # "MemoryRecall",
+    # "Pneumostomeopening",
+]
+
 
 def _get_envs(
     env_names: list[str],
@@ -65,71 +119,6 @@ def _get_envs(
     return env_dict
 
 
-NATIVE_ALLOW_LIST = [
-    "AntiReach",
-    "Bandit",
-    "ContextDecisionMaking",
-    "DawTwoStep",
-    "DelayComparison",
-    "DelayMatchCategory",
-    "DelayMatchSample",
-    "DelayMatchSampleDistractor1D",
-    "DelayPairedAssociation",
-    # 'Detection',  # TODO: Temporary removing until bug fixed # noqa: ERA001
-    "DualDelayMatchSample",
-    "EconomicDecisionMaking",
-    "GoNogo",
-    "HierarchicalReasoning",
-    "IntervalDiscrimination",
-    "MotorTiming",
-    "MultiSensoryIntegration",
-    "Null",
-    "OneTwoThreeGo",
-    "PerceptualDecisionMaking",
-    "PerceptualDecisionMakingDelayResponse",
-    "PostDecisionWager",
-    "ProbabilisticReasoning",
-    "PulseDecisionMaking",
-    "Reaching1D",
-    "Reaching1DWithSelfDistraction",
-    "ReachingDelayResponse",
-    "ReadySetGo",
-    # 'SpatialSuppressMotion',   # noqa: ERA001
-    # TODO: raises ModuleNotFound error since requires scipy, which is not in the requirements of neurogym.
-    # FIXME: I have added scipy to requirements (for other reason), does this mean SpatialSuppressMotion is valid?
-    # 'ToneDetection'  # TODO: Temporary removing until bug fixed # noqa: ERA001
-]
-ALL_NATIVE_ENVS = _get_envs(
-    foldername=None,
-    env_prefix=None,
-    allow_list=NATIVE_ALLOW_LIST,
-)
-
-_psychopy_prefix = "neurogym.envs.psychopy."
-ALL_PSYCHOPY_ENVS = {
-    "psychopy.RandomDotMotion-v0": _psychopy_prefix + "perceptualdecisionmaking:RandomDotMotion",
-    "psychopy.VisualSearch-v0": _psychopy_prefix + "visualsearch:VisualSearch",
-    "psychopy.SpatialSuppressMotion-v0": _psychopy_prefix + "spatialsuppressmotion:SpatialSuppressMotion",
-}
-
-_contrib_name_prefix = "contrib."
-_contrib_prefix = "neurogym.envs.contrib."
-CONTRIB_ALLOW_LIST: list = [
-    # 'AngleReproduction',
-    # 'CVLearning',
-    # 'ChangingEnvironment',
-    # 'IBL',
-    # 'MatchingPenny',
-    # 'MemoryRecall',
-    # 'Pneumostomeopening'
-]
-ALL_CONTRIB_ENVS = _get_envs(
-    foldername="contrib",
-    env_prefix="contrib",
-    allow_list=CONTRIB_ALLOW_LIST,
-)
-
-
 # Automatically register all tasks in collections
 def _get_collection_envs() -> dict[str, str]:
     """Register collection tasks in collections folder.
@@ -151,10 +140,18 @@ def _get_collection_envs() -> dict[str, str]:
     return derived_envs
 
 
+ALL_NATIVE_ENVS = _get_envs(NATIVE_ENVS)
+ALL_CONTRIB_ENVS = _get_envs(CONTRIB_ENVS, foldername="contrib", env_prefix="contrib")
+
+# FIXME: this feels like it should be done via _get_envs, as above
+# but RandomDotMotion has a slightly different form. Is that intentional?
+ALL_PSYCHOPY_ENVS = {
+    "psychopy.RandomDotMotion-v0": f"{_PSYCHOPY_PREFIX}perceptualdecisionmaking:RandomDotMotion",
+    "psychopy.VisualSearch-v0": f"{_PSYCHOPY_PREFIX}visualsearch:VisualSearch",
+    "psychopy.SpatialSuppressMotion-v0": f"{_PSYCHOPY_PREFIX}spatialsuppressmotion:SpatialSuppressMotion",
+}
 ALL_COLLECTIONS_ENVS = _get_collection_envs()
-
 ALL_ENVS = {**ALL_NATIVE_ENVS, **ALL_PSYCHOPY_ENVS, **ALL_CONTRIB_ENVS}
-
 ALL_EXTENDED_ENVS = {**ALL_ENVS, **ALL_COLLECTIONS_ENVS}
 
 
