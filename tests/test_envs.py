@@ -2,6 +2,7 @@ import warnings
 
 import gymnasium as gym
 import numpy as np
+import pytest
 from matplotlib import pyplot as plt
 
 import neurogym as ngym
@@ -188,3 +189,12 @@ def test_plot_all():
                 print(f"Error in plotting env: {env_name}, {e}")
                 print(e)
             plt.close()
+
+
+def test_get_envs():
+    for task in ["GoNogo-v0", "GoNogo"]:
+        env = gym.make(task)
+        assert isinstance(env, gym.Env)
+        assert env.spec.id == "GoNogo-v0"
+    with pytest.raises(gym.error.UnregisteredEnv):
+        _env = gym.make("GoNogo-v1")
