@@ -9,22 +9,28 @@ from neurogym.envs.collections import get_collection
 
 
 def _get_envs(
+    env_names: list[str],
     foldername: str | None = None,
     env_prefix: str | None = None,
-    allow_list: list[str] | None = None,
 ) -> dict[str, str]:
-    """A helper function to get all environments in a folder.
+    """A helper function to discover and register environments from a specified folder.
+
+    This function scans Python files in the specified folder, imports them, and registers
+    environments whose names match the provided `env_names` list.
 
     Example usage:
-        _get_envs(foldername=None, env_prefix=None)
-        _get_envs(foldername='contrib', env_prefix='contrib')
-
-    The results still need to be manually cleaned up, so this is just a helper
+        _get_envs(env_names=NATIVE_ALLOW_LIST, foldername=None, env_prefix=None)
+        _get_envs(env_names=CONTRIB_ALLOW_LIST, foldername='contrib', env_prefix='contrib')
 
     Args:
-        foldername: If str, in the form of contrib, etc.
-        env_prefix: add this prefix to all env ids
-        allow_list: list of allowed env name, for manual curation
+        env_names: A list of allowed environment names for manual curation.
+        foldername: A string specifying the subfolder within `neurogym.envs` to search for
+            environment files. If `None`, the function searches in the root folder of
+            `neurogym.envs`. For example:
+                - foldername=None: Searches in `neurogym/envs/`.
+                - foldername="contrib": Searches in `neurogym/envs/contrib/`.
+        env_prefix: A string to add as a prefix to all environment IDs. If provided, it
+            ensures that the registered environment IDs are namespaced appropriately.
 
     Returns:
         A dictionary mapping environment IDs to their entry points.
@@ -33,9 +39,6 @@ def _get_envs(
         env_prefix = ""
     elif env_prefix[-1] != ".":
         env_prefix += "."
-
-    if allow_list is None:
-        allow_list = []
 
     # Root path of neurogym.envs folder
     env_root = Path(__file__).resolve().parent
@@ -56,7 +59,7 @@ def _get_envs(
         lib = lib_root + filename
         module = importlib.import_module(lib)
         for name, _val in getmembers(module):
-            if name in allow_list:
+            if name in env_names:
                 env_dict[f"{env_prefix}{name}-v0"] = f"{lib}:{name}"
 
     return env_dict
