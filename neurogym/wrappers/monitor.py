@@ -209,8 +209,8 @@ class Monitor(Wrapper):
             self.gt_mat = []
             self.perf_mat = []
 
-    def evaluate_performance(self, num_trials=100, model=None, verbose=True):
-        """Evaluates the average performance of the agent in the environment.
+    def evaluate_policy(self, num_trials=100, model=None, verbose=True):
+        """Evaluates the average performance of the RL agent in the environment.
 
         This method runs the given model (or random policy if None) on the
         environment for a specified number of trials and collects performance
