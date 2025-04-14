@@ -1,11 +1,34 @@
 import importlib
 from inspect import getmembers, isclass, isfunction
 from pathlib import Path
+from tkinter import ALL
 
 import gymnasium as gym
 from rapidfuzz import process
 
 from neurogym.envs.collections import get_collection
+
+try:
+    import psychopy  # noqa: F401
+
+    _have_psychopy = True  # FIXME should psychopy be always tested, to ensure CI doesn't fail?
+except ImportError:
+    _have_psychopy = False
+
+EXCLUDE_ENVS = [
+    # NATIVE_ENVS
+    "Detection",
+    "SpatialSuppressMotion",
+    "ToneDetection",
+    # CONTRIB_ENVS
+    "AngleReproduction",
+    "CVLearning",
+    "ChangingEnvironment",
+    "IBL",
+    "MatchingPenny",
+    "MemoryRecall",
+    "Pneumostomeopening",
+]
 
 NATIVE_ENVS = [
     "AntiReach",
@@ -63,94 +86,66 @@ CONTRIB_ENVS: list[str] = [  # FIXME: why are these commented out? NOTE: mypy re
 
 
 def _get_envs(
-    env_names: list[str],
     foldername: str | None = None,
-    env_prefix: str | None = None,
+    exclude: str | list[str] | None = EXCLUDE_ENVS,
 ) -> dict[str, str]:
-    """A helper function to discover and register environments from a specified folder.
+    """Discover and register all environments from a specified folder.
 
     This function scans Python files in the specified folder, imports them, and registers
-    environments whose names match the provided `env_names` list.
-
-    Example usage:
-        _get_envs(env_names=NATIVE_ALLOW_LIST, foldername=None, env_prefix=None)
-        _get_envs(env_names=CONTRIB_ALLOW_LIST, foldername='contrib', env_prefix='contrib')
+    all classes that inherit from `gym.Env`.
 
     Args:
-        env_names: A list of allowed environment names for manual curation.
         foldername: A string specifying the subfolder within `neurogym.envs` to search for
             environment files. If `None`, the function searches in the root folder of
             `neurogym.envs`. For example:
                 - foldername=None: Searches in `neurogym/envs/`.
                 - foldername="contrib": Searches in `neurogym/envs/contrib/`.
-        env_prefix: A string to add as a prefix to all environment IDs. If provided, it
-            ensures that the registered environment IDs are namespaced appropriately.
+        exclude: A list of environment names to exclude from registration.
 
     Returns:
         A dictionary mapping environment IDs to their entry points.
     """
-    if env_prefix is None:
-        env_prefix = ""
-    elif env_prefix[-1] != ".":
-        env_prefix += "."
-
     # Root path of neurogym.envs folder
     env_root = Path(__file__).resolve().parent
     lib_root = "neurogym.envs."
     if foldername is not None:
         env_root /= foldername
-        lib_root = f"{lib_root}{foldername}."
+        lib_root += f"{foldername}."
+
+    if exclude is None:
+        exclude = []
+    elif isinstance(exclude, str):
+        exclude = [exclude]
+    elif not isinstance(exclude, list):
+        msg = f"{type(exclude)=} must be a string or a list of strings."
+        raise TypeError(msg)
 
     # Only take .py files
-    files = [p for p in env_root.iterdir() if p.suffix == ".py"]
-    # Exclude files starting with '_'
-    files = [f for f in files if f.name[0] != "_"]
-    filenames = [f.name[:-3] for f in files]  # remove .py suffix
-    filenames = sorted(filenames)
+    files = [p for p in env_root.iterdir() if p.suffix == ".py" and p.name != "__init__.py"]
 
     env_dict: dict[str, str] = {}
-    for filename in filenames:
-        lib = lib_root + filename
-        module = importlib.import_module(lib)
-        for name, _val in getmembers(module):
-            if name in env_names:
-                env_dict[f"{env_prefix}{name}-v0"] = f"{lib}:{name}"
+    for file in files:
+        module_name = lib_root + file.stem  # Convert filename to module name
+        module = importlib.import_module(module_name)
+
+        # Discover all classes in the module that inherit from gym.Env
+        for name, obj in getmembers(module, isclass):
+            if issubclass(obj, gym.Env) and obj.__module__ == module_name and name not in exclude:
+                env_id = f"{foldername}.{name}-v0" if foldername else f"{name}-v0"
+                entry_point = f"{module_name}:{name}"
+                env_dict[env_id] = entry_point
 
     return env_dict
 
 
-# Automatically register all tasks in collections
-def _get_collection_envs() -> dict[str, str]:
-    """Register collection tasks in collections folder.
+ALL_NATIVE_ENVS = _get_envs()
+ALL_CONTRIB_ENVS = _get_envs("contrib")
+try:
+    ALL_PSYCHOPY_ENVS = _get_envs("psychopy")
+except ModuleNotFoundError:
+    ALL_PSYCHOPY_ENVS = {}
+ALL_COLLECTIONS_ENVS = _get_envs("collections")
 
-    Each environment is named collection_name.env_name-v0
-    """
-    derived_envs = {}
-    # TODO: Temporary disabling priors task
-    collection_libs = ["perceptualdecisionmaking", "yang19"]
-    for collection_lib in collection_libs:
-        lib = f"neurogym.envs.collections.{collection_lib}"
-        module = importlib.import_module(lib)
-        envs = [name for name, val in getmembers(module) if isfunction(val) or isclass(val)]
-        envs = [env for env in envs if env[0] != "_"]  # ignore private members
-        # TODO: check is instance gym.env
-        env_dict = {f"{collection_lib}.{env}-v0": f"{lib}:{env}" for env in envs}
-        valid_envs = get_collection(collection_lib)
-        derived_envs.update({key: env_dict[key] for key in valid_envs})
-    return derived_envs
-
-
-ALL_NATIVE_ENVS = _get_envs(NATIVE_ENVS)
-ALL_CONTRIB_ENVS = _get_envs(CONTRIB_ENVS, foldername="contrib", env_prefix="contrib")
-
-# FIXME: this feels like it should be done via _get_envs, as above
-# but RandomDotMotion has a slightly different form. Is that intentional?
-ALL_PSYCHOPY_ENVS = {
-    "psychopy.RandomDotMotion-v0": f"{_PSYCHOPY_PREFIX}perceptualdecisionmaking:RandomDotMotion",
-    "psychopy.VisualSearch-v0": f"{_PSYCHOPY_PREFIX}visualsearch:VisualSearch",
-    "psychopy.SpatialSuppressMotion-v0": f"{_PSYCHOPY_PREFIX}spatialsuppressmotion:SpatialSuppressMotion",
-}
-ALL_COLLECTIONS_ENVS = _get_collection_envs()
 ALL_ENVS = {**ALL_NATIVE_ENVS, **ALL_PSYCHOPY_ENVS, **ALL_CONTRIB_ENVS}
 ALL_EXTENDED_ENVS = {**ALL_ENVS, **ALL_COLLECTIONS_ENVS}
 
