@@ -9,55 +9,49 @@ from neurogym.envs.collections import get_collection
 
 def _get_envs(
     foldername: str | None = None,
-    env_prefix: str | None = None,
-    allow_list: list[str] | None = None,
+    exclude: str | list[str] | None = EXCLUDE_ENVS,
 ) -> dict[str, str]:
-    """A helper function to get all environments in a folder.
+    """Discover and register all environments from a specified folder.
 
-    Example usage:
-        _get_envs(foldername=None, env_prefix=None)
-        _get_envs(foldername='contrib', env_prefix='contrib')
-
-    The results still need to be manually cleaned up, so this is just a helper
+    This function scans Python files in the specified folder, imports them, and registers
+    all classes that inherit from `gym.Env`.
 
     Args:
-        foldername: If str, in the form of contrib, etc.
-        env_prefix: add this prefix to all env ids
-        allow_list: list of allowed env name, for manual curation
+        foldername: A string specifying the subfolder within `neurogym.envs` to search for
+            environment files. If `None`, the function searches in the root folder of
+            `neurogym.envs`. For example:
+                - foldername=None: Searches in `neurogym/envs/`.
+                - foldername="contrib": Searches in `neurogym/envs/contrib/`.
+        exclude: A list of environment names to exclude from registration.
 
     Returns:
         A dictionary mapping environment IDs to their entry points.
     """
-    if env_prefix is None:
-        env_prefix = ""
-    elif env_prefix[-1] != ".":
-        env_prefix += "."
-
-    if allow_list is None:
-        allow_list = []
+    # Validate exclude list
+    exclude = [exclude] if isinstance(exclude, str) else exclude or []
+    if not isinstance(exclude, list):
+        msg = f"{type(exclude)=} must be a string or a list of strings."
+        raise TypeError(msg)
 
     # Root path of neurogym.envs folder
     env_root = Path(__file__).resolve().parent
     lib_root = "neurogym.envs."
     if foldername is not None:
         env_root /= foldername
-        lib_root = f"{lib_root}{foldername}."
-
-    # Only take .py files
-    files = [p for p in env_root.iterdir() if p.suffix == ".py"]
-    # Exclude files starting with '_'
-    files = [f for f in files if f.name[0] != "_"]
-    filenames = [f.name[:-3] for f in files]  # remove .py suffix
-    filenames = sorted(filenames)
+        lib_root += f"{foldername}."
+    py_files = [p for p in env_root.iterdir() if p.suffix == ".py" and p.name != "__init__.py"]
 
     env_dict: dict[str, str] = {}
-    for filename in filenames:
-        lib = lib_root + filename
-        module = importlib.import_module(lib)
-        for name, _val in getmembers(module):
-            if name in allow_list:
-                env_dict[f"{env_prefix}{name}-v0"] = f"{lib}:{name}"
+    for file in py_files:
+        module_name = lib_root + file.stem
+        module = importlib.import_module(module_name)
 
+        # Discover all classes defined in the module that inherit from gym.Env
+        for name, obj in getmembers(module, isclass):
+            if issubclass(obj, gym.Env) and name not in exclude and obj.__module__ == module_name:
+                env_id = f"{foldername}.{name}-v0" if foldername else f"{name}-v0"
+                entry_point = f"{module_name}:{name}"
+                env_dict[env_id] = entry_point
     return env_dict
 
 
@@ -127,6 +121,7 @@ ALL_CONTRIB_ENVS = _get_envs(
 
 
 # Automatically register all tasks in collections
+# FIXME: Collection envs are defined in a slightly different way. Refactor them to allow using the function above.
 def _get_collection_envs() -> dict[str, str]:
     """Register collection tasks in collections folder.
 
