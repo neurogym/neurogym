@@ -1,7 +1,7 @@
-from neurogym.conf.base import ConfBase
+from neurogym.config.base import ConfigBase
 
 
-class AgentTrainingConf(ConfBase):
+class AgentTrainingConfig(ConfigBase):
     """Configuration options for agents during training.
 
     trials: Number of trials (episodes).
@@ -12,7 +12,7 @@ class AgentTrainingConf(ConfBase):
     steps: int = 100000
 
 
-class AgentInferenceConf(ConfBase):
+class AgentInferenceConfig(ConfigBase):
     """Configuration options for agents during inference.
 
     This is used when evaluating the agent's performance after training.
@@ -25,12 +25,12 @@ class AgentInferenceConf(ConfBase):
     steps: int = 10000
 
 
-class AgentConf(ConfBase):
+class AgentConfig(ConfigBase):
     """Configuration for agent-related options.
 
-    training: Options related to training (cf. :ref:`AgentTrainingConf`).
-    inference: Options related to inference (cf. :ref:`AgentInferenceConf`).
+    training: Options related to training (cf. :ref:`AgentTrainingConfig`).
+    inference: Options related to inference (cf. :ref:`AgentInferenceConfig`).
     """
 
-    training: AgentTrainingConf = AgentTrainingConf()
-    inference: AgentInferenceConf = AgentInferenceConf()
+    training: AgentTrainingConfig = AgentTrainingConfig()
+    inference: AgentInferenceConfig = AgentInferenceConfig()

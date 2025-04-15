@@ -4,14 +4,7 @@ from pathlib import Path
 
 import tomlkit as tkit
 
-import neurogym as ngym
-from neurogym.conf.conf import Conf
-
-
-def test_load_default_config():
-    """Test if the default configuration can be loaded."""
-    ngym.logger.info(f"Logging level: {ngym.conf.monitor.log.level}")
-    ngym.logger.info("Neurogym configuration loaded successfully.")
+from neurogym.config import Config
 
 
 def test_config_custom_toml_file():
@@ -20,7 +13,7 @@ def test_config_custom_toml_file():
     cur_dir = Path(__file__).parent
 
     # Path to the configuration file
-    config_file = cur_dir / "settings.toml"
+    config_file = cur_dir / "config.toml"
 
     try:
         # Set the level to some value that we can test
@@ -45,11 +38,11 @@ def test_config_custom_toml_file():
 
         # Create a new configuration
         # ==================================================
-        conf = Conf(config_file)
+        config = Config(config_file)
 
         # Check that the log level in the configuration
         # is the same as the `level` variable
-        assert conf.monitor.log.level == level
+        assert config.monitor.log.level == level
 
     finally:
         # Clean up

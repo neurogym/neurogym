@@ -7,49 +7,53 @@ from pydantic_settings import (
     TomlConfigSettingsSource,
 )
 
-from neurogym.conf.base import CONF_DIR, LOCAL_DIR, PKG_DIR, ROOT_DIR, ConfBase
-from neurogym.conf.components.agent import AgentConf
-from neurogym.conf.components.env import EnvConf
-from neurogym.conf.components.monitor import MonitorConf
+from neurogym.config.base import CONFIG_DIR, LOCAL_DIR, PKG_DIR, ROOT_DIR, ConfigBase
+from neurogym.config.components.agent import AgentConfig
+from neurogym.config.components.env import EnvConfig
+from neurogym.config.components.monitor import MonitorConfig
 
 
-class Conf(ConfBase):
+class Config(ConfigBase):
     """Main configuration.
 
-    conf_file: A user-settable configuration file in TOML format.
+    NOTE: The `root_dir` `pkg_dir` and `config_dir` variables are provided only for convenience
+    and cannot be modified. `local_dir` is the only one that can be assigned.
+
+    config_file: A user-settable configuration file in TOML format.
     root_dir: The root directory of the repository.
     pkg_dir: The directory where the neurogym package is located.
-    conf_dir: The directory of the configuration module.
+    config_dir: The directory of the configuration module.
     local_dir: A local directory that should receive all kinds of program output (e.g., plots).
-    agent: Options for agents (cf. :ref:`AgentConf`).
-    env: Options for environments (cf. :ref:`EnvConf`).
-    monitor: Subconfiguration for monitoring options (cf. :ref:`MonitorConf`).
+    agent: Options for agents (cf. :ref:`AgentConfig`).
+    env: Options for environments (cf. :ref:`EnvConfig`).
+    monitor: Subconfiguration for monitoring options (cf. :ref:`MonitorConfig`).
     """
 
     # TOML configuration file
-    conf_file: Path | None = Path.cwd() / "conf.toml"
+    config_file: Path | None = Path.cwd() / "config.toml"
 
     root_dir: Path = Field(frozen=True, default=ROOT_DIR)
     pkg_dir: Path = Field(frozen=True, default=PKG_DIR)
-    conf_dir: Path = Field(frozen=True, default=CONF_DIR)
+    config_dir: Path = Field(frozen=True, default=CONFIG_DIR)
     local_dir: Path = LOCAL_DIR
 
     # Subconfiguration
-    agent: AgentConf = AgentConf()
-    env: EnvConf = EnvConf()
-    monitor: MonitorConf = MonitorConf()
+    agent: AgentConfig = AgentConfig()
+    env: EnvConfig = EnvConfig()
+    monitor: MonitorConfig = MonitorConfig()
 
     def __init__(
         self,
-        conf_file: str | Path | None = None,
+        config_file: str | Path | None = None,
         *args,
         **kwargs,
     ):
-        self.__class__.conf_file = None
-        if isinstance(conf_file, (str | Path)):
-            conf_file = Path(conf_file)
-            if conf_file.exists():
-                self.__class__.conf_file = Path(conf_file)
+        self.__class__.config_file = None
+        if config_file is not None:
+            if isinstance(config_file, str):
+                config_file = Path(config_file)
+            if config_file.exists():
+                self.__class__.config_file = config_file
 
         super().__init__(*args, **kwargs)
 
@@ -58,10 +62,10 @@ class Conf(ConfBase):
     @classmethod
     def settings_customise_sources(  # type: ignore[override]
         cls,
-        settings_cls: type[ConfBase],
+        settings_cls: type[ConfigBase],
         **kwargs,
     ) -> tuple[PydanticBaseSettingsSource, ...]:
-        return (TomlConfigSettingsSource(settings_cls, cls.conf_file),)
+        return (TomlConfigSettingsSource(settings_cls, cls.config_file),)
 
     @field_validator("*", mode="before", check_fields=False)
     @classmethod
@@ -75,6 +79,6 @@ class Conf(ConfBase):
         return value
 
 
-# Default donfiguration object
+# Default configuration object
 # ==================================================
-conf = Conf()
+config = Config()

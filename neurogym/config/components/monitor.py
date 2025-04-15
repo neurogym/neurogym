@@ -1,10 +1,10 @@
 import sys
 from typing import Any, Literal
 
-from neurogym.conf.base import ConfBase
+from neurogym.config.base import ConfigBase
 
 
-class MonitorPlotConf(ConfBase):
+class MonitorPlotConfig(ConfigBase):
     """Configuration options related to plotting as part of monitoring.
 
     create: A toggle to switch plotting on or off.
@@ -21,14 +21,14 @@ class MonitorPlotConf(ConfBase):
     interval: int = 10
 
 
-class MonitorLogConf(ConfBase):
+class MonitorLogConfig(ConfigBase):
     """Configuration options related to logging.
 
     verbose: A toggle indicating that Neurogym logging output should be more verbose.
     format: The logger output format (cf. the Loguru documentation at https://loguru.readthedocs.io/en/stable/index.html).
     level: The logging level (DEBUG, INFO, etc.).
     trigger: The metric used to trigger events such as plotting.
-    interval: Logging interval (in units of 'trigger'; cf. :ref:`MonitorConf.trigger`).
+    interval: Logging interval (in units of 'trigger'; cf. :ref:`MonitorConfig.trigger`).
     """
 
     verbose: bool = True
@@ -37,7 +37,7 @@ class MonitorLogConf(ConfBase):
     trigger: Literal["trial", "step"] = "trial"
     interval: int = 10
 
-    def make_conf(self) -> dict[str, Any]:
+    def make_config(self) -> dict[str, Any]:
         """A convenience method for constructing a logger configuration.
 
         Returns:
@@ -56,12 +56,12 @@ class MonitorLogConf(ConfBase):
         }
 
 
-class MonitorConf(ConfBase):
+class MonitorConfig(ConfigBase):
     """Configuration options related to monitoring.
 
     trigger: Subconfiguration The metric used to trigger events such as plotting.
-    plot: Subconfiguration  to plotting (cf. :ref:`MonitorPlotConf`)
+    plot: Subconfiguration  to plotting (cf. :ref:`MonitorPlotConfig`)
     """
 
-    log: MonitorLogConf = MonitorLogConf()
-    plot: MonitorPlotConf = MonitorPlotConf()
+    log: MonitorLogConfig = MonitorLogConfig()
+    plot: MonitorPlotConfig = MonitorPlotConfig()

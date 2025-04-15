@@ -1,6 +1,15 @@
 import enum
+import sys
 
-from neurogym.conf.base import StrEnum
+# HACK: Revise this if the minimal Python version
+# is bumped to >= 3.11
+if sys.version_info[:2] < (3, 11):
+
+    class StrEnum(str, enum.Enum):
+        pass
+
+else:
+    StrEnum = enum.StrEnum
 
 
 class EnvParam(StrEnum):

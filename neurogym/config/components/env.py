@@ -1,7 +1,7 @@
-from neurogym.conf.base import ConfBase
+from neurogym.config.base import ConfigBase
 
 
-class EnvConf(ConfBase):
+class EnvConfig(ConfigBase):
     """Configuration options related to environments.
 
     name: The name of the current environment.
