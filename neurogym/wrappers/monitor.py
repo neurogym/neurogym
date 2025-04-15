@@ -276,19 +276,12 @@ class Monitor(Wrapper):
             "rewards": rewards,
         }
 
-    def plot_training_history(
-        self,
-        window_size: int | None = None,
-        figsize: tuple[int, int] = (12, 6),
-        save_fig: bool = True,
-    ) -> plt.Figure | None:
-        """Plot rewards and performance history from saved data files with one data point per trial.
+    def plot_training_history(self, figsize: tuple[int, int] = (12, 6), save_fig: bool = True) -> plt.Figure | None:
+        """Plot rewards and performance training history from saved data files with one data point per trial.
 
         Args:
-            window_size: Size of the moving average window (default: auto-calculate based on data size)
             figsize: Figure size as (width, height) tuple
             save_fig: Whether to save the figure to disk
-
         Returns:
             matplotlib figure object
         """
@@ -304,135 +297,72 @@ class Monitor(Wrapper):
 
         print(f"Found {len(files)} data files")
 
-        all_rewards: list[float] = []
-        all_performances: list[float] = []
-        current_trial = 0
+        # Arrays to hold average values for each file
+        avg_rewards_per_file = []
+        avg_performances_per_file = []
+        file_indices = []  # To store file numbers or trial counts
+        total_trials = 0
 
+        # Process each file
         for file in files:
             data = np.load(file, allow_pickle=True)
 
+            # Process rewards
             if "reward" in data:
                 rewards = data["reward"]
-                all_rewards.extend(rewards)
-                current_trial += len(rewards)
+                if len(rewards) > 0:
+                    avg_rewards_per_file.append(np.mean(rewards))
+                    total_trials += len(rewards)
+                    file_indices.append(total_trials)  # Use cumulative trial count as x-axis value
 
+            # Process performances
             if "performance" in data:
                 perfs = data["performance"]
-                all_performances.extend(perfs)
+                if len(perfs) > 0:
+                    avg_performances_per_file.append(np.mean(perfs))
 
-        if window_size is None:
-            window_size = max(1, min(100, len(all_rewards) // 20))
-
+        # Create plot
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize)
 
         # 1. Rewards plot
-        if len(all_rewards) > 0:
-            trial_indices = np.arange(1, len(all_rewards) + 1)
-            ax1.plot(trial_indices, all_rewards, alpha=0.4, color="blue", label="Raw")
+        ax1.plot(file_indices, avg_rewards_per_file, "o-", color="blue", linewidth=2)
+        ax1.set_title("Average Reward per File")
+        ax1.set_xlabel("Cumulative Trials")
+        ax1.set_ylabel("Average Reward")
+        ax1.set_ylim(-0.05, 1.05)
 
-            # Calculate moving average for smoothing
-            if len(all_rewards) > window_size:
-                weights = np.ones(window_size) / window_size
-                smoothed_rewards = np.convolve(all_rewards, weights, mode="valid")
-                # Adjust x-axis for convolution
-                smoothed_indices = trial_indices[window_size - 1 :]
+        overall_avg_reward = np.mean(avg_rewards_per_file)
+        ax1.text(
+            0.05,
+            0.95,
+            f"Overall Avg Reward: {overall_avg_reward:.4f}",
+            transform=ax1.transAxes,
+            verticalalignment="top",
+            bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
+        )
 
-                ax1.plot(
-                    smoothed_indices,
-                    smoothed_rewards,
-                    linewidth=2,
-                    color="blue",
-                    label=f"Moving Avg (w={window_size})",
-                )
-
-            ax1.set_title("Reward per Trial")
-            ax1.set_xlabel("Trial Number")
-            ax1.set_ylabel("Reward")
-            ax1.legend(loc="upper right")
-
-            avg_reward = np.mean(all_rewards)
-            ax1.text(
-                0.05,
-                0.95,
-                f"Overall Avg: {avg_reward:.4f}",
-                transform=ax1.transAxes,
-                verticalalignment="top",
-                bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
-            )
-        else:
-            ax1.text(
-                0.5,
-                0.5,
-                "Insufficient reward data",
-                horizontalalignment="center",
-                verticalalignment="center",
-                transform=ax1.transAxes,
-            )
-
-        # 2. Performance plot
-        if len(all_performances) > 0:
-            trial_indices = np.arange(1, len(all_performances) + 1)
-            valid_mask = np.array(all_performances) != -1
-            valid_indices = trial_indices[valid_mask]
-            valid_performances = np.array(all_performances)[valid_mask]
-
-            if len(valid_performances) > 0:
-                ax2.plot(valid_indices, valid_performances, alpha=0.4, color="green", label="Raw")
-
-                # Calculate moving average for smoothing
-                if len(valid_performances) > window_size:
-                    weights = np.ones(window_size) / window_size
-                    smoothed_perf = np.convolve(valid_performances, weights, mode="valid")
-                    # Adjust x-axis for convolution
-                    smoothed_indices = valid_indices[window_size - 1 :]
-                    if len(smoothed_indices) > len(smoothed_perf):
-                        smoothed_indices = smoothed_indices[: len(smoothed_perf)]
-
-                    ax2.plot(
-                        smoothed_indices,
-                        smoothed_perf,
-                        linewidth=2,
-                        color="green",
-                        label=f"Moving Avg (w={window_size})",
-                    )
-
-                ax2.set_title("Performance per Trial")
-                ax2.set_xlabel("Trial Number")
-                ax2.set_ylabel("Performance (0-1)")
-                ax2.set_ylim(-0.05, 1.05)  # Performance is typically 0-1
-                ax2.legend(loc="upper right")
-
-                # Add text with overall average performance
-                avg_perf = np.mean(valid_performances)
-                ax2.text(
-                    0.05,
-                    0.95,
-                    f"Overall Avg: {avg_perf:.4f}",
-                    transform=ax2.transAxes,
-                    verticalalignment="top",
-                    bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
-                )
-            else:
-                ax2.text(
-                    0.5,
-                    0.5,
-                    "No valid performance data (all -1)",
-                    horizontalalignment="center",
-                    verticalalignment="center",
-                    transform=ax2.transAxes,
-                )
-        else:
-            ax2.text(
-                0.5,
-                0.5,
-                "No performance data available",
-                horizontalalignment="center",
-                verticalalignment="center",
-                transform=ax2.transAxes,
-            )
+        # 2. Performances plot
+        ax2.plot(file_indices, avg_performances_per_file, "o-", color="green", linewidth=2)
+        ax2.set_title("Average Performance per File")
+        ax2.set_xlabel("Cumulative Trials")
+        ax2.set_ylabel("Average Performance (0-1)")
+        ax2.set_ylim(-0.05, 1.05)
+        overall_avg_perf = np.mean(avg_performances_per_file)
+        ax2.text(
+            0.05,
+            0.95,
+            f"Overall Avg Performance: {overall_avg_perf:.4f}",
+            transform=ax2.transAxes,
+            verticalalignment="top",
+            bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
+        )
 
         plt.tight_layout()
-        plt.suptitle(f"Training History for {env_name}\n({len(all_rewards)} total trials)", fontsize=14, y=1.05)
+        plt.suptitle(
+            f"Training History for {env_name}\n({len(files)} data files, {total_trials} total trials)",
+            fontsize=14,
+            y=1.05,
+        )
 
         # Save the figure
         if save_fig:
