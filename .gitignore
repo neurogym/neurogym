@@ -119,3 +119,9 @@ docs/examples/tmp/
 **.zip
 docs/examples/**/**.png
 docs/examples/**/**.npz
+
+# sandbox files
+_Untitled.*
+
+# results
+**/tmp
