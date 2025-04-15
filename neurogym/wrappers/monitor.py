@@ -79,7 +79,7 @@ class Monitor(Wrapper):
         Path(self.folder).mkdir(parents=True, exist_ok=True)
 
         # seeding
-        self.sv_name: str = str(Path(self.folder) / f"{self.env.__class__.__name__}_bhvr_data_{name}_")
+        self.sv_name: str = str(Path(self.folder) / f"{self.env.unwrapped.__class__.__name__}_bhvr_data_{name}_")
         # figure
         self.sv_fig = sv_fig
         self.name: str = name
