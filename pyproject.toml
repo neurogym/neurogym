@@ -28,6 +28,7 @@ dependencies = [
     "gymnasium==0.29.*",
     "matplotlib",
     "stable-baselines3>=2.3.2",
+    "sb3-contrib",
     "scipy",
 ]
 description = "NeuroGym: Gymnasium-style Cognitive Neuroscience Tasks"
