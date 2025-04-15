@@ -75,16 +75,11 @@ class Monitor(Wrapper):
             self.t = 0
         self.verbose = verbose
         if folder is None:
-            temp_dir = tempfile.mkdtemp(prefix="neurogym_monitor_")
-            self.folder = temp_dir
-        else:
-            self.folder = str(folder)
+            self.folder = "tmp"
         Path(self.folder).mkdir(parents=True, exist_ok=True)
-        self.name = name
 
-        # Create save name using pathlib for cross-platform compatibility
-        self.sv_name = Path(self.folder) / f"{self.env.unwrapped.__class__.__name__}_bhvr_data_{name}_"
-
+        # seeding
+        self.sv_name = str(Path(self.folder) / f"{self.env.__class__.__name__}_bhvr_data_{name}_")
         # figure
         self.sv_fig = sv_fig
         if self.sv_fig:
