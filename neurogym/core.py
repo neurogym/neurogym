@@ -466,7 +466,7 @@ class TrialEnv(BaseEnv):
         return self.gt[self.t_ind]
 
     @property
-    def avg_timesteps_per_trial(self):
+    def avg_timesteps_per_trial(self) -> float:
         """Calculate average timesteps per trial based on timing parameters.
 
         Returns:
@@ -475,7 +475,7 @@ class TrialEnv(BaseEnv):
         if not self.timing:
             return 0
 
-        total_ms = 0
+        total_ms = 0.0
         for period, timing in self.timing.items():
             if isinstance(timing, int | float):
                 period_ms = timing
@@ -514,7 +514,7 @@ class TrialEnv(BaseEnv):
 
             total_ms += period_ms
 
-        return total_ms / self.dt
+        return float(total_ms / self.dt)
 
 
 class TrialWrapper(gym.Wrapper):

@@ -80,7 +80,7 @@ def test_addob_instep():
 
 
 class TestEnv(ngym.TrialEnv):
-    def __init__(self, dt=100, timing=None) -> None:
+    def __init__(self, dt: int, timing: dict) -> None:
         super().__init__(dt=dt)
         self.timing = timing or {}
         self.observation_space = ngym.spaces.Box(

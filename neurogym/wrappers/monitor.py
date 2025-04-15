@@ -1,4 +1,6 @@
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,7 +16,7 @@ class Monitor(Wrapper):
     during training and evaluation. It saves relevant behavioral information such as
     rewards, actions, observations, new trial flags, and ground truth.
 
-    DATA COLLECTION BEHAVIOR:
+    Data collection behavior:
     - The Monitor records data points ONLY at the end of trials (when info["new_trial"]=True).
     - Each data point represents one complete behavioral trial, not individual timesteps.
     - For NeuroGym tasks, this typically occurs when the agent makes a decision in the
@@ -50,20 +52,20 @@ class Monitor(Wrapper):
 
     def __init__(
         self,
-        env,
-        folder=None,
-        sv_per=100000,
-        sv_stp="trial",
-        verbose=False,
-        sv_fig=False,
-        num_stps_sv_fig=100,
-        name="",
-        fig_type="png",
-        step_fn=None,
+        env: Any,
+        folder: str | None = None,
+        sv_per: int = 100000,
+        sv_stp: str = "trial",
+        verbose: bool = False,
+        sv_fig: bool = False,
+        num_stps_sv_fig: int = 100,
+        name: str = "",
+        fig_type: str = "png",
+        step_fn: Callable | None = None,
     ) -> None:
         super().__init__(env)
         self.env = env
-        self.num_tr = 0
+        self.num_tr: int = 0
         self.step_fn = step_fn
         # data to save
         self.data: dict[str, list] = {"action": [], "reward": []}
@@ -71,19 +73,19 @@ class Monitor(Wrapper):
         self.sv_stp = sv_stp
         self.fig_type = fig_type
         if self.sv_stp == "timestep":
-            self.t = 0
+            self.t: int = 0
         self.verbose = verbose
-        if folder is None:
-            self.folder = "tmp"
+        self.folder: str = "tmp" if folder is None else folder
         Path(self.folder).mkdir(parents=True, exist_ok=True)
 
         # seeding
-        self.sv_name = str(Path(self.folder) / f"{self.env.__class__.__name__}_bhvr_data_{name}_")
+        self.sv_name: str = str(Path(self.folder) / f"{self.env.__class__.__name__}_bhvr_data_{name}_")
         # figure
         self.sv_fig = sv_fig
+        self.name: str = name
         if self.sv_fig:
             self.num_stps_sv_fig = num_stps_sv_fig
-            self.stp_counter = 0
+            self.stp_counter: int = 0
             self.ob_mat: list = []
             self.act_mat: list = []
             self.rew_mat: list = []
@@ -101,7 +103,7 @@ class Monitor(Wrapper):
         """
         return super().reset(seed=seed)
 
-    def step(self, action, collect_data=True):
+    def step(self, action: Any, collect_data: bool = True) -> tuple[Any, float, bool, bool, dict[str, Any]]:
         """Execute one environment step.
 
         This method:
@@ -160,7 +162,7 @@ class Monitor(Wrapper):
         for key in self.data:
             self.data[key] = []
 
-    def store_data(self, obs, action, rew, info) -> None:
+    def store_data(self, obs: Any, action: Any, rew: float, info: dict[str, Any]) -> None:
         """Store data for visualization figures.
 
         Args:
@@ -202,8 +204,13 @@ class Monitor(Wrapper):
             self.gt_mat = []
             self.perf_mat = []
 
-    def plot_training_history(self, window_size=None, figsize=(12, 6), save_fig=True):
-        """Plot training history from saved data files with one data point per trial.
+    def plot_training_history(
+        self,
+        window_size: int | None = None,
+        figsize: tuple[int, int] = (12, 6),
+        save_fig: bool = True,
+    ) -> plt.Figure | None:
+        """Plot rewards and performance history from saved data files with one data point per trial.
 
         Args:
             window_size: Size of the moving average window (default: auto-calculate based on data size)
@@ -225,8 +232,8 @@ class Monitor(Wrapper):
 
         print(f"Found {len(files)} data files")
 
-        all_rewards = []
-        all_performances = []
+        all_rewards: list[float] = []
+        all_performances: list[float] = []
         current_trial = 0
 
         for file in files:
@@ -364,7 +371,12 @@ class Monitor(Wrapper):
         return fig
 
 
-def evaluate_performance(env, num_trials=100, model=None, verbose=True):
+def evaluate_performance(
+    env: Any,
+    num_trials: int = 100,
+    model: Any | None = None,
+    verbose: bool = True,
+) -> dict[str, float | list[float]]:
     """Evaluates the average performance of a model in an environment.
 
     This function runs the given model (or random policy if None) on the
@@ -388,8 +400,8 @@ def evaluate_performance(env, num_trials=100, model=None, verbose=True):
     obs, _ = env.reset()
 
     # Tracking variables
-    performances = []
-    rewards = []
+    performances: list[float] = []
+    rewards: list[float] = []
     trial_count = 0
 
     # Run trials
@@ -421,8 +433,8 @@ def evaluate_performance(env, num_trials=100, model=None, verbose=True):
     reward_array = np.array(rewards)
 
     return {
-        "mean_performance": np.mean(performance_array) if len(performance_array) > 0 else 0,
-        "mean_reward": np.mean(reward_array > 0) if len(reward_array) > 0 else 0,
+        "mean_performance": float(np.mean(performance_array)) if len(performance_array) > 0 else 0,
+        "mean_reward": float(np.mean(reward_array > 0)) if len(reward_array) > 0 else 0,
         "performances": performances,
         "rewards": rewards,
     }

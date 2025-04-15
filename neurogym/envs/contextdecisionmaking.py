@@ -26,7 +26,7 @@ class ContextDecisionMaking(ngym.TrialEnv):
         use_expl_context: bool, if True, the context is explicit (signaled) and changes per trial.
         impl_context_modality: int, which fixed implicit modality to use if `use_expl_context`
             is False (0 or 1).
-        dim_ring: int, number of choices in both modalities.
+        dim_ring: int, number of choices.
         rewards: dict, rewards for correct, fail and abort responses.
         timing: dict, timing of the different events in the trial.
         sigma: float, standard deviation of the noise added to the inputs.
@@ -85,7 +85,7 @@ class ContextDecisionMaking(ngym.TrialEnv):
         self.abort = abort
 
     def _setup_spaces(self):
-        """Setup observation and action spaces for both context types using ring representation."""
+        """Setup observation and action spaces using ring representation."""
         self.theta = np.linspace(0, 2 * np.pi, self.dim_ring + 1)[:-1]
         self.choices = np.arange(1, self.dim_ring + 1)
 
