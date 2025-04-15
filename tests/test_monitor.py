@@ -56,7 +56,7 @@ def test_monitor_initialization(temp_folder: str):
     assert monitor.sv_per == 10
     assert monitor.sv_stp == "trial"
     assert monitor.folder == temp_folder
-    assert monitor.data == {"action": [], "reward": []}
+    assert monitor.data == {"action": [], "reward": [], "performance": []}
     assert monitor.num_tr == 0
 
 
