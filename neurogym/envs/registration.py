@@ -1,4 +1,5 @@
 import importlib
+from importlib.util import find_spec
 from inspect import getmembers, isclass, isfunction
 from pathlib import Path
 
@@ -6,10 +7,18 @@ import gymnasium as gym
 
 from neurogym.envs.collections import get_collection
 
+_HAVE_PSYCHOPY = find_spec("psychopy") is not None  # check if psychopy is installed
+_INCLUDE_CONTRIB = False  # FIXME: these are currently not passing tests
+_EXCLUDE_ENVS = [
+    "AnnubesEnv",  # FIXME: failing test_env.py::test_seeding_all (resolve in #149)
+    "Detection",  # FIXME: failing test_data.py and test_env.py
+    "ToneDetection",  # FIXME: failing test_data.py::test_registered_env
+]
+
 
 def _get_envs(
     foldername: str | None = None,
-    exclude: str | list[str] | None = EXCLUDE_ENVS,
+    exclude: str | list[str] | None = _EXCLUDE_ENVS,
 ) -> dict[str, str]:
     """Discover and register all environments from a specified folder.
 
@@ -55,71 +64,6 @@ def _get_envs(
     return env_dict
 
 
-NATIVE_ALLOW_LIST = [
-    "AntiReach",
-    "Bandit",
-    "ContextDecisionMaking",
-    "DawTwoStep",
-    "DelayComparison",
-    "DelayMatchCategory",
-    "DelayMatchSample",
-    "DelayMatchSampleDistractor1D",
-    "DelayPairedAssociation",
-    # 'Detection',  # TODO: Temporary removing until bug fixed # noqa: ERA001
-    "DualDelayMatchSample",
-    "EconomicDecisionMaking",
-    "GoNogo",
-    "HierarchicalReasoning",
-    "IntervalDiscrimination",
-    "MotorTiming",
-    "MultiSensoryIntegration",
-    "Null",
-    "OneTwoThreeGo",
-    "PerceptualDecisionMaking",
-    "PerceptualDecisionMakingDelayResponse",
-    "PostDecisionWager",
-    "ProbabilisticReasoning",
-    "PulseDecisionMaking",
-    "Reaching1D",
-    "Reaching1DWithSelfDistraction",
-    "ReachingDelayResponse",
-    "ReadySetGo",
-    # 'SpatialSuppressMotion',   # noqa: ERA001
-    # TODO: raises ModuleNotFound error since requires scipy, which is not in the requirements of neurogym.
-    # FIXME: I have added scipy to requirements (for other reason), does this mean SpatialSuppressMotion is valid?
-    # 'ToneDetection'  # TODO: Temporary removing until bug fixed # noqa: ERA001
-]
-ALL_NATIVE_ENVS = _get_envs(
-    foldername=None,
-    env_prefix=None,
-    allow_list=NATIVE_ALLOW_LIST,
-)
-
-_psychopy_prefix = "neurogym.envs.psychopy."
-ALL_PSYCHOPY_ENVS = {
-    "psychopy.RandomDotMotion-v0": _psychopy_prefix + "perceptualdecisionmaking:RandomDotMotion",
-    "psychopy.VisualSearch-v0": _psychopy_prefix + "visualsearch:VisualSearch",
-    "psychopy.SpatialSuppressMotion-v0": _psychopy_prefix + "spatialsuppressmotion:SpatialSuppressMotion",
-}
-
-_contrib_name_prefix = "contrib."
-_contrib_prefix = "neurogym.envs.contrib."
-CONTRIB_ALLOW_LIST: list = [
-    # 'AngleReproduction',
-    # 'CVLearning',
-    # 'ChangingEnvironment',
-    # 'IBL',
-    # 'MatchingPenny',
-    # 'MemoryRecall',
-    # 'Pneumostomeopening'
-]
-ALL_CONTRIB_ENVS = _get_envs(
-    foldername="contrib",
-    env_prefix="contrib",
-    allow_list=CONTRIB_ALLOW_LIST,
-)
-
-
 # Automatically register all tasks in collections
 # FIXME: Collection envs are defined in a slightly different way. Refactor them to allow using the function above.
 def _get_collection_envs() -> dict[str, str]:
@@ -142,10 +86,12 @@ def _get_collection_envs() -> dict[str, str]:
     return derived_envs
 
 
+ALL_NATIVE_ENVS = _get_envs()
 ALL_COLLECTIONS_ENVS = _get_collection_envs()
+ALL_CONTRIB_ENVS = _get_envs(foldername="contrib") if _INCLUDE_CONTRIB else {}
+ALL_PSYCHOPY_ENVS = _get_envs(foldername="psychopy") if _HAVE_PSYCHOPY else {}
 
 ALL_ENVS = {**ALL_NATIVE_ENVS, **ALL_PSYCHOPY_ENVS, **ALL_CONTRIB_ENVS}
-
 ALL_EXTENDED_ENVS = {**ALL_ENVS, **ALL_COLLECTIONS_ENVS}
 
 
