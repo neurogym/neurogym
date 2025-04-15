@@ -149,6 +149,7 @@ class Monitor(Wrapper):
                     print(f"Data saved to: {save_path}")
                     print(f"Number of trials: {self.num_tr}")
                     print(f"Average reward: {np.mean(self.data['reward'])}")
+                    print(f"Average performance: {np.mean(self.data['performance'])}")
                     print("--------------------")
                 self.reset_data()
                 if self.sv_fig:
@@ -203,6 +204,77 @@ class Monitor(Wrapper):
             self.rew_mat = []
             self.gt_mat = []
             self.perf_mat = []
+
+    def evaluate_policy(
+        self,
+        num_trials: int = 100,
+        model: Any | None = None,
+        verbose: bool = True,
+    ) -> dict[str, float | list[float]]:
+        """Evaluates the average performance of the RL agent in the environment.
+
+        This method runs the given model (or random policy if None) on the
+        environment for a specified number of trials and collects performance
+        metrics.
+
+        Args:
+            num_trials: Number of trials to run for evaluation
+            model: The policy model to evaluate (if None, uses random actions)
+            verbose: If True, prints progress information
+        Returns:
+            dict: Dictionary containing performance metrics:
+                - mean_performance: Average performance (if reported by environment)
+                - mean_reward: Proportion of positive rewards
+                - performances: List of performance values for each trial
+                - rewards: List of rewards for each trial.
+        """
+        # Reset environment
+        obs, _ = self.env.reset()
+
+        # Initialize hidden states
+        states = None
+        episode_starts = np.array([True])
+
+        # Tracking variables
+        performances = []
+        rewards = []
+        trial_count = 0
+
+        # Run trials
+        while trial_count < num_trials:
+            if model is not None:
+                action, states = model.predict(obs, state=states, episode_start=episode_starts, deterministic=True)
+            else:
+                action = self.env.action_space.sample()
+
+            # Use collect_data=False to avoid saving evaluation data
+            obs, reward, _, _, info = self.step(action, collect_data=False)
+            # Update episode_starts after each step
+            episode_starts = np.array([False])
+
+            if info.get("new_trial", False):
+                trial_count += 1
+                rewards.append(reward)
+                if "performance" in info:
+                    performances.append(info["performance"])
+
+                if verbose and trial_count % 1000 == 0:
+                    print(f"Completed {trial_count}/{num_trials} trials")
+
+                # Reset states at the end of each trial
+                states = None
+                episode_starts = np.array([True])
+
+        # Calculate metrics
+        performance_array = np.array([p for p in performances if p != -1])
+        reward_array = np.array(rewards)
+
+        return {
+            "mean_performance": float(np.mean(performance_array)) if len(performance_array) > 0 else 0,
+            "mean_reward": float(np.mean(reward_array > 0)) if len(reward_array) > 0 else 0,
+            "performances": performances,
+            "rewards": rewards,
+        }
 
     def plot_training_history(
         self,
@@ -369,72 +441,3 @@ class Monitor(Wrapper):
             print(f"Figure saved to {save_path}")
 
         return fig
-
-
-def evaluate_performance(
-    env: Any,
-    num_trials: int = 100,
-    model: Any | None = None,
-    verbose: bool = True,
-) -> dict[str, float | list[float]]:
-    """Evaluates the average performance of a model in an environment.
-
-    This function runs the given model (or random policy if None) on the
-    environment for a specified number of trials and collects performance
-    metrics.
-
-    Args:
-        env: The NeuroGym environment to evaluate
-        num_trials: Number of trials to run for evaluation
-        model: The policy model to evaluate (if None, uses random actions)
-        verbose: If True, prints progress information
-
-    Returns:
-        dict: Dictionary containing performance metrics:
-            - mean_performance: Average performance (if reported by environment)
-            - mean_reward: Proportion of positive rewards
-            - performances: List of performance values for each trial
-            - rewards: List of rewards for each trial
-    """
-    # Reset environment
-    obs, _ = env.reset()
-
-    # Tracking variables
-    performances: list[float] = []
-    rewards: list[float] = []
-    trial_count = 0
-
-    # Run trials
-    while trial_count < num_trials:
-        if model is not None:
-            action, _ = model.predict(obs)
-        else:
-            action = env.action_space.sample()
-
-        if model is not None:
-            obs, reward, terminated, _, info = env.step(action, collect_data=False)
-        else:
-            obs, reward, terminated, _, info = env.step(action)
-
-        if info.get("new_trial", False):
-            trial_count += 1
-            rewards.append(reward)
-            if "performance" in info:
-                performances.append(info["performance"])
-
-            if verbose and trial_count % 1000 == 0:
-                print(f"Completed {trial_count}/{num_trials} trials")
-
-        if terminated:
-            obs, _ = env.reset()
-
-    # Calculate metrics
-    performance_array = np.array([p for p in performances if p != -1])
-    reward_array = np.array(rewards)
-
-    return {
-        "mean_performance": float(np.mean(performance_array)) if len(performance_array) > 0 else 0,
-        "mean_reward": float(np.mean(reward_array > 0)) if len(reward_array) > 0 else 0,
-        "performances": performances,
-        "rewards": rewards,
-    }
