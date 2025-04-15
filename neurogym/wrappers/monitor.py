@@ -68,7 +68,7 @@ class Monitor(Wrapper):
         self.num_tr: int = 0
         self.step_fn = step_fn
         # data to save
-        self.data: dict[str, list] = {"action": [], "reward": []}
+        self.data: dict[str, list] = {"action": [], "reward": [], "performance": []}
         self.sv_per = sv_per
         self.sv_stp = sv_stp
         self.fig_type = fig_type
