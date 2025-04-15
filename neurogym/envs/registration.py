@@ -130,7 +130,7 @@ def _get_envs(
 
         # Discover all classes in the module that inherit from gym.Env
         for name, obj in getmembers(module, isclass):
-            if issubclass(obj, gym.Env) and obj.__module__ == module_name and name not in exclude:
+            if issubclass(obj, gym.Env) and name not in exclude and obj.__module__ == module_name:
                 env_id = f"{foldername}.{name}-v0" if foldername else f"{name}-v0"
                 entry_point = f"{module_name}:{name}"
                 env_dict[env_id] = entry_point
@@ -143,6 +143,7 @@ ALL_CONTRIB_ENVS = _get_envs("contrib")
 try:
     ALL_PSYCHOPY_ENVS = _get_envs("psychopy")
 except ModuleNotFoundError:
+    gym.logger.warn("Psychopy not installed. Psychopy environments will not be available.")
     ALL_PSYCHOPY_ENVS = {}
 ALL_COLLECTIONS_ENVS = _get_envs("collections")
 
@@ -224,10 +225,10 @@ def make(id_: str, **kwargs) -> gym.Env:
         return gym.make(id_, disable_env_checker=True, **kwargs)
 
     except gym.error.UnregisteredEnv as e:
-        raise _handle_unregistered_env_error(id_) from e
+        raise _handle_unregistered_env_error(id_, e) from e
 
 
-def _handle_unregistered_env_error(id_: str) -> gym.error.UnregisteredEnv:
+def _handle_unregistered_env_error(id_: str, original_error: Exception) -> str:
     registered_envs = [env.id for env in gym.envs.registry.values()]
     env_guesses = _get_closest_matches(id_, registered_envs)
 
@@ -237,7 +238,7 @@ def _handle_unregistered_env_error(id_: str) -> gym.error.UnregisteredEnv:
         for guess in env_guesses:
             error_msg += f"    {guess}\n"
 
-    return gym.error.UnregisteredEnv(error_msg)
+    return type(original_error)(error_msg)
 
 
 def _get_closest_matches(

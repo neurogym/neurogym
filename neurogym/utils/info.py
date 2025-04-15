@@ -4,12 +4,12 @@ import inspect
 
 import neurogym as ngym
 from neurogym.core import METADATA_DEF_KEYS, env_string
-from neurogym.envs.registration import ALL_ENVS, all_envs
+from neurogym.envs.registration import ALL_NATIVE_ENVS, all_envs
 from neurogym.wrappers import ALL_WRAPPERS
 
 
 def all_tasks() -> None:
-    for task in sorted(ALL_ENVS):
+    for task in sorted(ALL_NATIVE_ENVS):
         print(task)
 
 
@@ -29,7 +29,7 @@ def info(env=None, show_code=False):
     # show source code
     if show_code:
         string += """\n#### Source code #### \n\n"""
-        env_ref = ALL_ENVS[env_name]
+        env_ref = ALL_NATIVE_ENVS[env_name]
         from_, class_ = env_ref.split(":")
         imported = getattr(__import__(from_, fromlist=[class_]), class_)
         lines = inspect.getsource(imported)

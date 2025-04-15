@@ -55,7 +55,11 @@ def test_run_all(verbose_success=False):
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
         for env_name in ENVS:
             print(env_name)
-            _test_run(env_name, verbose=verbose_success)
+            try:
+                _test_run(env_name, verbose=verbose_success)
+            except Exception as e:
+                msg = f"Invalid metadata for {env_name}. {e}"
+                raise gym.error.InvalidMetadata(msg) from e
 
 
 def _test_dataset(env):
