@@ -1,4 +1,5 @@
 import contextlib
+import warnings
 from typing import Any, NoReturn
 
 import gymnasium as gym
@@ -463,6 +464,57 @@ class TrialEnv(BaseEnv):
     @property
     def gt_now(self):
         return self.gt[self.t_ind]
+
+    @property
+    def avg_timesteps_per_trial(self) -> float:
+        """Calculate average timesteps per trial based on timing parameters.
+
+        Returns:
+            float: Average number of timesteps per trial
+        """
+        if not self.timing:
+            return 0
+
+        total_ms = 0.0
+        for period, timing in self.timing.items():
+            if isinstance(timing, int | float):
+                period_ms = timing
+            elif isinstance(timing, list | tuple):
+                # Check if the first element is a string (distribution type)
+                if isinstance(timing[0], str):
+                    if timing[0] == "truncated_exponential":
+                        period_ms = timing[1][0]  # Use the mean parameter
+                    elif timing[0] == "uniform":
+                        period_ms = sum(timing[1]) / 2  # Average of min and max
+                    elif timing[0] == "choice":
+                        period_ms = sum(timing[1]) / len(timing[1])  # Average of choices
+                    elif timing[0] == "constant":
+                        period_ms = timing[1]
+                    else:
+                        period_ms = 0
+                        warnings.warn(f"Unknown distribution type {timing[0]} for period {period}", stacklevel=2)
+                else:
+                    # List of numbers: Random choice from the list
+                    # Calculate the average of the list elements
+                    period_ms = sum(timing) / len(timing)
+            elif callable(timing):
+                # Check if it's a TruncExp object with vmean attribute
+                if hasattr(timing, "vmean"):
+                    period_ms = timing.vmean
+                else:
+                    # If it's another callable function, we can't determine the average without sampling
+                    period_ms = 500
+                    warnings.warn(
+                        f"Period {period} uses a callable timing function. Using 500ms as default.",
+                        stacklevel=2,
+                    )
+            else:
+                period_ms = 0
+                warnings.warn(f"Could not determine length for period {period}", stacklevel=2)
+
+            total_ms += period_ms
+
+        return float(total_ms / self.dt)
 
 
 class TrialWrapper(gym.Wrapper):

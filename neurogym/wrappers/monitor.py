@@ -1,6 +1,8 @@
 from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
+import matplotlib.pyplot as plt
 import numpy as np
 from gymnasium import Wrapper
 
@@ -9,9 +11,19 @@ from neurogym.utils.plotting import fig_
 
 
 class Monitor(Wrapper):
-    """Monitor task.
+    """Monitor wrapper for NeuroGym environments.
 
-    Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth.
+    This class wraps NeuroGym environments to monitor and collect behavioral data
+    during training and evaluation. It saves relevant behavioral information such as
+    rewards, actions, observations, new trial flags, and ground truth.
+
+    Data collection behavior:
+    - The Monitor records data points ONLY at the end of trials (when info["new_trial"]=True).
+    - Each data point represents one complete behavioral trial, not individual timesteps.
+    - For NeuroGym tasks, this typically occurs when the agent makes a decision in the
+      decision period, or when the trial is aborted.
+    - Data is saved to disk at regular intervals (e.g., every 1000 trials) and internal
+      data containers are reset after each save.
 
     Args:
         env: The wrapped environment.
@@ -19,16 +31,20 @@ class Monitor(Wrapper):
             pointing to a TOML configuration file). Defaults to None.
         step_function: An optional step function to override the built-in `step()`
             method provided by the environment. Defaults to None.
+
+    Attributes:
+        data: Dictionary containing behavioral data (actions, rewards, etc.)
+        num_tr: Number of trials completed
+        t: Number of timesteps completed (when sv_stp="timestep")
     """
 
-    metadata: dict[str, str | None] = {  # noqa: RUF012
+    metadata = {  # noqa: RUF012
         "description": (
             "Saves relevant behavioral information: rewards, actions, observations, new trial, ground truth."
         ),
         "paper_link": None,
         "paper_name": None,
     }
-    # TODO: use names similar to Tensorboard
 
     def __init__(
         self,
@@ -74,19 +90,40 @@ class Monitor(Wrapper):
         ngym.logger.info("Logger configured.")
 
     def reset(self, seed=None):
-        super().reset(seed=seed)
-        return self.env.reset()
+        """Reset the environment.
 
-    def step(self, action):
-        if self.step_function:
-            obs, rew, terminated, truncated, info = self.step_function(action)
+        Args:
+            seed: Random seed for the environment
+
+        Returns:
+            The initial observation from the environment reset
+        """
+        return super().reset(seed=seed)
+
+    def step(self, action: Any, collect_data: bool = True) -> tuple[Any, float, bool, bool, dict[str, Any]]:
+        """Execute one environment step.
+
+        This method:
+        1. Takes a step in the environment
+        2. Collects data if sv_fig is enabled
+        3. Saves data when a trial completes and saving conditions are met
+
+        Args:
+            action: The action to take in the environment
+            collect_data: If True, collect and save data
+
+        Returns:
+            Tuple of (observation, reward, terminated, truncated, info)
+        """
+        if self.step_fn:
+            obs, rew, terminated, truncated, info = self.step_fn(action)
         else:
             obs, rew, terminated, truncated, info = self.env.step(action)
         if self.config.monitor.plot.create:
             self.store_data(obs, action, rew, info)
         if self.config.monitor.plot.trigger == "step":
             self.t += 1
-        if info["new_trial"]:
+        if info.get("new_trial", False):
             self.num_tr += 1
             self.data["action"].append(action)
             self.data["reward"].append(rew)
@@ -102,12 +139,17 @@ class Monitor(Wrapper):
                 if self.config.monitor.plot.trigger == "step"
                 else self.num_tr % self.config.monitor.plot.interval == 0
             )
-            if save:
-                np.savez(self.save_dir / f"trial-{self.num_tr!s}.npz", **self.data)
-                if self.config.monitor.log.verbose:
+            if save and collect_data:
+                # Create save path with pathlib for cross-platform compatibility
+                save_path = f"{self.sv_name}{self.num_tr}.npz"
+                np.savez(save_path, **self.data)
+
+                if self.verbose:
                     print("--------------------")
-                    print("Number of trials: ", self.num_tr)
-                    print("Average reward: ", np.mean(self.data["reward"]))
+                    print(f"Data saved to: {save_path}")
+                    print(f"Number of trials: {self.num_tr}")
+                    print(f"Average reward: {np.mean(self.data['reward'])}")
+                    print(f"Average performance: {np.mean(self.data['performance'])}")
                     print("--------------------")
                 self.reset_data()
                 if self.config.monitor.plot.create:
@@ -117,10 +159,19 @@ class Monitor(Wrapper):
         return obs, rew, terminated, truncated, info
 
     def reset_data(self) -> None:
+        """Reset all data containers to empty lists."""
         for key in self.data:
             self.data[key] = []
 
-    def store_data(self, obs, action, rew, info) -> None:
+    def store_data(self, obs: Any, action: Any, rew: float, info: dict[str, Any]) -> None:
+        """Store data for visualization figures.
+
+        Args:
+            obs: Current observation
+            action: Current action
+            rew: Current reward
+            info: Info dictionary from environment
+        """
         if self.stp_counter <= self.config.monitor.plot.interval:
             self.ob_mat.append(obs)
             self.act_mat.append(action)
@@ -151,3 +202,170 @@ class Monitor(Wrapper):
             self.rew_mat = []
             self.gt_mat = []
             self.perf_mat = []
+
+    def evaluate_policy(
+        self,
+        num_trials: int = 100,
+        model: Any | None = None,
+        verbose: bool = True,
+    ) -> dict[str, float | list[float]]:
+        """Evaluates the average performance of the RL agent in the environment.
+
+        This method runs the given model (or random policy if None) on the
+        environment for a specified number of trials and collects performance
+        metrics.
+
+        Args:
+            num_trials: Number of trials to run for evaluation
+            model: The policy model to evaluate (if None, uses random actions)
+            verbose: If True, prints progress information
+        Returns:
+            dict: Dictionary containing performance metrics:
+                - mean_performance: Average performance (if reported by environment)
+                - mean_reward: Proportion of positive rewards
+                - performances: List of performance values for each trial
+                - rewards: List of rewards for each trial.
+        """
+        # Reset environment
+        obs, _ = self.env.reset()
+
+        # Initialize hidden states
+        states = None
+        episode_starts = np.array([True])
+
+        # Tracking variables
+        performances = []
+        rewards = []
+        trial_count = 0
+
+        # Run trials
+        while trial_count < num_trials:
+            if model is not None:
+                action, states = model.predict(obs, state=states, episode_start=episode_starts, deterministic=True)
+            else:
+                action = self.env.action_space.sample()
+
+            # Use collect_data=False to avoid saving evaluation data
+            obs, reward, _, _, info = self.step(action, collect_data=False)
+            # Update episode_starts after each step
+            episode_starts = np.array([False])
+
+            if info.get("new_trial", False):
+                trial_count += 1
+                rewards.append(reward)
+                if "performance" in info:
+                    performances.append(info["performance"])
+
+                if verbose and trial_count % 1000 == 0:
+                    print(f"Completed {trial_count}/{num_trials} trials")
+
+                # Reset states at the end of each trial
+                states = None
+                episode_starts = np.array([True])
+
+        # Calculate metrics
+        performance_array = np.array([p for p in performances if p != -1])
+        reward_array = np.array(rewards)
+
+        return {
+            "mean_performance": float(np.mean(performance_array)) if len(performance_array) > 0 else 0,
+            "mean_reward": float(np.mean(reward_array > 0)) if len(reward_array) > 0 else 0,
+            "performances": performances,
+            "rewards": rewards,
+        }
+
+    def plot_training_history(self, figsize: tuple[int, int] = (12, 6), save_fig: bool = True) -> plt.Figure | None:
+        """Plot rewards and performance training history from saved data files with one data point per trial.
+
+        Args:
+            figsize: Figure size as (width, height) tuple
+            save_fig: Whether to save the figure to disk
+        Returns:
+            matplotlib figure object
+        """
+        env_name = self.env.unwrapped.__class__.__name__
+        log_folder = self.folder
+
+        base_path = Path(log_folder)
+        files = sorted(base_path.glob(f"{env_name}_bhvr_data_{self.name}_*.npz"))
+
+        if not files:
+            print(f"No data files found matching pattern: {env_name}_bhvr_data_{self.name}_*.npz")
+            return None
+
+        print(f"Found {len(files)} data files")
+
+        # Arrays to hold average values for each file
+        avg_rewards_per_file = []
+        avg_performances_per_file = []
+        file_indices = []  # To store file numbers or trial counts
+        total_trials = 0
+
+        # Process each file
+        for file in files:
+            data = np.load(file, allow_pickle=True)
+
+            # Process rewards
+            if "reward" in data:
+                rewards = data["reward"]
+                if len(rewards) > 0:
+                    avg_rewards_per_file.append(np.mean(rewards))
+                    total_trials += len(rewards)
+                    file_indices.append(total_trials)  # Use cumulative trial count as x-axis value
+
+            # Process performances
+            if "performance" in data:
+                perfs = data["performance"]
+                if len(perfs) > 0:
+                    avg_performances_per_file.append(np.mean(perfs))
+
+        # Create plot
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize)
+
+        # 1. Rewards plot
+        ax1.plot(file_indices, avg_rewards_per_file, "o-", color="blue", linewidth=2)
+        ax1.set_title("Average Reward per File")
+        ax1.set_xlabel("Cumulative Trials")
+        ax1.set_ylabel("Average Reward")
+        ax1.set_ylim(-0.05, 1.05)
+
+        overall_avg_reward = np.mean(avg_rewards_per_file)
+        ax1.text(
+            0.05,
+            0.95,
+            f"Overall Avg Reward: {overall_avg_reward:.4f}",
+            transform=ax1.transAxes,
+            verticalalignment="top",
+            bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
+        )
+
+        # 2. Performances plot
+        ax2.plot(file_indices, avg_performances_per_file, "o-", color="green", linewidth=2)
+        ax2.set_title("Average Performance per File")
+        ax2.set_xlabel("Cumulative Trials")
+        ax2.set_ylabel("Average Performance (0-1)")
+        ax2.set_ylim(-0.05, 1.05)
+        overall_avg_perf = np.mean(avg_performances_per_file)
+        ax2.text(
+            0.05,
+            0.95,
+            f"Overall Avg Performance: {overall_avg_perf:.4f}",
+            transform=ax2.transAxes,
+            verticalalignment="top",
+            bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
+        )
+
+        plt.tight_layout()
+        plt.suptitle(
+            f"Training History for {env_name}\n({len(files)} data files, {total_trials} total trials)",
+            fontsize=14,
+            y=1.05,
+        )
+
+        # Save the figure
+        if save_fig:
+            save_path = Path(log_folder) / f"{env_name}_training_history.png"
+            plt.savefig(save_path, dpi=300, bbox_inches="tight")
+            print(f"Figure saved to {save_path}")
+
+        return fig
