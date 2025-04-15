@@ -116,6 +116,48 @@ def test_monitor_save_data(temp_folder: str, sv_stp: str):
     assert "reward" in data
 
 
+def test_evaluate_policy():
+    """Test that evaluate_policy correctly evaluates policy performance."""
+    env = DummyEnv()
+    monitor = Monitor(env, verbose=False)
+
+    # Create a simple mock model that always takes action 1
+    class MockModel:
+        def predict(self, observation, state=None, episode_start=None, deterministic=True):  # noqa: ARG002
+            return 1, None  # Always return action 1 and no state
+
+    mock_model = MockModel()
+
+    # Test with mock model (always chooses rewarding action)
+    num_trials = 10
+    results_model = monitor.evaluate_policy(num_trials=num_trials, model=mock_model, verbose=False)
+
+    # Check results structure
+    assert "mean_performance" in results_model
+    assert "mean_reward" in results_model
+    assert "performances" in results_model
+    assert "rewards" in results_model
+
+    # With our mock model always choosing action 1 (which gives reward 1.0),
+    # mean_reward should be close to 1.0
+    assert results_model["mean_reward"] == 1.0
+    assert len(results_model["rewards"]) == num_trials
+
+    # Test with random policy (no model provided)
+    results_random = monitor.evaluate_policy(num_trials=num_trials, model=None, verbose=False)
+
+    # Check results structure
+    assert "mean_performance" in results_random
+    assert "mean_reward" in results_random
+    assert "performances" in results_random
+    assert "rewards" in results_random
+
+    # With random policy in a binary action space, mean_reward should be around 0.5
+    # but could vary, so we just check it's a valid value between 0 and 1
+    assert 0 <= results_random["mean_reward"] <= 1.0
+    assert len(results_random["rewards"]) == num_trials
+
+
 def test_plot_training_history(temp_folder: str):
     """Test that plot_training_history generates a visualization.
 
