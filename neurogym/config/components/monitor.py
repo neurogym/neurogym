@@ -59,9 +59,11 @@ class MonitorLogConfig(ConfigBase):
 class MonitorConfig(ConfigBase):
     """Configuration options related to monitoring.
 
+    name: The name of the monitor (could be different from the name of the environment).
     trigger: Subconfiguration The metric used to trigger events such as plotting.
     plot: Subconfiguration  to plotting (cf. :ref:`MonitorPlotConfig`)
     """
 
+    name: str = ""
     log: MonitorLogConfig = MonitorLogConfig()
     plot: MonitorPlotConfig = MonitorPlotConfig()

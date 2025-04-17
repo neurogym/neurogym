@@ -80,6 +80,10 @@ def test_addob_instep():
 
 
 class TestEnv(ngym.TrialEnv):
+    # Keep this here to prevent PyTest from trying
+    # to load tests from this class.
+    __test__ = False
+
     def __init__(self, dt: int, timing: dict) -> None:
         super().__init__(dt=dt)
         self.timing = timing or {}
@@ -106,9 +110,19 @@ class TestEnv(ngym.TrialEnv):
         # Uniform distribution
         ({"fixation": 300, "stimulus": ["uniform", [400, 600]], "decision": 200}, 10),
         # Truncated exponential distribution
-        ({"fixation": 300, "stimulus": ["truncated_exponential", [400, 100, 300, 500]], "decision": 200}, 9),
+        (
+            {
+                "fixation": 300,
+                "stimulus": ["truncated_exponential", [400, 100, 300, 500]],
+                "decision": 200,
+            },
+            9,
+        ),
         # Choice distribution
-        ({"fixation": 300, "stimulus": ["choice", [300, 400, 500]], "decision": 200}, 9),
+        (
+            {"fixation": 300, "stimulus": ["choice", [300, 400, 500]], "decision": 200},
+            9,
+        ),
         # List of values for random choice
         ({"fixation": 300, "stimulus": [400, 500, 600], "decision": 200}, 10),
         # Constant value

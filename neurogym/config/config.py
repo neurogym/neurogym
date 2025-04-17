@@ -3,6 +3,7 @@ from pathlib import Path
 
 from pydantic import Field, field_validator
 from pydantic_settings import (
+    BaseSettings,
     PydanticBaseSettingsSource,
     TomlConfigSettingsSource,
 )
@@ -35,7 +36,7 @@ class Config(ConfigBase):
     root_dir: Path = Field(frozen=True, default=ROOT_DIR)
     pkg_dir: Path = Field(frozen=True, default=PKG_DIR)
     config_dir: Path = Field(frozen=True, default=CONFIG_DIR)
-    local_dir: Path = LOCAL_DIR
+    local_dir: Path = Field(default=LOCAL_DIR)
 
     # Subconfiguration
     agent: AgentConfig = AgentConfig()
@@ -57,15 +58,38 @@ class Config(ConfigBase):
 
         super().__init__(*args, **kwargs)
 
-    # A class method that tries to identify all
-    # the possible configuration files to load.
     @classmethod
-    def settings_customise_sources(  # type: ignore[override]
+    def settings_customise_sources(
         cls,
-        settings_cls: type[ConfigBase],
-        **kwargs,
+        settings_cls: type[BaseSettings],
+        init_settings: PydanticBaseSettingsSource,
+        env_settings: PydanticBaseSettingsSource,
+        dotenv_settings: PydanticBaseSettingsSource,
+        file_secret_settings: PydanticBaseSettingsSource,
     ) -> tuple[PydanticBaseSettingsSource, ...]:
-        return (TomlConfigSettingsSource(settings_cls, cls.config_file),)
+        """A class method to load configurations in a predefined order.
+
+        For the `file_secret_settings` argument, see
+        Pydantic Settings | Secrets (https://docs.pydantic.dev/latest/concepts/pydantic_settings/#field-value-priority)
+
+        Args:
+            settings_cls: The base settings class (ConfigBase in this case).
+            init_settings: Settings passed to __init__().
+            env_settings: Settings passed via environment variables.
+            dotenv_settings: Settings passed via an `.env` file.
+            file_secret_settings: Secret file settings.
+
+
+        Returns:
+            A tuple containing Pydantic Settings in the desired order.
+        """
+        return (
+            init_settings,
+            TomlConfigSettingsSource(settings_cls, cls.config_file),
+            env_settings,
+            dotenv_settings,
+            file_secret_settings,
+        )
 
     @field_validator("*", mode="before", check_fields=False)
     @classmethod
@@ -73,7 +97,10 @@ class Config(ConfigBase):
         if isinstance(value, str):
             return os.path.expandvars(value)
         if isinstance(value, dict):
-            return {k: (os.path.expandvars(v) if isinstance(v, str) else v) for k, v in value.items()}
+            return {
+                k: (os.path.expandvars(v) if isinstance(v, str) else v)
+                for k, v in value.items()
+            }
         if isinstance(value, list):
             return [(os.path.expandvars(v) if isinstance(v, str) else v) for v in value]
         return value

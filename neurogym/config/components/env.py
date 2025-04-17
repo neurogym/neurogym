@@ -8,5 +8,5 @@ class EnvConfig(ConfigBase):
     dt: Time interval between steps (in ms).
     """
 
-    name: str | None = None
+    name: str = ""
     dt: int = 10

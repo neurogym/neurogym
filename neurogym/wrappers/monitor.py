@@ -35,7 +35,7 @@ class Monitor(Wrapper):
     Attributes:
         data: Dictionary containing behavioral data (actions, rewards, etc.)
         num_tr: Number of trials completed
-        t: Number of timesteps completed (when sv_stp="timestep")
+        t: Number of timesteps completed (when sv_stp="step")
     """
 
     metadata = {  # noqa: RUF012
@@ -55,14 +55,23 @@ class Monitor(Wrapper):
         super().__init__(env)
         self.env = env
         self.step_function = step_function
+
         if config is None:
             config = ngym.config
         elif isinstance(config, (str, Path)):
             config = ngym.Config(config_file=config)
         self.config: ngym.Config = config
+
+        # Assign names for the environment and/or the monitor
+        # if they are empty
+        if len(self.config.env.name) == 0:
+            self.config.env.name = self.env.unwrapped.__class__.__name__
+        if len(self.config.monitor.name) == 0:
+            self.config.monitor.name = self.__class__.__name__
+
         self._configure_logger()
 
-        self.data: dict[str, list] = {"action": [], "reward": []}
+        self.data: dict[str, list] = {"action": [], "reward": [], "performance": []}
         if self.config.monitor.plot.trigger == "step":
             self.t = 0
         self.num_tr = 0
@@ -115,8 +124,8 @@ class Monitor(Wrapper):
         Returns:
             Tuple of (observation, reward, terminated, truncated, info)
         """
-        if self.step_fn:
-            obs, rew, terminated, truncated, info = self.step_fn(action)
+        if self.step_function is not None:
+            obs, rew, terminated, truncated, info = self.step_function(action)
         else:
             obs, rew, terminated, truncated, info = self.env.step(action)
         if self.config.monitor.plot.create:
@@ -141,10 +150,10 @@ class Monitor(Wrapper):
             )
             if save and collect_data:
                 # Create save path with pathlib for cross-platform compatibility
-                save_path = f"{self.sv_name}{self.num_tr}.npz"
+                save_path = self.config.local_dir / f"trial_{self.num_tr}.npz"
                 np.savez(save_path, **self.data)
 
-                if self.verbose:
+                if self.config.monitor.log.verbose:
                     print("--------------------")
                     print(f"Data saved to: {save_path}")
                     print(f"Number of trials: {self.num_tr}")
@@ -268,13 +277,17 @@ class Monitor(Wrapper):
         reward_array = np.array(rewards)
 
         return {
-            "mean_performance": float(np.mean(performance_array)) if len(performance_array) > 0 else 0,
-            "mean_reward": float(np.mean(reward_array > 0)) if len(reward_array) > 0 else 0,
+            "mean_performance": (float(np.mean(performance_array)) if len(performance_array) > 0 else 0),
+            "mean_reward": (float(np.mean(reward_array > 0)) if len(reward_array) > 0 else 0),
             "performances": performances,
             "rewards": rewards,
         }
 
-    def plot_training_history(self, figsize: tuple[int, int] = (12, 6), save_fig: bool = True) -> plt.Figure | None:
+    def plot_training_history(
+        self,
+        figsize: tuple[int, int] = (12, 6),
+        save_fig: bool = True,
+    ) -> plt.Figure | None:
         """Plot rewards and performance training history from saved data files with one data point per trial.
 
         Args:
@@ -283,14 +296,10 @@ class Monitor(Wrapper):
         Returns:
             matplotlib figure object
         """
-        env_name = self.env.unwrapped.__class__.__name__
-        log_folder = self.folder
-
-        base_path = Path(log_folder)
-        files = sorted(base_path.glob(f"{env_name}_bhvr_data_{self.name}_*.npz"))
+        files = sorted(self.config.local_dir.glob("*.npz"))
 
         if not files:
-            print(f"No data files found matching pattern: {env_name}_bhvr_data_{self.name}_*.npz")
+            print("No data files found matching pattern: *.npz")
             return None
 
         print(f"Found {len(files)} data files")
@@ -357,14 +366,14 @@ class Monitor(Wrapper):
 
         plt.tight_layout()
         plt.suptitle(
-            f"Training History for {env_name}\n({len(files)} data files, {total_trials} total trials)",
+            f"Training History for {self.config.env.name}\n({len(files)} data files, {total_trials} total trials)",
             fontsize=14,
             y=1.05,
         )
 
         # Save the figure
         if save_fig:
-            save_path = Path(log_folder) / f"{env_name}_training_history.png"
+            save_path = self.config.local_dir / f"{self.config.env.name}_training_history.png"
             plt.savefig(save_path, dpi=300, bbox_inches="tight")
             print(f"Figure saved to {save_path}")
 

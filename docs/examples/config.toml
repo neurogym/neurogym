@@ -43,6 +43,15 @@ name = "TrialEnv"
 dt = 10 # [ms]
 
 # ==================================================
+# Monitor configuration.
+# ==================================================
+[monitor]
+
+# Name of the monitor.
+# (could be different from the name of the environment)
+name = ""
+
+# ==================================================
 # Logging configuration.
 # Logging relies on the Loguru library.
 # Please check the documentation for Loguru at

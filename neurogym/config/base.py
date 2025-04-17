@@ -15,6 +15,7 @@ class ConfigBase(BaseSettings):
     # This is a built-in attribute that is overriden here.
     model_config = SettingsConfigDict(
         env_prefix="NGYM_",
+        env_nested_delimiter=".",
         case_sensitive=True,
         nested_model_default_partial_update=True,
         extra="allow",

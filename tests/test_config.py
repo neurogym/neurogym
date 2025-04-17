@@ -1,19 +1,34 @@
 """Test the Pydantic-based configuration."""
 
+import tempfile
 from pathlib import Path
 
+from typing import OrderedDict
+
+import numpy as np
+import pytest
 import tomlkit as tkit
 
 from neurogym.config import Config
 
+rng = np.random.default_rng()
 
-def test_config_custom_toml_file():
+
+@pytest.fixture
+def temp_dir():
+    """Create a temporary directory for test files.
+
+    Returns:
+        A path to a temporary directory that is removed after the test.
+    """
+    with tempfile.TemporaryDirectory() as _temp_dir:
+        yield Path(_temp_dir)
+
+
+def test_config_custom_toml_file(temp_dir: Path):
     """Test if a configuration can be created with a custom TOML file."""
-    # Path to the current directory
-    cur_dir = Path(__file__).parent
-
     # Path to the configuration file
-    config_file = cur_dir / "config.toml"
+    config_file = temp_dir / "config.toml"
 
     try:
         # Set the level to some value that we can test
@@ -47,3 +62,39 @@ def test_config_custom_toml_file():
     finally:
         # Clean up
         config_file.unlink(missing_ok=True)
+
+
+@pytest.mark.parametrize("plot_trigger", ["trial", "step"])
+def test_config_instantiate_from_dict(
+    temp_dir: Path,
+    plot_trigger: str,
+):
+    """Test if a custom configuration can be created from a nested dictionary."""
+    # Random options
+    _local_dir = temp_dir / "local-test"
+    _plot_interval = rng.integers(0, 100)
+    _log_level = "WARNING"
+
+    opts = {
+        "local_dir": _local_dir,
+        "monitor": {
+            "plot": {
+                "interval": _plot_interval,
+                "trigger": plot_trigger,
+            },
+            "log": {
+                "level": _log_level,
+            },
+        },
+    }
+
+    # Create a new configuration
+    # ==================================================
+    config = Config(**opts)  # type: ignore[arg-type]
+
+    # Check that the configuration matches the variables above.
+    # NOTE: Add tests for all nested options.
+    assert config.local_dir == _local_dir
+    assert config.monitor.plot.interval == _plot_interval
+    assert config.monitor.plot.trigger == plot_trigger
+    assert config.monitor.log.level == _log_level
