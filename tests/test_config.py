@@ -3,8 +3,6 @@
 import tempfile
 from pathlib import Path
 
-from typing import OrderedDict
-
 import numpy as np
 import pytest
 import tomlkit as tkit
