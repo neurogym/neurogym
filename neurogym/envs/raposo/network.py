@@ -1,8 +1,9 @@
 from math import sqrt
 
-import torch
+from stable_baselines3.common.policies import ActorCriticPolicy
+from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 import torch.nn as nn
-
+import torch
 
 class CustomRNN(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, param):
@@ -137,3 +138,31 @@ class CustomRNNNoBias(nn.Module):
             network_output = torch.cat([network_output, network_output_t[:, None, :]], dim=1)
 
         return network_output, rnn_output
+
+class CustomRNNExtractor(BaseFeaturesExtractor):
+    def __init__ (self, observation_space, features_dim=64):
+        super().__init__(observation_space, features_dim)
+
+        input_size = observation_space.shape[0]
+        hidden_size = 128
+        output_size = features_dim
+        param = {'ex_in_ratio': 0.8, 'rec_noise_std': 0.05}
+
+        from neurogym.envs.raposo.network import CustomRNN
+        self.rnn = CustomRNN(input_size, hidden_size, output_size, param)
+        self.tau = 100
+        self.dt = 100
+
+        def forward(self, observations):
+            x = observations.unsqueeze(1) # Add time dimension
+            output, _ = self.rnn(x, tau=self.tau, dt=self.dt)
+            return output[:, -1, :]
+
+class CustomRNNPolicy(ActorCriticPolicy):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            *args,
+            feature_extractor_class=CustomRNNExtractor,
+            feature_extractor_kwargs={'features_dim': 64},
+            **kwargs
+        )
