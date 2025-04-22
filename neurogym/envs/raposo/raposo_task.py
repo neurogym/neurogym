@@ -1,4 +1,5 @@
 import numpy as np
+from neurogym.core.register import register
 
 
 class RaposoTask:
@@ -120,3 +121,8 @@ class RaposoTask:
         trials['outputs'] = y
 
         return trials
+
+register(
+    id='CustomRaposoTask-v0',
+    entry_point='neurogym.envs.raposo.raposo_task:RaposoTask',  # your actual class name
+)
