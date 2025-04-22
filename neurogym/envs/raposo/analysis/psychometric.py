@@ -280,7 +280,7 @@ def  psych_analysis_v3(data_path, th, frequencies):
     return psych_results, n_analyzed_trials, accuracy
 
 
-def psych_plot(psych_results, frequencies, th, data_path, show_plots):
+def psych_plot(psych_results, frequencies, th, data_path, show_plots, net_id=None):
     frequencies = frequencies.tolist()
 
     vis_perf = np.zeros(len(frequencies))
@@ -310,14 +310,15 @@ def psych_plot(psych_results, frequencies, th, data_path, show_plots):
         ax.set_ylabel('Percentage of Left Choices', fontsize=18)
         ax.set_xlabel(r'Frequency', fontsize=18)
         ax.tick_params(labelsize=14)
-        ax.set_title(f'Threshold = {th}', fontsize=20)
+        ax.set_title(f'Network {net_id} - Threshold = {th}', fontsize=20)
         plt.tight_layout()
         plt.legend(prop={'size': 14})
 
         fig_suffix = str(th).replace('.', '')
-        plt.savefig(os.path.join(data_path, f'psych_plot_{fig_suffix}_{IDENTIFIER}.png'))
+        filename = f'psych_plot_{fig_suffix}_{IDENTIFIER}_net{net_id}.png' if net_id else f'psych_plot_{fig_suffix}_{IDENTIFIER}.png'
+        plt.savefig(os.path.join(data_path, filename))
         # plt.show()
-        # plt.close()
+        plt.close()
 
     return vis_perf, aud_perf, ms_perf
 
@@ -334,7 +335,7 @@ def psych_plot_all(data_path, frequencies):
         psych_results, th = sel_threshold(os.path.join(data_path, net), frequencies)
 
         net_vis_perf, net_aud_perf, net_ms_perf = psych_plot(psych_results, frequencies, th,
-                                                             os.path.join(data_path, net), False)
+                                                             os.path.join(data_path, net), net_id=net, show_plots=False)
 
         vis_perf[net] = net_vis_perf
         aud_perf[net] = net_aud_perf
@@ -408,7 +409,7 @@ def psych_plot_all(data_path, frequencies):
 
     print(f'current directory: {os.getcwd()}')
     plt.savefig(os.path.join(f'stopping_figures/ms_psych_plot_all__{IDENTIFIER}.png'))
-    #plt.show()
+    plt.show()
     plt.close()
 
 
@@ -416,7 +417,7 @@ def sigmoid(x, a, b):
     return 1 / (1 + np.exp(- (a * (x - b))))
 
 
-def fit_psych_data(data_path, fit_function, frequencies, sel_th=True, show_plots=True,pertubation_path='', average_modalities=False):
+def  fit_psych_data(data_path, fit_function, frequencies, net_id = None, sel_th=True, show_plots=True,pertubation_path='', average_modalities=False):
     # parameters for analysis
     th = 0.2
     center_freq = np.mean(frequencies)
@@ -424,17 +425,15 @@ def fit_psych_data(data_path, fit_function, frequencies, sel_th=True, show_plots
 
     data_path = data_path + pertubation_path
 
-    # We need to specify which network!
-    netw = "10"
     # psychometric analysis
     if sel_th is True:
-        psych_results, th = sel_threshold(os.path.join(data_path,netw), frequencies)
+        psych_results, th = sel_threshold(data_path, frequencies)
 
     else:
-        psych_results, _, _ = psych_analysis_v2(os.path.join(data_path, netw), th, frequencies)
+        psych_results, _, _ = psych_analysis_v2(data_path, th, frequencies)
 
     #print(psych_results)
-    vis_perf, aud_perf, ms_perf = psych_plot(psych_results, frequencies, th, data_path, show_plots)
+    vis_perf, aud_perf, ms_perf = psych_plot(psych_results, frequencies, th, data_path, show_plots, net_id=net_id)
     vis_perf = vis_perf / 100
     aud_perf = aud_perf / 100
     ms_perf = ms_perf / 100
@@ -482,13 +481,14 @@ def fit_psych_data(data_path, fit_function, frequencies, sel_th=True, show_plots
         ax.set_xlabel(r'Frequency - Central Frequency', fontsize=16)
         ax.tick_params(labelsize=14)
 
-        ax.set_title(f'Threshold = {th}', fontsize=16)
+        ax.set_title(f'Network {net_id} - Threshold = {th}', fontsize=16)
         plt.legend(prop={'size': 12})
         plt.tight_layout()
 
         fig_suffix = str(th).replace('.', '')
-        plt.savefig(os.path.join(data_path, f'psych_fit_{fig_suffix}_{IDENTIFIER}.png'))
-        plt.show()
+        filename  = f'psych_fit_{fig_suffix}_{IDENTIFIER}_net{net_id}.png' if net_id else f'psych_fit_{fig_suffix}_{IDENTIFIER}.png'
+        plt.savefig(os.path.join(data_path, filename))
+        # plt.show()
         plt.close()
 
     return fit_params, th
@@ -606,21 +606,29 @@ def fit_psych_data_all(data_path, fit_function, frequencies, show_plot=True, per
 
 def begin():
 
-    data_path = '/Users/lexotto/Documents_Mac/Stage/UVA/Code/BehavioralVariabilityRNN-main/data'
+    data_path = '/Users/lexotto/Documents_Mac/Stage/UVA/Code/BehavioralVariabilityRNN-main/data/good_runs'
     # task related data
     frequencies = np.arange(9, 17, 1)
 
     # analyze and plot psychometric curves
     # Specify the network that needs to be analysed
-    netw = "10"
-    psych_results, th = sel_threshold(os.path.join(data_path, netw), frequencies)  # select threshold automatically
-    psych_plot(psych_results, frequencies, th, data_path, True)
+
+    networks = os.listdir(data_path)
+    networks = list(filter(lambda x: x.isnumeric(), networks))
+    networks.sort(key=lambda x: int(x))  # sort the list of folders
+
+    for netw in networks:
+        netw = str(netw)
+
+        psych_results, th = sel_threshold(os.path.join(data_path, netw), frequencies)  # select threshold automatically
+
+        psych_plot(psych_results, frequencies, th, os.path.join(data_path, netw), net_id=netw, show_plots=True)
+
+        # fit psychometric data for a single network
+        fit_psych_data(os.path.join(data_path,netw), sigmoid, frequencies, net_id=netw, show_plots=True)
 
     # plot psychometric data for all networks
     psych_plot_all(data_path, frequencies)
-
-    # fit psychometric data for a single network
-    fit_psych_data(data_path, sigmoid, frequencies, show_plots=True)
 
     # fit psychometric data for all networks
     fit_psych_data_all(data_path, sigmoid, frequencies)

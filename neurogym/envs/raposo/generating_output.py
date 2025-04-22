@@ -18,9 +18,9 @@ from raposo_task import RaposoTask
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 n_networks = 100 #number of networks
-first_network = 1 # number for the first network
+first_network = 38 # number for the first network
 
-save_path = '/Users/lexotto/Documents_Mac/Stage/UVA/Code/neurogym/neurogym/envs/raposo/data'
+save_path = '/Users/lexotto/Documents_Mac/Stage/UVA/Code/BehavioralVariabilityRNN-main/data/good_runs'
 n_rnn_output_split = 2
 
 # instantiate task class
@@ -59,8 +59,10 @@ for n in tqdm(range(first_network, first_network + n_networks)):
     net = CustomRNN(task.Nin, rnn_param['hidden_size'], task.Nout, rnn_param)
     # save the created network
     if not os.path.exists(os.path.join(save_path, str(n))):
-        os.makedirs(os.path.join(save_path, str(n)))
-    torch.save(net.state_dict(), os.path.join(save_path, str(n), 'model'))
+    #     os.makedirs(os.path.join(save_path, str(n)))
+    # torch.save(net.state_dict(), os.path.join(save_path, str(n), 'model'))
+        print(f'Network {n} not in good_runs, and therefore skipped.')
+        continue
     if os.path.exists(os.path.join(save_path, str(n),'model')):
             net.load_state_dict(torch.load(os.path.join(save_path, str(n), 'model')))
             print(f'Model {n} loaded')
