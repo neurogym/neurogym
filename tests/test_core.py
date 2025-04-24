@@ -112,7 +112,7 @@ class TestEnv(ngym.TrialEnv):
         # List of values for random choice
         ({"fixation": 300, "stimulus": [400, 500, 600], "decision": 200}, 10),
         # Constant value
-        ({"fixation": 300, "stimulus": ["constant", 450], "decision": 200}, 9.5),
+        ({"fixation": 300, "stimulus": ["constant", 450], "decision": 200}, int(9.5)),
         # Empty timing
         ({}, 0),
     ],

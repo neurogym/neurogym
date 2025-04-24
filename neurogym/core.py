@@ -514,7 +514,7 @@ class TrialEnv(BaseEnv):
 
             total_ms += period_ms
 
-        return float(total_ms / self.dt)
+        return int(total_ms / self.dt)
 
 
 class TrialWrapper(gym.Wrapper):
