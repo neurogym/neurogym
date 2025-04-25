@@ -466,11 +466,11 @@ class TrialEnv(BaseEnv):
         return self.gt[self.t_ind]
 
     @property
-    def avg_timesteps_per_trial(self) -> float:
+    def avg_timesteps_per_trial(self) -> int:
         """Calculate average timesteps per trial based on timing parameters.
 
         Returns:
-            float: Average number of timesteps per trial
+            int: Average number of timesteps per trial
         """
         if not self.timing:
             return 0
