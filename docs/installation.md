@@ -12,23 +12,36 @@ conda create -n neurogym python=3.11 -y
 conda activate neurogym
 ```
 
-## Step 2: Install neurogym
+## Step 2: Install NeuroGym
 
-Then install the latest version of `neurogym` as follows:
+You can install the latest stable release of `neurogym` using pip:
 
 ```bash
 pip install neurogym
 ```
 
-### Step 2b: Install editable package
+If you plan to use reinforcement learning (RL) features based on Stable-Baselines3, install the RL extra dependencies:
 
-Alternatively, get the latest updates by cloning the repo and installing the editable version of neurogym, by replacing
-step 2 above by:
+```bash
+pip install neurogym[rl]
+```
+
+### Step 2b: Install in Editable/Development Mode
+
+If you want to contribute to NeuroGym or always work with the latest updates from the source code, install it in editable mode:
 
 ```bash
 git clone https://github.com/neurogym/neurogym.git
 cd neurogym
 pip install -e .
+```
+
+This links your local code changes directly to your Python environment without needing to reinstall after every edit.
+
+If you also want RL and development tools (for testing, linting, and documentation), install with:
+
+```bash
+pip install -e .[rl,dev]
 ```
 
 ## Step 3 (Optional): Psychopy installation
