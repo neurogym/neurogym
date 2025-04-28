@@ -390,8 +390,13 @@ def plot_env_1dbox(
         yticks = []
         yticklabels = []
         for key, val in env.action_space.name.items():
-            yticks.append((np.min(val) + np.max(val)) / 2)
-            yticklabels.append(key.title())
+            if isinstance(val, list | tuple | np.ndarray):
+                for v in val:
+                    yticks.append(v)
+                    yticklabels.append(f"{key}_{v}")
+            else:  # single int
+                yticks.append(val)
+                yticklabels.append(key)
         ax.set_yticks(yticks)
         ax.set_yticklabels(yticklabels)
     # Show step numbers on x-axis
