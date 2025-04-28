@@ -159,10 +159,4 @@ class CustomRNNExtractor(BaseFeaturesExtractor):
             return output[:, -1, :]
 
 class CustomRNNPolicy(ActorCriticPolicy):
-    def __init__(self, *args, **kwargs):
-        super().__init__(
-            *args,
-            feature_extractor_class=CustomRNNExtractor,
-            feature_extractor_kwargs={'features_dim': 64},
-            **kwargs
-        )
+    pass  # Just inherit, unless you have additional custom logic

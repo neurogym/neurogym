@@ -45,7 +45,9 @@ class Monitor(Wrapper):
         fig_type="png",
         step_fn=None,
     ) -> None:
+        self.folder = folder if folder is not None else "tmp"  # <-- SET FOLDER FIRST
         super().__init__(env)
+        Path(self.folder).mkdir(parents=True, exist_ok=True)
         self.env = env
         self.num_tr = 0
         self.step_fn = step_fn
@@ -57,10 +59,10 @@ class Monitor(Wrapper):
         if self.sv_stp == "timestep":
             self.t = 0
         self.verbose = verbose
-        if folder is None:
-            # FIXME is it ok to use tempfile.TemporaryDirectory instead or does this need to be stored locally always?
-            self.folder = "tmp"
-        Path(self.folder).mkdir(parents=True, exist_ok=True)
+        # if folder is None:
+        #     # FIXME is it ok to use tempfile.TemporaryDirectory instead or does this need to be stored locally always?
+        #     self.folder = "tmp"
+        # Path(self.folder).mkdir(parents=True, exist_ok=True)
         # seeding
         self.sv_name = self.folder + self.env.__class__.__name__ + "_bhvr_data_" + name + "_"  # FIXME: use pathlib
         # figure
