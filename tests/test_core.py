@@ -134,7 +134,7 @@ class TestEnv(ngym.TrialEnv):
 def test_trial_length_stats(timing, expected_stats):
     """Test trial length stats for both fixed and randomized timing configurations."""
     dt = 100
-    env = TestEnv(dt=dt, timing=timing, seed=123)  # <-- Fix the seed here
+    env = TestEnv(dt=dt, timing=timing)
     stats = env.trial_length_stats(num_trials=1000)
 
     for key, expected in expected_stats.items():
