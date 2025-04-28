@@ -155,12 +155,12 @@ def test_evaluate_policy():
     results_random = monitor.evaluate_policy(num_trials=num_trials, model=None, verbose=False)
 
     # Check results structure
-    assert "rewards" in results_model
-    assert "cum_rewards" in results_model
-    assert "performances" in results_model
-    assert "mean_reward" in results_model
-    assert "mean_cum_reward" in results_model
-    assert "mean_performance" in results_model
+    assert "rewards" in results_random
+    assert "cum_rewards" in results_random
+    assert "performances" in results_random
+    assert "mean_reward" in results_random
+    assert "mean_cum_reward" in results_random
+    assert "mean_performance" in results_random
 
     # With random policy in a binary action space, mean_reward should be around 0.5
     # but could vary, so we just check it's a valid value between 0 and 1
