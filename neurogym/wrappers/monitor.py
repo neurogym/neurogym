@@ -37,7 +37,11 @@ class Monitor(Wrapper):
         step_fn: Optional custom step function to use instead of env.step
 
     Attributes:
-        data: Dictionary containing behavioral data (actions, rewards, etc.)
+        data: Dictionary containing behavioral data
+            action: List of actions taken when a trial ends, for each trial
+            reward: List of rewards received when a trial ends, for each trial
+            cum_reward: List of cumulative rewards for each trial
+            performance: List of performance when a trial ends, for each trial
         num_tr: Number of trials completed
         t: Number of timesteps completed (when sv_stp="timestep")
     """
@@ -68,7 +72,8 @@ class Monitor(Wrapper):
         self.num_tr: int = 0
         self.step_fn = step_fn
         # data to save
-        self.data: dict[str, list] = {"action": [], "reward": [], "performance": []}
+        self.cum_reward = 0
+        self.data: dict[str, list] = {"action": [], "reward": [], "cum_reward": [], "performance": []}
         self.sv_per = sv_per
         self.sv_stp = sv_stp
         self.fig_type = fig_type
@@ -101,6 +106,7 @@ class Monitor(Wrapper):
         Returns:
             The initial observation from the environment reset
         """
+        self.cum_reward = 0
         return super().reset(seed=seed)
 
     def step(self, action: Any, collect_data: bool = True) -> tuple[Any, float, bool, bool, dict[str, Any]]:
@@ -122,6 +128,7 @@ class Monitor(Wrapper):
             obs, rew, terminated, truncated, info = self.step_fn(action)
         else:
             obs, rew, terminated, truncated, info = self.env.step(action)
+        self.cum_reward += rew
         if self.sv_fig:
             self.store_data(obs, action, rew, info)
         if self.sv_stp == "timestep":
@@ -130,6 +137,8 @@ class Monitor(Wrapper):
             self.num_tr += 1
             self.data["action"].append(action)
             self.data["reward"].append(rew)
+            self.data["cum_reward"].append(self.cum_reward)
+            self.cum_reward = 0
             for key in info:
                 if key not in self.data:
                     self.data[key] = [info[key]]
@@ -236,8 +245,11 @@ class Monitor(Wrapper):
         episode_starts = np.array([True])
 
         # Tracking variables
-        performances = []
         rewards = []
+        cum_reward = 0.0
+        cum_rewards = []
+        performances = []
+        # Initialize trial count
         trial_count = 0
 
         # Run trials
@@ -251,10 +263,13 @@ class Monitor(Wrapper):
             obs, reward, _, _, info = self.step(action, collect_data=False)
             # Update episode_starts after each step
             episode_starts = np.array([False])
+            cum_reward += reward
 
             if info.get("new_trial", False):
                 trial_count += 1
                 rewards.append(reward)
+                cum_rewards.append(cum_reward)
+                cum_reward = 0.0
                 if "performance" in info:
                     performances.append(info["performance"])
 
@@ -268,12 +283,15 @@ class Monitor(Wrapper):
         # Calculate metrics
         performance_array = np.array([p for p in performances if p != -1])
         reward_array = np.array(rewards)
+        cum_reward_array = np.array(cum_rewards)
 
         return {
-            "mean_performance": float(np.mean(performance_array)) if len(performance_array) > 0 else 0,
-            "mean_reward": float(np.mean(reward_array > 0)) if len(reward_array) > 0 else 0,
-            "performances": performances,
             "rewards": rewards,
+            "mean_reward": float(np.mean(reward_array > 0)) if len(reward_array) > 0 else 0,
+            "cum_rewards": cum_rewards,
+            "mean_cum_reward": float(np.mean(cum_reward_array)) if len(cum_reward_array) > 0 else 0,
+            "performances": performances,
+            "mean_performance": float(np.mean(performance_array)) if len(performance_array) > 0 else 0,
         }
 
     def plot_training_history(self, figsize: tuple[int, int] = (12, 6), save_fig: bool = True) -> plt.Figure | None:
