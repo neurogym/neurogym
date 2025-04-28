@@ -7,7 +7,14 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import animation
-from stable_baselines3.common.vec_env import DummyVecEnv
+
+try:
+    from stable_baselines3.common.vec_env import DummyVecEnv
+
+    _SB3_AVAILABLE = True
+except ImportError:
+    _SB3_AVAILABLE = False
+
 
 # TODO: This is changing user's plotting behavior for non-neurogym plots
 mpl.rcParams["font.size"] = 7
@@ -93,6 +100,11 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     gt = []
     perf = []
     if isinstance(env, DummyVecEnv):
+        if not _SB3_AVAILABLE:
+            msg = "Stable-Baselines3 is not installed. Install it with 'pip install neurogym[rl]'."
+            raise ImportError(
+                msg,
+            )
         ob = env.reset()
     else:
         ob, _ = env.reset()  # TODO: not saving this first observation
@@ -114,6 +126,11 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         else:
             action = env.action_space.sample()
         if isinstance(env, DummyVecEnv):
+            if not _SB3_AVAILABLE:
+                msg = "Stable-Baselines3 is not installed. Install it with 'pip install neurogym[rl]'."
+                raise ImportError(
+                    msg,
+                )
             ob, rew, terminated, info = env.step(action)
         else:
             ob, rew, terminated, _truncated, info = env.step(action)
