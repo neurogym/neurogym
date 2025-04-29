@@ -80,13 +80,7 @@ def test_addob_instep():
 
 
 class TestEnv(ngym.TrialEnv):
-<<<<<<< HEAD
-    __test__ = False
-
-    def __init__(self, dt: int, timing: dict) -> None:
-=======
     def __init__(self, dt: int, timing: dict, seed: int = 42) -> None:
->>>>>>> dev
         super().__init__(dt=dt)
         self.seed(seed)
         self.timing = timing
@@ -113,32 +107,6 @@ class TestEnv(ngym.TrialEnv):
 @pytest.mark.parametrize(
     ("timing", "expected_stats"),
     [
-<<<<<<< HEAD
-        # Simple integer/float timing values
-        ({"fixation": 300, "stimulus": 500, "decision": 200}, 10),
-        # Uniform distribution
-        ({"fixation": 300, "stimulus": ["uniform", [400, 600]], "decision": 200}, 10),
-        # Truncated exponential distribution
-        (
-            {
-                "fixation": 300,
-                "stimulus": ["truncated_exponential", [400, 100, 300, 500]],
-                "decision": 200,
-            },
-            9,
-        ),
-        # Choice distribution
-        (
-            {"fixation": 300, "stimulus": ["choice", [300, 400, 500]], "decision": 200},
-            9,
-        ),
-        # List of values for random choice
-        ({"fixation": 300, "stimulus": [400, 500, 600], "decision": 200}, 10),
-        # Constant value
-        ({"fixation": 300, "stimulus": ["constant", 450], "decision": 200}, 9.5),
-        # Empty timing
-        ({}, 0),
-=======
         # Fixed timing (exact values)
         (
             {"fixation": 300, "stimulus": 500, "decision": 200},
@@ -161,7 +129,6 @@ class TestEnv(ngym.TrialEnv):
             {"fixation": 300, "stimulus": ["choice", [300, 400, 500]], "decision": 200},
             {"mean": 9, "std": 0, "percentile_95": 9, "max": 9},
         ),
->>>>>>> dev
     ],
 )
 def test_trial_length_stats(timing, expected_stats):
