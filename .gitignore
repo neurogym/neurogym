@@ -114,6 +114,14 @@ docs/source/_static/
 .DS_Store
 
 # example content
-examples/content/
-examples/tmp/
+docs/examples/content/
+docs/examples/tmp/
 **.zip
+docs/examples/**/**.png
+docs/examples/**/**.npz
+
+# sandbox files
+_Untitled.*
+
+# results
+**/tmp
