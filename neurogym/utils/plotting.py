@@ -73,6 +73,10 @@ def plot_env(
         def_act=def_act,
         model=model,
     )
+    # Find trial start steps (0-based)
+    trial_starts_step_indices = np.where(np.array(data["actions_end_of_trial"]) != -1)[0] + 1
+    # Shift again for plotting (since steps are 1-based)
+    trial_starts_axis = trial_starts_step_indices + 1
 
     return fig_(
         data["ob"],
@@ -87,7 +91,7 @@ def plot_env(
         fig_kwargs=fig_kwargs,
         env=env,
         fname=fname,
-        trial_starts=np.where(np.array(data["actions_end_of_trial"]) != -1)[0] + 1,
+        trial_starts=trial_starts_axis,
     )
 
 
@@ -219,7 +223,7 @@ def fig_(
             specified by ob_traces
         fig_kwargs: figure properties admitted by matplotlib.pyplot.subplots() function
         env: environment class for extra information
-        trial_starts: list of trial start indices
+        trial_starts: list of trial start indices, 1-based
     """
     if fig_kwargs is None:
         fig_kwargs = {}
@@ -330,7 +334,7 @@ def plot_env_1dbox(
             ax.legend(loc="upper right")
         if trial_starts is not None:
             for t_start in trial_starts:
-                ax.axvline(t_start + 1, linestyle="--", color="grey", alpha=0.7)
+                ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
         ax.set_xlim([0.5, len(steps) + 1])
         ax.set_yticks(yticks)
         ax.set_yticklabels(yticklabels)
@@ -382,7 +386,7 @@ def plot_env_1dbox(
             ax.plot(steps, gt, f"--{gt_colors[0]}", label="Ground truth")
     if trial_starts is not None:
         for t_start in trial_starts:
-            ax.axvline(t_start + 1, linestyle="--", color="grey", alpha=0.7)
+            ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
     ax.set_xlim([0.5, len(steps) + 1])
     ax.set_ylabel("Act.")
     ax.spines["top"].set_visible(False)
@@ -420,7 +424,7 @@ def plot_env_1dbox(
             ax.legend(loc="upper right")
         if trial_starts is not None:
             for t_start in trial_starts:
-                ax.axvline(t_start + 1, linestyle="--", color="grey", alpha=0.7)
+                ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
         ax.set_xlim([0.5, len(steps) + 1])
 
         if env and hasattr(env, "rewards") and env.rewards is not None:
@@ -459,7 +463,7 @@ def plot_env_1dbox(
             ax.legend(loc="upper right")
         if trial_starts is not None:
             for t_start in trial_starts:
-                ax.axvline(t_start + 1, linestyle="--", color="grey", alpha=0.7)
+                ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
         ax.set_xlim([0.5, len(steps) + 1])
         # Add gray background grid with white lines
         _set_grid_style(ax)
