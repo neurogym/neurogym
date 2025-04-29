@@ -277,7 +277,7 @@ def plot_env_1dbox(
     if len(ob.shape) != 2:
         msg = "ob has to be 2-dimensional."
         raise ValueError(msg)
-    steps = np.arange(ob.shape[0])
+    steps = np.arange(1, ob.shape[0] + 1)
 
     n_row = 2  # observation and action
     n_row += rewards is not None
@@ -301,6 +301,9 @@ def plot_env_1dbox(
         # Plot all traces first
         for ind_tr, tr in enumerate(ob_traces):
             ax.plot(ob[:, ind_tr], label=tr)
+
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
 
         # Compute ticks and labels
         yticks = []
@@ -327,8 +330,8 @@ def plot_env_1dbox(
             ax.legend(loc="upper right")
         if trial_starts is not None:
             for t_start in trial_starts:
-                ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
-        ax.set_xlim([-0.5, len(steps) - 0.5])
+                ax.axvline(t_start + 1, linestyle="--", color="grey", alpha=0.7)
+        ax.set_xlim([0.5, len(steps) + 1])
         ax.set_yticks(yticks)
         ax.set_yticklabels(yticklabels)
     else:
@@ -379,8 +382,8 @@ def plot_env_1dbox(
             ax.plot(steps, gt, f"--{gt_colors[0]}", label="Ground truth")
     if trial_starts is not None:
         for t_start in trial_starts:
-            ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
-    ax.set_xlim([-0.5, len(steps) - 0.5])
+            ax.axvline(t_start + 1, linestyle="--", color="grey", alpha=0.7)
+    ax.set_xlim([0.5, len(steps) + 1])
     ax.set_ylabel("Act.")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -417,8 +420,8 @@ def plot_env_1dbox(
             ax.legend(loc="upper right")
         if trial_starts is not None:
             for t_start in trial_starts:
-                ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
-        ax.set_xlim([-0.5, len(steps) - 0.5])
+                ax.axvline(t_start + 1, linestyle="--", color="grey", alpha=0.7)
+        ax.set_xlim([0.5, len(steps) + 1])
 
         if env and hasattr(env, "rewards") and env.rewards is not None:
             yticks = []
@@ -456,8 +459,8 @@ def plot_env_1dbox(
             ax.legend(loc="upper right")
         if trial_starts is not None:
             for t_start in trial_starts:
-                ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
-        ax.set_xlim([-0.5, len(steps) - 0.5])
+                ax.axvline(t_start + 1, linestyle="--", color="grey", alpha=0.7)
+        ax.set_xlim([0.5, len(steps) + 1])
         # Add gray background grid with white lines
         _set_grid_style(ax)
 
