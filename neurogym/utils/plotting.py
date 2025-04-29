@@ -7,7 +7,14 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import animation
-from stable_baselines3.common.vec_env import DummyVecEnv
+
+try:
+    from stable_baselines3.common.vec_env import DummyVecEnv
+
+    _SB3_AVAILABLE = True
+except ImportError:
+    _SB3_AVAILABLE = False
+
 
 # TODO: This is changing user's plotting behavior for non-neurogym plots
 mpl.rcParams["font.size"] = 7
@@ -66,6 +73,10 @@ def plot_env(
         def_act=def_act,
         model=model,
     )
+    # Find trial start steps (0-based)
+    trial_starts_step_indices = np.where(np.array(data["actions_end_of_trial"]) != -1)[0] + 1
+    # Shift again for plotting (since steps are 1-based)
+    trial_starts_axis = trial_starts_step_indices + 1
 
     return fig_(
         data["ob"],
@@ -80,6 +91,7 @@ def plot_env(
         fig_kwargs=fig_kwargs,
         env=env,
         fname=fname,
+        trial_starts=trial_starts_axis,
     )
 
 
@@ -93,6 +105,11 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     gt = []
     perf = []
     if isinstance(env, DummyVecEnv):
+        if not _SB3_AVAILABLE:
+            msg = "Stable-Baselines3 is not installed. Install it with 'pip install neurogym[rl]'."
+            raise ImportError(
+                msg,
+            )
         ob = env.reset()
     else:
         ob, _ = env.reset()  # TODO: not saving this first observation
@@ -114,6 +131,11 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         else:
             action = env.action_space.sample()
         if isinstance(env, DummyVecEnv):
+            if not _SB3_AVAILABLE:
+                msg = "Stable-Baselines3 is not installed. Install it with 'pip install neurogym[rl]'."
+                raise ImportError(
+                    msg,
+                )
             ob, rew, terminated, info = env.step(action)
         else:
             ob, rew, terminated, _truncated, info = env.step(action)
@@ -149,9 +171,10 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
             actions_end_of_trial.append(-1)
             perf.append(-1)
 
-    if model is not None and len(state_mat) > 0:
-        states = np.array(state_mat)
-        states = states[:, 0, :]
+    if model is not None and len(state_mat) > 0:  # noqa: SIM108
+        # states = np.array(state_mat)  # noqa: ERA001
+        # states = states[:, 0, :]  # noqa: ERA001
+        states = None  # TODO: Fix this
     else:
         states = None
 
@@ -181,6 +204,7 @@ def fig_(
     fname=None,
     fig_kwargs=None,
     env=None,
+    trial_starts=None,
 ):
     """Visualize a run in a simple environment.
 
@@ -199,6 +223,7 @@ def fig_(
             specified by ob_traces
         fig_kwargs: figure properties admitted by matplotlib.pyplot.subplots() function
         env: environment class for extra information
+        trial_starts: list of trial start indices, 1-based
     """
     if fig_kwargs is None:
         fig_kwargs = {}
@@ -219,6 +244,7 @@ def fig_(
             fname=fname,
             fig_kwargs=fig_kwargs,
             env=env,
+            trial_starts=trial_starts,
         )
     if len(ob.shape) == 4:
         return plot_env_3dbox(ob, fname=fname, env=env)
@@ -247,6 +273,7 @@ def plot_env_1dbox(
     fname=None,
     fig_kwargs=None,
     env=None,
+    trial_starts=None,
 ):
     """Plot environment with 1-D Box observation space."""
     if fig_kwargs is None:
@@ -254,7 +281,7 @@ def plot_env_1dbox(
     if len(ob.shape) != 2:
         msg = "ob has to be 2-dimensional."
         raise ValueError(msg)
-    steps = np.arange(ob.shape[0])
+    steps = np.arange(1, ob.shape[0] + 1)
 
     n_row = 2  # observation and action
     n_row += rewards is not None
@@ -279,6 +306,9 @@ def plot_env_1dbox(
         for ind_tr, tr in enumerate(ob_traces):
             ax.plot(ob[:, ind_tr], label=tr)
 
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+
         # Compute ticks and labels
         yticks = []
         yticklabels = []
@@ -302,7 +332,10 @@ def plot_env_1dbox(
 
         if legend:
             ax.legend(loc="upper right")
-        ax.set_xlim([-0.5, len(steps) - 0.5])
+        if trial_starts is not None:
+            for t_start in trial_starts:
+                ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
+        ax.set_xlim([0.5, len(steps) + 1])
         ax.set_yticks(yticks)
         ax.set_yticklabels(yticklabels)
     else:
@@ -351,7 +384,10 @@ def plot_env_1dbox(
                 )
         else:
             ax.plot(steps, gt, f"--{gt_colors[0]}", label="Ground truth")
-    ax.set_xlim([-0.5, len(steps) - 0.5])
+    if trial_starts is not None:
+        for t_start in trial_starts:
+            ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
+    ax.set_xlim([0.5, len(steps) + 1])
     ax.set_ylabel("Act.")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -361,8 +397,13 @@ def plot_env_1dbox(
         yticks = []
         yticklabels = []
         for key, val in env.action_space.name.items():
-            yticks.append((np.min(val) + np.max(val)) / 2)
-            yticklabels.append(key.title())
+            if isinstance(val, list | tuple | np.ndarray):
+                for v in val:
+                    yticks.append(v)
+                    yticklabels.append(f"{key}_{v}")
+            else:  # single int
+                yticks.append(val)
+                yticklabels.append(key)
         ax.set_yticks(yticks)
         ax.set_yticklabels(yticklabels)
     # Show step numbers on x-axis
@@ -381,7 +422,10 @@ def plot_env_1dbox(
         ax.spines["right"].set_visible(False)
         if legend:
             ax.legend(loc="upper right")
-        ax.set_xlim([-0.5, len(steps) - 0.5])
+        if trial_starts is not None:
+            for t_start in trial_starts:
+                ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
+        ax.set_xlim([0.5, len(steps) + 1])
 
         if env and hasattr(env, "rewards") and env.rewards is not None:
             yticks = []
@@ -390,7 +434,7 @@ def plot_env_1dbox(
             if isinstance(env.rewards, dict):
                 for key, val in env.rewards.items():
                     yticks.append(val)
-                    yticklabels.append(f"{key[:4].title()} {val:0.2f}")
+                    yticklabels.append(f"{key[:5].title()} {val:0.2f}")
             else:
                 for val in env.rewards:
                     yticks.append(val)
@@ -417,7 +461,10 @@ def plot_env_1dbox(
         ax.spines["right"].set_visible(False)
         if legend:
             ax.legend(loc="upper right")
-        ax.set_xlim([-0.5, len(steps) - 0.5])
+        if trial_starts is not None:
+            for t_start in trial_starts:
+                ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
+        ax.set_xlim([0.5, len(steps) + 1])
         # Add gray background grid with white lines
         _set_grid_style(ax)
 

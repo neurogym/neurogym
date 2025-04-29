@@ -56,7 +56,7 @@ def test_monitor_initialization(temp_folder: str):
     assert monitor.sv_per == 10
     assert monitor.sv_stp == "trial"
     assert monitor.folder == temp_folder
-    assert monitor.data == {"action": [], "reward": [], "performance": []}
+    assert monitor.data == {"action": [], "reward": [], "cum_reward": [], "performance": []}
     assert monitor.num_tr == 0
 
 
@@ -77,6 +77,8 @@ def test_monitor_data_collection():
         if info.get("new_trial", False):
             assert len(monitor.data["action"]) > 0
             assert len(monitor.data["reward"]) > 0
+            assert len(monitor.data["cum_reward"]) > 0
+            assert len(monitor.data["performance"]) > 0
             assert 1 in monitor.data["action"]  # Our chosen action
             assert 1.0 in monitor.data["reward"]  # Reward for action 1
 
@@ -114,6 +116,8 @@ def test_monitor_save_data(temp_folder: str, sv_stp: str):
     data = np.load(saved_files[0])
     assert "action" in data
     assert "reward" in data
+    assert "cum_reward" in data
+    assert "performance" in data
 
 
 def test_evaluate_policy():
@@ -133,29 +137,37 @@ def test_evaluate_policy():
     results_model = monitor.evaluate_policy(num_trials=num_trials, model=mock_model, verbose=False)
 
     # Check results structure
-    assert "mean_performance" in results_model
-    assert "mean_reward" in results_model
-    assert "performances" in results_model
     assert "rewards" in results_model
+    assert "cum_rewards" in results_model
+    assert "performances" in results_model
+    assert "mean_reward" in results_model
+    assert "mean_cum_reward" in results_model
+    assert "mean_performance" in results_model
 
     # With our mock model always choosing action 1 (which gives reward 1.0),
     # mean_reward should be close to 1.0
-    assert results_model["mean_reward"] == 1.0
     assert len(results_model["rewards"]) == num_trials
+    assert results_model["mean_reward"] == 1.0
+    assert len(results_model["cum_rewards"]) == num_trials
+    assert 0 <= results_model["mean_cum_reward"] <= 1.0
 
     # Test with random policy (no model provided)
     results_random = monitor.evaluate_policy(num_trials=num_trials, model=None, verbose=False)
 
     # Check results structure
-    assert "mean_performance" in results_random
-    assert "mean_reward" in results_random
-    assert "performances" in results_random
     assert "rewards" in results_random
+    assert "cum_rewards" in results_random
+    assert "performances" in results_random
+    assert "mean_reward" in results_random
+    assert "mean_cum_reward" in results_random
+    assert "mean_performance" in results_random
 
     # With random policy in a binary action space, mean_reward should be around 0.5
     # but could vary, so we just check it's a valid value between 0 and 1
-    assert 0 <= results_random["mean_reward"] <= 1.0
     assert len(results_random["rewards"]) == num_trials
+    assert 0 <= results_random["mean_reward"] <= 1.0
+    assert len(results_random["cum_rewards"]) == num_trials
+    assert 0 <= results_random["mean_cum_reward"] <= 1.0
 
 
 def test_plot_training_history(temp_folder: str):
