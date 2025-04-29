@@ -195,7 +195,7 @@ def test_annubes_env_max_sequential(session: dict, catch_prob: float, max_sequen
     for clen in range(1, len(session_mods) + 1):
         _combs = combinations(session_mods, clen)
         for c in _combs:
-            mod_combinations.add(c[0] if len(c) == 1 else c)
+            mod_combinations.add(c[0] if len(c) == 1 else tuple(sorted(c)))
 
     # Collect rollouts
     # ==================================================
@@ -208,7 +208,8 @@ def test_annubes_env_max_sequential(session: dict, catch_prob: float, max_sequen
     sequential_counts: dict = {k: [] for k in occurrences}
     for _ in range(N_TRIALS):
         trial = env.new_trial()
-        stim_types = (None,) if trial["catch"] else tuple(trial["stim_types"])
+        stim_types = (None,) if trial["catch"] else tuple(sorted(trial["stim_types"]))
+
         # Unpack tuples with a single element.
         occurrences[stim_types[0] if len(stim_types) == 1 else stim_types] += 1.0
 

@@ -9,23 +9,24 @@ from neurogym import TrialEnv
 class AnnubesEnv(TrialEnv):
     """General class for the Annubes type of tasks.
 
+    The probabilities for different sensory modalities are specified using a dictionary used in the task.
+    Depending on the value of the `exclusive` argument (cf. below), the stimuli can be presented sequentially
+    or in parallel with a certain probability. Note that the probabilities for the different modalities are
+    interpreted as being relative to each other, such that e.g. `{"v": 0.25, "a": 0.75}` is equivalent to `{"v": 1, "a": 3}`.
+    Furthermore, note that the probability of catch trials is given separately (cf. `catch_prob` below).
+    For instance, if the catch probability is `0.5`, the stimulus probabilities will be
+    used only in the remaining (`1 - catch_prob`) of the trials.
+
+    If the `exclusive` argument is set to `False`, the modalities are first chosen with _independent_
+    draws for each modality using its corresponding probability. In this case, if none of the modalities
+    are selected (which is always the case unless at least one of the modalities has a probability of `1`),
+    then another draw is performed _as if the modalities are exclusive_, i.e., with normalised probability
+    weights (in other words, as if the `exclusive` argument is set to `True`). This ensures that multiple
+    modalities can appear in the trial with the correct joint probability while ensuring that `catch`
+    trials also occur with the correct probability (`catch_prob`).
+
     Args:
         session: Configuration of the trials that can appear during a session.
-            It is given by a dictionary representing the respective probabilities of the different sensory
-            modalities used in the task. Depending on the value of the `exclusive` argument (cf. below),
-            the stimuli can be presented sequentially or in parallel with a certain probability. Note that
-            the probabilities for the different modalities are interpreted as being relative to each other,
-            such that e.g. `{"v": 0.25, "a": 0.75}` is equivalent to `{"v": 1, "a": 3}`.
-            Furthermore, note that the probability of catch trials is given separately (cf. `catch_prob` below).
-            For instance, if the catch probability is `0.5`, the stimulus probabilities will be
-            used only in the remaining (`1 - catch_prob`) of the trials.
-            If the `exclusive` argument is set to `False`, the modalities are first chosen with _independent_
-            draws for each modality using its corresponding probability. In this case, if none of the modalities
-            are selected (which is always the case unless at least one of the modalities has a probability of `1`),
-            then another draw is performed _as if the modalities are exclusive_, i.e., with normalised probability
-            weights (in other words, as if the `exclusive` argument is set to `True`). This ensures that multiple
-            modalities can appear in the trial with the correct joint probability while ensuring that `catch`
-            trials also occur with the correct probability (`catch_prob`).
             Defaults to {"v": 0.5, "a": 0.5}.
         stim_intensities: A dictionary of stimulus types mapped to possible intensity values of each stimulus,
             when the stimulus is present. Note that when the stimulus is not present, the intensity is set to 0.
@@ -94,6 +95,8 @@ class AnnubesEnv(TrialEnv):
         rewards: dict[str, float] | None = None,
         random_seed: int | None = None,
     ):
+        # A session essentially represents a specification for presenting
+        # different sensory modalities and their respective probabilities.
         if session is None:
             session = {"v": 0.5, "a": 0.5}
 

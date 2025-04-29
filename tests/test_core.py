@@ -29,7 +29,11 @@ def test_one_step_mismatch():
 
         def _step(self, action):
             info = {"new_trial": False}
-            reward = (action == 0) * 1.0 if self.in_period("fixation") else (action == 1) * 1.0
+            reward = (
+                (action == 0) * 1.0
+                if self.in_period("fixation")
+                else (action == 1) * 1.0
+            )
             terminated = False
             truncated = False
             return self.ob_now, reward, terminated, truncated, info
@@ -80,6 +84,8 @@ def test_addob_instep():
 
 
 class TestEnv(ngym.TrialEnv):
+    __test__ = False
+
     def __init__(self, dt: int, timing: dict) -> None:
         super().__init__(dt=dt)
         self.timing = timing or {}
@@ -106,9 +112,19 @@ class TestEnv(ngym.TrialEnv):
         # Uniform distribution
         ({"fixation": 300, "stimulus": ["uniform", [400, 600]], "decision": 200}, 10),
         # Truncated exponential distribution
-        ({"fixation": 300, "stimulus": ["truncated_exponential", [400, 100, 300, 500]], "decision": 200}, 9),
+        (
+            {
+                "fixation": 300,
+                "stimulus": ["truncated_exponential", [400, 100, 300, 500]],
+                "decision": 200,
+            },
+            9,
+        ),
         # Choice distribution
-        ({"fixation": 300, "stimulus": ["choice", [300, 400, 500]], "decision": 200}, 9),
+        (
+            {"fixation": 300, "stimulus": ["choice", [300, 400, 500]], "decision": 200},
+            9,
+        ),
         # List of values for random choice
         ({"fixation": 300, "stimulus": [400, 500, 600], "decision": 200}, 10),
         # Constant value
