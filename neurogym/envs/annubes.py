@@ -30,9 +30,8 @@ class AnnubesEnv(TrialEnv):
     Args:
         session: Configuration of the trials that can appear during a session.
             Defaults to {"v": 0.5, "a": 0.5}.
-        stim_intensities: A dictionary of stimulus types mapped to possible intensity values of each stimulus,
-            when the stimulus is present. Note that when the stimulus is not present, the intensity is set to 0.
-            Defaults to [0.8, 0.9, 1].
+        stim_intensities: A dictionary of stimulus types mapped to possible intensity values of each stimulus
+            that is actually presented to the agent with non-zero probability. Defaults to None.
         stim_time: Duration of each stimulus in ms.
             Defaults to 1000.
         catch_prob: Probability of catch trials in the session. Must be between 0 and 1 (inclusive).
@@ -81,12 +80,12 @@ class AnnubesEnv(TrialEnv):
 
     def __init__(
         self,
-        session: dict | None = None,
+        session: dict[str, int | float] | None = None,
         stim_intensities: dict[str, list[float]] | None = None,
         stim_time: int = 1000,
         catch_prob: float = 0.5,
         exclusive: bool = False,
-        max_sequential: dict | int | None = None,
+        max_sequential: dict[str, int | None] | int | None = None,
         fix_intensity: float = 0,
         fix_time: Any = 500,
         iti: Any = 0,
@@ -289,8 +288,8 @@ class AnnubesEnv(TrialEnv):
 
         Returns:
             A tuple containing the new observation, the reward, a boolean indicating whether the trial is
-                terminated, a boolean indicating whether the trial is truncated, and a dictionary containing additional
-                information.
+            terminated, a boolean indicating whether the trial is truncated, and a dictionary containing additional
+            information.
         """
         new_trial = False
         terminated = False
