@@ -29,7 +29,11 @@ def test_one_step_mismatch():
 
         def _step(self, action):
             info = {"new_trial": False}
-            reward = (action == 0) * 1.0 if self.in_period("fixation") else (action == 1) * 1.0
+            reward = (
+                (action == 0) * 1.0
+                if self.in_period("fixation")
+                else (action == 1) * 1.0
+            )
             terminated = False
             truncated = False
             return self.ob_now, reward, terminated, truncated, info
@@ -80,6 +84,8 @@ def test_addob_instep():
 
 
 class TestEnv(ngym.TrialEnv):
+    __test__ = False
+
     def __init__(self, dt: int, timing: dict, seed: int = 42) -> None:
         super().__init__(dt=dt)
         self.seed(seed)
@@ -122,7 +128,11 @@ class TestEnv(ngym.TrialEnv):
             {"mean": 10, "std": 0, "percentile_95": 10, "max": 10},
         ),
         (
-            {"fixation": 300, "stimulus": ["truncated_exponential", [400, 100, 500]], "decision": 200},
+            {
+                "fixation": 300,
+                "stimulus": ["truncated_exponential", [400, 100, 500]],
+                "decision": 200,
+            },
             {"mean": 8, "std": 1, "percentile_95": 8, "max": 8},
         ),
         (
@@ -138,4 +148,6 @@ def test_trial_length_stats(timing, expected_stats):
     stats = env.trial_length_stats(num_trials=1000)
 
     for key, expected in expected_stats.items():
-        assert np.isclose(stats[key], expected, atol=1), f"{key} = {stats[key]} not close to {expected}"
+        assert np.isclose(
+            stats[key], expected, atol=1
+        ), f"{key} = {stats[key]} not close to {expected}"

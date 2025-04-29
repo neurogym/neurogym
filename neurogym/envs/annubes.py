@@ -110,7 +110,7 @@ class AnnubesEnv(TrialEnv):
         # Normalise the probabilities if the 'exclusive' switch is on
         if exclusive:
             total = sum(session.values())
-            if total == 0.0:
+            if total < np.nextafter(0, 1):
                 msg = "Please ensure that at least one modality has a non-zero probability."
                 raise ValueError(msg)
             session = {k: v / total for k, v in session.items()}
@@ -189,13 +189,14 @@ class AnnubesEnv(TrialEnv):
         self.add_ob(1, "stimulus", where="start")
 
         # First, check if we have any available modalities
-        available_modalities = {
-            k: v
-            for k, v in self.session.items()
-            if self.max_sequential is None
-            or k not in self.max_sequential
-            or self.sequential_count[k] < self.max_sequential[k]
-        }
+        available_modalities = {}
+        for k, v in self.session.items():
+            if (
+                self.max_sequential is None
+                or k not in self.max_sequential
+                or self.sequential_count[k] < self.max_sequential[k]
+            ):
+                available_modalities[k] = v
 
         # Total probability weights
         total = sum(available_modalities.values())
@@ -224,31 +225,7 @@ class AnnubesEnv(TrialEnv):
             self.sequential_count = {k: 0 if k is not None else v for k, v in self.sequential_count.items()}
 
         else:
-            if self.exclusive:
-                # Mutually exclusive modalities. Pick *only* one modality.
-                stim_types = set(
-                    self._rng.choice(
-                        list(available_modalities.keys()),
-                        1,
-                        False,
-                        p=list(available_modalities.values()),
-                    )[0],
-                )
-
-            else:
-                # Overlap is permitted. Pick *at least* one modality.
-                stim_types = {k for k, v in available_modalities.items() if self._rng.random() <= v}
-                if len(stim_types) == 0:
-                    # Pick at least one modality from the available ones
-                    stim_types = set(
-                        self._rng.choice(
-                            list(available_modalities.keys()),
-                            1,
-                            False,
-                            list(available_modalities.values()),
-                        )[0],
-                    )
-
+            stim_types = self._pick_stim_types(available_modalities)
             self.sequential_count = {k: (v + 1 if k in stim_types else 0) for k, v in self.sequential_count.items()}
 
             # Reset the sequential count for catch trials
@@ -275,6 +252,34 @@ class AnnubesEnv(TrialEnv):
         }
 
         return self.trial
+
+    def _pick_stim_types(self, available: dict) -> set:
+        if self.exclusive:
+            # Mutually exclusive modalities. Pick *only* one modality.
+            stim_types = set(
+                self._rng.choice(
+                    list(available.keys()),
+                    1,
+                    False,
+                    p=list(available.values()),
+                )[0],
+            )
+
+        else:
+            # Overlap is permitted. Pick *at least* one modality.
+            stim_types = {k for k, v in available.items() if self._rng.random() <= v}
+            if len(stim_types) == 0:
+                # Pick at least one modality from the available ones
+                stim_types = set(
+                    self._rng.choice(
+                        list(available.keys()),
+                        1,
+                        False,
+                        list(available.values()),
+                    )[0],
+                )
+
+        return stim_types
 
     def _step(self, action: int) -> tuple:  # type: ignore[override]
         """Internal method to compute the environment's response to the agent's action.
