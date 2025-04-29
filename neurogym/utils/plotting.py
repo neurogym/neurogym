@@ -434,7 +434,7 @@ def plot_env_1dbox(
             if isinstance(env.rewards, dict):
                 for key, val in env.rewards.items():
                     yticks.append(val)
-                    yticklabels.append(f"{key[:4].title()} {val:0.2f}")
+                    yticklabels.append(f"{key[:5].title()} {val:0.2f}")
             else:
                 for val in env.rewards:
                     yticks.append(val)
