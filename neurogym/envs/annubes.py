@@ -12,7 +12,9 @@ class AnnubesEnv(TrialEnv):
     The probabilities for different sensory modalities are specified using a dictionary used in the task.
     Depending on the value of the `exclusive` argument (cf. below), the stimuli can be presented sequentially
     or in parallel with a certain probability. Note that the probabilities for the different modalities are
-    interpreted as being relative to each other, such that e.g. `{"v": 0.25, "a": 0.75}` is equivalent to `{"v": 1, "a": 3}`.
+    interpreted as being relative to each other, such that e.g. `{"v": 0.25, "a": 0.75}` is equivalent to
+    `{"v": 1, "a": 3}`.
+
     Furthermore, note that the probability of catch trials is given separately (cf. `catch_prob` below).
     For instance, if the catch probability is `0.5`, the stimulus probabilities will be
     used only in the remaining (`1 - catch_prob`) of the trials.
@@ -120,7 +122,7 @@ class AnnubesEnv(TrialEnv):
 
         # Create a dictionary for max_sequential if only an int is given
         if isinstance(max_sequential, int):
-            max_sequential = {k: max_sequential for k in session}
+            max_sequential = dict.fromkeys(session, max_sequential)
 
         super().__init__(dt=dt)
         self.session = {k: v for k, v in session.items() if v > 0.0}
@@ -129,7 +131,7 @@ class AnnubesEnv(TrialEnv):
         self.catch_prob = catch_prob
         self.exclusive = exclusive
         self.max_sequential = max_sequential
-        self.sequential_count = {k: 0 for k in self.session}
+        self.sequential_count = dict.fromkeys(self.session, 0)
         # Sequential occurrence checks for catch trials
         if max_sequential is not None and None in max_sequential:
             self.sequential_count[None] = 0

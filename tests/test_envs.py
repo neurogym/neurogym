@@ -1,17 +1,11 @@
-import math
 import warnings
-from itertools import combinations
 
 import gymnasium as gym
 import numpy as np
 from matplotlib import pyplot as plt
-from scipy.special import softmax
-from stable_baselines3.common.env_checker import check_env
 
 import neurogym as ngym
-from neurogym.envs.annubes import AnnubesEnv
 from neurogym.utils.data import Dataset
-import pytest
 
 try:
     import psychopy  # noqa: F401

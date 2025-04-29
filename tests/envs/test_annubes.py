@@ -201,7 +201,7 @@ def test_annubes_env_max_sequential(session: dict, catch_prob: float, max_sequen
     # ==================================================
     # A dictionary of all occurrences of all combinations
     # that are expected to show up in the rollouts.
-    occurrences = {st: 0.0 for st in mod_combinations}
+    occurrences = dict.fromkeys(mod_combinations, 0.0)
     occurrences[None] = 0.0
 
     # Sequential counts
@@ -249,7 +249,7 @@ def test_annubes_env_max_sequential(session: dict, catch_prob: float, max_sequen
     session_rel_prob = np.array([session[k] / session_sum for k in session] + [catch_prob])
 
     # Relative probabilities for the session variables
-    actual = {k: 0.0 for k in session}
+    actual = dict.fromkeys(session, 0.0)
     for k in session:
         for ks, v in occurrences.items():
             if ks is None:
