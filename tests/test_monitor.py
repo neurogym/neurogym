@@ -109,7 +109,9 @@ def test_monitor_save_data(temp_folder: str, sv_stp: str):
 
     config = Config(local_dir=temp_folder)
 
-    # Set some configuration options manually
+    # Manually overriding config fields for testing purposes.
+    # This is valid because Pydantic Settings submodels are mutable,
+    # though in production we recommend setting values via TOML or constructor.
     config.monitor.plot.interval = 3
     config.monitor.plot.trigger = sv_stp  # type: ignore[assignment]
     config.monitor.log.verbose = True
