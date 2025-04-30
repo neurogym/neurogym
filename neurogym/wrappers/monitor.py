@@ -150,10 +150,6 @@ class Monitor(Wrapper):
                 np.savez(save_path, **self.data)
 
                 if self.config.monitor.log.verbose:
-                    # [NEW PR TO BE OPENED]
-                    # The loguru logger should be configured everywhere
-                    # Its introduction and adaptation of the whole code base + tests should have been
-                    # done, not in this PR but in another one
                     print("--------------------")
                     print(f"Data saved to: {save_path}")
                     print(f"Number of trials: {self.num_tr}")
@@ -205,6 +201,7 @@ class Monitor(Wrapper):
                 rewards=self.rew_mat,
                 performance=self.perf_mat,
                 fname=fname,
+                name=self.config.monitor.plot.title,
             )
             self.ob_mat = []
             self.act_mat = []
