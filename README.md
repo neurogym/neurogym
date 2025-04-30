@@ -13,7 +13,10 @@ NeuroGym is a curated collection of neuroscience tasks with a common interface. 
 
 - [NeuroGym](#neurogym)
   - [Installation](#installation)
-    - [Psychopy installation](#psychopy-installation)
+    - [Step 1: Create a virtual environment](#step-1-create-a-virtual-environment)
+    - [Step 2: Install neurogym](#step-2-install-neurogym)
+      - [Step 2b: Install editable package](#step-2b-install-editable-package)
+    - [Step 3 (Optional): Psychopy installation](#step-3-optional-psychopy-installation)
   - [Tasks](#tasks)
   - [Wrappers](#wrappers)
   - [Configuration](#configuration)
@@ -81,7 +84,8 @@ Wrappers (see [list](https://github.com/gyyang/neurogym/blob/master/docs/wrapper
 are short scripts that allow introducing modifications the original tasks. For instance, the Random Dots Motion task can be transformed into a reaction time task by passing it through the _reaction_time_ wrapper. Alternatively, the _combine_ wrapper allows training an agent in two different tasks simultaneously.
 
 ### Configuration
-`Neurogym` employs a configuration system based on [`Pydantic Settings`](https://docs.pydantic.dev/latest/concepts/pydantic_settings/). You can use a TOML configuration file to create a configuration that can be used throughout the library, for instance, in existing and custom environments (cf. [`neurogym/config/config.py`](neurogym/config/config.py)). The supplied configuration template ([`docs/examples/config.toml`](docs/examples/config.toml)) contains all the currently available options, which mirror the default options in the code.
+
+NeuroGym employs a configuration system based on [`Pydantic Settings`](https://docs.pydantic.dev/latest/concepts/pydantic_settings/). You can use a TOML configuration file to create a configuration that can be used throughout the library, for instance, in existing and custom environments (see [`neurogym/config/config.py`](neurogym/config/config.py)). The supplied configuration template ([`docs/examples/config.toml`](docs/examples/config.toml)) contains all the currently available options, which mirror the default options in the code.
 
 All options in the configuration code have default values. Rather than changing the values in the code, you can use a TOML file to override the defaults. To do that, just copy the [template configuration](docs/examples/config.toml), change the values of any options that you need to customise, and save it somewhere convenient. You can pass that file to the `Config` class to create a custom configuration vobject:
 

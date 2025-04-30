@@ -28,8 +28,8 @@ class AgentInferenceConfig(ConfigBase):
 class AgentConfig(ConfigBase):
     """Configuration for agent-related options.
 
-    training: Options related to training (cf. :ref:`AgentTrainingConfig`).
-    inference: Options related to inference (cf. :ref:`AgentInferenceConfig`).
+    training: Options related to training (see `AgentTrainingConfig`).
+    inference: Options related to inference (see `AgentInferenceConfig`).
     """
 
     training: AgentTrainingConfig = AgentTrainingConfig()
