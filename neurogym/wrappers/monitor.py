@@ -124,6 +124,9 @@ class Monitor(Wrapper):
         Returns:
             Tuple of (observation, reward, terminated, truncated, info)
         """
+        # [TO BE REMOVED/NEW PR TO BE OPENED]
+        # In the code-base `step_fn` is used in many places
+        # Either we keep it as it is or we change it everywhere
         if self.step_function is not None:
             obs, rew, terminated, truncated, info = self.step_function(action)
         else:
@@ -154,6 +157,10 @@ class Monitor(Wrapper):
                 np.savez(save_path, **self.data)
 
                 if self.config.monitor.log.verbose:
+                    # [NEW PR TO BE OPENED]
+                    # The loguru logger should be configured everywhere
+                    # Its introduction and adaptation of the whole code base + tests should have been
+                    # done, not in this PR but in another one
                     print("--------------------")
                     print(f"Data saved to: {save_path}")
                     print(f"Number of trials: {self.num_tr}")
