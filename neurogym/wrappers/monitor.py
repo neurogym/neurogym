@@ -29,7 +29,7 @@ class Monitor(Wrapper):
         env: The wrapped environment.
         config: An optional configuration (either a `Config` object or a `str` or `Path` object
             pointing to a TOML configuration file). Defaults to None.
-        step_function: An optional step function to override the built-in `step()`
+        step_fn: An optional step function to override the built-in `step()`
             method provided by the environment. Defaults to None.
 
     Attributes:
@@ -50,11 +50,11 @@ class Monitor(Wrapper):
         self,
         env: ngym.TrialEnv,
         config: ngym.Config | str | Path | None = None,
-        step_function: Callable | None = None,
+        step_fn: Callable | None = None,
     ) -> None:
         super().__init__(env)
         self.env = env
-        self.step_function = step_function
+        self.step_fn = step_fn
 
         if config is None:
             config = ngym.config
@@ -124,11 +124,8 @@ class Monitor(Wrapper):
         Returns:
             Tuple of (observation, reward, terminated, truncated, info)
         """
-        # [TO BE REMOVED/NEW PR TO BE OPENED]
-        # In the code-base `step_fn` is used in many places
-        # Either we keep it as it is or we change it everywhere
-        if self.step_function is not None:
-            obs, rew, terminated, truncated, info = self.step_function(action)
+        if self.step_fn is not None:
+            obs, rew, terminated, truncated, info = self.step_fn(action)
         else:
             obs, rew, terminated, truncated, info = self.env.step(action)
         if self.config.monitor.plot.create:
