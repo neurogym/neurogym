@@ -17,7 +17,7 @@ _EXCLUDE_ENVS = [
 
 
 def _get_envs(
-    foldername: str | None = None,
+    foldername: str = "native",
     exclude: str | list[str] | None = _EXCLUDE_ENVS,
 ) -> dict[str, str]:
     """Discover and register all environments from a specified folder.
@@ -27,10 +27,7 @@ def _get_envs(
 
     Args:
         foldername: A string specifying the subfolder within `neurogym.envs` to search for
-            environment files. If `None`, the function searches in the root folder of
-            `neurogym.envs`. For example:
-                - foldername=None: Searches in `neurogym/envs/`.
-                - foldername="contrib": Searches in `neurogym/envs/contrib/`.
+            environment files. Defaults to "native", which contains the core environments.
         exclude: A list of environment names to exclude from registration.
 
     Returns:
@@ -43,14 +40,11 @@ def _get_envs(
         raise TypeError(msg)
 
     # Root path of neurogym.envs folder
-    env_root = Path(__file__).resolve().parent
-    lib_root = "neurogym.envs."
-    if foldername is not None:
-        env_root /= foldername
-        lib_root += f"{foldername}."
+    env_root = Path(__file__).resolve().parent / foldername
+    lib_root = f"neurogym.envs.{foldername}."
     py_files = [p for p in env_root.iterdir() if p.suffix == ".py" and p.name != "__init__.py"]
 
-    env_dict: dict[str, str] = {}
+    env_dict = {}
     for file in py_files:
         module_name = lib_root + file.stem
         module = importlib.import_module(module_name)
@@ -58,7 +52,7 @@ def _get_envs(
         # Discover all classes defined in the module that inherit from gym.Env
         for name, obj in getmembers(module, isclass):
             if issubclass(obj, gym.Env) and name not in exclude and obj.__module__ == module_name:
-                env_id = f"{foldername}.{name}-v0" if foldername else f"{name}-v0"
+                env_id = f"{name}-v0"
                 entry_point = f"{module_name}:{name}"
                 env_dict[env_id] = entry_point
     return env_dict
