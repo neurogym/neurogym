@@ -17,11 +17,11 @@
 # ==============================================================================
 # Agent Configuration
 # ==============================================================================
+[agent.training]
 
 # Number of trials during training.
 trials = 100
 
-# Q: We should make sure that only one between trials and number of steps is used.
 # Total number of steps during training.
 steps = 100000
 
@@ -32,8 +32,6 @@ trials = 100
 
 # Total number of steps during training.
 steps = 100000
-
-# Q: To be removed?
 
 # ==============================================================================
 # Environment Configuration
@@ -53,7 +51,6 @@ dt = 10
 
 [monitor]
 # Optional custom name for the monitor.
-# Q: Why could this name be different from 'Monitor'?
 name = ""
 
 # ==============================================================================
@@ -73,7 +70,6 @@ format = "<magenta>Neurogym</magenta> | <cyan>{time:YYYY-MM-DD@HH:mm:ss}</cyan> 
 level = "INFO"
 
 # Metric used to trigger logging output (options: 'trial', 'step').
-# Q: `trigger` and `interval` are not used anywhere; what is their scope?
 trigger = "trial"
 
 # Number of units (based on trigger) between log messages.
@@ -97,5 +93,4 @@ trigger = "trial"
 # Number of units (based on trigger) between plots.
 interval = 10
 
-# Q: [TO BE REMOVED] Not used
-# title = "NeuroGym"
+title = "NeuroGym"
