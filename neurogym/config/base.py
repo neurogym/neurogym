@@ -16,8 +16,8 @@ class ConfigBase(BaseSettings):
     and other sources, with custom behavior controlled via `model_config`.
 
     Key `model_config` options:
-    - `env_prefix`: Only environment variables with this prefix (e.g., "NGYM_") are used.
-    - `env_nested_delimiter`: Enables nested fields (e.g., "NGYM_DB.USER").
+    - `env_prefix`: Only environment variables with this prefix (e.g., "NGYM.") are used.
+    - `env_nested_delimiter`: Enables nested fields (e.g., "NGYM.DB.USER").
     - `case_sensitive`: Enforces case-sensitive variable names.
     - `nested_model_default_partial_update`: Supports partial updates to nested models.
     - `extra="allow"`: Allows undeclared fields in the config (for flexibility).
@@ -27,8 +27,8 @@ class ConfigBase(BaseSettings):
 
     # Pydantic v2-style configuration for BaseSettings
     model_config = SettingsConfigDict(
-        env_prefix="NGYM_",  # Look for environment variables starting with this
-        env_nested_delimiter=".",  # Supports nested fields like NGYM_DB.USER
+        env_prefix="NGYM.",  # Look for environment variables starting with this
+        env_nested_delimiter=".",  # Supports nested fields like NGYM.DB.USER
         case_sensitive=True,  # Makes variable names case-sensitive
         nested_model_default_partial_update=True,  # Allows partial updates to nested models
         extra="allow",  # Accepts extra fields not defined in the model
