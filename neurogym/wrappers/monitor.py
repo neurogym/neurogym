@@ -64,9 +64,9 @@ class Monitor(Wrapper):
 
         # Assign names for the environment and/or the monitor
         # if they are empty
-        if len(self.config.env.name) == 0:
+        if not self.config.env.name:
             self.config.env.name = self.env.unwrapped.__class__.__name__
-        if len(self.config.monitor.name) == 0:
+        if not self.config.monitor.name:
             self.config.monitor.name = self.__class__.__name__
 
         self._configure_logger()
@@ -75,10 +75,6 @@ class Monitor(Wrapper):
         if self.config.monitor.plot.trigger == "step":
             self.t = 0
         self.num_tr = 0
-
-        # Paths
-        if not self.config.env.name:
-            self.config.env.name = self.env.__class__.__name__
 
         # Directory for saving plots
         save_dir_name = f"{self.config.env.name}/{ngym.utils.iso_timestamp()}"
