@@ -85,7 +85,7 @@ class AnnubesEnv(TrialEnv):
         stim_time: int = 1000,
         catch_prob: float = 0.5,
         exclusive: bool = False,
-        max_sequential: dict[str, int | None] | int | None = None,
+        max_sequential: dict[str | None, int | None] | int | None = None,
         fix_intensity: float = 0,
         fix_time: Any = 500,
         iti: Any = 0,
@@ -130,7 +130,7 @@ class AnnubesEnv(TrialEnv):
         self.catch_prob = catch_prob
         self.exclusive = exclusive
         self.max_sequential = max_sequential
-        self.sequential_count = dict.fromkeys(self.session, 0)
+        self.sequential_count: dict[str | None, int | float] = dict.fromkeys(self.session, 0)
         # Sequential occurrence checks for catch trials
         if max_sequential is not None and None in max_sequential:
             self.sequential_count[None] = 0
@@ -187,15 +187,15 @@ class AnnubesEnv(TrialEnv):
         self.add_ob(self.fix_intensity, "fixation", where="fixation")
         self.add_ob(1, "stimulus", where="start")
 
-        # First, check if we have any available modalities
+        # First, check if we have any available modalities at all
         available_modalities = {}
         for k, v in self.session.items():
             if (
                 self.max_sequential is None
                 or k not in self.max_sequential
-                or self.sequential_count[k] < self.max_sequential[k]
+                or self.sequential_count[k] < self.max_sequential[k]  # type: ignore[operator]
             ):
-                available_modalities[k] = v
+                available_modalities[k] = v  # noqa: PERF403
 
         # Total probability weights
         total = sum(available_modalities.values())
