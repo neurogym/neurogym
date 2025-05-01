@@ -62,9 +62,6 @@ def test_config_custom_toml_file(temp_dir: Path):
         config_file.unlink(missing_ok=True)
 
 
-# NOTE: This test uses a dictionary to instantiate the Config object for convenience.
-# This is not the recommended way for users to configure NeuroGym.
-# Users should provide configuration via TOML files.
 @pytest.mark.parametrize("plot_trigger", ["trials", "steps"])
 def test_config_instantiate_from_dict(
     temp_dir: Path,
