@@ -16,6 +16,8 @@
 
 # ==============================================================================
 # Agent Configuration
+# NOTE: The agent configuration is currently only accessible via config instances.
+# The agent logic has not yet been integrated into the main code-base.
 # ==============================================================================
 
 [agent.training]
