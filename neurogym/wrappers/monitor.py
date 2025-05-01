@@ -78,6 +78,7 @@ class Monitor(Wrapper):
 
         log_format = "<magenta>Neurogym</magenta> | <cyan>{time:YYYY-MM-DD@HH:mm:ss}</cyan> | <level>{message}</level>"
 
+        cfg: ngym.Config
         if config is None:
             config_dict = {
                 "env": {"name": env.unwrapped.__class__.__name__},
@@ -100,13 +101,15 @@ class Monitor(Wrapper):
                 },
                 "local_dir": LOCAL_DIR,
             }
-            config = ngym.Config.model_validate(config_dict)
+            cfg = ngym.Config.model_validate(config_dict)
         elif isinstance(config, (str, Path)):
-            config = ngym.Config(config_file=config)
-        self.config: ngym.Config = config
+            cfg = ngym.Config(config_file=config)
+        else:
+            cfg = config  # type: ignore[arg-type]
 
-        # Assign names for the environment and/or the monitor
-        # if they are empty
+        self.config: ngym.Config = cfg
+
+        # Assign names for the environment and/or the monitor if they are empty
         if len(self.config.env.name) == 0:
             self.config.env.name = self.env.unwrapped.__class__.__name__
         if len(self.config.monitor.name) == 0:
