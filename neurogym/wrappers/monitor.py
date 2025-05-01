@@ -107,9 +107,9 @@ class Monitor(Wrapper):
 
         # Assign names for the environment and/or the monitor
         # if they are empty
-        if not self.config.env.name:
+        if len(self.config.env.name) == 0:
             self.config.env.name = self.env.unwrapped.__class__.__name__
-        if not self.config.monitor.name:
+        if len(self.config.monitor.name) == 0:
             self.config.monitor.name = self.__class__.__name__
 
         self._configure_logger()
