@@ -38,6 +38,8 @@ value = 10000
 
 # ==============================================================================
 # Environment Configuration
+# NOTE: The environment configuration is currently only accessible via config instances.
+# The environment logic has not yet been integrated into the main code-base.
 # ==============================================================================
 
 [env]
@@ -59,6 +61,8 @@ name = ""
 # ==============================================================================
 # Logging Configuration
 # Logging is handled via Loguru (https://loguru.readthedocs.io/en/stable/)
+# NOTE: The monitor logging configuration is currently only accessible via config instances.
+# The monitor logging logic has not yet been integrated into the main code-base.
 # ==============================================================================
 
 [monitor.log]
