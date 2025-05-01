@@ -65,7 +65,7 @@ def test_config_custom_toml_file(temp_dir: Path):
 # NOTE: This test uses a dictionary to instantiate the Config object for convenience.
 # This is not the recommended way for users to configure NeuroGym.
 # Users should provide configuration via TOML files.
-@pytest.mark.parametrize("plot_trigger", ["trial", "step"])
+@pytest.mark.parametrize("plot_trigger", ["trials", "steps"])
 def test_config_instantiate_from_dict(
     temp_dir: Path,
     plot_trigger: str,
@@ -80,7 +80,7 @@ def test_config_instantiate_from_dict(
         "local_dir": _local_dir,
         "monitor": {
             "plot": {
-                "interval": _plot_interval,
+                "value": _plot_interval,
                 "trigger": plot_trigger,
             },
             "log": {
@@ -96,6 +96,6 @@ def test_config_instantiate_from_dict(
     # Check that the configuration matches the variables above.
     # NOTE: Add tests for all nested options.
     assert config.local_dir == _local_dir
-    assert config.monitor.plot.interval == _plot_interval
+    assert config.monitor.plot.value == _plot_interval
     assert config.monitor.plot.trigger == plot_trigger
     assert config.monitor.log.level == _log_level

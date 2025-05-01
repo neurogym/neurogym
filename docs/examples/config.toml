@@ -17,21 +17,22 @@
 # ==============================================================================
 # Agent Configuration
 # ==============================================================================
+
 [agent.training]
 
-# Number of trials during training.
-trials = 100
+# Metric used to trigger training (options: 'trials', 'steps').
+trigger = "trials"
 
-# Total number of steps during training.
-steps = 100000
+# Number of trials or steps, depending on the trigger.
+value = 100
 
 [agent.inference]
 
-# Number of trials during training.
-trials = 100
+# Metric used to trigger inference (options: 'trials', 'steps').
+trigger = "steps"
 
-# Total number of steps during training.
-steps = 100000
+# Number of trials or steps, depending on the trigger.
+value = 10000
 
 # ==============================================================================
 # Environment Configuration
@@ -69,11 +70,11 @@ format = "<magenta>Neurogym</magenta> | <cyan>{time:YYYY-MM-DD@HH:mm:ss}</cyan> 
 # Log level (options: TRACE, DEBUG, INFO, SUCCESS, WARNING, ERROR, CRITICAL).
 level = "INFO"
 
-# Metric used to trigger logging output (options: 'trial', 'step').
-trigger = "trial"
+# Metric used to trigger logging output (options: 'trials', 'steps').
+trigger = "trials"
 
 # Number of units (based on trigger) between log messages.
-interval = 10
+value = 10
 
 # ==============================================================================
 # Plotting Configuration
@@ -87,10 +88,11 @@ create = true
 # File extension for saved plots.
 ext = "png"
 
-# Metric used to trigger plotting (options: 'trial', 'step').
-trigger = "trial"
+# Metric used to trigger plotting (options: 'trials', 'steps').
+trigger = "trials"
 
 # Number of units (based on trigger) between plots.
-interval = 10
+value = 10
 
+# Title for the plot windows and files.
 title = "NeuroGym"

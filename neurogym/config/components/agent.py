@@ -1,35 +1,33 @@
+from typing import Literal
+
 from neurogym.config.base import ConfigBase
+from neurogym.config.components.trigger import TriggerConfig
 
 
-class AgentTrainingConfig(ConfigBase):
-    """Configuration options for agents during training.
+class AgentTrainingConfig(TriggerConfig):
+    """Training configuration for an agent.
 
-    trials: Number of trials (episodes).
-    steps: The number of training steps.
+    Defaults to 100 trials.
     """
 
-    trials: int = 100
-    steps: int = 100000
+    trigger: Literal["trials", "steps"] = "trials"
+    value: int = 100
 
 
-class AgentInferenceConfig(ConfigBase):
-    """Configuration options for agents during inference.
+class AgentInferenceConfig(TriggerConfig):
+    """Inference configuration for an agent.
 
-    This is used when evaluating the agent's performance after training.
-
-    trials: Number of trials (episodes).
-    steps: The number of inference steps.
+    Defaults to 10000 steps.
     """
 
-    trials: int = 100
-    steps: int = 10000
+    trigger: Literal["trials", "steps"] = "steps"
+    value: int = 10000
 
 
 class AgentConfig(ConfigBase):
-    """Configuration for agent-related options.
+    """Top-level configuration for agent training and inference.
 
-    training: Options related to training (see `AgentTrainingConfig`).
-    inference: Options related to inference (see `AgentInferenceConfig`).
+    Includes separate settings for training and inference.
     """
 
     training: AgentTrainingConfig = AgentTrainingConfig()

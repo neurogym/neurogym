@@ -35,7 +35,7 @@ class Monitor(Wrapper):
     Attributes:
         data: Dictionary containing behavioral data (actions, rewards, etc.)
         num_tr: Number of trials completed
-        t: Number of timesteps completed (when sv_stp="step")
+        t: Number of timesteps completed (when trigger is "steps")
     """
 
     metadata = {  # noqa: RUF012
@@ -72,7 +72,7 @@ class Monitor(Wrapper):
         self._configure_logger()
 
         self.data: dict[str, list] = {"action": [], "reward": [], "performance": []}
-        if self.config.monitor.plot.trigger == "step":
+        if self.config.monitor.plot.trigger == "steps":
             self.t = 0
         self.num_tr = 0
 
@@ -126,7 +126,7 @@ class Monitor(Wrapper):
             obs, rew, terminated, truncated, info = self.env.step(action)
         if self.config.monitor.plot.create:
             self.store_data(obs, action, rew, info)
-        if self.config.monitor.plot.trigger == "step":
+        if self.config.monitor.plot.trigger == "steps":
             self.t += 1
         if info.get("new_trial", False):
             self.num_tr += 1
@@ -140,9 +140,9 @@ class Monitor(Wrapper):
 
             # save data
             save = (
-                self.t >= self.config.monitor.plot.interval
-                if self.config.monitor.plot.trigger == "step"
-                else self.num_tr % self.config.monitor.plot.interval == 0
+                self.t >= self.config.monitor.plot.value
+                if self.config.monitor.plot.trigger == "steps"
+                else self.num_tr % self.config.monitor.plot.value == 0
             )
             if save and collect_data:
                 # Create save path with pathlib for cross-platform compatibility
@@ -159,7 +159,7 @@ class Monitor(Wrapper):
                 self.reset_data()
                 if self.config.monitor.plot.create:
                     self.stp_counter = 0
-                if self.config.monitor.plot.trigger == "step":
+                if self.config.monitor.plot.trigger == "steps":
                     self.t = 0
         return obs, rew, terminated, truncated, info
 
@@ -177,7 +177,7 @@ class Monitor(Wrapper):
             rew: Current reward
             info: Info dictionary from environment
         """
-        if self.stp_counter <= self.config.monitor.plot.interval:
+        if self.stp_counter <= self.config.monitor.plot.value:
             self.ob_mat.append(obs)
             self.act_mat.append(action)
             self.rew_mat.append(rew)
