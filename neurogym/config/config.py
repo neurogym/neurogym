@@ -58,6 +58,10 @@ class Config(ConfigBase):
 
         super().__init__(*args, **kwargs)
 
+        # Automatically resolve monitor <-> env fallback
+        if len(self.monitor.plot.title) == 0:
+            self.monitor.plot.title = self.env.name
+
     @classmethod
     def settings_customise_sources(
         cls,

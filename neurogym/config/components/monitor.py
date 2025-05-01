@@ -17,7 +17,7 @@ class MonitorPlotConfig(TriggerConfig):
     """
 
     create: bool = True
-    title: str = "NeuroGym"
+    title: str = ""
     ext: str = "png"
     trigger: Literal["trials", "steps"] = "trials"
     value: int = 10

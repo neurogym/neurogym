@@ -101,4 +101,5 @@ trigger = "trials"
 value = 10
 
 # Title for the plot windows and files.
-title = "NeuroGym"
+# If left empty, this will automatically default to the environment name from [env].name.
+title = ""
