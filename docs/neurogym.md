@@ -13,13 +13,13 @@ are short scripts that allow introducing modifications the original tasks. For i
 
 🧪 **Beta Feature** — The configuration system is **optional** and currently **under development**. You can still instantiate environments, agents, and wrappers with direct parameters.
 It is only used in a small portion of the codebase and is not required for typical usage.
-See the [`demo.ipynb`](docs/examples/demo.ipynb) notebook for the only current example of this system in action.
+See the [`demo.ipynb`](examples/demo.ipynb) notebook for the only current example of this system in action.
 
 NeuroGym includes a flexible configuration mechanism using [`Pydantic Settings`](https://docs.pydantic.dev/latest/concepts/pydantic_settings/), allowing configuration via TOML files, Python objects, or plain dictionaries.
 
 ### 1. From a TOML file
 
-Create a `config.toml` file (see [template](docs/examples/config.toml)) and load it:
+Create a `config.toml` file (see [template](examples/config.toml)) and load it:
 
 ```python
 from neurogym import Config
