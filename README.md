@@ -94,6 +94,8 @@ See the [`demo.ipynb`](docs/examples/demo.ipynb) notebook for the only current e
 
 NeuroGym includes a flexible configuration mechanism using [`Pydantic Settings`](https://docs.pydantic.dev/latest/concepts/pydantic_settings/), allowing configuration via TOML files, Python objects, or plain dictionaries.
 
+Using a TOML file can be especially useful for sharing experiment configurations in a portable way (e.g., sending `config.toml` to a colleague), reliably saving and loading experiment setups, and easily switching between multiple configurations for the same environment by changing just one line of code. While the system isn't at that stage yet, these are intended future capabilities.
+
 #### 1. From a TOML file
 
 Create a `config.toml` file (see [template](docs/examples/config.toml)) and load it:
