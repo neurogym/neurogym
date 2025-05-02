@@ -17,7 +17,7 @@ class ConfigBase(BaseSettings):
 
     Key `model_config` options:
     - `env_prefix`: Only environment variables with this prefix (e.g., "NGYM_") are used.
-    - `env_nested_delimiter`: Enables nested fields (e.g., "NGYM_DB.USER").
+    - `env_nested_delimiter`: Enables nested fields (e.g., "NGYM_DB__USER").
     - `case_sensitive`: Enforces case-sensitive variable names.
     - `nested_model_default_partial_update`: Supports partial updates to nested models.
     - `extra="allow"`: Allows undeclared fields in the config (for flexibility).
