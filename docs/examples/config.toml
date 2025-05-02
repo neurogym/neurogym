@@ -22,18 +22,18 @@
 
 [agent.training]
 
-# Metric used to trigger training (options: 'trials', 'steps').
+# Unit for training duration: 'trials' or 'steps'.
 trigger = "trials"
 
-# Number of trials or steps, depending on the trigger.
+# Number of units to train for, based on the trigger.
 value = 100
 
 [agent.inference]
 
-# Metric used to trigger inference (options: 'trials', 'steps').
+# Unit for inference duration: 'trials' or 'steps'.
 trigger = "steps"
 
-# Number of trials or steps, depending on the trigger.
+# Number of units to infer for, based on the trigger.
 value = 10000
 
 # ==============================================================================
