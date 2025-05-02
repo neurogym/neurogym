@@ -105,7 +105,7 @@ class Config(ConfigBase):
         placeholders like "$HOME" or "${USER}" with their actual values.
 
         This allows configuration files to contain dynamic paths such as:
-            local_dir = "${HOME}/neurogym_outputs"
+            local_dir = "${HOME}/.cache/neurogym_outputs"
 
         Args:
             value: The raw input value (str, list, or dict).
