@@ -32,4 +32,5 @@ class ConfigBase(BaseSettings):
         case_sensitive=False,  # Makes variable names not case-sensitive
         nested_model_default_partial_update=True,  # Allows partial updates to nested models
         extra="allow",  # Accepts extra fields not defined in the model
+        validate_assignment=True,  # Validates assignments to model fields
     )

@@ -22,7 +22,4 @@ class TriggerConfig(ConfigBase):
         if self.value <= 0:
             msg = "Value must be a positive integer."
             raise ValueError(msg)
-        if self.trigger not in ("trials", "steps"):
-            msg = "Trigger must be either 'trials' or 'steps'"
-            raise ValueError(msg)
         return self
