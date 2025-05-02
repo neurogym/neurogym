@@ -1,6 +1,8 @@
 import sys
 from typing import Any, Literal
 
+from pydantic import PositiveInt
+
 from neurogym.config.base import ConfigBase
 from neurogym.config.components.trigger import TriggerConfig
 
@@ -20,7 +22,7 @@ class MonitorPlotConfig(TriggerConfig):
     title: str = ""
     ext: str = "png"
     trigger: Literal["trials", "steps"] = "trials"
-    value: int = 10
+    value: PositiveInt = 10
 
 
 class MonitorLogConfig(TriggerConfig):
@@ -38,7 +40,7 @@ class MonitorLogConfig(TriggerConfig):
     format: str = "<magenta>Neurogym</magenta> | <cyan>{time:YYYY-MM-DD@HH:mm:ss}</cyan> | <level>{message}</level>"
     level: str = "INFO"
     trigger: Literal["trials", "steps"] = "trials"
-    value: int = 10
+    value: PositiveInt = 10
 
     def make_config(self) -> dict[str, Any]:
         """Build logger configuration for Loguru."""

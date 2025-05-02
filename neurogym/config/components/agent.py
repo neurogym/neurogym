@@ -1,27 +1,23 @@
 from typing import Literal
 
+from pydantic import PositiveInt
+
 from neurogym.config.base import ConfigBase
 from neurogym.config.components.trigger import TriggerConfig
 
 
 class AgentTrainingConfig(TriggerConfig):
-    """Training configuration for an agent.
-
-    Defaults to 100 trials.
-    """
+    """Training configuration for an agent."""
 
     trigger: Literal["trials", "steps"] = "trials"
-    value: int = 100
+    value: PositiveInt = 100
 
 
 class AgentInferenceConfig(TriggerConfig):
-    """Inference configuration for an agent.
-
-    Defaults to 10000 steps.
-    """
+    """Inference configuration for an agent."""
 
     trigger: Literal["trials", "steps"] = "steps"
-    value: int = 10000
+    value: PositiveInt = 10000
 
 
 class AgentConfig(ConfigBase):

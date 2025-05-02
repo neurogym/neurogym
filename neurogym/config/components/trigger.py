@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import model_validator
+from pydantic import PositiveInt
 
 from neurogym.config.base import ConfigBase
 
@@ -14,12 +14,4 @@ class TriggerConfig(ConfigBase):
     """
 
     trigger: Literal["trials", "steps"]
-    value: int
-
-    @model_validator(mode="after")
-    def validate_trigger(self):
-        """Ensure value is positive and trigger is valid."""
-        if self.value <= 0:
-            msg = "Value must be a positive integer."
-            raise ValueError(msg)
-        return self
+    value: PositiveInt
