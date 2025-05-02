@@ -61,7 +61,7 @@ config_dict = {
     "env": {"name": "GoNogo-v0"},
     "monitor": {
         "name": "MyMonitor",
-        "plot": {"trigger": "steps", "value": 500, "create": True}
+        "plot": {"trigger": "step", "value": 500, "create": True}
     },
     "local_dir": "./outputs"
 }

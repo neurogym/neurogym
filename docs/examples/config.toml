@@ -22,16 +22,16 @@
 
 [agent.training]
 
-# Unit for training duration: 'trials' or 'steps'.
-unit = "trials"
+# Unit for training duration: 'trial' or 'step'.
+unit = "trial"
 
 # Number of units to train for, based on the trigger.
 value = 100
 
 [agent.inference]
 
-# Unit for inference duration: 'trials' or 'steps'.
-unit = "steps"
+# Unit for inference duration: 'trial' or 'step'.
+unit = "step"
 
 # Number of units to infer for, based on the trigger.
 value = 10000
@@ -76,8 +76,8 @@ format = "<magenta>Neurogym</magenta> | <cyan>{time:YYYY-MM-DD@HH:mm:ss}</cyan> 
 # Log level (options: TRACE, DEBUG, INFO, SUCCESS, WARNING, ERROR, CRITICAL).
 level = "INFO"
 
-# Unit used to trigger logging output (options: 'trials', 'steps').
-trigger = "trials"
+# Unit used to trigger logging output (options: 'trial', 'step').
+trigger = "trial"
 
 # Number of units (based on trigger) between log messages.
 interval = 10
@@ -94,8 +94,8 @@ create = true
 # File extension for saved plots.
 ext = "png"
 
-# Unit used to trigger plotting (options: 'trials', 'steps').
-trigger = "trials"
+# Unit used to trigger plotting (options: 'trial', 'step').
+trigger = "trial"
 
 # Number of units (based on trigger) between plots.
 interval = 10

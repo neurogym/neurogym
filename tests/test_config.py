@@ -62,7 +62,7 @@ def test_config_custom_toml_file(temp_dir: Path):
         config_file.unlink(missing_ok=True)
 
 
-@pytest.mark.parametrize("plot_trigger", ["trials", "steps"])
+@pytest.mark.parametrize("plot_trigger", ["trial", "step"])
 def test_config_instantiate_from_dict(
     temp_dir: Path,
     plot_trigger: str,

@@ -31,9 +31,9 @@ class Monitor(Wrapper):
             - a string or `Path` pointing to a TOML config file
             - a dictionary to be validated as a Config model
         name: Optional name used for monitoring (defaults to env class name). Used only if `config` is not provided.
-        plot_trigger: When to generate plots: "trials" or "steps". Used only if `config` is not provided.
+        plot_trigger: When to generate plots: "trial" or "step". Used only if `config` is not provided.
         plot_value: Frequency of plotting (every N trials or steps). Used only if `config` is not provided.
-        log_trigger: When to log training info: "trials" or "steps". Used only if `config` is not provided.
+        log_trigger: When to log training info: "trial" or "step". Used only if `config` is not provided.
         log_value: Frequency of logging (every N trials or steps). Used only if `config` is not provided.
         create: Whether to generate visualizations. Used only if `config` is not provided.
         verbose: If True, prints info when saving data/logging. Used only if `config` is not provided.
@@ -45,7 +45,7 @@ class Monitor(Wrapper):
         config: The final configuration object used (validated `Config`).
         data: Dictionary storing collected behavioral data (e.g., rewards, actions, performance).
         num_tr: Number of completed trials.
-        t: Number of timesteps completed (used if `plot_trigger` is "steps").
+        t: Number of timesteps completed (used if `plot_trigger` is "step").
         save_dir: Path where data and plots are saved.
     """
 
@@ -62,9 +62,9 @@ class Monitor(Wrapper):
         env: ngym.TrialEnv,
         config: ngym.Config | str | Path | None = None,
         name: str | None = None,
-        plot_trigger: str = "trials",
+        plot_trigger: str = "trial",
         plot_value: int = 1000,
-        log_trigger: str = "trials",
+        log_trigger: str = "trial",
         log_value: int = 1000,
         create: bool = False,
         verbose: bool = True,
@@ -118,7 +118,7 @@ class Monitor(Wrapper):
         self._configure_logger()
 
         self.data: dict[str, list] = {"action": [], "reward": [], "performance": []}
-        if self.config.monitor.plot.trigger == "steps":
+        if self.config.monitor.plot.trigger == "step":
             self.t = 0
         self.num_tr = 0
 
@@ -172,7 +172,7 @@ class Monitor(Wrapper):
             obs, rew, terminated, truncated, info = self.env.step(action)
         if self.config.monitor.plot.create:
             self.store_data(obs, action, rew, info)
-        if self.config.monitor.plot.trigger == "steps":
+        if self.config.monitor.plot.trigger == "step":
             self.t += 1
         if info.get("new_trial", False):
             self.num_tr += 1
@@ -187,7 +187,7 @@ class Monitor(Wrapper):
             # save data
             save = (
                 self.t >= self.config.monitor.plot.interval
-                if self.config.monitor.plot.trigger == "steps"
+                if self.config.monitor.plot.trigger == "step"
                 else self.num_tr % self.config.monitor.plot.interval == 0
             )
             if save and collect_data:
@@ -205,7 +205,7 @@ class Monitor(Wrapper):
                 self.reset_data()
                 if self.config.monitor.plot.create:
                     self.stp_counter = 0
-                if self.config.monitor.plot.trigger == "steps":
+                if self.config.monitor.plot.trigger == "step":
                     self.t = 0
         return obs, rew, terminated, truncated, info
 

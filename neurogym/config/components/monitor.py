@@ -20,7 +20,7 @@ class MonitorPlotConfig(ConfigBase):
     create: bool = True
     title: str = ""
     ext: str = "png"
-    trigger: Literal["trials", "steps"] = "trials"
+    trigger: Literal["trial", "step"] = "trial"
     interval: PositiveInt = 10
 
 
@@ -38,7 +38,7 @@ class MonitorLogConfig(ConfigBase):
     verbose: bool = True
     format: str = "<magenta>Neurogym</magenta> | <cyan>{time:YYYY-MM-DD@HH:mm:ss}</cyan> | <level>{message}</level>"
     level: str = "INFO"
-    trigger: Literal["trials", "steps"] = "trials"
+    trigger: Literal["trial", "step"] = "trial"
     interval: PositiveInt = 10
 
     def make_config(self) -> dict[str, Any]:

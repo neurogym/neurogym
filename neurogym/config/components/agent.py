@@ -13,7 +13,7 @@ class AgentTrainingConfig(ConfigBase):
         value: Number of units to train for, based on the unit.
     """
 
-    unit: Literal["trials", "steps"] = "trials"
+    unit: Literal["trial", "step"] = "trial"
     value: PositiveInt = 100
 
 
@@ -25,7 +25,7 @@ class AgentInferenceConfig(ConfigBase):
         value: Number of units to infer for, based on the unit.
     """
 
-    unit: Literal["trials", "steps"] = "steps"
+    unit: Literal["trial", "step"] = "step"
     value: PositiveInt = 10000
 
 

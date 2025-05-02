@@ -56,13 +56,13 @@ def test_monitor_initialization(temp_folder: str):
 
     # Set some configuration options manually
     config.monitor.plot.interval = 10
-    config.monitor.plot.trigger = "trials"
+    config.monitor.plot.trigger = "trial"
 
     monitor = Monitor(env, config)
 
     # Check that monitor attributes are set correctly
     assert monitor.config.monitor.plot.interval == 10
-    assert monitor.config.monitor.plot.trigger == "trials"
+    assert monitor.config.monitor.plot.trigger == "trial"
     assert monitor.config.local_dir == Path(temp_folder)
     assert monitor.data == {"action": [], "reward": [], "performance": []}
     assert monitor.num_tr == 0
@@ -76,7 +76,7 @@ def test_monitor_data_collection():
 
     # Set some configuration options manually
     config.monitor.plot.interval = 100
-    config.monitor.plot.trigger = "trials"
+    config.monitor.plot.trigger = "trial"
     config.monitor.log.verbose = False
 
     monitor = Monitor(env, config)
@@ -97,7 +97,7 @@ def test_monitor_data_collection():
             assert 1.0 in monitor.data["reward"]  # Reward for action 1
 
 
-@pytest.mark.parametrize("sv_stp", ["trials", "steps"])
+@pytest.mark.parametrize("sv_stp", ["trial", "step"])
 def test_monitor_save_data(temp_folder: str, sv_stp: str):
     """Test that Monitor saves data correctly to disk.
 
