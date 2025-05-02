@@ -23,7 +23,7 @@
 [agent.training]
 
 # Unit for training duration: 'trials' or 'steps'.
-trigger = "trials"
+unit = "trials"
 
 # Number of units to train for, based on the trigger.
 value = 100
@@ -31,7 +31,7 @@ value = 100
 [agent.inference]
 
 # Unit for inference duration: 'trials' or 'steps'.
-trigger = "steps"
+unit = "steps"
 
 # Number of units to infer for, based on the trigger.
 value = 10000
@@ -76,11 +76,11 @@ format = "<magenta>Neurogym</magenta> | <cyan>{time:YYYY-MM-DD@HH:mm:ss}</cyan> 
 # Log level (options: TRACE, DEBUG, INFO, SUCCESS, WARNING, ERROR, CRITICAL).
 level = "INFO"
 
-# Metric used to trigger logging output (options: 'trials', 'steps').
+# Unit used to trigger logging output (options: 'trials', 'steps').
 trigger = "trials"
 
 # Number of units (based on trigger) between log messages.
-value = 10
+interval = 10
 
 # ==============================================================================
 # Plotting Configuration
@@ -94,11 +94,11 @@ create = true
 # File extension for saved plots.
 ext = "png"
 
-# Metric used to trigger plotting (options: 'trials', 'steps').
+# Unit used to trigger plotting (options: 'trials', 'steps').
 trigger = "trials"
 
 # Number of units (based on trigger) between plots.
-value = 10
+interval = 10
 
 # Title for the plot windows and files.
 # If left empty, this will automatically default to the environment name from [env].name.

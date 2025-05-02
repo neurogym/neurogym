@@ -4,43 +4,42 @@ from typing import Any, Literal
 from pydantic import PositiveInt
 
 from neurogym.config.base import ConfigBase
-from neurogym.config.components.trigger import TriggerConfig
 
 
-class MonitorPlotConfig(TriggerConfig):
+class MonitorPlotConfig(ConfigBase):
     """Plotting configuration during monitoring.
 
     Attributes:
         create: Whether to generate plots.
         title: Title to display on plots.
         ext: File extension for saved plot images.
-        trigger: 'trials' or 'steps'.
-        value: Plotting interval in units of trigger.
+        trigger: Unit used to trigger logging output.
+        interval: Plotting interval in units of trigger.
     """
 
     create: bool = True
     title: str = ""
     ext: str = "png"
     trigger: Literal["trials", "steps"] = "trials"
-    value: PositiveInt = 10
+    interval: PositiveInt = 10
 
 
-class MonitorLogConfig(TriggerConfig):
+class MonitorLogConfig(ConfigBase):
     """Logging configuration during monitoring.
 
     Attributes:
         verbose: Whether to enable verbose output.
         format: Log format string.
         level: Logging level (e.g., INFO, DEBUG).
-        trigger: 'trials' or 'steps'.
-        value: Logging interval in units of trigger.
+        trigger: Unit used to trigger logging output.
+        interval: Logging interval in units of trigger.
     """
 
     verbose: bool = True
     format: str = "<magenta>Neurogym</magenta> | <cyan>{time:YYYY-MM-DD@HH:mm:ss}</cyan> | <level>{message}</level>"
     level: str = "INFO"
     trigger: Literal["trials", "steps"] = "trials"
-    value: PositiveInt = 10
+    interval: PositiveInt = 10
 
     def make_config(self) -> dict[str, Any]:
         """Build logger configuration for Loguru."""

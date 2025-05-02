@@ -186,9 +186,9 @@ class Monitor(Wrapper):
 
             # save data
             save = (
-                self.t >= self.config.monitor.plot.value
+                self.t >= self.config.monitor.plot.interval
                 if self.config.monitor.plot.trigger == "steps"
-                else self.num_tr % self.config.monitor.plot.value == 0
+                else self.num_tr % self.config.monitor.plot.interval == 0
             )
             if save and collect_data:
                 # Create save path with pathlib for cross-platform compatibility
@@ -223,7 +223,7 @@ class Monitor(Wrapper):
             rew: Current reward
             info: Info dictionary from environment
         """
-        if self.stp_counter <= self.config.monitor.plot.value:
+        if self.stp_counter <= self.config.monitor.plot.interval:
             self.ob_mat.append(obs)
             self.act_mat.append(action)
             self.rew_mat.append(rew)

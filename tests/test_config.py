@@ -77,7 +77,7 @@ def test_config_instantiate_from_dict(
         "local_dir": _local_dir,
         "monitor": {
             "plot": {
-                "value": _plot_interval,
+                "interval": _plot_interval,
                 "trigger": plot_trigger,
             },
             "log": {
@@ -93,7 +93,7 @@ def test_config_instantiate_from_dict(
     # Check that the configuration matches the variables above.
     # NOTE: Add tests for all nested options.
     assert config.local_dir == _local_dir
-    assert config.monitor.plot.value == _plot_interval
+    assert config.monitor.plot.interval == _plot_interval
     assert config.monitor.plot.trigger == plot_trigger
     assert config.monitor.log.level == _log_level
 
