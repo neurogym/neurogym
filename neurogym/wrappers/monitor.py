@@ -7,35 +7,46 @@ import numpy as np
 from gymnasium import Wrapper
 
 import neurogym as ngym
+from neurogym.config.base import LOCAL_DIR
 from neurogym.utils.plotting import fig_
 
 
 class Monitor(Wrapper):
     """Monitor wrapper for NeuroGym environments.
 
-    This class wraps NeuroGym environments to monitor and collect behavioral data
-    during training and evaluation. It saves relevant behavioral information such as
-    rewards, actions, observations, new trial flags, and ground truth.
+    This class wraps a NeuroGym environment to track trial-based behavioral data,
+    optionally log training progress, and generate visualizations. Data is collected
+    at the end of each trial and can be saved periodically.
 
-    Data collection behavior:
-    - The Monitor records data points ONLY at the end of trials (when info["new_trial"]=True).
-    - Each data point represents one complete behavioral trial, not individual timesteps.
-    - For NeuroGym tasks, this typically occurs when the agent makes a decision in the
-      decision period, or when the trial is aborted.
-    - Data is saved to disk at regular intervals (e.g., every 1000 trials) and internal
-      data containers are reset after each save.
+    The monitor can be configured using a `Config` object, a TOML file path, or a dictionary.
+    If no config is provided, the constructor parameters act as a fallback to manually configure
+    logging, plotting, and environment naming.
+
+    Data is saved based on independent triggers and intervals for logging and plotting.
 
     Args:
-        env: The wrapped environment.
-        config: An optional configuration (either a `Config` object or a `str` or `Path` object
-            pointing to a TOML configuration file). Defaults to None.
-        step_function: An optional step function to override the built-in `step()`
-            method provided by the environment. Defaults to None.
+        env: The NeuroGym environment to wrap.
+        config: Optional configuration source. It can be:
+            - a `Config` object (from `neurogym.Config`)
+            - a string or `Path` pointing to a TOML config file
+            - a dictionary to be validated as a Config model
+        name: Optional name used for monitoring (defaults to env class name). Used only if `config` is not provided.
+        plot_trigger: When to generate plots: "trial" or "step". Used only if `config` is not provided.
+        plot_value: Frequency of plotting (every N trials or steps). Used only if `config` is not provided.
+        log_trigger: When to log training info: "trial" or "step". Used only if `config` is not provided.
+        log_value: Frequency of logging (every N trials or steps). Used only if `config` is not provided.
+        create: Whether to generate visualizations. Used only if `config` is not provided.
+        verbose: If True, prints info when saving data/logging. Used only if `config` is not provided.
+        level: Logging level as string, e.g. "INFO", "DEBUG". Used only if `config` is not provided.
+        ext: File extension for plot outputs (e.g., "png"). Used only if `config` is not provided.
+        step_fn: Optional callable to override the environment's step function.
 
     Attributes:
-        data: Dictionary containing behavioral data (actions, rewards, etc.)
-        num_tr: Number of trials completed
-        t: Number of timesteps completed (when sv_stp="step")
+        config: The final configuration object used (validated `Config`).
+        data: Dictionary storing collected behavioral data (e.g., rewards, actions, performance).
+        num_tr: Number of completed trials.
+        t: Number of timesteps completed (used if `plot_trigger` is "step").
+        save_dir: Path where data and plots are saved.
     """
 
     metadata = {  # noqa: RUF012
@@ -50,20 +61,55 @@ class Monitor(Wrapper):
         self,
         env: ngym.TrialEnv,
         config: ngym.Config | str | Path | None = None,
-        step_function: Callable | None = None,
+        name: str | None = None,
+        plot_trigger: str = "trial",
+        plot_value: int = 1000,
+        log_trigger: str = "trial",
+        log_value: int = 1000,
+        create: bool = False,
+        verbose: bool = True,
+        level: str = "INFO",
+        ext: str = "png",
+        step_fn: Callable | None = None,
     ) -> None:
         super().__init__(env)
         self.env = env
-        self.step_function = step_function
+        self.step_fn = step_fn
 
+        log_format = "<magenta>Neurogym</magenta> | <cyan>{time:YYYY-MM-DD@HH:mm:ss}</cyan> | <level>{message}</level>"
+
+        cfg: ngym.Config
         if config is None:
-            config = ngym.config
+            config_dict = {
+                "env": {"name": env.unwrapped.__class__.__name__},
+                "monitor": {
+                    "name": name or "Monitor",
+                    "plot": {
+                        "create": create,
+                        "ext": ext,
+                        "trigger": plot_trigger,
+                        "value": plot_value,
+                        "title": env.unwrapped.__class__.__name__,
+                    },
+                    "log": {
+                        "verbose": verbose,
+                        "format": log_format,
+                        "level": level,
+                        "trigger": log_trigger,
+                        "value": log_value,
+                    },
+                },
+                "local_dir": LOCAL_DIR,
+            }
+            cfg = ngym.Config.model_validate(config_dict)
         elif isinstance(config, (str, Path)):
-            config = ngym.Config(config_file=config)
-        self.config: ngym.Config = config
+            cfg = ngym.Config(config_file=config)
+        else:
+            cfg = config  # type: ignore[arg-type]
 
-        # Assign names for the environment and/or the monitor
-        # if they are empty
+        self.config: ngym.Config = cfg
+
+        # Assign names for the environment and/or the monitor if they are empty
         if len(self.config.env.name) == 0:
             self.config.env.name = self.env.unwrapped.__class__.__name__
         if len(self.config.monitor.name) == 0:
@@ -75,10 +121,6 @@ class Monitor(Wrapper):
         if self.config.monitor.plot.trigger == "step":
             self.t = 0
         self.num_tr = 0
-
-        # Paths
-        if not self.config.env.name:
-            self.config.env.name = self.env.__class__.__name__
 
         # Directory for saving plots
         save_dir_name = f"{self.config.env.name}/{ngym.utils.iso_timestamp()}"
@@ -124,8 +166,8 @@ class Monitor(Wrapper):
         Returns:
             Tuple of (observation, reward, terminated, truncated, info)
         """
-        if self.step_function is not None:
-            obs, rew, terminated, truncated, info = self.step_function(action)
+        if self.step_fn is not None:
+            obs, rew, terminated, truncated, info = self.step_fn(action)
         else:
             obs, rew, terminated, truncated, info = self.env.step(action)
         if self.config.monitor.plot.create:
@@ -205,6 +247,7 @@ class Monitor(Wrapper):
                 rewards=self.rew_mat,
                 performance=self.perf_mat,
                 fname=fname,
+                name=self.config.monitor.plot.title,
             )
             self.ob_mat = []
             self.act_mat = []

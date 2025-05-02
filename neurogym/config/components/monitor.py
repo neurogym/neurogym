@@ -1,48 +1,48 @@
 import sys
 from typing import Any, Literal
 
+from pydantic import PositiveInt
+
 from neurogym.config.base import ConfigBase
 
 
 class MonitorPlotConfig(ConfigBase):
-    """Configuration options related to plotting as part of monitoring.
+    """Plotting configuration during monitoring.
 
-    create: A toggle to switch plotting on or off.
-    title: The title to display in the plot.
-    ext: Image extension.
-    trigger: The metric used to trigger events such as plotting.
-    interval: Plotting interval.
+    Attributes:
+        create: Whether to generate plots.
+        title: Title to display on plots.
+        ext: File extension for saved plot images.
+        trigger: Unit used to trigger logging output.
+        interval: Plotting interval in units of trigger.
     """
 
-    title: str = "NeuroGym"
     create: bool = True
+    title: str = ""
     ext: str = "png"
     trigger: Literal["trial", "step"] = "trial"
-    interval: int = 10
+    interval: PositiveInt = 10
 
 
 class MonitorLogConfig(ConfigBase):
-    """Configuration options related to logging.
+    """Logging configuration during monitoring.
 
-    verbose: A toggle indicating that Neurogym logging output should be more verbose.
-    format: The logger output format (cf. the Loguru documentation at https://loguru.readthedocs.io/en/stable/index.html).
-    level: The logging level (DEBUG, INFO, etc.).
-    trigger: The metric used to trigger events such as plotting.
-    interval: Logging interval (in units of 'trigger'; cf. :ref:`MonitorConfig.trigger`).
+    Attributes:
+        verbose: Whether to enable verbose output.
+        format: Log format string.
+        level: Logging level (e.g., INFO, DEBUG).
+        trigger: Unit used to trigger logging output.
+        interval: Logging interval in units of trigger.
     """
 
     verbose: bool = True
     format: str = "<magenta>Neurogym</magenta> | <cyan>{time:YYYY-MM-DD@HH:mm:ss}</cyan> | <level>{message}</level>"
     level: str = "INFO"
     trigger: Literal["trial", "step"] = "trial"
-    interval: int = 10
+    interval: PositiveInt = 10
 
     def make_config(self) -> dict[str, Any]:
-        """A convenience method for constructing a logger configuration.
-
-        Returns:
-            A configuration dictionary.
-        """
+        """Build logger configuration for Loguru."""
         return {
             "handlers": [
                 {
@@ -57,11 +57,12 @@ class MonitorLogConfig(ConfigBase):
 
 
 class MonitorConfig(ConfigBase):
-    """Configuration options related to monitoring.
+    """Top-level configuration for monitoring.
 
-    name: The name of the monitor (could be different from the name of the environment).
-    trigger: Subconfiguration The metric used to trigger events such as plotting.
-    plot: Subconfiguration  to plotting (cf. :ref:`MonitorPlotConfig`)
+    Attributes:
+        name: Optional monitor name.
+        log: Logging configuration.
+        plot: Plotting configuration.
     """
 
     name: str = ""

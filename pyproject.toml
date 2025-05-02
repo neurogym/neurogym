@@ -26,7 +26,6 @@ classifiers = [
 dependencies = [
     "pydantic-settings",
     "gymnasium==0.29.*",
-    "bokeh",
     "loguru",
     "matplotlib",
     "numpy",

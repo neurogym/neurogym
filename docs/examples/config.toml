@@ -1,108 +1,105 @@
 # ==============================================================================
-# Neurogym configuration template.
-# This template contains all the variables supported by the configuration module.
-# Please uncomment any variables that you would like to customise.
+# NeuroGym configuration template
+# This file defines all the customizable variables used by the configuration module.
+# Uncomment and set only the variables you wish to override.
 # ==============================================================================
 
-# The local directory used for saving generated or downloaded data.
-# If you uncomment this option, please replace the placeholder with a valid path.
-# The default (<neurogym root>/local) is already in the .gitignore file,
-# and therefore excluded from commits. If you change this, make sure that
-# the custom path is either outside the repository tree or otherwise excluded
-# from git commits.
-# local_dir = <path-to-some-directory>
+# ==============================================================================
+# General
+# ==============================================================================
 
-# ==================================================
-# Agent configuration.
-# ==================================================
+# Directory used to save output data (e.g., plots, logs, model checkpoints).
+# The default is <neurogym root>/local.
+# If you change this path, make sure it is outside your Git-controlled repository
+# or excluded via .gitignore if you want to avoid tracking output data.
+# local_dir = "/absolute/path/to/output"
+
+# ==============================================================================
+# Agent Configuration
+# NOTE: The agent configuration is currently only accessible via config instances.
+# The agent logic has not yet been integrated into the main code-base.
+# ==============================================================================
+
 [agent.training]
 
-# Number of trials during training.
-trials = 100
+# Unit for training duration: 'trial' or 'step'.
+unit = "trial"
 
-# Total number of steps during training.
-steps = 100000
+# Number of units to train for, based on the trigger.
+value = 100
 
 [agent.inference]
 
-# Number of trials during training.
-trials = 100
+# Unit for inference duration: 'trial' or 'step'.
+unit = "step"
 
-# Total number of steps during training.
-steps = 100000
+# Number of units to infer for, based on the trigger.
+value = 10000
 
-# ==================================================
-# Environment configuration.
-# ==================================================
+# ==============================================================================
+# Environment Configuration
+# NOTE: The environment configuration is currently only accessible via config instances.
+# The environment logic has not yet been integrated into the main code-base.
+# ==============================================================================
+
 [env]
 
-# Name of the environment.
+# Name of the environment to use.
 name = "TrialEnv"
 
-# Time step duration.
-dt = 10 # [ms]
+# Time step duration in milliseconds.
+dt = 10
 
-# ==================================================
-# Monitor configuration.
-# ==================================================
+# ==============================================================================
+# Monitor Configuration
+# ==============================================================================
+
 [monitor]
-
-# Name of the monitor.
-# (could be different from the name of the environment)
+# Optional custom name for the monitor.
 name = ""
 
-# ==================================================
-# Logging configuration.
-# Logging relies on the Loguru library.
-# Please check the documentation for Loguru at
-# https://loguru.readthedocs.io/en/stable/api/logger.html#
-# ==================================================
+# ==============================================================================
+# Logging Configuration
+# Logging is handled via Loguru (https://loguru.readthedocs.io/en/stable/)
+# NOTE: The monitor logging configuration is currently only accessible via config instances.
+# The monitor logging logic has not yet been integrated into the main code-base.
+# ==============================================================================
+
 [monitor.log]
 
-# Verbosity switch (switches logging on or off).
+# Enable or disable logging.
 verbose = true
 
-# Log format (passed to the Loguru configuration).
+# Log message format.
 format = "<magenta>Neurogym</magenta> | <cyan>{time:YYYY-MM-DD@HH:mm:ss}</cyan> | <level>{message}</level>"
 
-# Default log level.
-# The options for this variable and the corresponding
-# logger methods are as follows:
-# TRACE: logger.trace()
-# DEBUG: logger.debug()
-# INFO: logger.info()
-# SUCCESS: logger.success()
-# WARNING: logger.warning()
-# ERROR: logger.error()
-# CRITICAL: logger.critical()
+# Log level (options: TRACE, DEBUG, INFO, SUCCESS, WARNING, ERROR, CRITICAL).
 level = "INFO"
 
-# Metric to use as a trigger for logging output.
-# Possible options: 'trial', 'step'.
+# Unit used to trigger logging output (options: 'trial', 'step').
 trigger = "trial"
 
-# Logging interval.
-# Tied to the 'trigger' option.
+# Number of units (based on trigger) between log messages.
 interval = 10
 
-# ==================================================
-# Configuration for plots produced during monitoring.
-# ==================================================
+# ==============================================================================
+# Plotting Configuration
+# ==============================================================================
+
 [monitor.plot]
 
-# Switch plotting on or off.
+# Enable or disable plotting during monitoring.
 create = true
 
-# Plot title.
-title = "NeuroGym"
-
-# Extension for plots saved as images.
+# File extension for saved plots.
 ext = "png"
 
-# Metric to use as a trigger for producing plots.
-# Possible options: 'trial', 'step'.
+# Unit used to trigger plotting (options: 'trial', 'step').
 trigger = "trial"
 
-# Interval for creating plots.
-# Tied to the 'trigger' option.
+# Number of units (based on trigger) between plots.
 interval = 10
+
+# Title for the plot windows and files.
+# If left empty, this will automatically default to the environment name from [env].name.
+title = ""

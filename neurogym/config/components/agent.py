@@ -1,35 +1,38 @@
+from typing import Literal
+
+from pydantic import PositiveInt
+
 from neurogym.config.base import ConfigBase
 
 
 class AgentTrainingConfig(ConfigBase):
-    """Configuration options for agents during training.
+    """Training configuration for an agent.
 
-    trials: Number of trials (episodes).
-    steps: The number of training steps.
+    Attributes:
+        unit: Unit for training duration.
+        value: Number of units to train for, based on the unit.
     """
 
-    trials: int = 100
-    steps: int = 100000
+    unit: Literal["trial", "step"] = "trial"
+    value: PositiveInt = 100
 
 
 class AgentInferenceConfig(ConfigBase):
-    """Configuration options for agents during inference.
+    """Inference configuration for an agent.
 
-    This is used when evaluating the agent's performance after training.
-
-    trials: Number of trials (episodes).
-    steps: The number of inference steps.
+    Attributes:
+        unit: Unit for inference duration.
+        value: Number of units to infer for, based on the unit.
     """
 
-    trials: int = 100
-    steps: int = 10000
+    unit: Literal["trial", "step"] = "step"
+    value: PositiveInt = 10000
 
 
 class AgentConfig(ConfigBase):
-    """Configuration for agent-related options.
+    """Top-level configuration for agent training and inference.
 
-    training: Options related to training (cf. :ref:`AgentTrainingConfig`).
-    inference: Options related to inference (cf. :ref:`AgentInferenceConfig`).
+    Includes separate settings for training and inference.
     """
 
     training: AgentTrainingConfig = AgentTrainingConfig()

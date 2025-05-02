@@ -17,17 +17,17 @@ from neurogym.config.components.monitor import MonitorConfig
 class Config(ConfigBase):
     """Main configuration.
 
-    NOTE: The `root_dir` `pkg_dir` and `config_dir` variables are provided only for convenience
-    and cannot be modified. `local_dir` is the only one that can be assigned.
+    These fields (`root_dir`, `pkg_dir`, `config_dir`) are read-only
+    and provided for convenience. `local_dir` is the only one that can be assigned.
 
     config_file: A user-settable configuration file in TOML format.
     root_dir: The root directory of the repository.
     pkg_dir: The directory where the neurogym package is located.
     config_dir: The directory of the configuration module.
     local_dir: A local directory that should receive all kinds of program output (e.g., plots).
-    agent: Options for agents (cf. :ref:`AgentConfig`).
-    env: Options for environments (cf. :ref:`EnvConfig`).
-    monitor: Subconfiguration for monitoring options (cf. :ref:`MonitorConfig`).
+    agent: Options for agents (see `AgentConfig`).
+    env: Options for environments (see `EnvConfig`).
+    monitor: Subconfiguration for monitoring options (see `MonitorConfig`).
     """
 
     # TOML configuration file
@@ -57,6 +57,10 @@ class Config(ConfigBase):
                 self.__class__.config_file = config_file
 
         super().__init__(*args, **kwargs)
+
+        # Automatically resolve monitor <-> env fallback
+        if len(self.monitor.plot.title) == 0:
+            self.monitor.plot.title = self.env.name
 
     @classmethod
     def settings_customise_sources(
@@ -94,6 +98,21 @@ class Config(ConfigBase):
     @field_validator("*", mode="before", check_fields=False)
     @classmethod
     def expand_env_vars(cls, value: str) -> str:
+        """Expand environment variables in fields before validation.
+
+        Applies to all fields and supports strings, lists of strings, and
+        dictionaries with string values. Uses `os.path.expandvars` to replace
+        placeholders like "$HOME" or "${USER}" with their actual values.
+
+        This allows configuration files to contain dynamic paths such as:
+            local_dir = "${HOME}/.cache/neurogym_outputs"
+
+        Args:
+            value: The raw input value (str, list, or dict).
+
+        Returns:
+            The same structure with environment variables expanded.
+        """
         if isinstance(value, str):
             return os.path.expandvars(value)
         if isinstance(value, dict):
@@ -103,6 +122,5 @@ class Config(ConfigBase):
         return value
 
 
-# Default configuration object
-# ==================================================
+# Shared singleton config used throughout the project
 config = Config()

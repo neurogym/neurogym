@@ -96,3 +96,18 @@ def test_config_instantiate_from_dict(
     assert config.monitor.plot.interval == _plot_interval
     assert config.monitor.plot.trigger == plot_trigger
     assert config.monitor.log.level == _log_level
+
+
+@pytest.mark.parametrize(
+    ("input_dict", "expected_title"),
+    [
+        # Case 1: title is explicitly provided
+        ({"env": {"name": "TrialEnv"}, "monitor": {"plot": {"title": "CustomTitle"}}}, "CustomTitle"),
+        # Case 2: title is omitted — should fall back to env.name
+        ({"env": {"name": "TrialEnv"}, "monitor": {"plot": {}}}, "TrialEnv"),
+    ],
+)
+def test_monitor_plot_title_resolution_from_dict(input_dict, expected_title):
+    """Test that monitor.plot.title resolves correctly from dict input."""
+    config = Config(**input_dict)
+    assert config.monitor.plot.title == expected_title
