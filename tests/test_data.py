@@ -8,7 +8,7 @@ import numpy as np
 import neurogym as ngym
 
 # Get all supervised learning environment
-SLENVS = ngym.all_envs(tag="supervised")
+SL_ENVS = ngym.all_envs(tag="supervised")
 
 
 def _test_env(env):
@@ -36,9 +36,12 @@ def test_registered_env():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        for env_name in sorted(SLENVS):
-            print(env_name)
-            _test_env(env_name)
+        try:
+            for env_name in sorted(SL_ENVS):
+                _test_env(env_name)
+        except:
+            print(f"Failure in: {env_name}")
+            raise
 
 
 def _test_examples_different(env) -> None:
@@ -64,9 +67,12 @@ def test_examples_different_registered_env():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        for env_name in sorted(SLENVS):
-            print(env_name)
-            _test_examples_different(env_name)
+        try:
+            for env_name in sorted(SL_ENVS):
+                _test_examples_different(env_name)
+        except:
+            print(f"Failure in: {env_name}")
+            raise
 
 
 def test_examples_different_made_env():
@@ -74,10 +80,13 @@ def test_examples_different_made_env():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        for env_name in sorted(SLENVS):
-            print(env_name)
-            env = gym.make(env_name)
-            _test_examples_different(env)
+        try:
+            for env_name in sorted(SL_ENVS):
+                env = gym.make(env_name)
+                _test_examples_different(env)
+        except:
+            print(f"Failure in: {env_name}")
+            raise
 
 
 def test_examples_different_custom_env():

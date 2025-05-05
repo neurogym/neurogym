@@ -465,56 +465,57 @@ class TrialEnv(BaseEnv):
     def gt_now(self):
         return self.gt[self.t_ind]
 
-    @property
-    def avg_timesteps_per_trial(self) -> float:
-        """Calculate average timesteps per trial based on timing parameters.
+    def trial_length_stats(self, num_trials: int = 10000) -> dict:
+        """Calculate statistics about trial lengths.
+
+        Args:
+            num_trials (int, optional): Number of trials to sample. Defaults to 10000.
 
         Returns:
-            float: Average number of timesteps per trial
+            dict: Contains 'mean', 'std', 'percentile_95', and 'max' as floats.
         """
-        if not self.timing:
-            return 0
+        # For environments with very simple timing (all fixed durations),
+        # we can calculate exactly without sampling
+        if self.timing and all(isinstance(timing, int | float) for timing in self.timing.values()):
+            fixed_length = int(sum(self.timing.values()) / self.dt)
+            return {
+                "mean": fixed_length,
+                "std": 0,
+                "percentile_95": fixed_length,
+                "max": fixed_length,
+            }
 
-        total_ms = 0.0
-        for period, timing in self.timing.items():
-            if isinstance(timing, int | float):
-                period_ms = timing
-            elif isinstance(timing, list | tuple):
-                # Check if the first element is a string (distribution type)
-                if isinstance(timing[0], str):
-                    if timing[0] == "truncated_exponential":
-                        period_ms = timing[1][0]  # Use the mean parameter
-                    elif timing[0] == "uniform":
-                        period_ms = sum(timing[1]) / 2  # Average of min and max
-                    elif timing[0] == "choice":
-                        period_ms = sum(timing[1]) / len(timing[1])  # Average of choices
-                    elif timing[0] == "constant":
-                        period_ms = timing[1]
-                    else:
-                        period_ms = 0
-                        warnings.warn(f"Unknown distribution type {timing[0]} for period {period}", stacklevel=2)
-                else:
-                    # List of numbers: Random choice from the list
-                    # Calculate the average of the list elements
-                    period_ms = sum(timing) / len(timing)
-            elif callable(timing):
-                # Check if it's a TruncExp object with vmean attribute
-                if hasattr(timing, "vmean"):
-                    period_ms = timing.vmean
-                else:
-                    # If it's another callable function, we can't determine the average without sampling
-                    period_ms = 500
-                    warnings.warn(
-                        f"Period {period} uses a callable timing function. Using 500ms as default.",
-                        stacklevel=2,
-                    )
-            else:
-                period_ms = 0
-                warnings.warn(f"Could not determine length for period {period}", stacklevel=2)
+        # For more complex environments, we sample trials
+        trial_lengths_list = []
 
-            total_ms += period_ms
+        # Store current RNG state to restore later
+        rng_state = self.rng.get_state()
 
-        return float(total_ms / self.dt)
+        # Sample trials
+        for _ in range(num_trials):
+            self.new_trial()
+            if hasattr(self, "ob") and self.ob is not None:
+                trial_lengths_list.append(self.ob.shape[0])
+
+        # Restore RNG state
+        self.rng.set_state(rng_state)
+
+        # Calculate statistics from sampled trials
+        if len(trial_lengths_list) == 0:
+            warnings.warn("No trials were sampled. Returning default values.", stacklevel=2)
+            return {
+                "mean": 0,
+                "std": 0,
+                "percentile_95": 0,
+                "max": 0,
+            }
+        trial_lengths = np.array(trial_lengths_list)
+        return {
+            "mean": round(np.mean(trial_lengths), 3),
+            "std": round(np.std(trial_lengths), 3),
+            "percentile_95": round(np.percentile(trial_lengths, 95), 3),
+            "max": round(np.max(trial_lengths), 3),
+        }
 
 
 class TrialWrapper(gym.Wrapper):

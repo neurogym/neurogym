@@ -43,7 +43,11 @@ class Monitor(Wrapper):
 
     Attributes:
         config: The final configuration object used (validated `Config`).
-        data: Dictionary storing collected behavioral data (e.g., rewards, actions, performance).
+        data: Dictionary containing behavioral data.
+            action: List of actions taken when a trial ends, for each trial
+            reward: List of rewards received when a trial ends, for each trial
+            cum_reward: List of cumulative rewards for each trial
+            performance: List of performance when a trial ends, for each trial
         num_tr: Number of completed trials.
         t: Number of timesteps completed (used if `plot_trigger` is "step").
         save_dir: Path where data and plots are saved.
@@ -117,7 +121,9 @@ class Monitor(Wrapper):
 
         self._configure_logger()
 
-        self.data: dict[str, list] = {"action": [], "reward": [], "performance": []}
+        # data to save
+        self.data: dict[str, list] = {"action": [], "reward": [], "cum_reward": [], "performance": []}
+        self.cum_reward = 0.0
         if self.config.monitor.plot.trigger == "step":
             self.t = 0
         self.num_tr = 0
@@ -149,6 +155,7 @@ class Monitor(Wrapper):
         Returns:
             The initial observation from the environment reset
         """
+        self.cum_reward = 0
         return super().reset(seed=seed)
 
     def step(self, action: Any, collect_data: bool = True) -> tuple[Any, float, bool, bool, dict[str, Any]]:
@@ -170,6 +177,7 @@ class Monitor(Wrapper):
             obs, rew, terminated, truncated, info = self.step_fn(action)
         else:
             obs, rew, terminated, truncated, info = self.env.step(action)
+        self.cum_reward += rew
         if self.config.monitor.plot.create:
             self.store_data(obs, action, rew, info)
         if self.config.monitor.plot.trigger == "step":
@@ -178,6 +186,8 @@ class Monitor(Wrapper):
             self.num_tr += 1
             self.data["action"].append(action)
             self.data["reward"].append(rew)
+            self.data["cum_reward"].append(self.cum_reward)
+            self.cum_reward = 0
             for key in info:
                 if key not in self.data:
                     self.data[key] = [info[key]]
@@ -286,8 +296,11 @@ class Monitor(Wrapper):
         episode_starts = np.array([True])
 
         # Tracking variables
-        performances = []
         rewards = []
+        cum_reward = 0.0
+        cum_rewards = []
+        performances = []
+        # Initialize trial count
         trial_count = 0
 
         # Run trials
@@ -301,10 +314,13 @@ class Monitor(Wrapper):
             obs, reward, _, _, info = self.step(action, collect_data=False)
             # Update episode_starts after each step
             episode_starts = np.array([False])
+            cum_reward += reward
 
             if info.get("new_trial", False):
                 trial_count += 1
                 rewards.append(reward)
+                cum_rewards.append(cum_reward)
+                cum_reward = 0.0
                 if "performance" in info:
                     performances.append(info["performance"])
 
@@ -318,24 +334,29 @@ class Monitor(Wrapper):
         # Calculate metrics
         performance_array = np.array([p for p in performances if p != -1])
         reward_array = np.array(rewards)
+        cum_reward_array = np.array(cum_rewards)
 
         return {
-            "mean_performance": (float(np.mean(performance_array)) if len(performance_array) > 0 else 0),
-            "mean_reward": (float(np.mean(reward_array > 0)) if len(reward_array) > 0 else 0),
-            "performances": performances,
             "rewards": rewards,
+            "mean_reward": float(np.mean(reward_array > 0)) if len(reward_array) > 0 else 0,
+            "cum_rewards": cum_rewards,
+            "mean_cum_reward": float(np.mean(cum_reward_array)) if len(cum_reward_array) > 0 else 0,
+            "performances": performances,
+            "mean_performance": float(np.mean(performance_array)) if len(performance_array) > 0 else 0,
         }
 
     def plot_training_history(
         self,
         figsize: tuple[int, int] = (12, 6),
         save_fig: bool = True,
+        plot_performance: bool = True,
     ) -> plt.Figure | None:
         """Plot rewards and performance training history from saved data files with one data point per trial.
 
         Args:
             figsize: Figure size as (width, height) tuple
             save_fig: Whether to save the figure to disk
+            plot_performance: Whether to plot performance in a separate plot
         Returns:
             matplotlib figure object
         """
@@ -347,39 +368,50 @@ class Monitor(Wrapper):
 
         print(f"Found {len(files)} data files")
 
-        # Arrays to hold average values for each file
+        # Arrays to hold average values
         avg_rewards_per_file = []
+        avg_cum_rewards_per_file = []
         avg_performances_per_file = []
-        file_indices = []  # To store file numbers or trial counts
+        file_indices = []
         total_trials = 0
 
-        # Process each file
         for file in files:
             data = np.load(file, allow_pickle=True)
 
-            # Process rewards
             if "reward" in data:
                 rewards = data["reward"]
                 if len(rewards) > 0:
                     avg_rewards_per_file.append(np.mean(rewards))
                     total_trials += len(rewards)
-                    file_indices.append(total_trials)  # Use cumulative trial count as x-axis value
+                    file_indices.append(total_trials)
 
-            # Process performances
+            if "cum_reward" in data:
+                cum_rewards = data["cum_reward"]
+                if len(cum_rewards) > 0:
+                    avg_cum_rewards_per_file.append(np.mean(cum_rewards))
+
             if "performance" in data:
                 perfs = data["performance"]
                 if len(perfs) > 0:
                     avg_performances_per_file.append(np.mean(perfs))
 
-        # Create plot
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize)
+        fig, axes = plt.subplots(1, 2 if plot_performance else 1, figsize=figsize)
+        if not isinstance(axes, np.ndarray):
+            axes = [axes]
 
-        # 1. Rewards plot
-        ax1.plot(file_indices, avg_rewards_per_file, "o-", color="blue", linewidth=2)
-        ax1.set_title("Average Reward per File")
+        # 1. Rewards and Cumulative Rewards plot
+        ax1 = axes[0]
+
+        if len(avg_rewards_per_file) == len(file_indices):
+            ax1.plot(file_indices, avg_rewards_per_file, "o-", color="blue", label="Avg Reward", linewidth=2)
+        if len(avg_cum_rewards_per_file) == len(file_indices):
+            ax1.plot(file_indices, avg_cum_rewards_per_file, "s--", color="red", label="Avg Cum Reward", linewidth=2)
+
         ax1.set_xlabel("Cumulative Trials")
-        ax1.set_ylabel("Average Reward")
-        ax1.set_ylim(-0.05, 1.05)
+        ax1.set_ylabel("Reward / Cumulative Reward")
+        common_ylim = (-0.05, 1.05)
+        ax1.set_ylim(common_ylim)
+        ax1.set_title("Reward and Cumulative Reward per File")
 
         overall_avg_reward = np.mean(avg_rewards_per_file)
         ax1.text(
@@ -391,30 +423,37 @@ class Monitor(Wrapper):
             bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
         )
 
-        # 2. Performances plot
-        ax2.plot(file_indices, avg_performances_per_file, "o-", color="green", linewidth=2)
-        ax2.set_title("Average Performance per File")
-        ax2.set_xlabel("Cumulative Trials")
-        ax2.set_ylabel("Average Performance (0-1)")
-        ax2.set_ylim(-0.05, 1.05)
-        overall_avg_perf = np.mean(avg_performances_per_file)
-        ax2.text(
-            0.05,
-            0.95,
-            f"Overall Avg Performance: {overall_avg_perf:.4f}",
-            transform=ax2.transAxes,
-            verticalalignment="top",
-            bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
-        )
+        ax1.grid(True, which="both", axis="y", linestyle="--", alpha=0.7)
+        ax1.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3), ncol=2)
 
+        # 2. Optional: Performances plot
+        if plot_performance and len(axes) > 1:
+            ax2 = axes[1]
+            if len(avg_performances_per_file) == len(file_indices):
+                ax2.plot(file_indices, avg_performances_per_file, "o-", color="green", linewidth=2)
+            ax2.set_xlabel("Cumulative Trials")
+            ax2.set_ylabel("Average Performance (0-1)")
+            ax2.set_ylim(common_ylim)
+            ax2.set_title("Average Performance per File")
+
+            overall_avg_perf = np.mean(avg_performances_per_file)
+            ax2.text(
+                0.05,
+                0.95,
+                f"Overall Avg Perf: {overall_avg_perf:.4f}",
+                transform=ax2.transAxes,
+                verticalalignment="top",
+                bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
+            )
+
+            ax2.grid(True, which="both", axis="y", linestyle="--", alpha=0.7)
         plt.tight_layout()
+        fig.subplots_adjust(top=0.8)
         plt.suptitle(
             f"Training History for {self.config.env.name}\n({len(files)} data files, {total_trials} total trials)",
             fontsize=14,
-            y=1.05,
         )
 
-        # Save the figure
         if save_fig:
             save_path = self.config.local_dir / f"{self.config.env.name}_training_history.png"
             plt.savefig(save_path, dpi=300, bbox_inches="tight")

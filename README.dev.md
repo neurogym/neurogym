@@ -17,7 +17,7 @@ using via a [pull request](#development-conventions).
 See installation instructions of the main [README](README.md#installation), but replace the last command by
 
 ```bash
-pip install -e .'[dev]'
+pip install -e .'[rl,dev]'
 ```
 
 Note: you can also run this command after completing the "normal" installation instructions from the [README](README.md#installation).

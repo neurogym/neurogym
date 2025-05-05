@@ -14,8 +14,8 @@ NeuroGym is a curated collection of neuroscience tasks with a common interface. 
 - [NeuroGym](#neurogym)
   - [Installation](#installation)
     - [Step 1: Create a virtual environment](#step-1-create-a-virtual-environment)
-    - [Step 2: Install neurogym](#step-2-install-neurogym)
-      - [Step 2b: Install editable package](#step-2b-install-editable-package)
+    - [Step 2: Install NeuroGym](#step-2-install-neurogym)
+      - [Step 2b: Install in Editable/Development Mode](#step-2b-install-in-editabledevelopment-mode)
     - [Step 3 (Optional): Psychopy installation](#step-3-optional-psychopy-installation)
   - [Tasks](#tasks)
   - [Wrappers](#wrappers)
@@ -48,23 +48,36 @@ conda create -n neurogym python=3.11 -y
 conda activate neurogym
 ```
 
-#### Step 2: Install neurogym
+#### Step 2: Install NeuroGym
 
-Then install the latest version of `neurogym` as follows:
+You can install the latest stable release of `neurogym` using pip:
 
 ```bash
 pip install neurogym
 ```
 
-##### Step 2b: Install editable package
+If you plan to use reinforcement learning (RL) features based on Stable-Baselines3, install the RL extra dependencies:
 
-Alternatively, get the latest updates by cloning the repo and installing the editable version of neurogym, by replacing
-step 2 above by:
+```bash
+pip install neurogym[rl]
+```
+
+##### Step 2b: Install in Editable/Development Mode
+
+If you want to contribute to NeuroGym or always work with the latest updates from the source code, install it in editable mode:
 
 ```bash
 git clone https://github.com/neurogym/neurogym.git
 cd neurogym
 pip install -e .
+```
+
+This links your local code changes directly to your Python environment without needing to reinstall after every edit.
+
+If you also want RL and development tools (for testing, linting, and documentation), install with:
+
+```bash
+pip install -e .[rl,dev]
 ```
 
 #### Step 3 (Optional): Psychopy installation
@@ -83,7 +96,7 @@ Currently implemented tasks can be found [here](https://neurogym.github.io/envs/
 
 ### Wrappers
 
-Wrappers (see [list](https://github.com/gyyang/neurogym/blob/master/docs/wrappers.md))
+Wrappers (see [their docs](https://neurogym.github.io/neurogym/latest/api/wrappers/))
 are short scripts that allow introducing modifications the original tasks. For instance, the Random Dots Motion task can be transformed into a reaction time task by passing it through the _reaction_time_ wrapper. Alternatively, the _combine_ wrapper allows training an agent in two different tasks simultaneously.
 
 ### Configuration
@@ -148,11 +161,11 @@ config = Config.model_validate(config_dict)
 ### Examples
 
 NeuroGym is compatible with most packages that use gymnasium.
-In this [example](https://github.com/gyyang/neurogym/blob/master/examples/example_neurogym_rl.ipynb) jupyter notebook we show how to train a neural network with reinforcement learning algorithms using the [Stable-Baselines3](https://stable-baselines3.readthedocs.io/en/master/) toolbox.
+In this [example](https://github.com/neurogym/neurogym/blob/main/docs/examples/example_neurogym_rl.ipynb) jupyter notebook we show how to train a neural network with RL algorithms using the [Stable-Baselines3](https://stable-baselines3.readthedocs.io/en/master/) toolbox.
 
 ### Custom tasks
 
-Creating custom new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure, this [template](https://github.com/gyyang/neurogym/blob/master/examples/template.py) provides the basic structure that we recommend a task to have:
+Creating custom new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure, this [template](https://github.com/neurogym/neurogym/blob/main/docs/examples/template.py) provides the basic structure that we recommend a task to have:
 
 ```python
 from gymnasium import spaces
