@@ -124,12 +124,12 @@ def test_monitor_save_data(temp_folder: str, sv_stp: str):
     monitor.reset()
 
     # Take enough steps to trigger a save
-    for _ in range(10):
+    for _ in range(config.monitor.interval):
         action = monitor.action_space.sample()
         monitor.step(action)
 
     # Check if files were created
-    saved_files = list(Path(temp_folder).glob("*.npz"))
+    saved_files = list(monitor.save_dir.glob("*.npz"))
     assert len(saved_files) > 0, "No data files were saved"
 
     # Load and check a saved file
