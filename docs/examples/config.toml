@@ -22,18 +22,18 @@
 
 [agent.training]
 
-# Unit for training duration: 'trial' or 'step'.
+# Unit for training duration (options: 'trial' or 'step').
 unit = "trial"
 
-# Number of units to train for, based on the trigger.
+# Number of units (based on "unit") to train for.
 value = 100
 
 [agent.inference]
 
-# Unit for inference duration: 'trial' or 'step'.
+# Unit for inference duration (options: 'trial' or 'step').
 unit = "step"
 
-# Number of units to infer for, based on the trigger.
+# Number of units (based on "unit") to infer for.
 value = 10000
 
 # ==============================================================================
@@ -58,6 +58,31 @@ dt = 10
 # Optional custom name for the monitor.
 name = ""
 
+# Unit used to trigger saving output (options: 'trial' or 'step').
+trigger = "trial"
+
+# Number of units (based on "trigger") between each save operation.
+interval = 1000
+
+# ==============================================================================
+# Plotting Configuration
+# ==============================================================================
+
+[monitor.plot]
+
+# Enable or disable plotting during monitoring.
+create = true
+
+# Number of steps to visualize on the figure.
+step = 1000
+
+# Title for the plot windows and files.
+# If left empty, this will automatically default to the environment name from [env].name.
+title = ""
+
+# File extension for saved plots.
+ext = "png"
+
 # ==============================================================================
 # Logging Configuration
 # Logging is handled via Loguru (https://loguru.readthedocs.io/en/stable/)
@@ -79,27 +104,5 @@ level = "INFO"
 # Unit used to trigger logging output (options: 'trial', 'step').
 trigger = "trial"
 
-# Number of units (based on trigger) between log messages.
+# Number of units (based on "trigger") between log messages.
 interval = 10
-
-# ==============================================================================
-# Plotting Configuration
-# ==============================================================================
-
-[monitor.plot]
-
-# Enable or disable plotting during monitoring.
-create = true
-
-# File extension for saved plots.
-ext = "png"
-
-# Unit used to trigger plotting (options: 'trial', 'step').
-trigger = "trial"
-
-# Number of units (based on trigger) between plots.
-interval = 10
-
-# Title for the plot windows and files.
-# If left empty, this will automatically default to the environment name from [env].name.
-title = ""

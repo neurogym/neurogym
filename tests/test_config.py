@@ -62,26 +62,28 @@ def test_config_custom_toml_file(temp_dir: Path):
         config_file.unlink(missing_ok=True)
 
 
-@pytest.mark.parametrize("plot_trigger", ["trial", "step"])
+@pytest.mark.parametrize("trigger", ["trial", "step"])
 def test_config_instantiate_from_dict(
     temp_dir: Path,
-    plot_trigger: str,
+    trigger: str,
 ):
     """Test if a custom configuration can be created from a nested dictionary."""
     # Random options
-    _local_dir = temp_dir / "local-test"
-    _plot_interval = rng.integers(0, 100)
-    _log_level = "WARNING"
+    local_dir = temp_dir / "local-test"
+    save_interval = rng.integers(50, 100)
+    plot_steps = rng.integers(5, 10)
+    log_level = "WARNING"
 
     opts = {
-        "local_dir": _local_dir,
+        "local_dir": local_dir,
         "monitor": {
+            "trigger": trigger,
+            "interval": save_interval,
             "plot": {
-                "interval": _plot_interval,
-                "trigger": plot_trigger,
+                "value": plot_steps,
             },
             "log": {
-                "level": _log_level,
+                "level": log_level,
             },
         },
     }
@@ -92,10 +94,10 @@ def test_config_instantiate_from_dict(
 
     # Check that the configuration matches the variables above.
     # NOTE: Add tests for all nested options.
-    assert config.local_dir == _local_dir
-    assert config.monitor.plot.interval == _plot_interval
-    assert config.monitor.plot.trigger == plot_trigger
-    assert config.monitor.log.level == _log_level
+    assert config.local_dir == local_dir
+    assert config.monitor.interval == save_interval
+    assert config.monitor.trigger == trigger
+    assert config.monitor.log.level == log_level
 
 
 @pytest.mark.parametrize(

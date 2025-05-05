@@ -12,45 +12,34 @@ from neurogym.utils.plotting import fig_
 
 
 class Monitor(Wrapper):
-    """Monitor wrapper for NeuroGym environments.
+    """Monitor class to log, visualize, and evaluate NeuroGym environment behavior.
 
-    This class wraps a NeuroGym environment to track trial-based behavioral data,
-    optionally log training progress, and generate visualizations. Data is collected
-    at the end of each trial and can be saved periodically.
-
-    The monitor can be configured using a `Config` object, a TOML file path, or a dictionary.
-    If no config is provided, the constructor parameters act as a fallback to manually configure
-    logging, plotting, and environment naming.
-
-    Data is saved based on independent triggers and intervals for logging and plotting.
+    Wraps a NeuroGym TrialEnv to track actions, rewards, and performance metrics,
+    save them to disk, and optionally generate trial visualizations. Supports logging
+    at trial or step level, with configurable frequency and verbosity.
 
     Args:
         env: The NeuroGym environment to wrap.
-        config: Optional configuration source. It can be:
-            - a `Config` object (from `neurogym.Config`)
-            - a string or `Path` pointing to a TOML config file
-            - a dictionary to be validated as a Config model
-        name: Optional name used for monitoring (defaults to env class name). Used only if `config` is not provided.
-        plot_trigger: When to generate plots: "trial" or "step". Used only if `config` is not provided.
-        plot_value: Frequency of plotting (every N trials or steps). Used only if `config` is not provided.
-        log_trigger: When to log training info: "trial" or "step". Used only if `config` is not provided.
-        log_value: Frequency of logging (every N trials or steps). Used only if `config` is not provided.
-        create: Whether to generate visualizations. Used only if `config` is not provided.
-        verbose: If True, prints info when saving data/logging. Used only if `config` is not provided.
-        level: Logging level as string, e.g. "INFO", "DEBUG". Used only if `config` is not provided.
-        ext: File extension for plot outputs (e.g., "png"). Used only if `config` is not provided.
-        step_fn: Optional callable to override the environment's step function.
+        config: Optional configuration source (Config object, TOML file path, or dictionary).
+        name: Optional monitor name; defaults to the environment class name.
+        trigger: When to save data ("trial" or "step").
+        interval: How often to save data, in number of trials or steps.
+        plot_create: Whether to generate and save visualizations of environment behavior.
+        plot_steps: Number of steps to visualize in each plot.
+        ext: Image file extension for saved plots (e.g., "png").
+        step_fn: Optional custom step function to override the environment's.
+        verbose: Whether to print information when logging or saving data.
+        level: Logging verbosity level (e.g., "INFO", "DEBUG").
+        log_trigger: When to log progress ("trial" or "step").
+        log_interval: How often to log, in trials or steps.
 
     Attributes:
-        config: The final configuration object used (validated `Config`).
-        data: Dictionary containing behavioral data.
-            action: List of actions taken when a trial ends, for each trial
-            reward: List of rewards received when a trial ends, for each trial
-            cum_reward: List of cumulative rewards for each trial
-            performance: List of performance when a trial ends, for each trial
+        config: Final validated configuration object.
+        data: Collected behavioral data for each completed trial.
+        cum_reward: Cumulative reward for the current trial.
         num_tr: Number of completed trials.
-        t: Number of timesteps completed (used if `plot_trigger` is "step").
-        save_dir: Path where data and plots are saved.
+        t: Step counter (used when trigger is "step").
+        save_dir: Directory where data and plots are saved.
     """
 
     metadata = {  # noqa: RUF012
@@ -66,15 +55,16 @@ class Monitor(Wrapper):
         env: ngym.TrialEnv,
         config: ngym.Config | str | Path | None = None,
         name: str | None = None,
-        plot_trigger: str = "trial",
-        plot_value: int = 1000,
-        log_trigger: str = "trial",
-        log_value: int = 1000,
-        create: bool = False,
-        verbose: bool = True,
-        level: str = "INFO",
+        trigger: str = "trial",
+        interval: int = 1000,
+        plot_create: bool = False,
+        plot_steps: int = 1000,
         ext: str = "png",
         step_fn: Callable | None = None,
+        verbose: bool = True,
+        level: str = "INFO",
+        log_trigger: str = "trial",
+        log_interval: int = 1000,
     ) -> None:
         super().__init__(env)
         self.env = env
@@ -88,19 +78,20 @@ class Monitor(Wrapper):
                 "env": {"name": env.unwrapped.__class__.__name__},
                 "monitor": {
                     "name": name or "Monitor",
+                    "trigger": trigger,
+                    "interval": interval,
                     "plot": {
-                        "create": create,
-                        "ext": ext,
-                        "trigger": plot_trigger,
-                        "value": plot_value,
+                        "create": plot_create,
+                        "step": plot_steps,
                         "title": env.unwrapped.__class__.__name__,
+                        "ext": ext,
                     },
                     "log": {
                         "verbose": verbose,
                         "format": log_format,
                         "level": level,
                         "trigger": log_trigger,
-                        "value": log_value,
+                        "interval": log_interval,
                     },
                 },
                 "local_dir": LOCAL_DIR,
@@ -124,7 +115,7 @@ class Monitor(Wrapper):
         # data to save
         self.data: dict[str, list] = {"action": [], "reward": [], "cum_reward": [], "performance": []}
         self.cum_reward = 0.0
-        if self.config.monitor.plot.trigger == "step":
+        if self.config.monitor.trigger == "step":
             self.t = 0
         self.num_tr = 0
 
@@ -180,7 +171,7 @@ class Monitor(Wrapper):
         self.cum_reward += rew
         if self.config.monitor.plot.create:
             self.store_data(obs, action, rew, info)
-        if self.config.monitor.plot.trigger == "step":
+        if self.config.monitor.trigger == "step":
             self.t += 1
         if info.get("new_trial", False):
             self.num_tr += 1
@@ -196,13 +187,13 @@ class Monitor(Wrapper):
 
             # save data
             save = (
-                self.t >= self.config.monitor.plot.interval
-                if self.config.monitor.plot.trigger == "step"
-                else self.num_tr % self.config.monitor.plot.interval == 0
+                self.t >= self.config.monitor.interval
+                if self.config.monitor.trigger == "step"
+                else self.num_tr % self.config.monitor.interval == 0
             )
             if save and collect_data:
                 # Create save path with pathlib for cross-platform compatibility
-                save_path = self.config.local_dir / f"trial_{self.num_tr}.npz"
+                save_path = self.save_dir / f"trial_{self.num_tr}.npz"
                 np.savez(save_path, **self.data)
 
                 if self.config.monitor.log.verbose:
@@ -215,7 +206,7 @@ class Monitor(Wrapper):
                 self.reset_data()
                 if self.config.monitor.plot.create:
                     self.stp_counter = 0
-                if self.config.monitor.plot.trigger == "step":
+                if self.config.monitor.trigger == "step":
                     self.t = 0
         return obs, rew, terminated, truncated, info
 
@@ -233,7 +224,7 @@ class Monitor(Wrapper):
             rew: Current reward
             info: Info dictionary from environment
         """
-        if self.stp_counter <= self.config.monitor.plot.interval:
+        if self.stp_counter <= self.config.monitor.plot.step:
             self.ob_mat.append(obs)
             self.act_mat.append(action)
             self.rew_mat.append(rew)
@@ -360,7 +351,7 @@ class Monitor(Wrapper):
         Returns:
             matplotlib figure object
         """
-        files = sorted(self.config.local_dir.glob("*.npz"))
+        files = sorted(self.save_dir.glob("*.npz"))
 
         if not files:
             print("No data files found matching pattern: *.npz")

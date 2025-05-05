@@ -11,17 +11,15 @@ class MonitorPlotConfig(ConfigBase):
 
     Attributes:
         create: Whether to generate plots.
+        step: Number of steps to visualize on the figure.
         title: Title to display on plots.
         ext: File extension for saved plot images.
-        trigger: Unit used to trigger logging output.
-        interval: Plotting interval in units of trigger.
     """
 
     create: bool = True
+    step: PositiveInt = 10
     title: str = ""
     ext: str = "png"
-    trigger: Literal["trial", "step"] = "trial"
-    interval: PositiveInt = 10
 
 
 class MonitorLogConfig(ConfigBase):
@@ -61,10 +59,14 @@ class MonitorConfig(ConfigBase):
 
     Attributes:
         name: Optional monitor name.
+        trigger: Unit used to trigger saving output.
+        interval: Number of trigger units between each save operation.
         log: Logging configuration.
         plot: Plotting configuration.
     """
 
     name: str = ""
-    log: MonitorLogConfig = MonitorLogConfig()
+    trigger: Literal["trial", "step"] = "trial"
+    interval: PositiveInt = 1000
     plot: MonitorPlotConfig = MonitorPlotConfig()
+    log: MonitorLogConfig = MonitorLogConfig()
