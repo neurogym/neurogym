@@ -56,9 +56,21 @@ You can install the latest stable release of `neurogym` using pip:
 pip install neurogym
 ```
 
-If you plan to use reinforcement learning (RL) features based on Stable-Baselines3, install the RL extra dependencies:
+##### Reinforcent learning
+
+If you plan to use reinforcement learning (RL) features based on Stable-Baselines3, install the RL extra dependencies.
+
+If you are planning to run reinforcement learning pipelines on GPU (using CUDA), run:
 
 ```bash
+pip install neurogym[rl]
+```
+
+If you only have access to GPU (i.e. most personal computers), we recommend to first install the CPU-only version of
+pytorch first, to avoid installing ~2,5GB of dependencies required only for GPU:
+
+```bash
+pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install neurogym[rl]
 ```
 
