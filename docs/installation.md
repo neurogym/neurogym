@@ -22,9 +22,12 @@ pip install neurogym
 
 ### 2a: Reinforcement Learning Support
 
-NeuroGym includes optional reinforcement learning (RL) features via Stable-Baselines3. To install these:
+NeuroGym includes optional reinforcement learning (RL) features via Stable-Baselines3.
+To install these, choose one of the two options below depending on your hardware setup:
 
-If you do not have a CUDA-capable NVIDIA GPU (which is the case for most users), we recommend installing the CPU-only
+#### Option A — CPU-only (recommended for most users):
+
+If you **do not** have a CUDA-capable NVIDIA GPU (which is the case for most users), we recommend installing the CPU-only
 version of [PyTorch](https://pytorch.org/get-started/locally/) to avoid downloading unnecessary GPU libraries (up to 1.5GB):
 
 ```bash
@@ -32,7 +35,9 @@ pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install neurogym[rl]
 ```
 
-If you do have a properly configured CUDA setup, you can install the GPU-compatible version:
+#### Option B — GPU support:
+
+If you **do** have a properly configured CUDA setup, you can install the GPU-compatible version:
 
 ```bash
 pip install neurogym[rl]
