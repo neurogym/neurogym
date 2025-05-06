@@ -9,6 +9,65 @@ Currently implemented tasks can be found [here](https://neurogym.github.io/neuro
 Wrappers (see [here](https://neurogym.github.io/neurogym/latest/api/wrappers/))
 are short scripts that allow introducing modifications the original tasks. For instance, the Random Dots Motion task can be transformed into a reaction time task by passing it through the _reaction_time_ wrapper. Alternatively, the _combine_ wrapper allows training an agent in two different tasks simultaneously.
 
+## Configuration
+
+🧪 **Beta Feature** — The configuration system is **optional** and currently **under development**. You can still instantiate environments, agents, and wrappers with direct parameters.
+It is only used in a small portion of the codebase and is not required for typical usage.
+See the [`demo.ipynb`](examples/demo.ipynb) notebook for the only current example of this system in action.
+
+NeuroGym includes a flexible configuration mechanism using [`Pydantic Settings`](https://docs.pydantic.dev/latest/concepts/pydantic_settings/), allowing configuration via TOML files, Python objects, or plain dictionaries.
+
+Using a TOML file can be especially useful for sharing experiment configurations in a portable way (e.g., sending `config.toml` to a colleague), reliably saving and loading experiment setups, and easily switching between multiple configurations for the same environment by changing just one line of code. While the system isn't at that stage yet, these are intended future capabilities.
+
+### 1. From a TOML file
+
+Create a `config.toml` file (see [template](examples/config.toml)) and load it:
+
+```python
+from neurogym import Config
+config = Config('path/to/config.toml')
+```
+
+You can then pass this config to any component that supports it:
+
+```python
+from neurogym.wrappers import monitor
+env = gym.make('GoNogo-v0')
+env = monitor.Monitor(env, config=config)
+```
+
+Or directly pass the path:
+
+```python
+env = monitor.Monitor(env, config='path/to/config.toml')
+```
+
+### 2. With Python class
+
+```python
+from neurogym import Config
+config = Config(
+    local_dir="logs/",
+    env={"name": "GoNogo-v0"},
+    monitor={"name": "MyMonitor"}
+)
+```
+
+### 3. With a dictionary
+
+```python
+from neurogym import Config
+config_dict = {
+    "env": {"name": "GoNogo-v0"},
+    "monitor": {
+        "name": "MyMonitor",
+        "plot": {"trigger": "step", "value": 500, "create": True}
+    },
+    "local_dir": "./outputs"
+}
+config = Config.model_validate(config_dict)
+```
+
 ## Examples
 
 NeuroGym is compatible with most packages that use gymnasium.

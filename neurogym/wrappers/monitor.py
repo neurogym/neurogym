@@ -6,44 +6,40 @@ import matplotlib.pyplot as plt
 import numpy as np
 from gymnasium import Wrapper
 
+import neurogym as ngym
+from neurogym.config.base import LOCAL_DIR
 from neurogym.utils.plotting import fig_
 
 
 class Monitor(Wrapper):
-    """Monitor wrapper for NeuroGym environments.
+    """Monitor class to log, visualize, and evaluate NeuroGym environment behavior.
 
-    This class wraps NeuroGym environments to monitor and collect behavioral data
-    during training and evaluation. It saves relevant behavioral information such as
-    rewards, actions, observations, new trial flags, and ground truth.
-
-    Data collection behavior:
-    - The Monitor records data points ONLY at the end of trials (when info["new_trial"]=True).
-    - Each data point represents one complete behavioral trial, not individual timesteps.
-    - For NeuroGym tasks, this typically occurs when the agent makes a decision in the
-      decision period, or when the trial is aborted.
-    - Data is saved to disk at regular intervals (e.g., every 1000 trials) and internal
-      data containers are reset after each save.
+    Wraps a NeuroGym TrialEnv to track actions, rewards, and performance metrics,
+    save them to disk, and optionally generate trial visualizations. Supports logging
+    at trial or step level, with configurable frequency and verbosity.
 
     Args:
-        env: The NeuroGym environment to wrap
-        folder: Path to folder where data will be saved. If None, uses a temporary directory.
-        sv_per: How often to save data (in trials or timesteps, depending on sv_stp)
-        sv_stp: Unit for sv_per, either "trial" or "timestep"
-        verbose: If True, prints information about average reward and number of trials
-        sv_fig: If True, saves figures visualizing the experiment structure
-        num_stps_sv_fig: Number of trial steps to include in each visualization figure
-        name: Optional name suffix for saved files
-        fig_type: File format for saved figures (e.g., 'png', 'svg', 'pdf')
-        step_fn: Optional custom step function to use instead of env.step
+        env: The NeuroGym environment to wrap.
+        config: Optional configuration source (Config object, TOML file path, or dictionary).
+        name: Optional monitor name; defaults to the environment class name.
+        trigger: When to save data ("trial" or "step").
+        interval: How often to save data, in number of trials or steps.
+        plot_create: Whether to generate and save visualizations of environment behavior.
+        plot_steps: Number of steps to visualize in each plot.
+        ext: Image file extension for saved plots (e.g., "png").
+        step_fn: Optional custom step function to override the environment's.
+        verbose: Whether to print information when logging or saving data.
+        level: Logging verbosity level (e.g., "INFO", "DEBUG").
+        log_trigger: When to log progress ("trial" or "step").
+        log_interval: How often to log, in trials or steps.
 
     Attributes:
-        data: Dictionary containing behavioral data
-            action: List of actions taken when a trial ends, for each trial
-            reward: List of rewards received when a trial ends, for each trial
-            cum_reward: List of cumulative rewards for each trial
-            performance: List of performance when a trial ends, for each trial
-        num_tr: Number of trials completed
-        t: Number of timesteps completed (when sv_stp="timestep")
+        config: Final validated configuration object.
+        data: Collected behavioral data for each completed trial.
+        cum_reward: Cumulative reward for the current trial.
+        num_tr: Number of completed trials.
+        t: Step counter (used when trigger is "step").
+        save_dir: Directory where data and plots are saved.
     """
 
     metadata = {  # noqa: RUF012
@@ -56,46 +52,90 @@ class Monitor(Wrapper):
 
     def __init__(
         self,
-        env: Any,
-        folder: str | None = None,
-        sv_per: int = 100000,
-        sv_stp: str = "trial",
-        verbose: bool = False,
-        sv_fig: bool = False,
-        num_stps_sv_fig: int = 100,
-        name: str = "",
-        fig_type: str = "png",
+        env: ngym.TrialEnv,
+        config: ngym.Config | str | Path | None = None,
+        name: str | None = None,
+        trigger: str = "trial",
+        interval: int = 1000,
+        plot_create: bool = False,
+        plot_steps: int = 1000,
+        ext: str = "png",
         step_fn: Callable | None = None,
+        verbose: bool = True,
+        level: str = "INFO",
+        log_trigger: str = "trial",
+        log_interval: int = 1000,
     ) -> None:
         super().__init__(env)
         self.env = env
-        self.num_tr: int = 0
         self.step_fn = step_fn
-        # data to save
-        self.cum_reward = 0
-        self.data: dict[str, list] = {"action": [], "reward": [], "cum_reward": [], "performance": []}
-        self.sv_per = sv_per
-        self.sv_stp = sv_stp
-        self.fig_type = fig_type
-        if self.sv_stp == "timestep":
-            self.t: int = 0
-        self.verbose = verbose
-        self.folder: str = "tmp" if folder is None else folder
-        Path(self.folder).mkdir(parents=True, exist_ok=True)
 
-        # seeding
-        self.sv_name: str = str(Path(self.folder) / f"{self.env.unwrapped.__class__.__name__}_bhvr_data_{name}_")
-        # figure
-        self.sv_fig = sv_fig
-        self.name: str = name
-        if self.sv_fig:
-            self.num_stps_sv_fig = num_stps_sv_fig
-            self.stp_counter: int = 0
+        log_format = "<magenta>Neurogym</magenta> | <cyan>{time:YYYY-MM-DD@HH:mm:ss}</cyan> | <level>{message}</level>"
+
+        cfg: ngym.Config
+        if config is None:
+            config_dict = {
+                "env": {"name": env.unwrapped.__class__.__name__},
+                "monitor": {
+                    "name": name or "Monitor",
+                    "trigger": trigger,
+                    "interval": interval,
+                    "plot": {
+                        "create": plot_create,
+                        "step": plot_steps,
+                        "title": env.unwrapped.__class__.__name__,
+                        "ext": ext,
+                    },
+                    "log": {
+                        "verbose": verbose,
+                        "format": log_format,
+                        "level": level,
+                        "trigger": log_trigger,
+                        "interval": log_interval,
+                    },
+                },
+                "local_dir": LOCAL_DIR,
+            }
+            cfg = ngym.Config.model_validate(config_dict)
+        elif isinstance(config, (str, Path)):
+            cfg = ngym.Config(config_file=config)
+        else:
+            cfg = config  # type: ignore[arg-type]
+
+        self.config: ngym.Config = cfg
+
+        # Assign names for the environment and/or the monitor if they are empty
+        if len(self.config.env.name) == 0:
+            self.config.env.name = self.env.unwrapped.__class__.__name__
+        if len(self.config.monitor.name) == 0:
+            self.config.monitor.name = self.__class__.__name__
+
+        self._configure_logger()
+
+        # data to save
+        self.data: dict[str, list] = {"action": [], "reward": [], "cum_reward": [], "performance": []}
+        self.cum_reward = 0.0
+        if self.config.monitor.trigger == "step":
+            self.t = 0
+        self.num_tr = 0
+
+        # Directory for saving plots
+        save_dir_name = f"{self.config.env.name}/{ngym.utils.iso_timestamp()}"
+        self.save_dir = ngym.utils.ensure_dir(self.config.local_dir / save_dir_name)
+
+        # Figures
+        if self.config.monitor.plot.create:
+            self.stp_counter = 0
             self.ob_mat: list = []
             self.act_mat: list = []
             self.rew_mat: list = []
             self.gt_mat: list = []
             self.perf_mat: list = []
+
+    def _configure_logger(self):
+        ngym.logger.remove()
+        ngym.logger.configure(**self.config.monitor.log.make_config())
+        ngym.logger.info("Logger configured.")
 
     def reset(self, seed=None):
         """Reset the environment.
@@ -124,14 +164,14 @@ class Monitor(Wrapper):
         Returns:
             Tuple of (observation, reward, terminated, truncated, info)
         """
-        if self.step_fn:
+        if self.step_fn is not None:
             obs, rew, terminated, truncated, info = self.step_fn(action)
         else:
             obs, rew, terminated, truncated, info = self.env.step(action)
         self.cum_reward += rew
-        if self.sv_fig:
+        if self.config.monitor.plot.create:
             self.store_data(obs, action, rew, info)
-        if self.sv_stp == "timestep":
+        if self.config.monitor.trigger == "step":
             self.t += 1
         if info.get("new_trial", False):
             self.num_tr += 1
@@ -146,14 +186,17 @@ class Monitor(Wrapper):
                     self.data[key].append(info[key])
 
             # save data
-            save = False
-            save = self.t >= self.sv_per if self.sv_stp == "timestep" else self.num_tr % self.sv_per == 0
+            save = (
+                self.t >= self.config.monitor.interval
+                if self.config.monitor.trigger == "step"
+                else self.num_tr % self.config.monitor.interval == 0
+            )
             if save and collect_data:
                 # Create save path with pathlib for cross-platform compatibility
-                save_path = f"{self.sv_name}{self.num_tr}.npz"
+                save_path = self.save_dir / f"trial_{self.num_tr}.npz"
                 np.savez(save_path, **self.data)
 
-                if self.verbose:
+                if self.config.monitor.log.verbose:
                     print("--------------------")
                     print(f"Data saved to: {save_path}")
                     print(f"Number of trials: {self.num_tr}")
@@ -161,9 +204,9 @@ class Monitor(Wrapper):
                     print(f"Average performance: {np.mean(self.data['performance'])}")
                     print("--------------------")
                 self.reset_data()
-                if self.sv_fig:
+                if self.config.monitor.plot.create:
                     self.stp_counter = 0
-                if self.sv_stp == "timestep":
+                if self.config.monitor.trigger == "step":
                     self.t = 0
         return obs, rew, terminated, truncated, info
 
@@ -181,7 +224,7 @@ class Monitor(Wrapper):
             rew: Current reward
             info: Info dictionary from environment
         """
-        if self.stp_counter <= self.num_stps_sv_fig:
+        if self.stp_counter <= self.config.monitor.plot.step:
             self.ob_mat.append(obs)
             self.act_mat.append(action)
             self.rew_mat.append(rew)
@@ -195,9 +238,7 @@ class Monitor(Wrapper):
                 self.perf_mat.append(-1)
             self.stp_counter += 1
         elif len(self.rew_mat) > 0:
-            fname = (
-                Path(self.folder) / f"{self.env.unwrapped.__class__.__name__}_task_{self.num_tr:06d}.{self.fig_type}"
-            )
+            fname = self.save_dir / f"task_{self.num_tr:06d}.{self.config.monitor.plot.ext}"
             obs_mat = np.array(self.ob_mat)
             act_mat = np.array(self.act_mat)
             fig_(
@@ -207,6 +248,7 @@ class Monitor(Wrapper):
                 rewards=self.rew_mat,
                 performance=self.perf_mat,
                 fname=fname,
+                name=self.config.monitor.plot.title,
             )
             self.ob_mat = []
             self.act_mat = []
@@ -309,14 +351,10 @@ class Monitor(Wrapper):
         Returns:
             matplotlib figure object
         """
-        env_name = self.env.unwrapped.__class__.__name__
-        log_folder = self.folder
-
-        base_path = Path(log_folder)
-        files = sorted(base_path.glob(f"{env_name}_bhvr_data_{self.name}_*.npz"))
+        files = sorted(self.save_dir.glob("*.npz"))
 
         if not files:
-            print(f"No data files found matching pattern: {env_name}_bhvr_data_{self.name}_*.npz")
+            print("No data files found matching pattern: *.npz")
             return None
 
         print(f"Found {len(files)} data files")
@@ -403,12 +441,12 @@ class Monitor(Wrapper):
         plt.tight_layout()
         fig.subplots_adjust(top=0.8)
         plt.suptitle(
-            f"Training History for {env_name}\n({len(files)} data files, {total_trials} total trials)",
+            f"Training History for {self.config.env.name}\n({len(files)} data files, {total_trials} total trials)",
             fontsize=14,
         )
 
         if save_fig:
-            save_path = Path(log_folder) / f"{env_name}_training_history.png"
+            save_path = self.config.local_dir / f"{self.config.env.name}_training_history.png"
             plt.savefig(save_path, dpi=300, bbox_inches="tight")
             print(f"Figure saved to {save_path}")
 

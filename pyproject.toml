@@ -20,6 +20,10 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
+    "pydantic-settings",
+    "loguru",
+    "tqdm",
+    "tomlkit",
     "numpy==2.1.*",
     "gymnasium==0.29.*",
     "matplotlib==3.9.*",
@@ -48,6 +52,7 @@ dev = [
     # code style
     "ruff==0.9.*",
     "mypy",
+    "types-docutils",
     "scipy-stubs",
     # docs
     "mkdocs",

@@ -1,0 +1,108 @@
+# ==============================================================================
+# NeuroGym configuration template
+# This file defines all the customizable variables used by the configuration module.
+# Uncomment and set only the variables you wish to override.
+# ==============================================================================
+
+# ==============================================================================
+# General
+# ==============================================================================
+
+# Directory used to save output data (e.g., plots, logs, model checkpoints).
+# The default is <neurogym root>/local.
+# If you change this path, make sure it is outside your Git-controlled repository
+# or excluded via .gitignore if you want to avoid tracking output data.
+# local_dir = "/absolute/path/to/output"
+
+# ==============================================================================
+# Agent Configuration
+# NOTE: The agent configuration is currently only accessible via config instances.
+# The agent logic has not yet been integrated into the main code-base.
+# ==============================================================================
+
+[agent.training]
+
+# Unit for training duration (options: 'trial' or 'step').
+unit = "trial"
+
+# Number of units (based on "unit") to train for.
+value = 100
+
+[agent.inference]
+
+# Unit for inference duration (options: 'trial' or 'step').
+unit = "step"
+
+# Number of units (based on "unit") to infer for.
+value = 10000
+
+# ==============================================================================
+# Environment Configuration
+# NOTE: The environment configuration is currently only accessible via config instances.
+# The environment logic has not yet been integrated into the main code-base.
+# ==============================================================================
+
+[env]
+
+# Name of the environment to use.
+name = "TrialEnv"
+
+# Time step duration in milliseconds.
+dt = 10
+
+# ==============================================================================
+# Monitor Configuration
+# ==============================================================================
+
+[monitor]
+# Optional custom name for the monitor.
+name = ""
+
+# Unit used to trigger saving output (options: 'trial' or 'step').
+trigger = "trial"
+
+# Number of units (based on "trigger") between each save operation.
+interval = 1000
+
+# ==============================================================================
+# Plotting Configuration
+# ==============================================================================
+
+[monitor.plot]
+
+# Enable or disable plotting during monitoring.
+create = true
+
+# Number of steps to visualize on the figure.
+step = 1000
+
+# Title for the plot windows and files.
+# If left empty, this will automatically default to the environment name from [env].name.
+title = ""
+
+# File extension for saved plots.
+ext = "png"
+
+# ==============================================================================
+# Logging Configuration
+# Logging is handled via Loguru (https://loguru.readthedocs.io/en/stable/)
+# NOTE: The monitor logging configuration is currently only accessible via config instances.
+# The monitor logging logic has not yet been integrated into the main code-base.
+# ==============================================================================
+
+[monitor.log]
+
+# Enable or disable logging.
+verbose = true
+
+# Log message format.
+format = "<magenta>Neurogym</magenta> | <cyan>{time:YYYY-MM-DD@HH:mm:ss}</cyan> | <level>{message}</level>"
+
+# Log level (options: TRACE, DEBUG, INFO, SUCCESS, WARNING, ERROR, CRITICAL).
+level = "INFO"
+
+# Unit used to trigger logging output (options: 'trial', 'step').
+trigger = "trial"
+
+# Number of units (based on "trigger") between log messages.
+interval = 10
