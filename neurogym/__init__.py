@@ -19,4 +19,4 @@ from neurogym.wrappers import all_wrappers
 from neurogym.utils.data import Dataset
 from neurogym.utils import ngym_random
 
-__version__ = "1.0.8"
+__version__ = "2.0.0"
