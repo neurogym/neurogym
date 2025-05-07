@@ -1,3 +1,4 @@
+::: neurogym.envs.registration
 ::: neurogym.envs.native.annubes
 ::: neurogym.envs.native.antireach
 ::: neurogym.envs.native.bandit
@@ -21,6 +22,5 @@
 ::: neurogym.envs.native.reaching
 ::: neurogym.envs.native.reachingdelayresponse
 ::: neurogym.envs.native.readysetgo
-::: neurogym.envs.native.registration
 ::: neurogym.envs.native.spatialsuppressmotion
 ::: neurogym.envs.native.tonedetection
