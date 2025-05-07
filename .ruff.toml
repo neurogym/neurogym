@@ -25,6 +25,8 @@ ignore = [
     "TD",     # TODO formatting
     "FIX",    # Resolve FIXME, TODO, XXX
     "EXE002", # Executable but no shebang
+    "COM812", # Recommended to ignore by Ruff itself
+    "UP038",  # Use X | Y instead of (X, Y) in isinstance()
     # Unneeded docstrings
     "D100",   # Missing module docstring
     "D104",   # Missing public package docstring
@@ -72,3 +74,6 @@ extend-safe-fixes = [
 
 [lint.flake8-unused-arguments]
 ignore-variadic-names = true # Whether to allow unused variadic arguments, like *args and **kwargs.
+
+[lint.flake8-builtins]
+builtins-strict-checking = false # Whether to enable strict checking of builtins.

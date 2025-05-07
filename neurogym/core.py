@@ -1,4 +1,5 @@
 import contextlib
+import warnings
 from typing import Any, NoReturn
 
 import gymnasium as gym
@@ -372,36 +373,31 @@ class TrialEnv(BaseEnv):
         """Set observation in period to value.
 
         Args:
-            value: np array (ob_space.shape, ...)
-            period: string, must be name of an added period
+            value: number, numpy array, or callable
+                If number: broadcast to full observation shape
+                If array: must match observation space dimensions (observation_space.shape[0], ...)
+                If callable: takes observation array as input and returns array of the same shape
+            period: string, must be the name of an added period
             where: string or np array, location of stimulus to be added
-            reset: # FIXME: add description
+            reset: bool, whether to zero-out values before adding
         """
         if isinstance(period, str) or period is None:
-            pass
-        else:
-            for p in period:
-                self._add_ob(value, p, where, reset=reset)
-            return
+            period = [period]
+        if isinstance(where, str):
+            where = self.observation_space.name[where]  # type: ignore[attr-defined]
 
-        ob = self.view_ob(period=period)
-        if where is None:
-            if reset:
-                ob *= 0
-            try:
-                ob += value(ob)
-            except TypeError:
-                ob += value
-        else:
-            if isinstance(where, str):
-                where = self.observation_space.name[where]  # type: ignore[attr-defined]
-            # TODO: This only works if the slicing is one one-dimension
-            if reset:
-                ob[..., where] *= 0
-            try:
-                ob[..., where] += value(ob[..., where])
-            except TypeError:
-                ob[..., where] += value
+        for p in period:
+            ob = self.view_ob(period=p)
+
+            if where is None:
+                if reset:
+                    ob *= 0
+                ob += value(ob) if callable(value) else value
+            else:
+                if reset:
+                    ob[..., where] *= 0
+                # TODO: This only works if the slicing is one one-dimension
+                ob[..., where] += value(ob[..., where]) if callable(value) else value
 
     def add_ob(self, value, period=None, where=None) -> None:
         """Add value to observation.
@@ -468,6 +464,58 @@ class TrialEnv(BaseEnv):
     @property
     def gt_now(self):
         return self.gt[self.t_ind]
+
+    def trial_length_stats(self, num_trials: int = 10000) -> dict:
+        """Calculate statistics about trial lengths.
+
+        Args:
+            num_trials (int, optional): Number of trials to sample. Defaults to 10000.
+
+        Returns:
+            dict: Contains 'mean', 'std', 'percentile_95', and 'max' as floats.
+        """
+        # For environments with very simple timing (all fixed durations),
+        # we can calculate exactly without sampling
+        if self.timing and all(isinstance(timing, int | float) for timing in self.timing.values()):
+            fixed_length = int(sum(self.timing.values()) / self.dt)
+            return {
+                "mean": fixed_length,
+                "std": 0,
+                "percentile_95": fixed_length,
+                "max": fixed_length,
+            }
+
+        # For more complex environments, we sample trials
+        trial_lengths_list = []
+
+        # Store current RNG state to restore later
+        rng_state = self.rng.get_state()
+
+        # Sample trials
+        for _ in range(num_trials):
+            self.new_trial()
+            if hasattr(self, "ob") and self.ob is not None:
+                trial_lengths_list.append(self.ob.shape[0])
+
+        # Restore RNG state
+        self.rng.set_state(rng_state)
+
+        # Calculate statistics from sampled trials
+        if len(trial_lengths_list) == 0:
+            warnings.warn("No trials were sampled. Returning default values.", stacklevel=2)
+            return {
+                "mean": 0,
+                "std": 0,
+                "percentile_95": 0,
+                "max": 0,
+            }
+        trial_lengths = np.array(trial_lengths_list)
+        return {
+            "mean": round(np.mean(trial_lengths), 3),
+            "std": round(np.std(trial_lengths), 3),
+            "percentile_95": round(np.percentile(trial_lengths, 95), 3),
+            "max": round(np.max(trial_lengths), 3),
+        }
 
 
 class TrialWrapper(gym.Wrapper):

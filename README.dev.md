@@ -17,7 +17,7 @@ using via a [pull request](#development-conventions).
 See installation instructions of the main [README](README.md#installation), but replace the last command by
 
 ```bash
-pip install -e .'[dev]'
+pip install -e .'[rl,dev]'
 ```
 
 Note: you can also run this command after completing the "normal" installation instructions from the [README](README.md#installation).
@@ -44,18 +44,31 @@ coverage report
 
 `coverage` can also generate output in HTML and other formats; see `coverage help` for more information.
 
-## Linting and formatting
+## Style conventions
+
+### Automated style adherence (for VS code users)
+
+If you are using VS code, we recommend installing the [recommended extensions](.vscode/extensions.json): in the Extensions tab, type
+`@recommended` and then in the "Workspace Recommendations" list, click the install button. Make sure these extensions
+are activated.
+
+This way, the IDE will flag and/or auto-fix upon save most violations to our conventions.
+
+### Linting and formatting (python files)
 
 We use [ruff](https://docs.astral.sh/ruff/) for linting, sorting imports and formatting of python (notebook) files. The
 configurations of `ruff` are set [here](.ruff.toml).
 
-If you are using VS code, please install and activate the [Ruff extension](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff) to automatically format and check linting.
+Please ensure both linting (`ruff check .`) and formatting (`ruff format .`) rules are adhered to before requesting a review.
 
-Otherwise, please ensure check both linting (`ruff check .`) and formatting (`ruff format .`) before requesting a review.
+### Docstrings
 
-We use [prettier](https://prettier.io/) for formatting most other files. If you are editing or adding non-python files and using VS code, the [Prettier extension](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) can be installed to auto-format these files as well.
+Docstrings should be formatted according to the [google docstring
+convention](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html).
 
-## Static typing
+These conventions are also checked by our linter: `ruff check .`
+
+### Static typing
 
 We use [inline type annotation](https://typing.readthedocs.io/en/latest/source/libraries.html#how-to-provide-type-annotations) for static typing rather than stub files (i.e. `.pyi` files).
 
@@ -68,7 +81,15 @@ For more info about static typing and mypy, see:
 - [Static typing with Python](https://typing.readthedocs.io/en/latest/index.html#)
 - [Mypy doc](https://mypy.readthedocs.io/en/stable/)
 
-## Docs
+You can run `mypy .` to check for static typing violations before requesting a review.
+
+### Formatting non-python files
+
+We use [prettier](https://prettier.io/) for formatting most non-python files.
+
+You can run `npx prettier --check .` to check the formatting of, or `npx prettier --write .` to auto-format non-python files.
+
+## User Documentation
 
 We use [MkDocs](https://www.mkdocs.org/) and its theme [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) to generate documentations. The configurations of MkDocs are set in [mkdocs.yml](mkdocs.yml) file.
 
@@ -143,6 +164,15 @@ During the development cycle, three main supporting branches are used:
 - Feature branches - Branches that branch off from `dev` and must merge into `dev`: used to develop new features for the upcoming releases.
 - Hotfix branches - Branches that branch off from `main` and must merge into `main` and `dev`: necessary to act immediately upon an undesired status of `main`.
 - Release branches - Branches that branch off from `dev` and must merge into `main` and `dev`: support preparation of a new production release. They allow many minor bug to be fixed and preparation of meta-data for a release.
+
+### Committing (changes to) Jupyter notebooks
+
+Please commit any (changes to) Jupyter notebooks as empty notebooks to improve the reviewability. Do this by:
+
+1. clearing all outputs to remove from the notebook, and
+2. restarting the kernel ("restart" button) to reset which will the `execution_count` of all cells.
+
+Jupyter notebooks are notoriously difficult to review effectively. In this way, it is kept at least somewhat manageable.
 
 ## Development conventions
 

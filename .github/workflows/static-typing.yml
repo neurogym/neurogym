@@ -15,8 +15,6 @@ on:
       - "**.cff"
       - "**.png"
   pull_request:
-    branches:
-      - main
     types: [opened, synchronize, reopened, ready_for_review]
     paths-ignore:
       # specific folder locations
@@ -30,13 +28,13 @@ on:
       - "**.png"
 
 jobs:
-  lint:
+  static-typing:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python 3.11
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
       - name: Python info
@@ -45,10 +43,11 @@ jobs:
           which python3
           python3 --version
       - name: Upgrade pip and install dependencies
+        # avoid installing gpu dependencies by first installing cpu-only torch
         run: |
           python3 -m pip install --upgrade pip setuptools
-          pip install mypy types-toml
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install .[rl,dev]
       # mypy configs are in pyproject.toml
       - name: Check static typing
-        run: |
-          mypy neurogym tests
+        run: mypy neurogym tests

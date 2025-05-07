@@ -117,7 +117,7 @@ class AngleReproduction(ngym.TrialEnv):
 
 
 if __name__ == "__main__":
-    from neurogym.tests import test_run
+    from neurogym.tests import test_run  # type: ignore  # noqa: PGH003
 
     env = AngleReproduction()
     test_run(env)

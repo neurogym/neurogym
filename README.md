@@ -13,9 +13,16 @@ NeuroGym is a curated collection of neuroscience tasks with a common interface. 
 
 - [NeuroGym](#neurogym)
   - [Installation](#installation)
-    - [Psychopy installation](#psychopy-installation)
+    - [Step 1: Create a virtual environment](#step-1-create-a-virtual-environment)
+    - [Step 2: Install NeuroGym](#step-2-install-neurogym)
+      - [Step 2b: Install in Editable/Development Mode](#step-2b-install-in-editabledevelopment-mode)
+    - [Step 3 (Optional): Psychopy installation](#step-3-optional-psychopy-installation)
   - [Tasks](#tasks)
   - [Wrappers](#wrappers)
+  - [Configuration](#configuration)
+    - [1. From a TOML file](#1-from-a-toml-file)
+    - [2. With Python class](#2-with-python-class)
+    - [3. With a dictionary](#3-with-a-dictionary)
   - [Examples](#examples)
   - [Custom tasks](#custom-tasks)
   - [Acknowledgements](#acknowledgements)
@@ -41,23 +48,36 @@ conda create -n neurogym python=3.11 -y
 conda activate neurogym
 ```
 
-#### Step 2: Install neurogym
+#### Step 2: Install NeuroGym
 
-Then install the latest version of `neurogym` as follows:
+You can install the latest stable release of `neurogym` using pip:
 
 ```bash
 pip install neurogym
 ```
 
-##### Step 2b: Install editable package
+If you plan to use reinforcement learning (RL) features based on Stable-Baselines3, install the RL extra dependencies:
 
-Alternatively, get the latest updates by cloning the repo and installing the editable version of neurogym, by replacing
-step 2 above by:
+```bash
+pip install neurogym[rl]
+```
+
+##### Step 2b: Install in Editable/Development Mode
+
+If you want to contribute to NeuroGym or always work with the latest updates from the source code, install it in editable mode:
 
 ```bash
 git clone https://github.com/neurogym/neurogym.git
 cd neurogym
 pip install -e .
+```
+
+This links your local code changes directly to your Python environment without needing to reinstall after every edit.
+
+If you also want RL and development tools (for testing, linting, and documentation), install with:
+
+```bash
+pip install -e .[rl,dev]
 ```
 
 #### Step 3 (Optional): Psychopy installation
@@ -76,17 +96,76 @@ Currently implemented tasks can be found [here](https://neurogym.github.io/envs/
 
 ### Wrappers
 
-Wrappers (see [list](https://github.com/gyyang/neurogym/blob/master/docs/wrappers.md))
+Wrappers (see [their docs](https://neurogym.github.io/neurogym/latest/api/wrappers/))
 are short scripts that allow introducing modifications the original tasks. For instance, the Random Dots Motion task can be transformed into a reaction time task by passing it through the _reaction_time_ wrapper. Alternatively, the _combine_ wrapper allows training an agent in two different tasks simultaneously.
+
+### Configuration
+
+🧪 **Beta Feature** — The configuration system is **optional** and currently **under development**. You can still instantiate environments, agents, and wrappers with direct parameters.
+It is only used in a small portion of the codebase and is not required for typical usage.
+See the [`demo.ipynb`](docs/examples/demo.ipynb) notebook for the only current example of this system in action.
+
+NeuroGym includes a flexible configuration mechanism using [`Pydantic Settings`](https://docs.pydantic.dev/latest/concepts/pydantic_settings/), allowing configuration via TOML files, Python objects, or plain dictionaries.
+
+Using a TOML file can be especially useful for sharing experiment configurations in a portable way (e.g., sending `config.toml` to a colleague), reliably saving and loading experiment setups, and easily switching between multiple configurations for the same environment by changing just one line of code. While the system isn't at that stage yet, these are intended future capabilities.
+
+#### 1. From a TOML file
+
+Create a `config.toml` file (see [template](docs/examples/config.toml)) and load it:
+
+```python
+from neurogym import Config
+config = Config('path/to/config.toml')
+```
+
+You can then pass this config to any component that supports it:
+
+```python
+from neurogym.wrappers import monitor
+env = gym.make('GoNogo-v0')
+env = monitor.Monitor(env, config=config)
+```
+
+Or directly pass the path:
+
+```python
+env = monitor.Monitor(env, config='path/to/config.toml')
+```
+
+#### 2. With Python class
+
+```python
+from neurogym import Config
+config = Config(
+    local_dir="logs/",
+    env={"name": "GoNogo-v0"},
+    monitor={"name": "MyMonitor"}
+)
+```
+
+#### 3. With a dictionary
+
+```python
+from neurogym import Config
+config_dict = {
+    "env": {"name": "GoNogo-v0"},
+    "monitor": {
+        "name": "MyMonitor",
+        "plot": {"trigger": "step", "value": 500, "create": True}
+    },
+    "local_dir": "./outputs"
+}
+config = Config.model_validate(config_dict)
+```
 
 ### Examples
 
 NeuroGym is compatible with most packages that use gymnasium.
-In this [example](https://github.com/gyyang/neurogym/blob/master/examples/example_neurogym_rl.ipynb) jupyter notebook we show how to train a neural network with reinforcement learning algorithms using the [Stable-Baselines3](https://stable-baselines3.readthedocs.io/en/master/) toolbox.
+In this [example](https://github.com/neurogym/neurogym/blob/main/docs/examples/example_neurogym_rl.ipynb) jupyter notebook we show how to train a neural network with RL algorithms using the [Stable-Baselines3](https://stable-baselines3.readthedocs.io/en/master/) toolbox.
 
 ### Custom tasks
 
-Creating custom new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure, this [template](https://github.com/gyyang/neurogym/blob/master/examples/template.py) provides the basic structure that we recommend a task to have:
+Creating custom new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure, this [template](https://github.com/neurogym/neurogym/blob/main/docs/examples/template.py) provides the basic structure that we recommend a task to have:
 
 ```python
 from gymnasium import spaces
@@ -129,10 +208,3 @@ class YourTask(ngym.PeriodEnv):
 ### Acknowledgements
 
 For the authors of the package, please refer to the zenodo DOI at the top of the page.
-
-Other contributors (listed in chronological order)
-
-- [Marta Fradera](https://github.com/martafradera)
-- [Jordi Pastor](https://github.com/pastorjordi)
-- [Jeremy Forest](https://github.com/jeremyforest)
-- [Ru-Yuan Zhang](https://github.com/ruyuanzhang)

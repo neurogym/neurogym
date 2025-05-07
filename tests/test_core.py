@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 import neurogym as ngym
 
@@ -76,3 +77,65 @@ def test_addob_instep():
     for i in range(10):
         ob, _rew, _terminated, _truncated, _info = env.step(action=0)
         assert ob[0] == ((i + 1) % 5) + 1  # each trial is 5 steps
+
+
+class DummyEnv(ngym.TrialEnv):
+    def __init__(self, dt: int, timing: dict, seed: int = 42) -> None:
+        super().__init__(dt=dt)
+        self.seed(seed)
+        self.timing = timing
+        self.observation_space = ngym.spaces.Box(
+            -np.inf,
+            np.inf,
+            shape=(1,),
+            dtype=np.float32,
+        )
+        self.action_space = ngym.spaces.Discrete(2)
+
+    def _new_trial(self, **kwargs):
+        # Add periods
+        if self.timing:
+            self.add_period(list(self.timing.keys()))
+            self.add_ob(1)
+
+        return {}
+
+    def _step(self, action):  # noqa: ARG002
+        return self.ob_now, 0, False, False, {"new_trial": False}
+
+
+@pytest.mark.parametrize(
+    ("timing", "expected_stats"),
+    [
+        # Fixed timing (exact values)
+        (
+            {"fixation": 300, "stimulus": 500, "decision": 200},
+            {"mean": 10, "std": 0, "percentile_95": 10, "max": 10},
+        ),
+        (
+            {},
+            {"mean": 0, "std": 0, "percentile_95": 0, "max": 0},
+        ),
+        # Randomized timing (specific expected values, after fixing the random seed)
+        (
+            {"fixation": 300, "stimulus": ["uniform", [400, 600]], "decision": 200},
+            {"mean": 10, "std": 0, "percentile_95": 10, "max": 10},
+        ),
+        (
+            {"fixation": 300, "stimulus": ["truncated_exponential", [400, 100, 500]], "decision": 200},
+            {"mean": 8, "std": 1, "percentile_95": 8, "max": 8},
+        ),
+        (
+            {"fixation": 300, "stimulus": ["choice", [300, 400, 500]], "decision": 200},
+            {"mean": 9, "std": 0, "percentile_95": 9, "max": 9},
+        ),
+    ],
+)
+def test_trial_length_stats(timing, expected_stats):
+    """Test trial length stats for both fixed and randomized timing configurations."""
+    dt = 100
+    env = DummyEnv(dt=dt, timing=timing)
+    stats = env.trial_length_stats(num_trials=1000)
+
+    for key, expected in expected_stats.items():
+        assert np.isclose(stats[key], expected, atol=1), f"{key} = {stats[key]} not close to {expected}"

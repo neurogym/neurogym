@@ -57,10 +57,12 @@ class Dataset:
 
         obs_shape = env.observation_space.shape
         action_shape = env.action_space.shape
-        if len(action_shape) == 0:
-            self._expand_action = True
-        else:
-            self._expand_action = False
+        if obs_shape is None or action_shape is None:
+            msg = "The observation and action spaces must have a shape."
+            raise ValueError(msg)
+
+        self._expand_action = len(action_shape) == 0
+
         if cache_len is None:
             # Infer cache len
             cache_len = 1e5  # Probably too low

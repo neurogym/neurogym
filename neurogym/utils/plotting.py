@@ -7,13 +7,19 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import animation
-from stable_baselines3.common.vec_env import DummyVecEnv
+
+try:
+    from stable_baselines3.common.vec_env import DummyVecEnv
+
+    _SB3_AVAILABLE = True
+except ImportError:
+    _SB3_AVAILABLE = False
+
 
 # TODO: This is changing user's plotting behavior for non-neurogym plots
 mpl.rcParams["font.size"] = 7
 mpl.rcParams["pdf.fonttype"] = 42
 mpl.rcParams["ps.fonttype"] = 42
-mpl.rcParams["font.family"] = "arial"
 
 
 def plot_env(
@@ -27,6 +33,7 @@ def plot_env(
     ob_traces=None,
     fig_kwargs=None,
     fname=None,
+    plot_performance=True,
 ):
     """Plot environment with agent.
 
@@ -41,16 +48,16 @@ def plot_env(
                stable-baselines3 toolbox:
                    (https://stable-baselines3.readthedocs.io/en/master/)
         name: title to show on the rewards panel
-        legend: whether to show the legend for actions panel or not.
+        legend: whether to show the legend for actions panel or not
         ob_traces: if != [] observations will be plot as traces, with the labels
                     specified by ob_traces
-        fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
+        fig_kwargs: figure properties admitted by matplotlib.pyplot.subplots() function
         fname: if not None, save fig or movie to fname
+        plot_performance: whether to show the performance subplot (default: True)
     """
     # We don't use monitor here because:
     # 1) env could be already prewrapped with monitor
     # 2) monitor will save data and so the function will need a folder
-
     if fig_kwargs is None:
         fig_kwargs = {}
     if ob_traces is None:
@@ -66,6 +73,10 @@ def plot_env(
         def_act=def_act,
         model=model,
     )
+    # Find trial start steps (0-based)
+    trial_starts_step_indices = np.where(np.array(data["actions_end_of_trial"]) != -1)[0] + 1
+    # Shift again for plotting (since steps are 1-based)
+    trial_starts_axis = trial_starts_step_indices + 1
 
     return fig_(
         data["ob"],
@@ -73,13 +84,14 @@ def plot_env(
         gt=data["gt"],
         rewards=data["rewards"],
         legend=legend,
-        performance=data["perf"],
+        performance=data["perf"] if plot_performance else None,
         states=data["states"],
         name=name,
         ob_traces=ob_traces,
         fig_kwargs=fig_kwargs,
         env=env,
         fname=fname,
+        trial_starts=trial_starts_axis,
     )
 
 
@@ -93,6 +105,11 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     gt = []
     perf = []
     if isinstance(env, DummyVecEnv):
+        if not _SB3_AVAILABLE:
+            msg = "Stable-Baselines3 is not installed. Install it with 'pip install neurogym[rl]'."
+            raise ImportError(
+                msg,
+            )
         ob = env.reset()
     else:
         ob, _ = env.reset()  # TODO: not saving this first observation
@@ -114,6 +131,11 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         else:
             action = env.action_space.sample()
         if isinstance(env, DummyVecEnv):
+            if not _SB3_AVAILABLE:
+                msg = "Stable-Baselines3 is not installed. Install it with 'pip install neurogym[rl]'."
+                raise ImportError(
+                    msg,
+                )
             ob, rew, terminated, info = env.step(action)
         else:
             ob, rew, terminated, _truncated, info = env.step(action)
@@ -149,9 +171,10 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
             actions_end_of_trial.append(-1)
             perf.append(-1)
 
-    if model is not None and len(state_mat) > 0:
-        states = np.array(state_mat)
-        states = states[:, 0, :]
+    if model is not None and len(state_mat) > 0:  # noqa: SIM108
+        # states = np.array(state_mat)  # noqa: ERA001
+        # states = states[:, 0, :]  # noqa: ERA001
+        states = None  # TODO: Fix this
     else:
         states = None
 
@@ -181,6 +204,7 @@ def fig_(
     fname=None,
     fig_kwargs=None,
     env=None,
+    trial_starts=None,
 ):
     """Visualize a run in a simple environment.
 
@@ -189,16 +213,17 @@ def fig_(
         actions: np array of action (n_step, n_unit)
         gt: np array of groud truth
         rewards: np array of rewards
-        performance: np array of performance
+        performance: np array of performance (if set to `None` performance plotting will be skipped)
         states: np array of network states
         name: title to show on the rewards panel and name to save figure
         fname: if != '', where to save the figure
-        legend: whether to show the legend for actions panel or not.
+        legend: whether to show the legend for actions panel or not
         ob_traces: None or list.
             If list, observations will be plot as traces, with the labels
             specified by ob_traces
-        fig_kwargs: figure properties admited by matplotlib.pyplot.subplots() fun.
+        fig_kwargs: figure properties admitted by matplotlib.pyplot.subplots() function
         env: environment class for extra information
+        trial_starts: list of trial start indices, 1-based
     """
     if fig_kwargs is None:
         fig_kwargs = {}
@@ -219,12 +244,20 @@ def fig_(
             fname=fname,
             fig_kwargs=fig_kwargs,
             env=env,
+            trial_starts=trial_starts,
         )
     if len(ob.shape) == 4:
         return plot_env_3dbox(ob, fname=fname, env=env)
 
     msg = f"{ob.shape=} not supported."
     raise ValueError(msg)
+
+
+def _set_grid_style(ax):
+    """Set standard grid styling for plot background."""
+    ax.set_facecolor("whitesmoke")
+    ax.grid(True, color="white", linestyle="-", linewidth=1)
+    ax.set_axisbelow(True)
 
 
 def plot_env_1dbox(
@@ -240,6 +273,7 @@ def plot_env_1dbox(
     fname=None,
     fig_kwargs=None,
     env=None,
+    trial_starts=None,
 ):
     """Plot environment with 1-D Box observation space."""
     if fig_kwargs is None:
@@ -247,7 +281,7 @@ def plot_env_1dbox(
     if len(ob.shape) != 2:
         msg = "ob has to be 2-dimensional."
         raise ValueError(msg)
-    steps = np.arange(ob.shape[0])  # XXX: +1? 1st ob doesn't have action/gt
+    steps = np.arange(1, ob.shape[0] + 1)
 
     n_row = 2  # observation and action
     n_row += rewards is not None
@@ -256,26 +290,54 @@ def plot_env_1dbox(
 
     gt_colors = "gkmcry"
     if not fig_kwargs:
-        fig_kwargs = {"sharex": True, "figsize": (5, n_row * 1.2)}
-
+        fig_kwargs = {"sharex": True, "figsize": (6, n_row * 1.2)}
     f, axes = plt.subplots(n_row, 1, **fig_kwargs)
     i_ax = 0
-    # ob
+
+    # Plot observation
     ax = axes[i_ax]
     i_ax += 1
     if ob_traces:
         if len(ob_traces) != ob.shape[1]:
             msg = f"Please provide label for each of the {ob.shape[1]} traces in the observations."
             raise ValueError(msg)
-        yticks = []
+
+        # Plot all traces first
         for ind_tr, tr in enumerate(ob_traces):
             ax.plot(ob[:, ind_tr], label=tr)
-            yticks.append(np.mean(ob[:, ind_tr]))
+
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+
+        # Compute ticks and labels
+        yticks = []
+        yticklabels = []
+
+        # Find fixation index (if exists)
+        fix_idx = next((i for i, tr in enumerate(ob_traces) if "fix" in tr.lower()), None)
+
+        if fix_idx is not None:
+            yticks.append(np.mean(ob[:, fix_idx]))
+            yticklabels.append("Fix. Cue")
+
+            # All other indices are stimuli
+            stim_means = [np.mean(ob[:, i]) for i in range(len(ob_traces)) if i != fix_idx]
+            if stim_means:
+                yticks.append(np.mean(stim_means))
+                yticklabels.append("Stimuli")
+        else:
+            # No fixation, all are stimuli
+            yticks.append(np.mean([np.mean(ob[:, i]) for i in range(len(ob_traces))]))
+            yticklabels.append("Stimuli")
+
         if legend:
-            ax.legend()
-        ax.set_xlim([-0.5, len(steps) - 0.5])
+            ax.legend(loc="upper right")
+        if trial_starts is not None:
+            for t_start in trial_starts:
+                ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
+        ax.set_xlim([0.5, len(steps) + 1])
         ax.set_yticks(yticks)
-        ax.set_yticklabels(ob_traces)
+        ax.set_yticklabels(yticklabels)
     else:
         ax.imshow(ob.T, aspect="auto", origin="lower")
         if env and hasattr(env.observation_space, "name"):
@@ -296,8 +358,13 @@ def plot_env_1dbox(
     if name:
         ax.set_title(f"{name} env")
     ax.set_ylabel("Obs.")
-    ax.set_xticks([])
-    # actions
+    # Show step numbers on x-axis
+    ax.set_xticks(np.arange(0, len(steps), 5))
+    ax.set_xticklabels(np.arange(0, len(steps), 5))
+    # Add gray background grid with white lines
+    _set_grid_style(ax)
+
+    # Plot actions
     ax = axes[i_ax]
     i_ax += 1
     if len(actions.shape) > 1:
@@ -317,24 +384,35 @@ def plot_env_1dbox(
                 )
         else:
             ax.plot(steps, gt, f"--{gt_colors[0]}", label="Ground truth")
-    ax.set_xlim([-0.5, len(steps) - 0.5])
+    if trial_starts is not None:
+        for t_start in trial_starts:
+            ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
+    ax.set_xlim([0.5, len(steps) + 1])
     ax.set_ylabel("Act.")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     if legend:
-        ax.legend()
+        ax.legend(loc="upper right")
     if env and hasattr(env.action_space, "name"):
-        # Plot environment annotation
         yticks = []
         yticklabels = []
         for key, val in env.action_space.name.items():
-            yticks.append((np.min(val) + np.max(val)) / 2)
-            yticklabels.append(key)
+            if isinstance(val, list | tuple | np.ndarray):
+                for v in val:
+                    yticks.append(v)
+                    yticklabels.append(f"{key}_{v}")
+            else:  # single int
+                yticks.append(val)
+                yticklabels.append(key)
         ax.set_yticks(yticks)
         ax.set_yticklabels(yticklabels)
-    if n_row > 2:
-        ax.set_xticks([])
-    # rewards
+    # Show step numbers on x-axis
+    ax.set_xticks(np.arange(0, len(steps), 5))
+    ax.set_xticklabels(np.arange(0, len(steps), 5))
+    # Add gray background grid with white lines
+    _set_grid_style(ax)
+
+    # Plot rewards if provided
     if rewards is not None:
         ax = axes[i_ax]
         i_ax += 1
@@ -343,18 +421,20 @@ def plot_env_1dbox(
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         if legend:
-            ax.legend()
-        ax.set_xlim([-0.5, len(steps) - 0.5])
+            ax.legend(loc="upper right")
+        if trial_starts is not None:
+            for t_start in trial_starts:
+                ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
+        ax.set_xlim([0.5, len(steps) + 1])
 
         if env and hasattr(env, "rewards") and env.rewards is not None:
-            # Plot environment annotation
             yticks = []
             yticklabels = []
 
             if isinstance(env.rewards, dict):
                 for key, val in env.rewards.items():
                     yticks.append(val)
-                    yticklabels.append(f"{key[:4]} {val:0.2f}")
+                    yticklabels.append(f"{key[:5].title()} {val:0.2f}")
             else:
                 for val in env.rewards:
                     yticks.append(val)
@@ -362,9 +442,13 @@ def plot_env_1dbox(
 
             ax.set_yticks(yticks)
             ax.set_yticklabels(yticklabels)
-    if n_row > 3:
-        ax.set_xticks([])
-    # performance
+        # Show step numbers on x-axis
+        ax.set_xticks(np.arange(0, len(steps), 5))
+        ax.set_xticklabels(np.arange(0, len(steps), 5))
+        # Add gray background grid with white lines
+        _set_grid_style(ax)
+
+    # Plot performance if provided
     if performance is not None:
         ax = axes[i_ax]
         i_ax += 1
@@ -376,12 +460,20 @@ def plot_env_1dbox(
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         if legend:
-            ax.legend()
-        ax.set_xlim([-0.5, len(steps) - 0.5])
+            ax.legend(loc="upper right")
+        if trial_starts is not None:
+            for t_start in trial_starts:
+                ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
+        ax.set_xlim([0.5, len(steps) + 1])
+        # Add gray background grid with white lines
+        _set_grid_style(ax)
 
-    # states
+    # Plot states if provided
     if states is not None:
-        ax.set_xticks([])
+        if performance is not None or rewards is not None:
+            # Show step numbers on x-axis
+            ax.set_xticks(np.arange(0, len(steps), 5))
+            ax.set_xticklabels(np.arange(0, len(steps), 5))
         ax = axes[i_ax]
         i_ax += 1
         plt.imshow(states[:, int(states.shape[1] / 2) :].T, aspect="auto")

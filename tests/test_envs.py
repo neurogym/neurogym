@@ -1,23 +1,20 @@
 import warnings
+from importlib.util import find_spec
 
 import gymnasium as gym
 import numpy as np
+import pytest
 from matplotlib import pyplot as plt
 
 import neurogym as ngym
 from neurogym.utils.data import Dataset
 
-try:
-    import psychopy  # noqa: F401
+_HAVE_PSYCHOPY = find_spec("psychopy") is not None  # check if psychopy is installed
+SEED = 0
 
-    _have_psychopy = True  # FIXME should psychopy be always tested, to ensure CI doesn't fail?
-except ImportError:
-    _have_psychopy = False
-
-ENVS = ngym.all_envs(psychopy=_have_psychopy, contrib=True, collections=True)
+ENVS = ngym.all_envs(psychopy=_HAVE_PSYCHOPY, contrib=True, collections=True)
 # Envs without psychopy, TODO: check if contrib or collections include psychopy
 ENVS_NOPSYCHOPY = ngym.all_envs(psychopy=False, contrib=True, collections=True)
-SEED = 0
 
 
 def _test_run(env, num_steps=100, verbose=False):
@@ -52,9 +49,12 @@ def test_run_all(verbose_success=False):
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        for env_name in ENVS:
-            print(env_name)
-            _test_run(env_name, verbose=verbose_success)
+        try:
+            for env_name in ENVS:
+                _test_run(env_name, verbose=verbose_success)
+        except:
+            print(f"Failure at running env: {env_name}")
+            raise
 
 
 def _test_dataset(env):
@@ -98,11 +98,14 @@ def test_print_all():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        for env_name in ENVS:
-            print()
-            print(f"Test printing env: {env_name}")
-            env = ngym.make(env_name)
-            print(env)
+        try:
+            for env_name in ENVS:
+                print(f"Test printing env: {env_name}")
+                env = ngym.make(env_name)
+                print(env)
+        except:
+            print(f"Failure at printing env: {env_name}")
+            raise
 
 
 def _test_trialenv(env):
@@ -122,9 +125,13 @@ def test_trialenv_all():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        for env_name in ENVS:
-            env = ngym.make(env_name)
-            _test_trialenv(env)
+        try:
+            for env_name in ENVS:
+                env = ngym.make(env_name)
+                _test_trialenv(env)
+        except:
+            print(f"Failure with env: {env_name}")
+            raise
 
 
 def _test_seeding(env):
@@ -164,13 +171,16 @@ def test_seeding_all():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        for env_name in sorted(ENVS_NOPSYCHOPY):
-            print(f"Running env: {env_name}")
-            obs1, rews1, acts1 = _test_seeding(env_name)
-            obs2, rews2, acts2 = _test_seeding(env_name)
-            assert (obs1 == obs2).all(), "obs are not identical"
-            assert (rews1 == rews2).all(), "rewards are not identical"
-            assert (acts1 == acts2).all(), "actions are not identical"
+        try:
+            for env_name in sorted(ENVS_NOPSYCHOPY):
+                obs1, rews1, acts1 = _test_seeding(env_name)
+                obs2, rews2, acts2 = _test_seeding(env_name)
+                assert (obs1 == obs2).all(), "obs are not identical"
+                assert (rews1 == rews2).all(), "rewards are not identical"
+                assert (acts1 == acts2).all(), "actions are not identical"
+        except:
+            print(f"Failure with env: {env_name}")
+            raise
 
 
 def test_plot_all():
@@ -188,3 +198,16 @@ def test_plot_all():
                 print(f"Error in plotting env: {env_name}, {e}")
                 print(e)
             plt.close()
+
+
+def test_get_envs():
+    for task in ["GoNogo-v0", "GoNogo"]:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message=".*Using the latest versioned environment*")
+            warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include*")
+            env = gym.make(task)
+        assert isinstance(env, gym.Env)
+        assert env.spec.id == "GoNogo-v0"
+    for invalid in ["GoNogo-v99", "GoGoNo"]:
+        with pytest.raises(gym.error.UnregisteredEnv):
+            _env = gym.make(invalid)
