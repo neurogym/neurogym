@@ -27,19 +27,19 @@ To install these, choose one of the two options below depending on your hardware
 
 #### Option A — CPU-only (recommended for most users):
 
-If you **do not** have a CUDA-capable NVIDIA GPU (which is the case for most users), we recommend installing the CPU-only
-version of [PyTorch](https://pytorch.org/get-started/locally/) to avoid downloading unnecessary GPU libraries (up to 1.5GB):
+NeuroGym includes optional reinforcement learning (RL) features via Stable-Baselines3.
+To install these, choose one of the two options below depending on your hardware setup:
 
 ```bash
-pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install neurogym[rl]
 ```
 
-#### Option B — GPU support:
-
-If you **do** have a properly configured CUDA setup, you can install the GPU-compatible version:
+**NOTE for Linux/WSL users:** If you do not have access to a CUDA-capable NVIDIA GPU (which is the case for most users),
+above line will install up to 1.5GB of unnecessary GPU libraries. To avoid excessive overhead, we recommend first
+isntalling the CPU-only version of [PyTorch](https://pytorch.org/get-started/locally/):
 
 ```bash
+pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install neurogym[rl]
 ```
 
