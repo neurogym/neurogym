@@ -6,7 +6,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 ROOT_DIR = Path(__file__).parent.parent.parent
 PKG_DIR = ROOT_DIR / "neurogym"
 CONFIG_DIR = PKG_DIR / "config"
-LOCAL_DIR = ROOT_DIR / "local"
+# Set LOCAL_DIR to the current working directory
+LOCAL_DIR = Path.cwd()
 
 
 class ConfigBase(BaseSettings):
