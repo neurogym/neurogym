@@ -66,8 +66,6 @@ dev = [
     "bump-my-version",
 ]
 publishing = ["build", "twine", "wheel"]
-tutorials = ["notebook"]
-env_specific = ["psychopy"]
 rl = ["stable-baselines3>=2.3.2", "sb3-contrib"]
 
 [project.urls]
