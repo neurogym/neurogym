@@ -317,7 +317,7 @@ def plot_env_1dbox(
         fix_idx = next((i for i, tr in enumerate(ob_traces) if "fix" in tr.lower()), None)
 
         if fix_idx is not None:
-            yticks.append(np.mean(ob[:, fix_idx]))
+            yticks.append(np.max(ob[:, fix_idx]))
             yticklabels.append("Fix. Cue")
 
             # All other indices are stimuli
