@@ -22,6 +22,15 @@ pip install -e .'[rl,dev]'
 
 Note: you can also run this command after completing the "normal" installation instructions from the [README](README.md#installation).
 
+**NOTE for Linux/WSL users:** If you do not have access to a CUDA-capable NVIDIA GPU (which is the case for most users),
+above line will install up to 1.5GB of unnecessary GPU libraries. To avoid excessive overhead, we recommend first
+isntalling the CPU-only version of [PyTorch](https://pytorch.org/get-started/locally/):
+
+```bash
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+pip install neurogym[rl,dev]
+```
+
 ## Running the tests
 
 You can check that all components were installed correctly, by running [pytest](https://docs.pytest.org/en/stable/#) from your terminal:
