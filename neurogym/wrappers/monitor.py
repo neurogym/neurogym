@@ -5,6 +5,7 @@ from typing import Any
 import matplotlib.pyplot as plt
 import numpy as np
 from gymnasium import Wrapper
+from loguru import logger
 
 import neurogym as ngym
 from neurogym.config.base import LOCAL_DIR
@@ -28,7 +29,7 @@ class Monitor(Wrapper):
         plot_steps: Number of steps to visualize in each plot.
         ext: Image file extension for saved plots (e.g., "png").
         step_fn: Optional custom step function to override the environment's.
-        verbose: Whether to print information when logging or saving data.
+        verbose: Whether to log information when logging or saving data.
         level: Logging verbosity level (e.g., "INFO", "DEBUG").
         log_trigger: When to log progress ("trial" or "step").
         log_interval: How often to log, in trials or steps.
@@ -204,12 +205,12 @@ class Monitor(Wrapper):
                 np.savez(save_path, **self.data)
 
                 if self.config.monitor.log.verbose:
-                    print("--------------------")
-                    print(f"Data saved to: {save_path}")
-                    print(f"Number of trials: {self.num_tr}")
-                    print(f"Average reward: {np.mean(self.data['reward'])}")
-                    print(f"Average performance: {np.mean(self.data['performance'])}")
-                    print("--------------------")
+                    logger.info("--------------------")
+                    logger.info(f"Data saved to: {save_path}")
+                    logger.info(f"Number of trials: {self.num_tr}")
+                    logger.info(f"Average reward: {np.mean(self.data['reward'])}")
+                    logger.info(f"Average performance: {np.mean(self.data['performance'])}")
+                    logger.info("--------------------")
                 self.reset_data()
                 if self.config.monitor.plot.create:
                     self.stp_counter = 0
@@ -325,8 +326,8 @@ class Monitor(Wrapper):
                 if "performance" in info:
                     performances.append(info["performance"])
 
-                if verbose and trial_count % 1000 == 0:
-                    print(f"Completed {trial_count}/{num_trials} trials")
+                if verbose and trial_count % 1000 == 0:  # FIXME: why is this value hardcoded?
+                    logger.info(f"Completed {trial_count}/{num_trials} trials")
 
                 self.data_eval["action"].append(action)
                 self.data_eval["reward"].append(reward)
@@ -377,10 +378,10 @@ class Monitor(Wrapper):
         files = sorted(self.save_dir.glob("*.npz"))
 
         if not files:
-            print("No data files found matching pattern: *.npz")
+            logger.warning("No data files found matching pattern: *.npz")
             return None
 
-        print(f"Found {len(files)} data files")
+        logger.info(f"Found {len(files)} data files")
 
         # Arrays to hold average values
         avg_rewards_per_file = []
@@ -461,6 +462,6 @@ class Monitor(Wrapper):
         if save_fig:
             save_path = self.config.local_dir / f"{self.config.env.name}_training_history.png"
             plt.savefig(save_path, dpi=300, bbox_inches="tight")
-            print(f"Figure saved to {save_path}")
+            logger.info(f"Figure saved to {save_path}")
 
         return fig

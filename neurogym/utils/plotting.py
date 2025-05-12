@@ -6,6 +6,7 @@ import gymnasium as gym
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+from loguru import logger
 from matplotlib import animation
 
 try:
@@ -42,15 +43,15 @@ def plot_env(
         num_steps: number of steps to run the task
         num_trials: if not None, the number of trials to run
         def_act: if not None (and model=None), the task will be run with the
-                 specified action
+            specified action
         model: if not None, the task will be run with the actions predicted by
-               model, which so far is assumed to be created and trained with the
-               stable-baselines3 toolbox:
-                   (https://stable-baselines3.readthedocs.io/en/master/)
+            model, which so far is assumed to be created and trained with the
+            stable-baselines3 toolbox:
+            (https://stable-baselines3.readthedocs.io/en/master/)
         name: title to show on the rewards panel
         legend: whether to show the legend for actions panel or not
         ob_traces: if != [] observations will be plot as traces, with the labels
-                    specified by ob_traces
+            specified by ob_traces
         fig_kwargs: figure properties admitted by matplotlib.pyplot.subplots() function
         fname: if not None, save fig or movie to fname
         plot_performance: whether to show the performance subplot (default: True)
@@ -567,7 +568,7 @@ def plot_rew_across_training(
                 folder + "/mean_" + metric_name + "_across_training.png",
             )  # FIXME: use pathlib to specify location
     else:
-        print("No data in: ", folder)
+        logger.info(f"No data in: {folder}")
 
 
 def put_together_files(folder):
