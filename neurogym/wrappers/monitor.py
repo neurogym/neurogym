@@ -141,7 +141,7 @@ class Monitor(Wrapper):
 
     def _configure_logger(self):
         ngym.logger.remove()
-        ngym.logger.configure(**self.config.monitor.log.make_config())
+        ngym.logger.configure(**self.config.monitor.log.build_log_config())
         ngym.logger.info("Logger configured.")
 
     def reset(self, seed=None):
