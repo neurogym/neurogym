@@ -2,6 +2,7 @@ import sys
 from typing import Any
 
 import numpy as np
+from loguru import logger
 
 try:
     from psychopy import visual
@@ -42,9 +43,7 @@ class PsychopyEnv(ngym.TrialEnv):
     def add_ob(self, value, period=None, where=None) -> None:
         if isinstance(value, visual.BaseVisualStim):
             if where is not None:
-                print(
-                    "Warning: Setting where to values other than Nonehas no effect when adding PsychoPy stimuli",
-                )
+                logger.warning("Setting `where` to values other than `None` has no effect when adding PsychoPy stimuli")
 
             if isinstance(value, visual.DotStim):
                 # TODO: Check other types of stimuli as well

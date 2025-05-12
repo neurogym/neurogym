@@ -1,6 +1,7 @@
 """Example template for contributing new tasks."""  # noqa: INP001
 
 import numpy as np
+from loguru import logger
 
 import neurogym as ngym
 from neurogym import spaces
@@ -118,9 +119,9 @@ if __name__ == "__main__":
     # Instantiate the task
     env = YourTask()
     trial = env.new_trial()
-    print("Trial info", trial)
-    print("Trial observation shape", env.ob.shape)
-    print("Trial action shape", env.gt.shape)
+    logger.info(f"Trial info: {trial}")
+    logger.info(f"Trial observation shape: {env.ob.shape}")
+    logger.info(f"Trial action shape: {env.gt.shape}")
     env.reset()
     ob, reward, terminated, truncated, info = env.step(env.action_space.sample())
-    print("Single time step observation shape", ob.shape)
+    logger.info(f"Single time step observation shape: {ob.shape}")
