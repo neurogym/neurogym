@@ -39,7 +39,7 @@ class MonitorLogConfig(ConfigBase):
     trigger: Literal["trial", "step"] = "trial"
     interval: PositiveInt = 10
 
-    def make_config(self) -> dict[str, Any]:
+    def build_log_config(self) -> dict[str, Any]:
         """Build logger configuration for Loguru."""
         return {
             "handlers": [
