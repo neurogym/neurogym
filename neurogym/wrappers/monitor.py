@@ -249,6 +249,7 @@ class Monitor(Wrapper):
                 performance=self.perf_mat,
                 fname=fname,
                 name=self.config.monitor.plot.title,
+                env=self.env,
             )
             self.ob_mat = []
             self.act_mat = []
