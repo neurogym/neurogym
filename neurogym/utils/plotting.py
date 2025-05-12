@@ -1,5 +1,6 @@
 """Plotting functions."""
 
+import copy
 from pathlib import Path
 
 import gymnasium as gym
@@ -231,14 +232,11 @@ def fig_(
     ob = np.array(ob)
     actions = np.array(actions)
 
-    # Align observation with actions by inserting initial obs from env
+    # Align observation with actions by inserting an initial obs from env
     if env is not None and hasattr(env, "reset"):
-        init_ob, *_ = env.reset()
-        if ob.ndim in (2, 4):  # (T, obs_dim)
-            ob = np.insert(ob, 0, init_ob, axis=0)
-        else:
-            msg = f"Unsupported observation shape: {ob.shape}"
-            raise ValueError(msg)
+        env_copy = copy.deepcopy(env)
+        init_ob, *_ = env_copy.reset()
+        ob = np.insert(ob, 0, init_ob, axis=0)
     else:
         msg = "env is required and must have a .reset() method to retrieve initial observation"
         raise ValueError(msg)
