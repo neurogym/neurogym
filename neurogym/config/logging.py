@@ -6,6 +6,3 @@ from neurogym.config.config import config
 # ==================================================
 logger.remove()
 logger.configure(**config.monitor.log.make_config())
-
-# Enable colour tags in messages.
-logger = logger.opt(colors=True)
