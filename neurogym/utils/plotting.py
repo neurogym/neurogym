@@ -112,8 +112,11 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
             )
         ob = env.reset()
     else:
-        ob, _ = env.reset()  # TODO: not saving this first observation
+        ob, _ = env.reset()
+
+    observations.append(ob.copy())
     ob_cum_temp = ob
+    ob_cum = [ob_cum_temp.copy()]
 
     if num_trials is not None:
         num_steps = 1e5  # Overwrite num_steps value
@@ -281,7 +284,8 @@ def plot_env_1dbox(
     if len(ob.shape) != 2:
         msg = "ob has to be 2-dimensional."
         raise ValueError(msg)
-    steps = np.arange(1, ob.shape[0] + 1)
+    obs_steps = np.arange(1, ob.shape[0] + 1)  # shape: env steps + 1
+    action_steps = np.arange(1, ob.shape[0])  # shape: env steps
 
     n_row = 2  # observation and action
     n_row += rewards is not None
@@ -304,7 +308,7 @@ def plot_env_1dbox(
 
         # Plot all traces first
         for ind_tr, tr in enumerate(ob_traces):
-            ax.plot(ob[:, ind_tr], label=tr)
+            ax.plot(obs_steps, ob[:, ind_tr], label=tr)
 
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
@@ -335,7 +339,7 @@ def plot_env_1dbox(
         if trial_starts is not None:
             for t_start in trial_starts:
                 ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
-        ax.set_xlim([0.5, len(steps) + 1])
+        ax.set_xlim([0.5, len(obs_steps)])
         ax.set_yticks(yticks)
         ax.set_yticklabels(yticklabels)
     else:
@@ -359,8 +363,8 @@ def plot_env_1dbox(
         ax.set_title(f"{name} env")
     ax.set_ylabel("Obs.")
     # Show step numbers on x-axis
-    ax.set_xticks(np.arange(0, len(steps), 5))
-    ax.set_xticklabels(np.arange(0, len(steps), 5))
+    ax.set_xticks(np.arange(0, len(obs_steps), 5))
+    ax.set_xticklabels(np.arange(0, len(obs_steps), 5))
     # Add gray background grid with white lines
     _set_grid_style(ax)
 
@@ -369,25 +373,25 @@ def plot_env_1dbox(
     i_ax += 1
     if len(actions.shape) > 1:
         # Changes not implemented yet
-        ax.plot(steps, actions, marker="+", label="Actions")
+        ax.plot(action_steps, actions, marker="+", label="Actions")
     else:
-        ax.plot(steps, actions, marker="+", label="Actions")
+        ax.plot(action_steps, actions, marker="+", label="Actions")
     if gt is not None:
         gt = np.array(gt)
         if len(gt.shape) > 1:
             for ind_gt in range(gt.shape[1]):
                 ax.plot(
-                    steps,
+                    action_steps,
                     gt[:, ind_gt],
                     f"--{gt_colors[ind_gt]}",
                     label=f"Ground truth {ind_gt}",
                 )
         else:
-            ax.plot(steps, gt, f"--{gt_colors[0]}", label="Ground truth")
+            ax.plot(action_steps, gt, f"--{gt_colors[0]}", label="Ground truth")
     if trial_starts is not None:
         for t_start in trial_starts:
             ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
-    ax.set_xlim([0.5, len(steps) + 1])
+    ax.set_xlim([0.5, len(obs_steps)])
     ax.set_ylabel("Act.")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -407,8 +411,8 @@ def plot_env_1dbox(
         ax.set_yticks(yticks)
         ax.set_yticklabels(yticklabels)
     # Show step numbers on x-axis
-    ax.set_xticks(np.arange(0, len(steps), 5))
-    ax.set_xticklabels(np.arange(0, len(steps), 5))
+    ax.set_xticks(np.arange(0, len(obs_steps), 5))
+    ax.set_xticklabels(np.arange(0, len(obs_steps), 5))
     # Add gray background grid with white lines
     _set_grid_style(ax)
 
@@ -416,7 +420,7 @@ def plot_env_1dbox(
     if rewards is not None:
         ax = axes[i_ax]
         i_ax += 1
-        ax.plot(steps, rewards, "r", label="Rewards")
+        ax.plot(action_steps, rewards, "r", label="Rewards")
         ax.set_ylabel("Rew.")
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
@@ -425,7 +429,7 @@ def plot_env_1dbox(
         if trial_starts is not None:
             for t_start in trial_starts:
                 ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
-        ax.set_xlim([0.5, len(steps) + 1])
+        ax.set_xlim([0.5, len(obs_steps)])
 
         if env and hasattr(env, "rewards") and env.rewards is not None:
             yticks = []
@@ -443,8 +447,8 @@ def plot_env_1dbox(
             ax.set_yticks(yticks)
             ax.set_yticklabels(yticklabels)
         # Show step numbers on x-axis
-        ax.set_xticks(np.arange(0, len(steps), 5))
-        ax.set_xticklabels(np.arange(0, len(steps), 5))
+        ax.set_xticks(np.arange(0, len(obs_steps), 5))
+        ax.set_xticklabels(np.arange(0, len(obs_steps), 5))
         # Add gray background grid with white lines
         _set_grid_style(ax)
 
@@ -452,7 +456,7 @@ def plot_env_1dbox(
     if performance is not None:
         ax = axes[i_ax]
         i_ax += 1
-        ax.plot(steps, performance, "k", label="Performance")
+        ax.plot(action_steps, performance, "k", label="Performance")
         ax.set_ylabel("Performance")
         performance = np.array(performance)
         mean_perf = np.mean(performance[performance != -1])
@@ -464,7 +468,7 @@ def plot_env_1dbox(
         if trial_starts is not None:
             for t_start in trial_starts:
                 ax.axvline(t_start, linestyle="--", color="grey", alpha=0.7)
-        ax.set_xlim([0.5, len(steps) + 1])
+        ax.set_xlim([0.5, len(obs_steps)])
         # Add gray background grid with white lines
         _set_grid_style(ax)
 
@@ -472,8 +476,8 @@ def plot_env_1dbox(
     if states is not None:
         if performance is not None or rewards is not None:
             # Show step numbers on x-axis
-            ax.set_xticks(np.arange(0, len(steps), 5))
-            ax.set_xticklabels(np.arange(0, len(steps), 5))
+            ax.set_xticks(np.arange(0, len(obs_steps), 5))
+            ax.set_xticklabels(np.arange(0, len(obs_steps), 5))
         ax = axes[i_ax]
         i_ax += 1
         plt.imshow(states[:, int(states.shape[1] / 2) :].T, aspect="auto")
