@@ -67,7 +67,6 @@ extend-safe-fixes = [
     "D103",   # Missing function docstring
     "SLF001", # Private member access
     "ANN401", # Function arguments annotated with too generic `Any` type
-    "T201",   # Print statements
 ]
 "__init__.py" = ["F401"] # unused imports
 
