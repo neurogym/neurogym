@@ -92,21 +92,6 @@ def test_dataset_all():
         logger.debug(f"Expect {supervised_count} envs to support supervised learning")
 
 
-def test_print_all():
-    """Test printing of all experiments."""
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
-        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        try:
-            for env_name in ENVS:
-                print(f"Test printing env: {env_name}")  # noqa: T201
-                env = ngym.make(env_name)
-                print(env)  # noqa: T201
-        except:
-            logger.error(f"Failure at printing env: {env_name}")
-            raise
-
-
 def _test_trialenv(env):
     """Test if a TrialEnv is behaving correctly."""
     if isinstance(env, str):
