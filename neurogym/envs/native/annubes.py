@@ -135,9 +135,7 @@ class AnnubesEnv(TrialEnv):
         self.catch_prob = catch_prob
         self.exclusive = exclusive
         self.max_sequential = max_sequential
-        self.sequential_count: dict[str | None, int | float] = dict.fromkeys(
-            self.session, 0
-        )
+        self.sequential_count: dict[str | None, int | float] = dict.fromkeys(self.session, 0)
         # Sequential occurrence checks for catch trials
         if max_sequential is not None and None in max_sequential:
             self.sequential_count[None] = 0
@@ -174,9 +172,7 @@ class AnnubesEnv(TrialEnv):
             "start": 1,
             **{trial: i for i, trial in enumerate(session, 2)},
         }
-        self.observation_space = ngym.spaces.Box(
-            low=0.0, high=1.0, shape=(len(obs_space_name),), name=obs_space_name
-        )
+        self.observation_space = ngym.spaces.Box(low=0.0, high=1.0, shape=(len(obs_space_name),), name=obs_space_name)
         # Set the name of each action value
         self.action_space = ngym.spaces.Discrete(
             n=len(self.output_behavior),
@@ -228,9 +224,7 @@ class AnnubesEnv(TrialEnv):
         ):
             catch = False
         else:
-            catch = (
-                len(available_modalities) == 0 or self._rng.random() < self.catch_prob
-            )
+            catch = len(available_modalities) == 0 or self._rng.random() < self.catch_prob
 
         # Sets of stimulus types and values.
         stim_types = set()
@@ -245,9 +239,7 @@ class AnnubesEnv(TrialEnv):
 
             # Reset the sequential count for all modalities
             # since a catch trial breaks any sequences of modalities.
-            self.sequential_count = {
-                k: 0 if k is not None else v for k, v in self.sequential_count.items()
-            }
+            self.sequential_count = {k: 0 if k is not None else v for k, v in self.sequential_count.items()}
 
         else:
             # A regular trial.
@@ -256,10 +248,7 @@ class AnnubesEnv(TrialEnv):
             stim_types = self._pick_stim_types(available_modalities)
 
             # Update the sequential count for the modalities that were selected.
-            self.sequential_count = {
-                k: (v + 1 if k in stim_types else 0)
-                for k, v in self.sequential_count.items()
-            }
+            self.sequential_count = {k: (v + 1 if k in stim_types else 0) for k, v in self.sequential_count.items()}
 
             # Reset the sequential count for catch trials
             # since any modality breaks a potential catch trial sequence.
@@ -267,10 +256,7 @@ class AnnubesEnv(TrialEnv):
                 self.sequential_count[None] = 0
 
             # Now we choose the values for the modalities
-            stim_values = {
-                k: self._rng.choice(self.stim_intensities[k], 1, False)[0]
-                for k in stim_types
-            }
+            stim_values = {k: self._rng.choice(self.stim_intensities[k], 1, False)[0] for k in stim_types}
 
             # Set the GT
             for mod in self.session:
@@ -318,7 +304,6 @@ class AnnubesEnv(TrialEnv):
             # Pick *at least* one modality.
             stim_types = {k for k, v in available.items() if self._rng.random() <= v}
             if len(stim_types) == 0:
-
                 # If the draw was empty, pick at least one modality
                 # from the available ones by using their respective probabilities.
                 stim_types = set(
