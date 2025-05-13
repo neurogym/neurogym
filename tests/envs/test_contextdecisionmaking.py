@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from neurogym.envs.contextdecisionmaking import ContextDecisionMaking
+from neurogym.envs.native.contextdecisionmaking import ContextDecisionMaking
 
 
 @pytest.fixture

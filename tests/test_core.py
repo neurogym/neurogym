@@ -79,9 +79,7 @@ def test_addob_instep():
         assert ob[0] == ((i + 1) % 5) + 1  # each trial is 5 steps
 
 
-class TestEnv(ngym.TrialEnv):
-    __test__ = False
-
+class DummyEnv(ngym.TrialEnv):
     def __init__(self, dt: int, timing: dict, seed: int = 42) -> None:
         super().__init__(dt=dt)
         self.seed(seed)
@@ -140,7 +138,7 @@ class TestEnv(ngym.TrialEnv):
 def test_trial_length_stats(timing, expected_stats):
     """Test trial length stats for both fixed and randomized timing configurations."""
     dt = 100
-    env = TestEnv(dt=dt, timing=timing)
+    env = DummyEnv(dt=dt, timing=timing)
     stats = env.trial_length_stats(num_trials=1000)
 
     for key, expected in expected_stats.items():

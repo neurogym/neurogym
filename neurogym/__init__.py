@@ -2,6 +2,10 @@
 # fixing rule above leads to problems in pytest
 # FIXME: figure out why this is the case and solve
 
+from neurogym.config import Config
+from neurogym.config import config
+from neurogym.config import logger
+from neurogym import utils
 from neurogym.core import BaseEnv
 from neurogym.core import TrialEnv
 from neurogym.core import TrialWrapper
@@ -15,4 +19,4 @@ from neurogym.wrappers import all_wrappers
 from neurogym.utils.data import Dataset
 from neurogym.utils import ngym_random
 
-__version__ = "1.0.8"
+__version__ = "2.0.0"

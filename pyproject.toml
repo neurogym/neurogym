@@ -20,10 +20,14 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "numpy",
+    "pydantic-settings",
+    "loguru",
+    "tqdm",
+    "tomlkit",
+    "numpy==2.1.*",
     "gymnasium==0.29.*",
-    "matplotlib",
-    "scipy",
+    "matplotlib==3.9.*",
+    "scipy==1.14.*",
 ]
 description = "NeuroGym: Gymnasium-style Cognitive Neuroscience Tasks"
 keywords = [
@@ -37,7 +41,7 @@ license = { text = "Apache-2.0 License" }
 name = "neurogym"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
-version = "1.0.8"
+version = "2.0.0"
 
 [project.optional-dependencies]
 dev = [
@@ -48,6 +52,8 @@ dev = [
     # code style
     "ruff==0.9.*",
     "mypy",
+    "types-docutils",
+    "scipy-stubs",
     # docs
     "mkdocs",
     "mkdocs-material",
@@ -60,12 +66,7 @@ dev = [
     "bump-my-version",
 ]
 publishing = ["build", "twine", "wheel"]
-tutorials = ["notebook"]
-env_specific = ["psychopy"]
-rl = [
-    "stable-baselines3>=2.3.2",
-    "sb3-contrib",
-]
+rl = ["stable-baselines3>=2.3.2", "sb3-contrib"]
 
 [project.urls]
 Repository = "https://github.com/neurogym/neurogym"
@@ -90,5 +91,9 @@ exclude = ["tests*"]
 python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
-ignore_missing_imports = true
 show_error_codes = true
+exclude = "build/.*"
+
+[[tool.mypy.overrides]]
+module = "psychopy"
+ignore_missing_imports = true

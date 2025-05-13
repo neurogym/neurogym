@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 from gymnasium import spaces
 
+from neurogym import Config
 from neurogym.core import TrialEnv
 from neurogym.wrappers.monitor import Monitor
 
@@ -50,20 +51,34 @@ def test_monitor_initialization(temp_folder: str):
         temp_folder: Temporary directory for saving monitor data.
     """
     env = DummyEnv()
-    monitor = Monitor(env, folder=temp_folder, sv_per=10, sv_stp="trial")
+
+    config = Config(local_dir=temp_folder)
+
+    # Set some configuration options manually
+    config.monitor.plot.step = 10
+    config.monitor.trigger = "trial"
+
+    monitor = Monitor(env, config)
 
     # Check that monitor attributes are set correctly
-    assert monitor.sv_per == 10
-    assert monitor.sv_stp == "trial"
-    assert monitor.folder == temp_folder
+    assert monitor.config.monitor.plot.step == 10
+    assert monitor.config.monitor.trigger == "trial"
+    assert monitor.config.local_dir == Path(temp_folder)
     assert monitor.data == {"action": [], "reward": [], "cum_reward": [], "performance": []}
-    assert monitor.num_tr == 0
 
 
 def test_monitor_data_collection():
     """Test that Monitor collects data correctly during environment steps."""
     env = DummyEnv()
-    monitor = Monitor(env, sv_per=100, sv_stp="trial", verbose=False)
+
+    config = Config()
+
+    # Set some configuration options manually
+    config.monitor.interval = 100
+    config.monitor.trigger = "trial"
+    config.monitor.log.verbose = False
+
+    monitor = Monitor(env, config)
 
     # Reset the environment
     monitor.reset()
@@ -83,33 +98,38 @@ def test_monitor_data_collection():
             assert 1.0 in monitor.data["reward"]  # Reward for action 1
 
 
-@pytest.mark.parametrize("sv_stp", ["trial", "timestep"])
+@pytest.mark.parametrize("sv_stp", ["trial", "step"])
 def test_monitor_save_data(temp_folder: str, sv_stp: str):
     """Test that Monitor saves data correctly to disk.
 
     Args:
         temp_folder: Temporary directory for saving monitor data.
-        sv_stp: Save step type, either "trial" or "timestep".
+        sv_stp: Save step type, either "trial" or "step".
     """
     env = DummyEnv()
-    monitor = Monitor(
-        env,
-        folder=temp_folder,
-        sv_per=3,  # Save after 3 trials/timesteps
-        sv_stp=sv_stp,
-        verbose=False,
-    )
+
+    config = Config(local_dir=temp_folder)
+
+    # Manually overriding config fields for testing purposes.
+    # This is valid because Pydantic Settings submodels are mutable,
+    # though in production we recommend setting values via TOML or constructor.
+    config.monitor.trigger = sv_stp  # type: ignore[assignment]
+    config.monitor.interval = 10
+    config.monitor.plot.step = 3
+    config.monitor.log.verbose = True
+
+    monitor = Monitor(env, config)
 
     # Reset and take steps until data is saved
     monitor.reset()
 
     # Take enough steps to trigger a save
-    for _ in range(10):
+    for _ in range(config.monitor.interval):
         action = monitor.action_space.sample()
         monitor.step(action)
 
     # Check if files were created
-    saved_files = list(Path(temp_folder).glob("*.npz"))
+    saved_files = list(monitor.save_dir.glob("*.npz"))
     assert len(saved_files) > 0, "No data files were saved"
 
     # Load and check a saved file
@@ -123,7 +143,7 @@ def test_monitor_save_data(temp_folder: str, sv_stp: str):
 def test_evaluate_policy():
     """Test that evaluate_policy correctly evaluates policy performance."""
     env = DummyEnv()
-    monitor = Monitor(env, verbose=False)
+    monitor = Monitor(env)
 
     # Create a simple mock model that always takes action 1
     class MockModel:
@@ -178,7 +198,15 @@ def test_plot_training_history(temp_folder: str):
     """
     # Create environment and collect some data
     env = DummyEnv()
-    monitor = Monitor(env, folder=temp_folder, sv_per=5, verbose=False)
+
+    config = Config(local_dir=temp_folder)
+
+    # Set some configuration options manually
+    config.monitor.interval = 10
+    config.monitor.plot.step = 5
+    config.monitor.log.verbose = True
+
+    monitor = Monitor(env, config)
 
     monitor.reset()
     for _ in range(20):

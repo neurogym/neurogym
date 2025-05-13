@@ -4,7 +4,7 @@ from itertools import combinations
 import numpy as np
 import pytest
 
-from neurogym.envs.annubes import AnnubesEnv
+from neurogym.envs.native.annubes import AnnubesEnv
 
 RND_SEED = 42
 FIX_INTENSITY = 0.1

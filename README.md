@@ -19,6 +19,10 @@ NeuroGym is a curated collection of neuroscience tasks with a common interface. 
     - [Step 3 (Optional): Psychopy installation](#step-3-optional-psychopy-installation)
   - [Tasks](#tasks)
   - [Wrappers](#wrappers)
+  - [Configuration](#configuration)
+    - [1. From a TOML file](#1-from-a-toml-file)
+    - [2. With Python class](#2-with-python-class)
+    - [3. With a dictionary](#3-with-a-dictionary)
   - [Examples](#examples)
   - [Custom tasks](#custom-tasks)
   - [Acknowledgements](#acknowledgements)
@@ -32,7 +36,7 @@ Please see our extended project [documentation](https://neurogym.github.io/neuro
 
 ### Installation
 
-#### Step 1: Create a virtual environment
+#### 1: Create a virtual environment
 
 Create and activate a virtual environment to install the current package, e.g. using
 [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) (please refer to their
@@ -44,23 +48,35 @@ conda create -n neurogym python=3.11 -y
 conda activate neurogym
 ```
 
-#### Step 2: Install NeuroGym
+#### 2: Install NeuroGym
 
-You can install the latest stable release of `neurogym` using pip:
+Install the latest stable release of `neurogym` using pip:
 
 ```bash
 pip install neurogym
 ```
 
-If you plan to use reinforcement learning (RL) features based on Stable-Baselines3, install the RL extra dependencies:
+##### 2a: Reinforcement Learning Support
+
+NeuroGym includes optional reinforcement learning (RL) features via Stable-Baselines3.
+To install these, choose one of the two options below depending on your hardware setup:
 
 ```bash
 pip install neurogym[rl]
 ```
 
-##### Step 2b: Install in Editable/Development Mode
+**NOTE for Linux/WSL users:** If you do not have access to a CUDA-capable NVIDIA GPU (which is the case for most users),
+above line will install up to 1.5GB of unnecessary GPU libraries. To avoid excessive overhead, we recommend first
+isntalling the CPU-only version of [PyTorch](https://pytorch.org/get-started/locally/):
 
-If you want to contribute to NeuroGym or always work with the latest updates from the source code, install it in editable mode:
+```bash
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+pip install neurogym[rl]
+```
+
+##### 2b: Editable/Development Mode
+
+To contribute to NeuroGym or run it from source with live code updates:
 
 ```bash
 git clone https://github.com/neurogym/neurogym.git
@@ -68,9 +84,9 @@ cd neurogym
 pip install -e .
 ```
 
-This links your local code changes directly to your Python environment without needing to reinstall after every edit.
+This installs the package in editable mode, so changes in source files are reflected without reinstalling.
 
-If you also want RL and development tools (for testing, linting, and documentation), install with:
+To include both RL and development tools (e.g., for testing, linting, documentation):
 
 ```bash
 pip install -e .[rl,dev]
@@ -94,6 +110,65 @@ Currently implemented tasks can be found [here](https://neurogym.github.io/envs/
 
 Wrappers (see [their docs](https://neurogym.github.io/neurogym/latest/api/wrappers/))
 are short scripts that allow introducing modifications the original tasks. For instance, the Random Dots Motion task can be transformed into a reaction time task by passing it through the _reaction_time_ wrapper. Alternatively, the _combine_ wrapper allows training an agent in two different tasks simultaneously.
+
+### Configuration
+
+🧪 **Beta Feature** — The configuration system is **optional** and currently **under development**. You can still instantiate environments, agents, and wrappers with direct parameters.
+It is only used in a small portion of the codebase and is not required for typical usage.
+See the [`demo.ipynb`](docs/examples/demo.ipynb) notebook for the only current example of this system in action.
+
+NeuroGym includes a flexible configuration mechanism using [`Pydantic Settings`](https://docs.pydantic.dev/latest/concepts/pydantic_settings/), allowing configuration via TOML files, Python objects, or plain dictionaries.
+
+Using a TOML file can be especially useful for sharing experiment configurations in a portable way (e.g., sending `config.toml` to a colleague), reliably saving and loading experiment setups, and easily switching between multiple configurations for the same environment by changing just one line of code. While the system isn't at that stage yet, these are intended future capabilities.
+
+#### 1. From a TOML file
+
+Create a `config.toml` file (see [template](docs/examples/config.toml)) and load it:
+
+```python
+from neurogym import Config
+config = Config('path/to/config.toml')
+```
+
+You can then pass this config to any component that supports it:
+
+```python
+from neurogym.wrappers import monitor
+env = gym.make('GoNogo-v0')
+env = monitor.Monitor(env, config=config)
+```
+
+Or directly pass the path:
+
+```python
+env = monitor.Monitor(env, config='path/to/config.toml')
+```
+
+#### 2. With Python class
+
+```python
+from neurogym import Config
+config = Config(
+    local_dir="logs/",
+    env={"name": "GoNogo-v0"},
+    monitor={"name": "MyMonitor"}
+)
+```
+
+#### 3. With a dictionary
+
+```python
+from neurogym import Config
+config_dict = {
+    "env": {"name": "GoNogo-v0"},
+    "monitor": {
+        "name": "MyMonitor",
+        "plot": {"trigger": "step", "value": 500, "create": True}
+    },
+    "local_dir": "./outputs"
+}
+config = Config.model_validate(config_dict)
+```
 
 ### Examples
 
