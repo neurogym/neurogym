@@ -106,12 +106,14 @@ class AnnubesEnv(TrialEnv):
             msg = "Please ensure that all probabilities are between 0 and 1, inclusive."
             raise ValueError(msg)
 
+        # Ensure that at least one probability is nonzero
+        total = sum(session.values())
+        if total < np.nextafter(0, 1):
+            msg = "Please ensure that at least one modality has a non-zero probability."
+            raise ValueError(msg)
+
         # Normalise the probabilities if the 'exclusive' switch is on
         if exclusive:
-            total = sum(session.values())
-            if total < np.nextafter(0, 1):
-                msg = "Please ensure that at least one modality has a non-zero probability."
-                raise ValueError(msg)
             session = {k: v / total for k, v in session.items()}
 
         if output_behavior is None:
@@ -121,7 +123,10 @@ class AnnubesEnv(TrialEnv):
 
         # Create a dictionary for max_sequential if only an int is given
         if isinstance(max_sequential, int):
-            max_sequential = dict.fromkeys(session, max_sequential)
+            max_sequential = dict.fromkeys(
+                session,
+                (max_sequential if max_sequential > 0 else np.iinfo(np.int32).max),
+            )
 
         super().__init__(dt=dt)
         self.session = {k: v for k, v in session.items() if v > 0.0}
@@ -130,7 +135,9 @@ class AnnubesEnv(TrialEnv):
         self.catch_prob = catch_prob
         self.exclusive = exclusive
         self.max_sequential = max_sequential
-        self.sequential_count: dict[str | None, int | float] = dict.fromkeys(self.session, 0)
+        self.sequential_count: dict[str | None, int | float] = dict.fromkeys(
+            self.session, 0
+        )
         # Sequential occurrence checks for catch trials
         if max_sequential is not None and None in max_sequential:
             self.sequential_count[None] = 0
@@ -167,7 +174,9 @@ class AnnubesEnv(TrialEnv):
             "start": 1,
             **{trial: i for i, trial in enumerate(session, 2)},
         }
-        self.observation_space = ngym.spaces.Box(low=0.0, high=1.0, shape=(len(obs_space_name),), name=obs_space_name)
+        self.observation_space = ngym.spaces.Box(
+            low=0.0, high=1.0, shape=(len(obs_space_name),), name=obs_space_name
+        )
         # Set the name of each action value
         self.action_space = ngym.spaces.Discrete(
             n=len(self.output_behavior),
@@ -203,7 +212,15 @@ class AnnubesEnv(TrialEnv):
         # Normalise the probability weights
         available_modalities = {k: v / total for k, v in available_modalities.items()}
 
-        # Catch trial decision
+        # Catch trial decision.
+        # We need to decide if this will be a catch trial
+        # separately since the catch trial probability
+        # is also specified separately.
+        #
+        # NOTE: `None` is used to indicate a catch trial
+        # to avoid overlapping with the nmaes of any
+        # of the other modalities.
+        # ==================================================
         if (
             self.max_sequential is not None
             and None in self.max_sequential
@@ -211,38 +228,66 @@ class AnnubesEnv(TrialEnv):
         ):
             catch = False
         else:
-            catch = len(available_modalities) == 0 or self._rng.random() < self.catch_prob
+            catch = (
+                len(available_modalities) == 0 or self._rng.random() < self.catch_prob
+            )
+
+        # Sets of stimulus types and values.
         stim_types = set()
         stim_values = {}
 
         if catch:
+            # This is a catch trial.
+            # Set all the GT values to 0.
             self.set_groundtruth(0, period="fixation")
             self.set_groundtruth(0, period="stimulus")
             self.set_groundtruth(0, period="iti")
 
             # Reset the sequential count for all modalities
-            self.sequential_count = {k: 0 if k is not None else v for k, v in self.sequential_count.items()}
+            # since a catch trial breaks any sequences of modalities.
+            self.sequential_count = {
+                k: 0 if k is not None else v for k, v in self.sequential_count.items()
+            }
 
         else:
+            # A regular trial.
+            # We need to decide what stimulus types will participate in this trial
+            # based on the probabilities that have been requested.
             stim_types = self._pick_stim_types(available_modalities)
-            self.sequential_count = {k: (v + 1 if k in stim_types else 0) for k, v in self.sequential_count.items()}
+
+            # Update the sequential count for the modalities that were selected.
+            self.sequential_count = {
+                k: (v + 1 if k in stim_types else 0)
+                for k, v in self.sequential_count.items()
+            }
 
             # Reset the sequential count for catch trials
+            # since any modality breaks a potential catch trial sequence.
             if None in self.sequential_count:
                 self.sequential_count[None] = 0
 
-            stim_values = {k: self._rng.choice(self.stim_intensities[k], 1, False)[0] for k in stim_types}
+            # Now we choose the values for the modalities
+            stim_values = {
+                k: self._rng.choice(self.stim_intensities[k], 1, False)[0]
+                for k in stim_types
+            }
 
+            # Set the GT
             for mod in self.session:
                 if mod in stim_types:
                     self.add_ob(stim_values[mod], "stimulus", where=mod)
                     self.add_randn(0, self.noise_factor, "stimulus", where=mod)
+                # REVIEW: Should this be outside the `for` loop?
                 self.set_groundtruth(0, period="fixation")
                 self.set_groundtruth(1, period="stimulus")
                 self.set_groundtruth(0, period="iti")
 
+        # Turn the set into a list to ensure the right order.
+        # This is necessary because we don't want to rely on the ordering
+        # of the set when we extract the stimulus values.
         stim_types_final = list(stim_types)
 
+        # Build the trial
         self.trial = {
             "catch": catch,
             "stim_types": stim_types_final,
@@ -252,9 +297,13 @@ class AnnubesEnv(TrialEnv):
 
         return self.trial
 
-    def _pick_stim_types(self, available: dict) -> set:
+    def _pick_stim_types(
+        self,
+        available: dict,
+    ) -> set:
         if self.exclusive:
-            # Mutually exclusive modalities. Pick *only* one modality.
+            # Mutually exclusive modalities.
+            # Pick *only* one modality.
             stim_types = set(
                 self._rng.choice(
                     list(available.keys()),
@@ -265,10 +314,13 @@ class AnnubesEnv(TrialEnv):
             )
 
         else:
-            # Overlap is permitted. Pick *at least* one modality.
+            # Overlap is permitted.
+            # Pick *at least* one modality.
             stim_types = {k for k, v in available.items() if self._rng.random() <= v}
             if len(stim_types) == 0:
-                # Pick at least one modality from the available ones
+
+                # If the draw was empty, pick at least one modality
+                # from the available ones by using their respective probabilities.
                 stim_types = set(
                     self._rng.choice(
                         list(available.keys()),
@@ -307,11 +359,11 @@ class AnnubesEnv(TrialEnv):
             else:
                 reward += self.rewards["fail"]
 
-            # End trial when stimulus period is over
-            # self.t represents the current time step within a trial
-            # each step is self.dt ms
-            # self.tmax is the maximum number of time steps within a trial
-            # see self.add_period in TrialEnv for more details
+            # End the trial when the stimulus period is over.
+            # self.t represents the current time step within a trial,
+            # and each step is self.dt ms.
+            # self.tmax is the maximum number of time steps within a trial.
+            # See self.add_period in TrialEnv for more details.
             if self.t >= self.tmax - self.dt:
                 new_trial = True
 
