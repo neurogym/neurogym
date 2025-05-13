@@ -4,6 +4,7 @@ from importlib.util import find_spec
 import gymnasium as gym
 import numpy as np
 import pytest
+from loguru import logger
 from matplotlib import pyplot as plt
 
 import neurogym as ngym
@@ -36,10 +37,10 @@ def _test_run(env, num_steps=100, verbose=False):
     all_tags = ngym.all_tags()
     for t in tags:
         if t not in all_tags:
-            print(f"Warning: env has tag {t} not in all_tags")
+            logger.warning(f"env has tag {t} not in all_tags")
 
     if verbose:
-        print(env)
+        logger.info(env)
 
     return env
 
@@ -53,13 +54,12 @@ def test_run_all(verbose_success=False):
             for env_name in ENVS:
                 _test_run(env_name, verbose=verbose_success)
         except:
-            print(f"Failure at running env: {env_name}")
+            logger.error(f"Failure at running env: {env_name}")
             raise
 
 
 def _test_dataset(env):
     """Main function for testing if an environment is healthy."""
-    print("Testing Environment:", env)
     kwargs = {"dt": 20}
     dataset = Dataset(env, env_kwargs=kwargs, batch_size=16, seq_len=300, cache_len=1e4)
     for _ in range(10):
@@ -80,17 +80,16 @@ def test_dataset_all():
         total_count = len(ngym.all_envs())
         supervised_count = len(ngym.all_envs(tag="supervised"))
         for env_name in ngym.all_envs():
-            print(f"Running env: {env_name}")
             try:  # FIXME, tests are not actually performed here, as any error is caught away
                 _test_dataset(env_name)
-                print("Success")
                 success_count += 1
-            except BaseException as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
-                print(f"Failure at running env: {env_name}")
-                print(e)
+            except BaseException as e:  # noqa: PERF203, BLE001 # FIXME: unclear which error is expected here.
+                logger.error(f"Failure at running env: {env_name}")
+                logger.error(e)
 
-        print(f"Success {success_count}/{total_count} envs")
-        print(f"Expect {supervised_count} envs to support supervised learning")
+        if success_count < total_count:
+            logger.info(f"Success {success_count}/{total_count} envs")
+        logger.debug(f"Expect {supervised_count} envs to support supervised learning")
 
 
 def test_print_all():
@@ -100,11 +99,11 @@ def test_print_all():
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
         try:
             for env_name in ENVS:
-                print(f"Test printing env: {env_name}")
+                print(f"Test printing env: {env_name}")  # noqa: T201
                 env = ngym.make(env_name)
-                print(env)
+                print(env)  # noqa: T201
         except:
-            print(f"Failure at printing env: {env_name}")
+            logger.error(f"Failure at printing env: {env_name}")
             raise
 
 
@@ -130,7 +129,7 @@ def test_trialenv_all():
                 env = ngym.make(env_name)
                 _test_trialenv(env)
         except:
-            print(f"Failure with env: {env_name}")
+            logger.error(f"Failure with env: {env_name}")
             raise
 
 
@@ -179,7 +178,7 @@ def test_seeding_all():
                 assert (rews1 == rews2).all(), "rewards are not identical"
                 assert (acts1 == acts2).all(), "actions are not identical"
         except:
-            print(f"Failure with env: {env_name}")
+            logger.error(f"Failure with env: {env_name}")
             raise
 
 
@@ -195,8 +194,8 @@ def test_plot_all():
             try:  # FIXME: no actual test is run, as errors are caught
                 ngym.utils.plot_env(env, num_trials=2, def_act=action)
             except Exception as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
-                print(f"Error in plotting env: {env_name}, {e}")
-                print(e)
+                logger.error(f"Error in plotting env: {env_name}, {e}")
+                logger.error(e)
             plt.close()
 
 
