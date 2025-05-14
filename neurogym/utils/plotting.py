@@ -91,6 +91,7 @@ def plot_env(
         ob_traces=ob_traces,
         fig_kwargs=fig_kwargs,
         env=env,
+        initial_ob=data["initial_ob"],
         fname=fname,
         trial_starts=trial_starts_axis,
     )
@@ -114,6 +115,8 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         ob = env.reset()
     else:
         ob, _ = env.reset()
+
+    initial_ob = ob.copy()
 
     ob_cum_temp = ob
 
@@ -189,6 +192,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         "actions_end_of_trial": actions_end_of_trial,
         "gt": gt,
         "states": states,
+        "initial_ob": initial_ob,
     }
 
 
@@ -206,6 +210,7 @@ def fig_(
     fname=None,
     fig_kwargs=None,
     env=None,
+    initial_ob=None,
     trial_starts=None,
 ):
     """Visualize a run in a simple environment.
@@ -225,6 +230,7 @@ def fig_(
             specified by ob_traces
         fig_kwargs: figure properties admitted by matplotlib.pyplot.subplots() function
         env: environment class for extra information
+        initial_ob: initial observation to be used to align with actions
         trial_starts: list of trial start indices, 1-based
     """
     if fig_kwargs is None:
@@ -232,14 +238,11 @@ def fig_(
     ob = np.array(ob)
     actions = np.array(actions)
 
-    # Align observation with actions by inserting an initial obs from env
-    if env is not None and hasattr(env, "reset"):
-        env_copy = copy.deepcopy(env)
-        init_ob, *_ = env_copy.reset()
-        ob = np.insert(ob, 0, init_ob, axis=0)
-    else:
-        msg = "env is required and must have a .reset() method to retrieve initial observation"
+    if initial_ob is None:
+        msg = "`initial_ob` is required and must be provided."
         raise ValueError(msg)
+    # Align observation with actions by inserting an initial obs from env
+    ob = np.insert(ob, 0, initial_ob, axis=0)
 
     # Trim last obs to match actions
     ob = ob[:-1]

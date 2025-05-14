@@ -132,6 +132,10 @@ class Monitor(Wrapper):
             self.gt_mat: list = []
             self.perf_mat: list = []
 
+        # Ensure the reset function is called
+        initial_ob, *_ = env.reset()
+        self.initial_ob = initial_ob
+
     def _configure_logger(self):
         ngym.logger.remove()
         ngym.logger.configure(**self.config.monitor.log.make_config())
@@ -250,6 +254,7 @@ class Monitor(Wrapper):
                 fname=fname,
                 name=self.config.monitor.plot.title,
                 env=self.env,
+                initial_ob=self.initial_ob,
             )
             self.ob_mat = []
             self.act_mat = []
