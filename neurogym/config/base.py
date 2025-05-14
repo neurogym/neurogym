@@ -6,7 +6,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 ROOT_DIR = Path(__file__).parent.parent.parent
 PKG_DIR = ROOT_DIR / "neurogym"
 CONFIG_DIR = PKG_DIR / "config"
-# Set LOCAL_DIR to the current working directory
+# Set LOCAL_DIR to the current working directory. This path is dynamic and depends on
+# where the script is executed. It points to a "runs" directory in the current working directory.
 LOCAL_DIR = Path.cwd() / "runs"
 
 
