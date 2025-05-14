@@ -1,6 +1,5 @@
 """Plotting functions."""
 
-import copy
 from pathlib import Path
 
 import gymnasium as gym
