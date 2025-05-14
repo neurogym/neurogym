@@ -392,6 +392,11 @@ class Monitor(Wrapper):
                 if len(perfs) > 0:
                     avg_performances_per_file.append(np.mean(perfs))
 
+        file_indices = [0, *file_indices]
+        avg_rewards_per_file = [0, *avg_rewards_per_file]
+        avg_cum_rewards_per_file = [0, *avg_cum_rewards_per_file]
+        avg_performances_per_file = [0, *avg_performances_per_file]
+
         fig, axes = plt.subplots(1, 2 if plot_performance else 1, figsize=figsize)
         if not isinstance(axes, np.ndarray):
             axes = [axes]
