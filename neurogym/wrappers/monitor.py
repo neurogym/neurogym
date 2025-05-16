@@ -416,7 +416,7 @@ class Monitor(Wrapper):
         ax1.set_title("Reward and Cumulative Reward per File")
 
         ax1.grid(True, which="both", axis="y", linestyle="--", alpha=0.7)
-        ax1.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3), ncol=2)
+        ax1.legend(loc="center right", bbox_to_anchor=(1, 0.2))
 
         # 2. Optional: Performances plot
         if plot_performance and len(axes) > 1:
