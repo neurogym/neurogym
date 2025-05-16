@@ -409,21 +409,11 @@ class Monitor(Wrapper):
         if len(avg_cum_rewards_per_file) == len(file_indices):
             ax1.plot(file_indices, avg_cum_rewards_per_file, "s--", color="red", label="Avg Cum Reward", linewidth=2)
 
-        ax1.set_xlabel("Cumulative Trials")
+        ax1.set_xlabel("Trials")
         ax1.set_ylabel("Reward / Cumulative Reward")
         common_ylim = (-0.05, 1.05)
         ax1.set_ylim(common_ylim)
         ax1.set_title("Reward and Cumulative Reward per File")
-
-        overall_avg_reward = np.mean(avg_rewards_per_file)
-        ax1.text(
-            0.05,
-            0.95,
-            f"Overall Avg Reward: {overall_avg_reward:.4f}",
-            transform=ax1.transAxes,
-            verticalalignment="top",
-            bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
-        )
 
         ax1.grid(True, which="both", axis="y", linestyle="--", alpha=0.7)
         ax1.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3), ncol=2)
@@ -433,20 +423,10 @@ class Monitor(Wrapper):
             ax2 = axes[1]
             if len(avg_performances_per_file) == len(file_indices):
                 ax2.plot(file_indices, avg_performances_per_file, "o-", color="green", linewidth=2)
-            ax2.set_xlabel("Cumulative Trials")
+            ax2.set_xlabel("Trials")
             ax2.set_ylabel("Average Performance (0-1)")
             ax2.set_ylim(common_ylim)
             ax2.set_title("Average Performance per File")
-
-            overall_avg_perf = np.mean(avg_performances_per_file)
-            ax2.text(
-                0.05,
-                0.95,
-                f"Overall Avg Perf: {overall_avg_perf:.4f}",
-                transform=ax2.transAxes,
-                verticalalignment="top",
-                bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
-            )
 
             ax2.grid(True, which="both", axis="y", linestyle="--", alpha=0.7)
         plt.tight_layout()
