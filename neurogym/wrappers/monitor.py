@@ -451,9 +451,14 @@ class Monitor(Wrapper):
             ax2.grid(True, which="both", axis="y", linestyle="--", alpha=0.7)
         plt.tight_layout()
         fig.subplots_adjust(top=0.8)
+
+        for ax in fig.axes:
+            ax.spines["top"].set_visible(False)
+            ax.spines["right"].set_visible(False)
+
         plt.suptitle(
             f"Training History for {self.config.env.name}\n({len(files)} data files, {total_trials} total trials)",
-            fontsize=14,
+            fontsize=12,
         )
 
         if save_fig:
