@@ -132,6 +132,10 @@ class Monitor(Wrapper):
             self.gt_mat: list = []
             self.perf_mat: list = []
 
+        # Ensure the reset function is called
+        initial_ob, *_ = env.reset()
+        self.initial_ob = initial_ob
+
     def _configure_logger(self):
         ngym.logger.remove()
         ngym.logger.configure(**self.config.monitor.log.make_config())
@@ -249,6 +253,8 @@ class Monitor(Wrapper):
                 performance=self.perf_mat,
                 fname=fname,
                 name=self.config.monitor.plot.title,
+                env=self.env,
+                initial_ob=self.initial_ob,
             )
             self.ob_mat = []
             self.act_mat = []
@@ -386,6 +392,11 @@ class Monitor(Wrapper):
                 if len(perfs) > 0:
                     avg_performances_per_file.append(np.mean(perfs))
 
+        file_indices = [0, *file_indices]
+        avg_rewards_per_file = [0, *avg_rewards_per_file]
+        avg_cum_rewards_per_file = [0, *avg_cum_rewards_per_file]
+        avg_performances_per_file = [0, *avg_performances_per_file]
+
         fig, axes = plt.subplots(1, 2 if plot_performance else 1, figsize=figsize)
         if not isinstance(axes, np.ndarray):
             axes = [axes]
@@ -398,51 +409,36 @@ class Monitor(Wrapper):
         if len(avg_cum_rewards_per_file) == len(file_indices):
             ax1.plot(file_indices, avg_cum_rewards_per_file, "s--", color="red", label="Avg Cum Reward", linewidth=2)
 
-        ax1.set_xlabel("Cumulative Trials")
+        ax1.set_xlabel("Trials")
         ax1.set_ylabel("Reward / Cumulative Reward")
         common_ylim = (-0.05, 1.05)
         ax1.set_ylim(common_ylim)
         ax1.set_title("Reward and Cumulative Reward per File")
 
-        overall_avg_reward = np.mean(avg_rewards_per_file)
-        ax1.text(
-            0.05,
-            0.95,
-            f"Overall Avg Reward: {overall_avg_reward:.4f}",
-            transform=ax1.transAxes,
-            verticalalignment="top",
-            bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
-        )
-
         ax1.grid(True, which="both", axis="y", linestyle="--", alpha=0.7)
-        ax1.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3), ncol=2)
+        ax1.legend(loc="center right", bbox_to_anchor=(1, 0.2))
 
         # 2. Optional: Performances plot
         if plot_performance and len(axes) > 1:
             ax2 = axes[1]
             if len(avg_performances_per_file) == len(file_indices):
                 ax2.plot(file_indices, avg_performances_per_file, "o-", color="green", linewidth=2)
-            ax2.set_xlabel("Cumulative Trials")
+            ax2.set_xlabel("Trials")
             ax2.set_ylabel("Average Performance (0-1)")
             ax2.set_ylim(common_ylim)
             ax2.set_title("Average Performance per File")
 
-            overall_avg_perf = np.mean(avg_performances_per_file)
-            ax2.text(
-                0.05,
-                0.95,
-                f"Overall Avg Perf: {overall_avg_perf:.4f}",
-                transform=ax2.transAxes,
-                verticalalignment="top",
-                bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
-            )
-
             ax2.grid(True, which="both", axis="y", linestyle="--", alpha=0.7)
         plt.tight_layout()
         fig.subplots_adjust(top=0.8)
+
+        for ax in fig.axes:
+            ax.spines["top"].set_visible(False)
+            ax.spines["right"].set_visible(False)
+
         plt.suptitle(
             f"Training History for {self.config.env.name}\n({len(files)} data files, {total_trials} total trials)",
-            fontsize=14,
+            fontsize=12,
         )
 
         if save_fig:
