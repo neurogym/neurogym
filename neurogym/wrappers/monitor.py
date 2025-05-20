@@ -36,6 +36,7 @@ class Monitor(Wrapper):
     Attributes:
         config: Final validated configuration object.
         data: Collected behavioral data for each completed trial.
+        data_eval: Evaluation data collected during policy evaluation runs.
         cum_reward: Cumulative reward for the current trial.
         num_tr: Number of completed trials.
         t: Step counter (used when trigger is "step").
@@ -114,6 +115,8 @@ class Monitor(Wrapper):
 
         # data to save
         self.data: dict[str, list] = {"action": [], "reward": [], "cum_reward": [], "performance": []}
+        # Evaluation-only data collected during the policy run (not saved to disk)
+        self.data_eval: dict[str, Any] = {}
         self.cum_reward = 0.0
         if self.config.monitor.trigger == "step":
             self.t = 0
@@ -297,6 +300,7 @@ class Monitor(Wrapper):
         cum_reward = 0.0
         cum_rewards = []
         performances = []
+        self.data_eval = {"action": [], "reward": []}
         # Initialize trial count
         trial_count = 0
 
@@ -324,6 +328,14 @@ class Monitor(Wrapper):
                 if verbose and trial_count % 1000 == 0:
                     print(f"Completed {trial_count}/{num_trials} trials")
 
+                self.data_eval["action"].append(action)
+                self.data_eval["reward"].append(reward)
+                for key in info:
+                    if key not in self.data_eval:
+                        self.data_eval[key] = [info[key]]
+                    else:
+                        self.data_eval[key].append(info[key])
+
                 # Reset states at the end of each trial
                 states = None
                 episode_starts = np.array([True])
@@ -332,6 +344,11 @@ class Monitor(Wrapper):
         performance_array = np.array([p for p in performances if p != -1])
         reward_array = np.array(rewards)
         cum_reward_array = np.array(cum_rewards)
+
+        # Convert lists to numpy arrays for easier downstream analysis
+        for key in self.data_eval:
+            if key != "trial":
+                self.data_eval[key] = np.array(self.data_eval[key])
 
         return {
             "rewards": rewards,
