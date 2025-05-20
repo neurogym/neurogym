@@ -51,9 +51,14 @@ nav:
       - NeuroGym: neurogym.md
       - Custom tasks: examples/understanding_neurogym_task.ipynb
   - Examples:
-      - NeuroGym with RL: examples/example_neurogym_rl.ipynb
-      - NeuroGym with PyTorch: examples/example_neurogym_pytorch.ipynb
-      - NeuroGym with Keras: examples/example_neurogym_keras.ipynb
+      - Simple demo notebook: examples/demo.ipynb
+      - NeuroGym with RL: examples/reinforcement_learning.ipynb
+      - NeuroGym with PyTorch: examples/supervised_learning_pytorch.ipynb
+      - NeuroGym with Keras: examples/supervised_learning_keras.ipynb
+      - Example template for contributing new tasks: examples/template_task.py
+  - Env specific examples:
+      - Annubes: examples/annubes.ipynb
+      - ContextDecisionmaking: examples/contextdecisionmaking.ipynb
   - API Documentation:
       - Core: api/core.md
       - Environments: api/envs.md

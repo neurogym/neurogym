@@ -62,6 +62,7 @@ dev = [
     "mkdocstrings-python",
     "mike",
     "mkdocs-jupyter",
+    "black",
     # release
     "bump-my-version",
 ]
