@@ -36,6 +36,7 @@ class Monitor(Wrapper):
     Attributes:
         config: Final validated configuration object.
         data: Collected behavioral data for each completed trial.
+        data_eval: Evaluation data collected during policy evaluation runs.
         cum_reward: Cumulative reward for the current trial.
         num_tr: Number of completed trials.
         t: Step counter (used when trigger is "step").
@@ -114,6 +115,8 @@ class Monitor(Wrapper):
 
         # data to save
         self.data: dict[str, list] = {"action": [], "reward": [], "cum_reward": [], "performance": []}
+        # Evaluation-only data collected during the policy run (not saved to disk)
+        self.data_eval: dict[str, Any] = {}
         self.cum_reward = 0.0
         if self.config.monitor.trigger == "step":
             self.t = 0
@@ -131,6 +134,10 @@ class Monitor(Wrapper):
             self.rew_mat: list = []
             self.gt_mat: list = []
             self.perf_mat: list = []
+
+        # Ensure the reset function is called
+        initial_ob, *_ = env.reset()
+        self.initial_ob = initial_ob
 
     def _configure_logger(self):
         ngym.logger.remove()
@@ -249,6 +256,8 @@ class Monitor(Wrapper):
                 performance=self.perf_mat,
                 fname=fname,
                 name=self.config.monitor.plot.title,
+                env=self.env,
+                initial_ob=self.initial_ob,
             )
             self.ob_mat = []
             self.act_mat = []
@@ -291,6 +300,7 @@ class Monitor(Wrapper):
         cum_reward = 0.0
         cum_rewards = []
         performances = []
+        self.data_eval = {"action": [], "reward": []}
         # Initialize trial count
         trial_count = 0
 
@@ -318,6 +328,14 @@ class Monitor(Wrapper):
                 if verbose and trial_count % 1000 == 0:
                     print(f"Completed {trial_count}/{num_trials} trials")
 
+                self.data_eval["action"].append(action)
+                self.data_eval["reward"].append(reward)
+                for key in info:
+                    if key not in self.data_eval:
+                        self.data_eval[key] = [info[key]]
+                    else:
+                        self.data_eval[key].append(info[key])
+
                 # Reset states at the end of each trial
                 states = None
                 episode_starts = np.array([True])
@@ -326,6 +344,11 @@ class Monitor(Wrapper):
         performance_array = np.array([p for p in performances if p != -1])
         reward_array = np.array(rewards)
         cum_reward_array = np.array(cum_rewards)
+
+        # Convert lists to numpy arrays for easier downstream analysis
+        for key in self.data_eval:
+            if key != "trial":
+                self.data_eval[key] = np.array(self.data_eval[key])
 
         return {
             "rewards": rewards,
@@ -386,6 +409,11 @@ class Monitor(Wrapper):
                 if len(perfs) > 0:
                     avg_performances_per_file.append(np.mean(perfs))
 
+        file_indices = [0, *file_indices]
+        avg_rewards_per_file = [0, *avg_rewards_per_file]
+        avg_cum_rewards_per_file = [0, *avg_cum_rewards_per_file]
+        avg_performances_per_file = [0, *avg_performances_per_file]
+
         fig, axes = plt.subplots(1, 2 if plot_performance else 1, figsize=figsize)
         if not isinstance(axes, np.ndarray):
             axes = [axes]
@@ -398,51 +426,36 @@ class Monitor(Wrapper):
         if len(avg_cum_rewards_per_file) == len(file_indices):
             ax1.plot(file_indices, avg_cum_rewards_per_file, "s--", color="red", label="Avg Cum Reward", linewidth=2)
 
-        ax1.set_xlabel("Cumulative Trials")
+        ax1.set_xlabel("Trials")
         ax1.set_ylabel("Reward / Cumulative Reward")
         common_ylim = (-0.05, 1.05)
         ax1.set_ylim(common_ylim)
         ax1.set_title("Reward and Cumulative Reward per File")
 
-        overall_avg_reward = np.mean(avg_rewards_per_file)
-        ax1.text(
-            0.05,
-            0.95,
-            f"Overall Avg Reward: {overall_avg_reward:.4f}",
-            transform=ax1.transAxes,
-            verticalalignment="top",
-            bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
-        )
-
         ax1.grid(True, which="both", axis="y", linestyle="--", alpha=0.7)
-        ax1.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3), ncol=2)
+        ax1.legend(loc="center right", bbox_to_anchor=(1, 0.2))
 
         # 2. Optional: Performances plot
         if plot_performance and len(axes) > 1:
             ax2 = axes[1]
             if len(avg_performances_per_file) == len(file_indices):
                 ax2.plot(file_indices, avg_performances_per_file, "o-", color="green", linewidth=2)
-            ax2.set_xlabel("Cumulative Trials")
+            ax2.set_xlabel("Trials")
             ax2.set_ylabel("Average Performance (0-1)")
             ax2.set_ylim(common_ylim)
             ax2.set_title("Average Performance per File")
 
-            overall_avg_perf = np.mean(avg_performances_per_file)
-            ax2.text(
-                0.05,
-                0.95,
-                f"Overall Avg Perf: {overall_avg_perf:.4f}",
-                transform=ax2.transAxes,
-                verticalalignment="top",
-                bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
-            )
-
             ax2.grid(True, which="both", axis="y", linestyle="--", alpha=0.7)
         plt.tight_layout()
         fig.subplots_adjust(top=0.8)
+
+        for ax in fig.axes:
+            ax.spines["top"].set_visible(False)
+            ax.spines["right"].set_visible(False)
+
         plt.suptitle(
             f"Training History for {self.config.env.name}\n({len(files)} data files, {total_trials} total trials)",
-            fontsize=14,
+            fontsize=12,
         )
 
         if save_fig:
