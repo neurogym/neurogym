@@ -122,7 +122,11 @@ class DummyEnv(ngym.TrialEnv):
             {"mean": 10, "std": 0, "percentile_95": 10, "max": 10},
         ),
         (
-            {"fixation": 300, "stimulus": ["truncated_exponential", [400, 100, 500]], "decision": 200},
+            {
+                "fixation": 300,
+                "stimulus": ["truncated_exponential", [400, 100, 500]],
+                "decision": 200,
+            },
             {"mean": 8, "std": 1, "percentile_95": 8, "max": 8},
         ),
         (
