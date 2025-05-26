@@ -413,7 +413,7 @@ def plot_env_1dbox(
         yticks = []
         yticklabels = []
         for key, val in env.action_space.name.items():
-            if isinstance(val, list | tuple | np.ndarray):
+            if isinstance(val, list | tuple | np.ndarray | range):
                 for v in val:
                     yticks.append(v)
                     yticklabels.append(f"{key}_{v}")
