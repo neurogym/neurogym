@@ -32,8 +32,6 @@ jobs:
     if: github.event.pull_request.draft == false
     name: Linting
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python 3.11
