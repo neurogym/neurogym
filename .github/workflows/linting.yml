@@ -43,7 +43,7 @@ jobs:
         run: |
           which python
           python --version
-      - name: Install ruff
+      - name: Install ruff version as listed in pyproject.toml
         run: |
           python3 -m pip install pyproject-deplister
           pyproject-deplister --extra dev --path pyproject.toml | grep ruff | sed 's/ //g' | xargs -I{} python3 -m pip install "{}"
