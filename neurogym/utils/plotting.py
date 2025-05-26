@@ -238,8 +238,7 @@ def fig_(
     actions = np.array(actions)
 
     if initial_ob is None:
-        msg = "`initial_ob` is required and must be provided."
-        raise ValueError(msg)
+        initial_ob = ob[0].copy()
     # Align observation with actions by inserting an initial obs from env
     ob = np.insert(ob, 0, initial_ob, axis=0)
 
