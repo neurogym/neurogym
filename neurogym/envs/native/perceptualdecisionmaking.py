@@ -93,7 +93,7 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
         self.add_period(["fixation", "stimulus", "delay", "decision"])
 
         # Observations
-        self.add_ob(1, period=["fixation", "stimulus", "delay"], where="fixation")
+        self.add_ob(1, period="fixation", where="fixation")
         stim = np.cos(self.theta - stim_theta) * (coh / 200) + 0.5
         self.add_ob(stim, "stimulus", where="stimulus")
         self.add_randn(0, self.sigma, "stimulus", where="stimulus")
