@@ -1,4 +1,4 @@
-from typing import Any, Container
+from typing import Any
 
 import numpy as np
 
@@ -69,7 +69,7 @@ class AnnubesEnv(TrialEnv):
 
     def __init__(
         self,
-        session: dict[str, int | float] | None = None,
+        session: dict[str | tuple[str, ...], float] | None = None,
         stim_intensities: dict[str, list[float]] | None = None,
         stim_time: int = 1000,
         catch_prob: float = 0.5,
@@ -98,16 +98,13 @@ class AnnubesEnv(TrialEnv):
         # for each stimulus type.
         # Here, we use the set of elementary stimulus types
         # because they might not be specified explicitly
-        # in the session, for instance if we have
-        #   session = {('a', 'v'): 1}
+        # in the session, for instance if we have session = {('a', 'v'): 1}
         # ==================================================
         if stim_intensities is None:
             stim_intensities = {k: [0.8, 0.9, 1.0] for k in stim_types}
 
         if set(stim_intensities) != set(stim_types):
-            msg = (
-                "Please ensure that all stimulus types have corresponding intensities."
-            )
+            msg = "Please ensure that all stimulus types have corresponding intensities."
             raise ValueError(msg)
 
         # Checks on the output behaviour and intensities
@@ -118,9 +115,7 @@ class AnnubesEnv(TrialEnv):
         # Ensure that the max_sequential dictionary is
         # populated with values that make sense.
         # ==================================================
-        max_sequential = self._prepare_max_sequential(
-            stim_types, catch_prob, session, max_sequential
-        )
+        max_sequential = self._prepare_max_sequential(stim_types, catch_prob, session, max_sequential)
 
         # Initialisation
         # ==================================================
@@ -131,7 +126,7 @@ class AnnubesEnv(TrialEnv):
         self.stim_time = stim_time
         self.catch_prob = catch_prob
         self.max_sequential = max_sequential
-        self.sequential_count = {k: 0 for k in max_sequential}
+        self.sequential_count = dict.fromkeys(max_sequential, 0)
         self.fix_intensity = fix_intensity
         self.fix_time = fix_time
         self.iti = iti
@@ -165,9 +160,7 @@ class AnnubesEnv(TrialEnv):
             "start": 1,
             **{trial: i for i, trial in enumerate(sorted(stim_types), 2)},
         }
-        self.observation_space = ngym.spaces.Box(
-            low=0.0, high=1.0, shape=(len(obs_space_name),), name=obs_space_name
-        )
+        self.observation_space = ngym.spaces.Box(low=0.0, high=1.0, shape=(len(obs_space_name),), name=obs_space_name)
         # Set the name of each action value
         self.action_space = ngym.spaces.Discrete(
             n=len(self.output_behavior),
@@ -188,33 +181,28 @@ class AnnubesEnv(TrialEnv):
         self.add_ob(1, "stimulus", where="start")
 
         # Compile a dictionary of available stimulus options.
-        options = {}
-        for stim_types, prob in self.session.items():
+        options: dict[str | tuple[str, ...] | None, float] = {}
+        for _stim_types, prob in self.session.items():
             # Ensure that the key is a tuple so that we can iterate over it.
-            key = (stim_types,) if not isinstance(stim_types, tuple) else stim_types
+            key = (_stim_types,) if not isinstance(_stim_types, tuple) else _stim_types
 
             if prob > 0.0 and all(
-                [
-                    (
-                        self.max_sequential[stim_type] is None
-                        or self.sequential_count[stim_type]
-                        < self.max_sequential[stim_type]
-                    )
-                    for stim_type in key
-                ]
+                (
+                    self.max_sequential[stim_type] is None
+                    or self.sequential_count[stim_type] < self.max_sequential[stim_type]  # type: ignore[operator]
+                )
+                for stim_type in key
             ):
-                options[stim_types] = (1 - self.catch_prob) * prob
+                options[_stim_types] = (1 - self.catch_prob) * prob
 
         # If a catch trial is allowed, add the probability here
         if self.catch_prob > 0.0 and (
-            self.max_sequential[None] is None
-            or self.sequential_count[None] < self.max_sequential[None]
+            self.max_sequential[None] is None or self.sequential_count[None] < self.max_sequential[None]  # type: ignore[operator]
         ):
             options[None] = self.catch_prob
 
         # Select a stimulus type from the available options.
-        stim_types = self._pick_stim_types(options)
-        catch = stim_types is None
+        stim_types, catch = self._pick_stim_types(options)
 
         if catch:
             # Set all the GT values to 0.
@@ -230,7 +218,7 @@ class AnnubesEnv(TrialEnv):
             self.sequential_count[None] += 1
 
             stim_types = []
-            stim_values = []
+            stim_values: dict[str, float] = {}
 
         else:
             # Update the sequential count for the modalities that were selected.
@@ -241,15 +229,13 @@ class AnnubesEnv(TrialEnv):
                     self.sequential_count[stim_type] = 0
 
             # Now we choose the values for the modalities
-            stim_values = {
-                k: self._rng.choice(self.stim_intensities[k], 1, False)[0]
-                for k in stim_types
-            }
+            stim_values = {k: self._rng.choice(self.stim_intensities[k], 1, False)[0] for k in stim_types}
 
             # Set the GT
             for mod in self.stim_types:
                 if mod in stim_types:
                     self.add_ob(stim_values[mod], "stimulus", where=mod)
+                    # Add noise to the
                     self.add_randn(0, self.noise_factor, "stimulus", where=mod)
                 # REVIEW: Should this be outside the `for` loop?
                 self.set_groundtruth(0, period="fixation")
@@ -272,11 +258,10 @@ class AnnubesEnv(TrialEnv):
         catch_prob: float,
         session: dict,
         max_sequential: dict | int | None,
-        atol: float = 10 * np.finfo(float).eps,
-        rtol: float = 10 * np.finfo(float).eps,
-    ) -> dict:
-        """
-        Check the satisfiability of the the max_sequential condition.
+        atol: float | None = None,
+        rtol: float | None = None,
+    ) -> dict[str | None, int | None]:
+        """Check the satisfiability of the the max_sequential condition.
 
         Args:
             stim_types: A list of elementary stimulus types identified from the session.
@@ -284,6 +269,8 @@ class AnnubesEnv(TrialEnv):
             session: A session.
             max_sequential: An optional dictionary or integer specifying the
                 number of consecutive stimulus presentations.
+            atol: Absolute tolerance.
+            rtol: Relative tolerance.
 
         Raises:
             ValueError: Raised if the max. sequential condition is not satisfiable.
@@ -291,10 +278,12 @@ class AnnubesEnv(TrialEnv):
         Returns:
             A dictionary specifying the number of consecutive stimulus presentations.
         """
+        if atol is None:
+            atol = float(10 * np.finfo(float).eps)
+        if rtol is None:
+            rtol = float(10 * np.finfo(float).eps)
 
-        default_max_sequential = (
-            max_sequential if isinstance(max_sequential, int) else None
-        )
+        default_max_sequential = max_sequential if isinstance(max_sequential, int) else None
         if not isinstance(max_sequential, dict):
             max_sequential = {}
 
@@ -309,7 +298,7 @@ class AnnubesEnv(TrialEnv):
         # at the same time max_sequential imposes a limit on how many times
         # that stimulus can be presented.
         if np.isclose(catch_prob, 0.0, atol=atol, rtol=rtol):
-            stim_probs = {k: 0.0 for k in stim_types}
+            stim_probs = dict.fromkeys(stim_types, 0.0)
             for _stim_types, prob in session.items():
                 if not isinstance(_stim_types, tuple):
                     _stim_types = (_stim_types,)
@@ -317,20 +306,20 @@ class AnnubesEnv(TrialEnv):
                     stim_probs[_stim_type] += prob
 
             if any(
-                [
-                    max_sequential[k] is not None
-                    and np.isclose(v, 1.0, atol=atol, rtol=rtol)
-                    for k, v in stim_probs.items()
-                ]
+                max_sequential[k] is not None and np.isclose(v, 1.0, atol=atol, rtol=rtol)
+                for k, v in stim_probs.items()
             ):
-                msg = "Invalid settings: max_sequential imposes a limit on a stimulus that should appear in every trial."
+                msg = "Invalid settings: max_sequential imposes a limit \
+                    on a stimulus that should appear in every trial."
                 raise ValueError(msg)
 
         return max_sequential
 
-    def _prepare_session(self, session: dict) -> dict:
-        """
-        Create a properly formatted session with probabilities summing up to 1.
+    def _prepare_session(
+        self,
+        session: dict[str | tuple[str, ...], float] | None,
+    ) -> tuple[dict[str | tuple[str, ...], float], tuple[str, ...]]:
+        """Create a properly formatted session with probabilities summing up to 1.
 
         Args:
             session: The requested session combinations with their probabilities.
@@ -346,14 +335,17 @@ class AnnubesEnv(TrialEnv):
 
         # Helper functions
         # ==================================================
-        # Unpack tuples recursively and unify into a single tuple without repetitions.
-        def _tuple_or_string(x: None | str | Container) -> tuple:
-            if x is None or isinstance(x, str):
+        def _tuple_or_string(item: str | tuple[str, ...]) -> str | tuple[str, ...]:
+            if item is None or isinstance(item, str):
                 # Not a container
-                return x
-            # A container with one or more elements
+                return item
+            if len(item) == 1:
+                # A container with one element.
+                return item[0]
+            # A container with more than one element.
+            # Unpack nested tuples and combine into a single tuple without repetitions.
             combined = set()
-            for elem in x:
+            for elem in item:
                 combined.update(set(elem if isinstance(elem, tuple) else (elem,)))
             return tuple(sorted(combined))
 
@@ -375,21 +367,20 @@ class AnnubesEnv(TrialEnv):
             raise ValueError(msg)
 
         # Extract the elementary modalities.
-        stim_types = _tuple_or_string(list(session.keys()))
+        stim_types = _tuple_or_string(tuple(session.keys()))  # type: ignore[arg-type]
 
         # Normalise the probabilities and standardise the keys
         # (sort and ensure that there are no repetitions).
         # ==================================================
-        session = {_tuple_or_string(k): v / probability_sum for k, v in session.items()}
+        _session = {_tuple_or_string(k): v / probability_sum for k, v in session.items()}
 
-        return session, stim_types
+        return _session, stim_types  # type: ignore[return-value]
 
     def _pick_stim_types(
         self,
         options: dict,
-    ) -> set:
-        """
-        Pick sitmulus types and the corrsponding intensities.
+    ) -> tuple[list[str], bool]:
+        """Pick sitmulus types and the corrsponding intensities.
 
         Args:
             options: The session options to choose from.
@@ -397,7 +388,6 @@ class AnnubesEnv(TrialEnv):
         Returns:
             A list of stimulus types.
         """
-
         # Pick one of all mutually exclusive options.
         # ==================================================
         # Convert the dictionary into a list.
@@ -416,15 +406,15 @@ class AnnubesEnv(TrialEnv):
         )[0]
 
         # Now pick the key from the array
-        key = kv_arr[idx][0]
+        stim_types = kv_arr[idx][0]
 
-        if key is None:
+        if stim_types is None:
             # Catch trial
-            return
-        elif isinstance(key, tuple):
+            return [], True
+        if isinstance(stim_types, tuple):
             # Ensure that we return a list of stimulus types.
-            return list(sorted(key))
-        return [key]
+            return sorted(stim_types), False
+        return [stim_types], False
 
     def _step(self, action: int) -> tuple:  # type: ignore[override]
         """Internal method to compute the environment's response to the agent's action.

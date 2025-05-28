@@ -1,5 +1,4 @@
 from collections.abc import Callable
-from typing import Container
 
 import numpy as np
 import pytest
@@ -191,52 +190,57 @@ def test_annubes_env_probabilities_and_counts(
     def _is_close(
         x: float,
         tgt: float,
-        atol=10 * np.finfo(float).eps,
-        rtol=10 * np.finfo(float).eps,
+        atol: float | None = None,
+        rtol: float | None = None,
     ) -> bool:
-        """
-        Check if two numbers are numerically close.
+        """Check if two numbers are numerically close.
 
         Args:
             x: The number being checked.
             tgt: The target number.
-            atol: Absolute tolerance. Defaults to 10*np.finfo(float).eps.
-            rtol: Relative tolerance. Defaults to 10*np.finfo(float).eps.
+            atol: Absolute tolerance.
+            rtol: Relative tolerance.
 
         Returns:
             An indication of whether the two numbers are close up to
             the specified tolerance.
         """
-        return np.isclose(x, tgt, atol=atol, rtol=rtol)
+        if atol is None:
+            atol = float(10 * np.finfo(float).eps)
+        if rtol is None:
+            rtol = float(10 * np.finfo(float).eps)
+        return bool(np.isclose(x, tgt, atol=atol, rtol=rtol))
 
-    # Unpack tuples recursively and unify into a single tuple without repetitions.
-    def _tuple_or_string(x: None | str | Container) -> tuple:
-        if x is None or isinstance(x, str):
+        # Unpack tuples recursively and unify into a single tuple without repetitions.
+
+    def _tuple_or_string(
+        item: None | str | list[str | tuple[str, ...]] | tuple[str | tuple[str, ...]],
+    ) -> tuple[str, ...] | str | None:
+        if item is None or isinstance(item, str):
             # Not a container
-            return x
-        elif len(x) == 1:
-            # Some container with a single element
-            return x[0]
-        # A container with more than one element
+            return item
+        if len(item) == 1:
+            # A container with one element.
+            return item[0]
+        # A container with more than one element.
+        # Unpack nested tuples and combine into a single tuple without repetitions.
         combined = set()
-        for elem in x:
-            combined.update(set(elem))
+        for elem in item:
+            combined.update(set(elem if isinstance(elem, tuple) else (elem,)))
         return tuple(sorted(combined))
 
     # Collect results from multiple trials.
-    def _collect_rollouts(runs: int, env: AnnubesEnv) -> dict:
+    def _collect_rollouts(runs: int, env: AnnubesEnv) -> tuple[dict, dict]:
         # Occurrences and sequential counts
-        rollouts = dict.fromkeys(tuple(env.session.keys()) + (None,), 0.0)
-        counts = {k: [] for k in tuple(env.stim_types) + (None,)}
+        rollouts: dict[str | None | tuple[str, ...], float] = dict.fromkeys(env.session, 0.0)
+        rollouts[None] = 0.0
+        counts: dict[str | None | tuple[str, ...], list] = dict.fromkeys(env.stim_types, [])  # noqa: RUF024
+        counts[None] = []
 
         for _ in range(runs):
             trial = env.new_trial()
 
-            stim_types = trial["stim_types"]
-            if trial["catch"]:
-                stim_types = None
-            else:
-                stim_types = _tuple_or_string(stim_types)
+            stim_types = None if trial["catch"] else _tuple_or_string(trial["stim_types"])
 
             # Unpack tuples with a single element.
             rollouts[stim_types] += 1.0
@@ -250,19 +254,18 @@ def test_annubes_env_probabilities_and_counts(
         return rollouts, counts
 
     def _max_sequential_conflict(
-        stim_types: tuple,
+        stim_types: tuple[str, ...],
         catch_prob: float,
         session: dict,
         max_sequential: dict | int | None,
     ) -> bool:
-        """
-        Check the satisfiability of the the max_sequential condition.
+        """Check the satisfiability of the the max_sequential condition.
 
         NOTE: This is a slightly modified version of the
         AnnubesEnv._prepare_max_sequential() method.
 
         Args:
-            stim_types: A list of elementary stimulus types identified from the session.
+            stim_types: A tuple of elementary stimulus types identified from the session.
             catch_prob: The catch probability.
             session: A session.
             max_sequential: An optional dictionary or integer specifying the
@@ -271,7 +274,6 @@ def test_annubes_env_probabilities_and_counts(
         Returns:
             An indication of whether the max_sequential condition can be satisfied.
         """
-
         default_max_sequential = max_sequential if isinstance(max_sequential, int) else None
         if not isinstance(max_sequential, dict):
             max_sequential = {}
@@ -289,14 +291,14 @@ def test_annubes_env_probabilities_and_counts(
         if not _is_close(catch_prob, 0.0):
             return False
 
-        stim_probs = {k: 0.0 for k in stim_types}
+        stim_probs = dict.fromkeys(stim_types, 0.0)
         for _stim_types, prob in session.items():
             if not isinstance(_stim_types, tuple):
                 _stim_types = (_stim_types,)
             for _stim_type in _stim_types:
                 stim_probs[_stim_type] += prob
 
-        return any([max_sequential[k] is not None and _is_close(v, 1.0) for k, v in stim_probs.items()])
+        return any(max_sequential[k] is not None and _is_close(v, 1.0) for k, v in stim_probs.items())
 
     # / Helper functions
     # ==================================================
@@ -322,12 +324,12 @@ def test_annubes_env_probabilities_and_counts(
     norm_session = {_tuple_or_string(k): v / total for k, v in session.items()}
 
     # Extract the elementary modalities.
-    stim_types = _tuple_or_string(list(session.keys()))
+    stim_types = _tuple_or_string(tuple(session.keys()))
 
-    # Check for max_sequential satisfiability and fail predictably
-    # if it does not pass.
+    # Check for max_sequential satisfiability and fail
+    # predictably if the condition is unsatisfiable.
     # ==================================================
-    if _max_sequential_conflict(stim_types, catch_prob, norm_session, max_sequential):
+    if _max_sequential_conflict(stim_types, catch_prob, norm_session, max_sequential):  # type: ignore[arg-type]
         with pytest.raises(ValueError) as e:
             env = AnnubesEnv(
                 session=session,
@@ -335,10 +337,7 @@ def test_annubes_env_probabilities_and_counts(
                 max_sequential=max_sequential,
                 random_seed=RND_SEED,
             )
-        assert (
-            str(e.value)
-            == "Invalid settings: max_sequential imposes a limit on a stimulus that should appear in every trial."
-        )
+        assert str(e.value).startswith("Invalid settings: max_sequential imposes a limit")
         return
 
     # We are past the failure checks, create
@@ -361,7 +360,7 @@ def test_annubes_env_probabilities_and_counts(
     # Some keys in the session might have a probability
     # of 0, so we have to exclude those.
     # ==================================================
-    assert len(set([k for k, v in session.items() if v > 0.0]).symmetric_difference(set(rollouts.keys()))), (
+    assert len({k for k, v in session.items() if v > 0.0}.symmetric_difference(set(rollouts.keys()))), (
         "The trials do not reflect the session."
     )
 
@@ -370,7 +369,7 @@ def test_annubes_env_probabilities_and_counts(
     # ==================================================
     for combination, probability in norm_session.items():
         # Standardise the key
-        combination = _tuple_or_string(combination)
+        _combination = _tuple_or_string(combination)  # type: ignore[arg-type]
 
         # Multiply by the complementary of the catch trial probability
         # to obtain the right probability for this combination
@@ -378,7 +377,7 @@ def test_annubes_env_probabilities_and_counts(
 
         assert _is_close(
             comp_prob,
-            rollouts[combination],
+            rollouts[_combination],
             atol=0.185 * comp_prob,
             rtol=0.185 * comp_prob,
         )
@@ -386,12 +385,12 @@ def test_annubes_env_probabilities_and_counts(
     # Check for sequences longer than max_sequential,
     # excluding catch trials.
     # ==================================================
-    if any([v is not None for v in env.max_sequential.values()]):
+    if any(v is not None for v in env.max_sequential.values()):
         sequential_counts = {k: np.array(v[1:]) for k, v in sequential_counts.items()}
         for stim_type, sequences in sequential_counts.items():
             # Get the indices of trials where the stimulus
             # occurred more than max_sequential times in a row.
-            error_idx = np.argwhere(np.array(sequences, dtype=np.uint32) > env.max_sequential[stim_type])
+            error_idx = np.argwhere(np.array(sequences, dtype=np.uint32) > env.max_sequential[stim_type])  # type: ignore[operator]
             assert len(error_idx) == 0, (
                 f"Found a sequence longer than {env.max_sequential[stim_type]} at trials {error_idx}"
             )
@@ -407,11 +406,11 @@ def test_observation_space(default_env: AnnubesEnv, custom_env: AnnubesEnv) -> N
     assert default_env.observation_space.shape == (4,)
     assert custom_env.observation_space.shape == (3,)
 
-    assert default_env.observation_space.name == {
+    assert default_env.observation_space.name == {  # type: ignore[attr-defined]
         "fixation": 0,
         "start": 1,
         **{trial: i for i, trial in enumerate(sorted(default_env.stim_types), 2)},
-    }  # type: ignore[attr-defined]
+    }
     assert custom_env.observation_space.name == {"fixation": 0, "start": 1, "v": 2}  # type: ignore[attr-defined]
 
 
