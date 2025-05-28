@@ -28,7 +28,8 @@ class MonitorLogConfig(ConfigBase):
     Attributes:
         verbose: Whether to enable verbose output.
         format: Log format string.
-        level: Logging level (e.g., INFO, DEBUG).
+        level: The minimum severity level from which logged messages should be sent to the sink.
+            Options are: "TRACE", "DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL".
         trigger: Unit used to trigger logging output.
         interval: Logging interval in units of trigger.
     """
@@ -39,7 +40,7 @@ class MonitorLogConfig(ConfigBase):
     trigger: Literal["trial", "step"] = "trial"
     interval: PositiveInt = 10
 
-    def make_config(self) -> dict[str, Any]:
+    def build_log_config(self) -> dict[str, Any]:
         """Build logger configuration for Loguru."""
         return {
             "handlers": [

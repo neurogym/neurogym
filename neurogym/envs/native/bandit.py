@@ -2,6 +2,7 @@
 # TODO: add the actual papers.
 
 import numpy as np
+from loguru import logger
 
 import neurogym as ngym
 from neurogym import spaces
@@ -36,7 +37,7 @@ class Bandit(ngym.TrialEnv):
     ) -> None:
         super().__init__(dt=dt)
         if timing is not None:
-            print("Warning: Bandit task does not require timing variable.")
+            logger.warning("Bandit task does not require timing variable.")
 
         self.n = n
         self._p = np.array(p)  # Reward probabilities

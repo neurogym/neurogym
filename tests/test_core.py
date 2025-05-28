@@ -1,7 +1,10 @@
+import warnings
+
 import numpy as np
 import pytest
 
 import neurogym as ngym
+from neurogym.core import env_string
 
 
 def test_one_step_mismatch():
@@ -139,3 +142,14 @@ def test_trial_length_stats(timing, expected_stats):
 
     for key, expected in expected_stats.items():
         assert np.isclose(stats[key], expected, atol=1), f"{key} = {stats[key]} not close to {expected}"
+
+
+def test_string_methods():
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+
+        env = ngym.make("AntiReach-v0")
+        print(env)  # noqa: T201
+        print(env_string(env))  # noqa: T201
+        assert str(env) == "<OrderEnforcing<AntiReach>>"

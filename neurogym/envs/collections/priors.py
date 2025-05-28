@@ -15,6 +15,7 @@ Usage:
 """
 
 import gymnasium as gym
+from loguru import logger
 
 from neurogym import wrappers
 
@@ -25,7 +26,7 @@ def priors_v0(tr_hist_kwargs=None, var_nch_kwargs=None, **task_kwargs):
     if tr_hist_kwargs is None:
         tr_hist_kwargs = {"probs": 0.9}
     env = gym.make("NAltPerceptualDecisionMaking-v0", **task_kwargs)
-    print(tr_hist_kwargs)
+    logger.info(tr_hist_kwargs)
     env = wrappers.TrialHistoryEvolution(env, **tr_hist_kwargs)
     env = wrappers.Variable_nch(env, **var_nch_kwargs)
     env = wrappers.PassAction(env)
