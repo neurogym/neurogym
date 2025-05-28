@@ -51,6 +51,7 @@ class SideBias(ngym.TrialWrapper):
 
     def new_trial(self, **kwargs):
         # change rep. prob. every self.block_dur trials
+        # TODO: update to allow triggering block change with a probability
         if self.task.num_tr % self.block_dur == 0:
             curr_block = self.curr_block
             while curr_block == self.curr_block:
@@ -59,4 +60,5 @@ class SideBias(ngym.TrialWrapper):
         probs = self.choice_prob[self.curr_block]
         kwargs = {}
         kwargs["ground_truth"] = self.task.rng.choice(self.choices, p=probs)
+        kwargs["probs"] = probs
         return self.env.new_trial(**kwargs)
