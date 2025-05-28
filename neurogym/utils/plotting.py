@@ -90,6 +90,7 @@ def plot_env(
         ob_traces=ob_traces,
         fig_kwargs=fig_kwargs,
         env=env,
+        initial_ob=data["initial_ob"],
         fname=fname,
         trial_starts=trial_starts_axis,
     )
@@ -112,7 +113,10 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
             )
         ob = env.reset()
     else:
-        ob, _ = env.reset()  # TODO: not saving this first observation
+        ob, _ = env.reset()
+
+    initial_ob = ob.copy()
+
     ob_cum_temp = ob
 
     if num_trials is not None:
@@ -187,6 +191,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         "actions_end_of_trial": actions_end_of_trial,
         "gt": gt,
         "states": states,
+        "initial_ob": initial_ob,
     }
 
 
@@ -204,6 +209,7 @@ def fig_(
     fname=None,
     fig_kwargs=None,
     env=None,
+    initial_ob=None,
     trial_starts=None,
 ):
     """Visualize a run in a simple environment.
@@ -223,12 +229,21 @@ def fig_(
             specified by ob_traces
         fig_kwargs: figure properties admitted by matplotlib.pyplot.subplots() function
         env: environment class for extra information
+        initial_ob: initial observation to be used to align with actions
         trial_starts: list of trial start indices, 1-based
     """
     if fig_kwargs is None:
         fig_kwargs = {}
     ob = np.array(ob)
     actions = np.array(actions)
+
+    if initial_ob is None:
+        initial_ob = ob[0].copy()
+    # Align observation with actions by inserting an initial obs from env
+    ob = np.insert(ob, 0, initial_ob, axis=0)
+
+    # Trim last obs to match actions
+    ob = ob[:-1]
 
     if len(ob.shape) == 2:
         return plot_env_1dbox(
@@ -304,7 +319,7 @@ def plot_env_1dbox(
 
         # Plot all traces first
         for ind_tr, tr in enumerate(ob_traces):
-            ax.plot(ob[:, ind_tr], label=tr)
+            ax.plot(steps, ob[:, ind_tr], label=tr)
 
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
@@ -317,7 +332,7 @@ def plot_env_1dbox(
         fix_idx = next((i for i, tr in enumerate(ob_traces) if "fix" in tr.lower()), None)
 
         if fix_idx is not None:
-            yticks.append(np.mean(ob[:, fix_idx]))
+            yticks.append(np.max(ob[:, fix_idx]))
             yticklabels.append("Fix. Cue")
 
             # All other indices are stimuli
@@ -359,8 +374,8 @@ def plot_env_1dbox(
         ax.set_title(f"{name} env")
     ax.set_ylabel("Obs.")
     # Show step numbers on x-axis
-    ax.set_xticks(np.arange(0, len(steps), 5))
-    ax.set_xticklabels(np.arange(0, len(steps), 5))
+    ax.set_xticks(np.arange(0, len(steps) + 1, 5))
+    ax.set_xticklabels(np.arange(0, len(steps) + 1, 5))
     # Add gray background grid with white lines
     _set_grid_style(ax)
 
@@ -397,7 +412,7 @@ def plot_env_1dbox(
         yticks = []
         yticklabels = []
         for key, val in env.action_space.name.items():
-            if isinstance(val, list | tuple | np.ndarray):
+            if isinstance(val, list | tuple | np.ndarray | range):
                 for v in val:
                     yticks.append(v)
                     yticklabels.append(f"{key}_{v}")
@@ -407,8 +422,8 @@ def plot_env_1dbox(
         ax.set_yticks(yticks)
         ax.set_yticklabels(yticklabels)
     # Show step numbers on x-axis
-    ax.set_xticks(np.arange(0, len(steps), 5))
-    ax.set_xticklabels(np.arange(0, len(steps), 5))
+    ax.set_xticks(np.arange(0, len(steps) + 1, 5))
+    ax.set_xticklabels(np.arange(0, len(steps) + 1, 5))
     # Add gray background grid with white lines
     _set_grid_style(ax)
 
@@ -434,7 +449,7 @@ def plot_env_1dbox(
             if isinstance(env.rewards, dict):
                 for key, val in env.rewards.items():
                     yticks.append(val)
-                    yticklabels.append(f"{key[:5].title()} {val:0.2f}")
+                    yticklabels.append(f"{str(key)[:5].title()} {val:0.2f}")
             else:
                 for val in env.rewards:
                     yticks.append(val)
@@ -443,8 +458,8 @@ def plot_env_1dbox(
             ax.set_yticks(yticks)
             ax.set_yticklabels(yticklabels)
         # Show step numbers on x-axis
-        ax.set_xticks(np.arange(0, len(steps), 5))
-        ax.set_xticklabels(np.arange(0, len(steps), 5))
+        ax.set_xticks(np.arange(0, len(steps) + 1, 5))
+        ax.set_xticklabels(np.arange(0, len(steps) + 1, 5))
         # Add gray background grid with white lines
         _set_grid_style(ax)
 
@@ -472,8 +487,8 @@ def plot_env_1dbox(
     if states is not None:
         if performance is not None or rewards is not None:
             # Show step numbers on x-axis
-            ax.set_xticks(np.arange(0, len(steps), 5))
-            ax.set_xticklabels(np.arange(0, len(steps), 5))
+            ax.set_xticks(np.arange(0, len(steps) + 1, 5))
+            ax.set_xticklabels(np.arange(0, len(steps) + 1, 5))
         ax = axes[i_ax]
         i_ax += 1
         plt.imshow(states[:, int(states.shape[1] / 2) :].T, aspect="auto")
