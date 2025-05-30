@@ -17,6 +17,7 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
             the task
         sigma: float, input noise level
         dim_ring: int, dimension of ring input and output
+        abort: bool, if True, incorrect actions during fixation lead to trial abortion.
     """
 
     metadata = {  # noqa: RUF012
@@ -34,6 +35,7 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
         cohs=None,
         sigma=1.0,
         dim_ring=2,
+        abort: bool = False,
     ) -> None:
         super().__init__(dt=dt)
         if cohs is None:
@@ -51,7 +53,7 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
         if timing:
             self.timing.update(timing)
 
-        self.abort = False
+        self.abort = abort
 
         self.theta = np.linspace(0, 2 * np.pi, dim_ring + 1)[:-1]
         self.choices = np.arange(dim_ring)
