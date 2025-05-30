@@ -164,7 +164,7 @@ class ScheduleEnvs(TrialWrapper):
                 msg = f"Env must have 1-D Box shape but got {env_shape}."
                 raise ValueError(msg)
             _have_equal_shape(envs)
-            self.observation_space: spaces.Box = spaces.Box(
+            self.observation_space: spaces.Box = spaces.Box(  # type: ignore[override]
                 -np.inf,
                 np.inf,
                 shape=(env_shape[0] + len(self.envs),),
