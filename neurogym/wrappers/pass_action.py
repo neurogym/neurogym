@@ -26,7 +26,7 @@ class PassAction(Wrapper):
                 dtype=np.float32,
             )
 
-    def reset(self, seed, options=None):
+    def reset(self, seed=None, options=None):
         step_fn = options.get("step_fn") if options else None
         if step_fn is None:
             step_fn = self.step
