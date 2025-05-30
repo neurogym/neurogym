@@ -405,7 +405,7 @@ class FullInput(gym.Wrapper):
         # ob_shape is not used, so it is removed
         low = np.array(list(orig_ob_space.low) + [-1] + [0] * self.action_space.n)  # type: ignore[attr-defined]
         high = np.array(list(orig_ob_space.high) + [1] + [1] * self.action_space.n)  # type: ignore[attr-defined]
-        self.observation_space: spaces.Box = spaces.Box(low, high, dtype=np.float32)
+        self.observation_space: spaces.Box = spaces.Box(low, high, dtype=np.float32)  # type: ignore[override]
 
     def step(self, action):
         obs, reward, terminated, truncated, info = self.env.step(action)
