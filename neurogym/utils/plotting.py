@@ -237,13 +237,16 @@ def fig_(
     ob = np.array(ob)
     actions = np.array(actions)
 
-    if initial_ob is None:
-        initial_ob = ob[0].copy()
-    # Align observation with actions by inserting an initial obs from env
-    ob = np.insert(ob, 0, initial_ob, axis=0)
+    from neurogym.wrappers.reaction_time import ReactionTime
 
-    # Trim last obs to match actions
-    ob = ob[:-1]
+    if isinstance(env, ReactionTime):
+        pass
+    elif initial_ob is None:
+        initial_ob = ob[0].copy()
+        # Align observation with actions by inserting an initial obs from env
+        ob = np.insert(ob, 0, initial_ob, axis=0)
+        # Trim last obs to match actions
+        ob = ob[:-1]
 
     if len(ob.shape) == 2:
         return plot_env_1dbox(
