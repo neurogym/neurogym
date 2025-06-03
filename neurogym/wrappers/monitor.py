@@ -558,6 +558,7 @@ class Monitor(Wrapper):
         name: str,
         figsize: tuple[int, ...] = (12, 5),
         neurons: list | None = None,
+        mean: bool = False,
     ) -> tuple[plt.Figure, plt.Axes]:
         """Plot the neuron activations.
 
@@ -565,6 +566,7 @@ class Monitor(Wrapper):
             name: Name of the layer.
             figsize: The size of the figure. Defaults to (12,5).
             neurons: List of neurons to plot. If None, all neurons are plotted.
+            mean: If set, plot the mean activation over all trials rather than each separate trial.
 
         Raises:
             ValueError: Raised if there is no such layer in the history.
@@ -600,13 +602,13 @@ class Monitor(Wrapper):
         neuron = 0
         for row in range(rows):
             for col in range(cols):
-                ax = (
-                    axes
-                    if len(neurons) == 1
-                    else (axes[row][col] if row > 1 else axes[col])
-                )
-                for trial in am.history:
-                    ax.plot(trial[:, neuron], lw=0.5)
+                ax = axes if len(neurons) == 1 else (axes[row][col] if row > 1 else axes[col])
+                if mean:
+                    mean_trials = np.array(am.history)[:,:,neuron].mean(axis=0)
+                    ax.plot(mean_trials, lw=0.5)
+                else:
+                    for trial in am.history:
+                        ax.plot(trial[:, neuron], lw=0.5)
                 ax.set_xlabel("Step")
                 ax.set_ylabel("Activation")
                 ax.set_title(f"Neuron {neuron}")
