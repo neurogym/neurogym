@@ -247,6 +247,9 @@ def fig_(
         ob = np.insert(ob, 0, initial_ob, axis=0)
         # Trim last obs to match actions
         ob = ob[:-1]
+    else:
+        ob = np.insert(ob, 0, initial_ob, axis=0)
+        ob = ob[:-1]
 
     if len(ob.shape) == 2:
         return plot_env_1dbox(
