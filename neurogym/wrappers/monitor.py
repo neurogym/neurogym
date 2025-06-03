@@ -13,9 +13,12 @@ from neurogym.config.config import Config
 from neurogym.utils.functions import ensure_dir, iso_timestamp
 from neurogym.utils.logging import logger
 from neurogym.utils.plotting import visualize_run
+from neurogym.wrappers.components.parameters.activation import ActivationMonitor
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+    from torch import nn
 
     from neurogym.core import TrialEnv
 
@@ -110,7 +113,12 @@ class Monitor(Wrapper):
             self.config.monitor.name = self.__class__.__name__
 
         # data to save
-        self.data: dict[str, list] = {"action": [], "reward": [], "cum_reward": [], "performance": []}
+        self.data: dict[str, list] = {
+            "action": [],
+            "reward": [],
+            "cum_reward": [],
+            "performance": [],
+        }
         # Evaluation-only data collected during the policy run (not saved to disk)
         self.data_eval: dict[str, Any] = {}
         self.cum_reward = 0.0
@@ -147,7 +155,9 @@ class Monitor(Wrapper):
         self.cum_reward = 0
         return super().reset(seed=seed)
 
-    def step(self, action: Any, collect_data: bool = True) -> tuple[Any, float, bool, bool, dict[str, Any]]:
+    def step(
+        self, action: Any, collect_data: bool = True
+    ) -> tuple[Any, float, bool, bool, dict[str, Any]]:
         """Execute one environment step.
 
         This method:
@@ -199,13 +209,19 @@ class Monitor(Wrapper):
                     logger.info(f"Data saved to: {save_path}")
                     logger.info(f"Number of trials: {self.num_tr}")
                     logger.info(f"Average reward: {np.mean(self.data['reward'])}")
-                    logger.info(f"Average performance: {np.mean(self.data['performance'])}")
+                    logger.info(
+                        f"Average performance: {np.mean(self.data['performance'])}"
+                    )
                     logger.info("--------------------")
                 self.reset_data()
                 if self.config.monitor.plot.create:
                     self.stp_counter = 0
                 if self.config.monitor.trigger == "step":
                     self.t = 0
+
+            # Start a new trial for all activation monitors.
+            for am in self.activations.values():
+                am.new_trial = True
         return obs, rew, terminated, truncated, info
 
     def reset_data(self) -> None:
@@ -213,7 +229,9 @@ class Monitor(Wrapper):
         for key in self.data:
             self.data[key] = []
 
-    def store_data(self, obs: Any, action: Any, rew: float, info: dict[str, Any]) -> None:
+    def store_data(
+        self, obs: Any, action: Any, rew: float, info: dict[str, Any]
+    ) -> None:
         """Store data for visualization figures.
 
         Args:
@@ -236,7 +254,9 @@ class Monitor(Wrapper):
                 self.perf_mat.append(-1)
             self.stp_counter += 1
         elif len(self.rew_mat) > 0:
-            fname = self.save_dir / f"task_{self.num_tr:06d}.{self.config.monitor.plot.ext}"
+            fname = (
+                self.save_dir / f"task_{self.num_tr:06d}.{self.config.monitor.plot.ext}"
+            )
             obs_mat = np.array(self.ob_mat)
             act_mat = np.array(self.act_mat)
             visualize_run(
@@ -299,7 +319,12 @@ class Monitor(Wrapper):
         while trial_count < num_trials:
             if model is not None:
                 if isinstance(model.policy, RecurrentActorCriticPolicy):
-                    action, states = model.predict(obs, state=states, episode_start=episode_starts, deterministic=True)
+                    action, states = model.predict(
+                        obs,
+                        state=states,
+                        episode_start=episode_starts,
+                        deterministic=True,
+                    )
                 else:
                     action, _ = model.predict(obs, deterministic=True)
             else:
@@ -319,7 +344,9 @@ class Monitor(Wrapper):
                 if "performance" in info:
                     performances.append(info["performance"])
 
-                if verbose and trial_count % 1000 == 0:  # FIXME: why is this value hardcoded?
+                if (
+                    verbose and trial_count % 1000 == 0
+                ):  # FIXME: why is this value hardcoded?
                     logger.info(f"Completed {trial_count}/{num_trials} trials")
 
                 self.data_eval["action"].append(action)
@@ -346,11 +373,17 @@ class Monitor(Wrapper):
 
         return {
             "rewards": rewards,
-            "mean_reward": float(np.mean(reward_array > 0)) if len(reward_array) > 0 else 0,
+            "mean_reward": (
+                float(np.mean(reward_array > 0)) if len(reward_array) > 0 else 0
+            ),
             "cum_rewards": cum_rewards,
-            "mean_cum_reward": float(np.mean(cum_reward_array)) if len(cum_reward_array) > 0 else 0,
+            "mean_cum_reward": (
+                float(np.mean(cum_reward_array)) if len(cum_reward_array) > 0 else 0
+            ),
             "performances": performances,
-            "mean_performance": float(np.mean(performance_array)) if len(performance_array) > 0 else 0,
+            "mean_performance": (
+                float(np.mean(performance_array)) if len(performance_array) > 0 else 0
+            ),
         }
 
     def plot_training_history(
@@ -416,9 +449,23 @@ class Monitor(Wrapper):
         ax1 = axes[0]
 
         if len(avg_rewards_per_file) == len(file_indices):
-            ax1.plot(file_indices, avg_rewards_per_file, "o-", color="blue", label="Avg Reward", linewidth=2)
+            ax1.plot(
+                file_indices,
+                avg_rewards_per_file,
+                "o-",
+                color="blue",
+                label="Avg Reward",
+                linewidth=2,
+            )
         if len(avg_cum_rewards_per_file) == len(file_indices):
-            ax1.plot(file_indices, avg_cum_rewards_per_file, "s--", color="red", label="Avg Cum Reward", linewidth=2)
+            ax1.plot(
+                file_indices,
+                avg_cum_rewards_per_file,
+                "s--",
+                color="red",
+                label="Avg Cum Reward",
+                linewidth=2,
+            )
 
         ax1.set_xlabel("Trials")
         ax1.set_ylabel("Reward / Cumulative Reward")
@@ -433,7 +480,13 @@ class Monitor(Wrapper):
         if plot_performance and len(axes) > 1:
             ax2 = axes[1]
             if len(avg_performances_per_file) == len(file_indices):
-                ax2.plot(file_indices, avg_performances_per_file, "o-", color="green", linewidth=2)
+                ax2.plot(
+                    file_indices,
+                    avg_performances_per_file,
+                    "o-",
+                    color="green",
+                    linewidth=2,
+                )
             ax2.set_xlabel("Trials")
             ax2.set_ylabel("Average Performance (0-1)")
             ax2.set_ylim(common_ylim)
@@ -453,8 +506,112 @@ class Monitor(Wrapper):
         )
 
         if save_fig:
-            save_path = self.config.local_dir / f"{self.config.env.name}_training_history.png"
+            save_path = (
+                self.config.local_dir / f"{self.config.env.name}_training_history.png"
+            )
             plt.savefig(save_path, dpi=300, bbox_inches="tight")
             logger.info(f"Figure saved to {save_path}")
 
         return fig
+
+    def record_activations(
+        self,
+        layer: nn.Module,
+        name: str | None = None,
+        steps: int | None = None,
+    ) -> ActivationMonitor:
+        """Record the output activations of a layer over a trial.
+
+        Args:
+            layer: The layer whose activations are being monitored.
+            name: The name to use for the activation monitor.
+                This can be useful for retrieving activation monitors
+                at a later stage.
+            steps: The steps to record for.
+                This could be less than the total number of steps in a trial.
+
+        Returns:
+            An ActivationMonitor instance.
+        """
+        # Ensure that we have a name for this monitor
+        if name is None:
+            name = layer.__class__.__name__
+
+        # The total number of steps to record during each trial.
+        if steps is None:
+            steps = int(self.tmax / self.dt)
+
+        # Create an activation monitor
+        am = ActivationMonitor(layer, steps, name)
+
+        # Check if we are replacing an existing monitor
+        if name in self.activations:
+            logger.warning(f"Replacing an existing activation monitor '{name}'.")
+
+        # Store and return the monitor
+        self.activations[name] = am
+
+        return am
+
+    def plot_activations(
+        self,
+        name: str,
+        figsize: tuple[int, ...] = (12, 5),
+        neurons: list | None = None,
+    ) -> tuple[plt.Figure, plt.Axes]:
+        """Plot the neuron activations.
+
+        Args:
+            name: Name of the layer.
+            figsize: The size of the figure. Defaults to (12,5).
+            neurons: List of neurons to plot. If None, all neurons are plotted.
+
+        Raises:
+            ValueError: Raised if there is no such layer in the history.
+
+        Returns:
+            A plot of all neuron activations.
+        """
+        # First, get the right layer
+        am = self.activations.get(name)
+        if am is None:
+            msg = f"Invalid layer name '{name}'"
+            raise ValueError(msg)
+
+        # Neuron selection
+        neuron_count = len(am.history[0][0])
+        if neurons is None:
+            neurons = list(range(neuron_count))
+
+        if max(neurons) > len(am.history[0]) - 1:
+            msg = "Some of the requested neuron IDs are beyond the size of the layer."
+            raise ValueError(msg)
+
+        # Compute the number of rows and columns
+        n_sq = int(np.floor(np.sqrt(neuron_count)))
+        rows, cols = n_sq, n_sq
+        if rows * cols < len(neurons):
+            cols += 1
+
+        # Figure and axis
+        fig, axes = plt.subplots(rows, cols, figsize=figsize)
+
+        # Plot the right neurons in the right boxes
+        neuron = 0
+        for row in range(rows):
+            for col in range(cols):
+                ax = (
+                    axes
+                    if len(neurons) == 1
+                    else (axes[row][col] if row > 1 else axes[col])
+                )
+                for trial in am.history:
+                    ax.plot(trial[:, neuron], lw=0.5)
+                ax.set_xlabel("Step")
+                ax.set_ylabel("Activation")
+                ax.set_title(f"Neuron {neuron}")
+                neuron += 1
+
+        fig.suptitle("Neuron activations", fontsize=18)
+
+        return fig, axes
