@@ -589,7 +589,7 @@ class Monitor(Wrapper):
             for col in range(cols):
                 ax = axes if len(neurons) == 1 else (axes[row][col] if row > 1 else axes[col])
                 if mean:
-                    mean_trials = np.array(am.history)[:,:,neuron].mean(axis=0)
+                    mean_trials = np.array(am.history)[:, :, neuron].mean(axis=0)
                     ax.plot(mean_trials, lw=0.5)
                 else:
                     for trial in am.history:
