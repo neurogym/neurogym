@@ -10,25 +10,38 @@ Created on Thu Feb 28 15:07:21 2019
 
 import gymnasium as gym
 
+import neurogym as ngym
+
 
 class ReactionTime(gym.Wrapper):  # TODO: Make this a trial wrapper instead?
     """Allow reaction time response.
 
     Modifies a given environment by allowing the network to act at
-    any time after the fixation period.
+    any time after the fixation period. By default, the trial ends when the
+    stimulus period ends. Optionally, the original trial structure can be
+    preserved while still allowing early responses.
+
+    Args:
+        env: The environment to wrap
+        urgency: Urgency signal added to reward at each timestep
+        end_on_stimulus: If True (default), trial ends when
+            stimulus ends. If False, preserves original trial timing while
+            allowing early responses during stimulus period.
     """
 
     metadata: dict[str, str | None] = {  # noqa: RUF012
         "description": (
-            "Modifies a given environment by allowing the network to act at any time after the fixation period."
+            "Modifies a given environment by allowing the network to act at any time after the fixation period. "
+            "The trial ends when the stimulus period ends by default, or preserves original timing if specified."
         ),
         "paper_link": None,
         "paper_name": None,
     }
 
-    def __init__(self, env, urgency=0.0) -> None:
+    def __init__(self, env: ngym.TrialEnv, urgency: float = 0.0, end_on_stimulus: bool = True) -> None:
         super().__init__(env)
         self.urgency = urgency
+        self.end_on_stimulus = end_on_stimulus
         self.tr_dur = 0
 
     def reset(self, seed=None, options=None):
@@ -42,10 +55,19 @@ class ReactionTime(gym.Wrapper):  # TODO: Make this a trial wrapper instead?
         stim = "stimulus"
         if self.env.t_ind == 0:
             try:
+                # Dictionary content access - works without `unwrapped` because
+                # `__getattr__` retrieves the shared dictionary object from base environment
                 original_gt = self.env.gt[self.env.start_ind[dec]]
-                # Overwrite decision timing
+                # Dictionary key assignment - works without `unwrapped` because we're modifying
+                # the contents of the shared dictionary object, not reassigning the attribute
                 self.env.start_t[dec] = self.env.start_t[stim] + self.env.dt
-                # Change ground truth accordingly
+
+                if self.end_on_stimulus:
+                    # Use `unwrapped` to modify base environment's `tmax` directly.
+                    # `self.env.tmax = value` would create new attribute on wrapper,
+                    # but base environment's `step()` checks its own `self.tmax`.
+                    self.env.unwrapped.tmax = self.env.end_t[stim]
+
                 self.env.gt[self.env.start_ind[stim] + 1 : self.env.end_ind[stim]] = original_gt
             except AttributeError as e:
                 msg = "ReactionTime wrapper requires 'stimulus' and 'decision' periods."
