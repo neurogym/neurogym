@@ -117,7 +117,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
 
     initial_ob = ob.copy()
 
-    ob_cum_temp = ob
+    ob_cum_temp = ob.copy()
 
     if num_trials is not None:
         num_steps = 1e5  # Overwrite num_steps value
@@ -237,19 +237,13 @@ def fig_(
     ob = np.array(ob)
     actions = np.array(actions)
 
-    from neurogym.wrappers.reaction_time import ReactionTime
-
-    if isinstance(env, ReactionTime):
-        pass
-    elif initial_ob is None:
+    if initial_ob is None:
         initial_ob = ob[0].copy()
-        # Align observation with actions by inserting an initial obs from env
-        ob = np.insert(ob, 0, initial_ob, axis=0)
-        # Trim last obs to match actions
-        ob = ob[:-1]
-    else:
-        ob = np.insert(ob, 0, initial_ob, axis=0)
-        ob = ob[:-1]
+
+    # Align observation with actions by inserting an initial obs from env
+    ob = np.insert(ob, 0, initial_ob, axis=0)
+    # Trim last obs to match actions
+    ob = ob[:-1]
 
     if len(ob.shape) == 2:
         return plot_env_1dbox(
