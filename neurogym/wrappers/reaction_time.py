@@ -28,7 +28,6 @@ class ReactionTime(gym.Wrapper):  # TODO: Make this a trial wrapper instead?
 
     def __init__(self, env, urgency=0.0) -> None:
         super().__init__(env)
-        self.env = env
         self.urgency = urgency
         self.tr_dur = 0
 
@@ -41,22 +40,22 @@ class ReactionTime(gym.Wrapper):  # TODO: Make this a trial wrapper instead?
     def step(self, action):
         dec = "decision"
         stim = "stimulus"
-        if self.env.t_ind == 0:  # t_ind is the index of the current time step
-            # Set decision period to match stimulus period
+        if self.env.t_ind == 0:
             try:
+                original_gt = self.env.gt[self.env.start_ind[dec]]
+                # Overwrite decision timing
                 self.env.start_t[dec] = self.env.start_t[stim] + self.env.dt
+                # Change ground truth accordingly
+                self.env.gt[self.env.start_ind[stim] + 1 : self.env.end_ind[stim]] = original_gt
             except AttributeError as e:
-                msg = "Reaction time wrapper requires a stimulus period."
+                msg = "ReactionTime wrapper requires 'stimulus' and 'decision' periods."
                 raise AttributeError(msg) from e
-
-            # Change ground truth accordingly
-            self.env.gt[self.start_ind[stim] + 1 : self.env.end_ind[stim]] = self.env.gt[self.start_ind[dec]]
 
         obs, reward, terminated, truncated, info = self.env.step(action)
 
-        if info["new_trial"]:
+        if info.get("new_trial", False):
+            self.tr_dur = 0
             info["tr_dur"] = self.tr_dur
-            obs *= 0
         else:
             self.tr_dur = self.env.t_ind
         reward += self.urgency
