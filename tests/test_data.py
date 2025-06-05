@@ -4,9 +4,9 @@ import warnings
 
 import gymnasium as gym
 import numpy as np
-from loguru import logger
 
 import neurogym as ngym
+from neurogym.utils.logging import logger
 
 # Get all supervised learning environment
 SL_ENVS = ngym.all_envs(tag="supervised")

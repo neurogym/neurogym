@@ -5,9 +5,9 @@ import warnings
 
 import gymnasium as gym
 import pytest
-from loguru import logger
 
 import neurogym as ngym
+from neurogym.utils.logging import logger
 
 
 def speed(env, n_steps=100000, warmup_steps=10000):

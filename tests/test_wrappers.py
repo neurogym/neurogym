@@ -5,9 +5,9 @@ import gymnasium as gym
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
-from loguru import logger
 
 import neurogym as ngym
+from neurogym.utils.logging import logger
 from neurogym.wrappers import (
     Noise,
     PassAction,

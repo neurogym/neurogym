@@ -2,7 +2,8 @@ import sys
 from typing import Any
 
 import numpy as np
-from loguru import logger
+
+from neurogym.utils.logging import logger
 
 try:
     from psychopy import visual

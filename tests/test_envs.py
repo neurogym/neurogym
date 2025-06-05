@@ -4,11 +4,11 @@ from importlib.util import find_spec
 import gymnasium as gym
 import numpy as np
 import pytest
-from loguru import logger
 from matplotlib import pyplot as plt
 
 import neurogym as ngym
 from neurogym.utils.data import Dataset
+from neurogym.utils.logging import logger
 
 _HAVE_PSYCHOPY = find_spec("psychopy") is not None  # check if psychopy is installed
 SEED = 0

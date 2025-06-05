@@ -5,10 +5,10 @@ from typing import Any
 import matplotlib.pyplot as plt
 import numpy as np
 from gymnasium import Wrapper
-from loguru import logger
 
 import neurogym as ngym
 from neurogym.config.base import LOCAL_DIR
+from neurogym.utils.logging import logger
 from neurogym.utils.plotting import fig_
 
 

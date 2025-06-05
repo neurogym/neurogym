@@ -15,9 +15,9 @@ Usage:
 """
 
 import gymnasium as gym
-from loguru import logger
 
 from neurogym import wrappers
+from neurogym.utils.logging import logger
 
 
 def priors_v0(tr_hist_kwargs=None, var_nch_kwargs=None, **task_kwargs):

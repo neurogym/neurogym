@@ -2,11 +2,10 @@
 
 import inspect
 
-from loguru import logger
-
 import neurogym as ngym
 from neurogym.core import METADATA_DEF_KEYS, env_string
 from neurogym.envs.registration import ALL_ENVS, all_envs
+from neurogym.utils.logging import logger
 from neurogym.wrappers import ALL_WRAPPERS
 
 
