@@ -1,11 +1,11 @@
-import matplotlib
+import matplotlib as mpl
 import numpy as np
 from numpy.typing import NDArray
 from scipy.optimize import curve_fit
 from scipy.special import erf
 
 
-def probit(x: float | NDArray[np.float64], beta: float, alpha: float) -> float | NDArray[np.float64]:
+def probit(x: NDArray[np.float64], beta: float, alpha: float) -> NDArray[np.float64]:
     """Cumulative Gaussian (probit) function.
 
     Args:
@@ -20,7 +20,7 @@ def probit(x: float | NDArray[np.float64], beta: float, alpha: float) -> float |
 
 
 def plot_psychometric(
-    sig_ev: NDArray, ch: NDArray, ax: matplotlib.axes.Axes, title: str | None = None, legend: str | None = None
+    sig_ev: NDArray, ch: NDArray, ax: mpl.axes.Axes, title: str | None = None, legend: str | None = None
 ):
     """Fit and plot a psychometric curve using a probit function.
 
