@@ -6,8 +6,9 @@ import gymnasium as gym
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from loguru import logger
 from matplotlib import animation
+
+from neurogym.utils.logging import logger
 
 try:
     from stable_baselines3.common.vec_env import DummyVecEnv

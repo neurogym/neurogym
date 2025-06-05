@@ -1,10 +1,10 @@
 """Example template for contributing new tasks."""  # noqa: INP001
 
 import numpy as np
-from loguru import logger
 
 import neurogym as ngym
 from neurogym import spaces
+from neurogym.utils.logging import logger
 
 
 class YourTask(ngym.TrialEnv):

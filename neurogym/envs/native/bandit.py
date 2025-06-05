@@ -2,10 +2,10 @@
 # TODO: add the actual papers.
 
 import numpy as np
-from loguru import logger
 
 import neurogym as ngym
 from neurogym import spaces
+from neurogym.utils.logging import logger
 
 
 class Bandit(ngym.TrialEnv):

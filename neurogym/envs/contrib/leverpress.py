@@ -4,9 +4,9 @@ import gymnasium as gym
 import numpy as np
 from gymnasium import spaces
 from gymnasium.utils import seeding
-from loguru import logger
 
 from neurogym.core import InvalidOperationError
+from neurogym.utils.logging import logger
 
 
 class LeverPress(gym.Env):
