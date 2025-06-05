@@ -112,8 +112,6 @@ class Monitor(Wrapper):
         if len(self.config.monitor.name) == 0:
             self.config.monitor.name = self.__class__.__name__
 
-        self._configure_logger()
-
         # data to save
         self.data: dict[str, list] = {"action": [], "reward": [], "cum_reward": [], "performance": []}
         # Evaluation-only data collected during the policy run (not saved to disk)
@@ -139,11 +137,6 @@ class Monitor(Wrapper):
         # Ensure the reset function is called
         initial_ob, *_ = env.reset()
         self.initial_ob = initial_ob
-
-    def _configure_logger(self):
-        ngym.logger.remove()
-        ngym.logger.configure(**self.config.monitor.log.build_log_config())
-        ngym.logger.info("Logger configured.")
 
     def reset(self, seed=None):
         """Reset the environment.

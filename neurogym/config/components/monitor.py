@@ -1,5 +1,4 @@
-import sys
-from typing import Any, Literal
+from typing import Literal
 
 from pydantic import PositiveInt
 
@@ -39,20 +38,6 @@ class MonitorLogConfig(ConfigBase):
     level: str = "INFO"
     trigger: Literal["trial", "step"] = "trial"
     interval: PositiveInt = 10
-
-    def build_log_config(self) -> dict[str, Any]:
-        """Build logger configuration for Loguru."""
-        return {
-            "handlers": [
-                {
-                    "sink": sys.stderr,
-                    "format": self.format,
-                    "level": self.level,
-                    "enqueue": True,
-                    "diagnose": False,
-                },
-            ],
-        }
 
 
 class MonitorConfig(ConfigBase):
