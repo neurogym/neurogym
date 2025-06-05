@@ -1,43 +1,35 @@
+import matplotlib
 import numpy as np
+from numpy.typing import NDArray
 from scipy.optimize import curve_fit
 from scipy.special import erf
 
 
-def probit(x, beta, alpha):
+def probit(x: float | NDArray[np.float64], beta: float, alpha: float) -> float | NDArray[np.float64]:
     """Cumulative Gaussian (probit) function.
 
-    Parameters
-    ----------
-    x : float or np.ndarray
-        Independent variable (e.g., signed stimulus evidence).
-    beta : float
-        Sensitivity (slope) of the psychometric function.
-    alpha : float
-        Bias term (horizontal shift of the curve).
+    Args:
+        x: Independent variable (e.g., signed stimulus evidence).
+        beta: Sensitivity (slope) of the psychometric function.
+        alpha: Bias term (horizontal shift of the curve).
 
     Returns:
-    -------
-    np.ndarray
         Probability of choosing the "correct" option for each x.
     """
-    return 0.5 * (1 + erf((beta * x + alpha) / np.sqrt(2)))
+    return np.asarray(0.5 * (1 + erf((beta * x + alpha) / np.sqrt(2))), dtype=np.float64)
 
 
-def plot_psychometric(sig_ev, ch, ax, title=None, legend=None):
+def plot_psychometric(
+    sig_ev: NDArray, ch: NDArray, ax: matplotlib.axes.Axes, title: str | None = None, legend: str | None = None
+):
     """Fit and plot a psychometric curve using a probit function.
 
-    Parameters
-    ----------
-    sig_ev : np.ndarray
-        Signed stimulus evidence (positive = rightward, negative = leftward).
-    ch : np.ndarray
-        Binary choices (1 = right, 0 = left).
-    ax : matplotlib.axes.Axes
-        Axis to plot on.
-    title : str, optional
-        Title for the plot.
-    legend : str, optional
-        Label for the fit curve.
+    Args:
+        sig_ev: Signed stimulus evidence (positive = rightward, negative = leftward).
+        ch: Binary choices (1 = right, 0 = left).
+        ax: Axis to plot on.
+        title: Title for the plot. Optional.
+        legend: Label for the fit curve. Optional.
     """
     # Fit the probit model to data
     popt, _ = curve_fit(probit, sig_ev, ch, maxfev=10000)
