@@ -21,25 +21,6 @@ class MonitorPlotConfig(ConfigBase):
     ext: str = "png"
 
 
-class MonitorLogConfig(ConfigBase):
-    """Logging configuration during monitoring.
-
-    Attributes:
-        verbose: Whether to enable verbose output.
-        format: Log format string.
-        level: The minimum severity level from which logged messages should be sent to the sink.
-            Options are: "TRACE", "DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL".
-        trigger: Unit used to trigger logging output.
-        interval: Logging interval in units of trigger.
-    """
-
-    verbose: bool = True
-    format: str = "<magenta>Neurogym</magenta> | <cyan>{time:YYYY-MM-DD@HH:mm:ss}</cyan> | <level>{message}</level>"
-    level: str = "INFO"
-    trigger: Literal["trial", "step"] = "trial"
-    interval: PositiveInt = 10
-
-
 class MonitorConfig(ConfigBase):
     """Top-level configuration for monitoring.
 
@@ -47,12 +28,12 @@ class MonitorConfig(ConfigBase):
         name: Optional monitor name.
         trigger: Unit used to trigger saving output.
         interval: Number of trigger units between each save operation.
-        log: Logging configuration.
+        verbose: Whether to enable verbose output.
         plot: Plotting configuration.
     """
 
     name: str = ""
     trigger: Literal["trial", "step"] = "trial"
     interval: PositiveInt = 1000
+    verbose: bool = True
     plot: MonitorPlotConfig = MonitorPlotConfig()
-    log: MonitorLogConfig = MonitorLogConfig()

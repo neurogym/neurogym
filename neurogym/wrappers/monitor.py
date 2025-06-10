@@ -59,20 +59,15 @@ class Monitor(Wrapper):
         name: str | None = None,
         trigger: str = "trial",
         interval: int = 1000,
+        verbose: bool = True,
         plot_create: bool = False,
         plot_steps: int = 1000,
         ext: str = "png",
         step_fn: Callable | None = None,
-        verbose: bool = True,
-        level: str = "INFO",
-        log_trigger: str = "trial",
-        log_interval: int = 1000,
     ) -> None:
         super().__init__(env)
         self.env = env
         self.step_fn = step_fn
-
-        log_format = "<magenta>Neurogym</magenta> | <cyan>{time:YYYY-MM-DD@HH:mm:ss}</cyan> | <level>{message}</level>"
 
         cfg: ngym.Config
         if config is None:
@@ -82,18 +77,12 @@ class Monitor(Wrapper):
                     "name": name or "Monitor",
                     "trigger": trigger,
                     "interval": interval,
+                    "verbose": verbose,
                     "plot": {
                         "create": plot_create,
                         "step": plot_steps,
                         "title": env.unwrapped.__class__.__name__,
                         "ext": ext,
-                    },
-                    "log": {
-                        "verbose": verbose,
-                        "format": log_format,
-                        "level": level,
-                        "trigger": log_trigger,
-                        "interval": log_interval,
                     },
                 },
                 "local_dir": LOCAL_DIR,
@@ -197,7 +186,7 @@ class Monitor(Wrapper):
                 save_path = self.save_dir / f"trial_{self.num_tr}.npz"
                 np.savez(save_path, **self.data)
 
-                if self.config.monitor.log.verbose:
+                if self.config.monitor.verbose:
                     logger.info("--------------------")
                     logger.info(f"Data saved to: {save_path}")
                     logger.info(f"Number of trials: {self.num_tr}")
