@@ -9,10 +9,6 @@ import nbformat as nbf
 
 import neurogym as ngym
 
-# FIXME: check these links
-COLABURL = "https://colab.research.google.com/github/"
-ROOTURL = "neurogym/ngym_usage/blob/master/training/auto_notebooks/"
-
 
 def get_linenumber(m: tuple[str, Any]) -> int:
     """Get line number of a member."""
@@ -70,26 +66,39 @@ def func_to_script(code: str) -> str:
     return code[:ind]  # Remove the return line
 
 
-def auto_generate_notebook(envid: str, learning: Literal["supervised", "rl"] = "supervised") -> None:
-    installation_code = (  # FIXME: fix this line
-        "# ! pip install gym   # Install gym\n"
-        "# ! git clone https://github.com/gyyang/neurogym.git  # Install neurogym\n"
-        "# %cd neurogym/\n"
-        "# ! pip install -e .\n"
-    )
+def auto_generate_notebook(envid: str, learning: Literal["supervised", "reinforcement"] = "supervised") -> None:
+    # Google Colab badge and link
+    colab_url = "https://colab.research.google.com"
+    destination_url = "github/neurogym/neurogym/docs/tutorials/auto_generated"
+    link = f"{colab_url}/{destination_url}/{learning}/{envid}.ipynb"
+    badge = f"{colab_url}/assets/colab-badge.svg"
+    text = f"[![Open In Colab]({badge})]({link})"
+    cells = [nbf.v4.new_markdown_cell(text)]
 
+    # TODO: include option to add a custom introduction text
+    text = f"##{envid}"
+
+    # Installation instructions
+    text = (
+        "### Installation\n\n"
+        "**Google Colab:** Uncomment and execute cell below when running this notebook on google colab.\n\n"
+        "**Local:** Follow [these instructions](https://github.com/neurogym/neurogym?tab=readme-ov-file#installation)\n"
+        "when running this notebook locally.\n"
+    )
+    cells += [nbf.v4.new_markdown_cell(text)]
+
+    # Installation code
+    installation_code = "# ! pip install neurogym"
     if learning == "supervised":
         modulename = "supervised_train"
-    elif learning == "rl":
+    elif learning == "reinforcement":
         modulename = "RL_train"
-        installation_code = (
-            "# %tensorflow_version 1.x\n# ! pip install --upgrade stable-baselines  # install latest version\n"
-        ) + installation_code
+        installation_code += "[rl]"
     else:
-        msg = "Unknown learning"
-        raise ValueError(msg, learning)
-    installation_code = "# Uncomment following lines to install\n" + installation_code
-    codeurl = ROOTURL + learning + "/"
+        msg = f"Unknown learning type: {learning}"
+        raise ValueError(msg)
+    cells += [nbf.v4.new_code_cell(installation_code)]
+
     # From training code
     train_members = get_members(modulename)
     # Common analysis code
@@ -100,18 +109,6 @@ def auto_generate_notebook(envid: str, learning: Literal["supervised", "rl"] = "
     # Initial code block
     with Path(f"{modulename}.py").open() as f:
         codelines = f.readlines()
-
-    # Beginning text
-    badge = "https://colab.research.google.com/assets/colab-badge.svg"
-    link = f"{COLABURL}{codeurl}{envid}.ipynb"
-    text = f"[![Open In Colab]({badge})]({link})"
-
-    cells = [nbf.v4.new_markdown_cell(text)]
-
-    # Local install if on colab
-    text = "### Install packages if on Colab"
-    cells += [nbf.v4.new_markdown_cell(text)]
-    cells += [nbf.v4.new_code_cell(installation_code)]
 
     # Everything before first function/class
     text = "### Import packages"
@@ -166,4 +163,4 @@ if __name__ == "__main__":
 
     all_envs = ngym.all_envs()
     for envid in all_envs:
-        auto_generate_notebook(envid, learning="rl")
+        auto_generate_notebook(envid, learning="reinforcement")
