@@ -124,7 +124,10 @@ class SideBias(ngym.TrialWrapper):
         # Case 3: Uniform random range
         if isinstance(block_dur, tuple):
             if len(block_dur) != 2:
-                msg = "block_dur as tuple/list must have exactly 2 elements (low, high)."
+                msg = (
+                    "When specifying block_dur as a tuple, it must contain exactly two elements: (low, high),"
+                    "representing the inclusive range of trials per block."
+                )
                 raise ValueError(msg)
 
             low, high = block_dur
