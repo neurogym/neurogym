@@ -9,7 +9,9 @@ class SideBias(ngym.TrialWrapper):
     Args:
         env: The task environment to wrap (must expose `choices`).
         probs: Explicit probability matrix with shape (n_blocks, n_choices).
-               Each row must sum to 1.0.
+               Each row defines the choice probabilities for one block and must sum to 1.0.
+               The number of columns (n_choices) must match the number of choices defined in the task
+               (i.e., `len(env.choices)`), so that each probability maps to a valid choice.
         block_dur: Duration of each block, with behavior depending on the type:
             - int (≥ 1): Use a fixed number of trials per block
                 (e.g., block_dur=20 means each block has exactly 20 trials).
@@ -72,8 +74,9 @@ class SideBias(ngym.TrialWrapper):
 
         if n_choices != len(self.choices):
             msg = (
-                f"The number of choices {n_choices} inferred from probs shape "
-                f"mismatches {len(self.choices)} inferred from task choices."
+                f"The number of choices inferred from the probability matrix ({n_choices}) "
+                f"does not match the number of choices defined in the task ({len(self.choices)}). "
+                "These must be equal to ensure each probability corresponds to a valid choice."
             )
             raise ValueError(msg)
 
