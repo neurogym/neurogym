@@ -50,7 +50,10 @@ class SideBias(ngym.TrialWrapper):
             or not all(isinstance(row, list) for row in probs)
             or not all(isinstance(prob, (float, int)) for row in probs for prob in row)
         ):
-            msg = "probs must be a 2D list of lists (matrix) with shape (n_blocks, n_choices)"
+            msg = (
+                "probs must be a 2D list of lists (matrix) with shape (n_blocks, n_choices),"
+                "e.g., probs = [[0.5, 0.5], [0.2, 0.8], [0.8, 0.2]] for n_blocks = 3 and n_choices = 2."
+            )
             raise TypeError(msg)
 
         # Convert to numpy array and validate
