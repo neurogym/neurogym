@@ -28,8 +28,11 @@ class ContextDecisionMaking(ngym.TrialEnv):
         impl_context_modality: The fixed implicit modality to use if `use_expl_context`
             is False (0 or 1).
         dim_ring: Number of stimulus locations (or choices).
-        rewards: Optional dictionary to override default rewards.
+        rewards: Optional dictionary to override default rewards. The required keys are "abort" and "correct".
+            Defaults to {"abort": -0.1, "correct": +1.0}.
         timing: Optional dictionary to override default durations of task periods.
+            The expected keys are "fixation", "stimulus" (required), "delay", and "decision" (required).
+            Defaults to {"fixation": 300, "stimulus": 750, "delay": TruncExp(600, 300, 3000), "decision": 100}.
         sigma: Standard deviation of Gaussian noise added to stimulus.
         abort: If True, incorrect actions during fixation abort the trial.
     """
