@@ -27,6 +27,7 @@ ignore = [
     "EXE002", # Executable but no shebang
     "COM812", # Recommended to ignore by Ruff itself
     "UP038",  # Use X | Y instead of (X, Y) in isinstance()
+    "PERF203",# try/except in loops
     # Unneeded docstrings
     "D100",   # Missing module docstring
     "D104",   # Missing public package docstring
