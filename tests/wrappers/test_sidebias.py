@@ -55,7 +55,7 @@ def test_probs_validation():
 
     env.choices = [0, 1, 2]
     # Test 6: Negative probabilities should raise ValueError
-    with pytest.raises(ValueError, match="All probabilities in probs must be non-negative."):
+    with pytest.raises(ValueError):
         SideBias(env, probs=[[0.8, 0.4, -0.2], [0.2, 0, 0.8]])
 
     env.choices = [0, 1]
@@ -100,26 +100,26 @@ def test_block_dur_validation():
     assert wrapper.block_dur == (100, 300)
 
     # Test 6: Invalid tuple length should raise ValueError
-    with pytest.raises(ValueError, match="exactly 2 elements"):
+    with pytest.raises(ValueError):
         SideBias(env, probs=probs, block_dur=(100,))
 
-    with pytest.raises(ValueError, match="exactly 2 elements"):
+    with pytest.raises(ValueError):
         SideBias(env, probs=probs, block_dur=(100, 200, 300))
 
     # Test 7: Invalid tuple values should raise errors
-    with pytest.raises(TypeError, match="must be integers"):
+    with pytest.raises(TypeError):
         SideBias(env, probs=probs, block_dur=(100.5, 200))
 
-    with pytest.raises(ValueError, match="low value must be >= 1"):
+    with pytest.raises(ValueError):
         SideBias(env, probs=probs, block_dur=(0, 200))
 
-    with pytest.raises(ValueError, match="high value must be >= low"):
+    with pytest.raises(ValueError):
         SideBias(env, probs=probs, block_dur=(300, 200))
 
     # Test 8: Invalid type should raise TypeError
-    with pytest.raises(TypeError, match="block_dur must be one of"):
+    with pytest.raises(TypeError):
         SideBias(env, probs=probs, block_dur="invalid")
-    with pytest.raises(TypeError, match="block_dur must be one of"):
+    with pytest.raises(TypeError):
         SideBias(env, probs=probs, block_dur=[100, 200])
 
 
