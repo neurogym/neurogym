@@ -115,7 +115,7 @@ are short scripts that allow introducing modifications the original tasks. For i
 
 🧪 **Beta Feature** — The configuration system is **optional** and currently **under development**. You can still instantiate environments, agents, and wrappers with direct parameters.
 It is only used in a small portion of the codebase and is not required for typical usage.
-See the [`demo.ipynb`](docs/examples/demo.ipynb) notebook for the only current example of this system in action.
+See the [`demo.ipynb`](docs/tutorials/introduction_to_neurogym/demo.ipynb) notebook for the only current example of this system in action.
 
 NeuroGym includes a flexible configuration mechanism using [`Pydantic Settings`](https://docs.pydantic.dev/latest/concepts/pydantic_settings/), allowing configuration via TOML files, Python objects, or plain dictionaries.
 
@@ -123,7 +123,7 @@ Using a TOML file can be especially useful for sharing experiment configurations
 
 #### 1. From a TOML file
 
-Create a `config.toml` file (see [template](docs/examples/config.toml)) and load it:
+Create a `config.toml` file (see [template](docs/tutorials/config.toml)) and load it:
 
 ```python
 from neurogym import Config
@@ -173,11 +173,11 @@ config = Config.model_validate(config_dict)
 ### Examples
 
 NeuroGym is compatible with most packages that use gymnasium.
-In this [example](https://github.com/neurogym/neurogym/blob/main/docs/examples/example_neurogym_rl.ipynb) jupyter notebook we show how to train a neural network with RL algorithms using the [Stable-Baselines3](https://stable-baselines3.readthedocs.io/en/master/) toolbox.
+In this [example](https://github.com/neurogym/neurogym/blob/main/docs/tutorials/introduction_to_neurogym/example_neurogym_rl.ipynb) jupyter notebook we show how to train a neural network with RL algorithms using the [Stable-Baselines3](https://stable-baselines3.readthedocs.io/en/master/) toolbox.
 
 ### Custom tasks
 
-Creating custom new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure, this [template](https://github.com/neurogym/neurogym/blob/main/docs/examples/template.py) provides the basic structure that we recommend a task to have:
+Creating custom new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure, this [template](https://github.com/neurogym/neurogym/blob/main/docs/tutorials/introduction_to_neurogym/template.py) provides the basic structure that we recommend a task to have:
 
 ```python
 from gymnasium import spaces

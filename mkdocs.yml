@@ -49,16 +49,16 @@ nav:
   - Getting started:
       - Installation: installation.md
       - NeuroGym: neurogym.md
-      - Custom tasks: examples/understanding_neurogym_task.ipynb
+      - Custom tasks: tutorials/introduction_to_neurogym/understanding_neurogym_task.ipynb
   - Examples:
-      - Simple demo notebook: examples/demo.ipynb
-      - NeuroGym with RL: examples/reinforcement_learning.ipynb
-      - NeuroGym with PyTorch: examples/supervised_learning_pytorch.ipynb
-      - NeuroGym with Keras: examples/supervised_learning_keras.ipynb
-      - Example template for contributing new tasks: examples/template.py
+      - Simple demo notebook: tutorials/introduction_to_neurogym/demo.ipynb
+      - NeuroGym with RL: tutorials/introduction_to_neurogym/reinforcement_learning.ipynb
+      - NeuroGym with PyTorch: tutorials/introduction_to_neurogym/supervised_learning_pytorch.ipynb
+      - NeuroGym with Keras: tutorials/introduction_to_neurogym/supervised_learning_keras.ipynb
+      - Example template for contributing new tasks: tutorials/introduction_to_neurogym/template.py
   - Env specific examples:
-      - Annubes: examples/annubes.ipynb
-      - ContextDecisionmaking: examples/contextdecisionmaking.ipynb
+      - Annubes: tutorials/env_specific_notebooks/annubes.ipynb
+      - ContextDecisionmaking: tutorials/env_specific_notebooks/contextdecisionmaking.ipynb
   - API Documentation:
       - Core: api/core.md
       - Environments: api/envs.md
