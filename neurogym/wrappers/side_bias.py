@@ -174,8 +174,6 @@ class SideBias(ngym.TrialWrapper):
     def new_trial(self, **kwargs):
         """Generate new trial with block-based probability biases."""
         # Determine if we should switch blocks
-        switch_block = False
-
         if self._p_switch is not None:
             # Probability-based switching
             switch_block = self.task.rng.random() < self._p_switch
