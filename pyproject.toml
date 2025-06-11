@@ -54,6 +54,7 @@ dev = [
     "mypy",
     "types-docutils",
     "scipy-stubs",
+    "pandas-stubs",
     # docs
     "mkdocs",
     "mkdocs-material",
@@ -65,6 +66,10 @@ dev = [
     "black",
     # release
     "bump-my-version",
+    #notebook generation
+    "nbformat",
+    "pandas",
+    "scikit-learn",
 ]
 publishing = ["build", "twine", "wheel"]
 rl = ["stable-baselines3>=2.3.2", "sb3-contrib"]
