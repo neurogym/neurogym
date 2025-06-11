@@ -30,7 +30,7 @@ class SideBias(ngym.TrialWrapper):
         "paper_name": None,
     }
 
-    def __init__(self, env: ngym.TrialEnv, probs: list[list[float]], block_dur: float | tuple = 200) -> None:
+    def __init__(self, env: ngym.TrialEnv, probs: list[list[float]], block_dur: float | tuple[int, int] = 200) -> None:
         super().__init__(env)
 
         # Validate environment
