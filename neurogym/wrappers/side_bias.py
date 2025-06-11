@@ -102,7 +102,7 @@ class SideBias(ngym.TrialWrapper):
         # Case 1: Fixed integer duration
         if isinstance(block_dur, int):
             if block_dur < 1:
-                msg = "block_dur as int must be >= 1."
+                msg = f"if `block_dur` is given as an `int`, the value must be >=1; received {block_dur}."
                 raise ValueError(msg)
             return
 
