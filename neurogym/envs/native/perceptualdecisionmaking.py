@@ -18,8 +18,11 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
     Args:
         dt: Timestep of the environment in milliseconds.
         dim_ring: Number of stimulus locations (or choices).
-        rewards: Optional dictionary to override default rewards.
-        timing: Optional dictionary to override default durations of task periods.
+        rewards: Optional dictionary to override default rewards. The required keys are "abort",
+            "correct", and "fail". Defaults to {"abort": -0.1, "correct": 1.0, "fail": 0.0}.
+        timing: Optional dictionary to override default durations of task periods. The expected keys are
+            "fixation", "stimulus" (required), "delay", and "decision" (required).
+            Defaults to {"fixation": 100, "stimulus": 2000, "delay": 0, "decision": 100}.
         cohs: Optional list of coherence levels controlling task difficulty.
         sigma: Standard deviation of Gaussian noise added to stimulus.
         abort: If True, incorrect actions during fixation abort the trial.
