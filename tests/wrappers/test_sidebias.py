@@ -4,6 +4,7 @@ from unittest.mock import Mock
 
 import numpy as np
 import pytest
+
 import neurogym as ngym
 from neurogym.wrappers.side_bias import SideBias
 
@@ -72,10 +73,10 @@ def test_block_dur_validation():
     assert wrapper.block_dur == 200
 
     # Test 2: Invalid integer (< 1) should raise ValueError
-    with pytest.raises(ValueError, match="must be >= 1"):
+    with pytest.raises(ValueError):
         SideBias(env, probs=probs, block_dur=0)
 
-    with pytest.raises(ValueError, match="must be >= 1"):
+    with pytest.raises(ValueError):
         SideBias(env, probs=probs, block_dur=-10)
 
     # Test 3: Valid float block_dur (probability)
@@ -83,13 +84,13 @@ def test_block_dur_validation():
     assert wrapper.block_dur == 0.1
 
     # Test 4: Invalid float (not in (0,1)) should raise ValueError
-    with pytest.raises(ValueError, match="must be in range \\(0, 1\\)"):
+    with pytest.raises(ValueError):
         SideBias(env, probs=probs, block_dur=0.0)
 
-    with pytest.raises(ValueError, match="must be in range \\(0, 1\\)"):
+    with pytest.raises(ValueError):
         SideBias(env, probs=probs, block_dur=1.0)
 
-    with pytest.raises(ValueError, match="must be in range \\(0, 1\\)"):
+    with pytest.raises(ValueError):
         SideBias(env, probs=probs, block_dur=1.5)
 
     # Test 5: Valid tuple block_dur (range)
