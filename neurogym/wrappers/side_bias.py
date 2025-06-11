@@ -10,10 +10,14 @@ class SideBias(ngym.TrialWrapper):
         env: The task environment to wrap (must expose `choices`).
         probs: Explicit probability matrix with shape (n_blocks, n_choices).
                Each row must sum to 1.0.
-        block_dur: Block duration specification.
-            - int >= 1: Fixed number of trials per block;
-            - 0 < float < 1: Per-trial switch probability;
-            - (low, high): Uniform random trials in [low, high] range.
+        block_dur: Duration of each block, with behavior depending on the type:
+            - int (≥ 1): Use a fixed number of trials per block
+                (e.g., block_dur=20 means each block has exactly 20 trials).
+            - float (0 < value < 1): Specify a per-trial probability of switching
+                to a new block (e.g., block_dur=0.1 means there's a 10% chance of
+                switching blocks after each trial).
+            - tuple (low, high): Draw the number of trials per block randomly from
+                a uniform distribution over the integer range [low, high] (inclusive).
 
     Examples:
         - probs=[[0.8, 0.2], [0.2, 0.8], [0.4, 0.6]], block_dur=200
