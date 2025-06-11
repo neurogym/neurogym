@@ -38,7 +38,7 @@ def test_probs_validation():
     with pytest.raises(TypeError, match=re.escape(msg)):
         SideBias(env, probs=0.8)
 
-    # Test 3: Wrong dimensions should raise ValueError
+    # Test 3: Wrong dimensions should raise TypeError
     with pytest.raises(TypeError, match=re.escape(msg)):
         SideBias(env, probs=[0.8, 0.2])  # 1D array
 
