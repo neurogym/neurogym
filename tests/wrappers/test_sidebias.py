@@ -1,5 +1,4 @@
 import re
-import sys
 from unittest.mock import Mock
 
 import numpy as np

@@ -109,7 +109,8 @@ class SideBias(ngym.TrialWrapper):
         # Case 2: Per-trial switch probability
         if isinstance(block_dur, float):
             if not (0 < block_dur < 1):
-                msg = f"if `block_dur` is given as a `float`, the value must be between 0 and 1 (exclusive); received {block_dur}"
+                msg = f"if `block_dur` is given as a `float`, the value must be between 0 and 1 (exclusive); \
+                received {block_dur}"
                 raise ValueError(msg)
             return
 

@@ -23,7 +23,8 @@ class ContextDecisionMaking(ngym.TrialEnv):
 
     Args:
         dt: Timestep of the environment in milliseconds.
-        use_expl_context: If True, the context is explicit (signaled) and changes per trial. If False, a fixed context is used throughout (set by `impl_context_modality`).
+        use_expl_context: If True, the context is explicit (signaled) and changes per trial.
+            If False, a fixed context is used throughout (set by `impl_context_modality`).
         impl_context_modality: The fixed implicit modality to use if `use_expl_context`
             is False (0 or 1).
         dim_ring: Number of stimulus locations (or choices).
