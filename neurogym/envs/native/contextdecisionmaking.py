@@ -65,6 +65,9 @@ class ContextDecisionMaking(ngym.TrialEnv):
         if use_expl_context:
             self.contexts: list[int] = [0, 1]
         else:
+            if impl_context_modality not in [0, 1]:
+                msg = "impl_context_modality must be 0 or 1 when `use_expl_context` is False."
+                raise ValueError(msg)
             self.contexts = [impl_context_modality]
         self._setup_spaces()
 
