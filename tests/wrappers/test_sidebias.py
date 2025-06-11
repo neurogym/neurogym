@@ -116,6 +116,8 @@ def test_block_dur_validation():
     # Test 8: Invalid type should raise TypeError
     with pytest.raises(TypeError, match="block_dur must be one of"):
         SideBias(env, probs=probs, block_dur="invalid")
+    with pytest.raises(TypeError, match="block_dur must be one of"):
+        SideBias(env, probs=probs, block_dur=[100, 200])
 
 
 def test_block_switching_behavior():
