@@ -4,10 +4,6 @@ from unittest.mock import Mock
 
 import numpy as np
 import pytest
-
-# Add the neurogym path if needed
-sys.path.insert(0, "/Users/giuliacrocioni/Desktop/docs/eScience/projects/ANNUBeS/neurogym")
-
 import neurogym as ngym
 from neurogym.wrappers.side_bias import SideBias
 
