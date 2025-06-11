@@ -167,9 +167,9 @@ class SideBias(ngym.TrialWrapper):
             duration = self.task.rng.randint(low, high + 1)  # inclusive high
             return int(duration), None
 
-        # Should never reach here due to validation in __init__
+        # This check is in place as a reminder that if the allowed input types change, they are also handled properly.
         msg = f"Unexpected block_dur type: {type(block_dur)}"
-        raise RuntimeError(msg)
+        raise TypeError(msg)
 
     def new_trial(self, **kwargs):
         """Generate new trial with block-based probability biases."""
