@@ -2,48 +2,56 @@ import numpy as np
 
 import neurogym as ngym
 from neurogym import spaces
+from neurogym.utils.ngym_random import TruncExp
 
 
 class PerceptualDecisionMaking(ngym.TrialEnv):
-    """Two-alternative forced choice task: subject has to integrate two stimuli to decide which is higher on average.
+    """Perceptual decision-making task.
 
-    A noisy stimulus is shown during the stimulus period. The strength (
-    coherence) of the stimulus is randomly sampled every trial. Because the
-    stimulus is noisy, the agent is encouraged to integrate the stimulus
-    over time.
+    Two-alternative forced choice task where the agent integrates noisy stimuli
+    to decide which option has a higher average value.
+
+    The agent observes a noisy stimulus during the stimulus period, with varying
+    coherence levels (signal strength). The correct response is the location with
+    the stronger average evidence.
 
     Args:
-        cohs: list of float, coherence levels controlling the difficulty of
-            the task
-        sigma: float, input noise level
-        dim_ring: int, dimension of ring input and output
+        dt: Timestep of the environment in milliseconds.
+        dim_ring: Number of stimulus locations (or choices).
+        rewards: Optional dictionary to override default rewards. The required keys are "abort",
+            "correct", and "fail". Defaults to {"abort": -0.1, "correct": 1.0, "fail": 0.0}.
+        timing: Optional dictionary to override default durations of task periods. The expected keys are
+            "fixation", "stimulus" (required), "delay", and "decision" (required).
+            Defaults to {"fixation": 100, "stimulus": 2000, "delay": 0, "decision": 100}.
+        cohs: Optional list of coherence levels controlling task difficulty.
+            Defaults to [0, 6.4, 12.8, 25.6, 51.2].
+        sigma: Standard deviation of Gaussian noise added to stimulus.
+        abort: If True, incorrect actions during fixation abort the trial.
     """
 
     metadata = {  # noqa: RUF012
         "paper_link": "https://www.jneurosci.org/content/12/12/4745",
-        "paper_name": """The analysis of visual motion: a comparison of
-        neuronal and psychophysical performance""",
+        "paper_name": "The analysis of visual motion: a comparison of neuronal and psychophysical performance",
         "tags": ["perceptual", "two-alternative", "supervised"],
     }
 
     def __init__(
         self,
-        dt=100,
-        rewards=None,
-        timing=None,
-        cohs=None,
-        sigma=1.0,
-        dim_ring=2,
+        dt: int = 100,
+        dim_ring: int = 2,
+        rewards: dict[str, float] | None = None,
+        timing: dict[str, int | TruncExp] | None = None,
+        cohs: list[float] | None = None,
+        sigma: float = 1.0,
+        abort: bool = False,
     ) -> None:
         super().__init__(dt=dt)
-        if cohs is None:
-            self.cohs = np.array([0, 6.4, 12.8, 25.6, 51.2])
-        else:
-            self.cohs = cohs
-        self.sigma = sigma / np.sqrt(self.dt)  # Input noise
 
-        # Rewards
-        self.rewards = {"abort": -0.1, "correct": +1.0, "fail": 0.0}
+        self.dt = dt
+        self.dim_ring = dim_ring
+        self.abort = abort
+
+        self.rewards = {"abort": -0.1, "correct": 1.0, "fail": 0.0}
         if rewards:
             self.rewards.update(rewards)
 
@@ -51,70 +59,66 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
         if timing:
             self.timing.update(timing)
 
-        self.abort = False
+        self.cohs = cohs or [0, 6.4, 12.8, 25.6, 51.2]
+        self.sigma = sigma / np.sqrt(self.dt)
 
-        self.theta = np.linspace(0, 2 * np.pi, dim_ring + 1)[:-1]
-        self.choices = np.arange(dim_ring)
+        self.theta = np.linspace(0, 2 * np.pi, self.dim_ring, endpoint=False)
+        self.choices = np.arange(self.dim_ring)
 
-        name = {"fixation": 0, "stimulus": range(1, dim_ring + 1)}
         self.observation_space = spaces.Box(
             -np.inf,
             np.inf,
-            shape=(1 + dim_ring,),
+            shape=(1 + self.dim_ring,),
             dtype=np.float32,
-            name=name,
+            name={"fixation": 0, "stimulus": list(range(1, self.dim_ring + 1))},
         )
-        name = {"fixation": 0, "choice": range(1, dim_ring + 1)}
-        self.action_space = spaces.Discrete(1 + dim_ring, name=name)
+        self.action_space = spaces.Discrete(
+            1 + self.dim_ring,
+            name={"fixation": 0, "choice": list(range(1, self.dim_ring + 1))},
+        )
 
     def _new_trial(self, **kwargs):
-        """Called when a trial ends to generate the next trial.
+        """Generate a new trial with randomized ground truth and stimulus coherence.
 
-        The following variables are created:
-            durations, which stores the duration of the different periods (in
-            the case of perceptualDecisionMaking: fixation, stimulus and
-            decision periods)
-            ground truth: correct response for the trial
-            coh: stimulus coherence (evidence) for the trial
-            obs: observation.
+        Sets up the trial timeline, generates a noisy stimulus centered around the
+        ground truth direction, and assigns it to the appropriate observation period.
         """
-        # Trial info
         trial = {
             "ground_truth": self.rng.choice(self.choices),
             "coh": self.rng.choice(self.cohs),
         }
         trial.update(kwargs)
 
+        gt = trial["ground_truth"]
         coh = trial["coh"]
-        ground_truth = trial["ground_truth"]
-        stim_theta = self.theta[ground_truth]
+        stim_theta = self.theta[gt]
 
-        # Periods
         self.add_period(["fixation", "stimulus", "delay", "decision"])
 
-        # Observations
-        self.add_ob(1, period=["fixation", "stimulus", "delay"], where="fixation")
+        self.add_ob(1, period="fixation", where="fixation")
         stim = np.cos(self.theta - stim_theta) * (coh / 200) + 0.5
-        self.add_ob(stim, "stimulus", where="stimulus")
-        self.add_randn(0, self.sigma, "stimulus", where="stimulus")
+        self.add_ob(stim, period="stimulus", where="stimulus")
+        self.add_randn(0, self.sigma, period="stimulus", where="stimulus")
 
-        # Ground truth
-        self.set_groundtruth(ground_truth, period="decision", where="choice")
+        self.set_groundtruth(gt, period="decision", where="choice")
 
         return trial
 
     def _step(self, action):
+        """Execute a single time step of the environment.
+
+        The agent must fixate during the fixation period and respond during
+        the decision period. Incorrect actions may abort the trial or yield no reward.
+        """
         new_trial = False
-        terminated = False
-        truncated = False
-        # rewards
         reward = 0
         gt = self.gt_now
-        # observations
+
         if self.in_period("fixation"):
-            if action != 0:  # action = 0 means fixating
+            if action != 0:
                 new_trial = self.abort
                 reward += self.rewards["abort"]
+
         elif self.in_period("decision") and action != 0:
             new_trial = True
             if action == gt:
@@ -126,8 +130,8 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
         return (
             self.ob_now,
             reward,
-            terminated,
-            truncated,
+            False,  # terminated
+            False,  # truncated
             {"new_trial": new_trial, "gt": gt},
         )
 
