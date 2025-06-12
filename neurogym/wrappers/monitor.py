@@ -8,6 +8,7 @@ from gymnasium import Wrapper
 
 import neurogym as ngym
 from neurogym.config.base import LOCAL_DIR
+from neurogym.utils.logging import logger
 from neurogym.utils.plotting import fig_
 
 
@@ -28,7 +29,7 @@ class Monitor(Wrapper):
         plot_steps: Number of steps to visualize in each plot.
         ext: Image file extension for saved plots (e.g., "png").
         step_fn: Optional custom step function to override the environment's.
-        verbose: Whether to print information when logging or saving data.
+        verbose: Whether to log information when logging or saving data.
         level: Logging verbosity level (e.g., "INFO", "DEBUG").
         log_trigger: When to log progress ("trial" or "step").
         log_interval: How often to log, in trials or steps.
@@ -58,20 +59,15 @@ class Monitor(Wrapper):
         name: str | None = None,
         trigger: str = "trial",
         interval: int = 1000,
+        verbose: bool = True,
         plot_create: bool = False,
         plot_steps: int = 1000,
         ext: str = "png",
         step_fn: Callable | None = None,
-        verbose: bool = True,
-        level: str = "INFO",
-        log_trigger: str = "trial",
-        log_interval: int = 1000,
     ) -> None:
         super().__init__(env)
         self.env = env
         self.step_fn = step_fn
-
-        log_format = "<magenta>Neurogym</magenta> | <cyan>{time:YYYY-MM-DD@HH:mm:ss}</cyan> | <level>{message}</level>"
 
         cfg: ngym.Config
         if config is None:
@@ -81,18 +77,12 @@ class Monitor(Wrapper):
                     "name": name or "Monitor",
                     "trigger": trigger,
                     "interval": interval,
+                    "verbose": verbose,
                     "plot": {
                         "create": plot_create,
                         "step": plot_steps,
                         "title": env.unwrapped.__class__.__name__,
                         "ext": ext,
-                    },
-                    "log": {
-                        "verbose": verbose,
-                        "format": log_format,
-                        "level": level,
-                        "trigger": log_trigger,
-                        "interval": log_interval,
                     },
                 },
                 "local_dir": LOCAL_DIR,
@@ -110,8 +100,6 @@ class Monitor(Wrapper):
             self.config.env.name = self.env.unwrapped.__class__.__name__
         if len(self.config.monitor.name) == 0:
             self.config.monitor.name = self.__class__.__name__
-
-        self._configure_logger()
 
         # data to save
         self.data: dict[str, list] = {"action": [], "reward": [], "cum_reward": [], "performance": []}
@@ -138,11 +126,6 @@ class Monitor(Wrapper):
         # Ensure the reset function is called
         initial_ob, *_ = env.reset()
         self.initial_ob = initial_ob
-
-    def _configure_logger(self):
-        ngym.logger.remove()
-        ngym.logger.configure(**self.config.monitor.log.make_config())
-        ngym.logger.info("Logger configured.")
 
     def reset(self, seed=None):
         """Reset the environment.
@@ -203,13 +186,13 @@ class Monitor(Wrapper):
                 save_path = self.save_dir / f"trial_{self.num_tr}.npz"
                 np.savez(save_path, **self.data)
 
-                if self.config.monitor.log.verbose:
-                    print("--------------------")
-                    print(f"Data saved to: {save_path}")
-                    print(f"Number of trials: {self.num_tr}")
-                    print(f"Average reward: {np.mean(self.data['reward'])}")
-                    print(f"Average performance: {np.mean(self.data['performance'])}")
-                    print("--------------------")
+                if self.config.monitor.verbose:
+                    logger.info("--------------------")
+                    logger.info(f"Data saved to: {save_path}")
+                    logger.info(f"Number of trials: {self.num_tr}")
+                    logger.info(f"Average reward: {np.mean(self.data['reward'])}")
+                    logger.info(f"Average performance: {np.mean(self.data['performance'])}")
+                    logger.info("--------------------")
                 self.reset_data()
                 if self.config.monitor.plot.create:
                     self.stp_counter = 0
@@ -325,8 +308,8 @@ class Monitor(Wrapper):
                 if "performance" in info:
                     performances.append(info["performance"])
 
-                if verbose and trial_count % 1000 == 0:
-                    print(f"Completed {trial_count}/{num_trials} trials")
+                if verbose and trial_count % 1000 == 0:  # FIXME: why is this value hardcoded?
+                    logger.info(f"Completed {trial_count}/{num_trials} trials")
 
                 self.data_eval["action"].append(action)
                 self.data_eval["reward"].append(reward)
@@ -377,10 +360,10 @@ class Monitor(Wrapper):
         files = sorted(self.save_dir.glob("*.npz"))
 
         if not files:
-            print("No data files found matching pattern: *.npz")
+            logger.warning("No data files found matching pattern: *.npz")
             return None
 
-        print(f"Found {len(files)} data files")
+        logger.info(f"Found {len(files)} data files")
 
         # Arrays to hold average values
         avg_rewards_per_file = []
@@ -461,6 +444,6 @@ class Monitor(Wrapper):
         if save_fig:
             save_path = self.config.local_dir / f"{self.config.env.name}_training_history.png"
             plt.savefig(save_path, dpi=300, bbox_inches="tight")
-            print(f"Figure saved to {save_path}")
+            logger.info(f"Figure saved to {save_path}")
 
         return fig

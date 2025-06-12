@@ -64,6 +64,9 @@ trigger = "trial"
 # Number of units (based on "trigger") between each save operation.
 interval = 1000
 
+# Enable or disable logging.
+verbose = true
+
 # ==============================================================================
 # Plotting Configuration
 # ==============================================================================
@@ -82,27 +85,3 @@ title = ""
 
 # File extension for saved plots.
 ext = "png"
-
-# ==============================================================================
-# Logging Configuration
-# Logging is handled via Loguru (https://loguru.readthedocs.io/en/stable/)
-# NOTE: The monitor logging configuration is currently only accessible via config instances.
-# The monitor logging logic has not yet been integrated into the main code-base.
-# ==============================================================================
-
-[monitor.log]
-
-# Enable or disable logging.
-verbose = true
-
-# Log message format.
-format = "<magenta>Neurogym</magenta> | <cyan>{time:YYYY-MM-DD@HH:mm:ss}</cyan> | <level>{message}</level>"
-
-# Log level (options: TRACE, DEBUG, INFO, SUCCESS, WARNING, ERROR, CRITICAL).
-level = "INFO"
-
-# Unit used to trigger logging output (options: 'trial', 'step').
-trigger = "trial"
-
-# Number of units (based on "trigger") between log messages.
-interval = 10

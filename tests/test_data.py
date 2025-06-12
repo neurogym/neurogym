@@ -6,6 +6,7 @@ import gymnasium as gym
 import numpy as np
 
 import neurogym as ngym
+from neurogym.utils.logging import logger
 
 # Get all supervised learning environment
 SL_ENVS = ngym.all_envs(tag="supervised")
@@ -40,7 +41,7 @@ def test_registered_env():
             for env_name in sorted(SL_ENVS):
                 _test_env(env_name)
         except:
-            print(f"Failure in: {env_name}")
+            logger.error(f"Failure in: {env_name}")
             raise
 
 
@@ -71,7 +72,7 @@ def test_examples_different_registered_env():
             for env_name in sorted(SL_ENVS):
                 _test_examples_different(env_name)
         except:
-            print(f"Failure in: {env_name}")
+            logger.error(f"Failure in: {env_name}")
             raise
 
 
@@ -85,7 +86,7 @@ def test_examples_different_made_env():
                 env = gym.make(env_name)
                 _test_examples_different(env)
         except:
-            print(f"Failure in: {env_name}")
+            logger.error(f"Failure in: {env_name}")
             raise
 
 

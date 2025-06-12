@@ -4,7 +4,7 @@
 
 from neurogym.config import Config
 from neurogym.config import config
-from neurogym.config import logger
+from neurogym.utils.logging import logger
 from neurogym import utils
 from neurogym.core import BaseEnv
 from neurogym.core import TrialEnv
