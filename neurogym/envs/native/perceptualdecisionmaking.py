@@ -24,6 +24,7 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
             "fixation", "stimulus" (required), "delay", and "decision" (required).
             Defaults to {"fixation": 100, "stimulus": 2000, "delay": 0, "decision": 100}.
         cohs: Optional list of coherence levels controlling task difficulty.
+            Defaults to [0, 6.4, 12.8, 25.6, 51.2].
         sigma: Standard deviation of Gaussian noise added to stimulus.
         abort: If True, incorrect actions during fixation abort the trial.
     """
