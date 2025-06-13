@@ -1,6 +1,6 @@
 # Installation
 
-## 1: Create a virtual environment
+## 1. Create a Virtual Environment
 
 Create and activate a virtual environment to install the current package, e.g. using
 [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) (please refer to their
@@ -12,7 +12,7 @@ conda create -n neurogym python=3.11 -y
 conda activate neurogym
 ```
 
-## 2: Install NeuroGym
+## 2. Install NeuroGym
 
 Install the latest stable release of `neurogym` using pip:
 
@@ -20,7 +20,7 @@ Install the latest stable release of `neurogym` using pip:
 pip install neurogym
 ```
 
-### 2a: Reinforcement Learning Support
+### 2.1 Reinforcement Learning Support
 
 NeuroGym includes optional reinforcement learning (RL) features via Stable-Baselines3.
 To install these, choose one of the two options below depending on your hardware setup:
@@ -43,7 +43,7 @@ pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install neurogym[rl]
 ```
 
-### 2b: Editable/Development Mode
+### 2.2 Editable/Development Mode
 
 To contribute to NeuroGym or run it from source with live code updates:
 
@@ -61,7 +61,7 @@ To include both RL and development tools (e.g., for testing, linting, documentat
 pip install -e .[rl,dev]
 ```
 
-## Step 3 (Optional): Psychopy installation
+## 3. Psychopy Installation (Optional)
 
 **NOTE**: psycohopy installation is currently not working
 
