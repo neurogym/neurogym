@@ -141,22 +141,6 @@ def all_tags():
     ]
 
 
-def make(id_: str, **kwargs) -> gym.Env:
-    """Creates an environment previously registered with :meth:`ngym.register`.
-
-    This function calls the Gymnasium `make` function with the `disable_env_checker` argument set to True.
-
-    Args:
-        id_: A string representing the environment ID.
-        kwargs: Additional arguments to pass to the environment constructor.
-
-    Returns:
-        An instance of the environment.
-    """
-    # built in env_checker raises warnings or errors when ob not in observation_space
-    return gym.make(id_, disable_env_checker=True, **kwargs)
-
-
 def register(id_: str, **kwargs) -> None:
     all_gym_envs = [env.id for env in gym.envs.registry.values()]
     if id_ not in all_gym_envs:

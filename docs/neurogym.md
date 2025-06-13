@@ -24,7 +24,7 @@ Using a TOML file can be especially useful for sharing experiment configurations
 Create a `config.toml` file (see [template](examples/config.toml)) and load it:
 
 ```python
-from neurogym import Config
+from neurogym.config import Config
 config = Config('path/to/config.toml')
 ```
 
@@ -45,7 +45,7 @@ env = monitor.Monitor(env, config='path/to/config.toml')
 ### 2. With Python class
 
 ```python
-from neurogym import Config
+from neurogym.config import Config
 config = Config(
     local_dir="logs/",
     env={"name": "GoNogo-v0"},
@@ -56,7 +56,7 @@ config = Config(
 ### 3. With a dictionary
 
 ```python
-from neurogym import Config
+from neurogym.config import Config
 config_dict = {
     "env": {"name": "GoNogo-v0"},
     "monitor": {
@@ -78,8 +78,9 @@ In this [example](https://github.com/gyyang/neurogym/blob/master/examples/exampl
 Creating custom new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure, this [template](https://github.com/gyyang/neurogym/blob/master/examples/template.py) provides the basic structure that we recommend a task to have:
 
 ```python
-from gymnasium import spaces
 import neurogym as ngym
+
+from neurogym.utils import spaces
 
 class YourTask(ngym.PeriodEnv):
     metadata = {}

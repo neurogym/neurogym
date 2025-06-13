@@ -155,9 +155,7 @@ class Dataset:
 
 
 if __name__ == "__main__":
-    import neurogym as ngym
-
-    dataset = ngym.Dataset(
+    dataset = Dataset(
         "PerceptualDecisionMaking-v0",
         env_kwargs={"dt": 100},
         batch_size=32,

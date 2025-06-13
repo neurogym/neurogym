@@ -22,3 +22,18 @@ ALL_WRAPPERS = {
 
 def all_wrappers():
     return sorted(ALL_WRAPPERS)
+
+
+__all__ = [
+    "Monitor",
+    "Noise",
+    "PassAction",
+    "PassReward",
+    "RandomGroundTruth",
+    "ReactionTime",
+    "ScheduleAttr",
+    "ScheduleEnvs",
+    "SideBias",
+    "TrialHistoryV2",
+    "all_wrappers",
+]

@@ -1,7 +1,7 @@
 import numpy as np
-from gymnasium import spaces
 
 import neurogym as ngym
+from neurogym.utils import spaces
 from neurogym.utils.logging import logger
 
 
