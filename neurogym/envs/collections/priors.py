@@ -9,7 +9,7 @@ Usage:
     import gymnasium as gym
     kwargs = {'dt': 100, 'tr_hist_kwargs': {'probs': 0.9}}
     # Make supervised dataset
-    tasks = ngym.get_collection('priors')
+    tasks = ngym.envs.collections.get_collection('priors')
     envs = [gym.make(task, **kwargs) for task in tasks]
 
 """

@@ -3,6 +3,8 @@ import warnings
 import numpy as np
 
 import neurogym as ngym
+from neurogym.core import TrialWrapper
+from neurogym.envs.collections import get_collection
 from neurogym.envs.registration import all_envs
 from neurogym.utils.scheduler import RandomSchedule
 from neurogym.wrappers import ScheduleEnvs
@@ -19,7 +21,7 @@ def make_env(name, **kwargs):
     return ngym.make(name, **kwargs)
 
 
-class CstObTrialWrapper(ngym.TrialWrapper):
+class CstObTrialWrapper(TrialWrapper):
     def __init__(self, env, cst_ob) -> None:
         super().__init__(env)
         self.cst_ob = cst_ob
@@ -87,7 +89,7 @@ def test_reset_with_scheduler():
     """
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
-        tasks = ngym.get_collection("yang19")
+        tasks = get_collection("yang19")
         envs = [make_env(task) for task in tasks]
         schedule = RandomSchedule(len(envs))
         env = ScheduleEnvs(envs, schedule=schedule, env_input=True)
@@ -99,7 +101,7 @@ def test_reset_with_scheduler():
 def test_schedule_envs():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
-        tasks = ngym.get_collection("yang19")
+        tasks = get_collection("yang19")
         envs = [make_env(task) for task in tasks]
         for i, env in enumerate(envs):
             envs[i] = CstObTrialWrapper(env, np.array([i]))
