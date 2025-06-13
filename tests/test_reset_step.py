@@ -1,24 +1,15 @@
 import warnings
 
 import numpy as np
+from gymnasium import make
 
-import neurogym as ngym
 from neurogym.core import TrialWrapper
 from neurogym.envs.collections import get_collection
 from neurogym.envs.registration import all_envs
 from neurogym.utils.scheduler import RandomSchedule
 from neurogym.wrappers import ScheduleEnvs
 
-disable_env_checker = False
 rng = np.random.default_rng()
-
-
-def make_env(name, **kwargs):
-    if disable_env_checker:
-        return ngym.make(name, disable_env_checker=True, **kwargs)
-    # cannot add the arg disable_env_checker to gym.make in versions lower than 0.24
-    # FIXME: given that we are using gymnasium, is this still relevant?
-    return ngym.make(name, **kwargs)
 
 
 class CstObTrialWrapper(TrialWrapper):
@@ -39,7 +30,7 @@ class CstObTrialWrapper(TrialWrapper):
 
 
 def _setup_env(cst_ob):
-    env = make_env(all_envs()[0])
+    env = make(all_envs()[0], disable_env_checker=True)
     return CstObTrialWrapper(env, cst_ob)
 
 
@@ -90,7 +81,7 @@ def test_reset_with_scheduler():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         tasks = get_collection("yang19")
-        envs = [make_env(task) for task in tasks]
+        envs = [make(task, disable_env_checker=True) for task in tasks]
         schedule = RandomSchedule(len(envs))
         env = ScheduleEnvs(envs, schedule=schedule, env_input=True)
 
@@ -102,7 +93,7 @@ def test_schedule_envs():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         tasks = get_collection("yang19")
-        envs = [make_env(task) for task in tasks]
+        envs = [make(task, disable_env_checker=True) for task in tasks]
         for i, env in enumerate(envs):
             envs[i] = CstObTrialWrapper(env, np.array([i]))
 

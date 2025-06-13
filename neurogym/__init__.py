@@ -4,6 +4,6 @@
 
 from neurogym.core import BaseEnv, TrialEnv
 from neurogym.utils import spaces
-from neurogym.envs.registration import make
+from neurogym.envs.registration import all_envs
 
 __version__ = "2.0.0"

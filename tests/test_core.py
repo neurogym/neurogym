@@ -2,6 +2,7 @@ import warnings
 
 import numpy as np
 import pytest
+from gymnasium import make
 
 import neurogym as ngym
 from neurogym.core import env_string
@@ -151,7 +152,7 @@ def test_string_methods():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
 
-        env = ngym.make("AntiReach-v0")
+        env = make("AntiReach-v0", disable_env_checker=True)
         print(env)  # noqa: T201
         print(env_string(env))  # noqa: T201
         assert str(env) == "<OrderEnforcing<AntiReach>>"

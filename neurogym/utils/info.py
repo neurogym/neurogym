@@ -2,7 +2,8 @@
 
 import inspect
 
-import neurogym as ngym
+from gymnasium import make
+
 from neurogym.core import METADATA_DEF_KEYS, env_string
 from neurogym.envs.registration import ALL_ENVS, all_envs
 from neurogym.utils.logging import logger
@@ -23,7 +24,7 @@ def info(env=None, show_code=False):
     """Script to get envs info."""
     string = ""
     env_name = env
-    env = ngym.make(env)
+    env = make(env, disable_env_checker=True)
     # remove extra wrappers (make can add a OrderEnforcer wrapper)
     env = env.unwrapped
     string = env_string(env)
@@ -83,7 +84,7 @@ def all_tags(verbose=0):
     tags = []
     for env_name in sorted(envs):
         try:
-            env = ngym.make(env_name)
+            env = make(env_name, disable_env_checker=True)
             metadata = env.metadata
             tags += metadata.get("tags", [])
         except BaseException as e:  # noqa: BLE001, PERF203 # FIXME: unclear which error is expected here.
