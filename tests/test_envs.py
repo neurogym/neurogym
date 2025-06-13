@@ -7,15 +7,16 @@ import pytest
 from matplotlib import pyplot as plt
 
 import neurogym as ngym
+from neurogym.envs.registration import all_envs, all_tags
 from neurogym.utils.data import Dataset
 from neurogym.utils.logging import logger
 
 _HAVE_PSYCHOPY = find_spec("psychopy") is not None  # check if psychopy is installed
 SEED = 0
 
-ENVS = ngym.all_envs(psychopy=_HAVE_PSYCHOPY, contrib=True, collections=True)
+ENVS = all_envs(psychopy=_HAVE_PSYCHOPY, contrib=True, collections=True)
 # Envs without psychopy, TODO: check if contrib or collections include psychopy
-ENVS_NOPSYCHOPY = ngym.all_envs(psychopy=False, contrib=True, collections=True)
+ENVS_NOPSYCHOPY = all_envs(psychopy=False, contrib=True, collections=True)
 
 
 def _test_run(env, num_steps=100, verbose=False):
@@ -34,9 +35,8 @@ def _test_run(env, num_steps=100, verbose=False):
             env.reset()
 
     tags = env.metadata.get("tags", [])
-    all_tags = ngym.all_tags()
     for t in tags:
-        if t not in all_tags:
+        if t not in all_tags():
             logger.warning(f"env has tag {t} not in all_tags")
 
     if verbose:
@@ -77,9 +77,9 @@ def test_dataset_all():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
         success_count = 0
-        total_count = len(ngym.all_envs())
-        supervised_count = len(ngym.all_envs(tag="supervised"))
-        for env_name in ngym.all_envs():
+        total_count = len(all_envs())
+        supervised_count = len(all_envs(tag="supervised"))
+        for env_name in all_envs():
             try:  # FIXME, tests are not actually performed here, as any error is caught away
                 _test_dataset(env_name)
                 success_count += 1
@@ -121,7 +121,7 @@ def test_trialenv_all():
 def _test_seeding(env):
     """Test if environments are replicable."""
     if env is None:
-        env = ngym.all_envs()[0]
+        env = all_envs()[0]
 
     if isinstance(env, str):
         kwargs = {"dt": 20}

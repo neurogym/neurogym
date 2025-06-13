@@ -6,10 +6,11 @@ import gymnasium as gym
 import numpy as np
 
 import neurogym as ngym
+from neurogym.envs.registration import all_envs
 from neurogym.utils.logging import logger
 
 # Get all supervised learning environment
-SL_ENVS = ngym.all_envs(tag="supervised")
+SL_ENVS = all_envs(tag="supervised")
 
 
 def _test_env(env):
