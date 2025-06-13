@@ -2,10 +2,7 @@
 # fixing rule above leads to problems in pytest
 # FIXME: figure out why this is the case and solve
 
-from neurogym.config import Config
-from neurogym.config import config
 from neurogym.utils.logging import logger
-from neurogym import utils
 from neurogym.core import BaseEnv
 from neurogym.core import TrialEnv
 from neurogym.core import TrialWrapper
