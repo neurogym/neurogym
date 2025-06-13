@@ -68,6 +68,7 @@ dev = [
 ]
 publishing = ["build", "twine", "wheel"]
 rl = ["stable-baselines3>=2.3.2", "sb3-contrib"]
+notebooks = ["nbmake", "tensorflow"]
 
 [project.urls]
 Repository = "https://github.com/neurogym/neurogym"
