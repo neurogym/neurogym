@@ -1,9 +1,9 @@
 from typing import Any
 
 import numpy as np
-from gymnasium import spaces
 
 from neurogym.core import TrialWrapper
+from neurogym.utils import spaces
 
 
 class RandomGroundTruth(TrialWrapper):

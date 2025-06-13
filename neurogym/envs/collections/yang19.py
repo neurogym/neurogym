@@ -3,9 +3,8 @@
 import numpy as np
 
 import neurogym as ngym
-from neurogym import spaces
 from neurogym.core import TrialWrapper
-from neurogym.utils import scheduler
+from neurogym.utils import scheduler, spaces
 from neurogym.wrappers.block import ScheduleEnvs
 
 

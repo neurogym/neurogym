@@ -11,9 +11,8 @@ except ImportError as e:
     msg = "Psychopy is not installed."
     raise ImportError(msg) from e
 
-from gymnasium import spaces
-
 import neurogym as ngym
+from neurogym.utils import spaces
 
 
 class PsychopyEnv(ngym.TrialEnv):

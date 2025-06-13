@@ -1,9 +1,9 @@
 """auditory tone detection task."""
 
 import numpy as np
-from gymnasium import spaces
 
 import neurogym as ngym
+from neurogym.utils import spaces
 
 
 class ToneDetection(ngym.TrialEnv):

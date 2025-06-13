@@ -180,8 +180,9 @@ In this [example](https://github.com/neurogym/neurogym/blob/main/docs/examples/e
 Creating custom new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure, this [template](https://github.com/neurogym/neurogym/blob/main/docs/examples/template.py) provides the basic structure that we recommend a task to have:
 
 ```python
-from gymnasium import spaces
 import neurogym as ngym
+
+from neurogym.utils import spaces
 
 class YourTask(ngym.PeriodEnv):
     metadata = {}

@@ -7,6 +7,7 @@ import numpy as np
 
 import neurogym as ngym
 from neurogym.envs.registration import all_envs
+from neurogym.utils import spaces
 from neurogym.utils.data import Dataset
 from neurogym.utils.logging import logger
 
@@ -100,14 +101,14 @@ def test_examples_different_custom_env():
             super().__init__(dt=dt)
             self.timing = {"fixation": dt, "go": dt}
             name = {"fixation": 0, "go": 1}
-            self.observation_space = ngym.spaces.Box(
+            self.observation_space = spaces.Box(
                 -np.inf,
                 np.inf,
                 shape=(2,),
                 dtype=np.float32,
                 name=name,
             )
-            self.action_space = ngym.spaces.Discrete(2)
+            self.action_space = spaces.Discrete(2)
 
         def _new_trial(self, **kwargs):
             trial = {}
