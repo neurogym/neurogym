@@ -52,5 +52,5 @@ jobs:
           pip install torch --index-url https://download.pytorch.org/whl/cpu
           pip install .[rl,dev,notebooks]
 
-      - name: Run notebooks
-        run: pytest --nbmake docs
+      - name: Run notebooks and output duration for each
+        run: pytest --nbmake docs --durations=0
