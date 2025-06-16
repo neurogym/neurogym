@@ -87,14 +87,14 @@ model = RecurrentPPO("MlpLstmPolicy", env_vec, policy_kwargs=policy_kwargs, verb
 model.learn(5000)
 ```
 
-> Note: This feature is part of an [open pull request](https://github.com/Stable-Baselines-Team/stable-baselines3-contrib/pull/296) to the upstream repository and is currently under review by the maintainers. Until the pull request is merged, you can use this functionality by installing NeuroGym organization's fork of the repository. To do so, uninstall the original package and install from the custom branch:
->
-> ```bash
-> pip uninstall stable-baselines3-contrib -y
-> pip install git+https://github.com/neurogym/stable-baselines3-contrib.git@rnn_policy_addition
-> ```
->
-> This will install the version with vanilla RNN support from the `rnn_policy_addition` branch in our fork.
+**Note**: This feature is part of an [open pull request](https://github.com/Stable-Baselines-Team/stable-baselines3-contrib/pull/296) to the upstream repository and is currently under review by the maintainers. Until the pull request is merged, you can use this functionality by installing NeuroGym organization's fork of the repository. To do so, uninstall the original package and install from the custom branch:
+
+```bash
+pip uninstall stable-baselines3-contrib -y
+pip install git+https://github.com/neurogym/stable-baselines3-contrib.git@rnn_policy_addition
+```
+
+This will install the version with vanilla RNN support from the `rnn_policy_addition` branch in our fork.
 
 ## Custom Tasks
 
