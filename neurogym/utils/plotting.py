@@ -7,6 +7,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import animation
+from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
 
 from neurogym.utils.logging import logger
 
@@ -121,13 +122,20 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
 
     ob_cum_temp = ob.copy()
 
+    # Initialize hidden states
+    states = None
+    episode_starts = np.array([True])
+
     if num_trials is not None:
         num_steps = 1e5  # Overwrite num_steps value
 
     trial_count = 0
     for _ in range(int(num_steps)):
         if model is not None:
-            action, states = model.predict(ob)
+            if isinstance(model.policy, RecurrentActorCriticPolicy):
+                action, states = model.predict(ob, state=states, episode_start=episode_starts, deterministic=True)
+            else:
+                action, _ = model.predict(ob, deterministic=True)
             if isinstance(action, float | int):
                 action = [action]
             if (states is not None) and (len(states) > 0):
@@ -145,6 +153,8 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
             ob, rew, terminated, info = env.step(action)
         else:
             ob, rew, terminated, _truncated, info = env.step(action)
+        # Update episode_starts after each step
+        episode_starts = np.array([False])
         ob_cum_temp += ob
         ob_cum.append(ob_cum_temp.copy())
         if isinstance(info, list):
@@ -171,6 +181,9 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
             perf.append(info["performance"])
             ob_cum_temp = np.zeros_like(ob_cum_temp)
             trial_count += 1
+            # Reset states at the end of each trial
+            states = None
+            episode_starts = np.array([True])
             if num_trials is not None and trial_count >= num_trials:
                 break
         else:
