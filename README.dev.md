@@ -14,11 +14,11 @@ Table of Contents
   - [Docstrings](#docstrings)
   - [Static Typing](#static-typing)
   - [Formatting Non-python Files](#formatting-non-python-files)
+  - [Jupyter Notebooks](#jupyter-notebooks)
 - [User Documentation](#user-documentation)
   - [Publishing the Docs](#publishing-the-docs)
 - [Versioning](#versioning)
 - [Branching Workflow](#branching-workflow)
-  - [Committing to Jupyter Notebooks](#committing-to-jupyter-notebooks)
 - [Development Conventions](#development-conventions)
 - [Making a Release](#making-a-release)
   - [Automated Release Workflow](#automated-release-workflow)
@@ -123,6 +123,26 @@ We use [prettier](https://prettier.io/) for formatting most non-python files.
 
 You can run `npx prettier --check .` to check the formatting of, or `npx prettier --write .` to auto-format non-python files.
 
+### Jupyter Notebooks
+
+Note that Jupyter notebooks are under much less strict style/linting control than normal python modules. This is on
+purpose, as these generally serve as tutorials, in which it is often preferable to "break" style conventions for the
+sake of making ones point clearer.
+
+All notebooks (under the docs/ folder) are continuously monitored against breaking by the [notebooks
+workflow](#notebooks). For this reason, please keep the default values for e.g. epochs, training cycles, etc low so to
+speed this process up. Add a comment to users asking users to increase them if they actually want to the notebook
+productively.
+
+Also, Jupyter notebooks are notoriously difficult to review effectively. To make this slightly easier, please clear the
+run history of any (changes to) Jupyter notebooks before committing or merging them. This significantly
+improves the reviewability and avoids excessive clutter in the commit history.
+
+Do this by:
+
+1. clearing all outputs to remove from the notebook, and
+2. restarting the kernel ("restart" button) to reset which will the `execution_count` of all cells.
+
 ## User Documentation
 
 We use [MkDocs](https://www.mkdocs.org/) and its theme [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) to generate documentations. The configurations of MkDocs are set in [mkdocs.yml](mkdocs.yml) file.
@@ -198,15 +218,6 @@ During the development cycle, three main supporting branches are used:
 - Feature branches - Branches that branch off from `dev` and must merge into `dev`: used to develop new features for the upcoming releases.
 - Hotfix branches - Branches that branch off from `main` and must merge into `main` and `dev`: necessary to act immediately upon an undesired status of `main`.
 - Release branches - Branches that branch off from `dev` and must merge into `main` and `dev`: support preparation of a new production release. They allow many minor bug to be fixed and preparation of meta-data for a release.
-
-### Committing to Jupyter Notebooks
-
-Please commit any (changes to) Jupyter notebooks as empty notebooks to improve the reviewability. Do this by:
-
-1. clearing all outputs to remove from the notebook, and
-2. restarting the kernel ("restart" button) to reset which will the `execution_count` of all cells.
-
-Jupyter notebooks are notoriously difficult to review effectively. In this way, it is kept at least somewhat manageable.
 
 ## Development Conventions
 
