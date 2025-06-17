@@ -20,6 +20,15 @@ Table of Contents
 - [Versioning](#versioning)
 - [Branching Workflow](#branching-workflow)
 - [Development Conventions](#development-conventions)
+- [Quality Control Workflows](#quality-control-workflows)
+  - [Build](#build)
+  - [CFF Convert](#cff-convert)
+  - [Docs Test](#docs-test)
+  - [Hyperlinks](#hyperlinks)
+  - [Linting](#linting)
+  - [Notebooks](#notebooks)
+  - [Code Quality](#code-quality)
+  - [Static Typing](#static-typing-1)
 - [Making a Release](#making-a-release)
   - [Automated Release Workflow](#automated-release-workflow)
     - [Updating the Token](#updating-the-token)
@@ -234,6 +243,55 @@ We highly appreciate external contributions to our package! We do request develo
   - New developments must proceed via a pull request (PR) before they can be merged to either `main` or `dev` branches.
   - When creating a pull request, please use the following naming convention: `<type>: <description>`. Example _types_
     are `fix:`, `feat:`, `docs:`, and others based on the [Angular convention](https://github.com/angular/angular/blob/22b96b9/CONTRIBUTING.md#-commit-message-guidelines).
+
+## Quality Control Workflows
+
+We have set up a number of [workflows](.github/workflows) that automatically check for some quality gateways when creating new PRs to `main` or
+`dev` branch, ensuring the long-term stability and maintainability of the package.
+
+### [Build](.github/workflows/build.yml)
+
+This workflow tests whether the package can be built (i.e. pip installed) without errors.
+
+### [CFF Convert](.github/workflows/cffconvert.yml)
+
+This workflow checks whether the citation information can be read properly.
+
+### [Docs Test](.github/workflows/docs-test.yml)
+
+This workflow checks whether the documentation can be built without errors.
+
+Note that this workflow does not publish the new documentation. Publishing new documentation is triggered automatically
+upon release as part of the release workflow, or can be done [manually](#publishing-the-docs).
+
+### [Hyperlinks](.github/workflows/linkspector.yml)
+
+This workflow checks whether hyperlinks within the documentation are valid.
+
+### [Linting](.github/workflows/linting.yml)
+
+This workflow checks whether the code adheres to our pre-set [linting and formatting
+conventions](#linting-and-formatting-python-files)
+
+### [Notebooks](.github/workflows/notebooks.yml)
+
+This workflow checks whether all of the notebooks can run without triggering any errors.
+
+Note that this workflow actually runs each notebook one at a time, which can be a bit slow. Please keep the
+default values for e.g. epochs, training cycles, etc low so to speed this process up. Add a comment to users asking
+users to increase them if they actually want to the notebook productively.
+
+At the end of each run, there will be a log of how long each notebook took to test (this can also be done locally by
+running `pytest --nbmake docs --durations=0`). This can be used to check which
+notebook is slowing things down, to see if there's any way to improve that.
+
+### [Code Quality](.github/workflows/sonarcloud.yml)
+
+This workflow does a number of checks on code quality, including test coverage.
+
+### [Static Typing](.github/workflows/static-typing.yml)
+
+This workflow checks that the [static typing](#static-typing) of the code base is correct.
 
 ## Making a Release
 
