@@ -282,7 +282,7 @@ class _DMFamily(ngym.TrialEnv):
             periods = ["fixation", "stimulus", "decision"]
         self.add_period(periods)
 
-        self.add_ob(1, where="fixation")
+        self.add_ob(1, period="fixation", where="fixation")
         self.set_ob(0, "decision")
         if self.delaycomparison:
             self.add_randn(0, self.sigma, ["stim1", "stim2"])
@@ -434,7 +434,7 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
         # Periods
         self.add_period(["fixation", "sample", "delay", "test", "decision"])
 
-        self.add_ob(1, where="fixation")
+        self.add_ob(1, period="fixation", where="fixation")
         self.set_ob(0, "decision", where="fixation")
         self.add_ob(stim_sample, "sample", where="stimulus")
         self.add_ob(stim_test, "test", where="stimulus")
