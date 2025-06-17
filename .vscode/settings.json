@@ -22,6 +22,10 @@
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true,
 
+  // Tables of Contents
+  "markdown.extension.toc.updateOnSave": true,
+  "markdown.extension.toc.levels": "2..6",
+
   // Format all files on save
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",

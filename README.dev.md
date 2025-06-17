@@ -2,6 +2,8 @@
 
 Table of Contents
 
+<!--> This table is automatically kept up to date using the "Markdown All in One" extension<!-->
+
 - [IDE Settings](#ide-settings)
 - [Package Setup](#package-setup)
 - [Running the Tests](#running-the-tests)
