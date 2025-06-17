@@ -11,23 +11,26 @@
 
 NeuroGym is a curated collection of neuroscience tasks with a common interface. The goal is to facilitate the training of neural network models on neuroscience tasks.
 
-- [NeuroGym](#neurogym)
-  - [Installation](#installation)
-    - [1. Create a Virtual Environment](#1-create-a-virtual-environment)
-    - [2. Install NeuroGym](#2-install-neurogym)
-      - [2.1 Reinforcement Learning Support](#21-reinforcement-learning-support)
-      - [2.2: Editable/Development Mode](#22-editabledevelopment-mode)
-    - [3. Psychopy Installation (Optional)](#3-psychopy-installation-optional)
-  - [Tasks](#tasks)
-  - [Wrappers](#wrappers)
-  - [Configuration](#configuration)
-    - [1. From a TOML File](#1-from-a-toml-file)
-    - [2. With Python Class](#2-with-python-class)
-    - [3. With a Dictionary](#3-with-a-dictionary)
-  - [Examples](#examples)
-    - [Vanilla RNN Support in RecurrentPPO](#vanilla-rnn-support-in-recurrentppo)
-  - [Custom Tasks](#custom-tasks)
-  - [Acknowledgements](#acknowledgements)
+Table of Contents
+
+<!--> This table is automatically kept up to date using the "Markdown All in One" extension<!-->
+
+- [Installation](#installation)
+  - [1. Create a Virtual Environment](#1-create-a-virtual-environment)
+  - [2. Install NeuroGym](#2-install-neurogym)
+    - [2.1 Reinforcement Learning Support](#21-reinforcement-learning-support)
+    - [2.2: Editable/Development Mode](#22-editabledevelopment-mode)
+  - [3. Psychopy Installation (Optional)](#3-psychopy-installation-optional)
+- [Tasks](#tasks)
+- [Wrappers](#wrappers)
+- [Configuration](#configuration)
+  - [1. From a TOML File](#1-from-a-toml-file)
+  - [2. With Python Class](#2-with-python-class)
+  - [3. With a Dictionary](#3-with-a-dictionary)
+- [Examples](#examples)
+  - [Vanilla RNN Support in RecurrentPPO](#vanilla-rnn-support-in-recurrentppo)
+- [Custom Tasks](#custom-tasks)
+- [Acknowledgements](#acknowledgements)
 
 NeuroGym inherits from the machine learning toolkit [Gymnasium](https://gymnasium.farama.org/), a maintained fork of [OpenAI’s Gym library](https://github.com/openai/gym). It allows a wide range of well established machine learning algorithms to be easily trained on behavioral paradigms relevant for the neuroscience community.
 NeuroGym also incorporates several properties and functions (e.g. continuous-time and trial-based tasks) that are important for neuroscience applications. The toolkit also includes various modifier functions that allow easy configuration of new tasks.
