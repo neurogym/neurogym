@@ -149,6 +149,9 @@ def test_evaluate_policy():
 
     # Create a simple mock model that always takes action 1
     class MockModel:
+        def __init__(self):
+            self.policy = "placeholder_policy"
+
         def predict(self, observation, state=None, episode_start=None, deterministic=True):  # noqa: ARG002
             return 1, None  # Always return action 1 and no state
 

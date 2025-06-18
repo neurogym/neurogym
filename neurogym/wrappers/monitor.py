@@ -5,6 +5,7 @@ from typing import Any
 import matplotlib.pyplot as plt
 import numpy as np
 from gymnasium import Wrapper
+from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
 
 import neurogym as ngym
 from neurogym.config.base import LOCAL_DIR
@@ -290,7 +291,10 @@ class Monitor(Wrapper):
         # Run trials
         while trial_count < num_trials:
             if model is not None:
-                action, states = model.predict(obs, state=states, episode_start=episode_starts, deterministic=True)
+                if isinstance(model.policy, RecurrentActorCriticPolicy):
+                    action, states = model.predict(obs, state=states, episode_start=episode_starts, deterministic=True)
+                else:
+                    action, _ = model.predict(obs, deterministic=True)
             else:
                 action = self.env.action_space.sample()
 
