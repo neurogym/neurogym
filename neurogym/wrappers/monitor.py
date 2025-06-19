@@ -10,6 +10,7 @@ from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
 
 from neurogym.config.base import LOCAL_DIR
 from neurogym.config.config import Config
+from neurogym.utils.functions import ensure_dir, iso_timestamp
 from neurogym.utils.logging import logger
 from neurogym.utils.plotting import visualize_run
 
@@ -118,8 +119,8 @@ class Monitor(Wrapper):
         self.num_tr = 0
 
         # Directory for saving plots
-        save_dir_name = f"{self.config.env.name}/{ngym.utils.iso_timestamp()}"
-        self.save_dir = ngym.utils.ensure_dir(self.config.local_dir / save_dir_name)
+        save_dir_name = f"{self.config.env.name}/{iso_timestamp()}"
+        self.save_dir = ensure_dir(self.config.local_dir / save_dir_name)
 
         # Figures
         if self.config.monitor.plot.create:

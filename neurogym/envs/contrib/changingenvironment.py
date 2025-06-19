@@ -170,4 +170,4 @@ class ChangingEnvironment(TrialEnv):
 
 if __name__ == "__main__":
     env = ChangingEnvironment(cxt_ch_prob=0.05, stim_scale=100, cxt_cue=False)
-    ngym.utils.plot_env(env)
+    ngym.utils.plotting.plot_env(env)
