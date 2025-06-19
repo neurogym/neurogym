@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 from gymnasium import spaces
 
-from neurogym import Config
+from neurogym.config.config import Config
 from neurogym.core import TrialEnv
 from neurogym.wrappers.monitor import Monitor
 

@@ -9,6 +9,7 @@ from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
 
 import neurogym as ngym
 from neurogym.config.base import LOCAL_DIR
+from neurogym.config.config import Config
 from neurogym.utils.logging import logger
 from neurogym.utils.plotting import visualize_run
 
@@ -56,7 +57,7 @@ class Monitor(Wrapper):
     def __init__(
         self,
         env: ngym.TrialEnv,
-        config: ngym.Config | str | Path | None = None,
+        config: Config | str | Path | None = None,
         name: str | None = None,
         trigger: str = "trial",
         interval: int = 1000,
@@ -70,7 +71,7 @@ class Monitor(Wrapper):
         self.env = env
         self.step_fn = step_fn
 
-        cfg: ngym.Config
+        cfg: Config
         if config is None:
             config_dict = {
                 "env": {"name": env.unwrapped.__class__.__name__},
@@ -88,13 +89,13 @@ class Monitor(Wrapper):
                 },
                 "local_dir": LOCAL_DIR,
             }
-            cfg = ngym.Config.model_validate(config_dict)
+            cfg = Config.model_validate(config_dict)
         elif isinstance(config, (str, Path)):
-            cfg = ngym.Config(config_file=config)
+            cfg = Config(config_file=config)
         else:
             cfg = config  # type: ignore[arg-type]
 
-        self.config: ngym.Config = cfg
+        self.config: Config = cfg
 
         # Assign names for the environment and/or the monitor if they are empty
         if len(self.config.env.name) == 0:
