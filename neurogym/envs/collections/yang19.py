@@ -529,7 +529,21 @@ def _dm_kwargs():
 
 def dm1(**kwargs):
     env_kwargs = _dm_kwargs()
-    env_kwargs.update({"w_mod": (1, 1), "stim_mod": (True, False)})
+    if env_kwargs["delaycomparison"]:
+        timing = {
+            "fixation": ("uniform", (200, 500)),
+            "stim1": 500,
+            "delay": 1000,
+            "stim2": 500,
+            "decision": 200,
+        }
+    else:
+        timing = {
+            "fixation": ("uniform", (200, 500)),
+            "stimulus": ("choice", [200, 400, 600]),
+            "decision": 200,
+        }
+    env_kwargs.update({"timing": timing, "w_mod": (1, 1), "stim_mod": (True, False)})
     env_kwargs.update(kwargs)
     return _DMFamily(**env_kwargs)
 
