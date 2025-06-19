@@ -4,13 +4,13 @@ import numpy as np
 import pytest
 
 import neurogym as ngym
-from neurogym.core import env_string
+from neurogym.core import TrialEnv, env_string
 
 
 def test_one_step_mismatch():
     """Test the agent gets rewarded if it fixates after seeing fixation cue."""
 
-    class TestEnv(ngym.TrialEnv):
+    class TestEnv(TrialEnv):
         def __init__(self, dt=100) -> None:
             super().__init__(dt=dt)
             self.timing = {"fixation": dt, "go": dt}
@@ -49,7 +49,7 @@ def test_one_step_mismatch():
 def test_addob_instep():
     """Test if we can add observation during step."""
 
-    class TestEnv(ngym.TrialEnv):
+    class TestEnv(TrialEnv):
         def __init__(self, dt=100) -> None:
             super().__init__(dt=dt)
             self.timing = {"go": 500}
@@ -82,7 +82,7 @@ def test_addob_instep():
         assert ob[0] == ((i + 1) % 5) + 1  # each trial is 5 steps
 
 
-class DummyEnv(ngym.TrialEnv):
+class DummyEnv(TrialEnv):
     def __init__(self, dt: int, timing: dict, seed: int = 42) -> None:
         super().__init__(dt=dt)
         self.seed(seed)

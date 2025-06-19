@@ -7,11 +7,12 @@ import numpy as np
 from gymnasium import spaces
 
 import neurogym as ngym
+from neurogym.core import TrialEnv
 from neurogym.utils.ngym_random import TruncExp
 
 
 # TODO: Need a more intuitive name
-class ChangingEnvironment(ngym.TrialEnv):
+class ChangingEnvironment(TrialEnv):
     """Random Dots Motion tasks in which the correct action depends on a randomly changing context.
 
     Args:

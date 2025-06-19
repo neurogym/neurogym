@@ -1,11 +1,11 @@
 import numpy as np
 
-import neurogym as ngym
 from neurogym import spaces
+from neurogym.core import TrialEnv
 
 
 # TODO: Getting duration is not intuitive, not clear to people
-class IntervalDiscrimination(ngym.TrialEnv):
+class IntervalDiscrimination(TrialEnv):
     """Comparing the time length of two stimuli.
 
     Two stimuli are shown sequentially, separated by a delay period. The

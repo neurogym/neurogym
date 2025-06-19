@@ -3,7 +3,7 @@ from typing import Any
 import numpy as np
 
 import neurogym as ngym
-from neurogym import TrialEnv
+from neurogym.core import TrialEnv
 
 
 class AnnubesEnv(TrialEnv):

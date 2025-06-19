@@ -1,11 +1,11 @@
 import numpy as np
 
-import neurogym as ngym
 from neurogym import spaces
+from neurogym.core import TrialEnv
 from neurogym.utils.ngym_random import TruncExp
 
 
-class PostDecisionWager(ngym.TrialEnv):
+class PostDecisionWager(TrialEnv):
     """Post-decision wagering task assessing confidence.
 
     The agent first performs a perceptual discrimination task (see for more

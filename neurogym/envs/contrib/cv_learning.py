@@ -3,9 +3,10 @@ import numpy as np
 from gymnasium import spaces
 
 import neurogym as ngym
+from neurogym.core import TrialEnv
 
 
-class CVLearning(ngym.TrialEnv):
+class CVLearning(TrialEnv):
     """Implements shaping for the delay-response task.
 
     Agents have to integrate two stimuli and report which one is larger on average after a delay.

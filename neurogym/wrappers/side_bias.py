@@ -1,9 +1,9 @@
 import numpy as np
 
-import neurogym as ngym
+from neurogym.core import TrialEnv, TrialWrapper
 
 
-class SideBias(ngym.TrialWrapper):
+class SideBias(TrialWrapper):
     """Changes the probability of ground truth with block-wise biases.
 
     Args:
@@ -36,11 +36,11 @@ class SideBias(ngym.TrialWrapper):
         "paper_name": None,
     }
 
-    def __init__(self, env: ngym.TrialEnv, probs: list[list[float]], block_dur: float | tuple[int, int] = 200) -> None:
+    def __init__(self, env: TrialEnv, probs: list[list[float]], block_dur: float | tuple[int, int] = 200) -> None:
         super().__init__(env)
 
         # Validate environment
-        if not isinstance(self.task, ngym.TrialEnv):
+        if not isinstance(self.task, TrialEnv):
             msg = "SideBias requires the wrapped task to be a TrialEnv."
             raise TypeError(msg)
 

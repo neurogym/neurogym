@@ -1,10 +1,10 @@
 import numpy as np
 
-import neurogym as ngym
 from neurogym import spaces
+from neurogym.core import TrialEnv
 
 
-class DelayPairedAssociation(ngym.TrialEnv):
+class DelayPairedAssociation(TrialEnv):
     """Delayed paired-association task.
 
     The agent is shown a pair of two stimuli separated by a delay period. For

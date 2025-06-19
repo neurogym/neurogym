@@ -4,10 +4,11 @@ import numpy as np
 from gymnasium import spaces
 
 import neurogym as ngym
+from neurogym.core import TrialEnv
 from neurogym.utils import tasktools
 
 
-class AngleReproduction(ngym.TrialEnv):
+class AngleReproduction(TrialEnv):
     """Angle reproduction.
 
     The agent has to reproduce to two angles separated

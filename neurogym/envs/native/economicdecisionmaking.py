@@ -1,10 +1,10 @@
 import numpy as np
 
-import neurogym as ngym
 from neurogym import spaces
+from neurogym.core import TrialEnv
 
 
-class EconomicDecisionMaking(ngym.TrialEnv):
+class EconomicDecisionMaking(TrialEnv):
     """Economic decision making task.
 
     A agent chooses between two options. Each option offers a certain amount of

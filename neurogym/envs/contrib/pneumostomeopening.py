@@ -2,13 +2,13 @@ import math
 
 import numpy as np
 
-import neurogym as ngym
 from neurogym import spaces
+from neurogym.core import BaseEnv
 from neurogym.utils.logging import logger
 
 
 # TODO: Move to collection
-class Pneumostomeopening(ngym.BaseEnv):
+class Pneumostomeopening(BaseEnv):
     metadata = {  # noqa: RUF012
         "paper_link": "https://jeb.biologists.org/content/199/3/683.long",
         "paper_name": """Operant conditioning of aerial respiratory behaviour

@@ -3,12 +3,12 @@
 
 import numpy as np
 
-import neurogym as ngym
 from neurogym import spaces
+from neurogym.core import TrialEnv
 from neurogym.utils.logging import logger
 
 
-class Bandit(ngym.TrialEnv):
+class Bandit(TrialEnv):
     """Multi-arm bandit task.
 
     On each trial, the agent is presented with multiple choices. Each

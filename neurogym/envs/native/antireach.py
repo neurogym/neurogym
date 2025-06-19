@@ -2,11 +2,11 @@
 
 import numpy as np
 
-import neurogym as ngym
 from neurogym import spaces
+from neurogym.core import TrialEnv
 
 
-class AntiReach(ngym.TrialEnv):
+class AntiReach(TrialEnv):
     """Anti-response task.
 
     During the fixation period, the agent fixates on a fixation point.

@@ -2,14 +2,14 @@
 
 import numpy as np
 
-import neurogym as ngym
 from neurogym import spaces
+from neurogym.core import TrialEnv
 
 
 # TODO: This is not finished yet. Need to compare with original paper
 # TODO: In this current implementation, the two stimuli always point to the
 #  same direction, check original
-class MultiSensoryIntegration(ngym.TrialEnv):
+class MultiSensoryIntegration(TrialEnv):
     """Multi-sensory integration.
 
     Two stimuli are shown in two input modalities. Each stimulus points to

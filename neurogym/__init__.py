@@ -2,9 +2,6 @@
 # fixing rule above leads to problems in pytest
 # FIXME: figure out why this is the case and solve
 
-from neurogym.core import BaseEnv
-from neurogym.core import TrialEnv
-from neurogym.core import TrialWrapper
 from neurogym.utils import spaces
 from neurogym.envs.registration import make
 from neurogym.envs.registration import register
