@@ -285,9 +285,11 @@ class _DMFamily(ngym.TrialEnv):
         self.add_ob(1, period="fixation", where="fixation")
         self.set_ob(0, "decision")
         if self.delaycomparison:
-            self.add_randn(0, self.sigma, ["stim1", "stim2"])
+            self.add_randn(0, self.sigma, period=["stim1", "stim2"], where="stimulus_mod1")
+            self.add_randn(0, self.sigma, period=["stim1", "stim2"], where="stimulus_mod2")
         else:
-            self.add_randn(0, self.sigma, ["stimulus"])
+            self.add_randn(0, self.sigma, period="stimulus", where="stimulus_mod1")
+            self.add_randn(0, self.sigma, period="stimulus", where="stimulus_mod2")
 
         coh1, coh2 = 0, 0
         if self.stim_mod1:
@@ -438,7 +440,7 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
         self.set_ob(0, "decision", where="fixation")
         self.add_ob(stim_sample, "sample", where="stimulus")
         self.add_ob(stim_test, "test", where="stimulus")
-        self.add_randn(0, self.sigma, ["sample", "test"], where="stimulus")
+        self.add_randn(0, self.sigma, period=["sample", "test"], where="stimulus")
 
         if (ground_truth == "match" and self.matchgo) or (ground_truth == "non-match" and not self.matchgo):
             self.set_groundtruth(i_test_theta, period="decision", where="choice")
