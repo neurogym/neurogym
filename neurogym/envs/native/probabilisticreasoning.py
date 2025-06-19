@@ -3,7 +3,7 @@
 import numpy as np
 
 import neurogym as ngym
-from neurogym import spaces
+from neurogym.utils import spaces
 
 
 class ProbabilisticReasoning(ngym.TrialEnv):

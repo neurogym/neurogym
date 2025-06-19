@@ -3,8 +3,7 @@
 import numpy as np
 
 import neurogym as ngym
-from neurogym import spaces
-from neurogym.utils import tasktools
+from neurogym.utils import spaces, tasktools
 
 
 # TODO: Ground truth and action have different space,

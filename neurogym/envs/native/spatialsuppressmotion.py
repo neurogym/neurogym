@@ -2,10 +2,10 @@
 
 
 import numpy as np
-from gymnasium import spaces
 from scipy.interpolate import interp1d
 
 import neurogym as ngym
+from neurogym.utils import spaces
 
 
 class SpatialSuppressMotion(ngym.TrialEnv):

@@ -8,7 +8,7 @@ import warnings
 import numpy as np
 
 import neurogym as ngym
-from neurogym import spaces
+from neurogym.utils import spaces
 from neurogym.utils.ngym_random import TruncExp
 
 

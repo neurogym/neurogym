@@ -1,9 +1,10 @@
 import numpy as np
 
 import neurogym as ngym
+from neurogym.core import TrialWrapper
 
 
-class SideBias(ngym.TrialWrapper):
+class SideBias(TrialWrapper):
     """Changes the probability of ground truth with block-wise biases.
 
     Args:
