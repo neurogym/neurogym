@@ -8,7 +8,6 @@ from neurogym.envs.registration import register
 from neurogym.envs.registration import all_envs
 from neurogym.envs.registration import all_tags
 from neurogym.envs.collections import get_collection
-from neurogym.wrappers import all_wrappers
 from neurogym.utils.data import Dataset
 
 __version__ = "2.1.0"
