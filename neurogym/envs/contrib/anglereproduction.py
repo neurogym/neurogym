@@ -122,4 +122,4 @@ if __name__ == "__main__":
 
     env = AngleReproduction()
     test_run(env)
-    ngym.utils.plot_env(env)
+    ngym.utils.plotting.plot_env(env)

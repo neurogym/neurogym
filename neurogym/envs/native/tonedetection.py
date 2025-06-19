@@ -141,4 +141,4 @@ class ToneDetection(TrialEnv):
 
 if __name__ == "__main__":
     env = ToneDetection(dt=50, timing=None)
-    ngym.utils.plot_env(env, num_steps=100, def_act=1)
+    ngym.utils.plotting.plot_env(env, num_steps=100, def_act=1)

@@ -177,7 +177,7 @@ def test_plot_all():
             env = ngym.make(env_name, dt=20)
             action = np.zeros_like(env.action_space.sample())
             try:  # FIXME: no actual test is run, as errors are caught
-                ngym.utils.plot_env(env, num_trials=2, def_act=action)
+                ngym.utils.plotting.plot_env(env, num_trials=2, def_act=action)
             except Exception as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
                 logger.error(f"Error in plotting env: {env_name}, {e}")
                 logger.error(e)

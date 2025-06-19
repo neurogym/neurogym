@@ -97,4 +97,4 @@ class MatchingPenny(TrialEnv):
 
 if __name__ == "__main__":
     env = MatchingPenny(opponent_type="mean_action")
-    ngym.utils.plot_env(env, num_steps=100)  # , def_act=0)
+    ngym.utils.plotting.plot_env(env, num_steps=100)  # , def_act=0)
