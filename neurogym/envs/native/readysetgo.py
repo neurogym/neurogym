@@ -2,12 +2,12 @@
 
 import numpy as np
 
-import neurogym as ngym
 from neurogym import spaces
+from neurogym.core import TrialEnv
 from neurogym.utils.ngym_random import TruncExp
 
 
-class ReadySetGo(ngym.TrialEnv):
+class ReadySetGo(TrialEnv):
     """Agents have to measure and produce different time intervals.
 
     A stimulus is briefly shown during a ready period, then again during a
@@ -117,7 +117,7 @@ class ReadySetGo(ngym.TrialEnv):
         return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}
 
 
-class MotorTiming(ngym.TrialEnv):
+class MotorTiming(TrialEnv):
     """Agents have to produce different time intervals using different effectors (actions).
 
     Args:
@@ -218,7 +218,7 @@ class MotorTiming(ngym.TrialEnv):
         return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}
 
 
-class OneTwoThreeGo(ngym.TrialEnv):
+class OneTwoThreeGo(TrialEnv):
     """Agents reproduce time intervals based on two samples.
 
     Args:

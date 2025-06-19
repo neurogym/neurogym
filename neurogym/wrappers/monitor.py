@@ -1,17 +1,22 @@
-from collections.abc import Callable
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import matplotlib.pyplot as plt
 import numpy as np
 from gymnasium import Wrapper
 from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
 
-import neurogym as ngym
 from neurogym.config.base import LOCAL_DIR
 from neurogym.config.config import Config
 from neurogym.utils.logging import logger
 from neurogym.utils.plotting import visualize_run
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from neurogym.core import TrialEnv
 
 
 class Monitor(Wrapper):
@@ -56,7 +61,7 @@ class Monitor(Wrapper):
 
     def __init__(
         self,
-        env: ngym.TrialEnv,
+        env: TrialEnv,
         config: Config | str | Path | None = None,
         name: str | None = None,
         trigger: str = "trial",

@@ -3,7 +3,7 @@ from typing import Any
 import numpy as np
 from gymnasium import spaces
 
-from neurogym.core import TrialWrapper
+from neurogym.core import TrialEnv, TrialWrapper
 
 
 class RandomGroundTruth(TrialWrapper):
@@ -35,7 +35,7 @@ class ScheduleAttr(TrialWrapper):
         schedule:
     """
 
-    def __init__(self, env, schedule, attr_list) -> None:
+    def __init__(self, env: TrialEnv, schedule, attr_list) -> None:
         super().__init__(env)
         self.schedule = schedule
         self.attr_list = attr_list

@@ -2,12 +2,12 @@
 
 import numpy as np
 
-import neurogym as ngym
 from neurogym import spaces
+from neurogym.core import TrialEnv
 from neurogym.utils.logging import logger
 
 
-class YourTask(ngym.TrialEnv):
+class YourTask(TrialEnv):
     def __init__(self, dt=100, rewards=None, timing=None, sigma=1) -> None:
         super().__init__(dt=dt)
         # Possible decisions at the end of the trial

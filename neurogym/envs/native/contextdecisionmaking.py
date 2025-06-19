@@ -2,12 +2,12 @@ from typing import Any
 
 import numpy as np
 
-import neurogym as ngym
 from neurogym import spaces
+from neurogym.core import TrialEnv
 from neurogym.utils.ngym_random import TruncExp
 
 
-class ContextDecisionMaking(ngym.TrialEnv):
+class ContextDecisionMaking(TrialEnv):
     """Context-dependent decision-making task.
 
     The agent simultaneously receives stimulus inputs from two modalities (

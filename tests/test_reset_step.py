@@ -3,6 +3,7 @@ import warnings
 import numpy as np
 
 import neurogym as ngym
+from neurogym.core import TrialWrapper
 from neurogym.utils.scheduler import RandomSchedule
 from neurogym.wrappers import ScheduleEnvs
 
@@ -18,7 +19,7 @@ def make_env(name, **kwargs):
     return ngym.make(name, **kwargs)
 
 
-class CstObTrialWrapper(ngym.TrialWrapper):
+class CstObTrialWrapper(TrialWrapper):
     def __init__(self, env, cst_ob) -> None:
         super().__init__(env)
         self.cst_ob = cst_ob

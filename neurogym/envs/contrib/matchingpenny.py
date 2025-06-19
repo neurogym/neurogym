@@ -2,10 +2,11 @@ import numpy as np
 from gymnasium import spaces
 
 import neurogym as ngym
+from neurogym.core import TrialEnv
 from neurogym.utils.logging import logger
 
 
-class MatchingPenny(ngym.TrialEnv):
+class MatchingPenny(TrialEnv):
     """Matching penny task.
 
     The agent is rewarded when it selects the same target as the computer.

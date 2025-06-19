@@ -2,11 +2,11 @@
 
 import numpy as np
 
-import neurogym as ngym
 from neurogym import spaces
+from neurogym.core import TrialEnv
 
 
-class ProbabilisticReasoning(ngym.TrialEnv):
+class ProbabilisticReasoning(TrialEnv):
     """Probabilistic reasoning.
 
     The agent is shown a sequence of stimuli. Each stimulus is associated

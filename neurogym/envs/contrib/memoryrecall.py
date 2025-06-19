@@ -5,11 +5,11 @@ from collections import OrderedDict
 import numpy as np
 from gymnasium import spaces
 
-import neurogym as ngym
+from neurogym.core import TrialEnv
 from neurogym.utils.logging import logger
 
 
-class MemoryRecall(ngym.TrialEnv):
+class MemoryRecall(TrialEnv):
     """Memory Recall.
 
     Args:

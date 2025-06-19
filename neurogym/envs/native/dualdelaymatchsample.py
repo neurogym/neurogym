@@ -1,10 +1,10 @@
 import numpy as np
 
-import neurogym as ngym
 from neurogym import spaces
+from neurogym.core import TrialEnv
 
 
-class DualDelayMatchSample(ngym.TrialEnv):
+class DualDelayMatchSample(TrialEnv):
     """Two-item Delay-match-to-sample.
 
     The trial starts with a fixation period. Then during the sample period,

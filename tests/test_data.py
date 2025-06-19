@@ -6,6 +6,7 @@ import gymnasium as gym
 import numpy as np
 
 import neurogym as ngym
+from neurogym.core import TrialEnv
 from neurogym.utils.logging import logger
 
 # Get all supervised learning environment
@@ -93,7 +94,7 @@ def test_examples_different_made_env():
 def test_examples_different_custom_env():
     """Test that each example in a batch is different in created envs."""
 
-    class TestEnv(ngym.TrialEnv):
+    class TestEnv(TrialEnv):
         def __init__(self, dt=100) -> None:
             super().__init__(dt=dt)
             self.timing = {"fixation": dt, "go": dt}

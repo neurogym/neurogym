@@ -1,10 +1,10 @@
 import numpy as np
 
-import neurogym as ngym
 from neurogym import spaces
+from neurogym.core import TrialEnv
 
 
-class GoNogo(ngym.TrialEnv):
+class GoNogo(TrialEnv):
     """Go/No-go task.
 
     A stimulus is shown during the stimulus period. The stimulus period is

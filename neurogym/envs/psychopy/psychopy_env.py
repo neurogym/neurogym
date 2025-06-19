@@ -3,8 +3,6 @@ from typing import Any
 
 import numpy as np
 
-from neurogym.utils.logging import logger
-
 try:
     from psychopy import visual
 except ImportError as e:
@@ -13,10 +11,11 @@ except ImportError as e:
 
 from gymnasium import spaces
 
-import neurogym as ngym
+from neurogym.core import TrialEnv
+from neurogym.utils.logging import logger
 
 
-class PsychopyEnv(ngym.TrialEnv):
+class PsychopyEnv(TrialEnv):
     """Superclass for environments with psychopy stimuli."""
 
     def __init__(self, win_kwargs=None, *args, **kwargs) -> None:

@@ -4,9 +4,10 @@ import numpy as np
 from gymnasium import spaces
 
 import neurogym as ngym
+from neurogym.core import TrialEnv
 
 
-class ToneDetection(ngym.TrialEnv):
+class ToneDetection(TrialEnv):
     """A subject is asked to report whether a pure tone is embeddied within a background noise.
 
     If yes, should indicate the position of the tone. The tone lasts 50ms and could appear at the 500ms, 1000ms, and
