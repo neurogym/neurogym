@@ -8,13 +8,11 @@ import pytest
 
 import neurogym as ngym
 from neurogym.utils.logging import logger
-from neurogym.wrappers import (
-    Noise,
-    PassAction,
-    PassReward,
-    ReactionTime,
-    SideBias,
-)
+from neurogym.wrappers.noise import Noise
+from neurogym.wrappers.pass_action import PassAction
+from neurogym.wrappers.pass_reward import PassReward
+from neurogym.wrappers.reaction_time import ReactionTime
+from neurogym.wrappers.side_bias import SideBias
 
 # ruff: noqa: N803, F821
 

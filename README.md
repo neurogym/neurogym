@@ -138,15 +138,15 @@ config = Config('path/to/config.toml')
 You can then pass this config to any component that supports it:
 
 ```python
-from neurogym.wrappers import monitor
+from neurogym.wrappers import Monitor
 env = gym.make('GoNogo-v0')
-env = monitor.Monitor(env, config=config)
+env = Monitor(env, config=config)
 ```
 
 Or directly pass the path:
 
 ```python
-env = monitor.Monitor(env, config='path/to/config.toml')
+env = Monitor(env, config='path/to/config.toml')
 ```
 
 #### 2. With Python Class

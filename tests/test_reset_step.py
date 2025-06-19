@@ -5,7 +5,7 @@ import numpy as np
 import neurogym as ngym
 from neurogym.core import TrialWrapper
 from neurogym.utils.scheduler import RandomSchedule
-from neurogym.wrappers import ScheduleEnvs
+from neurogym.wrappers.block import ScheduleEnvs
 
 disable_env_checker = False
 rng = np.random.default_rng()
