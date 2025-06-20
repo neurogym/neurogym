@@ -152,18 +152,3 @@ class Dataset:
                 env.seed(seed)  # type: ignore[attr-defined]
             else:
                 env.seed(seed + i)  # type: ignore[attr-defined]
-
-
-if __name__ == "__main__":
-    import neurogym as ngym
-
-    dataset = ngym.Dataset(
-        "PerceptualDecisionMaking-v0",
-        env_kwargs={"dt": 100},
-        batch_size=32,
-        seq_len=40,
-    )
-    inputs_list = []
-    for _ in range(2):
-        inputs, target = dataset()
-        inputs_list.append(inputs)
