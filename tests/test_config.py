@@ -29,19 +29,19 @@ def test_config_custom_toml_file(temp_dir: Path):
     config_file = temp_dir / "config.toml"
 
     try:
-        # Set the level to some value that we can test
-        level = "NONSENSETESTLEVEL"
+        # Set the title to some value that we can test
+        title = "TEST_TITLE"
 
-        # Create a TOML file with an entry for the log level
+        # Create a TOML file with an entry for the plot title
         # ==================================================
         doc = tkit.document()
         doc.add(tkit.comment("This is a Neurogym configuration file."))
         doc.add(tkit.nl())
 
         monitor = tkit.table()
-        log = tkit.table()
-        monitor.append("log", log)
-        log.add("level", level)
+        plot = tkit.table()
+        monitor.append("plot", plot)
+        plot.add("title", title)
         doc.add("monitor", monitor)
 
         # Store the file
@@ -53,9 +53,9 @@ def test_config_custom_toml_file(temp_dir: Path):
         # ==================================================
         config = Config(config_file)
 
-        # Check that the log level in the configuration
-        # is the same as the `level` variable
-        assert config.monitor.log.level == level
+        # Check that the plot title in the configuration
+        # is the same as the `title` variable above
+        assert config.monitor.plot.title == title
 
     finally:
         # Clean up
@@ -72,7 +72,6 @@ def test_config_instantiate_from_dict(
     local_dir = temp_dir / "local-test"
     save_interval = rng.integers(50, 100)
     plot_steps = rng.integers(5, 10)
-    log_level = "WARNING"
 
     opts = {
         "local_dir": local_dir,
@@ -81,9 +80,6 @@ def test_config_instantiate_from_dict(
             "interval": save_interval,
             "plot": {
                 "value": plot_steps,
-            },
-            "log": {
-                "level": log_level,
             },
         },
     }
@@ -97,7 +93,6 @@ def test_config_instantiate_from_dict(
     assert config.local_dir == local_dir
     assert config.monitor.interval == save_interval
     assert config.monitor.trigger == trigger
-    assert config.monitor.log.level == log_level
 
 
 @pytest.mark.parametrize(

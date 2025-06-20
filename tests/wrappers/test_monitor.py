@@ -65,6 +65,8 @@ def test_monitor_initialization(temp_folder: str):
     assert monitor.config.monitor.trigger == "trial"
     assert monitor.config.local_dir == Path(temp_folder)
     assert monitor.data == {"action": [], "reward": [], "cum_reward": [], "performance": []}
+    assert hasattr(monitor, "data_eval")
+    assert isinstance(monitor.data_eval, dict)
 
 
 def test_monitor_data_collection():
@@ -76,7 +78,7 @@ def test_monitor_data_collection():
     # Set some configuration options manually
     config.monitor.interval = 100
     config.monitor.trigger = "trial"
-    config.monitor.log.verbose = False
+    config.monitor.verbose = False
 
     monitor = Monitor(env, config)
 
@@ -115,8 +117,8 @@ def test_monitor_save_data(temp_folder: str, sv_stp: str):
     # though in production we recommend setting values via TOML or constructor.
     config.monitor.trigger = sv_stp  # type: ignore[assignment]
     config.monitor.interval = 10
+    config.monitor.verbose = True
     config.monitor.plot.step = 3
-    config.monitor.log.verbose = True
 
     monitor = Monitor(env, config)
 
@@ -147,6 +149,9 @@ def test_evaluate_policy():
 
     # Create a simple mock model that always takes action 1
     class MockModel:
+        def __init__(self):
+            self.policy = "placeholder_policy"
+
         def predict(self, observation, state=None, episode_start=None, deterministic=True):  # noqa: ARG002
             return 1, None  # Always return action 1 and no state
 
@@ -171,6 +176,10 @@ def test_evaluate_policy():
     assert len(results_model["cum_rewards"]) == num_trials
     assert 0 <= results_model["mean_cum_reward"] <= 1.0
 
+    assert isinstance(monitor.data_eval, dict)
+    assert "action" in monitor.data_eval
+    assert "reward" in monitor.data_eval
+
     # Test with random policy (no model provided)
     results_random = monitor.evaluate_policy(num_trials=num_trials, model=None, verbose=False)
 
@@ -189,6 +198,8 @@ def test_evaluate_policy():
     assert len(results_random["cum_rewards"]) == num_trials
     assert 0 <= results_random["mean_cum_reward"] <= 1.0
 
+    assert isinstance(monitor.data_eval, dict)
+
 
 def test_plot_training_history(temp_folder: str):
     """Test that plot_training_history generates a visualization.
@@ -203,8 +214,8 @@ def test_plot_training_history(temp_folder: str):
 
     # Set some configuration options manually
     config.monitor.interval = 10
+    config.monitor.verbose = True
     config.monitor.plot.step = 5
-    config.monitor.log.verbose = True
 
     monitor = Monitor(env, config)
 

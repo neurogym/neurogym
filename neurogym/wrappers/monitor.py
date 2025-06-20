@@ -5,9 +5,11 @@ from typing import Any
 import matplotlib.pyplot as plt
 import numpy as np
 from gymnasium import Wrapper
+from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
 
 import neurogym as ngym
 from neurogym.config.base import LOCAL_DIR
+from neurogym.utils.logging import logger
 from neurogym.utils.plotting import fig_
 
 
@@ -28,7 +30,7 @@ class Monitor(Wrapper):
         plot_steps: Number of steps to visualize in each plot.
         ext: Image file extension for saved plots (e.g., "png").
         step_fn: Optional custom step function to override the environment's.
-        verbose: Whether to print information when logging or saving data.
+        verbose: Whether to log information when logging or saving data.
         level: Logging verbosity level (e.g., "INFO", "DEBUG").
         log_trigger: When to log progress ("trial" or "step").
         log_interval: How often to log, in trials or steps.
@@ -36,6 +38,7 @@ class Monitor(Wrapper):
     Attributes:
         config: Final validated configuration object.
         data: Collected behavioral data for each completed trial.
+        data_eval: Evaluation data collected during policy evaluation runs.
         cum_reward: Cumulative reward for the current trial.
         num_tr: Number of completed trials.
         t: Step counter (used when trigger is "step").
@@ -57,20 +60,15 @@ class Monitor(Wrapper):
         name: str | None = None,
         trigger: str = "trial",
         interval: int = 1000,
+        verbose: bool = True,
         plot_create: bool = False,
         plot_steps: int = 1000,
         ext: str = "png",
         step_fn: Callable | None = None,
-        verbose: bool = True,
-        level: str = "INFO",
-        log_trigger: str = "trial",
-        log_interval: int = 1000,
     ) -> None:
         super().__init__(env)
         self.env = env
         self.step_fn = step_fn
-
-        log_format = "<magenta>Neurogym</magenta> | <cyan>{time:YYYY-MM-DD@HH:mm:ss}</cyan> | <level>{message}</level>"
 
         cfg: ngym.Config
         if config is None:
@@ -80,18 +78,12 @@ class Monitor(Wrapper):
                     "name": name or "Monitor",
                     "trigger": trigger,
                     "interval": interval,
+                    "verbose": verbose,
                     "plot": {
                         "create": plot_create,
                         "step": plot_steps,
                         "title": env.unwrapped.__class__.__name__,
                         "ext": ext,
-                    },
-                    "log": {
-                        "verbose": verbose,
-                        "format": log_format,
-                        "level": level,
-                        "trigger": log_trigger,
-                        "interval": log_interval,
                     },
                 },
                 "local_dir": LOCAL_DIR,
@@ -110,10 +102,10 @@ class Monitor(Wrapper):
         if len(self.config.monitor.name) == 0:
             self.config.monitor.name = self.__class__.__name__
 
-        self._configure_logger()
-
         # data to save
         self.data: dict[str, list] = {"action": [], "reward": [], "cum_reward": [], "performance": []}
+        # Evaluation-only data collected during the policy run (not saved to disk)
+        self.data_eval: dict[str, Any] = {}
         self.cum_reward = 0.0
         if self.config.monitor.trigger == "step":
             self.t = 0
@@ -132,10 +124,9 @@ class Monitor(Wrapper):
             self.gt_mat: list = []
             self.perf_mat: list = []
 
-    def _configure_logger(self):
-        ngym.logger.remove()
-        ngym.logger.configure(**self.config.monitor.log.make_config())
-        ngym.logger.info("Logger configured.")
+        # Ensure the reset function is called
+        initial_ob, *_ = env.reset()
+        self.initial_ob = initial_ob
 
     def reset(self, seed=None):
         """Reset the environment.
@@ -196,13 +187,13 @@ class Monitor(Wrapper):
                 save_path = self.save_dir / f"trial_{self.num_tr}.npz"
                 np.savez(save_path, **self.data)
 
-                if self.config.monitor.log.verbose:
-                    print("--------------------")
-                    print(f"Data saved to: {save_path}")
-                    print(f"Number of trials: {self.num_tr}")
-                    print(f"Average reward: {np.mean(self.data['reward'])}")
-                    print(f"Average performance: {np.mean(self.data['performance'])}")
-                    print("--------------------")
+                if self.config.monitor.verbose:
+                    logger.info("--------------------")
+                    logger.info(f"Data saved to: {save_path}")
+                    logger.info(f"Number of trials: {self.num_tr}")
+                    logger.info(f"Average reward: {np.mean(self.data['reward'])}")
+                    logger.info(f"Average performance: {np.mean(self.data['performance'])}")
+                    logger.info("--------------------")
                 self.reset_data()
                 if self.config.monitor.plot.create:
                     self.stp_counter = 0
@@ -249,6 +240,8 @@ class Monitor(Wrapper):
                 performance=self.perf_mat,
                 fname=fname,
                 name=self.config.monitor.plot.title,
+                env=self.env,
+                initial_ob=self.initial_ob,
             )
             self.ob_mat = []
             self.act_mat = []
@@ -291,13 +284,17 @@ class Monitor(Wrapper):
         cum_reward = 0.0
         cum_rewards = []
         performances = []
+        self.data_eval = {"action": [], "reward": []}
         # Initialize trial count
         trial_count = 0
 
         # Run trials
         while trial_count < num_trials:
             if model is not None:
-                action, states = model.predict(obs, state=states, episode_start=episode_starts, deterministic=True)
+                if isinstance(model.policy, RecurrentActorCriticPolicy):
+                    action, states = model.predict(obs, state=states, episode_start=episode_starts, deterministic=True)
+                else:
+                    action, _ = model.predict(obs, deterministic=True)
             else:
                 action = self.env.action_space.sample()
 
@@ -315,8 +312,16 @@ class Monitor(Wrapper):
                 if "performance" in info:
                     performances.append(info["performance"])
 
-                if verbose and trial_count % 1000 == 0:
-                    print(f"Completed {trial_count}/{num_trials} trials")
+                if verbose and trial_count % 1000 == 0:  # FIXME: why is this value hardcoded?
+                    logger.info(f"Completed {trial_count}/{num_trials} trials")
+
+                self.data_eval["action"].append(action)
+                self.data_eval["reward"].append(reward)
+                for key in info:
+                    if key not in self.data_eval:
+                        self.data_eval[key] = [info[key]]
+                    else:
+                        self.data_eval[key].append(info[key])
 
                 # Reset states at the end of each trial
                 states = None
@@ -326,6 +331,11 @@ class Monitor(Wrapper):
         performance_array = np.array([p for p in performances if p != -1])
         reward_array = np.array(rewards)
         cum_reward_array = np.array(cum_rewards)
+
+        # Convert lists to numpy arrays for easier downstream analysis
+        for key in self.data_eval:
+            if key != "trial":
+                self.data_eval[key] = np.array(self.data_eval[key])
 
         return {
             "rewards": rewards,
@@ -354,10 +364,10 @@ class Monitor(Wrapper):
         files = sorted(self.save_dir.glob("*.npz"))
 
         if not files:
-            print("No data files found matching pattern: *.npz")
+            logger.warning("No data files found matching pattern: *.npz")
             return None
 
-        print(f"Found {len(files)} data files")
+        logger.info(f"Found {len(files)} data files")
 
         # Arrays to hold average values
         avg_rewards_per_file = []
@@ -386,6 +396,11 @@ class Monitor(Wrapper):
                 if len(perfs) > 0:
                     avg_performances_per_file.append(np.mean(perfs))
 
+        file_indices = [0, *file_indices]
+        avg_rewards_per_file = [0, *avg_rewards_per_file]
+        avg_cum_rewards_per_file = [0, *avg_cum_rewards_per_file]
+        avg_performances_per_file = [0, *avg_performances_per_file]
+
         fig, axes = plt.subplots(1, 2 if plot_performance else 1, figsize=figsize)
         if not isinstance(axes, np.ndarray):
             axes = [axes]
@@ -398,56 +413,41 @@ class Monitor(Wrapper):
         if len(avg_cum_rewards_per_file) == len(file_indices):
             ax1.plot(file_indices, avg_cum_rewards_per_file, "s--", color="red", label="Avg Cum Reward", linewidth=2)
 
-        ax1.set_xlabel("Cumulative Trials")
+        ax1.set_xlabel("Trials")
         ax1.set_ylabel("Reward / Cumulative Reward")
         common_ylim = (-0.05, 1.05)
         ax1.set_ylim(common_ylim)
         ax1.set_title("Reward and Cumulative Reward per File")
 
-        overall_avg_reward = np.mean(avg_rewards_per_file)
-        ax1.text(
-            0.05,
-            0.95,
-            f"Overall Avg Reward: {overall_avg_reward:.4f}",
-            transform=ax1.transAxes,
-            verticalalignment="top",
-            bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
-        )
-
         ax1.grid(True, which="both", axis="y", linestyle="--", alpha=0.7)
-        ax1.legend(loc="lower center", bbox_to_anchor=(0.5, -0.3), ncol=2)
+        ax1.legend(loc="center right", bbox_to_anchor=(1, 0.2))
 
         # 2. Optional: Performances plot
         if plot_performance and len(axes) > 1:
             ax2 = axes[1]
             if len(avg_performances_per_file) == len(file_indices):
                 ax2.plot(file_indices, avg_performances_per_file, "o-", color="green", linewidth=2)
-            ax2.set_xlabel("Cumulative Trials")
+            ax2.set_xlabel("Trials")
             ax2.set_ylabel("Average Performance (0-1)")
             ax2.set_ylim(common_ylim)
             ax2.set_title("Average Performance per File")
 
-            overall_avg_perf = np.mean(avg_performances_per_file)
-            ax2.text(
-                0.05,
-                0.95,
-                f"Overall Avg Perf: {overall_avg_perf:.4f}",
-                transform=ax2.transAxes,
-                verticalalignment="top",
-                bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.8},
-            )
-
             ax2.grid(True, which="both", axis="y", linestyle="--", alpha=0.7)
         plt.tight_layout()
         fig.subplots_adjust(top=0.8)
+
+        for ax in fig.axes:
+            ax.spines["top"].set_visible(False)
+            ax.spines["right"].set_visible(False)
+
         plt.suptitle(
             f"Training History for {self.config.env.name}\n({len(files)} data files, {total_trials} total trials)",
-            fontsize=14,
+            fontsize=12,
         )
 
         if save_fig:
             save_path = self.config.local_dir / f"{self.config.env.name}_training_history.png"
             plt.savefig(save_path, dpi=300, bbox_inches="tight")
-            print(f"Figure saved to {save_path}")
+            logger.info(f"Figure saved to {save_path}")
 
         return fig

@@ -2,6 +2,7 @@ import numpy as np
 from gymnasium import spaces
 
 import neurogym as ngym
+from neurogym.utils.logging import logger
 
 
 class MatchingPenny(ngym.TrialEnv):
@@ -31,7 +32,7 @@ class MatchingPenny(ngym.TrialEnv):
     ) -> None:
         super().__init__(dt=dt)
         if timing is not None:
-            print("Warning: Matching-Penny task does not require timing variable.")
+            logger.warning("Matching-Penny task does not require timing variable.")
         # TODO: remain to be carefully tested
         # Opponent Type
         self.opponent_type = opponent_type

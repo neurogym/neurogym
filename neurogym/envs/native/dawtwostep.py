@@ -2,6 +2,7 @@ import numpy as np
 from gymnasium import spaces
 
 import neurogym as ngym
+from neurogym.utils.logging import logger
 
 
 # TODO: Need better description
@@ -23,7 +24,7 @@ class DawTwoStep(ngym.TrialEnv):
     def __init__(self, dt=100, rewards=None, timing=None) -> None:
         super().__init__(dt=dt)
         if timing is not None:
-            print("Warning: Two-step task does not require timing variable.")
+            logger.warning("Daw Two-step task does not require timing variable.")
         # Actions are ('FIXATE', 'ACTION1', 'ACTION2')
         self.actions = [0, 1, 2]
 

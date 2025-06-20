@@ -42,7 +42,7 @@ Or directly pass the path:
 env = monitor.Monitor(env, config='path/to/config.toml')
 ```
 
-### 2. With Python class
+### 2. With Python Class
 
 ```python
 from neurogym import Config
@@ -53,7 +53,7 @@ config = Config(
 )
 ```
 
-### 3. With a dictionary
+### 3. With a Dictionary
 
 ```python
 from neurogym import Config
@@ -73,7 +73,30 @@ config = Config.model_validate(config_dict)
 NeuroGym is compatible with most packages that use gymnasium.
 In this [example](https://github.com/gyyang/neurogym/blob/master/examples/example_neurogym_rl.ipynb) jupyter notebook we show how to train a neural network with reinforcement learning algorithms using the [Stable-Baselines3](https://stable-baselines3.readthedocs.io/en/master/) toolbox.
 
-## Custom tasks
+### Vanilla RNN Support in RecurrentPPO
+
+We extended the [`RecurrentPPO`](https://github.com/Stable-Baselines-Team/stable-baselines3-contrib) implementation from `stable-baselines3-contrib` to support **vanilla RNNs** (`torch.nn.RNN`) in addition to LSTMs. This is particularly useful for neuroscience applications, where simpler recurrent architectures can be more biologically interpretable.
+
+You can enable vanilla RNNs by setting `recurrent_layer_type="rnn"` in the `policy_kwargs`:
+
+```python
+from sb3_contrib import RecurrentPPO
+
+policy_kwargs = {"recurrent_layer_type": "rnn"}  # "lstm" is the default
+model = RecurrentPPO("MlpLstmPolicy", env_vec, policy_kwargs=policy_kwargs, verbose=1)
+model.learn(5000)
+```
+
+**Note**: This feature is part of an [open pull request](https://github.com/Stable-Baselines-Team/stable-baselines3-contrib/pull/296) to the upstream repository and is currently under review by the maintainers. Until the pull request is merged, you can use this functionality by installing NeuroGym organization's fork of the repository. To do so, uninstall the original package and install from the custom branch:
+
+```bash
+pip uninstall stable-baselines3-contrib -y
+pip install git+https://github.com/neurogym/stable-baselines3-contrib.git@rnn_policy_addition
+```
+
+This will install the version with vanilla RNN support from the `rnn_policy_addition` branch in our fork.
+
+## Custom Tasks
 
 Creating custom new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure, this [template](https://github.com/gyyang/neurogym/blob/master/examples/template.py) provides the basic structure that we recommend a task to have:
 

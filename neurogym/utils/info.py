@@ -5,17 +5,18 @@ import inspect
 import neurogym as ngym
 from neurogym.core import METADATA_DEF_KEYS, env_string
 from neurogym.envs.registration import ALL_ENVS, all_envs
+from neurogym.utils.logging import logger
 from neurogym.wrappers import ALL_WRAPPERS
 
 
 def all_tasks() -> None:
     for task in sorted(ALL_ENVS):
-        print(task)
+        logger.info(task)
 
 
 def all_wrappers() -> None:
     for wrapper in sorted(ALL_WRAPPERS):
-        print(wrapper)
+        logger.info(wrapper)
 
 
 def info(env=None, show_code=False):
@@ -86,13 +87,13 @@ def all_tags(verbose=0):
             metadata = env.metadata
             tags += metadata.get("tags", [])
         except BaseException as e:  # noqa: BLE001, PERF203 # FIXME: unclear which error is expected here.
-            print("Failure in ", env_name)
-            print(e)
+            logger.error(f"Failure in {env_name}")
+            logger.error(e)
     tags = set(tags)
     if verbose:
-        print("\nTAGS:\n")
+        logger.info("\nTAGS:\n")
         for tag in tags:
-            print(tag)
+            logger.info(tag)
     return tags
 
 

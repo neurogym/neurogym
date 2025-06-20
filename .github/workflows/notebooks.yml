@@ -1,0 +1,56 @@
+name: notebooks
+
+on:
+  push:
+    paths-ignore:
+      # specific folder locations
+      - ".vscode/**"
+      # filetypes
+      - "**.md"
+      - "**.rst"
+      - "**.cff"
+      - "**.png"
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths-ignore:
+      # specific folder locations
+      - ".vscode/**"
+      # filetypes
+      - "**.md"
+      - "**.rst"
+      - "**.cff"
+      - "**.png"
+
+jobs:
+  build:
+    if: github.event.pull_request.draft == false
+    name: Run notebooks
+    runs-on: ubuntu-latest
+
+    # https://github.com/marketplace/actions/setup-miniconda#use-a-default-shell
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Python info
+        run: |
+          which python3
+          python3 --version
+
+      - name: Upgrade pip and install dependencies
+        # avoid installing gpu dependencies by first installing cpu-only torch
+        run: |
+          python3 -m pip install --upgrade pip setuptools
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install .[rl,dev,notebooks]
+
+      - name: Run notebooks and output duration for each
+        run: pytest --nbmake docs --durations=0
