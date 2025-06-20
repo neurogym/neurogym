@@ -281,6 +281,8 @@ class _DMFamily(ngym.TrialEnv):
         else:
             periods = ["fixation", "stimulus", "decision"]
         self.add_period(periods)
+        if not self.delaycomparison:
+            trial["stim_period"] = self._duration["stimulus"]
 
         self.add_ob(1, period="fixation", where="fixation")
         self.set_ob(0, "decision")
