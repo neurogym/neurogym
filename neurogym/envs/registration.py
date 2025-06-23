@@ -120,27 +120,6 @@ def all_envs(
     return new_env_list
 
 
-def all_tags():
-    return [
-        "confidence",
-        "context dependent",
-        "continuous action space",
-        "delayed response",
-        "go-no-go",
-        "motor",
-        "multidimensional action space",
-        "n-alternative",
-        "perceptual",
-        "reaction time",
-        "steps action space",
-        "supervised",
-        "timing",
-        "two-alternative",
-        "value-based",
-        "working memory",
-    ]
-
-
 def make(id_: str, **kwargs) -> gym.Env:
     """Creates an environment previously registered with :meth:`ngym.register`.
 
@@ -165,3 +144,14 @@ def register(id_: str, **kwargs) -> None:
 
 for env_id, entry_point in ALL_EXTENDED_ENVS.items():
     register(id_=env_id, entry_point=entry_point)
+
+
+def all_tags() -> list[str]:
+    """Script to get all tags."""
+    envs = all_envs()
+    tags = []
+    for env_name in sorted(envs):
+        env = make(env_name)
+        metadata = env.metadata
+        tags += metadata.get("tags", [])
+    return list(set(tags))
