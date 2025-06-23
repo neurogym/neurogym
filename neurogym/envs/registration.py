@@ -6,6 +6,7 @@ from pathlib import Path
 import gymnasium as gym
 
 from neurogym.envs.collections import get_collection
+from neurogym.utils.logging import logger
 
 _HAVE_PSYCHOPY = find_spec("psychopy") is not None  # check if psychopy is installed
 _INCLUDE_CONTRIB = False  # FIXME: these are currently not passing tests
@@ -117,6 +118,9 @@ def all_envs(
         env_tag = imported.metadata.get("tags", [])
         if tag in env_tag:
             new_env_list.append(env)
+    if not new_env_list:
+        logger.warning(f"No environments found with tag '{tag}'.")
+
     return new_env_list
 
 
