@@ -3,18 +3,20 @@
 import inspect
 
 from neurogym.core import METADATA_DEF_KEYS, env_string
-from neurogym.envs.registration import ALL_ENVS, all_envs, make
+from neurogym.envs.registration import ALL_ENVS, all_tags, make
 from neurogym.utils.logging import logger
-from neurogym.wrappers import ALL_WRAPPERS
+from neurogym.wrappers import ALL_WRAPPERS, all_wrappers
 
 
-def all_tasks() -> None:
+def show_all_tasks() -> None:
+    logger.info("Available tasks:")
     for task in sorted(ALL_ENVS):
         logger.info(task)
 
 
-def all_wrappers() -> None:
-    for wrapper in sorted(ALL_WRAPPERS):
+def show_all_wrappers() -> None:
+    logger.info("Available wrappers:")
+    for wrapper in all_wrappers():
         logger.info(wrapper)
 
 
@@ -76,21 +78,7 @@ def info_wrapper(wrapper=None, show_code=False):
     return string
 
 
-def all_tags(verbose=0):
-    """Script to get all tags."""
-    envs = all_envs()
-    tags = []
-    for env_name in sorted(envs):
-        try:
-            env = make(env_name)
-            metadata = env.metadata
-            tags += metadata.get("tags", [])
-        except BaseException as e:  # noqa: BLE001, PERF203 # FIXME: unclear which error is expected here.
-            logger.error(f"Failure in {env_name}")
-            logger.error(e)
-    tags = set(tags)
-    if verbose:
-        logger.info("\nTAGS:\n")
-        for tag in tags:
-            logger.info(tag)
-    return tags
+def show_all_tags():
+    logger.info("Available tags:")
+    for tag in all_tags():
+        logger.info(tag)
