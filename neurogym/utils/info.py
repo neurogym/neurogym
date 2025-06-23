@@ -1,6 +1,6 @@
 """Formatting information about envs and wrappers."""
 
-import inspect
+import gymnasium as gym
 
 from neurogym.core import METADATA_DEF_KEYS, env_string
 from neurogym.envs.registration import ALL_ENVS, all_envs, all_tags, make
@@ -37,59 +37,61 @@ def show_all_tags():
         logger.info(tag)
 
 
-def info(env=None, show_code=False):
-    """Script to get envs info."""
-    string = ""
-    env_name = env
-    env = make(env)
-    # remove extra wrappers (make can add a OrderEnforcer wrapper)
-    env = env.unwrapped
-    string = env_string(env)
-    # show source code
-    if show_code:
-        string += """\n#### Source code #### \n\n"""
-        env_ref = ALL_ENVS[env_name]
-        from_, class_ = env_ref.split(":")
-        imported = getattr(__import__(from_, fromlist=[class_]), class_)
-        lines = inspect.getsource(imported)
-        string += lines + "\n\n"
-    return string
+def show_info(obj_: str | gym.Env) -> None:
+    """Show information about an environment or a wrapper.
+
+    Using the built-in logger.
+
+    Args:
+        obj_: the environment or wrapper to show information about.
+    """
+    if isinstance(obj_, str):
+        if obj_ in ALL_ENVS:
+            _env_info(env=make(obj_))
+        elif obj_ in ALL_WRAPPERS:
+            _wrap_info(obj_)
+        else:
+            msg = f"Unknown environment or wrapper: {obj_}"
+            raise ValueError(msg)
+
+    elif isinstance(obj_, gym.Env):
+        _env_info(obj_)
+
+    else:
+        msg = f"Expected a str or gym.Env, got {type(obj_)}"
+        raise TypeError(msg)
 
 
-def info_wrapper(wrapper=None, show_code=False):
-    """Script to get wrappers info."""
-    string = ""
+def _env_info(env: gym.Env) -> None:
+    env = env.unwrapped  # remove extra wrappers (make can add a OrderEnforcer wrapper)
+    logger.info("Info for environment:" + env_string(env)[3:])
+
+
+def _wrap_info(wrapper: str) -> None:
+    logger.info(f"Info for wrapper: {wrapper}")
 
     wrapp_ref = ALL_WRAPPERS[wrapper]
     from_, class_ = wrapp_ref.split(":")
     imported = getattr(__import__(from_, fromlist=[class_]), class_)
     metadata = imported.metadata
-
     if not isinstance(metadata, dict):
         metadata = {}
 
-    string += f"### {wrapper}\n\n"
+    wrapper_description = metadata.get("description", None) or "Missing description"
+    logger.info(f"Logic: {wrapper_description}")
+
     paper_name = metadata.get("paper_name", None)
     paper_link = metadata.get("paper_link", None)
-    wrapper_description = metadata.get("description", None) or "Missing description"
-    string += f"Logic: {wrapper_description}\n\n"
     if paper_name is not None:
-        string += "Reference paper \n\n"
+        reference = "Reference paper: "
         if paper_link is None:
-            string += f"{paper_name}\n\n"
+            reference += f"{paper_name}"
         else:
-            string += f"[{paper_name}]({paper_link})\n\n"
-    # add extra info
+            reference += f"[{paper_name}]({paper_link})"
+        logger.info(reference)
+
     other_info = list(set(metadata.keys()) - set(METADATA_DEF_KEYS))
     if len(other_info) > 0:
-        string += "Input parameters: \n\n"
+        logger.info("Input parameters:")
         for key in other_info:
-            string += f"{key} : {metadata[key]}\n\n"
-
-    # show source code
-    if show_code:
-        string += """\n#### Source code #### \n\n"""
-        lines = inspect.getsource(imported)
-        string += lines + "\n\n"
-
-    return string
+            logger.info(f"{key} : {metadata[key]}")
