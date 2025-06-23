@@ -7,6 +7,7 @@ import gymnasium as gym
 import pytest
 
 import neurogym as ngym
+from neurogym.utils.data import Dataset
 from neurogym.utils.logging import logger
 
 
@@ -85,7 +86,7 @@ def speed_dataset(env):
     batch_size = 16
     seq_len = 100
     kwargs = {}
-    dataset = ngym.Dataset(
+    dataset = Dataset(
         env,
         env_kwargs=kwargs,
         batch_size=batch_size,
