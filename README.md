@@ -138,8 +138,9 @@ config = Config('path/to/config.toml')
 You can then pass this config to any component that supports it:
 
 ```python
+from neurogym import make
 from neurogym.wrappers import Monitor
-env = gym.make('GoNogo-v0')
+env = make('GoNogo-v0')
 env = Monitor(env, config=config)
 ```
 

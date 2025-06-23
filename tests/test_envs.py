@@ -7,6 +7,7 @@ import pytest
 from matplotlib import pyplot as plt
 
 import neurogym as ngym
+from neurogym.envs.registration import make
 from neurogym.utils.data import Dataset
 from neurogym.utils.logging import logger
 
@@ -21,7 +22,7 @@ ENVS_NOPSYCHOPY = ngym.all_envs(psychopy=False, contrib=True, collections=True)
 def _test_run(env, num_steps=100, verbose=False):
     """Test if one environment can at least be run."""
     if isinstance(env, str):
-        env = ngym.make(env)
+        env = make(env)
     elif not isinstance(env, gym.Env):
         msg = f"{type(env)=} must be a string or a gym.Env"
         raise TypeError(msg)
@@ -95,7 +96,7 @@ def test_dataset_all():
 def _test_trialenv(env):
     """Test if a TrialEnv is behaving correctly."""
     if isinstance(env, str):
-        env = ngym.make(env)
+        env = make(env)
     elif not isinstance(env, gym.Env):
         msg = f"{type(env)=} must be a string or a gym.Env"
         raise TypeError(msg)
@@ -111,7 +112,7 @@ def test_trialenv_all():
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
         try:
             for env_name in ENVS:
-                env = ngym.make(env_name)
+                env = make(env_name)
                 _test_trialenv(env)
         except:
             logger.error(f"Failure with env: {env_name}")
@@ -125,7 +126,7 @@ def _test_seeding(env):
 
     if isinstance(env, str):
         kwargs = {"dt": 20}
-        env = ngym.make(env, **kwargs)
+        env = make(env, **kwargs)
     elif not isinstance(env, gym.Env):
         msg = f"{type(env)=} must be a string or a gym.Env"
         raise TypeError(msg)
@@ -174,7 +175,7 @@ def test_plot_all():
         for env_name in ENVS:
             if env_name == "Null-v0":
                 continue
-            env = ngym.make(env_name, dt=20)
+            env = make(env_name, dt=20)
             action = np.zeros_like(env.action_space.sample())
             try:  # FIXME: no actual test is run, as errors are caught
                 ngym.utils.plotting.plot_env(env, num_trials=2, def_act=action)

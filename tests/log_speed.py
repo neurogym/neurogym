@@ -3,10 +3,10 @@
 import time
 import warnings
 
-import gymnasium as gym
 import pytest
 
 import neurogym as ngym
+from neurogym.envs.registration import make
 from neurogym.utils.data import Dataset
 from neurogym.utils.logging import logger
 
@@ -15,7 +15,7 @@ def speed(env, n_steps=100000, warmup_steps=10000):
     """Test speed of an environment."""
     if isinstance(env, str):
         kwargs = {"dt": 20}
-        env = gym.make(env, **kwargs)
+        env = make(env, **kwargs)
 
     env.reset()
     for _ in range(warmup_steps):
@@ -46,7 +46,7 @@ def test_speed_with_new_trial(env):
     kwargs = {"dt": 20}
 
     if isinstance(env, str):
-        env = gym.make(env, **kwargs)
+        env = make(env, **kwargs)
 
     env.reset()
     for _ in range(warmup_trials):
