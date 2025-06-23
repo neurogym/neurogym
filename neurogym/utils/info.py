@@ -9,13 +9,13 @@ from neurogym.wrappers import ALL_WRAPPERS, all_wrappers
 
 
 def show_all_tasks() -> None:
-    logger.info("Available tasks:")
+    logger.info("Available tasks:", color="green")
     for task in sorted(ALL_ENVS):
         logger.info(task)
 
 
 def show_all_wrappers() -> None:
-    logger.info("Available wrappers:")
+    logger.info("Available wrappers:", color="green")
     for wrapper in all_wrappers():
         logger.info(wrapper)
 
@@ -79,6 +79,6 @@ def info_wrapper(wrapper=None, show_code=False):
 
 
 def show_all_tags():
-    logger.info("Available tags:")
+    logger.info("Available tags:", color="green")
     for tag in all_tags():
         logger.info(tag)
