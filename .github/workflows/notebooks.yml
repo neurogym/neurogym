@@ -13,7 +13,7 @@ on:
     branches:
       - main
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    # types: [opened, synchronize, reopened, ready_for_review]
     paths-ignore:
       # specific folder locations
       - ".vscode/**"
@@ -25,8 +25,8 @@ on:
 
 jobs:
   run_notebooks:
-    if: github.event.pull_request.draft == false
-    name: Run notebooks
+    # if: github.event.pull_request.draft == false
+    # name: Run notebooks
     runs-on: ubuntu-latest
 
     # https://github.com/marketplace/actions/setup-miniconda#use-a-default-shell
