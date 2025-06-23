@@ -2,13 +2,13 @@
 
 
 import numpy as np
-from gymnasium import spaces
 from scipy.interpolate import interp1d
 
-import neurogym as ngym
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 
 
-class SpatialSuppressMotion(ngym.TrialEnv):
+class SpatialSuppressMotion(TrialEnv):
     """Spatial suppression motion task.
 
     This task is useful to study center-surround interaction in monkey MT and human psychophysical performance in motion

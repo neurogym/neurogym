@@ -2,15 +2,14 @@
 
 import numpy as np
 
-import neurogym as ngym
-from neurogym import spaces
-from neurogym.utils import tasktools
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces, tasktools
 
 
 # TODO: Ground truth and action have different space,
 # making it difficult for SL and RL to work together
 # TODO: Need to clean up this task
-class Reaching1D(ngym.TrialEnv):
+class Reaching1D(TrialEnv):
     """Reaching to the stimulus.
 
     The agent is shown a stimulus during the fixation period. The stimulus
@@ -101,7 +100,7 @@ class Reaching1D(ngym.TrialEnv):
         return ob, reward, terminated, truncated, info
 
 
-class Reaching1DWithSelfDistraction(ngym.TrialEnv):
+class Reaching1DWithSelfDistraction(TrialEnv):
     """Reaching with self distraction.
 
     In this task, the reaching state itself generates strong inputs that

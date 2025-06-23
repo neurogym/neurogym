@@ -1,13 +1,13 @@
 """Reproducing angles."""
 
 import numpy as np
-from gymnasium import spaces
 
 import neurogym as ngym
-from neurogym.utils import tasktools
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces, tasktools
 
 
-class AngleReproduction(ngym.TrialEnv):
+class AngleReproduction(TrialEnv):
     """Angle reproduction.
 
     The agent has to reproduce to two angles separated
@@ -121,4 +121,4 @@ if __name__ == "__main__":
 
     env = AngleReproduction()
     test_run(env)
-    ngym.utils.plot_env(env)
+    ngym.utils.plotting.plot_env(env)

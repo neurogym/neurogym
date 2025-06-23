@@ -1,10 +1,10 @@
 import numpy as np
 
-import neurogym as ngym
-from neurogym import spaces
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 
 
-class DelayMatchSample(ngym.TrialEnv):
+class DelayMatchSample(TrialEnv):
     """Delayed match-to-sample task.
 
     A sample stimulus is shown during the sample period. The stimulus is
@@ -110,7 +110,7 @@ class DelayMatchSample(ngym.TrialEnv):
         return ob, reward, terminated, truncated, {"new_trial": new_trial, "gt": gt}
 
 
-class DelayMatchSampleDistractor1D(ngym.TrialEnv):
+class DelayMatchSampleDistractor1D(TrialEnv):
     """Delayed match-to-sample with multiple, potentially repeating distractors.
 
     A sample stimulus is shown during the sample period. The stimulus is

@@ -1,10 +1,10 @@
 import numpy as np
 
-import neurogym as ngym
-from neurogym import spaces
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 
 
-class DelayComparison(ngym.TrialEnv):
+class DelayComparison(TrialEnv):
     """Delayed comparison.
 
     The agent needs to compare the magnitude of two stimuli are separated by a

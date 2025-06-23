@@ -1,11 +1,12 @@
 import numpy as np
-from gymnasium import spaces
 
 import neurogym as ngym
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 from neurogym.utils.logging import logger
 
 
-class MatchingPenny(ngym.TrialEnv):
+class MatchingPenny(TrialEnv):
     """Matching penny task.
 
     The agent is rewarded when it selects the same target as the computer.
@@ -96,4 +97,4 @@ class MatchingPenny(ngym.TrialEnv):
 
 if __name__ == "__main__":
     env = MatchingPenny(opponent_type="mean_action")
-    ngym.utils.plot_env(env, num_steps=100)  # , def_act=0)
+    ngym.utils.plotting.plot_env(env, num_steps=100)  # , def_act=0)

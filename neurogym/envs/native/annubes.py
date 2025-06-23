@@ -2,8 +2,8 @@ from typing import Any
 
 import numpy as np
 
-import neurogym as ngym
-from neurogym import TrialEnv
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 
 
 class AnnubesEnv(TrialEnv):
@@ -118,9 +118,9 @@ class AnnubesEnv(TrialEnv):
         self.timing = {"fixation": self.fix_time, "stimulus": self.stim_time, "iti": self.iti}
         # Set the name of each input dimension
         obs_space_name = {"fixation": 0, "start": 1, **{trial: i for i, trial in enumerate(session, 2)}}
-        self.observation_space = ngym.spaces.Box(low=0.0, high=1.0, shape=(len(obs_space_name),), name=obs_space_name)
+        self.observation_space = spaces.Box(low=0.0, high=1.0, shape=(len(obs_space_name),), name=obs_space_name)
         # Set the name of each action value
-        self.action_space = ngym.spaces.Discrete(
+        self.action_space = spaces.Discrete(
             n=len(self.output_behavior),
             name={"fixation": self.fix_intensity, "choice": self.output_behavior[1:]},
         )

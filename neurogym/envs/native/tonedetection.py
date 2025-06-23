@@ -1,12 +1,13 @@
 """auditory tone detection task."""
 
 import numpy as np
-from gymnasium import spaces
 
 import neurogym as ngym
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 
 
-class ToneDetection(ngym.TrialEnv):
+class ToneDetection(TrialEnv):
     """A subject is asked to report whether a pure tone is embeddied within a background noise.
 
     If yes, should indicate the position of the tone. The tone lasts 50ms and could appear at the 500ms, 1000ms, and
@@ -140,4 +141,4 @@ class ToneDetection(ngym.TrialEnv):
 
 if __name__ == "__main__":
     env = ToneDetection(dt=50, timing=None)
-    ngym.utils.plot_env(env, num_steps=100, def_act=1)
+    ngym.utils.plotting.plot_env(env, num_steps=100, def_act=1)

@@ -8,9 +8,14 @@ Created on Thu Feb 28 15:07:21 2019
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import gymnasium as gym
 
-import neurogym as ngym
+if TYPE_CHECKING:
+    from neurogym.core import TrialEnv
 
 
 class ReactionTime(gym.Wrapper):  # TODO: Make this a trial wrapper instead?
@@ -38,7 +43,7 @@ class ReactionTime(gym.Wrapper):  # TODO: Make this a trial wrapper instead?
         "paper_name": None,
     }
 
-    def __init__(self, env: ngym.TrialEnv, urgency: float = 0.0, end_on_stimulus: bool = True) -> None:
+    def __init__(self, env: TrialEnv, urgency: float = 0.0, end_on_stimulus: bool = True) -> None:
         super().__init__(env)
         self.urgency = urgency
         self.end_on_stimulus = end_on_stimulus

@@ -1,9 +1,9 @@
 from typing import Any
 
 import numpy as np
-from gymnasium import spaces
 
-from neurogym.core import TrialWrapper
+from neurogym.core import TrialEnv, TrialWrapper
+from neurogym.utils import spaces
 
 
 class RandomGroundTruth(TrialWrapper):
@@ -35,7 +35,7 @@ class ScheduleAttr(TrialWrapper):
         schedule:
     """
 
-    def __init__(self, env, schedule, attr_list) -> None:
+    def __init__(self, env: TrialEnv, schedule, attr_list) -> None:
         super().__init__(env)
         self.schedule = schedule
         self.attr_list = attr_list
@@ -94,7 +94,7 @@ class MultiEnvs(TrialWrapper):
                 msg = f"Env must have 1-D Box shape but got {env_shape}."
                 raise ValueError(msg)
             _have_equal_shape(envs)
-            self.observation_space: spaces.Box = spaces.Box(  # type: ignore[override]
+            self.observation_space = spaces.Box(
                 -np.inf,
                 np.inf,
                 shape=(env_shape[0] + len(self.envs),),
@@ -164,7 +164,7 @@ class ScheduleEnvs(TrialWrapper):
                 msg = f"Env must have 1-D Box shape but got {env_shape}."
                 raise ValueError(msg)
             _have_equal_shape(envs)
-            self.observation_space: spaces.Box = spaces.Box(  # type: ignore[override]
+            self.observation_space = spaces.Box(
                 -np.inf,
                 np.inf,
                 shape=(env_shape[0] + len(self.envs),),

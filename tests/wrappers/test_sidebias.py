@@ -4,11 +4,11 @@ from unittest.mock import Mock
 import numpy as np
 import pytest
 
-import neurogym as ngym
+from neurogym.core import TrialEnv
 from neurogym.wrappers.side_bias import SideBias
 
 
-class MockTrialEnv(ngym.TrialEnv):
+class MockTrialEnv(TrialEnv):
     """Mock environment for testing SideBias wrapper."""
 
     def __init__(self):

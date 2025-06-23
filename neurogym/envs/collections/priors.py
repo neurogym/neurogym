@@ -5,16 +5,17 @@
 Usage:
 
     import neurogym as ngym
+    from neurogym.envs.collections import get_collection
 
-    import gymnasium as gym
+
     kwargs = {'dt': 100, 'tr_hist_kwargs': {'probs': 0.9}}
     # Make supervised dataset
-    tasks = ngym.get_collection('priors')
-    envs = [gym.make(task, **kwargs) for task in tasks]
+    tasks = get_collection('priors')
+    envs = [ngym.make(task, **kwargs) for task in tasks]
 
 """
 
-import gymnasium as gym
+from gymnasium import make  # using ngym.make would lead to circular import
 
 from neurogym import wrappers
 from neurogym.utils.logging import logger
@@ -25,7 +26,7 @@ def priors_v0(tr_hist_kwargs=None, var_nch_kwargs=None, **task_kwargs):
         var_nch_kwargs = {}
     if tr_hist_kwargs is None:
         tr_hist_kwargs = {"probs": 0.9}
-    env = gym.make("NAltPerceptualDecisionMaking-v0", **task_kwargs)
+    env = make("NAltPerceptualDecisionMaking-v0", **task_kwargs)
     logger.info(tr_hist_kwargs)
     env = wrappers.TrialHistoryEvolution(env, **tr_hist_kwargs)
     env = wrappers.Variable_nch(env, **var_nch_kwargs)

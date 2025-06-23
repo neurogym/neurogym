@@ -1,11 +1,11 @@
 import numpy as np
 
-import neurogym as ngym
-from neurogym import spaces
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 from neurogym.utils.ngym_random import TruncExp
 
 
-class PerceptualDecisionMaking(ngym.TrialEnv):
+class PerceptualDecisionMaking(TrialEnv):
     """Perceptual decision-making task.
 
     Two-alternative forced choice task where the agent integrates noisy stimuli
@@ -137,7 +137,7 @@ class PerceptualDecisionMaking(ngym.TrialEnv):
 
 
 #  TODO: there should be a timeout of 1000ms for incorrect trials
-class PerceptualDecisionMakingDelayResponse(ngym.TrialEnv):
+class PerceptualDecisionMakingDelayResponse(TrialEnv):
     """Perceptual decision-making with delayed responses.
 
     Agents have to integrate two stimuli and report which one is
@@ -246,7 +246,7 @@ class PerceptualDecisionMakingDelayResponse(ngym.TrialEnv):
         return self.ob_now, reward, terminated, truncated, info
 
 
-class PulseDecisionMaking(ngym.TrialEnv):
+class PulseDecisionMaking(TrialEnv):
     """Pulse-based decision making task.
 
     Discrete stimuli are presented briefly as pulses.

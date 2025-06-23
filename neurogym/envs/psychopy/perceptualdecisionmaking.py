@@ -3,7 +3,7 @@
 import numpy as np
 from psychopy import visual
 
-from neurogym import spaces
+from neurogym.utils import spaces
 
 from .psychopy_env import PsychopyEnv
 

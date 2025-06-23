@@ -2,10 +2,8 @@
 
 import numpy as np
 
-import neurogym as ngym
-from neurogym import spaces
-from neurogym.core import TrialWrapper
-from neurogym.utils import scheduler
+from neurogym.core import TrialEnv, TrialWrapper
+from neurogym.utils import scheduler, spaces
 from neurogym.wrappers.block import ScheduleEnvs
 
 
@@ -51,7 +49,7 @@ class _MultiModalityStimulus(TrialWrapper):
         return self.env.new_trial(**kwargs)
 
 
-class _Reach(ngym.TrialEnv):
+class _Reach(TrialEnv):
     """Anti-response task.
 
     The agent has to move in the direction opposite to the one indicated
@@ -165,7 +163,7 @@ class _Reach(ngym.TrialEnv):
         )
 
 
-class _DMFamily(ngym.TrialEnv):
+class _DMFamily(TrialEnv):
     """Delay comparison.
 
     Two-alternative forced choice task in which the subject
@@ -334,7 +332,7 @@ class _DMFamily(ngym.TrialEnv):
         return ob, reward, truncated, terminated, {"new_trial": new_trial, "gt": gt}
 
 
-class _DelayMatch1DResponse(ngym.TrialEnv):
+class _DelayMatch1DResponse(TrialEnv):
     """Delay match-to-sample or category task.
 
     A sample stimulus is followed by a delay and test. Agents are required

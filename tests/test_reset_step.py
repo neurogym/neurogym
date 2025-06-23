@@ -2,23 +2,17 @@ import warnings
 
 import numpy as np
 
-import neurogym as ngym
+from neurogym.core import TrialWrapper
+from neurogym.envs.collections import get_collection
+from neurogym.envs.registration import all_envs, make
 from neurogym.utils.scheduler import RandomSchedule
-from neurogym.wrappers import ScheduleEnvs
+from neurogym.wrappers.block import ScheduleEnvs
 
 disable_env_checker = False
 rng = np.random.default_rng()
 
 
-def make_env(name, **kwargs):
-    if disable_env_checker:
-        return ngym.make(name, disable_env_checker=True, **kwargs)
-    # cannot add the arg disable_env_checker to gym.make in versions lower than 0.24
-    # FIXME: given that we are using gymnasium, is this still relevant?
-    return ngym.make(name, **kwargs)
-
-
-class CstObTrialWrapper(ngym.TrialWrapper):
+class CstObTrialWrapper(TrialWrapper):
     def __init__(self, env, cst_ob) -> None:
         super().__init__(env)
         self.cst_ob = cst_ob
@@ -36,7 +30,7 @@ class CstObTrialWrapper(ngym.TrialWrapper):
 
 
 def _setup_env(cst_ob):
-    env = make_env(ngym.all_envs()[0])
+    env = make(all_envs()[0])
     return CstObTrialWrapper(env, cst_ob)
 
 
@@ -86,8 +80,8 @@ def test_reset_with_scheduler():
     """
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
-        tasks = ngym.get_collection("yang19")
-        envs = [make_env(task) for task in tasks]
+        tasks = get_collection("yang19")
+        envs = [make(task) for task in tasks]
         schedule = RandomSchedule(len(envs))
         env = ScheduleEnvs(envs, schedule=schedule, env_input=True)
 
@@ -98,8 +92,8 @@ def test_reset_with_scheduler():
 def test_schedule_envs():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
-        tasks = ngym.get_collection("yang19")
-        envs = [make_env(task) for task in tasks]
+        tasks = get_collection("yang19")
+        envs = [make(task) for task in tasks]
         for i, env in enumerate(envs):
             envs[i] = CstObTrialWrapper(env, np.array([i]))
 
