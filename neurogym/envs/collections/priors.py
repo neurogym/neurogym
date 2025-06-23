@@ -5,10 +5,12 @@
 Usage:
 
     import neurogym as ngym
+    from neurogym.envs.collections import get_collection
+
 
     kwargs = {'dt': 100, 'tr_hist_kwargs': {'probs': 0.9}}
     # Make supervised dataset
-    tasks = ngym.get_collection('priors')
+    tasks = get_collection('priors')
     envs = [ngym.make(task, **kwargs) for task in tasks]
 
 """

@@ -5,8 +5,7 @@ import warnings
 
 import pytest
 
-import neurogym as ngym
-from neurogym.envs.registration import make
+from neurogym.envs.registration import all_envs, make
 from neurogym.utils.data import Dataset
 from neurogym.utils.logging import logger
 
@@ -72,7 +71,7 @@ def test_speed_all():
         warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
         warnings.filterwarnings("ignore", message=".*method was expecting a numpy array*")
         warnings.filterwarnings("ignore", message=".*Casting input x to numpy array.*")
-        for env_name in sorted(ngym.all_envs()):
+        for env_name in sorted(all_envs()):
             logger.info(f"Running env: {env_name:s}")
             try:
                 speed(env_name)
@@ -112,7 +111,7 @@ def test_speed_dataset_all():
         warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
         warnings.filterwarnings("ignore", message=".*method was expecting a numpy array*")
         warnings.filterwarnings("ignore", message=".*Casting input x to numpy array.*")
-        for env_name in sorted(ngym.all_envs()):
+        for env_name in sorted(all_envs()):
             logger.info(f"Running env: {env_name:s}")
             try:
                 speed_dataset(env_name)

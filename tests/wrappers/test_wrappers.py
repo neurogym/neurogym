@@ -5,8 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-import neurogym as ngym
-from neurogym.envs.registration import make
+from neurogym.envs.registration import all_envs, make
 from neurogym.utils.logging import logger
 from neurogym.wrappers.noise import Noise
 from neurogym.wrappers.pass_action import PassAction
@@ -692,7 +691,7 @@ def test_all(test_fn):
     """Test speed of all experiments."""
     success_count = 0
     total_count = 0
-    for env_name in sorted(ngym.all_envs()):
+    for env_name in sorted(all_envs()):
         total_count += 1
         try:
             test_fn(env_name)
