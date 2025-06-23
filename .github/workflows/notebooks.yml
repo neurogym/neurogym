@@ -45,16 +45,10 @@ jobs:
           which python3
           python3 --version
 
-      - name: Upgrade pip and install dependencies
-        # avoid installing gpu dependencies by first installing cpu-only torch
-        run: |
-          python3 -m pip install --upgrade pip setuptools
-          pip install torch --index-url https://download.pytorch.org/whl/cpu
-          pip install .[rl,dev,notebooks]
-
       - name: Get changed files
         id: changed
         run: |
+          set -e
           git fetch origin ${{ github.base_ref }}
           CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
           echo "$CHANGED" > changed_files.txt
@@ -63,6 +57,7 @@ jobs:
       - name: Check if only notebooks changed
         id: only-notebooks
         run: |
+          set -e
           if grep -vE '\.ipynb$|\.yml$' changed_files.txt | grep -q '.'; then
             echo "only_notebooks=false" >> $GITHUB_OUTPUT
           else
@@ -73,14 +68,25 @@ jobs:
         id: changed-notebooks
         if: steps.only-notebooks.outputs.only_notebooks == 'true'
         run: |
+          set -e
           NOTEBOOKS=$(grep '\.ipynb$' changed_files.txt || true)
           echo "notebooks=$NOTEBOOKS" >> $GITHUB_OUTPUT
+
+      - name: Upgrade pip and install dependencies
+        # avoid installing gpu dependencies by first installing cpu-only torch
+        run: |
+          python3 -m pip install --upgrade pip setuptools
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install .[rl,dev,notebooks]
 
       - name: Run only changed notebooks
         if: steps.only-notebooks.outputs.only_notebooks == 'true' && steps.changed-notebooks.outputs.notebooks != ''
         run: |
+          set -e
           echo "${{ steps.changed-notebooks.outputs.notebooks }}" | xargs pytest --nbmake --durations=0
 
       - name: Run all notebooks
         if: steps.only-notebooks.outputs.only_notebooks != 'true'
-        run: pytest --nbmake docs --durations=0
+        run: |
+          set -e
+          pytest --nbmake docs --durations=0
