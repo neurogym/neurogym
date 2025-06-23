@@ -4,10 +4,10 @@
 """
 
 import numpy as np
-from gymnasium import spaces
 
 import neurogym as ngym
 from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 from neurogym.utils.ngym_random import TruncExp
 
 

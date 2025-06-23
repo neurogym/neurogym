@@ -3,10 +3,10 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from gymnasium import spaces
 
 from neurogym.config.config import Config
 from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 from neurogym.wrappers.monitor import Monitor
 
 

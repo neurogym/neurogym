@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from gymnasium import spaces
 
 import neurogym as ngym
 from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 
 
 class CVLearning(TrialEnv):

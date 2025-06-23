@@ -5,6 +5,7 @@ import pytest
 
 import neurogym as ngym
 from neurogym.core import TrialEnv, env_string
+from neurogym.utils import spaces
 
 
 def test_one_step_mismatch():
@@ -15,14 +16,14 @@ def test_one_step_mismatch():
             super().__init__(dt=dt)
             self.timing = {"fixation": dt, "go": dt}
             name = {"fixation": 0, "go": 1}
-            self.observation_space = ngym.spaces.Box(
+            self.observation_space = spaces.Box(
                 -np.inf,
                 np.inf,
                 shape=(2,),
                 dtype=np.float32,
                 name=name,
             )
-            self.action_space = ngym.spaces.Discrete(2)
+            self.action_space = spaces.Discrete(2)
 
         def _new_trial(self, **kwargs):
             self.add_period(["fixation", "go"])
@@ -53,13 +54,13 @@ def test_addob_instep():
         def __init__(self, dt=100) -> None:
             super().__init__(dt=dt)
             self.timing = {"go": 500}
-            self.observation_space = ngym.spaces.Box(
+            self.observation_space = spaces.Box(
                 -np.inf,
                 np.inf,
                 shape=(1,),
                 dtype=np.float32,
             )
-            self.action_space = ngym.spaces.Discrete(3)
+            self.action_space = spaces.Discrete(3)
 
         def _new_trial(self, **kwargs):
             trial = {}
@@ -87,13 +88,13 @@ class DummyEnv(TrialEnv):
         super().__init__(dt=dt)
         self.seed(seed)
         self.timing = timing
-        self.observation_space = ngym.spaces.Box(
+        self.observation_space = spaces.Box(
             -np.inf,
             np.inf,
             shape=(1,),
             dtype=np.float32,
         )
-        self.action_space = ngym.spaces.Discrete(2)
+        self.action_space = spaces.Discrete(2)
 
     def _new_trial(self, **kwargs):
         # Add periods

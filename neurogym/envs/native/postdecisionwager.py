@@ -1,7 +1,7 @@
 import numpy as np
 
-from neurogym import spaces
 from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 from neurogym.utils.ngym_random import TruncExp
 
 
