@@ -4,21 +4,38 @@ import inspect
 
 import neurogym as ngym
 from neurogym.core import METADATA_DEF_KEYS, env_string
-from neurogym.envs.registration import ALL_ENVS, all_tags
+from neurogym.envs.registration import ALL_ENVS, all_envs, all_tags
 from neurogym.utils.logging import logger
 from neurogym.wrappers import ALL_WRAPPERS, all_wrappers
 
 
-def show_all_tasks() -> None:
-    logger.info("Available tasks:", color="green")
-    for task in sorted(ALL_ENVS):
+def show_all_tasks(tag: str | None = None) -> None:
+    """Show all available tasks in neurogym.
+
+    Args:
+        tag: If provided, only show tasks with this tag.
+    """
+    if not tag:
+        logger.info("Available tasks:", color="green")
+    else:
+        logger.info(f"Available tasks with tag '{tag}':", color="green")
+
+    for task in all_envs(tag=tag):
         logger.info(task)
 
 
 def show_all_wrappers() -> None:
+    """Show all available wrappers in neurogym."""
     logger.info("Available wrappers:", color="green")
     for wrapper in all_wrappers():
         logger.info(wrapper)
+
+
+def show_all_tags():
+    """Show all available tags in neurogym."""
+    logger.info("Available tags:", color="green")
+    for tag in all_tags():
+        logger.info(tag)
 
 
 def info(env=None, show_code=False):
@@ -77,9 +94,3 @@ def info_wrapper(wrapper=None, show_code=False):
         string += lines + "\n\n"
 
     return string
-
-
-def show_all_tags():
-    logger.info("Available tags:", color="green")
-    for tag in all_tags():
-        logger.info(tag)
