@@ -1,5 +1,7 @@
 import numpy as np
-from gymnasium import Wrapper, spaces
+from gymnasium import Wrapper
+
+from neurogym.utils import spaces
 
 
 class PassAction(Wrapper):

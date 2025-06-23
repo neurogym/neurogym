@@ -1,7 +1,7 @@
 import numpy as np
-from gymnasium import spaces
 
 from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 
 # TODO: are trials counted correctly in this task?
 

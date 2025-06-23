@@ -2,8 +2,8 @@ import math
 
 import numpy as np
 
-from neurogym import spaces
 from neurogym.core import BaseEnv
+from neurogym.utils import spaces
 from neurogym.utils.logging import logger
 
 

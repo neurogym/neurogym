@@ -9,9 +9,8 @@ except ImportError as e:
     msg = "Psychopy is not installed."
     raise ImportError(msg) from e
 
-from gymnasium import spaces
-
 from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 from neurogym.utils.logging import logger
 
 

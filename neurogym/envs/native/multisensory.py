@@ -2,8 +2,8 @@
 
 import numpy as np
 
-from neurogym import spaces
 from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 
 
 # TODO: This is not finished yet. Need to compare with original paper
