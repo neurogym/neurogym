@@ -4,15 +4,14 @@ import warnings
 
 import numpy as np
 
-import neurogym as ngym
 from neurogym.core import TrialEnv
-from neurogym.envs.registration import make
+from neurogym.envs.registration import all_envs, make
 from neurogym.utils import spaces
 from neurogym.utils.data import Dataset
 from neurogym.utils.logging import logger
 
 # Get all supervised learning environment
-SL_ENVS = ngym.all_envs(tag="supervised")
+SL_ENVS = all_envs(tag="supervised")
 
 
 def _test_env(env):
