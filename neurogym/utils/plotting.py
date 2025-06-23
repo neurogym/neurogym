@@ -31,7 +31,7 @@ def plot_env(
     num_trials=None,
     def_act=None,
     model=None,
-    name=None,
+    name: str | None = None,
     legend=True,
     ob_traces=None,
     fig_kwargs=None,
@@ -67,8 +67,8 @@ def plot_env(
         ob_traces = []
     if isinstance(env, str):
         env = gym.make(env)
-    if name is None:
-        name = type(env).__name__
+
+    name = type(env).__name__ if name is None else name.replace(".", "").replace(" ", "_")
     data = run_env(
         env=env,
         num_steps=num_steps,
