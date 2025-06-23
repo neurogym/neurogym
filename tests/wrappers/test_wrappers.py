@@ -1,12 +1,12 @@
 import sys
 import warnings
 
-import gymnasium as gym
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
 import neurogym as ngym
+from neurogym.envs.registration import make
 from neurogym.utils.logging import logger
 from neurogym.wrappers.noise import Noise
 from neurogym.wrappers.pass_action import PassAction
@@ -57,7 +57,7 @@ def test_sidebias(
     if probs is None:
         probs = [(0.005, 0.005, 0.99), (0.005, 0.99, 0.005), (0.99, 0.005, 0.005)]
     env_args["n_ch"] = num_ch
-    env = gym.make(env_name, **env_args)
+    env = make(env_name, **env_args)
     env = SideBias(env, probs=probs, block_dur=blk_dur)
     env.reset()
     probs_mat = np.zeros((len(probs), num_ch))
@@ -103,7 +103,7 @@ def test_passaction(
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
         warnings.filterwarnings("ignore", message=".*is not within the observation space*")
         warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
-        env = gym.make(env_name)
+        env = make(env_name)
         env = PassAction(env)
         env.reset()
         for _ in range(num_steps):
@@ -142,7 +142,7 @@ def test_passreward(
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
         warnings.filterwarnings("ignore", message=".*is not within the observation space*")
         warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
-        env = gym.make(env_name)
+        env = make(env_name)
         env = PassReward(env)
         obs, _ = env.reset()
         for _ in range(num_steps):
@@ -186,7 +186,7 @@ def test_reactiontime(
     if ths is None:
         ths = [-0.5, 0.5]
     env_args = {"timing": {"fixation": 100, "stimulus": 2000, "decision": 200}}
-    env = gym.make(env_name, **env_args)
+    env = make(env_name, **env_args)
     env = ReactionTime(env, urgency=urgency)
     env.reset()
     if verbose:
@@ -286,7 +286,7 @@ def test_variablemapping(
         "timing": {"fixation": 100, "stimulus": 200, "delay": 200, "decision": 200},
     }
 
-    env = gym.make(env, **env_args)
+    env = make(env, **env_args)
     env = VariableMapping(
         env,
         mapp_ch_prob=mapp_ch_prob,
@@ -388,7 +388,7 @@ def test_noise(
         target performance for the noise wrapper (0.7)
     """
     env_args = {"timing": {"fixation": 100, "stimulus": 200, "decision": 200}}
-    env = gym.make(env, **env_args)
+    env = make(env, **env_args)
     env = Noise(env, perf_th=perf_th)
     env.reset()
     perf = []
@@ -427,7 +427,7 @@ def test_timeout(
         "n_ch": 2,
         "timing": {"fixation": 100, "stimulus": 200, "decision": 200},
     }
-    env = gym.make(env, **env_args)
+    env = make(env, **env_args)
     env = TimeOut(env, time_out=time_out)
     env.reset()
     reward = []
@@ -458,7 +458,7 @@ def test_catchtrials(
     catch_prob=0.1,
     alt_rew=0,
 ):
-    env = gym.make(env_name)
+    env = make(env_name)
     env = CatchTrials(env, catch_prob=catch_prob, alt_rew=alt_rew)
     env.reset()
     for _ in range(num_steps):
@@ -483,7 +483,7 @@ def test_trialhist_and_variable_nch(
     num_ch=4,
     variable_nch=False,
 ):
-    env = gym.make(env_name, n_ch=num_ch)
+    env = make(env_name, n_ch=num_ch)
     env = TrialHistory(env, probs=probs, block_dur=200, num_blocks=num_blocks)
     if variable_nch:
         env = Variable_nch(env, block_nch=1000, blocks_probs=[0.1, 0.45, 0.45])
@@ -533,7 +533,7 @@ def test_trialhist_and_variable_nch(
 
 @pytest.mark.skip(reason="TTLPulse is not implemented in the current version of neurogym")
 def test_ttlpulse(env_name, num_steps=10000, verbose=False, **envArgs):
-    env = gym.make(env_name, **envArgs)
+    env = make(env_name, **envArgs)
     env = TTLPulse(env, periods=[["stimulus"], ["decision"]])
     env.reset()
     obs_mat = []
@@ -566,10 +566,10 @@ def test_transfer_learning(num_steps=10000, verbose=False, **envArgs):
         "dt": 100,
         "timing": {"fixation": 0, "stimulus": 100, "resp_delay": 100, "decision": 100},
     }
-    env1 = gym.make(task, **kwargs)
+    env1 = make(task, **kwargs)
     task = "PerceptualDecisionMaking-v0"
     kwargs = {"dt": 100, "timing": {"fixation": 100, "stimulus": 100, "decision": 100}}
-    env2 = gym.make(task, **kwargs)
+    env2 = make(task, **kwargs)
     env = TransferLearning([env1, env2], num_tr_per_task=[30], task_cue=True)
 
     env.reset()
@@ -614,7 +614,7 @@ def test_combine(num_steps=10000, verbose=False, **envArgs):
         "dt": 100,
         "timing": {"fixation": 0, "stimulus": 100, "resp_delay": 100, "decision": 100},
     }
-    env1 = gym.make(task, **kwargs)
+    env1 = make(task, **kwargs)
     task = "DelayPairedAssociation-v0"
     kwargs = {
         "dt": 100,
@@ -627,7 +627,7 @@ def test_combine(num_steps=10000, verbose=False, **envArgs):
             "decision": 200,
         },
     }
-    env2 = gym.make(task, **kwargs)
+    env2 = make(task, **kwargs)
     env = Combine(
         env=env1,
         distractor=env2,
@@ -676,7 +676,7 @@ def test_combine(num_steps=10000, verbose=False, **envArgs):
 
 @pytest.mark.skip(reason="Identity is not implemented in the current version of neurogym")
 def test_identity(env_name, num_steps=10000, **envArgs):
-    env = gym.make(env_name, **envArgs)
+    env = make(env_name, **envArgs)
     env = Identity(env)
     env = Identity(env, id_="1")
     env.reset()
@@ -720,7 +720,7 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
     env_args["n_ch"] = num_ch
     env_args["zero_irrelevant_stim"] = True
     env_args["ob_histblock"] = True
-    env = gym.make(env_name, **env_args)
+    env = make(env_name, **env_args)
     env = TrialHistoryEvolution(
         env,
         probs=probs,
@@ -842,7 +842,7 @@ def test_trialhistoryevolution(
     verbose=False,
     num_ch=4,
 ):
-    env = gym.make(env_name, n_ch=num_ch)
+    env = make(env_name, n_ch=num_ch)
     env = TrialHistoryEvolution(
         env,
         probs=probs,

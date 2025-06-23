@@ -3,8 +3,8 @@ import warnings
 import numpy as np
 import pytest
 
-import neurogym as ngym
 from neurogym.core import TrialEnv, env_string
+from neurogym.envs.registration import make
 from neurogym.utils import spaces
 
 
@@ -152,7 +152,7 @@ def test_string_methods():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
 
-        env = ngym.make("AntiReach-v0")
+        env = make("AntiReach-v0")
         print(env)  # noqa: T201
         print(env_string(env))  # noqa: T201
         assert str(env) == "<OrderEnforcing<AntiReach>>"

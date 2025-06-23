@@ -2,11 +2,11 @@
 
 import warnings
 
-import gymnasium as gym
 import numpy as np
 
 import neurogym as ngym
 from neurogym.core import TrialEnv
+from neurogym.envs.registration import make
 from neurogym.utils import spaces
 from neurogym.utils.data import Dataset
 from neurogym.utils.logging import logger
@@ -86,7 +86,7 @@ def test_examples_different_made_env():
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
         try:
             for env_name in sorted(SL_ENVS):
-                env = gym.make(env_name)
+                env = make(env_name)
                 _test_examples_different(env)
         except:
             logger.error(f"Failure in: {env_name}")
