@@ -51,14 +51,18 @@ jobs:
           set -e
           git fetch origin ${{ github.base_ref }}
           CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
-          echo "$CHANGED" > changed_files.txt
-          echo "changed_files=$CHANGED" >> $GITHUB_OUTPUT
+          echo "changed_files<<EOF" >> $GITHUB_OUTPUT
+          echo "changed_files"
+          echo "$CHANGED" >> $GITHUB_OUTPUT
+          echo "changed_files"
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "changed_files"
 
       - name: Check if only notebooks changed
         id: only-notebooks
         run: |
           set -e
-          if grep -vE '\.ipynb$|\.yml$' changed_files.txt | grep -q '.'; then
+          if echo "${{ steps.changed.outputs.changed_files }}" | grep -vE '\.ipynb$|\.yml$' | grep -q '.'; then
             echo "only_notebooks=false" >> $GITHUB_OUTPUT
           else
             echo "only_notebooks=true" >> $GITHUB_OUTPUT
@@ -69,11 +73,10 @@ jobs:
         if: steps.only-notebooks.outputs.only_notebooks == 'true'
         run: |
           set -e
-          NOTEBOOKS=$(grep '\.ipynb$' changed_files.txt || true)
+          NOTEBOOKS=$(echo "${{ steps.changed.outputs.changed_files }}" | grep '\.ipynb$' || true)
           echo "notebooks=$NOTEBOOKS" >> $GITHUB_OUTPUT
 
       - name: Upgrade pip and install dependencies
-        # avoid installing gpu dependencies by first installing cpu-only torch
         run: |
           python3 -m pip install --upgrade pip setuptools
           pip install torch --index-url https://download.pytorch.org/whl/cpu
