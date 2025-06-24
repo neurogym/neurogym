@@ -10,7 +10,7 @@ from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
 import neurogym as ngym
 from neurogym.config.base import LOCAL_DIR
 from neurogym.utils.logging import logger
-from neurogym.utils.plotting import fig_
+from neurogym.utils.plotting import visualize_run
 
 
 class Monitor(Wrapper):
@@ -232,7 +232,7 @@ class Monitor(Wrapper):
             fname = self.save_dir / f"task_{self.num_tr:06d}.{self.config.monitor.plot.ext}"
             obs_mat = np.array(self.ob_mat)
             act_mat = np.array(self.act_mat)
-            fig_(
+            visualize_run(
                 ob=obs_mat,
                 actions=act_mat,
                 gt=self.gt_mat,
