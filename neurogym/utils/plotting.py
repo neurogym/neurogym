@@ -9,6 +9,7 @@ import numpy as np
 from matplotlib import animation
 from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
 
+from neurogym.utils.decorators import suppress_during_pytest
 from neurogym.utils.logging import logger
 
 try:
@@ -25,6 +26,10 @@ mpl.rcParams["pdf.fonttype"] = 42
 mpl.rcParams["ps.fonttype"] = 42
 
 
+@suppress_during_pytest(
+    ValueError,
+    message="This may be due to a small sample size; please increase to get reasonable results.",
+)
 def plot_env(
     env,
     num_steps=200,
@@ -210,8 +215,11 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     }
 
 
-# TODO: Change name, fig_ not a good name
-def fig_(
+@suppress_during_pytest(
+    ValueError,
+    message="This may be due to a small sample size; please increase to get reasonable results.",
+)
+def fig_(  # TODO: Change name, fig_ not a good name
     ob,
     actions,
     gt=None,
@@ -290,6 +298,10 @@ def _set_grid_style(ax):
     ax.set_axisbelow(True)
 
 
+@suppress_during_pytest(
+    ValueError,
+    message="This may be due to a small sample size; please increase to get reasonable results.",
+)
 def plot_env_1dbox(
     ob,
     actions,
@@ -523,6 +535,10 @@ def plot_env_1dbox(
     return f
 
 
+@suppress_during_pytest(
+    ValueError,
+    message="This may be due to a small sample size; please increase to get reasonable results.",
+)
 def plot_env_3dbox(ob, fname="", env=None) -> None:
     """Plot environment with 3-D Box observation space."""
     ob = ob.astype(np.uint8)  # TODO: Temporary
