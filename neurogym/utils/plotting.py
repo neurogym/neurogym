@@ -86,7 +86,7 @@ def plot_env(
     # Shift again for plotting (since steps are 1-based)
     trial_starts_axis = trial_starts_step_indices + 1
 
-    return fig_(
+    return visualize_run(
         data["ob"],
         data["actions"],
         gt=data["gt"],
@@ -219,7 +219,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     ValueError,
     message="This may be due to a small sample size; please increase to get reasonable results.",
 )
-def fig_(  # TODO: Change name, fig_ not a good name
+def visualize_run(
     ob,
     actions,
     gt=None,
