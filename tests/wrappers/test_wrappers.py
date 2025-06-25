@@ -16,7 +16,8 @@ from neurogym.wrappers import (
     SideBias,
 )
 
-# ruff: noqa: N803, F821
+# TODO: this module has many non-functional tests as well as many linting violations. Needs to be checked and fixed.
+# ruff: noqa: N803, F821, PT028
 
 
 @pytest.mark.skip(reason="This test is failing, needs more investigation")

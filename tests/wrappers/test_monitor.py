@@ -37,7 +37,7 @@ class DummyEnv(TrialEnv):
 def temp_folder():
     """Create a temporary directory for test files.
 
-    Returns:
+    Yields:
         A path to a temporary directory that is removed after the test.
     """
     with tempfile.TemporaryDirectory() as temp_dir:

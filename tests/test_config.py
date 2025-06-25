@@ -16,7 +16,7 @@ rng = np.random.default_rng()
 def temp_dir():
     """Create a temporary directory for test files.
 
-    Returns:
+    Yields:
         A path to a temporary directory that is removed after the test.
     """
     with tempfile.TemporaryDirectory() as _temp_dir:
