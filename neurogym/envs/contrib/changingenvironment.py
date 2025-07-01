@@ -5,7 +5,6 @@
 
 import numpy as np
 
-import neurogym as ngym
 from neurogym.core import TrialEnv
 from neurogym.utils import spaces
 from neurogym.utils.ngym_random import TruncExp
@@ -169,5 +168,7 @@ class ChangingEnvironment(TrialEnv):
 
 
 if __name__ == "__main__":
+    from neurogym.utils.plotting import plot_env
+
     env = ChangingEnvironment(cxt_ch_prob=0.05, stim_scale=100, cxt_cue=False)
-    ngym.utils.plotting.plot_env(env)
+    plot_env(env)

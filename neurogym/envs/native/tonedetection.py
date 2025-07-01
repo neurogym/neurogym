@@ -2,7 +2,6 @@
 
 import numpy as np
 
-import neurogym as ngym
 from neurogym.core import TrialEnv
 from neurogym.utils import spaces
 
@@ -140,5 +139,7 @@ class ToneDetection(TrialEnv):
 
 
 if __name__ == "__main__":
+    from neurogym.utils.plotting import plot_env
+
     env = ToneDetection(dt=50, timing=None)
-    ngym.utils.plotting.plot_env(env, num_steps=100, def_act=1)
+    plot_env(env, num_steps=100, def_act=1)

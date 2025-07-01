@@ -2,7 +2,6 @@
 
 import numpy as np
 
-import neurogym as ngym
 from neurogym.core import TrialEnv
 from neurogym.utils import spaces, tasktools
 
@@ -118,7 +117,8 @@ class AngleReproduction(TrialEnv):
 
 if __name__ == "__main__":
     from neurogym.tests import test_run  # type: ignore  # noqa: PGH003
+    from neurogym.utils.plotting import plot_env
 
     env = AngleReproduction()
     test_run(env)
-    ngym.utils.plotting.plot_env(env)
+    plot_env(env)

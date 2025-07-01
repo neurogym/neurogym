@@ -1,7 +1,5 @@
-import matplotlib.pyplot as plt
 import numpy as np
 
-import neurogym as ngym
 from neurogym.core import TrialEnv
 from neurogym.utils import spaces
 
@@ -344,8 +342,12 @@ class CVLearning(TrialEnv):
 
 
 if __name__ == "__main__":
+    import matplotlib.pyplot as plt
+
+    from neurogym.utils.plotting import plot_env
+
     plt.close("all")
     env = CVLearning(stages=[0, 2, 3, 4], trials_day=2, keep_days=1)
-    data = ngym.utils.plotting.plot_env(env, num_steps=200)
+    data = plot_env(env, num_steps=200)
     env = CVLearning(stages=[3, 4], trials_day=2, keep_days=1)
-    data = ngym.utils.plotting.plot_env(env, num_steps=200)
+    data = plot_env(env, num_steps=200)

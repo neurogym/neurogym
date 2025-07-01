@@ -4,7 +4,6 @@ import numpy as np
 
 from neurogym import spaces
 from neurogym.core import TrialEnv
-from neurogym.utils.logging import logger
 
 
 class YourTask(TrialEnv):
@@ -116,6 +115,8 @@ class YourTask(TrialEnv):
 
 
 if __name__ == "__main__":
+    from neurogym.utils.logging import logger
+
     # Instantiate the task
     env = YourTask()
     trial = env.new_trial()

@@ -1,6 +1,5 @@
 import numpy as np
 
-import neurogym as ngym
 from neurogym.core import TrialEnv
 from neurogym.utils import spaces
 from neurogym.utils.logging import logger
@@ -96,5 +95,7 @@ class MatchingPenny(TrialEnv):
 
 
 if __name__ == "__main__":
+    from neurogym.utils.plotting import plot_env
+
     env = MatchingPenny(opponent_type="mean_action")
-    ngym.utils.plotting.plot_env(env, num_steps=100)  # , def_act=0)
+    plot_env(env, num_steps=100)  # , def_act=0)
