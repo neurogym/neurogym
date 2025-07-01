@@ -15,7 +15,7 @@ on:
     branches:
       - main
   pull_request:
-    # types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review]
     paths-ignore:
       # specific folder locations
       - ".vscode/**"
@@ -28,7 +28,7 @@ on:
       - "**.png"
 jobs:
   minimal_build:
-    # if: github.event.pull_request.draft == false
+    if: github.event.pull_request.draft == false
     name: Build without optional dependencies
     runs-on: ubuntu-latest
 
