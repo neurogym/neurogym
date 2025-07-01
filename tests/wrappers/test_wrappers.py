@@ -871,6 +871,7 @@ def test_trialhistoryevolution(
     plt.imshow(np.array(transitions), aspect="auto")
 
 
+# TODO: when refactoring this file, check that everything below is covered by the actual tests and then remove it.
 if __name__ == "__main__":
     plt.close("all")
     env_args = {
