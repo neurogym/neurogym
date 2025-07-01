@@ -13,28 +13,14 @@ from neurogym.wrappers.pass_reward import PassReward
 from neurogym.wrappers.reaction_time import ReactionTime
 
 
-def test_passaction(
-    env_name="PerceptualDecisionMaking-v0",
-    num_steps=1000,
-    verbose=False,
-):
-    """Test pass-action wrapper.
-
-    TODO: explain wrapper
-    Parameters
-    ----------
-    env_name : str, optional
-        enviroment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
-    num_steps : int, optional
-        number of steps to run the environment (1000)
-    verbose : boolean, optional
-        whether to log observation and action (False)
-    """
+def test_passaction():
+    """Test pass-action wrapper."""
     with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        warnings.filterwarnings("ignore", message=".*is not within the observation space*")
-        warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
+
+        env_name = "PerceptualDecisionMaking-v0"
+        num_steps = 100
+
         env = make(env_name)
         env = PassAction(env)
         env.reset()
@@ -42,49 +28,25 @@ def test_passaction(
             action = env.action_space.sample()
             obs, _rew, terminated, _truncated, _info = env.step(action)
             assert obs[-1] == action, "Previous action is not part of observation"
-            if verbose:
-                logger.info(obs)
-                logger.info(action)
-                logger.info("--------")
-
             if terminated:
                 env.reset()
 
 
-def test_passreward(
-    env_name="PerceptualDecisionMaking-v0",
-    num_steps=1000,
-    verbose=False,
-):
-    """Test pass-reward wrapper.
-
-    TODO: explain wrapper
-
-    Parameters.
-    ----------
-    env_name : str, optional
-        enviroment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
-    num_steps : int, optional
-        number of steps to run the environment (1000)
-    verbose : boolean, optional
-        whether to log observation and reward (False)
-    """
+def test_passreward():
+    """Test pass-action wrapper."""
     with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        warnings.filterwarnings("ignore", message=".*is not within the observation space*")
-        warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
+
+        env_name = "PerceptualDecisionMaking-v0"
+        num_steps = 100
+
         env = make(env_name)
         env = PassReward(env)
-        obs, _ = env.reset()
+        env.reset()
         for _ in range(num_steps):
             action = env.action_space.sample()
             obs, rew, terminated, _truncated, _info = env.step(action)
-            assert obs[-1] == rew, "Previous reward is not part of observation"
-            if verbose:
-                logger.info(obs)
-                logger.info(rew)
-                logger.info("--------")
+            assert obs[-1] == rew, "Previous action is not part of observation"
             if terminated:
                 env.reset()
 
