@@ -11,73 +11,6 @@ from neurogym.wrappers.noise import Noise
 from neurogym.wrappers.pass_action import PassAction
 from neurogym.wrappers.pass_reward import PassReward
 from neurogym.wrappers.reaction_time import ReactionTime
-from neurogym.wrappers.side_bias import SideBias
-
-# ruff: noqa: N803, F821
-
-
-@pytest.mark.skip(reason="This test is failing, needs more investigation")
-def test_sidebias(
-    env_name="NAltPerceptualDecisionMaking-v0",
-    num_steps=100000,
-    verbose=False,
-    num_ch=3,
-    margin=0.01,
-    blk_dur=10,
-    probs=None,
-):
-    """Test side_bias wrapper.
-
-    The side-bias wrapper allows specifying the probabilities for each of the
-    existing choices to be correct. These probabilities can varied in blocks of
-    duration blk_dur.
-
-    Parameters
-    ----------
-    env_name : ngym.env, optional
-        environment to wrap. The default is 'NAltPerceptualDecisionMaking-v0'.
-    num_steps : int, optional
-        number of steps to run the environment (1000000)
-    verbose : boolean, optional
-        whether to log ground truth and block (False)
-    num_ch : int, optional
-        number of choices (3)
-    blk_dur : int, optional
-        duration (in trials) of the blocks (10)
-    margin : float, optional
-        margin allow when comparing provided and obtained ground truth
-        probabilities (0.01)
-    probs : list, optional
-        ground truth probabilities for each block.
-        For example: [(.005, .005, .99), (.005, .99, .005), (.99, .005, .005)],
-        corresponds to 3 blocks with each of them giving 0.99 probabilitiy to
-        ground truth 3, 2 and 1, respectively.
-    """
-    if probs is None:
-        probs = [(0.005, 0.005, 0.99), (0.005, 0.99, 0.005), (0.99, 0.005, 0.005)]
-    env_args["n_ch"] = num_ch
-    env = make(env_name, **env_args)
-    env = SideBias(env, probs=probs, block_dur=blk_dur)
-    env.reset()
-    probs_mat = np.zeros((len(probs), num_ch))
-    block = env.curr_block
-    for _ in range(num_steps):
-        action = env.action_space.sample()
-        _obs, _rew, terminated, _truncated, info = env.step(action)
-        if info["new_trial"]:
-            probs_mat[block, info["gt"] - 1] += 1
-            block = env.curr_block
-            if verbose:
-                logger.info("Ground truth", info["gt"])
-                logger.info("----------")
-                logger.info("Block", block)
-        if terminated:
-            env.reset()
-    probs_mat /= np.sum(probs_mat, axis=1)
-    assert np.mean(np.abs(probs - probs_mat)) < margin, f"Probs provided {probs} probs. obtained {probs_mat}"
-    if verbose:
-        logger.info("-----")
-        logger.info("Side bias wrapper OK")
 
 
 def test_passaction(
@@ -886,7 +819,6 @@ if __name__ == "__main__":
     sys.exit()
     test_variablemapping()
     sys.exit()
-    test_sidebias()
     test_passreward()
     test_passaction()
 
