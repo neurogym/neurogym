@@ -92,10 +92,3 @@ class MatchingPenny(TrialEnv):
 
         info = {"new_trial": True, "gt": self.gt}
         return obs, reward, terminated, truncated, info
-
-
-if __name__ == "__main__":
-    from neurogym.utils.plotting import plot_env
-
-    env = MatchingPenny(opponent_type="mean_action")
-    plot_env(env, num_steps=100)  # , def_act=0)

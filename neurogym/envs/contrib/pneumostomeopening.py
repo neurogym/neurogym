@@ -156,14 +156,3 @@ class Pneumostomeopening(BaseEnv):
 
     def close(self) -> None:
         pass
-
-
-if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-
-    from neurogym.utils.plotting import plot_env
-
-    env = Pneumostomeopening()
-
-    plot = plot_env(env, num_steps=100)
-    plt.show(plot)

@@ -119,7 +119,3 @@ def test_speed_dataset_all():
             except BaseException as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
                 logger.error(f"Failure at running env: {env_name:s}")
                 logger.error(e)
-
-
-if __name__ == "__main__":
-    pass
