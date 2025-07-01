@@ -3,11 +3,12 @@
 
 import numpy as np
 
-import neurogym as ngym
-from neurogym import spaces
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
+from neurogym.utils.logging import logger
 
 
-class Bandit(ngym.TrialEnv):
+class Bandit(TrialEnv):
     """Multi-arm bandit task.
 
     On each trial, the agent is presented with multiple choices. Each
@@ -36,7 +37,7 @@ class Bandit(ngym.TrialEnv):
     ) -> None:
         super().__init__(dt=dt)
         if timing is not None:
-            print("Warning: Bandit task does not require timing variable.")
+            logger.warning("Bandit task does not require timing variable.")
 
         self.n = n
         self._p = np.array(p)  # Reward probabilities

@@ -1,25 +1,29 @@
+import warnings
+
 import numpy as np
 import pytest
 
-import neurogym as ngym
+from neurogym.core import TrialEnv, env_string
+from neurogym.envs.registration import make
+from neurogym.utils import spaces
 
 
 def test_one_step_mismatch():
     """Test the agent gets rewarded if it fixates after seeing fixation cue."""
 
-    class TestEnv(ngym.TrialEnv):
+    class TestEnv(TrialEnv):
         def __init__(self, dt=100) -> None:
             super().__init__(dt=dt)
             self.timing = {"fixation": dt, "go": dt}
             name = {"fixation": 0, "go": 1}
-            self.observation_space = ngym.spaces.Box(
+            self.observation_space = spaces.Box(
                 -np.inf,
                 np.inf,
                 shape=(2,),
                 dtype=np.float32,
                 name=name,
             )
-            self.action_space = ngym.spaces.Discrete(2)
+            self.action_space = spaces.Discrete(2)
 
         def _new_trial(self, **kwargs):
             self.add_period(["fixation", "go"])
@@ -46,17 +50,17 @@ def test_one_step_mismatch():
 def test_addob_instep():
     """Test if we can add observation during step."""
 
-    class TestEnv(ngym.TrialEnv):
+    class TestEnv(TrialEnv):
         def __init__(self, dt=100) -> None:
             super().__init__(dt=dt)
             self.timing = {"go": 500}
-            self.observation_space = ngym.spaces.Box(
+            self.observation_space = spaces.Box(
                 -np.inf,
                 np.inf,
                 shape=(1,),
                 dtype=np.float32,
             )
-            self.action_space = ngym.spaces.Discrete(3)
+            self.action_space = spaces.Discrete(3)
 
         def _new_trial(self, **kwargs):
             trial = {}
@@ -79,18 +83,18 @@ def test_addob_instep():
         assert ob[0] == ((i + 1) % 5) + 1  # each trial is 5 steps
 
 
-class DummyEnv(ngym.TrialEnv):
+class DummyEnv(TrialEnv):
     def __init__(self, dt: int, timing: dict, seed: int = 42) -> None:
         super().__init__(dt=dt)
         self.seed(seed)
         self.timing = timing
-        self.observation_space = ngym.spaces.Box(
+        self.observation_space = spaces.Box(
             -np.inf,
             np.inf,
             shape=(1,),
             dtype=np.float32,
         )
-        self.action_space = ngym.spaces.Discrete(2)
+        self.action_space = spaces.Discrete(2)
 
     def _new_trial(self, **kwargs):
         # Add periods
@@ -135,7 +139,20 @@ def test_trial_length_stats(timing, expected_stats):
     """Test trial length stats for both fixed and randomized timing configurations."""
     dt = 100
     env = DummyEnv(dt=dt, timing=timing)
-    stats = env.trial_length_stats(num_trials=1000)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message="No trials were sampled.*")
+        stats = env.trial_length_stats(num_trials=1000)
 
     for key, expected in expected_stats.items():
         assert np.isclose(stats[key], expected, atol=1), f"{key} = {stats[key]} not close to {expected}"
+
+
+def test_string_methods():
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+
+        env = make("AntiReach-v0")
+        print(env)  # noqa: T201
+        print(env_string(env))  # noqa: T201
+        assert str(env) == "<OrderEnforcing<AntiReach>>"

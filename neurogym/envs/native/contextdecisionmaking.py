@@ -2,12 +2,12 @@ from typing import Any
 
 import numpy as np
 
-import neurogym as ngym
-from neurogym import spaces
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 from neurogym.utils.ngym_random import TruncExp
 
 
-class ContextDecisionMaking(ngym.TrialEnv):
+class ContextDecisionMaking(TrialEnv):
     """Context-dependent decision-making task.
 
     The agent simultaneously receives stimulus inputs from two modalities (
@@ -22,15 +22,19 @@ class ContextDecisionMaking(ngym.TrialEnv):
     Both modes use ring representation for encoding stimulus inputs and choices.
 
     Args:
-        dt: int, timestep of the environment.
-        use_expl_context: bool, if True, the context is explicit (signaled) and changes per trial.
-        impl_context_modality: int, which fixed implicit modality to use if `use_expl_context`
+        dt: Timestep of the environment in milliseconds.
+        use_expl_context: If True, the context is explicit (signaled) and changes per trial.
+            If False, a fixed context is used throughout (set by `impl_context_modality`).
+        impl_context_modality: The fixed implicit modality to use if `use_expl_context`
             is False (0 or 1).
-        dim_ring: int, number of choices.
-        rewards: dict, rewards for correct, fail and abort responses.
-        timing: dict, timing of the different events in the trial.
-        sigma: float, standard deviation of the noise added to the inputs.
-        abort: bool, if True, incorrect actions during fixation lead to trial abortion.
+        dim_ring: Number of stimulus locations (or choices).
+        rewards: Optional dictionary to override default rewards. The required keys are "abort" and "correct".
+            Defaults to {"abort": -0.1, "correct": +1.0}.
+        timing: Optional dictionary to override default durations of task periods.
+            The expected keys are "fixation", "stimulus" (required), "delay", and "decision" (required).
+            Defaults to {"fixation": 300, "stimulus": 750, "delay": TruncExp(600, 300, 3000), "decision": 100}.
+        sigma: Standard deviation of Gaussian noise added to stimulus.
+        abort: If True, incorrect actions during fixation abort the trial.
     """
 
     metadata = {  # noqa: RUF012
@@ -64,6 +68,9 @@ class ContextDecisionMaking(ngym.TrialEnv):
         if use_expl_context:
             self.contexts: list[int] = [0, 1]
         else:
+            if impl_context_modality not in [0, 1]:
+                msg = "impl_context_modality must be 0 or 1 when `use_expl_context` is False."
+                raise ValueError(msg)
             self.contexts = [impl_context_modality]
         self._setup_spaces()
 

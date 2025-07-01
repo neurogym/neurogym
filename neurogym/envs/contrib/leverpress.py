@@ -2,10 +2,11 @@ from typing import NoReturn
 
 import gymnasium as gym
 import numpy as np
-from gymnasium import logger, spaces
 from gymnasium.utils import seeding
 
 from neurogym.core import InvalidOperationError
+from neurogym.utils import spaces
+from neurogym.utils.logging import logger
 
 
 class LeverPress(gym.Env):
@@ -69,7 +70,7 @@ class LeverPress(gym.Env):
             self.steps_beyond_done = 0
         else:
             if self.steps_beyond_done == 0:
-                logger.warn(
+                logger.warning(
                     "You are calling 'step()' even though this environment has already returned terminated = True.\n",
                     "You should always call 'reset()' once you receive 'terminated = True'.",
                     "-- any further steps are undefined behavior.",
@@ -165,7 +166,7 @@ class LeverPressWithPoke(gym.Env):
             self.steps_beyond_done = 0
         else:
             if self.steps_beyond_done == 0:
-                logger.warn(
+                logger.warning(
                     "You are calling 'step()' even though this environment has already returned terminated = True.\n",
                     "You should always call 'reset()' once you receive 'terminated = True'.",
                     "-- any further steps are undefined behavior.",
@@ -281,7 +282,7 @@ class LeverPressWithPokeRest(gym.Env):
             self.steps_beyond_done = 0
         else:
             if self.steps_beyond_done == 0:
-                logger.warn(
+                logger.warning(
                     "You are calling 'step()' even though this environment has already returned terminated = True.\n",
                     "You should always call 'reset()' once you receive 'terminated = True'.",
                     "-- any further steps are undefined behavior.",
@@ -370,7 +371,7 @@ class ContextSwitch(gym.Env):
             self.steps_beyond_done = 0
         else:
             if self.steps_beyond_done == 0:
-                logger.warn(
+                logger.warning(
                     "You are calling 'step()' even though this environment has already returned terminated = True.\n",
                     "You should always call 'reset()' once you receive 'terminated = True'.",
                     "-- any further steps are undefined behavior.",

@@ -9,12 +9,12 @@ except ImportError as e:
     msg = "Psychopy is not installed."
     raise ImportError(msg) from e
 
-from gymnasium import spaces
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
+from neurogym.utils.logging import logger
 
-import neurogym as ngym
 
-
-class PsychopyEnv(ngym.TrialEnv):
+class PsychopyEnv(TrialEnv):
     """Superclass for environments with psychopy stimuli."""
 
     def __init__(self, win_kwargs=None, *args, **kwargs) -> None:
@@ -42,9 +42,7 @@ class PsychopyEnv(ngym.TrialEnv):
     def add_ob(self, value, period=None, where=None) -> None:
         if isinstance(value, visual.BaseVisualStim):
             if where is not None:
-                print(
-                    "Warning: Setting where to values other than Nonehas no effect when adding PsychoPy stimuli",
-                )
+                logger.warning("Setting `where` to values other than `None` has no effect when adding PsychoPy stimuli")
 
             if isinstance(value, visual.DotStim):
                 # TODO: Check other types of stimuli as well

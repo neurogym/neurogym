@@ -1,10 +1,10 @@
 import numpy as np
-from gymnasium import spaces
 
-import neurogym as ngym
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 
 
-class Null(ngym.TrialEnv):
+class Null(TrialEnv):
     """Null task."""
 
     def __init__(self, dt=100) -> None:

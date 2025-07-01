@@ -2,12 +2,13 @@ import math
 
 import numpy as np
 
-import neurogym as ngym
-from neurogym import spaces
+from neurogym.core import BaseEnv
+from neurogym.utils import spaces
+from neurogym.utils.logging import logger
 
 
 # TODO: Move to collection
-class Pneumostomeopening(ngym.BaseEnv):
+class Pneumostomeopening(BaseEnv):
     metadata = {  # noqa: RUF012
         "paper_link": "https://jeb.biologists.org/content/199/3/683.long",
         "paper_name": """Operant conditioning of aerial respiratory behaviour
@@ -65,7 +66,7 @@ class Pneumostomeopening(ngym.BaseEnv):
         else:  # swimming actions
             self.oxygen_level *= math.exp(-decay_constant * self.t)
         self.oxygen_level = round(self.oxygen_level)
-        print(f"oxygen_level: {self.oxygen_level}")
+        logger.info(f"oxygen_level: {self.oxygen_level}")
         return self.oxygen_level
 
     def phase(self, phase, **kwargs):
@@ -138,7 +139,10 @@ class Pneumostomeopening(ngym.BaseEnv):
         # by using breathing even only when below threshold of O2 ?
         # or use refractory period ?
 
-        print([self.agent_pos], self.reward, self.terminated, {"new_trial": new_trial})
+        logger.info(
+            f"Agent Position: {self.agent_pos}, Reward: {self.reward}, "
+            f"Terminated: {self.terminated}, New Trial: {new_trial}"
+        )
         return (
             np.array([self.agent_pos]),
             self.reward,
@@ -157,8 +161,9 @@ class Pneumostomeopening(ngym.BaseEnv):
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
-    env = Pneumostomeopening()
     from neurogym.utils.plotting import plot_env
+
+    env = Pneumostomeopening()
 
     plot = plot_env(env, num_steps=100)
     plt.show(plot)

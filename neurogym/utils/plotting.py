@@ -2,11 +2,15 @@
 
 from pathlib import Path
 
-import gymnasium as gym
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+from gymnasium import make  # using ngym.make would lead to circular import
 from matplotlib import animation
+from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
+
+from neurogym.utils.decorators import suppress_during_pytest
+from neurogym.utils.logging import logger
 
 try:
     from stable_baselines3.common.vec_env import DummyVecEnv
@@ -22,6 +26,10 @@ mpl.rcParams["pdf.fonttype"] = 42
 mpl.rcParams["ps.fonttype"] = 42
 
 
+@suppress_during_pytest(
+    ValueError,
+    message="This may be due to a small sample size; please increase to get reasonable results.",
+)
 def plot_env(
     env,
     num_steps=200,
@@ -42,15 +50,15 @@ def plot_env(
         num_steps: number of steps to run the task
         num_trials: if not None, the number of trials to run
         def_act: if not None (and model=None), the task will be run with the
-                 specified action
+            specified action
         model: if not None, the task will be run with the actions predicted by
-               model, which so far is assumed to be created and trained with the
-               stable-baselines3 toolbox:
-                   (https://stable-baselines3.readthedocs.io/en/master/)
+            model, which so far is assumed to be created and trained with the
+            stable-baselines3 toolbox:
+            (https://stable-baselines3.readthedocs.io/en/master/)
         name: title to show on the rewards panel
         legend: whether to show the legend for actions panel or not
         ob_traces: if != [] observations will be plot as traces, with the labels
-                    specified by ob_traces
+            specified by ob_traces
         fig_kwargs: figure properties admitted by matplotlib.pyplot.subplots() function
         fname: if not None, save fig or movie to fname
         plot_performance: whether to show the performance subplot (default: True)
@@ -63,7 +71,7 @@ def plot_env(
     if ob_traces is None:
         ob_traces = []
     if isinstance(env, str):
-        env = gym.make(env)
+        env = make(env, disable_env_checker=True)
     if name is None:
         name = type(env).__name__
     data = run_env(
@@ -78,7 +86,7 @@ def plot_env(
     # Shift again for plotting (since steps are 1-based)
     trial_starts_axis = trial_starts_step_indices + 1
 
-    return fig_(
+    return visualize_run(
         data["ob"],
         data["actions"],
         gt=data["gt"],
@@ -117,7 +125,11 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
 
     initial_ob = ob.copy()
 
-    ob_cum_temp = ob
+    ob_cum_temp = ob.copy()
+
+    # Initialize hidden states
+    states = None
+    episode_starts = np.array([True])
 
     if num_trials is not None:
         num_steps = 1e5  # Overwrite num_steps value
@@ -125,7 +137,10 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     trial_count = 0
     for _ in range(int(num_steps)):
         if model is not None:
-            action, states = model.predict(ob)
+            if isinstance(model.policy, RecurrentActorCriticPolicy):
+                action, states = model.predict(ob, state=states, episode_start=episode_starts, deterministic=True)
+            else:
+                action, _ = model.predict(ob, deterministic=True)
             if isinstance(action, float | int):
                 action = [action]
             if (states is not None) and (len(states) > 0):
@@ -143,6 +158,8 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
             ob, rew, terminated, info = env.step(action)
         else:
             ob, rew, terminated, _truncated, info = env.step(action)
+        # Update episode_starts after each step
+        episode_starts = np.array([False])
         ob_cum_temp += ob
         ob_cum.append(ob_cum_temp.copy())
         if isinstance(info, list):
@@ -169,6 +186,9 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
             perf.append(info["performance"])
             ob_cum_temp = np.zeros_like(ob_cum_temp)
             trial_count += 1
+            # Reset states at the end of each trial
+            states = None
+            episode_starts = np.array([True])
             if num_trials is not None and trial_count >= num_trials:
                 break
         else:
@@ -195,8 +215,11 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     }
 
 
-# TODO: Change name, fig_ not a good name
-def fig_(
+@suppress_during_pytest(
+    ValueError,
+    message="This may be due to a small sample size; please increase to get reasonable results.",
+)
+def visualize_run(
     ob,
     actions,
     gt=None,
@@ -239,9 +262,9 @@ def fig_(
 
     if initial_ob is None:
         initial_ob = ob[0].copy()
+
     # Align observation with actions by inserting an initial obs from env
     ob = np.insert(ob, 0, initial_ob, axis=0)
-
     # Trim last obs to match actions
     ob = ob[:-1]
 
@@ -275,6 +298,10 @@ def _set_grid_style(ax):
     ax.set_axisbelow(True)
 
 
+@suppress_during_pytest(
+    ValueError,
+    message="This may be due to a small sample size; please increase to get reasonable results.",
+)
 def plot_env_1dbox(
     ob,
     actions,
@@ -508,6 +535,10 @@ def plot_env_1dbox(
     return f
 
 
+@suppress_during_pytest(
+    ValueError,
+    message="This may be due to a small sample size; please increase to get reasonable results.",
+)
 def plot_env_3dbox(ob, fname="", env=None) -> None:
     """Plot environment with 3-D Box observation space."""
     ob = ob.astype(np.uint8)  # TODO: Temporary
@@ -567,7 +598,7 @@ def plot_rew_across_training(
                 folder + "/mean_" + metric_name + "_across_training.png",
             )  # FIXME: use pathlib to specify location
     else:
-        print("No data in: ", folder)
+        logger.info(f"No data in: {folder}")
 
 
 def put_together_files(folder):

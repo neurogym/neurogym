@@ -41,7 +41,7 @@ license = { text = "Apache-2.0 License" }
 name = "neurogym"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
-version = "2.0.0"
+version = "2.1.0"
 
 [project.optional-dependencies]
 dev = [
@@ -68,6 +68,7 @@ dev = [
 ]
 publishing = ["build", "twine", "wheel"]
 rl = ["stable-baselines3>=2.3.2", "sb3-contrib"]
+notebooks = ["nbmake", "tensorflow"]
 
 [project.urls]
 Repository = "https://github.com/neurogym/neurogym"

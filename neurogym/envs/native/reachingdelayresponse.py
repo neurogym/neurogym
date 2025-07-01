@@ -1,11 +1,11 @@
 import numpy as np
 
-import neurogym as ngym
-from neurogym import spaces
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 
 
 # TODO: Task need to be revisited
-class ReachingDelayResponse(ngym.TrialEnv):
+class ReachingDelayResponse(TrialEnv):
     """Reaching task with a delay period.
 
     A reaching direction is presented by the stimulus during the stimulus

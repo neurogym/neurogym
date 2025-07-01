@@ -1,19 +1,17 @@
 import sys
 import warnings
 
-import gymnasium as gym
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-import neurogym as ngym
-from neurogym.wrappers import (
-    Noise,
-    PassAction,
-    PassReward,
-    ReactionTime,
-    SideBias,
-)
+from neurogym.envs.registration import all_envs, make
+from neurogym.utils.logging import logger
+from neurogym.wrappers.noise import Noise
+from neurogym.wrappers.pass_action import PassAction
+from neurogym.wrappers.pass_reward import PassReward
+from neurogym.wrappers.reaction_time import ReactionTime
+from neurogym.wrappers.side_bias import SideBias
 
 # ruff: noqa: N803, F821
 
@@ -41,7 +39,7 @@ def test_sidebias(
     num_steps : int, optional
         number of steps to run the environment (1000000)
     verbose : boolean, optional
-        whether to print ground truth and block (False)
+        whether to log ground truth and block (False)
     num_ch : int, optional
         number of choices (3)
     blk_dur : int, optional
@@ -58,7 +56,7 @@ def test_sidebias(
     if probs is None:
         probs = [(0.005, 0.005, 0.99), (0.005, 0.99, 0.005), (0.99, 0.005, 0.005)]
     env_args["n_ch"] = num_ch
-    env = gym.make(env_name, **env_args)
+    env = make(env_name, **env_args)
     env = SideBias(env, probs=probs, block_dur=blk_dur)
     env.reset()
     probs_mat = np.zeros((len(probs), num_ch))
@@ -70,21 +68,22 @@ def test_sidebias(
             probs_mat[block, info["gt"] - 1] += 1
             block = env.curr_block
             if verbose:
-                print("Ground truth", info["gt"])
-                print("----------")
-                print("Block", block)
+                logger.info("Ground truth", info["gt"])
+                logger.info("----------")
+                logger.info("Block", block)
         if terminated:
             env.reset()
     probs_mat /= np.sum(probs_mat, axis=1)
     assert np.mean(np.abs(probs - probs_mat)) < margin, f"Probs provided {probs} probs. obtained {probs_mat}"
-    print("-----")
-    print("Side bias wrapper OK")
+    if verbose:
+        logger.info("-----")
+        logger.info("Side bias wrapper OK")
 
 
 def test_passaction(
     env_name="PerceptualDecisionMaking-v0",
     num_steps=1000,
-    verbose=True,
+    verbose=False,
 ):
     """Test pass-action wrapper.
 
@@ -96,14 +95,14 @@ def test_passaction(
     num_steps : int, optional
         number of steps to run the environment (1000)
     verbose : boolean, optional
-        whether to print observation and action (False)
+        whether to log observation and action (False)
     """
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
         warnings.filterwarnings("ignore", message=".*is not within the observation space*")
         warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
-        env = gym.make(env_name)
+        env = make(env_name)
         env = PassAction(env)
         env.reset()
         for _ in range(num_steps):
@@ -111,9 +110,9 @@ def test_passaction(
             obs, _rew, terminated, _truncated, _info = env.step(action)
             assert obs[-1] == action, "Previous action is not part of observation"
             if verbose:
-                print(obs)
-                print(action)
-                print("--------")
+                logger.info(obs)
+                logger.info(action)
+                logger.info("--------")
 
             if terminated:
                 env.reset()
@@ -135,14 +134,14 @@ def test_passreward(
     num_steps : int, optional
         number of steps to run the environment (1000)
     verbose : boolean, optional
-        whether to print observation and reward (False)
+        whether to log observation and reward (False)
     """
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
         warnings.filterwarnings("ignore", message=".*is not within the observation space*")
         warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
-        env = gym.make(env_name)
+        env = make(env_name)
         env = PassReward(env)
         obs, _ = env.reset()
         for _ in range(num_steps):
@@ -150,9 +149,9 @@ def test_passreward(
             obs, rew, terminated, _truncated, _info = env.step(action)
             assert obs[-1] == rew, "Previous reward is not part of observation"
             if verbose:
-                print(obs)
-                print(rew)
-                print("--------")
+                logger.info(obs)
+                logger.info(rew)
+                logger.info("--------")
             if terminated:
                 env.reset()
 
@@ -163,7 +162,7 @@ def test_reactiontime(
     num_steps=10000,
     urgency=-0.1,
     ths=None,
-    verbose=True,
+    verbose=False,
 ):
     """Test reaction-time wrapper.
 
@@ -179,14 +178,14 @@ def test_reactiontime(
     urgency : float, optional
         float value added to the reward (-0.1)
     verbose : boolean, optional
-        whether to print observation and reward (False)
+        whether to log observation and reward (False)
     ths : list, optional
         list containing the threholds to make a decision ([-.5, .5])
     """
     if ths is None:
         ths = [-0.5, 0.5]
     env_args = {"timing": {"fixation": 100, "stimulus": 2000, "decision": 200}}
-    env = gym.make(env_name, **env_args)
+    env = make(env_name, **env_args)
     env = ReactionTime(env, urgency=urgency)
     env.reset()
     if verbose:
@@ -240,7 +239,7 @@ def test_reactiontime(
 @pytest.mark.skip(reason="VariableMapping is not implemented in the current version of neurogym")
 def test_variablemapping(
     env="NAltConditionalVisuomotor-v0",
-    verbose=True,
+    verbose=False,
     mapp_ch_prob=0.05,
     min_mapp_dur=10,
     def_act=1,
@@ -262,7 +261,7 @@ def test_variablemapping(
     num_steps : int, optional
         number of steps to run the environment (1000)
     verbose : boolean, optional
-        whether to print observation and reward (False)
+        whether to log observation and reward (False)
     mapp_ch_prob : float, optional
         probability of mapping change (0.1)
     min_mapp_dur : int, optional
@@ -286,7 +285,7 @@ def test_variablemapping(
         "timing": {"fixation": 100, "stimulus": 200, "delay": 200, "decision": 200},
     }
 
-    env = gym.make(env, **env_args)
+    env = make(env, **env_args)
     env = VariableMapping(
         env,
         mapp_ch_prob=mapp_ch_prob,
@@ -367,7 +366,7 @@ def test_noise(
     margin=0.01,
     perf_th=0.7,
     num_steps=100000,
-    verbose=True,
+    verbose=False,
 ):
     """Test noise wrapper.
 
@@ -381,14 +380,14 @@ def test_noise(
     num_steps : int, optional
         number of steps to run the environment (1000)
     verbose : boolean, optional
-        whether to print observation and reward (False)
+        whether to log observation and reward (False)
     margin : float, optional
         margin allowed when comparing actual and expected performances (0.01)
     perf_th : float, optional
         target performance for the noise wrapper (0.7)
     """
     env_args = {"timing": {"fixation": 100, "stimulus": 200, "decision": 200}}
-    env = gym.make(env, **env_args)
+    env = make(env, **env_args)
     env = Noise(env, perf_th=perf_th)
     env.reset()
     perf = []
@@ -421,13 +420,13 @@ def test_timeout(
     env="NAltPerceptualDecisionMaking-v0",
     time_out=500,
     num_steps=100,
-    verbose=True,
+    verbose=False,
 ):
     env_args = {
         "n_ch": 2,
         "timing": {"fixation": 100, "stimulus": 200, "decision": 200},
     }
-    env = gym.make(env, **env_args)
+    env = make(env, **env_args)
     env = TimeOut(env, time_out=time_out)
     env.reset()
     reward = []
@@ -458,17 +457,17 @@ def test_catchtrials(
     catch_prob=0.1,
     alt_rew=0,
 ):
-    env = gym.make(env_name)
+    env = make(env_name)
     env = CatchTrials(env, catch_prob=catch_prob, alt_rew=alt_rew)
     env.reset()
     for _ in range(num_steps):
         action = env.action_space.sample()
         _obs, rew, terminated, _truncated, info = env.step(action)
         if info["new_trial"] and verbose:
-            print("Perfomance", (info["gt"] - action) < 0.00001)
-            print("catch-trial", info["catch_trial"])
-            print("Reward", rew)
-            print("-------------")
+            logger.info("Perfomance", (info["gt"] - action) < 0.00001)
+            logger.info("catch-trial", info["catch_trial"])
+            logger.info("Reward", rew)
+            logger.info("-------------")
         if terminated:
             env.reset()
 
@@ -483,7 +482,7 @@ def test_trialhist_and_variable_nch(
     num_ch=4,
     variable_nch=False,
 ):
-    env = gym.make(env_name, n_ch=num_ch)
+    env = make(env_name, n_ch=num_ch)
     env = TrialHistory(env, probs=probs, block_dur=200, num_blocks=num_blocks)
     if variable_nch:
         env = Variable_nch(env, block_nch=1000, blocks_probs=[0.1, 0.45, 0.45])
@@ -533,7 +532,7 @@ def test_trialhist_and_variable_nch(
 
 @pytest.mark.skip(reason="TTLPulse is not implemented in the current version of neurogym")
 def test_ttlpulse(env_name, num_steps=10000, verbose=False, **envArgs):
-    env = gym.make(env_name, **envArgs)
+    env = make(env_name, **envArgs)
     env = TTLPulse(env, periods=[["stimulus"], ["decision"]])
     env.reset()
     obs_mat = []
@@ -544,7 +543,7 @@ def test_ttlpulse(env_name, num_steps=10000, verbose=False, **envArgs):
         if verbose:
             obs_mat.append(obs)
             signals.append([info["signal_0"], info["signal_1"]])
-            print("--------")
+            logger.info("--------")
 
         if terminated:
             env.reset()
@@ -566,10 +565,10 @@ def test_transfer_learning(num_steps=10000, verbose=False, **envArgs):
         "dt": 100,
         "timing": {"fixation": 0, "stimulus": 100, "resp_delay": 100, "decision": 100},
     }
-    env1 = gym.make(task, **kwargs)
+    env1 = make(task, **kwargs)
     task = "PerceptualDecisionMaking-v0"
     kwargs = {"dt": 100, "timing": {"fixation": 100, "stimulus": 100, "decision": 100}}
-    env2 = gym.make(task, **kwargs)
+    env2 = make(task, **kwargs)
     env = TransferLearning([env1, env2], num_tr_per_task=[30], task_cue=True)
 
     env.reset()
@@ -614,7 +613,7 @@ def test_combine(num_steps=10000, verbose=False, **envArgs):
         "dt": 100,
         "timing": {"fixation": 0, "stimulus": 100, "resp_delay": 100, "decision": 100},
     }
-    env1 = gym.make(task, **kwargs)
+    env1 = make(task, **kwargs)
     task = "DelayPairedAssociation-v0"
     kwargs = {
         "dt": 100,
@@ -627,7 +626,7 @@ def test_combine(num_steps=10000, verbose=False, **envArgs):
             "decision": 200,
         },
     }
-    env2 = gym.make(task, **kwargs)
+    env2 = make(task, **kwargs)
     env = Combine(
         env=env1,
         distractor=env2,
@@ -676,7 +675,7 @@ def test_combine(num_steps=10000, verbose=False, **envArgs):
 
 @pytest.mark.skip(reason="Identity is not implemented in the current version of neurogym")
 def test_identity(env_name, num_steps=10000, **envArgs):
-    env = gym.make(env_name, **envArgs)
+    env = make(env_name, **envArgs)
     env = Identity(env)
     env = Identity(env, id_="1")
     env.reset()
@@ -692,19 +691,17 @@ def test_all(test_fn):
     """Test speed of all experiments."""
     success_count = 0
     total_count = 0
-    for env_name in sorted(ngym.all_envs()):
+    for env_name in sorted(all_envs()):
         total_count += 1
-        print(f"Running env: {env_name} Wrapped with SideBias")
         try:
             test_fn(env_name)
-            print("Success")
             success_count += 1
         except BaseException as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
-            print(f"Failure at running env: {env_name}")
-            print(e)
-        print()
+            logger.error(f"Failure at running env: {env_name}")
+            logger.error(e)
 
-    print(f"Success {success_count}/{total_count} envs")
+    if success_count < total_count:
+        logger.info(f"Success {success_count}/{total_count} envs")
 
 
 @pytest.mark.skip(reason="TrialHistoryEvolution and Variable_nch are not implemented in current version of neurogym")
@@ -722,7 +719,7 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
     env_args["n_ch"] = num_ch
     env_args["zero_irrelevant_stim"] = True
     env_args["ob_histblock"] = True
-    env = gym.make(env_name, **env_args)
+    env = make(env_name, **env_args)
     env = TrialHistoryEvolution(
         env,
         probs=probs,
@@ -767,18 +764,18 @@ def test_concat_wrpprs_th_vch_pssr_pssa(
                     pass
             prev_gt = info["gt"] - 1
     if verbose:
-        print(blk_id)
+        logger.info(blk_id)
         sel_choices, counts = np.unique(s_chs, return_counts=1)
-        print("\nSelected choices and frequencies:")
-        print(sel_choices)
-        print(counts / np.sum(counts))
+        logger.info("\nSelected choices and frequencies:")
+        logger.info(sel_choices)
+        logger.info(counts / np.sum(counts))
         tr_blks, counts = np.unique(
             np.array(blk)[np.array(s_chs) == "1-2"],
             return_counts=1,
         )
-        print("\n2AFC task transition matrices and frequencies:")
-        print(tr_blks)
-        print(counts / np.sum(counts))
+        logger.info("\n2AFC task transition matrices and frequencies:")
+        logger.info(tr_blks)
+        logger.info(counts / np.sum(counts))
         _, ax = plt.subplots(nrows=1, ncols=1)
         obs_mat = np.array(obs_mat)
         ax.imshow(obs_mat[10000:20000, :].T, aspect="auto")
@@ -841,10 +838,10 @@ def test_trialhistoryevolution(
     num_steps=10000,
     probs=0.8,
     num_blocks=2,
-    verbose=True,
+    verbose=False,
     num_ch=4,
 ):
-    env = gym.make(env_name, n_ch=num_ch)
+    env = make(env_name, n_ch=num_ch)
     env = TrialHistoryEvolution(
         env,
         probs=probs,
@@ -868,8 +865,8 @@ def test_trialhistoryevolution(
                 np.array([np.where(x == 0.8)[0][0] for x in env.curr_tr_mat[0, :, :]]),
             )
         if info["new_generation"] and verbose:
-            print("New generation")
-            print(num_tr)
+            logger.info("New generation")
+            logger.info(num_tr)
     plt.figure()
     plt.imshow(np.array(transitions), aspect="auto")
 

@@ -3,17 +3,18 @@
 import time
 import warnings
 
-import gymnasium as gym
 import pytest
 
-import neurogym as ngym
+from neurogym.envs.registration import all_envs, make
+from neurogym.utils.data import Dataset
+from neurogym.utils.logging import logger
 
 
 def speed(env, n_steps=100000, warmup_steps=10000):
     """Test speed of an environment."""
     if isinstance(env, str):
         kwargs = {"dt": 20}
-        env = gym.make(env, **kwargs)
+        env = make(env, **kwargs)
 
     env.reset()
     for _ in range(warmup_steps):
@@ -32,7 +33,7 @@ def speed(env, n_steps=100000, warmup_steps=10000):
         if terminated:
             env.reset()
 
-    print(f"Time/step {total_time / n_steps * 1e6:0.3f}us [with stepping]")
+    logger.info(f"Time/step {total_time / n_steps * 1e6:0.3f}us [with stepping]")
     return env
 
 
@@ -44,7 +45,7 @@ def test_speed_with_new_trial(env):
     kwargs = {"dt": 20}
 
     if isinstance(env, str):
-        env = gym.make(env, **kwargs)
+        env = make(env, **kwargs)
 
     env.reset()
     for _ in range(warmup_trials):
@@ -58,7 +59,7 @@ def test_speed_with_new_trial(env):
         n_steps += env.ob.shape[0]
     total_time = time.time() - start_time
 
-    print(f"Time/step {total_time / n_steps * 1e6:0.3f}us [with new trial]")
+    logger.info(f"Time/step {total_time / n_steps * 1e6:0.3f}us [with new trial]")
     return env
 
 
@@ -70,21 +71,21 @@ def test_speed_all():
         warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
         warnings.filterwarnings("ignore", message=".*method was expecting a numpy array*")
         warnings.filterwarnings("ignore", message=".*Casting input x to numpy array.*")
-        for env_name in sorted(ngym.all_envs()):
-            print(f"Running env: {env_name:s}")
+        for env_name in sorted(all_envs()):
+            logger.info(f"Running env: {env_name:s}")
             try:
                 speed(env_name)
-                print("Success")
+                logger.info("Success")
             except Exception as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
-                print(f"Failure at running env: {env_name:s}")
-                print(e)
+                logger.error(f"Failure at running env: {env_name:s}")
+                logger.error(e)
 
 
 def speed_dataset(env):
     batch_size = 16
     seq_len = 100
     kwargs = {}
-    dataset = ngym.Dataset(
+    dataset = Dataset(
         env,
         env_kwargs=kwargs,
         batch_size=batch_size,
@@ -97,8 +98,8 @@ def speed_dataset(env):
     total_time = time.time() - start_time
     time_per_batch = total_time / n_batch
     time_per_step = total_time / n_batch / batch_size / seq_len
-    print(f"Time/batch {time_per_batch * 1e6:0.3f}us [with dataset]")
-    print(f"Time/step {time_per_step * 1e6:0.3f}us [with dataset]")
+    logger.info(f"Time/batch {time_per_batch * 1e6:0.3f}us [with dataset]")
+    logger.info(f"Time/step {time_per_step * 1e6:0.3f}us [with dataset]")
 
 
 def test_speed_dataset_all():
@@ -110,14 +111,14 @@ def test_speed_dataset_all():
         warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
         warnings.filterwarnings("ignore", message=".*method was expecting a numpy array*")
         warnings.filterwarnings("ignore", message=".*Casting input x to numpy array.*")
-        for env_name in sorted(ngym.all_envs()):
-            print(f"Running env: {env_name:s}")
+        for env_name in sorted(all_envs()):
+            logger.info(f"Running env: {env_name:s}")
             try:
                 speed_dataset(env_name)
-                print("Success")
+                logger.info("Success")
             except BaseException as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
-                print(f"Failure at running env: {env_name:s}")
-                print(e)
+                logger.error(f"Failure at running env: {env_name:s}")
+                logger.error(e)
 
 
 if __name__ == "__main__":

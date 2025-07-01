@@ -7,20 +7,22 @@ import pytest
 from matplotlib import pyplot as plt
 
 import neurogym as ngym
+from neurogym.envs.registration import all_envs, all_tags, make
 from neurogym.utils.data import Dataset
+from neurogym.utils.logging import logger
 
 _HAVE_PSYCHOPY = find_spec("psychopy") is not None  # check if psychopy is installed
 SEED = 0
 
-ENVS = ngym.all_envs(psychopy=_HAVE_PSYCHOPY, contrib=True, collections=True)
+ENVS = all_envs(psychopy=_HAVE_PSYCHOPY, contrib=True, collections=True)
 # Envs without psychopy, TODO: check if contrib or collections include psychopy
-ENVS_NOPSYCHOPY = ngym.all_envs(psychopy=False, contrib=True, collections=True)
+ENVS_NOPSYCHOPY = all_envs(psychopy=False, contrib=True, collections=True)
 
 
 def _test_run(env, num_steps=100, verbose=False):
     """Test if one environment can at least be run."""
     if isinstance(env, str):
-        env = ngym.make(env)
+        env = make(env)
     elif not isinstance(env, gym.Env):
         msg = f"{type(env)=} must be a string or a gym.Env"
         raise TypeError(msg)
@@ -33,13 +35,12 @@ def _test_run(env, num_steps=100, verbose=False):
             env.reset()
 
     tags = env.metadata.get("tags", [])
-    all_tags = ngym.all_tags()
     for t in tags:
-        if t not in all_tags:
-            print(f"Warning: env has tag {t} not in all_tags")
+        if t not in all_tags():
+            logger.warning(f"env has tag {t} not in all_tags")
 
     if verbose:
-        print(env)
+        logger.info(env)
 
     return env
 
@@ -53,13 +54,12 @@ def test_run_all(verbose_success=False):
             for env_name in ENVS:
                 _test_run(env_name, verbose=verbose_success)
         except:
-            print(f"Failure at running env: {env_name}")
+            logger.error(f"Failure at running env: {env_name}")
             raise
 
 
 def _test_dataset(env):
     """Main function for testing if an environment is healthy."""
-    print("Testing Environment:", env)
     kwargs = {"dt": 20}
     dataset = Dataset(env, env_kwargs=kwargs, batch_size=16, seq_len=300, cache_len=1e4)
     for _ in range(10):
@@ -77,41 +77,25 @@ def test_dataset_all():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
         success_count = 0
-        total_count = len(ngym.all_envs())
-        supervised_count = len(ngym.all_envs(tag="supervised"))
-        for env_name in ngym.all_envs():
-            print(f"Running env: {env_name}")
+        total_count = len(all_envs())
+        supervised_count = len(all_envs(tag="supervised"))
+        for env_name in all_envs():
             try:  # FIXME, tests are not actually performed here, as any error is caught away
                 _test_dataset(env_name)
-                print("Success")
                 success_count += 1
-            except BaseException as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
-                print(f"Failure at running env: {env_name}")
-                print(e)
+            except BaseException as e:  # noqa: PERF203, BLE001 # FIXME: unclear which error is expected here.
+                logger.error(f"Failure at running env: {env_name}")
+                logger.error(e)
 
-        print(f"Success {success_count}/{total_count} envs")
-        print(f"Expect {supervised_count} envs to support supervised learning")
-
-
-def test_print_all():
-    """Test printing of all experiments."""
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
-        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        try:
-            for env_name in ENVS:
-                print(f"Test printing env: {env_name}")
-                env = ngym.make(env_name)
-                print(env)
-        except:
-            print(f"Failure at printing env: {env_name}")
-            raise
+        if success_count < total_count:
+            logger.info(f"Success {success_count}/{total_count} envs")
+        logger.debug(f"Expect {supervised_count} envs to support supervised learning")
 
 
 def _test_trialenv(env):
     """Test if a TrialEnv is behaving correctly."""
     if isinstance(env, str):
-        env = ngym.make(env)
+        env = make(env)
     elif not isinstance(env, gym.Env):
         msg = f"{type(env)=} must be a string or a gym.Env"
         raise TypeError(msg)
@@ -127,21 +111,21 @@ def test_trialenv_all():
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
         try:
             for env_name in ENVS:
-                env = ngym.make(env_name)
+                env = make(env_name)
                 _test_trialenv(env)
         except:
-            print(f"Failure with env: {env_name}")
+            logger.error(f"Failure with env: {env_name}")
             raise
 
 
 def _test_seeding(env):
     """Test if environments are replicable."""
     if env is None:
-        env = ngym.all_envs()[0]
+        env = all_envs()[0]
 
     if isinstance(env, str):
         kwargs = {"dt": 20}
-        env = ngym.make(env, **kwargs)
+        env = make(env, **kwargs)
     elif not isinstance(env, gym.Env):
         msg = f"{type(env)=} must be a string or a gym.Env"
         raise TypeError(msg)
@@ -179,7 +163,7 @@ def test_seeding_all():
                 assert (rews1 == rews2).all(), "rewards are not identical"
                 assert (acts1 == acts2).all(), "actions are not identical"
         except:
-            print(f"Failure with env: {env_name}")
+            logger.error(f"Failure with env: {env_name}")
             raise
 
 
@@ -190,13 +174,13 @@ def test_plot_all():
         for env_name in ENVS:
             if env_name == "Null-v0":
                 continue
-            env = ngym.make(env_name, dt=20)
+            env = make(env_name, dt=20)
             action = np.zeros_like(env.action_space.sample())
             try:  # FIXME: no actual test is run, as errors are caught
-                ngym.utils.plot_env(env, num_trials=2, def_act=action)
+                ngym.utils.plotting.plot_env(env, num_trials=2, def_act=action)
             except Exception as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
-                print(f"Error in plotting env: {env_name}, {e}")
-                print(e)
+                logger.error(f"Error in plotting env: {env_name}, {e}")
+                logger.error(e)
             plt.close()
 
 
