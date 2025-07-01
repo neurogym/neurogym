@@ -1,0 +1,61 @@
+name: minimal-build
+
+on:
+  push:
+    paths-ignore:
+      # specific folder locations
+      - ".vscode/**"
+      - "docs/**"
+      # filetypes
+      - "**.md"
+      - "**.rst"
+      - "**.ipynb"
+      - "**.cff"
+      - "**.png"
+    branches:
+      - main
+  pull_request:
+    # types: [opened, synchronize, reopened, ready_for_review]
+    paths-ignore:
+      # specific folder locations
+      - ".vscode/**"
+      - "docs/**"
+      # filetypes
+      - "**.md"
+      - "**.rst"
+      - "**.ipynb"
+      - "**.cff"
+      - "**.png"
+jobs:
+  minimal_build:
+    # if: github.event.pull_request.draft == false
+    name: Build without optional dependencies
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Python info
+        shell: bash -e {0}
+        run: |
+          which python
+          python --version
+      - name: Install core dependencies only (no optional deps)
+        run: |
+          python -m pip install --upgrade pip setuptools
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install .
+      - name: Test package imports without optional dependencies
+        run: |
+          # Try to import the entire package - this will fail if any module has
+          # unguarded imports of optional dependencies
+          python -c "import neurogym"
+      - name: Run tests without optional dependencies
+        run: python -m pytest -v
+      - name: Install build dependencies for package verification
+        run: python -m pip install build
+      - name: Verify that we can build the package
+        run: python -m build
