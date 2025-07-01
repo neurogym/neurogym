@@ -7,11 +7,11 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import animation
-from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
 
 from neurogym.utils.logging import logger
 
 try:
+    from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
     from stable_baselines3.common.vec_env import DummyVecEnv
 
     _SB3_AVAILABLE = True
@@ -111,9 +111,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     if isinstance(env, DummyVecEnv):
         if not _SB3_AVAILABLE:
             msg = "Stable-Baselines3 is not installed. Install it with 'pip install neurogym[rl]'."
-            raise ImportError(
-                msg,
-            )
+            raise ImportError(msg)
         ob = env.reset()
     else:
         ob, _ = env.reset()
@@ -132,7 +130,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     trial_count = 0
     for _ in range(int(num_steps)):
         if model is not None:
-            if isinstance(model.policy, RecurrentActorCriticPolicy):
+            if _SB3_AVAILABLE and isinstance(model.policy, RecurrentActorCriticPolicy):
                 action, states = model.predict(ob, state=states, episode_start=episode_starts, deterministic=True)
             else:
                 action, _ = model.predict(ob, deterministic=True)
@@ -147,9 +145,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         if isinstance(env, DummyVecEnv):
             if not _SB3_AVAILABLE:
                 msg = "Stable-Baselines3 is not installed. Install it with 'pip install neurogym[rl]'."
-                raise ImportError(
-                    msg,
-                )
+                raise ImportError(msg)
             ob, rew, terminated, info = env.step(action)
         else:
             ob, rew, terminated, _truncated, info = env.step(action)
