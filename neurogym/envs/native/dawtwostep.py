@@ -1,12 +1,12 @@
 import numpy as np
-from gymnasium import spaces
 
-import neurogym as ngym
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 from neurogym.utils.logging import logger
 
 
 # TODO: Need better description
-class DawTwoStep(ngym.TrialEnv):
+class DawTwoStep(TrialEnv):
     """Daw Two-step task.
 
     On each trial, an initial choice between two options lead

@@ -4,10 +4,11 @@
 import sys
 
 import numpy as np
-from gymnasium import spaces
 from numpy.polynomial.polynomial import polyfit
 from psychopy import visual
 from scipy.interpolate import interp1d
+
+from neurogym.utils import spaces
 
 from .psychopy_env import PsychopyEnv
 

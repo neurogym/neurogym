@@ -4,14 +4,14 @@
 """
 
 import numpy as np
-from gymnasium import spaces
 
-import neurogym as ngym
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 from neurogym.utils.ngym_random import TruncExp
 
 
 # TODO: Need a more intuitive name
-class ChangingEnvironment(ngym.TrialEnv):
+class ChangingEnvironment(TrialEnv):
     """Random Dots Motion tasks in which the correct action depends on a randomly changing context.
 
     Args:
@@ -168,5 +168,7 @@ class ChangingEnvironment(ngym.TrialEnv):
 
 
 if __name__ == "__main__":
+    from neurogym.utils.plotting import plot_env
+
     env = ChangingEnvironment(cxt_ch_prob=0.05, stim_scale=100, cxt_cue=False)
-    ngym.utils.plot_env(env)
+    plot_env(env)

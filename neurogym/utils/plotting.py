@@ -2,10 +2,10 @@
 
 from pathlib import Path
 
-import gymnasium as gym
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+from gymnasium import make  # using ngym.make would lead to circular import
 from matplotlib import animation
 from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
 
@@ -71,7 +71,7 @@ def plot_env(
     if ob_traces is None:
         ob_traces = []
     if isinstance(env, str):
-        env = gym.make(env)
+        env = make(env, disable_env_checker=True)
     if name is None:
         name = type(env).__name__
     data = run_env(

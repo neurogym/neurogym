@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 import tomlkit as tkit
 
-from neurogym.config import Config
+from neurogym.config.config import Config
 
 rng = np.random.default_rng()
 

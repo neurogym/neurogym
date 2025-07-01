@@ -2,13 +2,13 @@ import math
 
 import numpy as np
 
-import neurogym as ngym
-from neurogym import spaces
+from neurogym.core import BaseEnv
+from neurogym.utils import spaces
 from neurogym.utils.logging import logger
 
 
 # TODO: Move to collection
-class Pneumostomeopening(ngym.BaseEnv):
+class Pneumostomeopening(BaseEnv):
     metadata = {  # noqa: RUF012
         "paper_link": "https://jeb.biologists.org/content/199/3/683.long",
         "paper_name": """Operant conditioning of aerial respiratory behaviour
@@ -161,8 +161,9 @@ class Pneumostomeopening(ngym.BaseEnv):
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
-    env = Pneumostomeopening()
     from neurogym.utils.plotting import plot_env
+
+    env = Pneumostomeopening()
 
     plot = plot_env(env, num_steps=100)
     plt.show(plot)
