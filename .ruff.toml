@@ -71,6 +71,9 @@ extend-safe-fixes = [
     "ANN401", # Function arguments annotated with too generic `Any` type
 ]
 "__init__.py" = ["F401"] # unused imports
+# ignore contrib and psychopy envs, as these are currently not functional
+"neurogym/envs/contrib/*" = ["ALL"]
+"neurogym/envs/psychopy/*" = ["ALL"]
 
 [lint.flake8-unused-arguments]
 ignore-variadic-names = true # Whether to allow unused variadic arguments, like *args and **kwargs.
@@ -80,4 +83,3 @@ builtins-strict-checking = false # Whether to enable strict checking of builtins
 
 [lint.pylint]
 max-public-methods = 30
-allow-magic-value-types = ["str"]
