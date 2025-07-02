@@ -99,7 +99,7 @@ class AnnubesEnv(TrialEnv):
         if not np.isclose(catch_prob, 0.0, rtol, atol):
             return False
 
-        mod_probs = {mod: 0.0 for mod in modalities}
+        mod_probs = dict.fromkeys(modalities, 0.0)
         for stim, prob in session.items():
             if not isinstance(stim, tuple):
                 stim = (stim,)  # noqa: PLW2901
@@ -265,7 +265,7 @@ class AnnubesEnv(TrialEnv):
         self.stim_time = stim_time
         self.catch_prob = catch_prob
         self.max_sequential = max_sequential
-        self.sequential_count = {mod: 0 for mod in max_sequential}
+        self.sequential_count = dict.fromkeys(max_sequential, 0)
         self.fix_intensity = fix_intensity
         self.fix_time = fix_time
         self.iti = iti
