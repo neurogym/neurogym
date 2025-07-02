@@ -123,7 +123,7 @@ class EconomicDecisionMaking(TrialEnv):
             r_a = n_a * self.R_A
             r_b = n_b * self.R_B
 
-            if juice1 == "A":
+            if juice1 == "a":
                 r1, r2 = r_a, r_b
             else:
                 r1, r2 = r_b, r_a
