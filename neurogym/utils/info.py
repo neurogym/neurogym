@@ -63,11 +63,13 @@ def show_info(obj_: str | gym.Env) -> None:
 
 
 def _env_info(env: gym.Env) -> None:
+    """Show information about an environment."""
     env = env.unwrapped  # remove extra wrappers (make can add a OrderEnforcer wrapper)
     logger.info("Info for environment:" + env_string(env)[3:])
 
 
 def _wrap_info(wrapper: str) -> None:
+    """Show information about a wrapper."""
     logger.info(f"Info for wrapper: {wrapper}")
 
     wrapp_ref = ALL_WRAPPERS[wrapper]

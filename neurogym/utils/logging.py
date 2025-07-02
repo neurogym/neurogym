@@ -1,10 +1,24 @@
+from __future__ import annotations
+
 import sys
+from typing import TYPE_CHECKING
 
 from loguru import logger
 from loguru._colorizer import AnsiParser
 
+if TYPE_CHECKING:
+    from loguru import Record
 
-def custom_format(record):
+
+def _custom_format(record: Record) -> str:
+    """Put together a context-aware custom format string.
+
+    Args:
+        record: The log record to process.
+
+    Returns:
+        A  Loguru formatting string.
+    """
     message = record["message"]
 
     # give custom color to log message
@@ -25,6 +39,6 @@ def custom_format(record):
 logger.remove()
 logger.add(
     sys.stderr,
-    format=custom_format,
+    format=_custom_format,
     level="INFO",
 )

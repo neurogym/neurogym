@@ -151,7 +151,7 @@ for env_id, entry_point in ALL_EXTENDED_ENVS.items():
 
 
 def all_tags() -> list[str]:
-    """Script to get all tags."""
+    """Discover and return all tags associated to any environment."""
     envs = all_envs()
     tags = []
     for env_name in sorted(envs):
