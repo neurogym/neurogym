@@ -4,8 +4,6 @@ Created on Thu Feb 28 15:07:21 2019
 
 @author: molano
 """
-# !/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 import gymnasium as gym
 
