@@ -165,10 +165,3 @@ class ChangingEnvironment(TrialEnv):
             truncated,
             {"new_trial": new_trial, "gt": gt, "context": self.curr_cxt},
         )
-
-
-if __name__ == "__main__":
-    from neurogym.utils.plotting import plot_env
-
-    env = ChangingEnvironment(cxt_ch_prob=0.05, stim_scale=100, cxt_cue=False)
-    plot_env(env)

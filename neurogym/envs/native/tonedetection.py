@@ -136,10 +136,3 @@ class ToneDetection(TrialEnv):
             truncated,
             {"new_trial": new_trial, "gt": gt},
         )
-
-
-if __name__ == "__main__":
-    from neurogym.utils.plotting import plot_env
-
-    env = ToneDetection(dt=50, timing=None)
-    plot_env(env, num_steps=100, def_act=1)

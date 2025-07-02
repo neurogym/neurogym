@@ -113,12 +113,3 @@ class AngleReproduction(TrialEnv):
             self.performance += norm_rew / self.dec_per_dur
 
         return ob, reward, terminated, truncated, {"new_trial": False}
-
-
-if __name__ == "__main__":
-    from neurogym.tests import test_run  # type: ignore  # noqa: PGH003
-    from neurogym.utils.plotting import plot_env
-
-    env = AngleReproduction()
-    test_run(env)
-    plot_env(env)

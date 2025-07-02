@@ -339,15 +339,3 @@ class CVLearning(TrialEnv):
             "num_stps": self.t_ind,
         }
         return self.ob_now, reward, terminated, truncated, info
-
-
-if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-
-    from neurogym.utils.plotting import plot_env
-
-    plt.close("all")
-    env = CVLearning(stages=[0, 2, 3, 4], trials_day=2, keep_days=1)
-    data = plot_env(env, num_steps=200)
-    env = CVLearning(stages=[3, 4], trials_day=2, keep_days=1)
-    data = plot_env(env, num_steps=200)

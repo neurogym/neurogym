@@ -94,7 +94,3 @@ def all_tags(verbose=0):
         for tag in tags:
             logger.info(tag)
     return tags
-
-
-if __name__ == "__main__":
-    all_tasks()
