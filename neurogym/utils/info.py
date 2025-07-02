@@ -79,11 +79,11 @@ def _wrap_info(wrapper: str) -> None:
     if not isinstance(metadata, dict):
         metadata = {}
 
-    wrapper_description = metadata.get("description", None) or "Missing description"
+    wrapper_description = metadata.get("description") or "Missing description"
     logger.info(f"Logic: {wrapper_description}")
 
-    paper_name = metadata.get("paper_name", None)
-    paper_link = metadata.get("paper_link", None)
+    paper_name = metadata.get("paper_name")
+    paper_link = metadata.get("paper_link")
     if paper_name is not None:
         reference = "Reference paper: "
         if paper_link is None:

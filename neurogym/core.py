@@ -24,9 +24,9 @@ def env_string(env, short=False):
     metadata = env.metadata
     docstring = env.__doc__
     string += f"### {type(env).__name__}\n"
-    paper_name = metadata.get("paper_name", None) or "Missing paper name"
+    paper_name = metadata.get("paper_name") or "Missing paper name"
     paper_name = _clean_string(paper_name)
-    paper_link = metadata.get("paper_link", None)
+    paper_link = metadata.get("paper_link")
     string += f"Doc: {docstring}\n"
     string += "Reference paper \n"
     if paper_link is None:
