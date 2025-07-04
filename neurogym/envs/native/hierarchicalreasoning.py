@@ -2,12 +2,12 @@
 
 import numpy as np
 
-import neurogym as ngym
-from neurogym import spaces
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 from neurogym.utils.ngym_random import TruncExp
 
 
-class HierarchicalReasoning(ngym.TrialEnv):
+class HierarchicalReasoning(TrialEnv):
     """Hierarchical reasoning of rules.
 
     On each trial, the subject receives two flashes separated by a delay

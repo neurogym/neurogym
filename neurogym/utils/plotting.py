@@ -2,12 +2,13 @@
 
 from pathlib import Path
 
-import gymnasium as gym
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+from gymnasium import make  # using ngym.make would lead to circular import
 from matplotlib import animation
 
+from neurogym.utils.decorators import suppress_during_pytest
 from neurogym.utils.logging import logger
 
 try:
@@ -25,6 +26,10 @@ mpl.rcParams["pdf.fonttype"] = 42
 mpl.rcParams["ps.fonttype"] = 42
 
 
+@suppress_during_pytest(
+    ValueError,
+    message="This may be due to a small sample size; please increase to get reasonable results.",
+)
 def plot_env(
     env,
     num_steps=200,
@@ -66,7 +71,7 @@ def plot_env(
     if ob_traces is None:
         ob_traces = []
     if isinstance(env, str):
-        env = gym.make(env)
+        env = make(env, disable_env_checker=True)
     if name is None:
         name = type(env).__name__
     data = run_env(
@@ -81,7 +86,7 @@ def plot_env(
     # Shift again for plotting (since steps are 1-based)
     trial_starts_axis = trial_starts_step_indices + 1
 
-    return fig_(
+    return visualize_run(
         data["ob"],
         data["actions"],
         gt=data["gt"],
@@ -206,8 +211,11 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     }
 
 
-# TODO: Change name, fig_ not a good name
-def fig_(
+@suppress_during_pytest(
+    ValueError,
+    message="This may be due to a small sample size; please increase to get reasonable results.",
+)
+def visualize_run(
     ob,
     actions,
     gt=None,
@@ -286,6 +294,10 @@ def _set_grid_style(ax):
     ax.set_axisbelow(True)
 
 
+@suppress_during_pytest(
+    ValueError,
+    message="This may be due to a small sample size; please increase to get reasonable results.",
+)
 def plot_env_1dbox(
     ob,
     actions,
@@ -519,6 +531,10 @@ def plot_env_1dbox(
     return f
 
 
+@suppress_during_pytest(
+    ValueError,
+    message="This may be due to a small sample size; please increase to get reasonable results.",
+)
 def plot_env_3dbox(ob, fname="", env=None) -> None:
     """Plot environment with 3-D Box observation space."""
     ob = ob.astype(np.uint8)  # TODO: Temporary

@@ -5,6 +5,8 @@ import copy
 import gymnasium as gym
 import numpy as np
 
+from neurogym.envs.registration import make
+
 
 class Dataset:
     """Make an environment into an iterable dataset for supervised learning.
@@ -41,7 +43,7 @@ class Dataset:
         else:
             if env_kwargs is None:
                 env_kwargs = {}
-            self.envs = [gym.make(env, **env_kwargs) for _ in range(batch_size)]
+            self.envs = [make(env, **env_kwargs) for _ in range(batch_size)]
         for env_ in self.envs:
             env_.reset()
         self.seed()

@@ -1,10 +1,10 @@
 import numpy as np
 
-import neurogym as ngym
-from neurogym import spaces
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 
 
-class DelayMatchCategory(ngym.TrialEnv):
+class DelayMatchCategory(TrialEnv):
     """Delayed match-to-category task.
 
     A sample stimulus is shown during the sample period. The stimulus is

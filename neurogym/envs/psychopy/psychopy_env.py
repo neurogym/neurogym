@@ -3,20 +3,18 @@ from typing import Any
 
 import numpy as np
 
-from neurogym.utils.logging import logger
-
 try:
     from psychopy import visual
 except ImportError as e:
     msg = "Psychopy is not installed."
     raise ImportError(msg) from e
 
-from gymnasium import spaces
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
+from neurogym.utils.logging import logger
 
-import neurogym as ngym
 
-
-class PsychopyEnv(ngym.TrialEnv):
+class PsychopyEnv(TrialEnv):
     """Superclass for environments with psychopy stimuli."""
 
     def __init__(self, win_kwargs=None, *args, **kwargs) -> None:

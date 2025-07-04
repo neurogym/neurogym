@@ -131,28 +131,29 @@ Using a TOML file can be especially useful for sharing experiment configurations
 Create a `config.toml` file (see [template](docs/examples/config.toml)) and load it:
 
 ```python
-from neurogym import Config
+from neurogym.config import Config
 config = Config('path/to/config.toml')
 ```
 
 You can then pass this config to any component that supports it:
 
 ```python
-from neurogym.wrappers import monitor
-env = gym.make('GoNogo-v0')
-env = monitor.Monitor(env, config=config)
+from neurogym import make
+from neurogym.wrappers import Monitor
+env = make('GoNogo-v0')
+env = Monitor(env, config=config)
 ```
 
 Or directly pass the path:
 
 ```python
-env = monitor.Monitor(env, config='path/to/config.toml')
+env = Monitor(env, config='path/to/config.toml')
 ```
 
 #### 2. With Python Class
 
 ```python
-from neurogym import Config
+from neurogym.config import Config
 config = Config(
     local_dir="logs/",
     env={"name": "GoNogo-v0"},
@@ -163,7 +164,7 @@ config = Config(
 #### 3. With a Dictionary
 
 ```python
-from neurogym import Config
+from neurogym.config import Config
 config_dict = {
     "env": {"name": "GoNogo-v0"},
     "monitor": {
@@ -208,7 +209,7 @@ This will install the version with vanilla RNN support from the `rnn_policy_addi
 Creating custom new tasks should be easy. You can contribute tasks using the regular gymnasium format. If your task has a trial/period structure, this [template](https://github.com/neurogym/neurogym/blob/main/docs/examples/template.py) provides the basic structure that we recommend a task to have:
 
 ```python
-from gymnasium import spaces
+from neurogym import spaces
 import neurogym as ngym
 
 class YourTask(ngym.PeriodEnv):
