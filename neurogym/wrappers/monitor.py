@@ -7,19 +7,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 from gymnasium import Wrapper
 
-try:
-    from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
-
-    _SB3_AVAILABLE = True
-except ImportError:
-    _SB3_AVAILABLE = False
-
-
+from neurogym import _SB3_INSTALLED
 from neurogym.config.base import LOCAL_DIR
 from neurogym.config.config import Config
 from neurogym.utils.functions import ensure_dir, iso_timestamp
 from neurogym.utils.logging import logger
 from neurogym.utils.plotting import visualize_run
+
+if _SB3_INSTALLED:
+    from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -305,7 +301,7 @@ class Monitor(Wrapper):
         # Run trials
         while trial_count < num_trials:
             if model is not None:
-                if _SB3_AVAILABLE and isinstance(model.policy, RecurrentActorCriticPolicy):
+                if _SB3_INSTALLED and isinstance(model.policy, RecurrentActorCriticPolicy):
                     action, states = model.predict(obs, state=states, episode_start=episode_starts, deterministic=True)
                 else:
                     action, _ = model.predict(obs, deterministic=True)
