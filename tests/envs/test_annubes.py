@@ -113,9 +113,9 @@ def test_fix_time_types(
 
         # Check if the sampled time is in the given list of values
         if isinstance(time, list):
-            assert (
-                env._duration[t] in time
-            ), f"Expected {t} time to be one of {time}, but got {env._duration['fixation']}"
+            assert env._duration[t] in time, (
+                f"Expected {t} time to be one of {time}, but got {env._duration['fixation']}"
+            )
         # Check if the sampled time is in the given range
         elif isinstance(time, tuple) and time[0] == "uniform":
             time_range = time[1]
@@ -125,9 +125,9 @@ def test_fix_time_types(
             but got {env._duration["fixation"]}"""
         # Check if the sampled time is in the given list of values
         elif isinstance(time, tuple) and time[0] == "choice":
-            assert (
-                env._duration[t] in time[1]
-            ), f"Expected {t} time to be one of {time[1]}, but got {env._duration['fixation']}"
+            assert env._duration[t] in time[1], (
+                f"Expected {t} time to be one of {time[1]}, but got {env._duration['fixation']}"
+            )
         # Check if the sampled time is in the given range
         elif isinstance(time, tuple) and time[0] == "truncated_exponential":
             time_range = time[1]
@@ -137,20 +137,18 @@ def test_fix_time_types(
             but got {env._duration["fixation"]}"""
         # Check if the sampled time is the given constant value
         elif isinstance(time, tuple) and time[0] == "constant":
-            assert (
-                env._duration[t] == time[1]
-            ), f"Expected {t} time to be {time[1]}, but got {env._duration['fixation']}"
+            assert env._duration[t] == time[1], (
+                f"Expected {t} time to be {time[1]}, but got {env._duration['fixation']}"
+            )
 
         # For callable time, check if it's actually called
         if callable(time):
-            assert (
-                env._duration[t] == 500
-            ), f"Expected {t} time to be 500, but got {env._duration['fixation']}"
+            assert env._duration[t] == 500, f"Expected {t} time to be 500, but got {env._duration['fixation']}"
 
         # Ensure the sampled time is a multiple of dt
-        assert (
-            env._duration[t] % env.dt == 0
-        ), f"Expected {t} time to be a multiple of dt ({env.dt}), but got {env._duration['fixation']}"
+        assert env._duration[t] % env.dt == 0, (
+            f"Expected {t} time to be a multiple of dt ({env.dt}), but got {env._duration['fixation']}"
+        )
 
 
 @pytest.mark.parametrize("catch_prob", [0.0, 0.3, 0.7, 1.0])
@@ -256,9 +254,7 @@ def test_annubes_env_probabilities_and_counts(
 
     # Check for max_sequential satisfiability and fail
     # predictably if the conditions are unsatisfiable.
-    if not AnnubesEnv._is_max_sequential_valid(
-        session, modalities, catch_prob, max_sequential
-    ):
+    if not AnnubesEnv._is_max_sequential_valid(session, modalities, catch_prob, max_sequential):
         with pytest.raises(ValueError) as e:
             env = AnnubesEnv(
                 session=session,
@@ -290,9 +286,7 @@ def test_annubes_env_probabilities_and_counts(
     if catch_prob > 0.0:
         session_modalities.add(None)
     occurrence_modalities = set(occurrences.keys())
-    assert (
-        session_modalities == occurrence_modalities
-    ), "The trials do not reflect the session."
+    assert session_modalities == occurrence_modalities, "The trials do not reflect the session."
 
     # Assert that the stimuli occur with the right probabilities.
     for stimulus, probability in session.items():
@@ -322,9 +316,7 @@ def test_annubes_env_probabilities_and_counts(
                 continue
             # Get the indices of trials where the stimulus occurred more than max_sequential times in a row.
             error_idx = np.argwhere(np.array(sequences, dtype=np.uint32) > max_sequential[modality])  # type: ignore[operator]
-            assert (
-                len(error_idx) == 0
-            ), f"Found a sequence longer than {max_sequential[modality]} at trials {error_idx}"
+            assert len(error_idx) == 0, f"Found a sequence longer than {max_sequential[modality]} at trials {error_idx}"
 
 
 def test_observation_space(default_env: AnnubesEnv, custom_env: AnnubesEnv) -> None:
@@ -389,9 +381,7 @@ def test_step(request, env: str) -> None:
         env_test.step(0)
 
     # Test stimulus period
-    _, reward, terminated, truncated, _ = env_test.step(
-        env_test.gt_now
-    )  # Correct choice
+    _, reward, terminated, truncated, _ = env_test.step(env_test.gt_now)  # Correct choice
     assert not terminated
     assert not truncated
     assert reward == env_test.rewards["correct"]
@@ -419,22 +409,16 @@ def test_initial_state_and_first_reset(default_env: AnnubesEnv) -> None:
     """
     # Check initial state
     assert default_env.t == 0, f"t={default_env.t}, should be 0 initially"
-    assert (
-        default_env.num_tr == 0
-    ), f"num_tr={default_env.num_tr}, should be 0 initially"
+    assert default_env.num_tr == 0, f"num_tr={default_env.num_tr}, should be 0 initially"
 
     # Check state after first reset
     ob, _ = default_env.reset()
-    assert (
-        default_env.t == 100
-    ), f"default_env={default_env.t}, should be 100 after first reset"
-    assert (
-        default_env.num_tr == 1
-    ), f"num_tr={default_env.num_tr}, should be 1 after first reset"
+    assert default_env.t == 100, f"default_env={default_env.t}, should be 100 after first reset"
+    assert default_env.num_tr == 1, f"num_tr={default_env.num_tr}, should be 1 after first reset"
     assert isinstance(default_env.trial, dict)
-    assert (
-        ob.shape == default_env.observation_space.shape
-    ), f"observation_space.shape={default_env.observation_space.shape}, should match the observation space"
+    assert ob.shape == default_env.observation_space.shape, (
+        f"observation_space.shape={default_env.observation_space.shape}, should match the observation space"
+    )
 
 
 def test_random_seed_reproducibility() -> None:
