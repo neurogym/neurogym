@@ -7,220 +7,6 @@ from neurogym.utils import spaces
 
 
 class AnnubesEnv(TrialEnv):
-    """General class for the Annubes type of tasks.
-
-    TODO: Move everything below to __init__.
-
-    Args:
-        session: Configuration dictionary for the types of trials that can appear during a session.
-            The keys are modalities or combinations thereof, and the values are the probabilities of
-            those appearing in a trial.
-            NOTE: Probabilities are interpreted as being relative to each other.
-            For instance, `{"v": 0.25, "a": 0.75}` means that `a` would occur three times as often as `v`,
-            which is the same as setting the session to `{"v": 1, "a": 3}`.
-            Furthermore, the probability of a catch trial is given separately (cf. `catch_prob` below).
-            For instance, if the catch probability is `0.5`, the probabilities will be used only
-            in the remaining (`1 - catch_prob`) of the trials.
-            If the session is `None` or an empty dictionary, it defaults to `{"v": 0.5, "a": 0.5}`.
-        catch_prob: Probability of catch trials in the session. Must be between 0 and 1 (inclusive).
-        intensities: A dictionary mapping each modality to a list of its possible intensity values.
-            NOTE: If the modality is not present during a trial, its intensity is set to 0.
-        stim_time: Duration of each stimulus in ms.
-        max_sequential: Maximum number of sequential trials of the same stimulus type.
-            By default, it applies only to the stimulus types defined in `session`, i.e.,
-            it does not apply to catch trials. You can use `None` as a key in the `max_sequential`
-            to set an explicit limit for sequential catch trials.
-        fix_intensity: Intensity of input signal during fixation.
-        fix_time: Fixation time specification. Can be one of the following:
-            - A number (int or float): Fixed duration in milliseconds.
-            - A callable: Function that returns the duration when called.
-            - A list of numbers: Random choice from the list.
-            - A tuple specifying a distribution:
-                - ("uniform", (min, max)): Uniform distribution between min and max.
-                - ("choice", [options]): Random choice from the given options.
-                - ("truncated_exponential", [parameters]): Truncated exponential distribution.
-                - ("constant", value): Always returns the given value.
-                - ("until", end_time): Sets duration to reach the specified end time.
-            The final duration is rounded down to the nearest multiple of the simulation timestep (dt).
-            Note that the duration of each input and output signal is increased by this time.
-        iti: Inter-trial interval, or time window between sequential trials, in ms. Same format as `fix_time`.
-        dt: Time step in ms.
-        tau: Time constant in ms.
-        output_behavior: List of possible intensity values of the behavioral output.
-            Currently only the smallest and largest value of this list are used.
-        noise_std: Standard deviation of the input noise.
-        rewards: Dictionary of rewards for different outcomes. The keys are "abort", "correct", and "fail".
-        random_seed: Seed for numpy's random number generator (rng).
-            If an int is given, it will be used as the seed for `np.random.default_rng()`.
-
-    Raises:
-        ValueError: Raised if not all modalities have assigned intensities.
-    """
-
-    @staticmethod
-    def _check_max_sequential_conflict(
-        session: dict,
-        modalities: set,
-        catch_prob: float,
-        max_sequential: dict | int | None,
-        prepare: bool = False,
-    ) -> bool:
-        """Check the satisfiability of the the max_sequential condition.
-
-        An example of a scenario where that could be a problem is if the catch probability
-        is 0 and one or more modalities are supposed to appear 100% of the time,
-        but at the same time max_sequential imposes a limit on how many times
-        that stimulus can be presented.
-
-        Args:
-            session: A session dictionary with stimulus types.
-            modalities: A tuple of modalities extracted from the session.
-            catch_prob: The catch probability.
-            max_sequential: An optional dictionary or integer specifying the
-                number of consecutive stimulus presentations.
-            prepare: Prepare the max_sequential dictionary first.
-                This can be useful if the caller is a test function.
-
-        Raises:
-            ValueError: Raised if the max_sequential condition is not satisfiable.
-
-        Returns:
-            An indication of whether the max_sequential condition can be satisfied.
-        """
-        if prepare:
-            # Get the properly formatted max_sequential dictionary.
-            max_sequential = AnnubesEnv.prepare_max_sequential(
-                session, modalities, catch_prob, max_sequential, check=False
-            )
-
-        rtol = float(10 * np.finfo(float).eps)
-        atol = float(10 * np.finfo(float).eps)
-
-        if not np.isclose(catch_prob, 0.0, rtol, atol):
-            return False
-
-        mod_probs = dict.fromkeys(modalities, 0.0)
-        for stim, prob in session.items():
-            if not isinstance(stim, tuple):
-                stim = (stim,)  # noqa: PLW2901
-            for modality in stim:
-                mod_probs[modality] += prob
-
-        return any(max_sequential[k] is not None and np.isclose(v, 1.0, rtol, atol) for k, v in mod_probs.items())  # type: ignore[index]
-
-    @staticmethod
-    def prepare_session(
-        session: dict[str | tuple[str, ...], float] | None,
-    ) -> tuple[dict[str | tuple[str, ...], float], set[str]]:
-        """Validate the session keys, extract modalities and nsure that all probabilities are sane.
-
-        NOTE: This is a static method because it's also used by the AnnubesEnv tests.
-
-        Args:
-            session: The requested modalities (and combinations thereof) with their probabilities.
-
-        Raises:
-            AttributeError: Raised if the session is not a dictionary.
-            AttributeError: Raised if the session dictionary is empty.
-            ValueError: Raised if there are negative probabilities.
-            ValueError: Raised if all probabilities specified in the session are 0.
-
-        Returns:
-            The validated session dictionary and the set of elementary modalities.
-        """
-        # Run some common sense checks on the session dictionary.
-        if not isinstance(session, dict):
-            msg = "The session must be a dictionary."
-            raise TypeError(msg)
-
-        if any(s < 0.0 for s in session.values()):
-            msg = "Please ensure that all probabilities are non-negative."
-            raise ValueError(msg)
-
-        # Sum of all the probabilities in the session dictionary.
-        # This will be used to normalise the values.
-        probability_sum = sum(session.values())
-
-        # Ensure that at least one probability is nonzero.
-        if probability_sum < np.finfo(float).eps:
-            msg = "Please ensure that at least one modality has a non-zero probability."
-            raise ValueError(msg)
-
-        # Validate the entries and extract the modalities.
-        valid_session: dict = {}
-        modalities = set()
-        for stim, prob in session.items():
-            if stim is None or isinstance(stim, str):
-                modalities.add(stim)
-
-            elif isinstance(stim, tuple):
-                for element in stim:
-                    if not (element is None or isinstance(element, str)):
-                        msg = f"Invalid modality: {element}."
-                        raise TypeError(msg)
-                    modalities.add(element)
-
-                    # Add missing modalities with probability 0 to the session.
-                    # TODO: This might not be necessary in general, but at present
-                    # the plotting function breaks if a modality is defined *only*
-                    # as part of a multi-modal stimulus and does not exist as a key
-                    # in the session dictionary.
-                    valid_session.setdefault(element, 0.0)
-
-                # Sort the key for multimodal stimuli (facilitates testing).
-                stim = tuple(sorted(stim))  # noqa: PLW2901
-
-            else:
-                msg = f"Invalid session entry: {stim}."
-                raise TypeError(msg)
-
-            valid_session[stim] = prob / probability_sum
-
-        return (valid_session, modalities)
-
-    @staticmethod
-    def prepare_max_sequential(
-        session: dict,
-        modalities: set,
-        catch_prob: float,
-        max_sequential: dict | int | None,
-        check: bool = True,
-    ) -> dict[str | None, int | None]:
-        """Process and assign the respective max_sequential limits to each modality.
-
-        Args:
-            session: A session dictionary.
-            modalities: A list of modalities extracted from the session dictionary.
-            catch_prob: The catch probability.
-            max_sequential: An optional dictionary or integer specifying the
-                number of consecutive stimulus presentations.
-            check: Check if the constraints imposed by max_sequential are actually feasible.
-
-        Raises:
-            ValueError: Raised if the max_sequential condition is not satisfiable.
-
-        Returns:
-            A dictionary specifying the number of consecutive stimulus presentations.
-        """
-        # Now populate max_sequential, including for catch trials ('None' key)
-        default_max_sequential = max_sequential if isinstance(max_sequential, int) else None
-        _max_sequential: dict = {}
-        for modality in modalities:
-            _max_sequential.setdefault(modality, default_max_sequential)
-        if isinstance(max_sequential, dict):
-            # Only set the max_sequential for catch trials if it is
-            # explicitly set in the max_sequential dictionary.
-            _max_sequential[None] = max_sequential.get(None, default_max_sequential)
-        else:
-            _max_sequential[None] = None
-        max_sequential = _max_sequential
-
-        if check and AnnubesEnv._check_max_sequential_conflict(session, modalities, catch_prob, max_sequential):
-            msg = "Invalid settings: max_sequential imposes a limit on a modality that should appear in every trial."
-            raise ValueError(msg)
-
-        return max_sequential
-
     def __init__(
         self,
         session: dict[str | tuple[str, ...], float],
@@ -238,6 +24,55 @@ class AnnubesEnv(TrialEnv):
         rewards: dict[str, float] | None = None,
         random_seed: int | None = None,
     ):
+        """General class for the Annubes type of tasks.
+
+        Args:
+            session: Configuration dictionary for the types of trials that can appear during a session.
+                The keys are modalities or combinations thereof, and the values are the probabilities of
+                those appearing in a trial.
+                NOTE: Probabilities are interpreted as being relative to each other.
+                For instance, `{"v": 0.25, "a": 0.75}` means that `a` would occur three times as often as `v`,
+                which is the same as setting the session to `{"v": 1, "a": 3}`.
+                Furthermore, the probability of a catch trial is given separately (cf. `catch_prob` below).
+                For instance, if the catch probability is `0.5`, the probabilities will be used only
+                in the remaining (`1 - catch_prob`) of the trials.
+                If the session is `None` or an empty dictionary, it defaults to `{"v": 0.5, "a": 0.5}`.
+            catch_prob: Probability of catch trials in the session. Must be between 0 and 1 (inclusive).
+            intensities: A dictionary mapping each modality to a list of its possible intensity values.
+                NOTE: If the modality is not present during a trial, its intensity is set to 0.
+            stim_time: Duration of each stimulus in ms.
+            max_sequential: Maximum number of sequential trials of the same stimulus type.
+                By default, it applies only to the stimulus types defined in `session`, i.e.,
+                it does not apply to catch trials. You can use `None` as a key in the `max_sequential`
+                to set an explicit limit for sequential catch trials.
+            fix_intensity: Intensity of input signal during fixation.
+            fix_time: Fixation time specification. Can be one of the following:
+                - A number (int or float): Fixed duration in milliseconds.
+                - A callable: Function that returns the duration when called.
+                - A list of numbers: Random choice from the list.
+                - A tuple specifying a distribution:
+                    - ("uniform", (min, max)): Uniform distribution between min and max.
+                    - ("choice", [options]): Random choice from the given options.
+                    - ("truncated_exponential", [parameters]): Truncated exponential distribution.
+                    - ("constant", value): Always returns the given value.
+                    - ("until", end_time): Sets duration to reach the specified end time.
+                The final duration is rounded down to the nearest multiple of the simulation timestep (dt).
+                Note that the duration of each input and output signal is increased by this time.
+            iti: Inter-trial interval, or time window between sequential trials, in ms. Same format as `fix_time`.
+            dt: Time step in ms.
+            tau: Time constant in ms.
+            output_behavior: List of possible intensity values of the behavioral output.
+                Currently only the smallest and largest value of this list are used.
+            noise_std: Standard deviation of the input noise.
+            rewards: Dictionary of rewards for different outcomes. The keys are "abort", "correct", and "fail".
+            random_seed: Seed for numpy's random number generator (rng).
+                If an int is given, it will be used as the seed for `np.random.default_rng()`.
+
+        Raises:
+            ValueError: Raised if not all modalities have assigned intensities.
+            ValueError: Raised if the conditions imposed by max_sequential are not satisfiable.
+
+        """
         # Validate the session and extract individual modalities.
         (session, modalities) = AnnubesEnv.prepare_session(session)
 
@@ -256,7 +91,10 @@ class AnnubesEnv(TrialEnv):
 
         # Ensure that the max_sequential dictionary is
         # populated with values that make sense.
-        max_sequential = AnnubesEnv.prepare_max_sequential(session, modalities, catch_prob, max_sequential)
+        max_sequential = AnnubesEnv.prepare_max_sequential(modalities, max_sequential)
+        if not AnnubesEnv._is_max_sequential_valid(session, modalities, catch_prob, max_sequential):
+            msg = "Invalid settings: max_sequential imposes a limit on a modality that should appear in every trial."
+            raise ValueError(msg)
 
         super().__init__(dt=dt)
         self.session = session
@@ -470,3 +308,150 @@ class AnnubesEnv(TrialEnv):
             self.trial = {}
 
         return self.ob_now, reward, terminated, truncated, info
+
+    @staticmethod
+    def prepare_session(
+        session: dict[str | tuple[str, ...], float] | None,
+    ) -> tuple[dict[str | tuple[str, ...], float], set[str]]:
+        """Validate the session keys, extract modalities and ensure that all probabilities are sane.
+
+        Args:
+            session: The requested modalities (and combinations thereof) with their probabilities.
+
+        Raises:
+            AttributeError: Raised if the session is not a dictionary.
+            AttributeError: Raised if the session dictionary is empty.
+            ValueError: Raised if there are negative probabilities.
+            ValueError: Raised if all probabilities specified in the session are 0.
+
+        Returns:
+            The validated session dictionary and the set of modalities.
+        """
+        # Run some common sense checks on the session dictionary.
+        if not isinstance(session, dict):
+            msg = "The session must be a dictionary."
+            raise TypeError(msg)
+
+        if any(s < 0.0 for s in session.values()):
+            msg = "Please ensure that all probabilities are non-negative."
+            raise ValueError(msg)
+
+        # Sum of all the probabilities in the session dictionary.
+        # This will be used to normalise the values.
+        probability_sum = sum(session.values())
+
+        # Ensure that at least one probability is nonzero.
+        if probability_sum < np.finfo(float).eps:
+            msg = "Please ensure that at least one modality has a non-zero probability."
+            raise ValueError(msg)
+
+        # Validate the entries and extract the modalities.
+        valid_session: dict = {}
+        modalities = set()
+        for stim, prob in session.items():
+            if stim is None or isinstance(stim, str):
+                modalities.add(stim)
+
+            elif isinstance(stim, tuple):
+                for modality in stim:
+                    if not (modality is None or isinstance(modality, str)):
+                        msg = f"Invalid modality type: {type(modality)}."
+                        raise TypeError(msg)
+                    modalities.add(modality)
+
+                    # Add missing modalities with probability 0 to the session.
+                    # TODO: This might not be necessary in general, but at present
+                    # the plotting function breaks if a modality is defined *only*
+                    # as part of a multi-modal stimulus and does not exist as a key
+                    # in the session dictionary.
+                    valid_session.setdefault(modality, 0.0)
+
+                # Sort the key for multimodal stimuli (facilitates testing).
+                stim = tuple(sorted(stim))  # noqa: PLW2901
+
+            else:
+                msg = f"Invalid session entry: {stim}."
+                raise TypeError(msg)
+
+            valid_session[stim] = prob / probability_sum
+
+        return (valid_session, modalities)
+
+    @staticmethod
+    def prepare_max_sequential(
+        modalities: set,
+        max_sequential: dict | int | None,
+    ) -> dict[str | None, int | None]:
+        """Process and assign the respective max_sequential limits to each modality.
+
+        - None as a *key* indicates catch trials.
+        - None as a *value* means no limit for that key (including catch trials).
+
+        Args:
+            modalities: A list of modalities extracted from the session dictionary.
+            max_sequential: An optional dictionary or integer specifying the
+                number of consecutive stimulus presentations.
+
+        Returns:
+            A dictionary specifying the number of consecutive stimulus presentations.
+        """
+        if isinstance(max_sequential, dict):
+            # Ensure that all the modalities are present in the dictionary.
+            # The default value is None, which means no limit.
+            for mod in modalities:
+                max_sequential.setdefault(mod, None)
+        else:
+            # If max_sequential is not a dictionary, use it as the default value
+            # for a dictionary based on all modalities as keys.
+            max_sequential = dict.fromkeys(modalities, max_sequential)
+
+        # Set a limit on max_sequential for catch trials only if it is
+        # explicitly set in the max_sequential dictionary from the outset.
+        max_sequential[None] = max_sequential.get(None)
+
+        return max_sequential
+
+    @staticmethod
+    def _is_max_sequential_valid(
+        session: dict,
+        modalities: set,
+        catch_prob: float,
+        max_sequential: dict,
+    ) -> bool:
+        """Check the satisfiability of the conditions imposed by max_sequential.
+
+        An example of an invalid max_sequential is if all of the following are true:
+            - `catch_prob` is 0, so there are no catch trials.
+            - The `session` dictionary contains one or more modalities that have a probability of 1,
+                meaning that they should appear in every trial.
+            - `max_sequential` limits how many times those modalities can be presented sequentially.
+
+        Args:
+            session: A session dictionary with stimulus types.
+            modalities: A tuple of modalities extracted from the session.
+            catch_prob: The catch probability.
+            max_sequential: A dictionary specifying the number of consecutive stimulus presentations.
+
+        Returns:
+            An indication of whether the conditions imposed by max_sequential are satisfiable.
+        """
+        rtol = float(10 * np.finfo(float).eps)
+        atol = rtol
+
+        if not np.isclose(catch_prob, 0.0, rtol, atol):
+            return True
+
+        # We know that catch_prob is effectively 0,
+        # so we also check the probabilities of each modality.
+        mod_probs = dict.fromkeys(modalities, 0.0)
+        for stim, prob in session.items():
+            if not isinstance(stim, tuple):
+                stim = (stim,)  # noqa: PLW2901
+            for modality in stim:
+                mod_probs[modality] += prob
+
+        for mod, prob in mod_probs.items():
+            if max_sequential[mod] is not None and np.isclose(prob, 1.0, rtol, atol):
+                return False
+
+        return True
