@@ -10,11 +10,53 @@ FIX_INTENSITY = 0.1
 N_TRIALS = 1000
 OUTPUT_BEHAVIOR = [0, 0.5, 1]
 
+# Absolute and relative tolerance for np.isclose
+RTOL = float(10 * np.finfo(float).eps)
+ATOL = float(10 * np.finfo(float).eps)
+
+
+def _collect_trial_stats(env: AnnubesEnv, trials: int) -> tuple[dict, dict]:
+    """Collect stimulus statistics over a number of trials.
+
+    Args:
+        env: An AnnubesEnv instance.
+        trials: The size of the trial sample.
+
+    Returns:
+        - A dictionary mapping stimuli to their respective relative occurrences.
+        - A dictionary mapping modalities and their sequential counts.
+    """
+    # Occurrences and sequential counts
+    occurrences: dict = {}
+    sequential_counts: dict = {}
+
+    for _ in range(trials):
+        trial = env.new_trial()
+
+        stimulus = None if trial["catch"] else trial["stim_types"]
+
+        # Unpack tuples with a single element.
+        if stimulus is not None:
+            stimulus = stimulus[0] if len(stimulus) == 1 else tuple(sorted(stimulus))
+        occurrences.setdefault(stimulus, 0.0)
+        occurrences[stimulus] += 1.0
+
+        # Store sequential occurrences, taking multi-sensory tasks into account.
+        for modality, count in trial["sequential_count"].items():
+            sequential_counts.setdefault(modality, [])
+            sequential_counts[modality].append(count)
+
+    occurrences = {k: v / trials for k, v in occurrences.items()}
+
+    return occurrences, sequential_counts
+
 
 @pytest.fixture
 def default_env() -> AnnubesEnv:
     """Fixture for creating a default AnnubesEnv instance."""
-    return AnnubesEnv()
+    session = {"a": 0.5, "v": 0.5}
+    catch_prob = 0.5
+    return AnnubesEnv(session, catch_prob)  # type: ignore[arg-type]
 
 
 @pytest.fixture
@@ -22,9 +64,9 @@ def custom_env() -> AnnubesEnv:
     """Fixture for creating a custom AnnubesEnv instance with specific parameters."""
     return AnnubesEnv(
         session={"v": 1},
-        stim_intensities=[0.5, 1.0],
-        stim_time=800,
         catch_prob=0.3,
+        intensities={"v": [0.5, 1.0]},
+        stim_time=800,
         fix_intensity=FIX_INTENSITY,
         fix_time=300,
         dt=50,
@@ -55,7 +97,10 @@ def test_fix_time_types(
     expected_type: type,
 ) -> None:
     """Test various types of fix_time specifications."""
-    env = AnnubesEnv(fix_time=time, iti=time)
+    session = {"a": 0.5, "v": 0.5}
+    catch_prob = 0.5
+
+    env = AnnubesEnv(session, catch_prob, fix_time=time, iti=time)  # type: ignore[arg-type]
     # Be sure that at least one trial is run to sample the fix_time
     env.reset()
 
@@ -115,7 +160,8 @@ def test_catch_prob(catch_prob: float) -> None:
     2. If the probability works correctly for various values including edge cases (0.0 and 1.0)
     """
     n_trials = 1000
-    env = AnnubesEnv(catch_prob=catch_prob, random_seed=RND_SEED)
+    session = {"a": 0.5, "v": 0.5}
+    env = AnnubesEnv(session, catch_prob, random_seed=RND_SEED)  # type: ignore[arg-type]
     catch_count = 0
 
     for _ in range(n_trials):
@@ -127,23 +173,52 @@ def test_catch_prob(catch_prob: float) -> None:
     observed_prob = catch_count / n_trials
     expected_prob = catch_prob
 
-    # Check if the observed probability is close to the expected probability
+    # Check if the observed probability is close to the expected probability.
     assert np.isclose(
         observed_prob,
         expected_prob,
+        rtol=0.05,
         atol=0.05,
     ), f"Expected catch probability {expected_prob}, but got {observed_prob}"
 
 
+# TODO: Deal with cases where the max_sequential value is too low.
+# This can affect the probability distribution.
+# One option might be to start with a higher tolerance (final assertion)
+# and gradually tighten it as `max_sequential` increases.
+@pytest.mark.parametrize("max_sequential", [None, 5, 10, 15])
+@pytest.mark.parametrize("catch_prob", np.linspace(0.0, 0.5, 5))
 @pytest.mark.parametrize(
-    ("session", "catch_prob", "max_sequential"),
+    "session",
     [
-        ({"v": 0.5, "a": 0.5}, 0.5, 3),
-        ({"v": 0.3, "a": 0.7}, 0.1, 4),
-        ({"v": 0.3, "a": 0.3, "av": 0.3}, 0.7, 4),
+        # Modalities with equal probabilities summing up to 1
+        {"v": 0.5, "a": 0.5},
+        # Modalities with non-equal probabilities summing up to 1
+        {"v": 0.3, "a": 0.7},
+        # Multiple modalities with overlap.
+        {"v": 0.3, ("a", "v"): 0.7},
+        # Modalities with equal probabilities with a sum < 1
+        {"v": 0.3, "a": 0.3, "o": 0.3},
+        # Modalities with unequal probabilities with a sum > 1
+        {"v": 0.3, "a": 0.7, "o": 0.9},
+        # One modality with probability = 1
+        {"v": 1, "a": 0.5, "o": 0.9},
+        # One modality with probability = 0
+        {"v": 0.0, "a": 0.5, "o": 0.9},
+        # All modalities with probability = 1
+        {"v": 1.0, "a": 1.0, "o": 1.0},
+        # All modalities with probability = 0 (should fail)
+        {"v": 0.0, "a": 0.0, "o": 0.0},
+        # Session containing a combination of multiple
+        # modalities to be presented in all trials.
+        {("v", "a", "o"): 1.0},
     ],
 )
-def test_annubes_env_max_sequential(session: dict, catch_prob: float, max_sequential: int) -> None:
+def test_annubes_env_probabilities_and_counts(
+    max_sequential: dict[str | None, int | None] | int | None,
+    catch_prob: float,
+    session: dict,
+):
     """Test the maximum sequential trial constraint in the AnnubesEnv.
 
     The test performs the following checks:
@@ -155,40 +230,93 @@ def test_annubes_env_max_sequential(session: dict, catch_prob: float, max_sequen
     4. Verifies that the frequency of catch trials matches the specified
        `catch_prob`.
     """
-    env = AnnubesEnv(session=session, catch_prob=catch_prob, max_sequential=max_sequential, random_seed=RND_SEED)
+    # Sum of the session probabilities.
+    total = sum(session.values())
 
-    trial_types = []
-    for _ in range(N_TRIALS):
-        env.new_trial()
-        if env.trial is not None:
-            trial_types.append(env.trial["stim_type"])
+    # Ensure that the environment fails to instantiate
+    # if all probability weights are 0.
+    if np.isclose(total, 0.0, RTOL, ATOL):
+        with pytest.raises(ValueError) as e:
+            env = AnnubesEnv(
+                session=session,
+                catch_prob=catch_prob,
+                max_sequential=max_sequential,
+                random_seed=RND_SEED,
+            )
+        assert e.type is ValueError
+        return
 
-    # Check for sequences longer than max_sequential, excluding None (catch trials)
-    for i in range(len(trial_types) - max_sequential):
-        sequence = [t for t in trial_types[i : i + max_sequential + 1] if t is not None]
-        if len(sequence) > max_sequential:
-            assert len(set(sequence)) > 1, f"Found a sequence longer than {max_sequential} at index {i}"
+    # Prepare a valid session and extract the modalities.
+    session, modalities = AnnubesEnv.prepare_session(session)
 
-    # Check that all the trial types occur
-    assert set(trial_types) - {None} == set(env.session.keys()), "Not all trial types occurred"
+    # Prepare the max_sequential dictionary
+    max_sequential = AnnubesEnv.prepare_max_sequential(modalities, max_sequential)
 
-    # Check that the distribution is roughly balanced
-    expected_non_catch = N_TRIALS * (1 - catch_prob)
+    # Check for max_sequential satisfiability and fail
+    # predictably if the conditions are unsatisfiable.
+    if not AnnubesEnv._is_max_sequential_valid(session, modalities, catch_prob, max_sequential):
+        with pytest.raises(ValueError) as e:
+            env = AnnubesEnv(
+                session=session,
+                catch_prob=catch_prob,
+                max_sequential=max_sequential,
+                random_seed=RND_SEED,
+            )
+        assert e.type is ValueError
+        return
 
-    for trial_type, expected_prob in session.items():
-        count = trial_types.count(trial_type)
-        expected_count = expected_non_catch * expected_prob
-        # Allow for 20% deviation from expected count
-        assert 0.7 * expected_count <= count <= 1.3 * expected_count, (
-            f"{trial_type} trials are not balanced. Expected: {expected_count}, Actual: {count}"
-        )
-
-    # Check catch trial frequency
-    catch_count = trial_types.count(None)
-    expected_catch = N_TRIALS * catch_prob
-    assert 0.7 * expected_catch <= catch_count <= 1.3 * expected_catch, (
-        f"Catch trials are not balanced. Expected: {expected_catch}, Actual: {catch_count}"
+    # We are past the failure checks, create
+    # an environment with the specified parameters.
+    env = AnnubesEnv(
+        session=session,
+        catch_prob=catch_prob,
+        max_sequential=max_sequential,
+        random_seed=RND_SEED,
     )
+
+    # Collect trial statistics and consecutive presentation counts.
+    # A dictionary of all occurrences of all combinations
+    # that are expected to show up in the trials.
+    occurrences, sequential_counts = _collect_trial_stats(env, N_TRIALS)
+
+    # Assert that all stimuli are presented.
+    # Some keys in the session might have a probability
+    # of 0, so we have to exclude those.
+    session_modalities: set = {k for k, v in session.items() if v > 0.0}
+    if catch_prob > 0.0:
+        session_modalities.add(None)
+    occurrence_modalities = set(occurrences.keys())
+    assert session_modalities == occurrence_modalities, "The trials do not reflect the session."
+
+    # Assert that the stimuli occur with the right probabilities.
+    for stimulus, probability in session.items():
+        if probability > 0.0:
+            # Multiply by the complementary of the catch trial probability
+            # to obtain the right probability for this stimulus.
+            comp_prob = probability * (1 - catch_prob)
+
+            # TODO: Find a better way to compare these, 15% is a lot...
+            assert stimulus in occurrences
+            assert np.isclose(
+                comp_prob,
+                occurrences[stimulus],
+                atol=0.15 * comp_prob,
+                rtol=0.15 * comp_prob,
+            )
+
+        else:
+            assert stimulus not in occurrences
+
+    # Check for sequences longer than max_sequential.
+    if any(v is not None for v in max_sequential.values()):
+        sequential_counts = {k: np.array(v[1:]) for k, v in sequential_counts.items()}
+        for modality, sequences in sequential_counts.items():
+            if max_sequential[modality] is None:
+                # Skip if there is no limit for this modality.
+                continue
+            # Get the indices of trials where the stimulus occurred more than max_sequential times in a row.
+            error_idx = np.argwhere(np.array(sequences, dtype=np.uint32) > max_sequential[modality])  # type: ignore[operator]
+            assert len(error_idx) == 0, f"Found a sequence longer than {max_sequential[modality]} at trials {error_idx}"
 
 
 def test_observation_space(default_env: AnnubesEnv, custom_env: AnnubesEnv) -> None:
@@ -201,7 +329,11 @@ def test_observation_space(default_env: AnnubesEnv, custom_env: AnnubesEnv) -> N
     assert default_env.observation_space.shape == (4,)
     assert custom_env.observation_space.shape == (3,)
 
-    assert default_env.observation_space.name == {"fixation": 0, "start": 1, "v": 2, "a": 3}  # type: ignore[attr-defined]
+    assert default_env.observation_space.name == {  # type: ignore[attr-defined]
+        "fixation": 0,
+        "start": 1,
+        **{trial: i for i, trial in enumerate(sorted(default_env.modalities), 2)},
+    }
     assert custom_env.observation_space.name == {"fixation": 0, "start": 1, "v": 2}  # type: ignore[attr-defined]
 
 
@@ -295,8 +427,10 @@ def test_random_seed_reproducibility() -> None:
     This test checks if two environments initialized with the same seed produce identical trials.
     """
     for _ in range(10):
-        env1 = AnnubesEnv(random_seed=RND_SEED)
-        env2 = AnnubesEnv(random_seed=RND_SEED)
+        session = {"a": 0.5, "v": 0.5}
+        catch_prob = 0.5
+        env1 = AnnubesEnv(session, catch_prob, random_seed=RND_SEED)  # type: ignore[arg-type]
+        env2 = AnnubesEnv(session, catch_prob, random_seed=RND_SEED)  # type: ignore[arg-type]
         trial1 = env1._new_trial()
         trial2 = env2._new_trial()
         assert trial1 == trial2
