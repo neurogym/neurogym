@@ -1,101 +1,99 @@
 """Formatting information about envs and wrappers."""
 
-import inspect
+import gymnasium as gym
 
-import neurogym as ngym
 from neurogym.core import METADATA_DEF_KEYS, env_string
-from neurogym.envs.registration import ALL_ENVS, all_envs
+from neurogym.envs.registration import ALL_ENVS, all_envs, all_tags, make
 from neurogym.utils.logging import logger
-from neurogym.wrappers import ALL_WRAPPERS
+from neurogym.wrappers import ALL_WRAPPERS, all_wrappers
 
 
-def all_tasks() -> None:
-    for task in sorted(ALL_ENVS):
+def show_all_tasks(tag: str | None = None) -> None:
+    """Show all available tasks in neurogym.
+
+    Args:
+        tag: If provided, only show tasks with this tag.
+    """
+    if not tag:
+        logger.info("Available tasks:", color="green")
+    else:
+        logger.info(f"Available tasks with tag '{tag}':", color="green")
+
+    for task in all_envs(tag=tag):
         logger.info(task)
 
 
-def all_wrappers() -> None:
-    for wrapper in sorted(ALL_WRAPPERS):
+def show_all_wrappers() -> None:
+    """Show all available wrappers in neurogym."""
+    logger.info("Available wrappers:", color="green")
+    for wrapper in all_wrappers():
         logger.info(wrapper)
 
 
-def info(env=None, show_code=False):
-    """Script to get envs info."""
-    string = ""
-    env_name = env
-    env = ngym.make(env)
-    # remove extra wrappers (make can add a OrderEnforcer wrapper)
-    env = env.unwrapped
-    string = env_string(env)
-    # show source code
-    if show_code:
-        string += """\n#### Source code #### \n\n"""
-        env_ref = ALL_ENVS[env_name]
-        from_, class_ = env_ref.split(":")
-        imported = getattr(__import__(from_, fromlist=[class_]), class_)
-        lines = inspect.getsource(imported)
-        string += lines + "\n\n"
-    return string
+def show_all_tags():
+    """Show all available tags in neurogym."""
+    logger.info("Available tags:", color="green")
+    for tag in all_tags():
+        logger.info(tag)
 
 
-def info_wrapper(wrapper=None, show_code=False):
-    """Script to get wrappers info."""
-    string = ""
+def show_info(obj_: str | gym.Env) -> None:
+    """Show information about an environment or a wrapper.
+
+    Using the built-in logger.
+
+    Args:
+        obj_: the environment or wrapper to show information about.
+    """
+    if isinstance(obj_, str):
+        if obj_ in ALL_ENVS:
+            _env_info(env=make(obj_))
+        elif obj_ in ALL_WRAPPERS:
+            _wrap_info(obj_)
+        else:
+            msg = f"Unknown environment or wrapper: {obj_}"
+            raise ValueError(msg)
+
+    elif isinstance(obj_, gym.Env):
+        _env_info(obj_)
+
+    else:
+        msg = f"Expected a str or gym.Env, got {type(obj_)}"
+        raise TypeError(msg)
+
+
+def _env_info(env: gym.Env) -> None:
+    """Show information about an environment."""
+    env = env.unwrapped  # remove extra wrappers (make can add a OrderEnforcer wrapper)
+    logger.info("Info for environment:" + env_string(env)[3:])
+
+
+def _wrap_info(wrapper: str) -> None:
+    """Show information about a wrapper."""
+    logger.info(f"Info for wrapper: {wrapper}")
 
     wrapp_ref = ALL_WRAPPERS[wrapper]
     from_, class_ = wrapp_ref.split(":")
     imported = getattr(__import__(from_, fromlist=[class_]), class_)
     metadata = imported.metadata
-
     if not isinstance(metadata, dict):
         metadata = {}
 
-    string += f"### {wrapper}\n\n"
-    paper_name = metadata.get("paper_name", None)
-    paper_link = metadata.get("paper_link", None)
-    wrapper_description = metadata.get("description", None) or "Missing description"
-    string += f"Logic: {wrapper_description}\n\n"
+    wrapper_description = metadata.get("description") or "Missing description"
+    logger.info(f"Logic: {wrapper_description}")
+
+    paper_name = metadata.get("paper_name")
+    paper_link = metadata.get("paper_link")
     if paper_name is not None:
-        string += "Reference paper \n\n"
+        reference = "Reference paper: "
         if paper_link is None:
-            string += f"{paper_name}\n\n"
+            reference += f"{paper_name}"
         else:
-            string += f"[{paper_name}]({paper_link})\n\n"
-    # add extra info
+            reference += f"[{paper_name}]({paper_link})"
+        logger.info(reference)
+
     other_info = list(set(metadata.keys()) - set(METADATA_DEF_KEYS))
     if len(other_info) > 0:
-        string += "Input parameters: \n\n"
+        logger.info("Input parameters:")
         for key in other_info:
-            string += f"{key} : {metadata[key]}\n\n"
-
-    # show source code
-    if show_code:
-        string += """\n#### Source code #### \n\n"""
-        lines = inspect.getsource(imported)
-        string += lines + "\n\n"
-
-    return string
-
-
-def all_tags(verbose=0):
-    """Script to get all tags."""
-    envs = all_envs()
-    tags = []
-    for env_name in sorted(envs):
-        try:
-            env = ngym.make(env_name)
-            metadata = env.metadata
-            tags += metadata.get("tags", [])
-        except BaseException as e:  # noqa: BLE001, PERF203 # FIXME: unclear which error is expected here.
-            logger.error(f"Failure in {env_name}")
-            logger.error(e)
-    tags = set(tags)
-    if verbose:
-        logger.info("\nTAGS:\n")
-        for tag in tags:
-            logger.info(tag)
-    return tags
-
-
-if __name__ == "__main__":
-    all_tasks()
+            logger.info(f"{key} : {metadata[key]}")

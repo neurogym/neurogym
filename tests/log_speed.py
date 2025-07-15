@@ -3,10 +3,10 @@
 import time
 import warnings
 
-import gymnasium as gym
 import pytest
 
-import neurogym as ngym
+from neurogym.envs.registration import all_envs, make
+from neurogym.utils.data import Dataset
 from neurogym.utils.logging import logger
 
 
@@ -14,7 +14,7 @@ def speed(env, n_steps=100000, warmup_steps=10000):
     """Test speed of an environment."""
     if isinstance(env, str):
         kwargs = {"dt": 20}
-        env = gym.make(env, **kwargs)
+        env = make(env, **kwargs)
 
     env.reset()
     for _ in range(warmup_steps):
@@ -45,7 +45,7 @@ def test_speed_with_new_trial(env):
     kwargs = {"dt": 20}
 
     if isinstance(env, str):
-        env = gym.make(env, **kwargs)
+        env = make(env, **kwargs)
 
     env.reset()
     for _ in range(warmup_trials):
@@ -71,7 +71,7 @@ def test_speed_all():
         warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
         warnings.filterwarnings("ignore", message=".*method was expecting a numpy array*")
         warnings.filterwarnings("ignore", message=".*Casting input x to numpy array.*")
-        for env_name in sorted(ngym.all_envs()):
+        for env_name in sorted(all_envs()):
             logger.info(f"Running env: {env_name:s}")
             try:
                 speed(env_name)
@@ -85,7 +85,7 @@ def speed_dataset(env):
     batch_size = 16
     seq_len = 100
     kwargs = {}
-    dataset = ngym.Dataset(
+    dataset = Dataset(
         env,
         env_kwargs=kwargs,
         batch_size=batch_size,
@@ -111,7 +111,7 @@ def test_speed_dataset_all():
         warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
         warnings.filterwarnings("ignore", message=".*method was expecting a numpy array*")
         warnings.filterwarnings("ignore", message=".*Casting input x to numpy array.*")
-        for env_name in sorted(ngym.all_envs()):
+        for env_name in sorted(all_envs()):
             logger.info(f"Running env: {env_name:s}")
             try:
                 speed_dataset(env_name)
@@ -119,7 +119,3 @@ def test_speed_dataset_all():
             except BaseException as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
                 logger.error(f"Failure at running env: {env_name:s}")
                 logger.error(e)
-
-
-if __name__ == "__main__":
-    pass

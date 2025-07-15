@@ -2,7 +2,7 @@
 
 Table of Contents
 
-<!--> This table is automatically kept up to date using the "Markdown All in One" extension<!-->
+<!-- This table is automatically kept up to date using the "Markdown All in One" extension -->
 
 - [IDE Settings](#ide-settings)
 - [Package Setup](#package-setup)
@@ -22,6 +22,7 @@ Table of Contents
 - [Development Conventions](#development-conventions)
 - [Quality Control Workflows](#quality-control-workflows)
   - [Build](#build)
+    - [Build-minimal](#build-minimal)
   - [CFF Convert](#cff-convert)
   - [Docs Test](#docs-test)
   - [Hyperlinks](#hyperlinks)
@@ -252,6 +253,20 @@ We have set up a number of [workflows](.github/workflows) that automatically che
 ### [Build](.github/workflows/build.yml)
 
 This workflow tests whether the package can be built (i.e. pip installed) without errors.
+
+#### [Build-minimal](.github/workflows/build_minimal.yml)
+
+Checks that the package works without installing optional dependencies. If any optional dependency is needed throughout
+the code base or in any test, it should be conditionally imported, e.g. like this:
+
+```py
+try:
+    from stable_baselines3.common.vec_env import DummyVecEnv
+
+    _SB3_AVAILABLE = True
+except ImportError:
+    _SB3_AVAILABLE = False
+```
 
 ### [CFF Convert](.github/workflows/cffconvert.yml)
 

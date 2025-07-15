@@ -1,16 +1,26 @@
-from collections.abc import Callable
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import matplotlib.pyplot as plt
 import numpy as np
 from gymnasium import Wrapper
-from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
 
-import neurogym as ngym
+from neurogym import _SB3_INSTALLED
 from neurogym.config.base import LOCAL_DIR
+from neurogym.config.config import Config
+from neurogym.utils.functions import ensure_dir, iso_timestamp
 from neurogym.utils.logging import logger
-from neurogym.utils.plotting import fig_
+from neurogym.utils.plotting import visualize_run
+
+if _SB3_INSTALLED:
+    from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from neurogym.core import TrialEnv
 
 
 class Monitor(Wrapper):
@@ -55,8 +65,8 @@ class Monitor(Wrapper):
 
     def __init__(
         self,
-        env: ngym.TrialEnv,
-        config: ngym.Config | str | Path | None = None,
+        env: TrialEnv,
+        config: Config | str | Path | None = None,
         name: str | None = None,
         trigger: str = "trial",
         interval: int = 1000,
@@ -70,7 +80,7 @@ class Monitor(Wrapper):
         self.env = env
         self.step_fn = step_fn
 
-        cfg: ngym.Config
+        cfg: Config
         if config is None:
             config_dict = {
                 "env": {"name": env.unwrapped.__class__.__name__},
@@ -88,13 +98,13 @@ class Monitor(Wrapper):
                 },
                 "local_dir": LOCAL_DIR,
             }
-            cfg = ngym.Config.model_validate(config_dict)
+            cfg = Config.model_validate(config_dict)
         elif isinstance(config, (str, Path)):
-            cfg = ngym.Config(config_file=config)
+            cfg = Config(config_file=config)
         else:
             cfg = config  # type: ignore[arg-type]
 
-        self.config: ngym.Config = cfg
+        self.config: Config = cfg
 
         # Assign names for the environment and/or the monitor if they are empty
         if len(self.config.env.name) == 0:
@@ -112,8 +122,8 @@ class Monitor(Wrapper):
         self.num_tr = 0
 
         # Directory for saving plots
-        save_dir_name = f"{self.config.env.name}/{ngym.utils.iso_timestamp()}"
-        self.save_dir = ngym.utils.ensure_dir(self.config.local_dir / save_dir_name)
+        save_dir_name = f"{self.config.env.name}/{iso_timestamp()}"
+        self.save_dir = ensure_dir(self.config.local_dir / save_dir_name)
 
         # Figures
         if self.config.monitor.plot.create:
@@ -232,7 +242,7 @@ class Monitor(Wrapper):
             fname = self.save_dir / f"task_{self.num_tr:06d}.{self.config.monitor.plot.ext}"
             obs_mat = np.array(self.ob_mat)
             act_mat = np.array(self.act_mat)
-            fig_(
+            visualize_run(
                 ob=obs_mat,
                 actions=act_mat,
                 gt=self.gt_mat,
@@ -291,7 +301,7 @@ class Monitor(Wrapper):
         # Run trials
         while trial_count < num_trials:
             if model is not None:
-                if isinstance(model.policy, RecurrentActorCriticPolicy):
+                if _SB3_INSTALLED and isinstance(model.policy, RecurrentActorCriticPolicy):
                     action, states = model.predict(obs, state=states, episode_start=episode_starts, deterministic=True)
                 else:
                     action, _ = model.predict(obs, deterministic=True)

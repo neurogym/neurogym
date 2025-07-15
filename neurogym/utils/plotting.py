@@ -2,21 +2,19 @@
 
 from pathlib import Path
 
-import gymnasium as gym
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+from gymnasium import make  # using ngym.make would lead to circular import
 from matplotlib import animation
-from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
 
+from neurogym import _SB3_INSTALLED
+from neurogym.utils.decorators import suppress_during_pytest
 from neurogym.utils.logging import logger
 
-try:
+if _SB3_INSTALLED:
+    from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
     from stable_baselines3.common.vec_env import DummyVecEnv
-
-    _SB3_AVAILABLE = True
-except ImportError:
-    _SB3_AVAILABLE = False
 
 
 # TODO: This is changing user's plotting behavior for non-neurogym plots
@@ -25,6 +23,10 @@ mpl.rcParams["pdf.fonttype"] = 42
 mpl.rcParams["ps.fonttype"] = 42
 
 
+@suppress_during_pytest(
+    ValueError,
+    message="This may be due to a small sample size; please increase to get reasonable results.",
+)
 def plot_env(
     env,
     num_steps=200,
@@ -66,7 +68,7 @@ def plot_env(
     if ob_traces is None:
         ob_traces = []
     if isinstance(env, str):
-        env = gym.make(env)
+        env = make(env, disable_env_checker=True)
     if name is None:
         name = type(env).__name__
     data = run_env(
@@ -81,7 +83,7 @@ def plot_env(
     # Shift again for plotting (since steps are 1-based)
     trial_starts_axis = trial_starts_step_indices + 1
 
-    return fig_(
+    return visualize_run(
         data["ob"],
         data["actions"],
         gt=data["gt"],
@@ -109,11 +111,9 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     gt = []
     perf = []
     if isinstance(env, DummyVecEnv):
-        if not _SB3_AVAILABLE:
+        if not _SB3_INSTALLED:
             msg = "Stable-Baselines3 is not installed. Install it with 'pip install neurogym[rl]'."
-            raise ImportError(
-                msg,
-            )
+            raise ImportError(msg)
         ob = env.reset()
     else:
         ob, _ = env.reset()
@@ -132,7 +132,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     trial_count = 0
     for _ in range(int(num_steps)):
         if model is not None:
-            if isinstance(model.policy, RecurrentActorCriticPolicy):
+            if _SB3_INSTALLED and isinstance(model.policy, RecurrentActorCriticPolicy):
                 action, states = model.predict(ob, state=states, episode_start=episode_starts, deterministic=True)
             else:
                 action, _ = model.predict(ob, deterministic=True)
@@ -145,11 +145,9 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         else:
             action = env.action_space.sample()
         if isinstance(env, DummyVecEnv):
-            if not _SB3_AVAILABLE:
+            if not _SB3_INSTALLED:
                 msg = "Stable-Baselines3 is not installed. Install it with 'pip install neurogym[rl]'."
-                raise ImportError(
-                    msg,
-                )
+                raise ImportError(msg)
             ob, rew, terminated, info = env.step(action)
         else:
             ob, rew, terminated, _truncated, info = env.step(action)
@@ -210,8 +208,11 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     }
 
 
-# TODO: Change name, fig_ not a good name
-def fig_(
+@suppress_during_pytest(
+    ValueError,
+    message="This may be due to a small sample size; please increase to get reasonable results.",
+)
+def visualize_run(
     ob,
     actions,
     gt=None,
@@ -290,6 +291,10 @@ def _set_grid_style(ax):
     ax.set_axisbelow(True)
 
 
+@suppress_during_pytest(
+    ValueError,
+    message="This may be due to a small sample size; please increase to get reasonable results.",
+)
 def plot_env_1dbox(
     ob,
     actions,
@@ -523,6 +528,10 @@ def plot_env_1dbox(
     return f
 
 
+@suppress_during_pytest(
+    ValueError,
+    message="This may be due to a small sample size; please increase to get reasonable results.",
+)
 def plot_env_3dbox(ob, fname="", env=None) -> None:
     """Plot environment with 3-D Box observation space."""
     ob = ob.astype(np.uint8)  # TODO: Temporary

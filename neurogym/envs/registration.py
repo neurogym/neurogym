@@ -6,6 +6,7 @@ from pathlib import Path
 import gymnasium as gym
 
 from neurogym.envs.collections import get_collection
+from neurogym.utils.logging import logger
 
 _HAVE_PSYCHOPY = find_spec("psychopy") is not None  # check if psychopy is installed
 _INCLUDE_CONTRIB = False  # FIXME: these are currently not passing tests
@@ -117,28 +118,10 @@ def all_envs(
         env_tag = imported.metadata.get("tags", [])
         if tag in env_tag:
             new_env_list.append(env)
+    if not new_env_list:
+        logger.warning(f"No environments found with tag '{tag}'.")
+
     return new_env_list
-
-
-def all_tags():
-    return [
-        "confidence",
-        "context dependent",
-        "continuous action space",
-        "delayed response",
-        "go-no-go",
-        "motor",
-        "multidimensional action space",
-        "n-alternative",
-        "perceptual",
-        "reaction time",
-        "steps action space",
-        "supervised",
-        "timing",
-        "two-alternative",
-        "value-based",
-        "working memory",
-    ]
 
 
 def make(id_: str, **kwargs) -> gym.Env:
@@ -165,3 +148,14 @@ def register(id_: str, **kwargs) -> None:
 
 for env_id, entry_point in ALL_EXTENDED_ENVS.items():
     register(id_=env_id, entry_point=entry_point)
+
+
+def all_tags() -> list[str]:
+    """Discover and return all tags associated to any environment."""
+    envs = all_envs()
+    tags = []
+    for env_name in sorted(envs):
+        env = make(env_name)
+        metadata = env.metadata
+        tags += metadata.get("tags", [])
+    return list(set(tags))

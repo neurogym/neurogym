@@ -1,10 +1,10 @@
 import numpy as np
 
-import neurogym as ngym
-from neurogym import spaces
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 
 
-class EconomicDecisionMaking(ngym.TrialEnv):
+class EconomicDecisionMaking(TrialEnv):
     """Economic decision making task.
 
     A agent chooses between two options. Each option offers a certain amount of
@@ -123,7 +123,7 @@ class EconomicDecisionMaking(ngym.TrialEnv):
             r_a = n_a * self.R_A
             r_b = n_b * self.R_B
 
-            if juice1 == "A":
+            if juice1 == "a":
                 r1, r2 = r_a, r_b
             else:
                 r1, r2 = r_b, r_a
