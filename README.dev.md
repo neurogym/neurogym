@@ -320,10 +320,20 @@ This workflow checks that the [static typing](#static-typing) of the code base i
    - Note that you cannot release from `main` (the default shown) using the automated workflow. To release from `main`
      directly, you must [create the release manually](#manually-create-a-release).
 4. Visit [Actions](https://github.com/neurogym/neurogym/actions) tab to check whether everything went as expected.
-   - NOTE: there are two separate jobs in the workflow: "draft_release" and "tidy_workspace". The first creates the draft release on github, while the second merges changes into `dev` and closes the PR.
-     - If "draft_release" fails, then there are likely merge conflicts with `main` that need to be resolved first. No release draft is created and the "tidy_workspace" job does not run. Coversely, if this action is succesfull, then the release branch (including a version bump) have been merged into the remote `main` branch.
-     - If "draft_release" is succesfull but "tidy_workspace" fails, then there are likely merge conflicts with `dev` that are not conflicts with `main`. In this case, the draft release is created (and changes were merged into the remote `main`). Conflicts with `dev` need to be resolved with `dev` by the user.
-     - If both jobs succeed, then the draft release is created and the changes are merged into both remote `main` and `dev` without any problems and the associated PR is closed. Also, the release branch is deleted from the remote repository.
+   - NOTE: there are a few consecutive jobs in the workflow that can fail the release. If any of these fails, the
+     release workflow is aborted and the following steps are
+     - If `Check Requirements` fails, then there is something wrong with the branch you are trying to release from. This
+       is likely either because `main` was selected as a release branch, or because some of the PR checks did ont pass.
+       - If you want to release despite actions not passing, a [manual release](#manually-creating-a-release) is required.
+     - if `Check GitHub token validity` fails, then the token has expired. See [steps below](#updating-the-token) to update this.
+     - If `Create Draft GitHub Release` fails, then there are likely merge conflicts with `main` that need to be
+       resolved first. No release draft is created and the PR is not closed. Coversely, if this
+       action is succesfull, then the release branch (including a version bump) have been merged into the remote `main`
+       branch.
+     - If `Remove PR branch` fails (after Create Draft GitHub Release is successful), then there are likely merge
+       conflicts with `dev` that are not conflicts with `main`. In this case, the draft release is created (and changes
+       were merged into the remote `main`) but the PR is noy closed. Conflicts with `dev` need to be resolved with `dev` by the user.
+     - If all jobs succeed, then the draft release is created and the changes are merged into both remote `main` and `dev` without any problems and the associated PR is closed. Also, the release branch is deleted from the remote repository.
 5. Navigate to the [Releases](https://github.com/neurogym/neurogym/releases) tab and click on the newest draft
    release that was just generated.
 6. Click on the edit (pencil) icon on the right side of the draft release.
