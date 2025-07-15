@@ -99,3 +99,11 @@ exclude = "build/.*"
 [[tool.mypy.overrides]]
 module = "psychopy"
 ignore_missing_imports = true
+
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "def __repr__",
+    "def __str__",
+    "raise NotImplementedError",
+]
