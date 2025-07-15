@@ -13,7 +13,7 @@ NeuroGym is a curated collection of neuroscience tasks with a common interface. 
 
 Table of Contents
 
-<!--> This table is automatically kept up to date using the "Markdown All in One" extension<!-->
+<!-- This table is automatically kept up to date using the "Markdown All in One" extension -->
 
 - [Installation](#installation)
   - [1. Create a Virtual Environment](#1-create-a-virtual-environment)
