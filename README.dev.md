@@ -11,6 +11,7 @@ Table of Contents
 - [Style Conventions](#style-conventions)
   - [Automated Style Adherence (for VScode users)](#automated-style-adherence-for-vscode-users)
   - [Linting and Formatting (python files)](#linting-and-formatting-python-files)
+  - [Spelling Check](#spelling-check)
   - [Docstrings](#docstrings)
   - [Static Typing](#static-typing)
   - [Formatting Non-python Files](#formatting-non-python-files)
@@ -29,6 +30,7 @@ Table of Contents
   - [Linting](#linting)
   - [Notebooks](#notebooks)
   - [Code Quality](#code-quality)
+  - [Spell Check](#spell-check)
   - [Static Typing](#static-typing-1)
 - [Making a Release](#making-a-release)
   - [Automated Release Workflow](#automated-release-workflow)
@@ -40,7 +42,8 @@ If you're looking for user documentation, go [here](README.md).
 ## IDE Settings
 
 We use [Visual Studio Code (VS Code)](https://code.visualstudio.com/) as code editor, which we have set up with some
-default [settings](.vscode/settings.json) for formatting. We recommend developers to use VS code with the [recommended extensions](.vscode/extensions.json) to automatically format the code upon saving.
+default [settings](.vscode/settings.json) for formatting. We recommend developers to use VS code with the [recommended
+extensions](.vscode/extensions.json) to automatically format and check your code upon saving.
 
 See [VS Code's settings guide](https://code.visualstudio.com/docs/getstarted/settings) for more info.
 
@@ -104,6 +107,11 @@ We use [ruff](https://docs.astral.sh/ruff/) for linting, sorting imports and for
 configurations of `ruff` are set [here](.ruff.toml).
 
 Please ensure both linting (`ruff check .`) and formatting (`ruff format .`) rules are adhered to before requesting a review.
+
+### Spelling Check
+
+Please check for typos by running `typos` or auto-fix typos by running `typos -w` from the command line. Any false
+positives you encounter can be added to the ignore list in [pyproject.toml](pyproject.toml) under `tool.typos`.
 
 ### Docstrings
 
@@ -303,6 +311,11 @@ notebook is slowing things down, to see if there's any way to improve that.
 ### [Code Quality](.github/workflows/sonarcloud.yml)
 
 This workflow does a number of checks on code quality, including test coverage.
+
+### [Spell Check](.github/workflows/spell_check.yml)
+
+This workflow checks for typos throughout the code and associated files. If false positives appear, these can be added
+to the ignore list in [pyproject.toml](pyproject.toml) under `tool.typos`.
 
 ### [Static Typing](.github/workflows/static-typing.yml)
 

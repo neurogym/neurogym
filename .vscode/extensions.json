@@ -4,6 +4,7 @@
     "esbenp.prettier-vscode", // formatter for most non-python files
     "foxundermoon.shell-format", // formatter for shell-like scripts/files
     "ms-python.mypy-type-checker", // type-checker
-    "yzhang.markdown-all-in-one" // markdown tools (including auto-formatting TOCs)
+    "yzhang.markdown-all-in-one", // markdown tools (including auto-formatting TOCs)
+    "tekumara.typos-vscode" // spell checker
   ]
 }
