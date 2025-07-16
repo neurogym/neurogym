@@ -22,7 +22,7 @@ class DelayComparison(TrialEnv):
     def __init__(self, dt=100, vpairs=None, rewards=None, timing=None, sigma=1.0) -> None:
         super().__init__(dt=dt)
 
-        # Pair of stimulus strengthes
+        # Pair of stimulus strengths
         if vpairs is None:
             self.vpairs = [(18, 10), (22, 14), (26, 18), (30, 22), (34, 26)]
         else:

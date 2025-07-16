@@ -35,7 +35,7 @@ def test_sidebias(
     Parameters
     ----------
     env_name : ngym.env, optional
-        enviroment to wrap. The default is 'NAltPerceptualDecisionMaking-v0'.
+        environment to wrap. The default is 'NAltPerceptualDecisionMaking-v0'.
     num_steps : int, optional
         number of steps to run the environment (1000000)
     verbose : boolean, optional
@@ -91,7 +91,7 @@ def test_passaction(
     Parameters
     ----------
     env_name : str, optional
-        enviroment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
+        environment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
     num_steps : int, optional
         number of steps to run the environment (1000)
     verbose : boolean, optional
@@ -130,7 +130,7 @@ def test_passreward(
     Parameters.
     ----------
     env_name : str, optional
-        enviroment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
+        environment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
     num_steps : int, optional
         number of steps to run the environment (1000)
     verbose : boolean, optional
@@ -167,12 +167,12 @@ def test_reactiontime(
     """Test reaction-time wrapper.
 
     The reaction-time wrapper allows converting a fix duration task into a reaction
-    time task. It also allows addding a fix (negative) quantity (urgency) to force
+    time task. It also allows adding a fix (negative) quantity (urgency) to force
     the network to respond quickly.
     Parameters
     ----------
     env_name : str, optional
-        enviroment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
+        environment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
     num_steps : int, optional
         number of steps to run the environment (1000)
     urgency : float, optional
@@ -257,7 +257,7 @@ def test_variablemapping(
     Parameters.
     ----------
     env_name : str, optional
-        enviroment to wrap.. The default is 'NAltConditionalVisuomotor-v0'.
+        environment to wrap.. The default is 'NAltConditionalVisuomotor-v0'.
     num_steps : int, optional
         number of steps to run the environment (1000)
     verbose : boolean, optional
@@ -376,7 +376,7 @@ def test_noise(
     Parameters
     ----------
     env_name : str, optional
-        enviroment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
+        environment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
     num_steps : int, optional
         number of steps to run the environment (1000)
     verbose : boolean, optional
@@ -464,7 +464,7 @@ def test_catchtrials(
         action = env.action_space.sample()
         _obs, rew, terminated, _truncated, info = env.step(action)
         if info["new_trial"] and verbose:
-            logger.info("Perfomance", (info["gt"] - action) < 0.00001)
+            logger.info("Performance", (info["gt"] - action) < 0.00001)
             logger.info("catch-trial", info["catch_trial"])
             logger.info("Reward", rew)
             logger.info("-------------")

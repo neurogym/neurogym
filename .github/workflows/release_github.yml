@@ -71,7 +71,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # token with admin priviliges to override brach protection on main and dev
+          # token with admin privileges to override brach protection on main and dev
           token: ${{ secrets.GH_RELEASE }}
           ref: main
           fetch-depth: 0
