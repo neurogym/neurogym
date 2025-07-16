@@ -59,7 +59,7 @@ Note: you can also run this command after completing the "normal" installation i
 
 **NOTE for Linux/WSL users:** If you do not have access to a CUDA-capable NVIDIA GPU (which is the case for most users),
 above line will install up to 1.5GB of unnecessary GPU libraries. To avoid excessive overhead, we recommend first
-isntalling the CPU-only version of [PyTorch](https://pytorch.org/get-started/locally/):
+installing the CPU-only version of [PyTorch](https://pytorch.org/get-started/locally/):
 
 ```bash
 pip install torch --index-url https://download.pytorch.org/whl/cpu
@@ -328,11 +328,11 @@ This workflow checks that the [static typing](#static-typing) of the code base i
      - if `Check GitHub token validity` fails, then the token has expired. See [steps below](#updating-the-token) to update this.
      - If `Create Draft GitHub Release` fails, then there are likely merge conflicts with `main` that need to be
        resolved first. No release draft is created and the PR is not closed. Coversely, if this
-       action is succesfull, then the release branch (including a version bump) have been merged into the remote `main`
+       action is successful, then the release branch (including a version bump) have been merged into the remote `main`
        branch.
      - If `Remove PR branch` fails (after Create Draft GitHub Release is successful), then there are likely merge
        conflicts with `dev` that are not conflicts with `main`. In this case, the draft release is created (and changes
-       were merged into the remote `main`) but the PR is noy closed. Conflicts with `dev` need to be resolved with `dev` by the user.
+       were merged into the remote `main`) but the PR is not closed. Conflicts with `dev` need to be resolved with `dev` by the user.
      - If all jobs succeed, then the draft release is created and the changes are merged into both remote `main` and `dev` without any problems and the associated PR is closed. Also, the release branch is deleted from the remote repository.
 5. Navigate to the [Releases](https://github.com/neurogym/neurogym/releases) tab and click on the newest draft
    release that was just generated.
@@ -344,16 +344,16 @@ This workflow checks that the [static typing](#static-typing) of the code base i
 
 #### Updating the Token
 
-In order for the workflow above to be able to bypass the branch protection on `main` and `dev`, a token with admin priviliges for the current repo is required. Below are instructions on how to create such a token.
+In order for the workflow above to be able to bypass the branch protection on `main` and `dev`, a token with admin privileges for the current repo is required. Below are instructions on how to create such a token.
 NOTE: the current token (associated to @DaniBodor) allowing to bypass branch protection will expire on 9 July 2025. To update the token do the following:
 
 1. [Create a personal access token](https://github.com/settings/tokens/new) from a GitHub user account with admin
-   priviliges for this repo.
+   privileges for this repo.
 2. Check all the "repo" boxes and the "workflow" box, set an expiration date, and give the token a note.
 3. Click green "Generate token" button on the bottom
 4. Copy the token immediately, as it will not be visible again later.
 5. Navigate to the [secrets settings](https://github.com/neurogym/neurogym/settings/secrets/actions).
-   - Note that you need admin priviliges to the current repo to access these settings.
+   - Note that you need admin privileges to the current repo to access these settings.
 6. Edit the `GH_RELEASE` key giving your access token as the new value.
 
 ### Manually Creating a Release
