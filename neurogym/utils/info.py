@@ -72,8 +72,8 @@ def _wrap_info(wrapper: str) -> None:
     """Show information about a wrapper."""
     logger.info(f"Info for wrapper: {wrapper}")
 
-    wrapp_ref = ALL_WRAPPERS[wrapper]
-    from_, class_ = wrapp_ref.split(":")
+    wrap_ref = ALL_WRAPPERS[wrapper]
+    from_, class_ = wrap_ref.split(":")
     imported = getattr(__import__(from_, fromlist=[class_]), class_)
     metadata = imported.metadata
     if not isinstance(metadata, dict):

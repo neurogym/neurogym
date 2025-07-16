@@ -54,6 +54,7 @@ dev = [
     "mypy",
     "types-docutils",
     "scipy-stubs",
+    "typos",
     # docs
     "mkdocs",
     "mkdocs-material",
@@ -107,3 +108,10 @@ exclude_also = [
     "def __str__",
     "raise NotImplementedError",
 ]
+
+[tool.typos]
+default.extend-ignore-words-re = [
+    "arange", # common numpy function
+]
+files.ignore-hidden = false
+files.extend-exclude = [".git/*"]

@@ -77,7 +77,7 @@ class MultiEnvs(TrialWrapper):
     Args:
         envs: list of env object
         env_input: bool, if True, add scalar inputs indicating current
-            envinronment. default False.
+            environment. default False.
     """
 
     def __init__(self, envs, env_input=False) -> None:

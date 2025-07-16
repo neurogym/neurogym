@@ -74,7 +74,7 @@ class Pneumostomeopening(BaseEnv):
 
         set_default_behavior trains the network so that breathing behavior corresponds
         to the default states of the animal where breathing through the peumostome
-        is a common occurence.
+        is a common occurrence.
         Training_session train the network for operant-conditioning of respiratory
         behaviour pattern. Simulating poking the pneumostome as a negative reward.
         Testing_session test the respiratory behaviour change after training_session

@@ -63,7 +63,7 @@ class DawTwoStep(TrialEnv):
         transition[self.actions[1]] = tmp1
         transition[self.actions[2]] = tmp2
 
-        # swtich reward contingency
+        # switch reward contingency
         switch = self.rng.rand() < self.p_switch
         if switch:
             self.state1_high_reward = not self.state1_high_reward

@@ -598,7 +598,7 @@ def put_together_files(folder):
     files = Path(folder).glob("/*_bhvr_data*npz")
     data = {}
     if len(files) > 0:
-        files = order_by_sufix(files)
+        files = order_by_suffix(files)
         file_data = np.load(files[0], allow_pickle=True)
         for key in file_data:
             data[key] = file_data[key]
@@ -611,6 +611,6 @@ def put_together_files(folder):
     return data
 
 
-def order_by_sufix(file_list):
+def order_by_suffix(file_list):
     sfx = [int(x[x.rfind("_") + 1 : x.rfind(".")]) for x in file_list]  # FIXME: use pathlib method to find extension
     return [x for _, x in sorted(zip(sfx, file_list, strict=True))]
