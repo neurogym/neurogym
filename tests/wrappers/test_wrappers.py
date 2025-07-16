@@ -161,7 +161,7 @@ def test_reactiontime(
     env_name="PerceptualDecisionMaking-v0",
     num_steps=10000,
     urgency=-0.1,
-    ths=None,
+    threholds=None,
     verbose=False,
 ):
     """Test reaction-time wrapper.
@@ -179,11 +179,11 @@ def test_reactiontime(
         float value added to the reward (-0.1)
     verbose : boolean, optional
         whether to log observation and reward (False)
-    ths : list, optional
+    threholds : list, optional
         list containing the threholds to make a decision ([-.5, .5])
     """
-    if ths is None:
-        ths = [-0.5, 0.5]
+    if threholds is None:
+        threholds = [-0.5, 0.5]
     env_args = {"timing": {"fixation": 100, "stimulus": 2000, "decision": 200}}
     env = make(env_name, **env_args)
     env = ReactionTime(env, urgency=urgency)
@@ -197,9 +197,9 @@ def test_reactiontime(
     obs_cum = 0
     end_of_trial = False
     for _ in range(num_steps):
-        if obs_cum > ths[1]:
+        if obs_cum > threholds[1]:
             action = 1
-        elif obs_cum < ths[0]:
+        elif obs_cum < threholds[0]:
             action = 2
         else:
             action = 0
@@ -229,8 +229,8 @@ def test_reactiontime(
         ax[1].set_xlim([-0.5, len(actions) - 0.5])
         ax[1].legend()
         ax[2].plot(obs_cum_mat, label="cum. observation")
-        ax[2].plot([0, len(obs_cum_mat)], [ths[1], ths[1]], "--", label="upper th")
-        ax[2].plot([0, len(obs_cum_mat)], [ths[0], ths[0]], "--", label="lower th")
+        ax[2].plot([0, len(obs_cum_mat)], [threholds[1], threholds[1]], "--", label="upper th")
+        ax[2].plot([0, len(obs_cum_mat)], [threholds[0], threholds[0]], "--", label="lower th")
         ax[2].set_xlim([-0.5, len(actions) - 0.5])
         ax[3].plot(reward, label="reward")
         ax[3].set_xlim([-0.5, len(actions) - 0.5])
@@ -240,8 +240,8 @@ def test_reactiontime(
 def test_variablemapping(
     env="NAltConditionalVisuomotor-v0",
     verbose=False,
-    mapp_ch_prob=0.05,
-    min_mapp_dur=10,
+    map_ch_prob=0.05,
+    min_map_dur=10,
     def_act=1,
     num_steps=2000,
     n_stims=4,
@@ -262,9 +262,9 @@ def test_variablemapping(
         number of steps to run the environment (1000)
     verbose : boolean, optional
         whether to log observation and reward (False)
-    mapp_ch_prob : float, optional
+    map_ch_prob : float, optional
         probability of mapping change (0.1)
-    min_mapp_dur : int, optional
+    min_map_dur : int, optional
         minimum number of trials for a mapping block (3)
     sess_end_prob: float, optional,
         probability of session to finish (0.0025)
@@ -288,8 +288,8 @@ def test_variablemapping(
     env = make(env, **env_args)
     env = VariableMapping(
         env,
-        mapp_ch_prob=mapp_ch_prob,
-        min_mapp_dur=min_mapp_dur,
+        map_ch_prob=map_ch_prob,
+        min_map_dur=min_map_dur,
         sess_end_prob=sess_end_prob,
         min_sess_dur=min_sess_dur,
     )
@@ -302,15 +302,15 @@ def test_variablemapping(
         new_trials = []
         mapping = []
         new_session = []
-    prev_mapp = env.curr_mapping[env.trial["ground_truth"]] + 1
+    prev_map = env.curr_mapping[env.trial["ground_truth"]] + 1
     stims = env.stims.flatten()
     for _ in range(num_steps):
         action = def_act or env.action_space.sample()
         obs, rew, _terminated, _truncated, info = env.step(action)
         if info["new_trial"]:
             mapping.append(info["mapping"])
-            assert (action == prev_mapp and rew == 1.0) or action != prev_mapp
-            prev_mapp = env.curr_mapping[env.trial["ground_truth"]] + 1
+            assert (action == prev_map and rew == 1.0) or action != prev_map
+            prev_map = env.curr_mapping[env.trial["ground_truth"]] + 1
             if info["sess_end"]:
                 new_session.append(1)
                 assert (stims != env.stims.flatten()).any()
@@ -325,7 +325,7 @@ def test_variablemapping(
             new_trials.append(info["new_trial"])
             gt.append(info["gt"])
     mapping = [int(x.replace("-", "")) for x in mapping]
-    mapp_ch = np.where(np.diff(mapping) != 0)[0]
+    map_ch = np.where(np.diff(mapping) != 0)[0]
     sess_ch = np.where(new_session)[0]
     if verbose:
         observations = np.array(observations)
@@ -340,7 +340,7 @@ def test_variablemapping(
         end_of_trial = np.where(new_trials)[0]
         for ch in end_of_trial:
             ax[2].plot([ch, ch], [0, 1], "--c")
-        for ch in mapp_ch:
+        for ch in map_ch:
             ax[2].plot([end_of_trial[ch], end_of_trial[ch]], [0, 1], "--k")
         for ch in sess_ch:
             ax[2].plot([end_of_trial[ch], end_of_trial[ch]], [0, 1], "--m")
@@ -352,11 +352,11 @@ def test_variablemapping(
     assert np.abs(mean_sess_dur - exp_sess_durs) < margin, (
         f"Mean sess. dur.: {mean_sess_dur}, expected: {1 / sess_end_prob}"
     )
-    mapp_blck_durs = np.diff(mapp_ch)
-    assert (mapp_blck_durs > min_mapp_dur).all()
-    mean_durs = np.mean(mapp_blck_durs)
-    exp_durs = min_mapp_dur + 1 / mapp_ch_prob
-    assert np.abs(mean_durs - exp_durs) < margin, f"Mean mapp. block durations: {mean_durs}, expected: {exp_durs}"
+    map_blck_durs = np.diff(map_ch)
+    assert (map_blck_durs > min_map_dur).all()
+    mean_durs = np.mean(map_blck_durs)
+    exp_durs = min_map_dur + 1 / map_ch_prob
+    assert np.abs(mean_durs - exp_durs) < margin, f"Mean mapping block durations: {mean_durs}, expected: {exp_durs}"
     sys.exit()
 
 
