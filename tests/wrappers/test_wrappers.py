@@ -161,7 +161,7 @@ def test_reactiontime(
     env_name="PerceptualDecisionMaking-v0",
     num_steps=10000,
     urgency=-0.1,
-    threholds=None,
+    thresholds=None,
     verbose=False,
 ):
     """Test reaction-time wrapper.
@@ -179,11 +179,11 @@ def test_reactiontime(
         float value added to the reward (-0.1)
     verbose : boolean, optional
         whether to log observation and reward (False)
-    threholds : list, optional
-        list containing the threholds to make a decision ([-.5, .5])
+    thresholds : list, optional
+        list containing the thresholds to make a decision ([-.5, .5])
     """
-    if threholds is None:
-        threholds = [-0.5, 0.5]
+    if thresholds is None:
+        thresholds = [-0.5, 0.5]
     env_args = {"timing": {"fixation": 100, "stimulus": 2000, "decision": 200}}
     env = make(env_name, **env_args)
     env = ReactionTime(env, urgency=urgency)
@@ -197,9 +197,9 @@ def test_reactiontime(
     obs_cum = 0
     end_of_trial = False
     for _ in range(num_steps):
-        if obs_cum > threholds[1]:
+        if obs_cum > thresholds[1]:
             action = 1
-        elif obs_cum < threholds[0]:
+        elif obs_cum < thresholds[0]:
             action = 2
         else:
             action = 0
@@ -229,8 +229,8 @@ def test_reactiontime(
         ax[1].set_xlim([-0.5, len(actions) - 0.5])
         ax[1].legend()
         ax[2].plot(obs_cum_mat, label="cum. observation")
-        ax[2].plot([0, len(obs_cum_mat)], [threholds[1], threholds[1]], "--", label="upper th")
-        ax[2].plot([0, len(obs_cum_mat)], [threholds[0], threholds[0]], "--", label="lower th")
+        ax[2].plot([0, len(obs_cum_mat)], [thresholds[1], thresholds[1]], "--", label="upper th")
+        ax[2].plot([0, len(obs_cum_mat)], [thresholds[0], thresholds[0]], "--", label="lower th")
         ax[2].set_xlim([-0.5, len(actions) - 0.5])
         ax[3].plot(reward, label="reward")
         ax[3].set_xlim([-0.5, len(actions) - 0.5])
