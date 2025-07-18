@@ -6,9 +6,7 @@ from neurogym.wrappers.components.layers.base import LayerMonitorBase
 
 
 class ActivationMonitor:
-    def __init__(
-        self, module: nn.Module, steps: int, name: str, populations: set[str] | None = None
-    ):
+    def __init__(self, module: nn.Module, steps: int, name: str, populations: set[str] | None = None):
         """Activation monitoring component.
 
         Args:
@@ -19,16 +17,12 @@ class ActivationMonitor:
 
         """
         self.steps: int = steps
-        self.monitor = LayerMonitorBase.get_monitor(
-            module, self._fw_activation_hook, populations
-        )
+        self.monitor = LayerMonitorBase.get_monitor(module, self._fw_activation_hook, populations)
         self.name = name
 
         # The neuron count
         self.paused = False
-        self.history: list[np.ndarray] = {
-            population: [] for population in self.monitor.populations
-        }
+        self.history: list[np.ndarray] = {population: [] for population in self.monitor.populations}
         self.step: int = 0
         self._new_trial: bool = False
         self.start_new_trial()
@@ -45,7 +39,7 @@ class ActivationMonitor:
 
     def _fw_activation_hook(
         self,
-        module: nn.Module,  # noqa: ARG002
+        module: nn.Module,
         input_: torch.Tensor,  # noqa: ARG002
         output: torch.Tensor,
     ):
@@ -74,9 +68,7 @@ class ActivationMonitor:
         shapes = self.monitor.get_population_shapes()
 
         for population in self.history:
-            self.history[population].append(
-                np.ma.masked_all((self.steps, *shapes[population]))
-            )
+            self.history[population].append(np.ma.masked_all((self.steps, *shapes[population])))
         self.step = 0
         self._new_trial = False
 

@@ -1,10 +1,10 @@
 from __future__ import annotations
-from collections.abc import Iterable
+
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterable
 
     import numpy as np
     import torch
@@ -22,8 +22,8 @@ def to_numpy(tensor: torch.Tensor) -> np.ndarray:
     """
     return tensor.detach().clone().squeeze().cpu().numpy()
 
-class LayerMonitorBase(ABC):
 
+class LayerMonitorBase(ABC):
     layer_types: tuple[nn.Module] | nn.Module | None = None
     probes: dict[str, Callable] | None = None
 

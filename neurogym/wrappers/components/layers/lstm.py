@@ -1,11 +1,13 @@
+from typing import ClassVar
+
 from torch import nn
-from neurogym.wrappers.components.layers.base import to_numpy
-from neurogym.wrappers.components.layers.base import LayerMonitorBase
+
+from neurogym.wrappers.components.layers.base import LayerMonitorBase, to_numpy
 
 
 class LSTMLayerMonitor(LayerMonitorBase):
     layer_types: nn.Module = nn.LSTM
-    probes: dict = {
+    probes: ClassVar = {
         "output": lambda output: to_numpy(output[0]),
         "hidden": lambda output: to_numpy(output[1][0]),
         "cell": lambda output: to_numpy(output[1][1]),
