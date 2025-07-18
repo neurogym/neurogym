@@ -143,6 +143,9 @@ class Monitor(Wrapper):
         initial_ob, *_ = env.reset()
         self.initial_ob = initial_ob
 
+        # Network layers whose parameters are to be monitored
+        self.activations: dict[str, ActivationMonitor] = {}
+
     def reset(self, seed=None):
         """Reset the environment.
 
@@ -556,7 +559,8 @@ class Monitor(Wrapper):
     def plot_activations(
         self,
         name: str,
-        figsize: tuple[int, ...] = (12, 5),
+        population: str,
+        figsize: tuple[int, ...] = None,
         neurons: list | None = None,
         mean: bool = False,
     ) -> tuple[plt.Figure, plt.Axes]:
@@ -564,8 +568,9 @@ class Monitor(Wrapper):
 
         Args:
             name: Name of the layer.
-            figsize: The size of the figure. Defaults to (12,5).
-            neurons: List of neurons to plot. If None, all neurons are plotted.
+            population: The neuron population to plot.
+            figsize: The size of the figure.
+            neurons: List of neurons to plot. If None, all neurons will be plotted.
             mean: If set, plot the mean activation over all trials rather than each separate trial.
 
         Raises:
@@ -580,40 +585,55 @@ class Monitor(Wrapper):
             msg = f"Invalid layer name '{name}'"
             raise ValueError(msg)
 
-        # Neuron selection
-        neuron_count = len(am.history[0][0])
-        if neurons is None:
-            neurons = list(range(neuron_count))
+        # Get the activations for the specified population
+        activations = np.array(am.history.get(population))
+        if activations is None:
+            msg = f"Invalid population '{population}' (available populations: {am.monitor.populations})"
+            raise KeyError(msg)
 
-        if max(neurons) > len(am.history[0]) - 1:
+        # Neuron selection
+        if neurons is None:
+            neurons = list(range(activations[0].shape[1]))
+
+        if max(neurons) > activations[0].shape[1] - 1:
             msg = "Some of the requested neuron IDs are beyond the size of the layer."
             raise ValueError(msg)
+        neuron_count = len(neurons)
 
         # Compute the number of rows and columns
-        n_sq = int(np.floor(np.sqrt(neuron_count)))
-        rows, cols = n_sq, n_sq
+        n_sqrt = int(np.floor(np.sqrt(neuron_count)))
+        rows, cols = n_sqrt, n_sqrt
         if rows * cols < len(neurons):
-            cols += 1
+            cols += len(neurons) - rows * cols
+
+        if figsize is None:
+            figsize = (16 * rows, 6)
 
         # Figure and axis
         fig, axes = plt.subplots(rows, cols, figsize=figsize)
 
         # Plot the right neurons in the right boxes
-        neuron = 0
+        neuron_idx = 0
         for row in range(rows):
             for col in range(cols):
-                ax = axes if len(neurons) == 1 else (axes[row][col] if row > 1 else axes[col])
+                neuron = neurons[neuron_idx]
+                ax = (
+                    axes
+                    if len(neurons) == 1
+                    else (axes[row][col] if rows > 1 else axes[col])
+                )
+
                 if mean:
-                    mean_trials = np.array(am.history)[:, :, neuron].mean(axis=0)
+                    mean_trials = activations[:, :, neuron].mean(axis=0)
                     ax.plot(mean_trials, lw=0.5)
                 else:
-                    for trial in am.history:
+                    for trial in activations:
                         ax.plot(trial[:, neuron], lw=0.5)
                 ax.set_xlabel("Step")
                 ax.set_ylabel("Activation")
                 ax.set_title(f"Neuron {neuron}")
-                neuron += 1
+                neuron_idx += 1
 
-        fig.suptitle("Neuron activations", fontsize=18)
+        fig.suptitle(f"{population.capitalize()} neuron activations", fontsize=18)
 
         return fig, axes
