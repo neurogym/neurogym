@@ -5,22 +5,21 @@ import numpy as np
 from neurogym.core import TrialEnv
 from neurogym.utils import spaces
 
+# A reserved keyword for catch trials.
+CATCH_KEYWORD: str = "catch"
+CATCH_SESSION_KEY: tuple[str] = (CATCH_KEYWORD,)
+
+# The upper and lower bounds for the catch probability used in the max_sequential satisfiability checks.
+MIN_CATCHPROB: float = 1e-6
+MAX_CATCHPROB: float = 1 - 1e-6
+
 
 class AnnubesEnv(TrialEnv):
-    # A reserved keyword for catch trials.
-    catch_kwd: str = "catch"
-    catch_session_key: tuple[str] = (catch_kwd,)
-
-    # The upper and lower bounds for the catch probability
-    # used in the max_sequential satisfiability checks.
-    prob_lbound: float = 1e-6
-    prob_ubound: float = 1 - 1e-6
-
     def __init__(
         self,
         session: dict[str | tuple[str], float],
         catch_prob: float,
-        intensities: dict[str, list[float]] | None = None,
+        intensities: list[float] | dict[str, list[float]] | None = None,
         stim_time: int = 1000,
         max_sequential: dict[str, int | None] | int | None = None,
         fix_intensity: float = 0,
@@ -89,58 +88,44 @@ class AnnubesEnv(TrialEnv):
         """
         super().__init__(dt=dt)
 
-        if not (0.0 <= catch_prob <= 1.0):
-            msg = "The catch probability must be between 0 and 1, inclusive."
-            raise ValueError(msg)
+        # Initialize the environment parameters.
+        self.session, self.modalities = self._prepare_session_and_modalities(session)
         self.catch_prob = catch_prob
 
-        self.session = session
-        self.modalities: set = set()
-        self._check_session()
-        self.prepare_session_and_modalities()
-        # Check if the session is properly formatted and the probabilities are sane.
-
-        # Ensure that each modality has an associated intensity.
-        # The set of modalities is authoritative, so we can just compare
-        # it with the set of keys in the `intensities` dictionary.
         if intensities is None:
-            intensities = {modality: [0.8, 0.9, 1.0] for modality in self.modalities}
-        self.intensities = intensities
-        # Check if intensities have been provided for each modality.
-        self._check_intensities()
-
-        # Checks on the output behaviour and intensities
-        if output_behavior is None:
-            output_behavior = [0, 1]
-
-        self.max_sequential = self.prepare_max_sequential(max_sequential)
-        # Check if the max_sequential constraints can be satisfied.
-        self._check_max_sequential()
+            self.intensities = {modality: [0.8, 0.9, 1.0] for modality in self.modalities}
+        elif isinstance(intensities, list):
+            self.intensities = dict.fromkeys(self.modalities, intensities)
+        elif isinstance(intensities, dict):
+            self.intensities = intensities
+        else:
+            msg = "Intensities must be a list, a dictionary, or None."
+            raise TypeError(msg)
 
         self.stim_time = stim_time
-        self.sequential_count = dict.fromkeys(self.max_sequential, 0)  # type: ignore[arg-type]
+        self.max_sequential = self._prepare_max_sequential(max_sequential)
         self.fix_intensity = fix_intensity
         self.fix_time = fix_time
         self.iti = iti
         self.dt = dt
         self.tau = tau
-        self.output_behavior = output_behavior
+        self.output_behavior = output_behavior or [0, 1]
         self.noise_std = noise_std
-        self.random_seed = random_seed
-        alpha = dt / self.tau
-        self.noise_factor = self.noise_std * np.sqrt(2 * alpha) / alpha
-        # Set random state
+        self.rewards = rewards or {"abort": -0.1, "correct": 1.0, "fail": 0.0}
         if random_seed is None:
             rng = np.random.default_rng(random_seed)
             self._random_seed = rng.integers(2**32)
         else:
             self._random_seed = random_seed
+
+        # Check if all input parameters are valid.
+        self._check_inputs()
+
+        # set derived environment parameters
+        self.sequential_count = dict.fromkeys(self.max_sequential, 0)  # type: ignore[arg-type]
+        alpha = dt / self.tau
+        self.noise_factor = self.noise_std * np.sqrt(2 * alpha) / alpha
         self._rng = np.random.default_rng(self._random_seed)
-        # Rewards
-        if rewards is None:
-            self.rewards = {"abort": -0.1, "correct": 1.0, "fail": 0.0}
-        else:
-            self.rewards = rewards
         self.timing = {
             "fixation": self.fix_time,
             "stimulus": self.stim_time,
@@ -159,51 +144,28 @@ class AnnubesEnv(TrialEnv):
             name={"fixation": self.fix_intensity, "choice": self.output_behavior[1:]},
         )
 
-    def _check_session(self):
-        """Check if the session dictionary is valid.
-
-        Args:
-            session: A session dictionary.
-
-        Raises:
-            TypeError: Raised if the session is not a dictionary.
-            ValueError: Raised if any of the probabilities are negative.
-            ValueError: Raised if the probabilities effectively add up to 0.
-        """
-        # Run some common-sense checks on the session dictionary.
-        if not isinstance(self.session, dict):
-            msg = "The session must be a dictionary."
-            raise TypeError(msg)
+    def _check_inputs(self):
+        """Check if inputs are is valid."""
+        if CATCH_KEYWORD in self.modalities:
+            msg = f"Reserved keyword `{CATCH_KEYWORD}` cannot be given in the session dictionary."
+            raise ValueError(msg)
 
         if any(s < 0.0 for s in self.session.values()):
             msg = "Please ensure that all probabilities are non-negative."
             raise ValueError(msg)
 
-        # Ensure that at least one probability is nonzero.
-        if np.isclose(sum(self.session.values()), 0.0):
-            msg = "Please ensure that at least one modality has a non-zero probability."
+        if not (0.0 <= self.catch_prob <= 1.0):
+            msg = "The catch probability must be between 0 and 1, inclusive."
             raise ValueError(msg)
 
-        if AnnubesEnv.catch_session_key in self.session or AnnubesEnv.catch_kwd in self.session:
-            msg = (
-                f"For now, '{AnnubesEnv.catch_kwd}' is a reserved keyword "
-                "that cannot be used in the session dictionary. "
-                "This warning will be removed in future releases when the catch trial "
-                "definition becomes part of the session dictionary."
-            )
-            raise KeyError(msg)
-
-    def _check_intensities(self):
-        """Check that each modality has a corresponding intensity setting.
-
-        Raises:
-            ValueError: Raised if not all modalities have valid intensities.
-        """
         if set(self.intensities) != self.modalities or any(
             not isinstance(self.intensities[mod], (list, tuple, float)) for mod in self.modalities
         ):
             msg = "Please ensure that all modalities have valid corresponding intensities."
             raise ValueError(msg)
+
+        if self.max_sequential:
+            self._check_max_sequential()
 
     def _check_max_sequential(self):
         """Check the satisfiability of the conditions imposed by max_sequential.
@@ -217,20 +179,20 @@ class AnnubesEnv(TrialEnv):
         Returns:
             An indication of whether the conditions imposed by max_sequential are satisfiable.
         """
-        if AnnubesEnv.prob_lbound <= self.catch_prob <= AnnubesEnv.prob_ubound:
+        if MIN_CATCHPROB <= self.catch_prob <= MAX_CATCHPROB:
             # The probability of a catch trial is reasonable enough,
             # so we don't need to do any further checks.
             return
 
-        if self.catch_prob > AnnubesEnv.prob_ubound:
-            if sum(self.session.values()) > AnnubesEnv.prob_lbound:
+        if self.catch_prob > MAX_CATCHPROB:
+            if sum(self.session.values()) > MIN_CATCHPROB:
                 msg = (
                     "Invalid settings: the probability of catch trials is 1, "
                     "but the session contains stimuli with non-zero probabilities."
                 )
                 raise ValueError(msg)
 
-            if self.max_sequential[AnnubesEnv.catch_kwd] is not None:
+            if self.max_sequential[CATCH_KEYWORD] is not None:
                 msg = (
                     "Invalid settings: max_sequential imposes a limit on catch trials, "
                     "but the probability of a catch trial is too high."
@@ -285,15 +247,15 @@ class AnnubesEnv(TrialEnv):
 
         # If a catch trial is allowed, add the probability here
         if self.catch_prob > 0.0 and (
-            self.max_sequential[AnnubesEnv.catch_kwd] is None
-            or self.sequential_count[AnnubesEnv.catch_kwd]  # type: ignore[operator]
-            < self.max_sequential[AnnubesEnv.catch_kwd]
+            self.max_sequential[CATCH_KEYWORD] is None
+            or self.sequential_count[CATCH_KEYWORD]  # type: ignore[operator]
+            < self.max_sequential[CATCH_KEYWORD]
         ):
-            options[AnnubesEnv.catch_session_key] = self.catch_prob
+            options[CATCH_SESSION_KEY] = self.catch_prob
 
         # Select a stimulus from the available options.
         stimulus = self._select_stimulus(options)
-        catch_trial = stimulus == AnnubesEnv.catch_session_key
+        catch_trial = stimulus == CATCH_SESSION_KEY
 
         if catch_trial:
             # Set all the GT values to 0.
@@ -306,7 +268,7 @@ class AnnubesEnv(TrialEnv):
             for modality in self.sequential_count:
                 if modality is not None:
                     self.sequential_count[modality] = 0
-            self.sequential_count[AnnubesEnv.catch_kwd] += 1
+            self.sequential_count[CATCH_KEYWORD] += 1
 
             stimulus = []
             intensities: dict[str, float] = {}
@@ -414,60 +376,66 @@ class AnnubesEnv(TrialEnv):
 
         return self.ob_now, reward, terminated, truncated, info
 
-    def prepare_session_and_modalities(self):
+    def _prepare_session_and_modalities(self, session) -> tuple[dict[tuple[str, ...], float], set[str]]:
         """Validate the session keys, extract modalities and ensure that all probabilities are sane."""
         # Convert all keys into tuples for consistency.
-        self.session = {tuple(sorted((k,) if isinstance(k, str) else k)): v for k, v in self.session.items()}
+        if not isinstance(session, dict):
+            msg = "The session must be a dictionary."
+            raise TypeError(msg)
+
+        temp_session = {tuple(sorted((k,) if isinstance(k, str) else k)): v for k, v in session.items()}
 
         # Validate the entries and extract the modalities.
-        valid_session: dict = {}
+        valid_session: dict[tuple[str, ...], float] = {}
         modalities = set()
 
         # This will be used to normalise the values.
-        prob_sum = sum(self.session.values())
+        prob_sum = sum(temp_session.values())
 
-        for stim, prob in self.session.items():
+        for stim, prob in temp_session.items():
             for modality in stim:
                 if not isinstance(modality, str):
                     msg = f"Invalid modality type: {type(modality)}."
                     raise TypeError(msg)
                 modalities.add(modality)
 
-                # Add missing modalities with probability 0 to the session.
-                # FIXME: This might not be necessary in general, but at present
-                # the plotting function breaks if a modality is defined *only*
-                # as part of a multi-modal stimulus and does not exist as a key
-                # in the session dictionary.
+                # Add missing modalities with probability 0 to the session. This is required because the plotting
+                # function breaks if a modality is defined *only* as part of a multi-modal stimulus and does not exist
+                # as a key in the session dictionary.
                 valid_session.setdefault((modality,), 0.0)
 
             # Sort the key for multimodal stimuli (facilitates testing).
-            stim = tuple(sorted(stim))  # noqa: PLW2901
+            valid_stim = tuple(sorted(stim))
 
-            valid_session[stim] = prob / prob_sum
+            try:
+                valid_session[valid_stim] = prob / prob_sum
+            except ZeroDivisionError as e:
+                msg = "Please ensure that at least one modality has a non-zero probability."
+                raise ValueError(msg) from e
 
-        self.session = valid_session
-        self.modalities = modalities
+        return valid_session, modalities
 
-    def prepare_max_sequential(self, max_sequential: dict[str, int | None] | int | None) -> dict[str, int | None]:
+    def _prepare_max_sequential(self, max_sequential) -> dict[str, int | None]:
         """Process and assign the respective max_sequential limits to each modality.
 
         NOTE: A value of 'None' means no limit.
         """
+        valid_max_sequential: dict[str, int | None] = {}
         if isinstance(max_sequential, dict):
             # Ensure that all the modalities are present in the dictionary.
             # The default value is None, which means no limit.
             for mod in self.modalities:
-                max_sequential.setdefault(mod, None)
+                valid_max_sequential.setdefault(mod, None)
         elif max_sequential is None or isinstance(max_sequential, int):
             # If max_sequential is not a dictionary, use it as the default value
             # for a dictionary based on all modalities as keys.
-            max_sequential = dict.fromkeys(self.modalities, max_sequential)
+            valid_max_sequential = dict.fromkeys(self.modalities, max_sequential)
         else:
             msg = "'max_sequential' can only be a dictionary, an integer or None."
             raise TypeError(msg)
 
         # Set a limit on max_sequential for catch trials only if it is
         # explicitly set in the max_sequential dictionary from the outset.
-        max_sequential.setdefault(AnnubesEnv.catch_kwd, None)
+        valid_max_sequential.setdefault(CATCH_KEYWORD, None)
 
-        return max_sequential
+        return valid_max_sequential

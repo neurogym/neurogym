@@ -4,7 +4,7 @@ from typing import Any
 import numpy as np
 import pytest
 
-from neurogym.envs.native.annubes import AnnubesEnv
+from neurogym.envs.native.annubes import CATCH_SESSION_KEY, AnnubesEnv
 
 RND_SEED = 42
 FIX_INTENSITY = 0.1
@@ -30,7 +30,7 @@ def _collect_trial_stats(env: AnnubesEnv, trials: int) -> tuple[dict, dict]:
     for _ in range(trials):
         trial = env.new_trial()
 
-        stimulus = AnnubesEnv.catch_session_key if trial["catch"] else trial["stim_types"]
+        stimulus = CATCH_SESSION_KEY if trial["catch"] else trial["stim_types"]
 
         # Unpack tuples with a single element.
         occurrences.setdefault(stimulus, 0.0)
@@ -166,13 +166,13 @@ def test_catch_prob(catch_prob: float, error_type: Any):
     session = {"a": 0.5, "v": 0.5}
 
     if error_type is not None:
-        with pytest.raises(error_type) as e:
+        with pytest.raises(Exception) as e:
             env = AnnubesEnv(
                 session=session,  # type: ignore[arg-type]
                 catch_prob=catch_prob,
                 random_seed=RND_SEED,
             )
-        assert e.type is error_type
+        assert e.type is error_type, f"incorrect error type raised: expected {error_type}, got {e.type}."
         return
 
     env = AnnubesEnv(session, catch_prob, random_seed=RND_SEED)  # type: ignore[arg-type]
@@ -216,7 +216,7 @@ def test_catch_prob(catch_prob: float, error_type: Any):
         # All probabilities are 0.
         ({"v": 0.0, "a": 0.0, "o": 0.0}, 0.5, None, ValueError),
         # The session dictionary contains the 'catch' reserved keyword.
-        ({"v": 0.5, "a": 0.5, "catch": 0.5}, 0.5, None, KeyError),
+        ({"v": 0.5, "a": 0.5, "catch": 0.5}, 0.5, None, ValueError),
         # The session is not a dictionary.
         (set(), 0.5, None, TypeError),
         # Max. sequential imposed on modality which should be presented in every trial.
@@ -247,14 +247,14 @@ def test_annubes_env_probabilities_and_counts(
     # Ensure that the environment fails to instantiate
     # and the correct error type is raised.
     if error_type is not None:
-        with pytest.raises(error_type) as e:
+        with pytest.raises(Exception) as e:
             env = AnnubesEnv(
                 session=session,
                 catch_prob=catch_prob,
                 max_sequential=max_sequential,
                 random_seed=RND_SEED,
             )
-        assert e.type is error_type
+        assert e.type is error_type, f"incorrect error type raised: expected {error_type}, got {e.type}."
         return
 
     # We are past the failure checks, create
@@ -276,7 +276,7 @@ def test_annubes_env_probabilities_and_counts(
     # of 0, so we have to exclude those.
     session_modalities: set = {k for k, v in env.session.items() if v > 0.0}
     if catch_prob > 0.0:
-        session_modalities.add(AnnubesEnv.catch_session_key)
+        session_modalities.add(CATCH_SESSION_KEY)
     occurrence_modalities = set(occurrences.keys())
     assert session_modalities == occurrence_modalities, "The trials do not reflect the session."
 
