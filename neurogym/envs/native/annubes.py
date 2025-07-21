@@ -233,7 +233,7 @@ class AnnubesEnv(TrialEnv):
         self.add_ob(1, "stimulus", where="start")
 
         # Compile a dictionary of available stimulus options.
-        options: dict = {}
+        options: dict[tuple[str, ...], float] = {}
         for stim, prob in self.session.items():
             if all(
                 (
@@ -270,7 +270,7 @@ class AnnubesEnv(TrialEnv):
                     self.sequential_count[modality] = 0
             self.sequential_count[CATCH_KEYWORD] += 1
 
-            stimulus = []
+            stimulus = ()
             intensities: dict[str, float] = {}
 
         else:
@@ -307,31 +307,32 @@ class AnnubesEnv(TrialEnv):
 
     def _select_stimulus(
         self,
-        options: dict,
-    ) -> Any:
-        """Select a sitmulus from the currently available options.
+        options: dict[tuple[str, ...], float],
+    ) -> tuple[str, ...]:
+        """Select a stimulus for the next trial.
 
         Args:
-            options: A dictionary of stimulus options mapped to their probabilities.
+            options: A dictionary of available stimulus options (taking max_sequential into account) mapped to their
+            probabilities.
 
         Returns:
-            A stimulus as a list containing more modalities or a catch trial.
+            A stimulus, represented as tuple of modalities.
         """
-        # Select one of several mutually exclusive options.
-        # First we need to normalise the probabilities since
-        # they might not add up to 1.
+        # Normalise so probabilities add to 1.
         total = sum(options.values())
-        flat_options = [(k, v / total) for k, v in options.items()]
+        normalized_options = [(k, v / total) for k, v in options.items()]  # list form of options: [(stim, prob)]
 
-        # Select an index at random
+        # Select an index at random. We cannot directly use the keys of the dictionary because they are tuples,
+        # and numpy's choice does not support tuples as keys very well.
         idx = self._rng.choice(
-            np.arange(len(flat_options)),
-            p=[item[1] for item in flat_options],
-        ).item()
+            len(normalized_options),
+            p=[item[1] for item in normalized_options],
+        )
+        idx = int(idx)
 
         # Now pick the key from the array.
         # This is the stimulus that will be presented during the trial.
-        return flat_options[idx][0]
+        return normalized_options[idx][0]
 
     def _step(self, action: int) -> tuple:  # type: ignore[override]
         """Internal method to compute the environment's response to the agent's action.
