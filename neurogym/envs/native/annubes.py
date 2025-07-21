@@ -9,6 +9,7 @@ from neurogym.utils import spaces
 class AnnubesEnv(TrialEnv):
     # A reserved keyword for catch trials.
     catch_kwd: str = "catch"
+    catch_session_key: tuple[str] = (catch_kwd,)
 
     # The upper and lower bounds for the catch probability
     # used in the max_sequential satisfiability checks.
@@ -21,7 +22,7 @@ class AnnubesEnv(TrialEnv):
         catch_prob: float,
         intensities: dict[str, list[float]] | None = None,
         stim_time: int = 1000,
-        max_sequential: dict[str, int] | int | None = None,
+        max_sequential: dict[str, int | None] | int | None = None,
         fix_intensity: float = 0,
         fix_time: Any = 500,
         iti: Any = 0,
@@ -110,8 +111,7 @@ class AnnubesEnv(TrialEnv):
         if output_behavior is None:
             output_behavior = [0, 1]
 
-        self.max_sequential = max_sequential
-        self.prepare_max_sequential()
+        self.max_sequential = self.prepare_max_sequential(max_sequential)
         # Check if the max_sequential constraints can be satisfied.
         self._check_max_sequential()
 
@@ -269,12 +269,13 @@ class AnnubesEnv(TrialEnv):
         self.add_ob(1, "stimulus", where="start")
 
         # Compile a dictionary of available stimulus options.
-        options: dict[tuple, float] = {}
+        options: dict = {}
         for stim, prob in self.session.items():
             if all(
                 (
-                    self.max_sequential[modality] is None # type ignore[index]
-                    or self.sequential_count[modality] < self.max_sequential[modality]
+                    self.max_sequential[modality] is None
+                    or self.sequential_count[modality]  # type: ignore[operator]
+                    < self.max_sequential[modality]
                 )
                 for modality in stim
             ):
@@ -283,7 +284,8 @@ class AnnubesEnv(TrialEnv):
         # If a catch trial is allowed, add the probability here
         if self.catch_prob > 0.0 and (
             self.max_sequential[AnnubesEnv.catch_kwd] is None
-            or self.sequential_count[AnnubesEnv.catch_kwd] < self.max_sequential[AnnubesEnv.catch_kwd]
+            or self.sequential_count[AnnubesEnv.catch_kwd]  # type: ignore[operator]
+            < self.max_sequential[AnnubesEnv.catch_kwd]
         ):
             options[AnnubesEnv.catch_session_key] = self.catch_prob
 
@@ -410,11 +412,6 @@ class AnnubesEnv(TrialEnv):
 
         return self.ob_now, reward, terminated, truncated, info
 
-    @staticmethod
-    @property
-    def catch_session_key():
-        return AnnubesEnv.catch_session_key
-
     def prepare_session_and_modalities(self):
         """Validate the session keys, extract modalities and ensure that all probabilities are sane."""
         # Convert all keys into tuples for consistency.
@@ -449,24 +446,26 @@ class AnnubesEnv(TrialEnv):
         self.session = valid_session
         self.modalities = modalities
 
-    def prepare_max_sequential(self):
+    def prepare_max_sequential(self, max_sequential: dict[str, int | None] | int | None) -> dict[str, int | None]:
         """Process and assign the respective max_sequential limits to each modality.
 
         NOTE: A value of 'None' means no limit.
         """
-        if isinstance(self.max_sequential, dict):
+        if isinstance(max_sequential, dict):
             # Ensure that all the modalities are present in the dictionary.
             # The default value is None, which means no limit.
             for mod in self.modalities:
-                self.max_sequential.setdefault(mod)
-        elif self.max_sequential is None or isinstance(self.max_sequential, int):
+                max_sequential.setdefault(mod, None)
+        elif max_sequential is None or isinstance(max_sequential, int):
             # If max_sequential is not a dictionary, use it as the default value
             # for a dictionary based on all modalities as keys.
-            self.max_sequential = dict.fromkeys(self.modalities, self.max_sequential)
+            max_sequential = dict.fromkeys(self.modalities, max_sequential)
         else:
             msg = "'max_sequential' can only be a dictionary, an integer or None."
             raise TypeError(msg)
 
         # Set a limit on max_sequential for catch trials only if it is
         # explicitly set in the max_sequential dictionary from the outset.
-        self.max_sequential.setdefault(AnnubesEnv.catch_kwd)
+        max_sequential.setdefault(AnnubesEnv.catch_kwd, None)
+
+        return max_sequential
