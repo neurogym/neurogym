@@ -1,5 +1,4 @@
 from collections.abc import Callable
-from typing import Any
 
 import numpy as np
 import pytest
@@ -155,7 +154,7 @@ def test_fix_time_types(
         (1.0, ValueError),
     ],
 )
-def test_catch_prob(catch_prob: float, error_type: Any):
+def test_catch_prob(catch_prob: float, error_type: type[Exception] | None):
     """Test if the catch trial probability is working as expected.
 
     This test checks:
@@ -231,7 +230,7 @@ def test_annubes_env_probabilities_and_counts(
     session: dict,
     catch_prob: float,
     max_sequential: dict[str, int | None] | int | None,
-    error_type: Any,
+    error_type: type[Exception] | None,
 ):
     """Test AnnubesEnv with various values for the session, catch probability and max_sequential.
 

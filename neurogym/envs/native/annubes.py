@@ -122,7 +122,7 @@ class AnnubesEnv(TrialEnv):
         self._check_inputs()
 
         # set derived environment parameters
-        self.sequential_count = dict.fromkeys(self.max_sequential, 0)  # type: ignore[arg-type]
+        self.sequential_count = dict.fromkeys(self.max_sequential, 0)
         alpha = dt / self.tau
         self.noise_factor = self.noise_std * np.sqrt(2 * alpha) / alpha
         self._rng = np.random.default_rng(self._random_seed)
@@ -144,7 +144,7 @@ class AnnubesEnv(TrialEnv):
             name={"fixation": self.fix_intensity, "choice": self.output_behavior[1:]},
         )
 
-    def _check_inputs(self):
+    def _check_inputs(self) -> None:
         """Check if inputs are is valid."""
         if CATCH_KEYWORD in self.modalities:
             msg = f"Reserved keyword `{CATCH_KEYWORD}` cannot be given in the session dictionary."
@@ -167,7 +167,7 @@ class AnnubesEnv(TrialEnv):
         if self.max_sequential:
             self._check_max_sequential()
 
-    def _check_max_sequential(self):
+    def _check_max_sequential(self) -> None:
         """Check the satisfiability of the conditions imposed by max_sequential.
 
         An example of an invalid max_sequential is if all of the following are true:
@@ -219,7 +219,7 @@ class AnnubesEnv(TrialEnv):
             msg = "Please ensure that at least one modality has a non-zero probability."
             raise ValueError(msg)
 
-    def _new_trial(self, **kwargs: Any) -> dict:  # type: ignore[override]
+    def _new_trial(self, **kwargs) -> dict[str, Any]:  # type: ignore[override]
         """Internal method to generate a new trial.
 
         Returns:
