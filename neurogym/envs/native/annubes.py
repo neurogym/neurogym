@@ -70,6 +70,12 @@ class AnnubesEnv(TrialEnv):
         ValueError: Raised if the conditions imposed by max_sequential are not satisfiable.
     """
 
+    metadata = {  # noqa: RUF012
+        "paper_link": None,
+        "paper_name": None,
+        "tags": ["n-alternative", "perceptual", "supervised"],  # TODO: check these
+    }
+
     def __init__(
         self,
         session: dict[str | tuple[str], float],
