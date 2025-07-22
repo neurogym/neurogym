@@ -11,9 +11,8 @@ from neurogym.utils.logging import logger
 _HAVE_PSYCHOPY = find_spec("psychopy") is not None  # check if psychopy is installed
 _INCLUDE_CONTRIB = False  # FIXME: these are currently not passing tests
 _EXCLUDE_ENVS = [
-    "AnnubesEnv",  # FIXME: failing test_env.py::test_seeding_all (resolve in #149)
-    "Detection",  # FIXME: failing test_data.py and test_env.py
-    "ToneDetection",  # FIXME: failing test_data.py::test_registered_env
+    "AnnubesEnv",  # FIXME: failing tests/test_data.py::test_examples_different_made_env - assert np.float64(0.0) > 0
+    "Detection",  # FIXME: test_data.py and test_envs.py - AttributeError: 'Detection' object has no attribute 'gt'
 ]
 
 
@@ -155,7 +154,8 @@ def all_tags() -> list[str]:
     envs = all_envs()
     tags = []
     for env_name in sorted(envs):
-        env = make(env_name)
-        metadata = env.metadata
+        from_, class_ = ALL_EXTENDED_ENVS[env_name].split(":")
+        imported = getattr(__import__(from_, fromlist=[class_]), class_)
+        metadata = imported.metadata
         tags += metadata.get("tags", [])
     return list(set(tags))

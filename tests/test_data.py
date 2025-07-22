@@ -27,7 +27,9 @@ def _test_env(env: str):
     batch_size = 32
     seq_len = 40
     env_kwargs = {"dt": 100}
-    if env.startswith("Annubes"):
+    if env.startswith("ToneDetection"):
+        env_kwargs = {"dt": 50}
+    elif env.startswith("Annubes"):
         env_kwargs.update(ANNUBES_KWS)  # type: ignore[arg-type]
     dataset = Dataset(
         env,
