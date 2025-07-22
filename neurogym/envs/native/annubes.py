@@ -124,6 +124,7 @@ class AnnubesEnv(TrialEnv):
             self._random_seed = rng.integers(2**32)
         else:
             self._random_seed = random_seed
+        self._rng = np.random.default_rng(self._random_seed)
 
         # Check if all input parameters are valid.
         self._check_inputs()
@@ -132,7 +133,6 @@ class AnnubesEnv(TrialEnv):
         self.sequential_count = dict.fromkeys(self.max_sequential, 0)
         alpha = dt / self.tau
         self.noise_factor = self.noise_std * np.sqrt(2 * alpha) / alpha
-        self._rng = np.random.default_rng(self._random_seed)
         self.timing = {
             "fixation": self.fix_time,
             "stimulus": self.stim_time,
