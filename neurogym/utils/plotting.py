@@ -7,17 +7,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 from gymnasium import make  # using ngym.make would lead to circular import
 from matplotlib import animation
-from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
 
+from neurogym import _SB3_INSTALLED
 from neurogym.utils.decorators import suppress_during_pytest
 from neurogym.utils.logging import logger
 
-try:
+if _SB3_INSTALLED:
+    from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
     from stable_baselines3.common.vec_env import DummyVecEnv
-
-    _SB3_AVAILABLE = True
-except ImportError:
-    _SB3_AVAILABLE = False
 
 
 # TODO: This is changing user's plotting behavior for non-neurogym plots
@@ -114,11 +111,9 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     gt = []
     perf = []
     if isinstance(env, DummyVecEnv):
-        if not _SB3_AVAILABLE:
+        if not _SB3_INSTALLED:
             msg = "Stable-Baselines3 is not installed. Install it with 'pip install neurogym[rl]'."
-            raise ImportError(
-                msg,
-            )
+            raise ImportError(msg)
         ob = env.reset()
     else:
         ob, _ = env.reset()
@@ -137,7 +132,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     trial_count = 0
     for _ in range(int(num_steps)):
         if model is not None:
-            if isinstance(model.policy, RecurrentActorCriticPolicy):
+            if _SB3_INSTALLED and isinstance(model.policy, RecurrentActorCriticPolicy):
                 action, states = model.predict(ob, state=states, episode_start=episode_starts, deterministic=True)
             else:
                 action, _ = model.predict(ob, deterministic=True)
@@ -150,11 +145,9 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         else:
             action = env.action_space.sample()
         if isinstance(env, DummyVecEnv):
-            if not _SB3_AVAILABLE:
+            if not _SB3_INSTALLED:
                 msg = "Stable-Baselines3 is not installed. Install it with 'pip install neurogym[rl]'."
-                raise ImportError(
-                    msg,
-                )
+                raise ImportError(msg)
             ob, rew, terminated, info = env.step(action)
         else:
             ob, rew, terminated, _truncated, info = env.step(action)
@@ -605,7 +598,7 @@ def put_together_files(folder):
     files = Path(folder).glob("/*_bhvr_data*npz")
     data = {}
     if len(files) > 0:
-        files = order_by_sufix(files)
+        files = order_by_suffix(files)
         file_data = np.load(files[0], allow_pickle=True)
         for key in file_data:
             data[key] = file_data[key]
@@ -618,6 +611,6 @@ def put_together_files(folder):
     return data
 
 
-def order_by_sufix(file_list):
+def order_by_suffix(file_list):
     sfx = [int(x[x.rfind("_") + 1 : x.rfind(".")]) for x in file_list]  # FIXME: use pathlib method to find extension
     return [x for _, x in sorted(zip(sfx, file_list, strict=True))]

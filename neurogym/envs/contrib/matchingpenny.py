@@ -65,8 +65,7 @@ class MatchingPenny(TrialEnv):
         elif self.opponent_type == "mean_action":
             opponent_action = 1 * (not np.round(self.mean_action))
         else:
-            ot = self.opponent_type
-            msg = f"Unknown opponent type {ot}."
+            msg = f"Unknown opponent type {self.opponent_type}."
             raise ValueError(msg)
 
         trial = {"opponent_action": opponent_action}
@@ -92,10 +91,3 @@ class MatchingPenny(TrialEnv):
 
         info = {"new_trial": True, "gt": self.gt}
         return obs, reward, terminated, truncated, info
-
-
-if __name__ == "__main__":
-    from neurogym.utils.plotting import plot_env
-
-    env = MatchingPenny(opponent_type="mean_action")
-    plot_env(env, num_steps=100)  # , def_act=0)

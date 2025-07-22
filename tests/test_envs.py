@@ -19,7 +19,7 @@ ENVS = all_envs(psychopy=_HAVE_PSYCHOPY, contrib=True, collections=True)
 ENVS_NOPSYCHOPY = all_envs(psychopy=False, contrib=True, collections=True)
 
 
-def _test_run(env, num_steps=100, verbose=False):
+def _test_run(env, num_steps=100):
     """Test if one environment can at least be run."""
     if isinstance(env, str):
         env = make(env)
@@ -35,24 +35,19 @@ def _test_run(env, num_steps=100, verbose=False):
             env.reset()
 
     tags = env.metadata.get("tags", [])
-    for t in tags:
-        if t not in all_tags():
-            logger.warning(f"env has tag {t} not in all_tags")
-
-    if verbose:
-        logger.info(env)
+    assert all(t in all_tags() for t in tags)
 
     return env
 
 
-def test_run_all(verbose_success=False):
+def test_run_all():
     """Test if all environments can at least be run."""
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
         try:
             for env_name in ENVS:
-                _test_run(env_name, verbose=verbose_success)
+                _test_run(env_name)
         except:
             logger.error(f"Failure at running env: {env_name}")
             raise

@@ -13,7 +13,7 @@ NeuroGym is a curated collection of neuroscience tasks with a common interface. 
 
 Table of Contents
 
-<!--> This table is automatically kept up to date using the "Markdown All in One" extension<!-->
+<!-- This table is automatically kept up to date using the "Markdown All in One" extension -->
 
 - [Installation](#installation)
   - [1. Create a Virtual Environment](#1-create-a-virtual-environment)
@@ -72,7 +72,7 @@ pip install neurogym[rl]
 
 **NOTE for Linux/WSL users:** If you do not have access to a CUDA-capable NVIDIA GPU (which is the case for most users),
 above line will install up to 1.5GB of unnecessary GPU libraries. To avoid excessive overhead, we recommend first
-isntalling the CPU-only version of [PyTorch](https://pytorch.org/get-started/locally/):
+installing the CPU-only version of [PyTorch](https://pytorch.org/get-started/locally/):
 
 ```bash
 pip install torch --index-url https://download.pytorch.org/whl/cpu
