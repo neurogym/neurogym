@@ -15,6 +15,61 @@ MAX_CATCHPROB: float = 1 - 1e-6
 
 
 class AnnubesEnv(TrialEnv):
+    """Annubes task.
+
+    Args:
+        session: Configuration dictionary for the types of trials that can appear during a session.
+            The keys are stimuli that can be presented during the trial and the values are the probabilities that that
+            stimulus will appear in a trial. Each stimulus can be either a string (representing a single modality) or a
+            tuple of strings (representing a combination of one or more modalities).
+            Note that:
+                - probabilities are interpreted as being relative to each other, such that e.g. `{"v": 0.25,
+                "a": 0.75}` is identical to `{"v": 1, "a": 3}`.
+                - the probability of a catch trial is given separately (cf. `catch_prob` below). For instance, if the
+                catch probability is `0.5`, the probabilities will be used only in the remaining (`1 - catch_prob`) of
+                the trials.
+                - catch trials are defined by the reserved keyword `catch` in the session dictionary, which cannot be
+                used as a user input.
+        catch_prob: Probability of catch trials in the session. Must be between 0 and 1 (inclusive).
+        intensities: Intensity values for each modality. Can be either:
+            - A list of floats, which will be used for all modalities.
+            - A dictionary mapping each modality to a list of its possible intensity values.
+            - `None` (default), which will default to [0.8, 0.9, 1.0] for each modality.
+        stim_time: Duration of each stimulus in ms. Defaults to 1000 ms.
+        max_sequential: Maximum number of sequential trials of the same stimulus. Can be either:
+            - an integer, which will apply to all stimuli defined in `session`, but NOT to catch trials.
+            - a dictionary, which can specify an independent limit for each stimulus, including catch trials.
+            - `None` (default), which means no limit on the number of sequential trials.
+        fix_intensity: Intensity of input signal during fixation.
+        fix_time: Fixation time specification. Can be one of the following:
+            - A number (int or float): Fixed duration in milliseconds.
+            - A callable: Function that returns the duration when called.
+            - A list of numbers: Random choice from the list.
+            - A tuple specifying a distribution:
+                - ("uniform", (min, max)): Uniform distribution between min and max.
+                - ("choice", [options]): Random choice from the given options.
+                - ("truncated_exponential", [parameters]): Truncated exponential distribution.
+                - ("constant", value): Always returns the given value.
+                - ("until", end_time): Sets duration to reach the specified end time.
+            The final duration is rounded down to the nearest multiple of the simulation timestep (dt).
+            Note that the duration of each input and output signal is increased by this time.
+            Defaults to 500 ms.
+        iti: Inter-trial interval, or time window between sequential trials, in ms. Same format as `fix_time`.
+            Defaults to 0 ms, meaning no inter-trial interval.
+        dt: Time step in ms. Defaults to 100 ms.
+        tau: Time constant in ms. Defaults to 100 ms.
+        output_behavior: List of possible intensity values of the behavioral output.
+            Currently only the smallest and largest value of this list are used.
+            Defaults to [0, 1].
+        noise_std: Standard deviation of the input noise. Defaults to 0.01.
+        rewards: Dictionary of rewards for different outcomes. The keys are "abort", "correct", and "fail".
+            Defaults to: {"abort": -0.1, "correct": 1.0, "fail": 0.0}.
+        random_seed: Optional seed for numpy's random number generator (rng).
+
+    Raises:
+        ValueError: Raised if the conditions imposed by max_sequential are not satisfiable.
+    """
+
     def __init__(
         self,
         session: dict[str | tuple[str], float],
@@ -32,60 +87,6 @@ class AnnubesEnv(TrialEnv):
         rewards: dict[str, float] | None = None,
         random_seed: int | None = None,
     ):
-        """Annubes task.
-
-        Args:
-            session: Configuration dictionary for the types of trials that can appear during a session.
-                The keys are stimuli that can be presented during the trial and the values are the probabilities that
-                that stimulus will appear in a trial. Each stimulus can be either a string (representing a single
-                modality) or a tuple of strings (representing a combination of one or more modalities).
-                Note that:
-                    - probabilities are interpreted as being relative to each other, such that e.g. `{"v": 0.25,
-                    "a": 0.75}` is identical to `{"v": 1, "a": 3}`.
-                    - the probability of a catch trial is given separately (cf. `catch_prob` below). For instance, if
-                    the catch probability is `0.5`, the probabilities will be used only in the remaining (`1 -
-                    catch_prob`) of the trials.
-                    - catch trials are defined by the reserved keyword `catch` in the session dictionary, which cannot
-                    be used as a user input.
-            catch_prob: Probability of catch trials in the session. Must be between 0 and 1 (inclusive).
-            intensities: Intensity values for each modality. Can be either:
-                - A list of floats, which will be used for all modalities.
-                - A dictionary mapping each modality to a list of its possible intensity values.
-                - `None` (default), which will default to [0.8, 0.9, 1.0] for each modality.
-            stim_time: Duration of each stimulus in ms. Defaults to 1000 ms.
-            max_sequential: Maximum number of sequential trials of the same stimulus. Can be either:
-                - an integer, which will apply to all stimuli defined in `session`, but NOT to catch trials.
-                - a dictionary, which can specify an independent limit for each stimulus, including catch trials.
-                - `None` (default), which means no limit on the number of sequential trials.
-            fix_intensity: Intensity of input signal during fixation.
-            fix_time: Fixation time specification. Can be one of the following:
-                - A number (int or float): Fixed duration in milliseconds.
-                - A callable: Function that returns the duration when called.
-                - A list of numbers: Random choice from the list.
-                - A tuple specifying a distribution:
-                    - ("uniform", (min, max)): Uniform distribution between min and max.
-                    - ("choice", [options]): Random choice from the given options.
-                    - ("truncated_exponential", [parameters]): Truncated exponential distribution.
-                    - ("constant", value): Always returns the given value.
-                    - ("until", end_time): Sets duration to reach the specified end time.
-                The final duration is rounded down to the nearest multiple of the simulation timestep (dt).
-                Note that the duration of each input and output signal is increased by this time.
-                Defaults to 500 ms.
-            iti: Inter-trial interval, or time window between sequential trials, in ms. Same format as `fix_time`.
-                Defaults to 0 ms, meaning no inter-trial interval.
-            dt: Time step in ms. Defaults to 100 ms.
-            tau: Time constant in ms. Defaults to 100 ms.
-            output_behavior: List of possible intensity values of the behavioral output.
-                Currently only the smallest and largest value of this list are used.
-                Defaults to [0, 1].
-            noise_std: Standard deviation of the input noise. Defaults to 0.01.
-            rewards: Dictionary of rewards for different outcomes. The keys are "abort", "correct", and "fail".
-                Defaults to: {"abort": -0.1, "correct": 1.0, "fail": 0.0}.
-            random_seed: Optional seed for numpy's random number generator (rng).
-
-        Raises:
-            ValueError: Raised if the conditions imposed by max_sequential are not satisfiable.
-        """
         super().__init__(dt=dt)
 
         # Initialize the environment parameters.
