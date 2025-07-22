@@ -6,7 +6,7 @@ from neurogym.wrappers.components.layers.base import LayerMonitorBase, to_numpy
 
 
 class RNNLayerMonitor(LayerMonitorBase):
-    layer_types: nn.Module = nn.RNN
+    layer_type = nn.RNN
     probes: ClassVar = {
         "output": lambda output: to_numpy(output[0]),
         "hidden": lambda output: to_numpy(output[1]),

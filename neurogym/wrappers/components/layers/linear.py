@@ -6,7 +6,7 @@ from neurogym.wrappers.components.layers.base import LayerMonitorBase, to_numpy
 
 
 class LinearLayerMonitor(LayerMonitorBase):
-    layer_types: nn.Module = nn.Linear
+    layer_type = nn.Linear
     probes: ClassVar = {"output": lambda output: to_numpy(output)}
 
     def get_population_shapes(self) -> dict[str, tuple]:

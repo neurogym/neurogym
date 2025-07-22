@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
@@ -24,8 +24,8 @@ def to_numpy(tensor: torch.Tensor) -> np.ndarray:
 
 
 class LayerMonitorBase(ABC):
-    layer_types: tuple[nn.Module] | nn.Module | None = None
-    probes: dict[str, Callable] | None = None
+    layer_type: type[nn.Module]
+    probes: ClassVar
 
     @staticmethod
     def get_monitor(
@@ -48,10 +48,8 @@ class LayerMonitorBase(ABC):
         """
         cls = layer.__class__
         for layer_monitor in LayerMonitorBase.__subclasses__():
-            layer_types = layer_monitor.layer_types
-            if not isinstance(layer_types, tuple):
-                layer_types = (layer_types,)
-            if cls in layer_types:
+            layer_type = layer_monitor.layer_type
+            if cls is layer_type:
                 return layer_monitor(layer, hook, populations=populations)  # type: ignore[abstract]
 
         msg = f"It seems that a monitor for layers of type '{cls}' has not been implemented yet."
@@ -85,7 +83,7 @@ class LayerMonitorBase(ABC):
         self.layer.register_forward_hook(hook, always_call=True)
 
     @abstractmethod
-    def get_population_shapes(self) -> tuple[int, ...]:
+    def get_population_shapes(self) -> dict[str, tuple]:
         """Get the shape of the output of this layer.
 
         This should be overridden in derived classes.

@@ -22,7 +22,7 @@ class ActivationMonitor:
 
         # The neuron count
         self.paused = False
-        self.history: list[np.ndarray] = {population: [] for population in self.monitor.populations}
+        self.history: dict[str, list[np.ndarray]] = {population: [] for population in self.monitor.populations}
         self.step: int = 0
         self._new_trial: bool = False
         self._monitor_during_training = False
@@ -53,11 +53,11 @@ class ActivationMonitor:
 
     @monitor_during_training.setter
     def monitor_during_training(self, value: bool):
-        '''Set the _monitor_during_training attribute.
+        """Set the _monitor_during_training attribute.
 
         Args:
             value: The new value.
-        '''
+        """
         self._monitor_during_training = value
 
     def _fw_activation_hook(
@@ -80,7 +80,11 @@ class ActivationMonitor:
         # FIXME: Remove the training regime check.
         # Right now, activations cannot be extracted for SB3-contrib models during training.
         # See https://github.com/Stable-Baselines-Team/stable-baselines3-contrib/issues/299
-        if (not module.training or module.training and self._monitor_during_training) and (not self.paused) and (self.step < self.steps):
+        if (
+            (not module.training or (module.training and self._monitor_during_training))
+            and (not self.paused)
+            and (self.step < self.steps)
+        ):
             # Extract and store the activations from the requested neuron populations.
             for population, activations in self.monitor.get_activations(output).items():
                 self.history[population][-1][self.step] = activations
