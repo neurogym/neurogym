@@ -3,7 +3,7 @@ from collections.abc import Callable
 import numpy as np
 import pytest
 
-from neurogym.envs.native.annubes import CATCH_SESSION_KEY, AnnubesEnv
+from neurogym.envs.native.annubes import CATCH_KEYWORD, CATCH_SESSION_KEY, AnnubesEnv
 
 RND_SEED = 42
 FIX_INTENSITY = 0.1
@@ -215,7 +215,9 @@ def test_catch_prob(catch_prob: float, error_type: type[Exception] | None):
         # All probabilities are 0.
         ({"v": 0.0, "a": 0.0, "o": 0.0}, 0.5, None, ValueError),
         # The session dictionary contains the 'catch' reserved keyword.
-        ({"v": 0.5, "a": 0.5, "catch": 0.5}, 0.5, None, ValueError),
+        ({"v": 0.5, "a": 0.5, CATCH_KEYWORD: 0.5}, 0.5, None, ValueError),
+        # The session dictionary contains the 'CATCH' (upper case) reserved keyword.
+        ({"v": 0.5, "a": 0.5, CATCH_KEYWORD.upper(): 0.5}, 0.5, None, ValueError),
         # The session is not a dictionary.
         (set(), 0.5, None, TypeError),
         # Max. sequential imposed on modality which should be presented in every trial.
@@ -223,7 +225,7 @@ def test_catch_prob(catch_prob: float, error_type: type[Exception] | None):
         # The catch probability is 1 but there are stimuli with non-zero probabilities.
         ({"v": 0.5, "a": 0.5}, 1.0, None, ValueError),
         # The catch probability is 1 but there is a limit on catch trials.
-        ({"v": 0.0, "a": 0.0}, 1.0, {"catch": 5}, ValueError),
+        ({"v": 0.0, "a": 0.0}, 1.0, {CATCH_KEYWORD: 5}, ValueError),
     ],
 )
 def test_annubes_env_probabilities_and_counts(

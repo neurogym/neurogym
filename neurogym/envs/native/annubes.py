@@ -45,7 +45,7 @@ class AnnubesEnv(TrialEnv):
                     - the probability of a catch trial is given separately (cf. `catch_prob` below). For instance, if
                     the catch probability is `0.5`, the probabilities will be used only in the remaining (`1 -
                     catch_prob`) of the trials.
-                    - catch trials are defined by the reserved keyword `CATCH` in the session dictionary, which cannot
+                    - catch trials are defined by the reserved keyword `catch` in the session dictionary, which cannot
                     be used as a user input.
             catch_prob: Probability of catch trials in the session. Must be between 0 and 1 (inclusive).
             intensities: Intensity values for each modality. Can be either:
@@ -146,7 +146,8 @@ class AnnubesEnv(TrialEnv):
 
     def _check_inputs(self) -> None:
         """Check if inputs are is valid."""
-        if CATCH_KEYWORD in self.modalities:
+        lowercase_modalities = [mod.lower() for mod in self.modalities]
+        if CATCH_KEYWORD.lower() in lowercase_modalities:
             msg = f"Reserved keyword `{CATCH_KEYWORD}` cannot be given in the session dictionary."
             raise ValueError(msg)
 
@@ -377,7 +378,10 @@ class AnnubesEnv(TrialEnv):
 
         return self.ob_now, reward, terminated, truncated, info
 
-    def _prepare_session_and_modalities(self, session) -> tuple[dict[tuple[str, ...], float], set[str]]:
+    def _prepare_session_and_modalities(
+        self,
+        session: dict[str | tuple[str], float],
+    ) -> tuple[dict[tuple[str, ...], float], set[str]]:
         """Validate the session keys, extract modalities and ensure that all probabilities are sane."""
         # Convert all keys into tuples for consistency.
         if not isinstance(session, dict):
@@ -411,7 +415,10 @@ class AnnubesEnv(TrialEnv):
             try:
                 valid_session[valid_stim] = prob / prob_sum
             except ZeroDivisionError as e:
-                msg = "Please ensure that at least one modality has a non-zero probability."
+                msg = (
+                    "Normalization of probabilities failed. "
+                    "Please ensure that all probabilities are non-negative and at least one is non-zero."
+                )
                 raise ValueError(msg) from e
 
         return valid_session, modalities
