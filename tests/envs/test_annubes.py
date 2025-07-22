@@ -68,7 +68,7 @@ def custom_env() -> AnnubesEnv:
         output_behavior=OUTPUT_BEHAVIOR,
         noise_std=0.02,
         rewards={"abort": -0.2, "correct": +1.5, "fail": -0.5},
-        random_seed=42,
+        random_seed=RND_SEED,
     )
 
 

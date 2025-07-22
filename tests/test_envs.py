@@ -11,6 +11,8 @@ from neurogym.envs.registration import all_envs, all_tags, make
 from neurogym.utils.data import Dataset
 from neurogym.utils.logging import logger
 
+from . import ANNUBES_KWS
+
 _HAVE_PSYCHOPY = find_spec("psychopy") is not None  # check if psychopy is installed
 SEED = 0
 
@@ -21,11 +23,10 @@ ENVS_NOPSYCHOPY = all_envs(psychopy=False, contrib=True, collections=True)
 
 def _test_run(env, num_steps=100):
     """Test if one environment can at least be run."""
-    if isinstance(env, str):
-        env = make(env)
-    elif not isinstance(env, gym.Env):
-        msg = f"{type(env)=} must be a string or a gym.Env"
-        raise TypeError(msg)
+    env_kwargs = {}
+    if env_name.startswith("Annubes"):
+        env_kwargs = ANNUBES_KWS
+    env = make(env_name, **env_kwargs)
 
     env.reset()
     for _ in range(num_steps):
@@ -89,14 +90,17 @@ def test_dataset_all():
 
 def _test_trialenv(env):
     """Test if a TrialEnv is behaving correctly."""
-    if isinstance(env, str):
-        env = make(env)
-    elif not isinstance(env, gym.Env):
-        msg = f"{type(env)=} must be a string or a gym.Env"
-        raise TypeError(msg)
+    env_kwargs = {}
+    if env_name.startswith("Annubes"):
+        env_kwargs = ANNUBES_KWS
+    env = make(env_name, **env_kwargs)
 
-    trial = env.new_trial()
-    assert isinstance(trial, dict)
+    if isinstance(env.unwrapped, TrialEnv):
+        trial = env.new_trial()
+        assert isinstance(trial, dict)
+    else:
+        msg = f"Environment {env_name} is not a subclass of `TrialEnv`."
+        raise TypeError(msg)
 
 
 def test_trialenv_all():
@@ -115,17 +119,17 @@ def test_trialenv_all():
 
 def _test_seeding(env):
     """Test if environments are replicable."""
-    if env is None:
-        env = all_envs()[0]
+    env_kwargs = {"dt": 20}
+    if env_name.startswith("Annubes"):
+        env_kwargs.update(ANNUBES_KWS)  # type: ignore[arg-type]
+        env_kwargs.update({"random_seed": SEED})
+    env = make(env_name, **env_kwargs)
 
-    if isinstance(env, str):
-        kwargs = {"dt": 20}
-        env = make(env, **kwargs)
-    elif not isinstance(env, gym.Env):
-        msg = f"{type(env)=} must be a string or a gym.Env"
+    if isinstance(env.unwrapped, BaseEnv):
+        env.seed(SEED)
+    else:
+        msg = f"Environment {env_name} is not a subclass of `BaseEnv`."
         raise TypeError(msg)
-
-    env.seed(SEED)
     env.reset()
     ob_mat = []
     rew_mat = []
@@ -167,9 +171,12 @@ def test_plot_all():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
         for env_name in ENVS:
-            if env_name == "Null-v0":
+            env_kwargs = {"dt": 20}
+            if env_name.startswith("Null"):
                 continue
-            env = make(env_name, dt=20)
+            if env_name.startswith("Annubes"):
+                env_kwargs.update(ANNUBES_KWS)
+            env = make(env_name, **env_kwargs)
             action = np.zeros_like(env.action_space.sample())
             try:  # FIXME: no actual test is run, as errors are caught
                 ngym.utils.plotting.plot_env(env, num_trials=2, def_act=action)
@@ -184,9 +191,9 @@ def test_get_envs():
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", message=".*Using the latest versioned environment*")
             warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include*")
-            env = gym.make(task)
+            env = make(task)
         assert isinstance(env, gym.Env)
         assert env.spec.id == "GoNogo-v0"
     for invalid in ["GoNogo-v99", "GoGoNo"]:
         with pytest.raises(gym.error.UnregisteredEnv):
-            _env = gym.make(invalid)
+            _env = make(invalid)
