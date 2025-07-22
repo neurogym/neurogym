@@ -11,7 +11,7 @@ Table of Contents
 - [Style Conventions](#style-conventions)
   - [Automated Style Adherence (for VScode users)](#automated-style-adherence-for-vscode-users)
   - [Linting and Formatting (python files)](#linting-and-formatting-python-files)
-  - [Spelling Check](#spelling-check)
+  - [Spell Check](#spell-check)
   - [Docstrings](#docstrings)
   - [Static Typing](#static-typing)
   - [Formatting Non-python Files](#formatting-non-python-files)
@@ -30,7 +30,7 @@ Table of Contents
   - [Linting](#linting)
   - [Notebooks](#notebooks)
   - [Code Quality](#code-quality)
-  - [Spell Check](#spell-check)
+  - [Spell Check](#spell-check-1)
   - [Static Typing](#static-typing-1)
 - [Making a Release](#making-a-release)
   - [Automated Release Workflow](#automated-release-workflow)
@@ -108,10 +108,12 @@ configurations of `ruff` are set [here](.ruff.toml).
 
 Please ensure both linting (`ruff check .`) and formatting (`ruff format .`) rules are adhered to before requesting a review.
 
-### Spelling Check
+### Spell Check
 
-Please check for typos by running `typos` or auto-fix typos by running `typos -w` from the command line. Any false
-positives you encounter can be added to the ignore list in [pyproject.toml](pyproject.toml) under `tool.typos`.
+Please check for common typos by running `typos` or auto-fix typos by running `typos -w` from the command line. Any
+false positives you encounter can be added to the ignore list in [pyproject.toml](pyproject.toml) under `tool.typos`.
+Note that this tool has a very low false positive rate and therefore misses many spelling errors. Don't assume
+everything is correct, just because this check passes.
 
 ### Docstrings
 
