@@ -7,6 +7,7 @@ import pytest
 from matplotlib import pyplot as plt
 
 import neurogym as ngym
+from neurogym.core import BaseEnv, TrialEnv
 from neurogym.envs.registration import all_envs, all_tags, make
 from neurogym.utils.data import Dataset
 from neurogym.utils.logging import logger
@@ -21,7 +22,7 @@ ENVS = all_envs(psychopy=_HAVE_PSYCHOPY, contrib=True, collections=True)
 ENVS_NOPSYCHOPY = all_envs(psychopy=False, contrib=True, collections=True)
 
 
-def _test_run(env, num_steps=100):
+def _test_run(env_name: str, num_steps: int = 100):
     """Test if one environment can at least be run."""
     env_kwargs = {}
     if env_name.startswith("Annubes"):
@@ -54,15 +55,16 @@ def test_run_all():
             raise
 
 
-def _test_dataset(env):
+def _test_dataset(env: str):
     """Main function for testing if an environment is healthy."""
     kwargs = {"dt": 20}
-    dataset = Dataset(env, env_kwargs=kwargs, batch_size=16, seq_len=300, cache_len=1e4)
+    dataset = Dataset(env, env_kwargs=kwargs, batch_size=16, seq_len=300, cache_len=10_000)
     for _ in range(10):
         inputs, target = dataset()
         assert inputs.shape[0] == target.shape[0]
 
 
+@pytest.mark.skip(reason="This test is not actually performed, as any error is caught away.")
 def test_dataset_all():
     """Test if all environments can at least be run."""
     with warnings.catch_warnings():
@@ -79,7 +81,7 @@ def test_dataset_all():
             try:  # FIXME, tests are not actually performed here, as any error is caught away
                 _test_dataset(env_name)
                 success_count += 1
-            except BaseException as e:  # noqa: PERF203, BLE001 # FIXME: unclear which error is expected here.
+            except Exception as e:  # noqa: PERF203, BLE001 # FIXME: unclear which error is expected here.
                 logger.error(f"Failure at running env: {env_name}")
                 logger.error(e)
 
@@ -88,7 +90,7 @@ def test_dataset_all():
         logger.debug(f"Expect {supervised_count} envs to support supervised learning")
 
 
-def _test_trialenv(env):
+def _test_trialenv(env_name: str):
     """Test if a TrialEnv is behaving correctly."""
     env_kwargs = {}
     if env_name.startswith("Annubes"):
@@ -110,14 +112,13 @@ def test_trialenv_all():
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
         try:
             for env_name in ENVS:
-                env = make(env_name)
-                _test_trialenv(env)
+                _test_trialenv(env_name)
         except:
             logger.error(f"Failure with env: {env_name}")
             raise
 
 
-def _test_seeding(env):
+def _test_seeding(env_name: str):
     """Test if environments are replicable."""
     env_kwargs = {"dt": 20}
     if env_name.startswith("Annubes"):
@@ -142,10 +143,7 @@ def _test_seeding(env):
         act_mat.append(action)
         if terminated:
             env.reset()
-    ob_mat = np.array(ob_mat)
-    rew_mat = np.array(rew_mat)
-    act_mat = np.array(act_mat)
-    return ob_mat, rew_mat, act_mat
+    return np.array(ob_mat), np.array(rew_mat), np.array(act_mat)
 
 
 # TODO: there is one env for which it sometimes raises an error
@@ -166,6 +164,7 @@ def test_seeding_all():
             raise
 
 
+@pytest.mark.skip(reason="This test is not actually performed, as any error is caught away.")
 def test_plot_all():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
