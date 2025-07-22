@@ -14,10 +14,10 @@ class SpatialSuppressMotion(TrialEnv):
     This task is useful to study center-surround interaction in monkey MT and human psychophysical performance in motion
     perception.
 
-    Tha task is derived from (Tadin et al. Nature, 2003). In this task, there is no fixation or decision stage. We only
+    The task is derived from (Tadin et al. Nature, 2003). In this task, there is no fixation or decision stage. We only
     present a stimulus and a subject needs to perform a 4-AFC motion direction judgement. The ground-truth is the
     probabilities for choosing the four directions at a given time point. The probabilities depend on stimulus contrast
-    and size, and the probabilities are derived from emprically measured human psychophysical performance.
+    and size, and the probabilities are derived from empirically measured human psychophysical performance.
 
     In this version, the input size is 4 (directions) x 8 (size) = 32 neurons. This setting aims to simulate four pools
     (8 neurons in each pool) of neurons that are selective for four directions.
@@ -109,7 +109,7 @@ class SpatialSuppressMotion(TrialEnv):
         self.add_period(periods)
 
         # We need ground_truth
-        # the probablities to choose four directions given stimulus parameters
+        # the probabilities to choose four directions given stimulus parameters
         trial["ground_truth"] = self.getgroundtruth(trial)
 
         # create the stimulus
@@ -158,7 +158,7 @@ class SpatialSuppressMotion(TrialEnv):
         Input trial is a dict, contains fields <duration>, <contrast>, <diameter>
 
         We output a (4,) tuple indicate the probabilities to perceive left/right/up/down direction. This label comes
-        from emprically measured human performance
+        from empirically measured human performance
         """
         frame_ind = [8, 9, 10, 13, 15, 18, 21, 28, 36, 37, 38, 39]
         xx = [1, 2, 3, 4, 5, 6, 7]

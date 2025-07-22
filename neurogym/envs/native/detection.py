@@ -121,7 +121,7 @@ class Detection(TrialEnv):
         else:
             stim[:, 1:] += self.rng.randn(stim.shape[0], 1) * self.sigma
             delay = 0
-            self.r_tmax = 0  # response omision is correct but not rewarded
+            self.r_tmax = 0  # response omission is correct but not rewarded
             self.performance = 1
 
         self.delay_trial = delay * self.dt

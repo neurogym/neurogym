@@ -18,7 +18,7 @@ class HierarchicalReasoning(TrialEnv):
     shorter than the threshold. In another trial type, the network should go to
     the opposite direction of the flashes if the delay is short.
     The two types of trials are alternated across blocks, and the block
-    transtion is unannouced.
+    transition is unannounced.
     """
 
     metadata = {  # noqa: RUF012
