@@ -25,6 +25,7 @@ class ActivationMonitor:
         self.history: list[np.ndarray] = {population: [] for population in self.monitor.populations}
         self.step: int = 0
         self._new_trial: bool = False
+        self._monitor_during_training = False
         self.start_new_trial()
 
     @property
@@ -34,8 +35,30 @@ class ActivationMonitor:
 
     @new_trial.setter
     def new_trial(self, value: bool):
-        """Set the _new_trial attribute."""
+        """Set the _new_trial attribute.
+
+        Args:
+            value: The new value.
+        """
         self._new_trial = value
+
+    @property
+    def monitor_during_training(self):
+        """A property that determines whether activation trace can be monitored during training.
+
+        NOTE: To be removed when the following issue is resolved:
+        See https://github.com/Stable-Baselines-Team/stable-baselines3-contrib/issues/299
+        """
+        return self._monitor_during_training
+
+    @monitor_during_training.setter
+    def monitor_during_training(self, value: bool):
+        '''Set the _monitor_during_training attribute.
+
+        Args:
+            value: The new value.
+        '''
+        self._monitor_during_training = value
 
     def _fw_activation_hook(
         self,
@@ -57,11 +80,11 @@ class ActivationMonitor:
         # FIXME: Remove the training regime check.
         # Right now, activations cannot be extracted for SB3-contrib models during training.
         # See https://github.com/Stable-Baselines-Team/stable-baselines3-contrib/issues/299
-        if not module.training and (not self.paused) and (self.step < self.steps):
-            # Extract the relevant activations for this layer and store it.
+        if (not module.training or module.training and self._monitor_during_training) and (not self.paused) and (self.step < self.steps):
+            # Extract and store the activations from the requested neuron populations.
             for population, activations in self.monitor.get_activations(output).items():
                 self.history[population][-1][self.step] = activations
-        self.step += 1
+            self.step += 1
 
     def start_new_trial(self):
         """Start recording activations for a new trial."""
