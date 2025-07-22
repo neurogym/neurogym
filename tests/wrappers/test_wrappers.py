@@ -91,7 +91,7 @@ def test_passaction(
     Parameters
     ----------
     env_name : str, optional
-        environment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
+        environment to wrap. The default is 'PerceptualDecisionMaking-v0'.
     num_steps : int, optional
         number of steps to run the environment (1000)
     verbose : boolean, optional
@@ -130,7 +130,7 @@ def test_passreward(
     Parameters.
     ----------
     env_name : str, optional
-        environment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
+        environment to wrap. The default is 'PerceptualDecisionMaking-v0'.
     num_steps : int, optional
         number of steps to run the environment (1000)
     verbose : boolean, optional
@@ -172,7 +172,7 @@ def test_reactiontime(
     Parameters
     ----------
     env_name : str, optional
-        environment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
+        environment to wrap. The default is 'PerceptualDecisionMaking-v0'.
     num_steps : int, optional
         number of steps to run the environment (1000)
     urgency : float, optional
@@ -257,7 +257,7 @@ def test_variablemapping(
     Parameters.
     ----------
     env_name : str, optional
-        environment to wrap.. The default is 'NAltConditionalVisuomotor-v0'.
+        environment to wrap. The default is 'NAltConditionalVisuomotor-v0'.
     num_steps : int, optional
         number of steps to run the environment (1000)
     verbose : boolean, optional
@@ -376,7 +376,7 @@ def test_noise(
     Parameters
     ----------
     env_name : str, optional
-        environment to wrap.. The default is 'PerceptualDecisionMaking-v0'.
+        environment to wrap. The default is 'PerceptualDecisionMaking-v0'.
     num_steps : int, optional
         number of steps to run the environment (1000)
     verbose : boolean, optional
