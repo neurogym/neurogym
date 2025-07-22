@@ -382,7 +382,7 @@ class AnnubesEnv(TrialEnv):
         self,
         session: dict[str | tuple[str], float],
     ) -> tuple[dict[tuple[str, ...], float], set[str]]:
-        """Validate the session keys, extract modalities and ensure that all probabilities are sane."""
+        """Return a properly formatted session dictionary and set of unique modalities."""
         # Convert all keys into tuples for consistency.
         if not isinstance(session, dict):
             msg = "The session must be a dictionary."
@@ -426,7 +426,7 @@ class AnnubesEnv(TrialEnv):
     def _prepare_max_sequential(self, max_sequential) -> dict[str, int | None]:
         """Process and assign the respective max_sequential limits to each modality.
 
-        NOTE: A value of 'None' means no limit.
+        A value of 'None' means no limit.
         """
         valid_max_sequential: dict[str, int | None] = {}
         if isinstance(max_sequential, dict):
