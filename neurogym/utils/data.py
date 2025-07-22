@@ -1,6 +1,7 @@
 """Utilities for data."""
 
 import copy
+from typing import Any
 
 import gymnasium as gym
 import numpy as np
@@ -27,14 +28,16 @@ class Dataset:
 
     def __init__(
         self,
-        env,
-        env_kwargs=None,
-        batch_size=1,
-        seq_len=None,
-        max_batch=np.inf,
-        batch_first=False,
-        cache_len=None,
+        env: str | gym.Env,
+        env_kwargs: dict[str, Any] | None = None,
+        batch_size: int = 1,
+        seq_len: int | None = None,
+        max_batch: int | None = None,
+        batch_first: bool = False,
+        cache_len: int | None = None,
     ) -> None:
+        if max_batch is None:
+            max_batch = int(1e31)
         if not isinstance(env, str | gym.Env):
             msg = f"{type(env)=} must be `gym.Env` or `str`."
             raise TypeError(msg)
@@ -67,10 +70,10 @@ class Dataset:
 
         if cache_len is None:
             # Infer cache len
-            cache_len = 1e5  # Probably too low
-            cache_len /= np.prod(obs_shape) + np.prod(action_shape)
-            cache_len /= batch_size
-        cache_len = int((1 + (cache_len // seq_len)) * seq_len)
+            obs_size = int(np.prod(obs_shape))
+            action_size = int(np.prod(action_shape))
+            cache_len = int(1e5 / (obs_size + action_size) / batch_size)
+        cache_len = (1 + (cache_len // seq_len)) * seq_len
 
         self.seq_len = seq_len
         self._cache_len = cache_len
