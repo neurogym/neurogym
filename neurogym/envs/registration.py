@@ -11,7 +11,6 @@ from neurogym.utils.logging import logger
 _HAVE_PSYCHOPY = find_spec("psychopy") is not None  # check if psychopy is installed
 _INCLUDE_CONTRIB = False  # FIXME: these are currently not passing tests
 _EXCLUDE_ENVS = [
-    "AnnubesEnv",  # FIXME: failing tests/test_data.py::test_examples_different_made_env - assert np.float64(0.0) > 0
     "Detection",  # FIXME: test_data.py and test_envs.py - AttributeError: 'Detection' object has no attribute 'gt'
 ]
 

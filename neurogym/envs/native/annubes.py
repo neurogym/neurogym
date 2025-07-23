@@ -1,3 +1,4 @@
+import copy
 from typing import Any
 
 import numpy as np
@@ -454,3 +455,12 @@ class AnnubesEnv(TrialEnv):
         valid_max_sequential.setdefault(CATCH_KEYWORD, None)
 
         return valid_max_sequential
+
+    def __deepcopy__(self, memo):
+        """Deep copy of AnnubesEnv using a new random state."""
+        obj = self.__class__.__new__(self.__class__)
+        memo[id(self)] = obj
+        for k, v in self.__dict__.items():
+            setattr(obj, k, copy.deepcopy(v, memo))
+        self._rng = np.random.default_rng()
+        return obj

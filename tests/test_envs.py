@@ -98,7 +98,7 @@ def _test_trialenv(env_name: str):
     env = make(env_name, **env_kwargs)
 
     if isinstance(env.unwrapped, TrialEnv):
-        trial = env.new_trial()
+        trial = env.new_trial()  # type: ignore[attr-defined]
         assert isinstance(trial, dict)
     else:
         msg = f"Environment {env_name} is not a subclass of `TrialEnv`."
@@ -127,7 +127,7 @@ def _test_seeding(env_name: str):
     env = make(env_name, **env_kwargs)
 
     if isinstance(env.unwrapped, BaseEnv):
-        env.seed(SEED)
+        env.seed(SEED)  # type: ignore[attr-defined]
     else:
         msg = f"Environment {env_name} is not a subclass of `BaseEnv`."
         raise TypeError(msg)
