@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -12,8 +12,7 @@ from neurogym.envs.registration import all_envs, make
 from neurogym.utils import spaces
 from neurogym.utils.data import Dataset
 from neurogym.utils.logging import logger
-
-from . import ANNUBES_KWS
+from tests import ANNUBES_KWS
 
 if TYPE_CHECKING:
     import gymnasium as gym
@@ -26,11 +25,11 @@ def _test_env(env: str):
     """Test if one environment can at least be run with Dataset."""
     batch_size = 32
     seq_len = 40
-    env_kwargs = {"dt": 100}
+    env_kwargs: dict[str, Any] = {"dt": 100}
     if env.startswith("ToneDetection"):
         env_kwargs = {"dt": 50}
     elif env.startswith("Annubes"):
-        env_kwargs.update(ANNUBES_KWS)  # type: ignore[arg-type]
+        env_kwargs.update(ANNUBES_KWS)
     dataset = Dataset(
         env,
         env_kwargs=env_kwargs,
@@ -67,7 +66,7 @@ def _test_examples_different(env: str | gym.Env) -> None:
     seq_len = 1000
     env_kwargs = {}
     if isinstance(env, str) and env.startswith("Annubes"):
-        env_kwargs.update(ANNUBES_KWS)
+        env_kwargs = ANNUBES_KWS
     dataset = Dataset(
         env,
         env_kwargs=env_kwargs,

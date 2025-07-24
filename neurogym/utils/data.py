@@ -1,6 +1,6 @@
 """Utilities for data."""
 
-import copy
+from copy import deepcopy
 from typing import Any
 
 import gymnasium as gym
@@ -42,7 +42,7 @@ class Dataset:
             msg = f"{type(env)=} must be `gym.Env` or `str`."
             raise TypeError(msg)
         if isinstance(env, gym.Env):
-            self.envs = [copy.deepcopy(env) for _ in range(batch_size)]
+            self.envs = [deepcopy(env) for _ in range(batch_size)]
         else:
             if env_kwargs is None:
                 env_kwargs = {}

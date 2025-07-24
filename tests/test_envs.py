@@ -1,5 +1,6 @@
 import warnings
 from importlib.util import find_spec
+from typing import Any
 
 import gymnasium as gym
 import numpy as np
@@ -11,8 +12,7 @@ from neurogym.core import BaseEnv, TrialEnv
 from neurogym.envs.registration import all_envs, all_tags, make
 from neurogym.utils.data import Dataset
 from neurogym.utils.logging import logger
-
-from . import ANNUBES_KWS
+from tests import ANNUBES_KWS
 
 _HAVE_PSYCHOPY = find_spec("psychopy") is not None  # check if psychopy is installed
 SEED = 0
@@ -22,7 +22,7 @@ ENVS = all_envs(psychopy=_HAVE_PSYCHOPY, contrib=True, collections=True)
 ENVS_NOPSYCHOPY = all_envs(psychopy=False, contrib=True, collections=True)
 
 
-def _test_run(env_name: str, num_steps: int = 100):
+def _test_run(env_name: str, num_steps: int = 100) -> gym.Env:
     """Test if one environment can at least be run."""
     env_kwargs = {}
     if env_name.startswith("Annubes"):
@@ -42,7 +42,7 @@ def _test_run(env_name: str, num_steps: int = 100):
     return env
 
 
-def test_run_all():
+def test_run_all() -> None:
     """Test if all environments can at least be run."""
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
@@ -55,17 +55,19 @@ def test_run_all():
             raise
 
 
-def _test_dataset(env: str):
+def _test_dataset(env: str) -> None:
     """Main function for testing if an environment is healthy."""
-    kwargs = {"dt": 20}
-    dataset = Dataset(env, env_kwargs=kwargs, batch_size=16, seq_len=300, cache_len=10_000)
+    env_kwargs: dict[str, Any] = {"dt": 20}
+    if env.startswith("Annubes"):
+        env_kwargs.update(ANNUBES_KWS)
+    dataset = Dataset(env, env_kwargs=env_kwargs, batch_size=16, seq_len=300, cache_len=10_000)
     for _ in range(10):
         inputs, target = dataset()
         assert inputs.shape[0] == target.shape[0]
 
 
 @pytest.mark.skip(reason="This test is not actually performed, as any error is caught away.")
-def test_dataset_all():
+def test_dataset_all() -> None:
     """Test if all environments can at least be run."""
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*Casting input x to numpy array.*")
@@ -105,7 +107,7 @@ def _test_trialenv(env_name: str):
         raise TypeError(msg)
 
 
-def test_trialenv_all():
+def test_trialenv_all() -> None:
     """Test if all environments can at least be run."""
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
@@ -118,11 +120,11 @@ def test_trialenv_all():
             raise
 
 
-def _test_seeding(env_name: str):
+def _test_seeding(env_name: str) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Test if environments are replicable."""
-    env_kwargs = {"dt": 20}
+    env_kwargs: dict[str, Any] = {"dt": 20}
     if env_name.startswith("Annubes"):
-        env_kwargs.update(ANNUBES_KWS)  # type: ignore[arg-type]
+        env_kwargs.update(ANNUBES_KWS)
         env_kwargs.update({"random_seed": SEED})
     env = make(env_name, **env_kwargs)
 
@@ -147,7 +149,7 @@ def _test_seeding(env_name: str):
 
 
 # TODO: there is one env for which it sometimes raises an error
-def test_seeding_all():
+def test_seeding_all() -> None:
     """Test if all environments are replicable."""
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
@@ -165,14 +167,14 @@ def test_seeding_all():
 
 
 @pytest.mark.skip(reason="This test is not actually performed, as any error is caught away.")
-def test_plot_all():
+def test_plot_all() -> None:
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
         for env_name in ENVS:
-            env_kwargs = {"dt": 20}
             if env_name.startswith("Null"):
                 continue
+            env_kwargs: dict[str, Any] = {"dt": 20}
             if env_name.startswith("Annubes"):
                 env_kwargs.update(ANNUBES_KWS)
             env = make(env_name, **env_kwargs)
@@ -185,14 +187,14 @@ def test_plot_all():
             plt.close()
 
 
-def test_get_envs():
+def test_get_envs() -> None:
     for task in ["GoNogo-v0", "GoNogo"]:
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", message=".*Using the latest versioned environment*")
             warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include*")
             env = make(task)
         assert isinstance(env, gym.Env)
-        assert env.spec.id == "GoNogo-v0"
+        assert env.spec.id == "GoNogo-v0"  # type: ignore[union-attr]
     for invalid in ["GoNogo-v99", "GoGoNo"]:
         with pytest.raises(gym.error.UnregisteredEnv):
             _env = make(invalid)
