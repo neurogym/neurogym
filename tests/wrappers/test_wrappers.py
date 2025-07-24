@@ -30,10 +30,8 @@ def test_passaction(
         whether to log observation and action (False)
     """
     with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        warnings.filterwarnings("ignore", message=".*is not within the observation space*")
-        warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
+
         env = make(env_name)
         env = PassAction(env)
         env.reset()
@@ -69,10 +67,8 @@ def test_passreward(
         whether to log observation and reward (False)
     """
     with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        warnings.filterwarnings("ignore", message=".*is not within the observation space*")
-        warnings.filterwarnings("ignore", message=".*method was expecting numpy array dtype to be*")
+
         env = make(env_name)
         env = PassReward(env)
         obs, _ = env.reset()
@@ -114,58 +110,62 @@ def test_reactiontime(
     thresholds : list, optional
         list containing the thresholds to make a decision ([-.5, .5])
     """
-    if thresholds is None:
-        thresholds = [-0.5, 0.5]
-    env_args = {"timing": {"fixation": 100, "stimulus": 2000, "decision": 200}}
-    env = make(env_name, **env_args)
-    env = ReactionTime(env, urgency=urgency)
-    env.reset()
-    if verbose:
-        observations = []
-        obs_cum_mat = []
-        actions = []
-        new_trials = []
-        reward = []
-    obs_cum = 0
-    end_of_trial = False
-    for _ in range(num_steps):
-        if obs_cum > thresholds[1]:
-            action = 1
-        elif obs_cum < thresholds[0]:
-            action = 2
-        else:
-            action = 0
-        end_of_trial = action != 0
-        obs, rew, _terminated, _truncated, info = env.step(action)
-        if info["new_trial"]:
-            step = 0
-            obs_cum = 0
-            end_of_trial = False
-        else:
-            step += 1
-            assert not end_of_trial, "Trial still on after making a decision"
-            obs_cum += obs[1] - obs[2]
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+
+        if thresholds is None:
+            thresholds = [-0.5, 0.5]
+        env_args = {"timing": {"fixation": 100, "stimulus": 2000, "decision": 200}}
+        env = make(env_name, **env_args)
+        env = ReactionTime(env, urgency=urgency)
+        env.reset()
         if verbose:
-            observations.append(obs)
-            actions.append(action)
-            obs_cum_mat.append(obs_cum)
-            new_trials.append(info["new_trial"])
-            reward.append(rew)
-    if verbose:
-        observations = np.array(observations)
-        _, ax = plt.subplots(nrows=4, ncols=1, sharex=True)
-        ax = ax.flatten()
-        ax[0].imshow(observations.T, aspect="auto")
-        ax[1].plot(actions, label="Actions")
-        ax[1].plot(new_trials, "--", label="New trial")
-        ax[1].set_xlim([-0.5, len(actions) - 0.5])
-        ax[1].legend()
-        ax[2].plot(obs_cum_mat, label="cum. observation")
-        ax[2].plot([0, len(obs_cum_mat)], [thresholds[1], thresholds[1]], "--", label="upper th")
-        ax[2].plot([0, len(obs_cum_mat)], [thresholds[0], thresholds[0]], "--", label="lower th")
-        ax[2].set_xlim([-0.5, len(actions) - 0.5])
-        ax[3].plot(reward, label="reward")
-        ax[3].set_xlim([-0.5, len(actions) - 0.5])
+            observations = []
+            obs_cum_mat = []
+            actions = []
+            new_trials = []
+            reward = []
+        obs_cum = 0
+        end_of_trial = False
+        for _ in range(num_steps):
+            if obs_cum > thresholds[1]:
+                action = 1
+            elif obs_cum < thresholds[0]:
+                action = 2
+            else:
+                action = 0
+            end_of_trial = action != 0
+            obs, rew, _terminated, _truncated, info = env.step(action)
+            if info["new_trial"]:
+                step = 0
+                obs_cum = 0
+                end_of_trial = False
+            else:
+                step += 1
+                assert not end_of_trial, "Trial still on after making a decision"
+                obs_cum += obs[1] - obs[2]
+            if verbose:
+                observations.append(obs)
+                actions.append(action)
+                obs_cum_mat.append(obs_cum)
+                new_trials.append(info["new_trial"])
+                reward.append(rew)
+        if verbose:
+            observations = np.array(observations)
+            _, ax = plt.subplots(nrows=4, ncols=1, sharex=True)
+            ax = ax.flatten()
+            ax[0].imshow(observations.T, aspect="auto")
+            ax[1].plot(actions, label="Actions")
+            ax[1].plot(new_trials, "--", label="New trial")
+            ax[1].set_xlim([-0.5, len(actions) - 0.5])
+            ax[1].legend()
+            ax[2].plot(obs_cum_mat, label="cum. observation")
+            ax[2].plot([0, len(obs_cum_mat)], [thresholds[1], thresholds[1]], "--", label="upper th")
+            ax[2].plot([0, len(obs_cum_mat)], [thresholds[0], thresholds[0]], "--", label="lower th")
+            ax[2].set_xlim([-0.5, len(actions) - 0.5])
+            ax[3].plot(reward, label="reward")
+            ax[3].set_xlim([-0.5, len(actions) - 0.5])
 
 
 @pytest.mark.skip(reason="This test is failing, needs more investigation")
@@ -194,30 +194,34 @@ def test_noise(
     perf_th : float, optional
         target performance for the noise wrapper (0.7)
     """
-    env_args = {"timing": {"fixation": 100, "stimulus": 200, "decision": 200}}
-    env = make(env, **env_args)
-    env = Noise(env, perf_th=perf_th)
-    env.reset()
-    perf = []
-    std_mat = []
-    std_noise = 0
-    for _ in range(num_steps):
-        rng = np.random.default_rng()
-        action = env.action_space.sample() if rng.random() < std_noise else env.gt_now
-        _obs, _rew, terminated, _truncated, info = env.step(action)
-        if "std_noise" in info:
-            std_noise = info["std_noise"]
-        if verbose and info["new_trial"]:
-            perf.append(info["performance"])
-            std_mat.append(std_noise)
-        if terminated:
-            env.reset()
-    actual_perf = np.mean(perf[-5000:])
-    if verbose:
-        plt.figure()
-        plt.subplot(2, 1, 1)
-        plt.plot([0, len(perf)], [perf_th, perf_th], "--")
-        plt.plot(np.convolve(perf, np.ones((100,)) / 100, mode="valid"))
-        plt.subplot(2, 1, 2)
-        plt.plot(std_mat)
-    assert np.abs(actual_perf - perf_th) < margin, f"Actual performance: {actual_perf}, expected: {perf_th}"
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
+
+        env_args = {"timing": {"fixation": 100, "stimulus": 200, "decision": 200}}
+        env = make(env, **env_args)
+        env = Noise(env, perf_th=perf_th)
+        env.reset()
+        perf = []
+        std_mat = []
+        std_noise = 0
+        for _ in range(num_steps):
+            rng = np.random.default_rng()
+            action = env.action_space.sample() if rng.random() < std_noise else env.gt_now
+            _obs, _rew, terminated, _truncated, info = env.step(action)
+            if "std_noise" in info:
+                std_noise = info["std_noise"]
+            if verbose and info["new_trial"]:
+                perf.append(info["performance"])
+                std_mat.append(std_noise)
+            if terminated:
+                env.reset()
+        actual_perf = np.mean(perf[-5000:])
+        if verbose:
+            plt.figure()
+            plt.subplot(2, 1, 1)
+            plt.plot([0, len(perf)], [perf_th, perf_th], "--")
+            plt.plot(np.convolve(perf, np.ones((100,)) / 100, mode="valid"))
+            plt.subplot(2, 1, 2)
+            plt.plot(std_mat)
+        assert np.abs(actual_perf - perf_th) < margin, f"Actual performance: {actual_perf}, expected: {perf_th}"
