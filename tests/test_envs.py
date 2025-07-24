@@ -1,5 +1,4 @@
 import warnings
-from importlib.util import find_spec
 from typing import Any
 
 import gymnasium as gym
@@ -8,16 +7,16 @@ import pytest
 from matplotlib import pyplot as plt
 
 import neurogym as ngym
+from neurogym import _PSYCHOPY_INSTALLED
 from neurogym.core import BaseEnv, TrialEnv
 from neurogym.envs.registration import all_envs, all_tags, make
 from neurogym.utils.data import Dataset
 from neurogym.utils.logging import logger
 from tests import ANNUBES_KWS
 
-_HAVE_PSYCHOPY = find_spec("psychopy") is not None  # check if psychopy is installed
 SEED = 0
 
-ENVS = all_envs(psychopy=_HAVE_PSYCHOPY, contrib=True, collections=True)
+ENVS = all_envs(psychopy=_PSYCHOPY_INSTALLED, contrib=True, collections=True)
 # Envs without psychopy, TODO: check if contrib or collections include psychopy
 ENVS_NOPSYCHOPY = all_envs(psychopy=False, contrib=True, collections=True)
 
