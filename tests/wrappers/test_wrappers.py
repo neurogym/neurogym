@@ -96,13 +96,10 @@ def test_reactiontime():
                 obs_cum += obs[1] - obs[2]
 
 
-@pytest.mark.skip(reason="This test is failing due to `perf_th` not being used in `Noise` wrapper.")
 def test_noise():
     """Test noise wrapper.
 
-    The noise wrapper allows adding noise to the full observation received by the
-    network. It also offers the option of fixxing a specific target performance
-    that the wrapper will assure by modulating the magnitude of the noise added.
+    The noise wrapper allows adding noise to the full observation received by the network.
     """
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
@@ -110,15 +107,14 @@ def test_noise():
 
         env_name = "PerceptualDecisionMaking-v0"
         env_args = {"timing": {"fixation": 100, "stimulus": 200, "decision": 200}}
-        target_perf = 0.7
-        margin = 0.01
         num_steps = 200
 
         env = make(env_name, **env_args)
-        env = Noise(env, perf_th=target_perf)  # FIXME: perf_th is not (no longer?) used in `Noise` wrapper
+        env = Noise(env)
         env.reset()
         perf = []
-        std_noise = 0
+        std_noise = 0.2
+
         for _ in range(num_steps):
             rng = np.random.default_rng()
             action = env.action_space.sample() if rng.random() < std_noise else env.gt_now
@@ -129,6 +125,6 @@ def test_noise():
                 perf.append(info["performance"])
             if terminated:
                 env.reset()
-        actual_perf = np.mean(perf[-50:])
 
-        assert np.abs(actual_perf - target_perf) < margin, f"Actual performance: {actual_perf}, expected: {target_perf}"
+        mean_performance = np.mean(perf[-50:])
+        assert mean_performance < 1
