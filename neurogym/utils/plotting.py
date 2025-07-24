@@ -110,10 +110,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     actions_end_of_trial = []
     gt = []
     perf = []
-    if isinstance(env, DummyVecEnv):
-        if not _SB3_INSTALLED:
-            msg = "Stable-Baselines3 is not installed. Install it with 'pip install neurogym[rl]'."
-            raise ImportError(msg)
+    if _SB3_INSTALLED and isinstance(env, DummyVecEnv):
         ob = env.reset()
     else:
         ob, _ = env.reset()
@@ -144,10 +141,7 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
             action = def_act
         else:
             action = env.action_space.sample()
-        if isinstance(env, DummyVecEnv):
-            if not _SB3_INSTALLED:
-                msg = "Stable-Baselines3 is not installed. Install it with 'pip install neurogym[rl]'."
-                raise ImportError(msg)
+        if _SB3_INSTALLED and isinstance(env, DummyVecEnv):
             ob, rew, terminated, info = env.step(action)
         else:
             ob, rew, terminated, _truncated, info = env.step(action)
