@@ -1,4 +1,4 @@
-import copy
+from copy import deepcopy
 from typing import Any
 
 import numpy as np
@@ -66,6 +66,8 @@ class AnnubesEnv(TrialEnv):
         rewards: Dictionary of rewards for different outcomes. The keys are "abort", "correct", and "fail".
             Defaults to: {"abort": -0.1, "correct": 1.0, "fail": 0.0}.
         random_seed: Optional seed for numpy's random number generator (rng).
+        frozen_seed: If True, the random seed will be copied to the new environment instances when deepcopying. If
+            False, the seed will be reset to a new reproducible quasi-random value.
 
     Raises:
         ValueError: Raised if the conditions imposed by max_sequential are not satisfiable.
@@ -93,6 +95,7 @@ class AnnubesEnv(TrialEnv):
         noise_std: float = 0.01,
         rewards: dict[str, float] | None = None,
         random_seed: int | None = None,
+        frozen_seed: bool = False,
     ):
         super().__init__(dt=dt)
 
@@ -126,6 +129,7 @@ class AnnubesEnv(TrialEnv):
         else:
             self._random_seed = random_seed
         self._rng = np.random.default_rng(self._random_seed)
+        self.frozen_seed = frozen_seed
 
         # Check if all input parameters are valid.
         self._check_inputs()
@@ -461,6 +465,8 @@ class AnnubesEnv(TrialEnv):
         obj = self.__class__.__new__(self.__class__)
         memo[id(self)] = obj
         for k, v in self.__dict__.items():
-            setattr(obj, k, copy.deepcopy(v, memo))
-        self._rng = np.random.default_rng()
+            setattr(obj, k, deepcopy(v, memo))
+        if not self.frozen_seed:
+            rnd = self._rng.integers(2**32)
+            self._rng = np.random.default_rng(rnd)
         return obj
