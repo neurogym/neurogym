@@ -461,7 +461,7 @@ class AnnubesEnv(TrialEnv):
         return valid_max_sequential
 
     def __deepcopy__(self, memo):
-        """Deep copy of AnnubesEnv using a new random state."""
+        """Deep copy of AnnubesEnv, optionally with a new random state."""
         obj = self.__class__.__new__(self.__class__)
         memo[id(self)] = obj
         for k, v in self.__dict__.items():
