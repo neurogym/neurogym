@@ -1,25 +1,23 @@
-"""Noise wrapper.
+from __future__ import annotations
 
-Created on Thu Feb 28 15:07:21 2019
+from typing import TYPE_CHECKING
 
-@author: molano
-"""
-# !/usr/bin/env python3
-# -*- coding: utf-8 -*-
+from gymnasium import Wrapper
 
-import gymnasium as gym
+if TYPE_CHECKING:
+    from neurogym.core import TrialEnv
 
 
-class Noise(gym.Wrapper):
+class Noise(Wrapper):
     """Add Gaussian noise to the observations.
 
     Args:
+        env: The NeuroGym environment to wrap.
         std_noise: Standard deviation of noise. (def: 0.1)
         perf_th: If != None, the wrapper will adjust the noise so the mean
             performance is not larger than perf_th. (def: None, float)
         w: Window used to compute the mean performance. (def: 100, int)
         step_noise: Step used to increment/decrease std. (def: 0.001, float)
-
     """
 
     metadata: dict[str, str | None] = {  # noqa: RUF012
@@ -28,7 +26,11 @@ class Noise(gym.Wrapper):
         "paper_name": None,
     }
 
-    def __init__(self, env, std_noise=0.1) -> None:
+    def __init__(
+        self,
+        env: TrialEnv,
+        std_noise: float = 0.1,
+    ) -> None:
         super().__init__(env)
         self.env = env
         self.std_noise = std_noise

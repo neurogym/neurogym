@@ -9,9 +9,9 @@ class SideBias(TrialWrapper):
     Args:
         env: The task environment to wrap (must expose `choices`).
         probs: Explicit probability matrix with shape (n_blocks, n_choices).
-               Each row defines the choice probabilities for one block and must sum to 1.0.
-               The number of columns (n_choices) must match the number of choices defined in the task
-               (i.e., `len(env.choices)`), so that each probability maps to a valid choice.
+            Each row defines the choice probabilities for one block and must sum to 1.0.
+            The number of columns (n_choices) must match the number of choices defined in the task
+            (i.e., `len(env.choices)`), so that each probability maps to a valid choice.
         block_dur: Duration of each block, with behavior depending on the type:
             - int (≥ 1): Use a fixed number of trials per block
                 (e.g., block_dur=20 means each block has exactly 20 trials).
@@ -23,11 +23,11 @@ class SideBias(TrialWrapper):
 
     Examples:
         - probs=[[0.8, 0.2], [0.2, 0.8], [0.4, 0.6]], block_dur=200
-          Stay 200 trials per block, randomly switch to new block after;
+        > Stay 200 trials per block, randomly switch to new block after;
         - probs=[[0.8, 0.2], [0.2, 0.8], [0.4, 0.6]], block_dur=0.1
-          10% probability per trial to switch to new random block;
+        > 10% probability per trial to switch to new random block;
         - probs=[[0.8, 0.2], [0.2, 0.8], [0.4, 0.6]], block_dur=(200, 400)
-          Random trials in [200, 400] range per block, then switch.
+        > Random trials in [200, 400] range per block, then switch.
     """
 
     metadata: dict[str, str | None] = {  # noqa: RUF012
@@ -36,7 +36,12 @@ class SideBias(TrialWrapper):
         "paper_name": None,
     }
 
-    def __init__(self, env: TrialEnv, probs: list[list[float]], block_dur: float | tuple[int, int] = 200) -> None:
+    def __init__(
+        self,
+        env: TrialEnv,
+        probs: list[list[float]],
+        block_dur: float | tuple[int, int] = 200,
+    ) -> None:
         super().__init__(env)
 
         # Validate environment

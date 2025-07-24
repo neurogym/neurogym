@@ -1,24 +1,14 @@
-"""Noise wrapper.
-
-Created on Thu Feb 28 15:07:21 2019
-
-@author: molano
-"""
-
-# !/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import gymnasium as gym
+from gymnasium import Wrapper
 
 if TYPE_CHECKING:
     from neurogym.core import TrialEnv
 
 
-class ReactionTime(gym.Wrapper):  # TODO: Make this a trial wrapper instead?
+class ReactionTime(Wrapper):  # TODO: Make this a trial wrapper instead?
     """Allow reaction time response.
 
     Modifies a given environment by allowing the network to act at
@@ -43,7 +33,12 @@ class ReactionTime(gym.Wrapper):  # TODO: Make this a trial wrapper instead?
         "paper_name": None,
     }
 
-    def __init__(self, env: TrialEnv, urgency: float = 0.0, end_on_stimulus: bool = True) -> None:
+    def __init__(
+        self,
+        env: TrialEnv,
+        urgency: float = 0.0,
+        end_on_stimulus: bool = True,
+    ) -> None:
         super().__init__(env)
         self.urgency = urgency
         self.end_on_stimulus = end_on_stimulus
