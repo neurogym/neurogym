@@ -166,7 +166,6 @@ def test_seeding_all() -> None:
             raise
 
 
-@pytest.mark.skip(reason="This test is not actually performed, as any error is caught away.")
 def test_plot_all() -> None:
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
@@ -179,12 +178,13 @@ def test_plot_all() -> None:
                 env_kwargs.update(ANNUBES_KWS)
             env = make(env_name, **env_kwargs)
             action = np.zeros_like(env.action_space.sample())
-            try:  # FIXME: no actual test is run, as errors are caught
+            try:
                 ngym.utils.plotting.plot_env(env, num_trials=2, def_act=action)
-            except Exception as e:  # noqa: BLE001 # FIXME: unclear which error is expected here.
+            except Exception as e:
                 logger.error(f"Error in plotting env: {env_name}, {e}")
                 logger.error(e)
-            plt.close()
+                plt.close()
+                raise
 
 
 def test_get_envs() -> None:
