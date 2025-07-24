@@ -57,6 +57,8 @@ def test_run_all() -> None:
 
 def _test_dataset(env: str) -> None:
     """Main function for testing if an environment is healthy."""
+    if env.startswith("Null"):
+        return
     env_kwargs: dict[str, Any] = {"dt": 20}
     if env.startswith("Annubes"):
         env_kwargs.update(ANNUBES_KWS)
@@ -66,9 +68,12 @@ def _test_dataset(env: str) -> None:
         assert inputs.shape[0] == target.shape[0]
 
 
-@pytest.mark.skip(reason="This test is not actually performed, as any error is caught away.")
 def test_dataset_all() -> None:
     """Test if all environments can at least be run."""
+    failing_envs = ("Bandit", "DawTwoStep", "EconomicDecisionMaking")
+    # TODO: the envs above are failing this test and are skipped for the time being.
+    # The issue seems to be related to setting the ground truth for these envs.
+
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*Casting input x to numpy array.*")
         warnings.filterwarnings("ignore", message=".*is not within the observation space*")
@@ -76,23 +81,17 @@ def test_dataset_all() -> None:
         warnings.filterwarnings("ignore", message=".*method was expecting a numpy array*")
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        success_count = 0
-        total_count = len(all_envs())
-        supervised_count = len(all_envs(tag="supervised"))
         for env_name in all_envs():
-            try:  # FIXME, tests are not actually performed here, as any error is caught away
+            if any(env_name.startswith(failing) for failing in failing_envs):
+                continue
+            try:
                 _test_dataset(env_name)
-                success_count += 1
-            except Exception as e:  # noqa: PERF203, BLE001 # FIXME: unclear which error is expected here.
+            except Exception:
                 logger.error(f"Failure at running env: {env_name}")
-                logger.error(e)
-
-        if success_count < total_count:
-            logger.info(f"Success {success_count}/{total_count} envs")
-        logger.debug(f"Expect {supervised_count} envs to support supervised learning")
+                raise
 
 
-def _test_trialenv(env_name: str):
+def _test_trialenv(env_name: str) -> None:
     """Test if a TrialEnv is behaving correctly."""
     env_kwargs = {}
     if env_name.startswith("Annubes"):
@@ -182,7 +181,6 @@ def test_plot_all() -> None:
                 ngym.utils.plotting.plot_env(env, num_trials=2, def_act=action)
             except Exception as e:
                 logger.error(f"Error in plotting env: {env_name}, {e}")
-                logger.error(e)
                 plt.close()
                 raise
 
