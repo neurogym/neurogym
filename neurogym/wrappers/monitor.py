@@ -541,6 +541,31 @@ class Monitor(Wrapper):
 
         return am
 
+    def _plot_activations_single(
+        self,
+        neuron: int,
+        ax: plt.Axes,
+        mean: bool,
+        activations: np.ndarray,
+    ) -> None:
+        """Plot the activations for a single neuron.
+
+        Args:
+            neuron: The neuron to create a plot for.
+            ax: The axis object to plot on.
+            mean: A toggle indicating whether we should plot the raw activations or their mean.
+            activations: The activation history.
+        """
+        if mean:
+            mean_trials = activations[:, :, neuron].mean(axis=0)
+            ax.plot(mean_trials, lw=0.5)
+        else:
+            for trial in activations:
+                ax.plot(trial[:, neuron], lw=0.5)
+        ax.set_xlabel("Step")
+        ax.set_ylabel("Activation")
+        ax.set_title(f"Neuron {neuron}")
+
     def plot_activations(
         self,
         name: str,
@@ -611,15 +636,7 @@ class Monitor(Wrapper):
                 else:
                     ax = axes[row][col]
 
-                if mean:
-                    mean_trials = activations[:, :, neuron].mean(axis=0)
-                    ax.plot(mean_trials, lw=0.5)
-                else:
-                    for trial in activations:
-                        ax.plot(trial[:, neuron], lw=0.5)
-                ax.set_xlabel("Step")
-                ax.set_ylabel("Activation")
-                ax.set_title(f"Neuron {neuron}")
+                self._plot_activations_single(neuron, ax, mean, activations)
                 neuron_idx += 1
 
         fig.suptitle(f"{population.capitalize()} neuron activations", fontsize=18)
