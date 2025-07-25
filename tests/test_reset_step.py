@@ -5,6 +5,7 @@ import numpy as np
 from neurogym.core import TrialWrapper
 from neurogym.envs.collections import get_collection
 from neurogym.envs.registration import all_envs, make
+from neurogym.utils.logging import logger
 from neurogym.utils.scheduler import RandomSchedule
 from neurogym.wrappers.block import ScheduleEnvs
 
@@ -30,7 +31,9 @@ class CstObTrialWrapper(TrialWrapper):
 
 
 def _setup_env(cst_ob):
-    env = make(all_envs()[0])
+    env_name = all_envs()[1]  # Just an example, replace with a specific env if needed
+    logger.info(f"Example env used: {env_name}")
+    env = make(env_name)
     return CstObTrialWrapper(env, cst_ob)
 
 

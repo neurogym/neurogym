@@ -1,9 +1,13 @@
+import warnings
 from collections.abc import Callable
+from copy import deepcopy
 
 import numpy as np
 import pytest
 
+import neurogym as ngym
 from neurogym.envs.native.annubes import CATCH_KEYWORD, CATCH_SESSION_KEY, AnnubesEnv
+from tests import ANNUBES_KWS
 
 RND_SEED = 42
 FIX_INTENSITY = 0.1
@@ -68,7 +72,7 @@ def custom_env() -> AnnubesEnv:
         output_behavior=OUTPUT_BEHAVIOR,
         noise_std=0.02,
         rewards={"abort": -0.2, "correct": +1.5, "fail": -0.5},
-        random_seed=42,
+        random_seed=RND_SEED,
     )
 
 
@@ -429,3 +433,36 @@ def test_random_seed_reproducibility() -> None:
         trial1 = env1._new_trial()
         trial2 = env2._new_trial()
         assert trial1 == trial2
+
+
+def test_deepcopy_annubes() -> None:
+    """Test if deepcopying an AnnubesEnv instance works correctly."""
+    env_name = "AnnubesEnv"
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*Using the latest versioned environment*")
+        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include*")
+        frozen_env = ngym.make(env_name, random_seed=RND_SEED, frozen_seed=True, **ANNUBES_KWS)
+        env1 = ngym.make(env_name, random_seed=RND_SEED, **ANNUBES_KWS)
+        env2 = ngym.make(env_name, random_seed=RND_SEED, **ANNUBES_KWS)
+        env_diff = ngym.make(env_name, random_seed=RND_SEED + 1, **ANNUBES_KWS)
+
+    # deep copy each
+    frozen_copy = deepcopy(frozen_env)
+    env_copy1 = deepcopy(env1)
+    env_copy2 = deepcopy(env2)
+
+    # get a random number from each
+    frozen_rnd = frozen_env.unwrapped._rng.random()  # type:ignore[attr-defined]
+    frozen_copy_rnd = frozen_copy.unwrapped._rng.random()  # type:ignore[attr-defined]
+    env1_rnd = env1.unwrapped._rng.random()  # type:ignore[attr-defined]
+    env_copy1_rnd = env_copy1.unwrapped._rng.random()  # type:ignore[attr-defined]
+    env2_rnd = env2.unwrapped._rng.random()  # type:ignore[attr-defined]
+    env_copy2_rnd = env_copy2.unwrapped._rng.random()  # type:ignore[attr-defined]
+    env_diff_rnd = env_diff.unwrapped._rng.random()  # type:ignore[attr-defined]
+
+    assert env_diff_rnd != env1_rnd, "envs with different seeds give same random state"
+    assert env1_rnd == env2_rnd, "identical seeds gives different random states"
+    assert env1_rnd != env_copy1_rnd, "deepcopying env1 doesn't change random state"
+    assert env2_rnd != env_copy2_rnd, "deepcopying env1 doesn't change random state"
+    assert env_copy1_rnd == env_copy2_rnd, "separate deepcopies of identical seeds gives different random states"
+    assert frozen_rnd == frozen_copy_rnd, "deepcopying with frozen seeds changes random state"
