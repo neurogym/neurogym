@@ -161,7 +161,9 @@ class Monitor(Wrapper):
         self.cum_reward = 0
         return super().reset(seed=seed)
 
-    def step(self, action: Any, collect_data: bool = True) -> tuple[Any, float, bool, bool, dict[str, Any]]:
+    def step(
+        self, action: Any, collect_data: bool = True
+    ) -> tuple[Any, float, bool, bool, dict[str, Any]]:
         """Execute one environment step.
 
         This method:
@@ -213,7 +215,9 @@ class Monitor(Wrapper):
                     logger.info(f"Data saved to: {save_path}")
                     logger.info(f"Number of trials: {self.num_tr}")
                     logger.info(f"Average reward: {np.mean(self.data['reward'])}")
-                    logger.info(f"Average performance: {np.mean(self.data['performance'])}")
+                    logger.info(
+                        f"Average performance: {np.mean(self.data['performance'])}"
+                    )
                     logger.info("--------------------")
                 self.reset_data()
                 if self.config.monitor.plot.create:
@@ -231,7 +235,9 @@ class Monitor(Wrapper):
         for key in self.data:
             self.data[key] = []
 
-    def store_data(self, obs: Any, action: Any, rew: float, info: dict[str, Any]) -> None:
+    def store_data(
+        self, obs: Any, action: Any, rew: float, info: dict[str, Any]
+    ) -> None:
         """Store data for visualization figures.
 
         Args:
@@ -254,7 +260,9 @@ class Monitor(Wrapper):
                 self.perf_mat.append(-1)
             self.stp_counter += 1
         elif len(self.rew_mat) > 0:
-            fname = self.save_dir / f"task_{self.num_tr:06d}.{self.config.monitor.plot.ext}"
+            fname = (
+                self.save_dir / f"task_{self.num_tr:06d}.{self.config.monitor.plot.ext}"
+            )
             obs_mat = np.array(self.ob_mat)
             act_mat = np.array(self.act_mat)
             visualize_run(
@@ -316,8 +324,15 @@ class Monitor(Wrapper):
         # Run trials
         while trial_count < num_trials:
             if model is not None:
-                if _SB3_INSTALLED and isinstance(model.policy, RecurrentActorCriticPolicy):
-                    action, states = model.predict(obs, state=states, episode_start=episode_starts, deterministic=True)
+                if _SB3_INSTALLED and isinstance(
+                    model.policy, RecurrentActorCriticPolicy
+                ):
+                    action, states = model.predict(
+                        obs,
+                        state=states,
+                        episode_start=episode_starts,
+                        deterministic=True,
+                    )
                 else:
                     action, _ = model.predict(obs, deterministic=True)
             else:
@@ -337,7 +352,9 @@ class Monitor(Wrapper):
                 if "performance" in info:
                     performances.append(info["performance"])
 
-                if verbose and trial_count % 1000 == 0:  # FIXME: why is this value hardcoded?
+                if (
+                    verbose and trial_count % 1000 == 0
+                ):  # FIXME: why is this value hardcoded?
                     logger.info(f"Completed {trial_count}/{num_trials} trials")
 
                 self.data_eval["action"].append(action)
@@ -364,11 +381,17 @@ class Monitor(Wrapper):
 
         return {
             "rewards": rewards,
-            "mean_reward": (float(np.mean(reward_array > 0)) if len(reward_array) > 0 else 0),
+            "mean_reward": (
+                float(np.mean(reward_array > 0)) if len(reward_array) > 0 else 0
+            ),
             "cum_rewards": cum_rewards,
-            "mean_cum_reward": (float(np.mean(cum_reward_array)) if len(cum_reward_array) > 0 else 0),
+            "mean_cum_reward": (
+                float(np.mean(cum_reward_array)) if len(cum_reward_array) > 0 else 0
+            ),
             "performances": performances,
-            "mean_performance": (float(np.mean(performance_array)) if len(performance_array) > 0 else 0),
+            "mean_performance": (
+                float(np.mean(performance_array)) if len(performance_array) > 0 else 0
+            ),
         }
 
     def plot_training_history(
@@ -491,7 +514,9 @@ class Monitor(Wrapper):
         )
 
         if save_fig:
-            save_path = self.config.local_dir / f"{self.config.env.name}_training_history.png"
+            save_path = (
+                self.config.local_dir / f"{self.config.env.name}_training_history.png"
+            )
             plt.savefig(save_path, dpi=300, bbox_inches="tight")
             logger.info(f"Figure saved to {save_path}")
 
@@ -597,7 +622,12 @@ class Monitor(Wrapper):
         for row in range(rows):
             for col in range(cols):
                 neuron = neurons[neuron_idx]
-                ax = axes if len(neurons) == 1 else (axes[row][col] if rows > 1 else axes[col])
+                if len(neurons) == 1:
+                    ax = axes
+                elif rows ==1:
+                    ax = axes[col]
+                else:
+                    ax = axes[row][col]
 
                 if mean:
                     mean_trials = activations[:, :, neuron].mean(axis=0)
