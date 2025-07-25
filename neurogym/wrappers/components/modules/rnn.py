@@ -2,14 +2,14 @@ from typing import ClassVar
 
 from torch import nn
 
-from neurogym.wrappers.components.layers.base import LayerMonitorBase, to_numpy
+from neurogym.wrappers.components.modules.base import LayerProbeBase
 
 
-class RNNLayerMonitor(LayerMonitorBase):
+class RNNLayerProbe(LayerProbeBase):
     layer_type = nn.RNN
     probes: ClassVar = {
-        "output": lambda output: to_numpy(output[0]),
-        "hidden": lambda output: to_numpy(output[1]),
+        "output": lambda output: LayerProbeBase.to_numpy(output[0]),
+        "hidden": lambda output: LayerProbeBase.to_numpy(output[1]),
     }
 
     def get_population_shapes(self) -> dict[str, tuple]:

@@ -11,19 +11,7 @@ if TYPE_CHECKING:
     from torch import nn
 
 
-def to_numpy(tensor: torch.Tensor) -> np.ndarray:
-    """A convenience method for converting a tensor into a NumPy array.
-
-    Args:
-        tensor: A PyTorch tensor
-
-    Returns:
-        A NumPy array.
-    """
-    return tensor.detach().clone().squeeze().cpu().numpy()
-
-
-class LayerMonitorBase(ABC):
+class LayerProbeBase(ABC):
     layer_type: type[nn.Module]
     probes: ClassVar
 
@@ -32,7 +20,7 @@ class LayerMonitorBase(ABC):
         layer: nn.Module,
         hook: Callable,
         populations: set[str] | None = None,
-    ) -> LayerMonitorBase:
+    ) -> LayerProbeBase:
         """Mapping from Torch layer type to layer monitor.
 
         Args:
@@ -47,12 +35,12 @@ class LayerMonitorBase(ABC):
             NotImplementedError: Raised if a monitor for this layer type has not been implemented.
         """
         cls = layer.__class__
-        for layer_monitor in LayerMonitorBase.__subclasses__():
+        for layer_monitor in LayerProbeBase.__subclasses__():
             layer_type = layer_monitor.layer_type
             if cls is layer_type:
                 return layer_monitor(layer, hook, populations=populations)  # type: ignore[abstract]
 
-        msg = f"It seems that a monitor for layers of type '{cls}' has not been implemented yet."
+        msg = f"A monitor for layers of type '{cls}' has not been implemented yet."
         raise NotImplementedError(msg)
 
     def __init__(
@@ -63,21 +51,19 @@ class LayerMonitorBase(ABC):
     ):
         self.layer = layer
 
-        cls = self.__class__
+        layer_cls = self.__class__
 
-        if cls.probes is None:
-            cls.probes = {}
+        if layer_cls.probes is None:
+            layer_cls.probes = {}
 
         if populations is None:
-            populations = set(cls.probes.keys())
-
+            populations = set(layer_cls.probes.keys())
         elif isinstance(populations, str):
             populations = {populations}
-
         else:
             populations = set(populations)
 
-        self.populations = populations.intersection(set(cls.probes.keys()))
+        self.populations = populations.intersection(set(layer_cls.probes.keys()))
 
         # Register a forward hook with the monitored layer.
         self.layer.register_forward_hook(hook, always_call=True)
@@ -105,3 +91,15 @@ class LayerMonitorBase(ABC):
             A tensor representing the output of this layer.
         """
         return {probe: self.probes[probe](output) for probe in self.populations}
+
+    @staticmethod
+    def to_numpy(tensor: torch.Tensor) -> np.ndarray:
+        """A convenience method for converting a tensor into a NumPy array.
+
+        Args:
+            tensor: A PyTorch tensor
+
+        Returns:
+            A NumPy array.
+        """
+        return tensor.detach().clone().squeeze().cpu().numpy()

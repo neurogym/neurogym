@@ -2,11 +2,11 @@ import numpy as np
 import torch
 from torch import nn
 
-from neurogym.wrappers.components.layers.base import LayerMonitorBase
+from neurogym.wrappers.components.modules import LayerProbeBase
 
 
-class ActivationMonitor:
-    def __init__(self, module: nn.Module, steps: int, name: str, populations: set[str] | None = None):
+class ActivationProbe:
+    def __init__(self, module: nn.Module, steps: int, name: str | None = None, populations: set[str] | None = None):
         """Activation monitoring component.
 
         Args:
@@ -17,8 +17,8 @@ class ActivationMonitor:
 
         """
         self.steps: int = steps
-        self.monitor = LayerMonitorBase.get_monitor(module, self._fw_activation_hook, populations)
-        self.name = name
+        self.monitor = LayerProbeBase.get_monitor(module, self._fw_activation_hook, populations)
+        self.name = name or module.__class__.__name__
 
         # The neuron count
         self.paused = False
@@ -29,12 +29,12 @@ class ActivationMonitor:
         self.start_new_trial()
 
     @property
-    def new_trial(self) -> bool:
+    def init_new_trial(self) -> bool:
         """Get the _new_trial attribute."""
         return self._new_trial
 
-    @new_trial.setter
-    def new_trial(self, value: bool):
+    @init_new_trial.setter
+    def init_new_trial(self, value: bool):
         """Set the _new_trial attribute.
 
         Args:

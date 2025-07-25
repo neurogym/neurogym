@@ -13,7 +13,7 @@ from neurogym.config.config import Config
 from neurogym.utils.functions import ensure_dir, iso_timestamp
 from neurogym.utils.logging import logger
 from neurogym.utils.plotting import visualize_run
-from neurogym.wrappers.components.parameters.activation import ActivationMonitor
+from neurogym.wrappers.components.probes.activation import ActivationProbe
 
 if _SB3_INSTALLED:
     from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
@@ -147,7 +147,7 @@ class Monitor(Wrapper):
         self.initial_ob = initial_ob
 
         # Network layers whose parameters are to be monitored
-        self.activations: dict[str, ActivationMonitor] = {}
+        self.activations: dict[str, ActivationProbe] = {}
 
     def reset(self, seed=None):
         """Reset the environment.
@@ -223,7 +223,7 @@ class Monitor(Wrapper):
 
             # Start a new trial for all activation monitors.
             for am in self.activations.values():
-                am.new_trial = True
+                am.init_new_trial = True
         return obs, rew, terminated, truncated, info
 
     def reset_data(self) -> None:
@@ -502,7 +502,7 @@ class Monitor(Wrapper):
         layer: nn.Module,
         name: str | None = None,
         steps: int | None = None,
-    ) -> ActivationMonitor:
+    ) -> ActivationProbe:
         """Record the output activations of a layer over a trial.
 
         Args:
@@ -521,11 +521,11 @@ class Monitor(Wrapper):
             name = layer.__class__.__name__
 
         # The total number of steps to record during each trial.
-        if steps is None:
-            steps = int(self.tmax / self.dt)
+        total_steps = int(self.tmax / self.dt)
+        steps = total_steps if steps is None else min(steps, total_steps)
 
         # Create an activation monitor
-        am = ActivationMonitor(layer, steps, name)
+        am = ActivationProbe(layer, steps, name)
 
         # Check if we are replacing an existing monitor
         if name in self.activations:
@@ -541,7 +541,7 @@ class Monitor(Wrapper):
         name: str,
         population: str,
         figsize: tuple[int, ...] | None = None,
-        neurons: list | None = None,
+        neurons: list[int] | None = None,
         mean: bool = False,
     ) -> tuple[plt.Figure, plt.Axes]:
         """Plot the neuron activations.
@@ -550,7 +550,7 @@ class Monitor(Wrapper):
             name: Name of the layer.
             population: The neuron population to plot.
             figsize: The size of the figure.
-            neurons: List of neurons to plot. If None, all neurons will be plotted.
+            neurons: List of neuron ids to plot. If None, all neurons will be plotted.
             mean: If set, plot the mean activation over all trials rather than each separate trial.
 
         Raises:
@@ -576,7 +576,7 @@ class Monitor(Wrapper):
             neurons = list(range(activations[0].shape[1]))
 
         if max(neurons) > activations[0].shape[1] - 1:
-            msg = "Some of the requested neuron IDs are beyond the size of the layer."
+            msg = f"The neuron IDs must be between 0 and {activations[0].shape[1] - 1}."
             raise ValueError(msg)
         neuron_count = len(neurons)
 
