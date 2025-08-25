@@ -15,7 +15,7 @@ def test_activation_traces(n_trials: int = 10):
         # TODO: Make tests run with generic PyTorch models.
         return
 
-    from sb3_contrib import RecurrentPPO  # noqa: PLC0415
+    from sb3_contrib import RecurrentPPO
 
     # A simple model whose activations we are going to monitor
     model = RecurrentPPO(

@@ -16,7 +16,6 @@ ignore = [
     "PLR0912", # too many branches
     "PLR0913", # too many arguments
     "PLR0915", # too many statements
-    "PT028",   # Test function parameter `env_name` has default argument
     # Unwanted
     "FBT",    # Boolean function arguments
     "ANN003", # Missing type annotation for **{name} (e.g. **kwargs)
