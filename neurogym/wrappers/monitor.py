@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from itertools import product
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -571,7 +572,7 @@ class Monitor(Wrapper):
         name: str,
         population: str,
         figsize: tuple[int, ...] | None = None,
-        neurons: list[int] | None = None,
+        neurons: int | list[int] | None = None,
         mean: bool = False,
     ) -> tuple[plt.Figure, plt.Axes]:
         """Plot the neuron activations.
@@ -606,6 +607,8 @@ class Monitor(Wrapper):
         # Neuron selection
         if neurons is None:
             neurons = list(range(activations[0].shape[1]))
+        elif isinstance(neurons, int):
+            neurons = [neurons]
 
         if max(neurons) > activations[0].shape[1] - 1:
             msg = f"The neuron IDs must be between 0 and {activations[0].shape[1] - 1}."
@@ -613,32 +616,28 @@ class Monitor(Wrapper):
         neuron_count = len(neurons)
 
         # Compute the number of rows and columns
-        n_sqrt = int(np.floor(np.sqrt(neuron_count)))
-        rows, cols = n_sqrt, n_sqrt
-        if rows * cols < len(neurons):
-            cols += len(neurons) - rows * cols
+        rows = int(np.floor(np.sqrt(neuron_count)))
+        cols = neuron_count // rows
+        if neuron_count > rows * cols:
+            rows += 1
 
+        # Figure and axes
         if figsize is None:
-            figsize = (16 * rows, 6)
-
-        # Figure and axis
+            figsize = (3 * cols, 2 * rows)
         fig, axes = plt.subplots(rows, cols, figsize=figsize)
+        if neuron_count == 1:
+            axes = [axes]
 
-        # Plot the right neurons in the right boxes
-        neuron_idx = 0
-        for row in range(rows):
-            for col in range(cols):
-                neuron = neurons[neuron_idx]
-                if len(neurons) == 1:
-                    ax = axes
-                elif rows == 1:
-                    ax = axes[col]
-                else:
-                    ax = axes[row][col]
+        # Plot the activations for the selected neurons
+        for neuron_idx, (row, col) in enumerate(product(range(rows), range(cols))):
+            ax = axes[col] if rows == 1 else axes[row][col]
+            if neuron_idx >= neuron_count:
+                ax.axis("off")
+                continue
+            neuron = neurons[neuron_idx]
+            self._plot_activations_single(neuron, ax, mean, activations)
 
-                self._plot_activations_single(neuron, ax, mean, activations)
-                neuron_idx += 1
-
-        fig.suptitle(f"{population.capitalize()} neuron activations", fontsize=18)
+        fig.suptitle(f"{population.capitalize()} neuron activations", fontsize=18, y=1)
+        fig.tight_layout()
 
         return fig, axes
