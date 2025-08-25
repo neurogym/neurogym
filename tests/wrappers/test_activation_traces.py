@@ -1,3 +1,5 @@
+from sb3_contrib import RecurrentPPO
+
 from neurogym import _SB3_INSTALLED
 from neurogym.envs.native.annubes import AnnubesEnv
 from neurogym.wrappers import Monitor
@@ -14,8 +16,6 @@ def test_activation_traces(n_trials: int = 10):
     if not _SB3_INSTALLED:
         # TODO: Make tests run with generic PyTorch models.
         return
-
-    from sb3_contrib import RecurrentPPO
 
     # A simple model whose activations we are going to monitor
     model = RecurrentPPO(
