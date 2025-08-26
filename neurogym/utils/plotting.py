@@ -1,14 +1,16 @@
 """Plotting functions."""
 
 from pathlib import Path
+from typing import Any
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from gymnasium import make  # using ngym.make would lead to circular import
+from gymnasium import Env, make  # using ngym.make would lead to circular import
 from matplotlib import animation
 
 from neurogym import _SB3_INSTALLED
+from neurogym.core import TrialEnv
 from neurogym.utils.decorators import suppress_during_pytest
 from neurogym.utils.logging import logger
 
@@ -28,17 +30,17 @@ mpl.rcParams["ps.fonttype"] = 42
     message="This may be due to a small sample size; please increase to get reasonable results.",
 )
 def plot_env(
-    env,
-    num_steps=200,
-    num_trials=None,
-    def_act=None,
+    env: TrialEnv | Env,
+    num_steps: int = 200,
+    num_trials: int | None = None,
+    def_act: int | None = None,
     model=None,
-    name=None,
-    legend=True,
-    ob_traces=None,
-    fig_kwargs=None,
-    fname=None,
-    plot_performance=True,
+    name: str | None = None,
+    legend: bool = True,
+    ob_traces: list | None = None,
+    fig_kwargs: dict | None = None,
+    fname: str | None = None,
+    plot_performance: bool = True,
 ):
     """Plot environment with agent.
 
@@ -79,7 +81,9 @@ def plot_env(
         model=model,
     )
     # Find trial start steps (0-based)
-    trial_starts_step_indices = np.where(np.array(data["actions_end_of_trial"]) != -1)[0] + 1
+    trial_starts_step_indices = (
+        np.where(np.array(data["actions_end_of_trial"]) != -1)[0] + 1
+    )
     # Shift again for plotting (since steps are 1-based)
     trial_starts_axis = trial_starts_step_indices + 1
 
@@ -101,7 +105,13 @@ def plot_env(
     )
 
 
-def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
+def run_env(
+    env: TrialEnv | Env,
+    num_steps: int = 200,
+    num_trials: int | None = None,
+    def_act: int | None = None,
+    model=None,
+) -> dict:
     observations = []
     ob_cum = []
     state_mat = []
@@ -124,13 +134,15 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     episode_starts = np.array([True])
 
     if num_trials is not None:
-        num_steps = 1e5  # Overwrite num_steps value
+        num_steps = int(1e5)  # Overwrite num_steps value
 
     trial_count = 0
     for _ in range(int(num_steps)):
         if model is not None:
             if _SB3_INSTALLED and isinstance(model.policy, RecurrentActorCriticPolicy):
-                action, states = model.predict(ob, state=states, episode_start=episode_starts, deterministic=True)
+                action, states = model.predict(
+                    ob, state=states, episode_start=episode_starts, deterministic=True
+                )
             else:
                 action, _ = model.predict(ob, deterministic=True)
             if isinstance(action, float | int):
@@ -152,8 +164,9 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
         if isinstance(info, list):
             info = info[0]
             ob_aux = ob[0]
-            rew = rew[0]
-            terminated = terminated[0]
+            # TODO: Fix these and remove the ignore directives
+            rew = rew[0]  # type: ignore[index]
+            terminated = terminated[0]  # type: ignore[index]
             action = action[0]
         else:
             ob_aux = ob
@@ -207,21 +220,21 @@ def run_env(env, num_steps=200, num_trials=None, def_act=None, model=None):
     message="This may be due to a small sample size; please increase to get reasonable results.",
 )
 def visualize_run(
-    ob,
-    actions,
-    gt=None,
-    rewards=None,
-    performance=None,
-    states=None,
-    legend=True,
-    ob_traces=None,
-    name="",
-    fname=None,
-    fig_kwargs=None,
-    env=None,
-    initial_ob=None,
-    trial_starts=None,
-):
+    ob: np.ndarray,
+    actions: np.ndarray,
+    gt: np.ndarray | None = None,
+    rewards: np.ndarray | None = None,
+    performance: np.ndarray | None = None,
+    states: np.ndarray | None = None,
+    legend: bool = True,
+    ob_traces: list | None = None,
+    name: str = "",
+    fname: str | None = None,
+    fig_kwargs: dict | None = None,
+    env: TrialEnv | Env | None = None,
+    initial_ob: np.ndarray | None = None,
+    trial_starts: list | None = None,
+) -> None:
     """Visualize a run in a simple environment.
 
     Args:
@@ -256,7 +269,7 @@ def visualize_run(
     ob = ob[:-1]
 
     if len(ob.shape) == 2:
-        return plot_env_1dbox(
+        return plot_env_1dbox(  # type: ignore[no-any-return]
             ob,
             actions,
             gt=gt,
@@ -272,7 +285,7 @@ def visualize_run(
             trial_starts=trial_starts,
         )
     if len(ob.shape) == 4:
-        return plot_env_3dbox(ob, fname=fname, env=env)
+        return plot_env_3dbox(ob, fname=fname, env=env)  # type: ignore[no-any-return]
 
     msg = f"{ob.shape=} not supported."
     raise ValueError(msg)
@@ -290,20 +303,20 @@ def _set_grid_style(ax):
     message="This may be due to a small sample size; please increase to get reasonable results.",
 )
 def plot_env_1dbox(
-    ob,
-    actions,
-    gt=None,
-    rewards=None,
-    performance=None,
-    states=None,
-    legend=True,
-    ob_traces=None,
-    name="",
-    fname=None,
-    fig_kwargs=None,
-    env=None,
-    trial_starts=None,
-):
+    ob: np.ndarray,
+    actions: np.ndarray,
+    gt: np.ndarray | None = None,
+    rewards: np.ndarray | None = None,
+    performance: np.ndarray | None = None,
+    states: np.ndarray | None = None,
+    legend: bool = True,
+    ob_traces: list | None = None,
+    name: str = "",
+    fname: str | None = None,
+    fig_kwargs: dict | None = None,
+    env: TrialEnv | Env | None = None,
+    trial_starts: list | None = None,
+) -> None:
     """Plot environment with 1-D Box observation space."""
     if fig_kwargs is None:
         fig_kwargs = {}
@@ -343,14 +356,18 @@ def plot_env_1dbox(
         yticklabels = []
 
         # Find fixation index (if exists)
-        fix_idx = next((i for i, tr in enumerate(ob_traces) if "fix" in tr.lower()), None)
+        fix_idx = next(
+            (i for i, tr in enumerate(ob_traces) if "fix" in tr.lower()), None
+        )
 
         if fix_idx is not None:
             yticks.append(np.max(ob[:, fix_idx]))
             yticklabels.append("Fix. Cue")
 
             # All other indices are stimuli
-            stim_means = [np.mean(ob[:, i]) for i in range(len(ob_traces)) if i != fix_idx]
+            stim_means = [
+                np.mean(ob[:, i]) for i in range(len(ob_traces)) if i != fix_idx
+            ]
             if stim_means:
                 yticks.append(np.mean(stim_means))
                 yticklabels.append("Stimuli")
@@ -519,14 +536,16 @@ def plot_env_1dbox(
             fname += ".png"
         f.savefig(fname, dpi=300)
         plt.close(f)
-    return f
+    return f  # type: ignore[no-any-return]
 
 
 @suppress_during_pytest(
     ValueError,
     message="This may be due to a small sample size; please increase to get reasonable results.",
 )
-def plot_env_3dbox(ob, fname="", env=None) -> None:
+def plot_env_3dbox(
+    ob: np.ndarray, fname: str = "", env: TrialEnv | Env | None = None
+) -> None:
     """Plot environment with 3-D Box observation space."""
     ob = ob.astype(np.uint8)  # TODO: Temporary
     fig = plt.figure()
@@ -538,7 +557,7 @@ def plot_env_3dbox(ob, fname="", env=None) -> None:
         im.set_array(ob[i])
         return (im,)
 
-    interval = env.dt if env is not None else 50
+    interval = env.dt if isinstance(env, TrialEnv) else 50
     ani = animation.FuncAnimation(fig, animate, frames=ob.shape[0], interval=interval)
     if fname:
         writer = animation.writers["ffmpeg"](fps=int(1000 / interval))
@@ -549,14 +568,14 @@ def plot_env_3dbox(ob, fname="", env=None) -> None:
 
 
 def plot_rew_across_training(
-    folder,
-    window=500,
-    ax=None,
-    fkwargs=None,
-    ytitle="",
-    legend=False,
-    zline=False,
-    metric_name="reward",
+    folder: str,
+    window: int = 500,
+    ax: plt.Axes | None = None,
+    fkwargs: dict | None = None,
+    ytitle: str = "",
+    legend: bool = False,
+    zline: bool = False,
+    metric_name: str = "reward",
 ) -> None:
     if fkwargs is None:
         fkwargs = {"c": "tab:blue"}
@@ -588,8 +607,8 @@ def plot_rew_across_training(
         logger.info(f"No data in: {folder}")
 
 
-def put_together_files(folder):
-    files = Path(folder).glob("/*_bhvr_data*npz")
+def put_together_files(folder: str) -> dict:
+    files = [str(f) for f in Path(folder).glob("/*_bhvr_data*npz")]
     data = {}
     if len(files) > 0:
         files = order_by_suffix(files)
@@ -601,10 +620,14 @@ def put_together_files(folder):
             file_data = np.load(files[ind_f], allow_pickle=True)
             for key in file_data:
                 data[key] = np.concatenate((data[key], file_data[key]))
-        np.savez(folder + "/bhvr_data_all.npz", **data)  # FIXME: use pathlib to specify location
+        np.savez(
+            folder + "/bhvr_data_all.npz", **data
+        )  # FIXME: use pathlib to specify location
     return data
 
 
-def order_by_suffix(file_list):
-    sfx = [int(x[x.rfind("_") + 1 : x.rfind(".")]) for x in file_list]  # FIXME: use pathlib method to find extension
+def order_by_suffix(file_list: list[str]) -> list:
+    sfx = [
+        int(x[x.rfind("_") + 1 : x.rfind(".")]) for x in file_list
+    ]  # FIXME: use pathlib method to find extension
     return [x for _, x in sorted(zip(sfx, file_list, strict=True))]
