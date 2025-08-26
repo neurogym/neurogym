@@ -1,7 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import numpy as np
 from gymnasium import Wrapper
 
 from neurogym.utils import spaces
+
+if TYPE_CHECKING:
+    from neurogym.core import TrialEnv
 
 
 class PassReward(Wrapper):
@@ -11,20 +18,23 @@ class PassReward(Wrapper):
         "paper_name": None,
     }
 
-    def __init__(self, env) -> None:
+    def __init__(self, env: TrialEnv) -> None:
         """Modifies observation by adding the previous reward."""
         super().__init__(env)
         if isinstance(env.observation_space, spaces.Discrete):
-            env_oss = env.observation_space.n  # Number of discrete states
+            env_oss = int(env.observation_space.n)  # Number of discrete states
             self.observation_space = spaces.Discrete(n=env_oss + 1)
-        else:
+        elif env.observation_space.shape is not None:
             env_oss = env.observation_space.shape[0]
             self.observation_space = spaces.Box(
                 -np.inf,
                 np.inf,
-                shape=(int(env_oss) + 1,),
+                shape=(env_oss + 1,),
                 dtype=np.float32,
             )
+        else:
+            msg = "env.observation_space.shape for PassReward may not be None"
+            raise ValueError(msg)
 
     def reset(self, seed=None, options=None):
         step_fn = options.get("step_fn") if options else None
