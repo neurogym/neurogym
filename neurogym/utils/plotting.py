@@ -16,7 +16,6 @@ from neurogym.utils.logging import logger
 
 if _SB3_INSTALLED:
     from sb3_contrib.common.recurrent.policies import RecurrentActorCriticPolicy
-    from stable_baselines3.common.policies import BaseModel
     from stable_baselines3.common.vec_env import DummyVecEnv
 
 
@@ -29,7 +28,7 @@ def plot_env(
     num_steps: int = 200,
     num_trials: int | None = None,
     def_act: int | None = None,
-    model: BaseModel | None = None,
+    model=None,
     name: str | None = None,
     legend: bool = True,
     ob_traces: list | None = None,
