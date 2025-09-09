@@ -54,7 +54,7 @@ jobs:
       - name: Correct coverage paths
         run: sed -i "s+$PWD/++g" coverage.xml
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5.1.0
+        uses: SonarSource/sonarqube-scan-action@v5.3.1
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{secrets.SONAR_TOKEN }}
