@@ -1,22 +1,30 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, ClassVar
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable
+    from collections.abc import Callable
 
     import numpy as np
     import torch
     from torch import nn
 
 
-class LayerProbeBase(ABC):
-    layer_type: type[nn.Module]
-    probes: ClassVar
+@dataclass
+class LayerProbeBase:
+    layer: nn.Module
+    hook: Callable
+    populations: set[str]
+    probes: dict = field(default_factory=dict)
 
     @staticmethod
-    def get_monitor(
+    def layer_types() -> set[type[nn.Module]]:
+        """The layer types that this probe applies to."""
+        return set()
+
+    @staticmethod
+    def get_probe(
         layer: nn.Module,
         hook: Callable,
         populations: set[str] | None = None,
@@ -36,47 +44,36 @@ class LayerProbeBase(ABC):
         """
         cls = layer.__class__
         for layer_monitor in LayerProbeBase.__subclasses__():
-            layer_type = layer_monitor.layer_type
-            if cls is layer_type:
-                return layer_monitor(layer, hook, populations=populations)  # type: ignore[abstract]
+            if cls in layer_monitor.layer_types():
+                return layer_monitor(layer, hook, populations or set())
 
         msg = f"A monitor for layers of type '{cls}' has not been implemented yet."
         raise NotImplementedError(msg)
 
-    def __init__(
-        self,
-        layer: nn.Module,
-        hook: Callable,
-        populations: str | Iterable | None,
-    ):
-        self.layer = layer
+    def __post_init__(self):
+        self.probes = self._setup_probes()
+        if isinstance(self.populations, str):
+            self.populations = {self.populations}
 
-        layer_cls = self.__class__
+        if not self.populations:
+            self.populations = set(self.probes)
 
-        if layer_cls.probes is None:
-            layer_cls.probes = {}
-
-        if populations is None:
-            populations = set(layer_cls.probes.keys())
-        elif isinstance(populations, str):
-            populations = {populations}
-        else:
-            populations = set(populations)
-
-        self.populations = populations.intersection(set(layer_cls.probes.keys()))
+        self.populations = self.populations.intersection(set(self.probes.keys()))
 
         # Register a forward hook with the monitored layer.
-        self.layer.register_forward_hook(hook, always_call=True)
+        self.layer.register_forward_hook(self.hook, always_call=True)
 
-    @abstractmethod
+    def _setup_probes(self) -> dict[str, Callable]:
+        """Set up the probes for this type of layer."""
+        return {}
+
     def get_population_shapes(self) -> dict[str, tuple]:
         """Get the shape of the output of this layer.
 
-        This should be overridden in derived classes.
-
         Returns:
-            A tuple representing the shape of the layer's output.
+            A dictionary representing the shape of the layer's output(s).
         """
+        return {}
 
     def get_activations(
         self,
@@ -84,22 +81,30 @@ class LayerProbeBase(ABC):
     ) -> dict[str, np.ndarray]:
         """Get the output for this layer.
 
-        Potentially unpack a tuple of tensors, such as in the case of LSTM.
-        This should be overridden in derived classes.
+        This functionality makes use of dispatch functions,
+        which should be aware of any idiosyncracies of the format of the output tensor.
+        For instance, the output of an LSTM layer is of the form `(output, (hidden, cell))`.
+
+        Args:
+            output: One or more tensors output by the layer.
 
         Returns:
-            A tensor representing the output of this layer.
+            A tensor representing the output of this layer for all recorded populations.
         """
         return {probe: self.probes[probe](output) for probe in self.populations}
 
-    @staticmethod
-    def to_numpy(tensor: torch.Tensor) -> np.ndarray:
+    def to_numpy(self, tensor: torch.Tensor, squeeze: tuple[int] | None = None) -> np.ndarray:
         """A convenience method for converting a tensor into a NumPy array.
 
         Args:
-            tensor: A PyTorch tensor
+            tensor: A PyTorch tensor.
+            squeeze: Dimensions to squeeze.
 
         Returns:
             A NumPy array.
         """
-        return tensor.detach().clone().squeeze().cpu().numpy()
+        _tensor = tensor.detach().clone()
+        if squeeze is not None:
+            _tensor.squeeze_(*squeeze)
+
+        return _tensor.cpu().numpy()
