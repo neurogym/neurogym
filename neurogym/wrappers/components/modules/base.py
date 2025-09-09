@@ -82,7 +82,7 @@ class LayerProbeBase:
         """Get the output for this layer.
 
         This functionality makes use of dispatch functions,
-        which should be aware of any idiosyncracies of the format of the output tensor.
+        which should be aware of any idiosyncrasies of the format of the output tensor.
         For instance, the output of an LSTM layer is of the form `(output, (hidden, cell))`.
 
         Args:
