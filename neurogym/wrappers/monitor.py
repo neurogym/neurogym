@@ -548,6 +548,7 @@ class Monitor(Wrapper):
         ax: plt.Axes,
         mean: bool,
         activations: np.ndarray,
+        batch_dim: int | None = None,
     ) -> None:
         """Plot the activations for a single neuron.
 
@@ -556,10 +557,16 @@ class Monitor(Wrapper):
             ax: The axis object to plot on.
             mean: A toggle indicating whether we should plot the raw activations or their mean.
             activations: The activation history.
+            batch_dim: The batch dimension, if it exists.
         """
+        if batch_dim is not None:
+            # Take the mean over batches.
+            activations = np.mean(activations, axis=batch_dim)
+
         if mean:
-            mean_trials = activations[:, :, neuron].mean(axis=0)
-            ax.plot(mean_trials, lw=0.5)
+            # Trial mean.
+            trial_mean = activations[:, :, neuron].mean(axis=0)
+            ax.plot(trial_mean, lw=0.5)
         else:
             for trial in activations:
                 ax.plot(trial[:, neuron], lw=0.5)
@@ -574,6 +581,7 @@ class Monitor(Wrapper):
         figsize: tuple[int, ...] | None = None,
         neurons: int | list[int] | None = None,
         mean: bool = False,
+        batch_dim: int | None = None,
     ) -> tuple[plt.Figure, plt.Axes]:
         """Plot the neuron activations.
 
@@ -583,6 +591,7 @@ class Monitor(Wrapper):
             figsize: The size of the figure.
             neurons: List of neuron ids to plot. If None, all neurons will be plotted.
             mean: If set, plot the mean activation over all trials rather than each separate trial.
+            batch_dim: The batch dimension, if it exists.
 
         Raises:
             ValueError: Raised if there is no such layer in the history.
@@ -599,19 +608,28 @@ class Monitor(Wrapper):
             raise ValueError(msg)
 
         # Get the activations for the specified population
-        activations = np.array(am.history.get(population))
+        activations = am.history.get(population)
         if activations is None:
-            msg = f"Invalid population '{population}' (available populations: {am.monitor.populations})"
+            msg = f"Invalid population '{population}' (available populations: {am.probe.populations})"
             raise KeyError(msg)
+
+        if len(activations) == 0:
+            msg = f"The history for population '{population}' is empty."
+            raise KeyError(msg)
+
+        lengths = [len(a) for a in activations]
+        masked = np.ma.masked_all((len(activations), max(lengths), *activations[0][0].shape), dtype=np.float32)
+        for trace_idx, trace in enumerate(activations):
+            masked[trace_idx, : len(trace)] = np.array(trace)
 
         # Neuron selection
         if neurons is None:
-            neurons = list(range(activations[0].shape[1]))
+            neurons = list(range(activations[0][0].shape[-1]))
         elif isinstance(neurons, int):
             neurons = [neurons]
 
-        if max(neurons) > activations[0].shape[1] - 1:
-            msg = f"The neuron IDs must be between 0 and {activations[0].shape[1] - 1}."
+        if max(neurons) > masked[0].shape[-1] - 1:
+            msg = f"The neuron IDs must be between 0 and {activations[0][0].shape[-1] - 1}."
             raise ValueError(msg)
         neuron_count = len(neurons)
 
@@ -635,7 +653,7 @@ class Monitor(Wrapper):
                 ax.axis("off")
                 continue
             neuron = neurons[neuron_idx]
-            self._plot_activations_single(neuron, ax, mean, activations)
+            self._plot_activations_single(neuron, ax, mean, masked, batch_dim)
 
         fig.suptitle(f"{population.capitalize()} neuron activations", fontsize=18, y=1)
         fig.tight_layout()
