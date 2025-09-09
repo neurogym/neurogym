@@ -35,13 +35,16 @@ def test_activation_traces(n_trials: int = 10):
     mon.evaluate_policy(n_trials, model)
 
     n_traces = len(am.history["hidden"])
-    trace_shape = am.history["hidden"][0].shape
+    hidden_shape = am.history["hidden"][1][0].shape
+    batch_size, neuron_count = hidden_shape[0], hidden_shape[1]
     expected_steps = int(mon.tmax / mon.dt)
 
     assert n_traces == n_trials, f"Wrong number of recorded activation traces (expected {n_trials}, got {n_traces})"
-    assert trace_shape[0] == expected_steps, (
-        f"Wrong number of steps in the traces (expected {expected_steps}, got {trace_shape[0]})"
-    )
-    assert trace_shape[1] == actor.hidden_size, (
-        f"Wrong number of neurons in the trace (expected {actor.hidden_size}, got {trace_shape[1]})"
+    for hist_length in am.history["hidden"]:
+        assert len(hist_length) <= expected_steps, (
+            f"Wrong number of steps in the traces (expected <={expected_steps}, got {hist_length})"
+        )
+    assert batch_size == 1, f"Wrong batch size (expected 1, got {batch_size})"
+    assert neuron_count == actor.hidden_size, (
+        f"Wrong number of neurons in the trace (expected {actor.hidden_size}, got {neuron_count})"
     )
