@@ -23,6 +23,10 @@ class DummyEnv(TrialEnv):
         """Start a new trial."""
         return {}
 
+    def _post_init(self):
+        """Perform sanity checks."""
+        super()._post_init(allow_empty_timing=True)
+
     def _step(self, action: int):
         """Take a step in the environment."""
         obs = self.observation_space.sample()

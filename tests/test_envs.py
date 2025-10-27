@@ -26,6 +26,7 @@ def _test_run(env_name: str, num_steps: int = 100) -> gym.Env:
     env_kwargs = {}
     if env_name.startswith("Annubes"):
         env_kwargs = ANNUBES_KWS
+
     env = make(env_name, **env_kwargs)
 
     env.reset()
