@@ -1,4 +1,5 @@
 """Multi-arm Bandit task."""
+
 # TODO: add the actual papers.
 
 import numpy as np
@@ -54,6 +55,10 @@ class Bandit(TrialEnv):
             dtype=np.float32,
         )
         self.action_space = spaces.Discrete(n)
+
+    def _post_init(self):
+        """Perform sanity checks."""
+        super()._post_init(allow_empty_timing=True)
 
     def _new_trial(self, **kwargs):
         # Create a new dictionary with NumPy arrays converted to lists

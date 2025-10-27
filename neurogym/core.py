@@ -81,7 +81,14 @@ class BaseEnv(gym.Env):
         return [seed]
 
 
-class TrialEnv(BaseEnv):
+class EnvMeta(type):
+    def __call__(cls, *args, **kwargs):
+        new_obj = type.__call__(cls, *args, **kwargs)
+        new_obj._post_init()  # noqa: SLF001
+        return new_obj
+
+
+class TrialEnv(BaseEnv, metaclass=EnvMeta):
     """The main Neurogym class for trial-based envs."""
 
     def __init__(self, dt=100, num_trials_before_reset=10000000, r_tmax=0) -> None:
@@ -110,6 +117,15 @@ class TrialEnv(BaseEnv):
     def __str__(self) -> Any:
         """Information about task."""
         return env_string(self, short=True)
+
+    def _post_init(
+        self,
+        allow_empty_timing: bool = False,
+    ):
+        """Perform sanity checks."""
+        if not allow_empty_timing and len(self.timing) == 0:
+            msg = "The 'timing' dictionary cannot be empty."
+            raise AttributeError(msg)
 
     def _new_trial(self, **kwargs) -> NoReturn:
         """Private interface for starting a new trial.
