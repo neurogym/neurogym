@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Literal
 
 from pydantic import PositiveInt
@@ -29,6 +30,7 @@ class MonitorConfig(ConfigBase):
         trigger: Unit used to trigger saving output.
         interval: Number of trigger units between each save operation.
         verbose: Whether to enable verbose output.
+        save_dir: A directory where plots and other output should be saved.
         plot: Plotting configuration.
     """
 
@@ -36,4 +38,5 @@ class MonitorConfig(ConfigBase):
     trigger: Literal["trial", "step"] = "trial"
     interval: PositiveInt = 1000
     verbose: bool = True
+    save_dir: str | Path | None = None
     plot: MonitorPlotConfig = MonitorPlotConfig()
