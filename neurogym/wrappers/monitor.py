@@ -79,12 +79,15 @@ class Monitor(Wrapper):
         plot_steps: int = 1000,
         ext: str = "png",
         step_fn: Callable | None = None,
+        save_dir: str | Path | None = None,
     ) -> None:
         super().__init__(env)
         self.env = env
         self.step_fn = step_fn
 
         cfg: Config
+        # TODO: This is very unwieldy.
+        # The respective config classes should just have sane defaults.
         if config is None:
             config_dict = {
                 "env": {"name": env.unwrapped.__class__.__name__},
@@ -93,6 +96,7 @@ class Monitor(Wrapper):
                     "trigger": trigger,
                     "interval": interval,
                     "verbose": verbose,
+                    "save_dir": save_dir,
                     "plot": {
                         "create": plot_create,
                         "step": plot_steps,
@@ -116,6 +120,12 @@ class Monitor(Wrapper):
         if len(self.config.monitor.name) == 0:
             self.config.monitor.name = self.__class__.__name__
 
+        # Set the save_dir
+        if save_dir is None:
+            save_dir = self.config.local_dir / f"{self.config.env.name}/{iso_timestamp()}"
+        if self.config.monitor.save_dir is None:
+            self.config.monitor.save_dir = save_dir
+
         # data to save
         self.data: dict[str, list] = {
             "action": [],
@@ -131,8 +141,7 @@ class Monitor(Wrapper):
         self.num_tr = 0
 
         # Directory for saving plots
-        save_dir_name = f"{self.config.env.name}/{iso_timestamp()}"
-        self.save_dir = ensure_dir(self.config.local_dir / save_dir_name)
+        self.save_dir = ensure_dir(self.config.monitor.save_dir)
 
         # Figures
         if self.config.monitor.plot.create:
