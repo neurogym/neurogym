@@ -116,6 +116,7 @@ class DummyEnv(TrialEnv):
             {"fixation": 300, "stimulus": 500, "decision": 200},
             {"mean": 10, "std": 0, "percentile_95": 10, "max": 10},
         ),
+        # No timing information - should raise an error
         (
             {},
             {"mean": 0, "std": 0, "percentile_95": 0, "max": 0},
@@ -126,7 +127,11 @@ class DummyEnv(TrialEnv):
             {"mean": 10, "std": 0, "percentile_95": 10, "max": 10},
         ),
         (
-            {"fixation": 300, "stimulus": ["truncated_exponential", [400, 100, 500]], "decision": 200},
+            {
+                "fixation": 300,
+                "stimulus": ["truncated_exponential", [400, 100, 500]],
+                "decision": 200,
+            },
             {"mean": 8, "std": 1, "percentile_95": 8, "max": 8},
         ),
         (
@@ -138,7 +143,13 @@ class DummyEnv(TrialEnv):
 def test_trial_length_stats(timing, expected_stats):
     """Test trial length stats for both fixed and randomized timing configurations."""
     dt = 100
+    if len(timing) == 0:
+        with pytest.raises(AttributeError, match=r"The 'timing' dictionary.*"):
+            env = DummyEnv(dt=dt, timing=timing)
+        return
+
     env = DummyEnv(dt=dt, timing=timing)
+
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message="No trials were sampled.*")
         stats = env.trial_length_stats(num_trials=1000)
@@ -150,7 +161,10 @@ def test_trial_length_stats(timing, expected_stats):
 def test_string_methods():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
-        warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
+        warnings.filterwarnings(
+            "ignore",
+            message=".*The environment creator metadata doesn't include `render_modes`*",
+        )
 
         env = make("AntiReach-v0")
         print(env)  # noqa: T201
