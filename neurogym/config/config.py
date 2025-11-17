@@ -12,6 +12,7 @@ from neurogym.config.base import CONFIG_DIR, LOCAL_DIR, PKG_DIR, ROOT_DIR, Confi
 from neurogym.config.components.agent import AgentConfig
 from neurogym.config.components.env import EnvConfig
 from neurogym.config.components.monitor import MonitorConfig
+from neurogym.config.components.plot import PlotConfig
 
 
 class Config(ConfigBase):
@@ -42,6 +43,7 @@ class Config(ConfigBase):
     agent: AgentConfig = AgentConfig()
     env: EnvConfig = EnvConfig()
     monitor: MonitorConfig = MonitorConfig()
+    plot: PlotConfig = PlotConfig()
 
     def __init__(
         self,

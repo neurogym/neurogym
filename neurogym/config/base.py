@@ -30,7 +30,7 @@ class ConfigBase(BaseSettings):
     # Pydantic v2-style configuration for BaseSettings
     model_config = SettingsConfigDict(
         env_prefix="NGYM_",  # Look for environment variables starting with this
-        env_nested_delimiter="__",  # Supports nested fields like NGYM_DB.USER
+        env_nested_delimiter="__",  # Supports nested fields like NGYM_DB__USER
         case_sensitive=False,  # Makes variable names not case-sensitive
         nested_model_default_partial_update=True,  # Allows partial updates to nested models
         extra="allow",  # Accepts extra fields not defined in the model
