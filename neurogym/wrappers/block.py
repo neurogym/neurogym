@@ -9,7 +9,11 @@ from neurogym.utils import spaces
 class RandomGroundTruth(TrialWrapper):
     # TODO: A better name?
 
-    def __init__(self, env, p=None) -> None:
+    def __init__(
+        self,
+        env: TrialEnv,
+        p: np.ndarray | None = None,
+    ) -> None:
         super().__init__(env)
         try:
             self.n_ch = len(self.choices)  # max num of choices
@@ -251,7 +255,11 @@ class TrialHistoryV2(TrialWrapper):
             on the previous. Shape, num-choices x num-choices
     """
 
-    def __init__(self, env, probs=None) -> None:
+    def __init__(
+        self,
+        env: TrialEnv,
+        probs: np.ndarray | None = None,
+    ) -> None:
         super().__init__(env)
         try:
             self.n_ch = len(self.choices)  # max num of choices

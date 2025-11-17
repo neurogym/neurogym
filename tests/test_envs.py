@@ -15,9 +15,7 @@ from neurogym.utils.logging import logger
 from tests import ANNUBES_KWS
 
 SEED = 0
-
 ENVS = all_envs(psychopy=_PSYCHOPY_INSTALLED, contrib=True, collections=True)
-# Envs without psychopy, TODO: check if contrib or collections include psychopy
 ENVS_NOPSYCHOPY = all_envs(psychopy=False, contrib=True, collections=True)
 
 
@@ -59,7 +57,7 @@ def _test_dataset(env: str) -> None:
     """Main function for testing if an environment is healthy."""
     if env.startswith("Null"):
         return
-    env_kwargs: dict[str, Any] = {"dt": 20}
+    env_kwargs: dict[str, Any] = {"dt": 50}
     if env.startswith("Annubes"):
         env_kwargs.update(ANNUBES_KWS)
     dataset = Dataset(env, env_kwargs=env_kwargs, batch_size=16, seq_len=300, cache_len=10_000)
@@ -121,7 +119,7 @@ def test_trialenv_all() -> None:
 
 def _test_seeding(env_name: str) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Test if environments are replicable."""
-    env_kwargs: dict[str, Any] = {"dt": 20}
+    env_kwargs: dict[str, Any] = {"dt": 50}
     if env_name.startswith("Annubes"):
         env_kwargs.update(ANNUBES_KWS)
         env_kwargs.update({"random_seed": SEED})
@@ -147,7 +145,6 @@ def _test_seeding(env_name: str) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     return np.array(ob_mat), np.array(rew_mat), np.array(act_mat)
 
 
-# TODO: there is one env for which it sometimes raises an error
 def test_seeding_all() -> None:
     """Test if all environments are replicable."""
     with warnings.catch_warnings():
@@ -172,7 +169,7 @@ def test_plot_all() -> None:
         for env_name in ENVS:
             if env_name.startswith("Null"):
                 continue
-            env_kwargs: dict[str, Any] = {"dt": 20}
+            env_kwargs: dict[str, Any] = {"dt": 50}
             if env_name.startswith("Annubes"):
                 env_kwargs.update(ANNUBES_KWS)
             env = make(env_name, **env_kwargs)
@@ -181,8 +178,9 @@ def test_plot_all() -> None:
                 ngym.utils.plotting.plot_env(env, num_trials=2, def_act=action)
             except Exception as e:
                 logger.error(f"Error in plotting env: {env_name}, {e}")
-                plt.close()
                 raise
+            finally:
+                plt.close()
 
 
 def test_get_envs() -> None:
