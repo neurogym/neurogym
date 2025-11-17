@@ -1,7 +1,6 @@
 import warnings
 
 import numpy as np
-import pytest
 
 from neurogym.envs.registration import make
 from neurogym.wrappers.noise import Noise
@@ -51,7 +50,6 @@ def test_passreward():
                 env.reset()
 
 
-@pytest.mark.skip(reason="Trials not ending when they should.")
 def test_reactiontime():
     """Test reaction-time wrapper.
 
@@ -64,12 +62,13 @@ def test_reactiontime():
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
 
         env_name = "PerceptualDecisionMaking-v0"
-        env_args = {"timing": {"fixation": 100, "stimulus": 2000, "decision": 200}}
+        env_args = {"timing": {"fixation": 100, "stimulus": 2000, "decision": 200}, "abort": True}
         urgency = -0.1
         thresholds = [-0.5, 0.5]
         num_steps = 200
 
         env = make(env_name, **env_args)
+
         env = ReactionTime(env, urgency=urgency)
         env.reset()
         obs_cum = 0
@@ -84,7 +83,7 @@ def test_reactiontime():
             else:
                 action = 0
 
-            end_of_trial = action != 0
+            end_of_trial = env.in_period("decision") and action != 0
             obs, rew, _terminated, _truncated, info = env.step(action)
             if info["new_trial"]:
                 step = 0
@@ -92,7 +91,7 @@ def test_reactiontime():
                 end_of_trial = False
             else:
                 step += 1
-                assert not end_of_trial, f"Trial did not end after decision ({action}) on iteration {i}, step {step}."
+                assert not end_of_trial, f"Trial ended after decision ({action}) on iteration {i}, step {step}."
                 obs_cum += obs[1] - obs[2]
 
 
