@@ -50,6 +50,10 @@ class DawTwoStep(TrialEnv):
             dtype=np.float32,
         )
 
+    def _post_init(self):
+        """Perform sanity checks."""
+        super()._post_init(allow_empty_timing=True)
+
     def _new_trial(self, **kwargs):
         # ---------------------------------------------------------------------
         # Trial
@@ -63,7 +67,7 @@ class DawTwoStep(TrialEnv):
         transition[self.actions[1]] = tmp1
         transition[self.actions[2]] = tmp2
 
-        # swtich reward contingency
+        # switch reward contingency
         switch = self.rng.rand() < self.p_switch
         if switch:
             self.state1_high_reward = not self.state1_high_reward

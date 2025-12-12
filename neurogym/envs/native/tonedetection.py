@@ -10,7 +10,7 @@ class ToneDetection(TrialEnv):
     """A subject is asked to report whether a pure tone is embeddied within a background noise.
 
     If yes, should indicate the position of the tone. The tone lasts 50ms and could appear at the 500ms, 1000ms, and
-    1500ms. The tone is embbeded within noises.
+    1500ms. The tone is embedded within noises.
 
     By Ru-Yuan Zhang (ruyuanzhang@gmail.com)
 

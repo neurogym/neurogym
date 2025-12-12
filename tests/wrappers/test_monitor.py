@@ -23,6 +23,10 @@ class DummyEnv(TrialEnv):
         """Start a new trial."""
         return {}
 
+    def _post_init(self):
+        """Perform sanity checks."""
+        super()._post_init(allow_empty_timing=True)
+
     def _step(self, action: int):
         """Take a step in the environment."""
         obs = self.observation_space.sample()
@@ -52,21 +56,29 @@ def test_monitor_initialization(temp_folder: str):
     """
     env = DummyEnv()
 
+    save_dir = Path(temp_folder) / "_tmp_save_dir"
+
     config = Config(local_dir=temp_folder)
 
     # Set some configuration options manually
     config.monitor.plot.step = 10
     config.monitor.trigger = "trial"
 
-    monitor = Monitor(env, config)
+    monitor = Monitor(env, config, save_dir=save_dir)
 
     # Check that monitor attributes are set correctly
     assert monitor.config.monitor.plot.step == 10
     assert monitor.config.monitor.trigger == "trial"
     assert monitor.config.local_dir == Path(temp_folder)
-    assert monitor.data == {"action": [], "reward": [], "cum_reward": [], "performance": []}
+    assert monitor.data == {
+        "action": [],
+        "reward": [],
+        "cum_reward": [],
+        "performance": [],
+    }
     assert hasattr(monitor, "data_eval")
     assert isinstance(monitor.data_eval, dict)
+    assert monitor.save_dir == Path(save_dir)
 
 
 def test_monitor_data_collection():

@@ -45,7 +45,7 @@ class YourTask(TrialEnv):
             set trial: a dictionary of trial information
             run self.add_period():
                 will add time periods to the trial
-                accesible through dict self.start_t and self.end_t
+                accessible through dict self.start_t and self.end_t
             run self.add_ob():
                 will add observation to np array self.ob
             run self.set_groundtruth():

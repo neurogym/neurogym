@@ -1,19 +1,16 @@
 import importlib
-from importlib.util import find_spec
 from inspect import getmembers, isclass, isfunction
 from pathlib import Path
 
 import gymnasium as gym
 
+from neurogym import _PSYCHOPY_INSTALLED
 from neurogym.envs.collections import get_collection
 from neurogym.utils.logging import logger
 
-_HAVE_PSYCHOPY = find_spec("psychopy") is not None  # check if psychopy is installed
 _INCLUDE_CONTRIB = False  # FIXME: these are currently not passing tests
 _EXCLUDE_ENVS = [
-    "AnnubesEnv",  # FIXME: failing test_env.py::test_seeding_all (resolve in #149)
-    "Detection",  # FIXME: failing test_data.py and test_env.py
-    "ToneDetection",  # FIXME: failing test_data.py::test_registered_env
+    "Detection",  # FIXME: test_data.py and test_envs.py - AttributeError: 'Detection' object has no attribute 'gt'
 ]
 
 
@@ -84,7 +81,7 @@ def _get_collection_envs() -> dict[str, str]:
 ALL_NATIVE_ENVS = _get_envs()
 ALL_COLLECTIONS_ENVS = _get_collection_envs()
 ALL_CONTRIB_ENVS = _get_envs(foldername="contrib") if _INCLUDE_CONTRIB else {}
-ALL_PSYCHOPY_ENVS = _get_envs(foldername="psychopy") if _HAVE_PSYCHOPY else {}
+ALL_PSYCHOPY_ENVS = _get_envs(foldername="psychopy") if _PSYCHOPY_INSTALLED else {}
 
 ALL_ENVS = {**ALL_NATIVE_ENVS, **ALL_PSYCHOPY_ENVS, **ALL_CONTRIB_ENVS}
 ALL_EXTENDED_ENVS = {**ALL_ENVS, **ALL_COLLECTIONS_ENVS}
@@ -155,7 +152,8 @@ def all_tags() -> list[str]:
     envs = all_envs()
     tags = []
     for env_name in sorted(envs):
-        env = make(env_name)
-        metadata = env.metadata
+        from_, class_ = ALL_EXTENDED_ENVS[env_name].split(":")
+        imported = getattr(__import__(from_, fromlist=[class_]), class_)
+        metadata = imported.metadata
         tags += metadata.get("tags", [])
     return list(set(tags))

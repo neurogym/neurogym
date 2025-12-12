@@ -20,6 +20,10 @@ class MockTrialEnv(TrialEnv):
     def _new_trial(self, **kwargs):
         return {"ground_truth": kwargs.get("ground_truth", 0)}
 
+    def _post_init(self):
+        """Perform sanity checks."""
+        super()._post_init(allow_empty_timing=True)
+
     def _step(self, _action):
         return np.array([0, 0]), 0, False, False, {"new_trial": True}
 

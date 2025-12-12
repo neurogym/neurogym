@@ -101,15 +101,16 @@ class EconomicDecisionMaking(TrialEnv):
         return trial
 
     def _step(self, action):
-        trial = self.trial
+        if isinstance(action, np.ndarray):
+            action = action.item()
 
+        trial = self.trial
         new_trial = False
         terminated = False
         truncated = False
-
         obs = self.ob_now
-
         reward = 0
+
         if self.in_period("fixation") or self.in_period("offer_on"):
             if action != self.act_dict["fixation"]:
                 new_trial = self.abort

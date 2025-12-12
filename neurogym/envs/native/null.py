@@ -17,6 +17,10 @@ class Null(TrialEnv):
             dtype=np.float32,
         )
 
+    def _post_init(self):
+        """Perform sanity checks."""
+        super()._post_init(allow_empty_timing=True)
+
     def _new_trial(self, **kwargs):
         trial = {}
         trial.update(kwargs)
