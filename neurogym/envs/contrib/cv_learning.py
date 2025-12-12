@@ -1,11 +1,10 @@
-import matplotlib.pyplot as plt
 import numpy as np
-from gymnasium import spaces
 
-import neurogym as ngym
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
 
 
-class CVLearning(ngym.TrialEnv):
+class CVLearning(TrialEnv):
     """Implements shaping for the delay-response task.
 
     Agents have to integrate two stimuli and report which one is larger on average after a delay.
@@ -95,7 +94,7 @@ class CVLearning(ngym.TrialEnv):
         # number of days to keep an agent on a stage
         # once it has reached th_perf
         self.days_keep = self.w_keep[self.ind]
-        self.keep_stage = False  # wether the agent can move to the next stage
+        self.keep_stage = False  # whether the agent can move to the next stage
         # Instantaneous performance (moving window)
         self.inst_perf: np.floating = np.float64(0)
         self.perf_len = perf_len  # window length
@@ -114,7 +113,7 @@ class CVLearning(ngym.TrialEnv):
         self.stage_reminder = False  # control if a stage has been explored
         # stage 3
         self.inc_delays = 0  # proportion of the total delays dur to keep
-        self.delay_milestone = 0  # delays durs at the beggining of a day
+        self.delay_milestone = 0  # delays durs at the beginning of a day
         # proportion of the total delays dur to incease every time that the
         # agent reaches a threshold performance
         self.inc_factor = 0.25
@@ -122,7 +121,7 @@ class CVLearning(ngym.TrialEnv):
         self.dec_delays_th = 0.5  # th perf to decrease delays in stage 3
         # number of trials spent on a specific delays duration
         self.trials_delay = 0
-        self.max_delays = True  # wheter delays have reached their max dur
+        self.max_delays = True  # whether delays have reached their max dur
         self.dur = [0] * len(self.delay_durs)
 
         # action and observation spaces
@@ -340,11 +339,3 @@ class CVLearning(ngym.TrialEnv):
             "num_stps": self.t_ind,
         }
         return self.ob_now, reward, terminated, truncated, info
-
-
-if __name__ == "__main__":
-    plt.close("all")
-    env = CVLearning(stages=[0, 2, 3, 4], trials_day=2, keep_days=1)
-    data = ngym.utils.plot_env(env, num_steps=200)
-    env = CVLearning(stages=[3, 4], trials_day=2, keep_days=1)
-    data = ngym.utils.plot_env(env, num_steps=200)

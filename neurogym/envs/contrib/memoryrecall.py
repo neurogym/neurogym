@@ -3,12 +3,13 @@
 from collections import OrderedDict
 
 import numpy as np
-from gymnasium import spaces
 
-import neurogym as ngym
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
+from neurogym.utils.logging import logger
 
 
-class MemoryRecall(ngym.TrialEnv):
+class MemoryRecall(TrialEnv):
     """Memory Recall.
 
     Args:
@@ -63,7 +64,8 @@ class MemoryRecall(ngym.TrialEnv):
             self.p_flip = 1 - chance
 
         if p_recall > 0.5:
-            print("Cannot have p_recall larger than 0.5")
+            logger.warning("Cannot have p_recall larger than 0.5")
+            # FIXME: Should this be an error instead of a warning?
 
         # Environment specific
         self.action_space = spaces.Box(
@@ -80,7 +82,7 @@ class MemoryRecall(ngym.TrialEnv):
         )
 
     def __str__(self) -> str:
-        print("Recall dataset:")
+        logger.info("Recall dataset:")
         nicename_dict = OrderedDict(
             [
                 ("stim_dim", "Stimulus dimension"),

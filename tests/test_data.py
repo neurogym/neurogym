@@ -1,23 +1,38 @@
 """Test Dataset for supervised learning."""
 
-import warnings
+from __future__ import annotations
 
-import gymnasium as gym
+import warnings
+from typing import TYPE_CHECKING, Any
+
 import numpy as np
 
-import neurogym as ngym
+from neurogym.core import TrialEnv
+from neurogym.envs.registration import all_envs, make
+from neurogym.utils import spaces
+from neurogym.utils.data import Dataset
+from neurogym.utils.logging import logger
+from tests import ANNUBES_KWS
+
+if TYPE_CHECKING:
+    import gymnasium as gym
 
 # Get all supervised learning environment
-SLENVS = ngym.all_envs(tag="supervised")
+SL_ENVS = all_envs(tag="supervised")
 
 
-def _test_env(env):
+def _test_env(env: str):
     """Test if one environment can at least be run with Dataset."""
     batch_size = 32
     seq_len = 40
-    dataset = ngym.Dataset(
+    env_kwargs: dict[str, Any] = {"dt": 100}
+    if env.startswith("ToneDetection"):
+        env_kwargs = {"dt": 50}
+    elif env.startswith("Annubes"):
+        env_kwargs.update(ANNUBES_KWS)
+    dataset = Dataset(
         env,
-        env_kwargs={"dt": 100},
+        env_kwargs=env_kwargs,
         batch_size=batch_size,
         seq_len=seq_len,
     )
@@ -36,17 +51,28 @@ def test_registered_env():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        for env_name in sorted(SLENVS):
-            print(env_name)
-            _test_env(env_name)
+        try:
+            for env_name in sorted(SL_ENVS):
+                _test_env(env_name)
+        except:
+            logger.error(f"Failure in: {env_name}")
+            raise
 
 
-def _test_examples_different(env) -> None:
+def _test_examples_different(env: str | gym.Env) -> None:
     """Test that each example in a batch is different."""
     batch_size = 32
     # need to be long enough to make sure variability in inputs or target
     seq_len = 1000
-    dataset = ngym.Dataset(env, batch_size=batch_size, seq_len=seq_len)
+    env_kwargs = {}
+    if isinstance(env, str) and env.startswith("Annubes"):
+        env_kwargs = ANNUBES_KWS
+    dataset = Dataset(
+        env,
+        env_kwargs=env_kwargs,
+        batch_size=batch_size,
+        seq_len=seq_len,
+    )
     inputs, target = dataset()
     # Average across batch
     batch_mean_inputs = np.mean(inputs, axis=1, keepdims=True)
@@ -64,9 +90,12 @@ def test_examples_different_registered_env():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        for env_name in sorted(SLENVS):
-            print(env_name)
-            _test_examples_different(env_name)
+        try:
+            for env_name in sorted(SL_ENVS):
+                _test_examples_different(env_name)
+        except:
+            logger.error(f"Failure in: {env_name}")
+            raise
 
 
 def test_examples_different_made_env():
@@ -74,28 +103,34 @@ def test_examples_different_made_env():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message=".*get variables from other wrappers is deprecated*")
         warnings.filterwarnings("ignore", message=".*The environment creator metadata doesn't include `render_modes`*")
-        for env_name in sorted(SLENVS):
-            print(env_name)
-            env = gym.make(env_name)
-            _test_examples_different(env)
+        try:
+            for env_name in sorted(SL_ENVS):
+                if env_name.startswith("Annubes"):  # noqa:SIM108
+                    env = make(env_name, **ANNUBES_KWS)
+                else:
+                    env = make(env_name)
+                _test_examples_different(env)
+        except:
+            logger.error(f"Failure in: {env_name}")
+            raise
 
 
 def test_examples_different_custom_env():
     """Test that each example in a batch is different in created envs."""
 
-    class TestEnv(ngym.TrialEnv):
+    class TestEnv(TrialEnv):
         def __init__(self, dt=100) -> None:
             super().__init__(dt=dt)
             self.timing = {"fixation": dt, "go": dt}
             name = {"fixation": 0, "go": 1}
-            self.observation_space = ngym.spaces.Box(
+            self.observation_space = spaces.Box(
                 -np.inf,
                 np.inf,
                 shape=(2,),
                 dtype=np.float32,
                 name=name,
             )
-            self.action_space = ngym.spaces.Discrete(2)
+            self.action_space = spaces.Discrete(2)
 
         def _new_trial(self, **kwargs):
             trial = {}

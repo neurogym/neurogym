@@ -1,9 +1,12 @@
 """Utilities for data."""
 
-import copy
+from copy import deepcopy
+from typing import Any
 
 import gymnasium as gym
 import numpy as np
+
+from neurogym.envs.registration import make
 
 
 class Dataset:
@@ -25,23 +28,25 @@ class Dataset:
 
     def __init__(
         self,
-        env,
-        env_kwargs=None,
-        batch_size=1,
-        seq_len=None,
-        max_batch=np.inf,
-        batch_first=False,
-        cache_len=None,
+        env: str | gym.Env,
+        env_kwargs: dict[str, Any] | None = None,
+        batch_size: int = 1,
+        seq_len: int | None = None,
+        max_batch: int | None = None,
+        batch_first: bool = False,
+        cache_len: int | None = None,
     ) -> None:
+        if max_batch is None:
+            max_batch = int(1e31)
         if not isinstance(env, str | gym.Env):
             msg = f"{type(env)=} must be `gym.Env` or `str`."
             raise TypeError(msg)
         if isinstance(env, gym.Env):
-            self.envs = [copy.deepcopy(env) for _ in range(batch_size)]
+            self.envs = [deepcopy(env) for _ in range(batch_size)]
         else:
             if env_kwargs is None:
                 env_kwargs = {}
-            self.envs = [gym.make(env, **env_kwargs) for _ in range(batch_size)]
+            self.envs = [make(env, **env_kwargs) for _ in range(batch_size)]
         for env_ in self.envs:
             env_.reset()
         self.seed()
@@ -55,15 +60,20 @@ class Dataset:
             # TODO: infer sequence length from task
             seq_len = 1000
 
-        obs_shape = tuple(env.observation_space.shape) # type: ignore[arg-type]
-        action_shape = tuple(env.action_space.shape)  # type: ignore[arg-type]
+        obs_shape = env.observation_space.shape
+        action_shape = env.action_space.shape
+        if obs_shape is None or action_shape is None:
+            msg = "The observation and action spaces must have a shape."
+            raise ValueError(msg)
+
         self._expand_action = len(action_shape) == 0
+
         if cache_len is None:
             # Infer cache len
-            cache_len = 1e5  # Probably too low
-            cache_len /= np.prod(obs_shape) + np.prod(action_shape)
-            cache_len /= batch_size
-        cache_len = int((1 + (cache_len // seq_len)) * seq_len)
+            obs_size = int(np.prod(obs_shape))
+            action_size = int(np.prod(action_shape))
+            cache_len = int(1e5 / (obs_size + action_size) / batch_size)
+        cache_len = (1 + (cache_len // seq_len)) * seq_len
 
         self.seq_len = seq_len
         self._cache_len = cache_len
@@ -147,18 +157,3 @@ class Dataset:
                 env.seed(seed)  # type: ignore[attr-defined]
             else:
                 env.seed(seed + i)  # type: ignore[attr-defined]
-
-
-if __name__ == "__main__":
-    import neurogym as ngym
-
-    dataset = ngym.Dataset(
-        "PerceptualDecisionMaking-v0",
-        env_kwargs={"dt": 100},
-        batch_size=32,
-        seq_len=40,
-    )
-    inputs_list = []
-    for _ in range(2):
-        inputs, target = dataset()
-        inputs_list.append(inputs)

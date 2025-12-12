@@ -47,7 +47,7 @@ jobs:
         with:
           name: artifact
           path: dist
-      - uses: pypa/gh-action-pypi-publish@v1.4.2
+      - uses: pypa/gh-action-pypi-publish@v1.13.0
         with:
           user: __token__
           password: ${{ secrets.TEST_PYPI_TOKEN_NEUROGYM }}
@@ -62,7 +62,7 @@ jobs:
         with:
           name: artifact
           path: dist
-      - uses: pypa/gh-action-pypi-publish@v1.4.2
+      - uses: pypa/gh-action-pypi-publish@v1.13.0
         with:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN_NEUROGYM }}
@@ -80,7 +80,7 @@ jobs:
       - name: Fetch gh-pages
         run: git fetch origin gh-pages:gh-pages
       - name: Install Python
-        uses: actions/setup-python@v5.1.1
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Install requirements

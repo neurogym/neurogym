@@ -2,10 +2,8 @@
 
 import numpy as np
 
-import neurogym as ngym
-from neurogym import spaces
-from neurogym.core import TrialWrapper
-from neurogym.utils import scheduler
+from neurogym.core import TrialEnv, TrialWrapper
+from neurogym.utils import scheduler, spaces
 from neurogym.wrappers.block import ScheduleEnvs
 
 
@@ -51,7 +49,7 @@ class _MultiModalityStimulus(TrialWrapper):
         return self.env.new_trial(**kwargs)
 
 
-class _Reach(ngym.TrialEnv):
+class _Reach(TrialEnv):
     """Anti-response task.
 
     The agent has to move in the direction opposite to the one indicated
@@ -165,7 +163,7 @@ class _Reach(ngym.TrialEnv):
         )
 
 
-class _DMFamily(ngym.TrialEnv):
+class _DMFamily(TrialEnv):
     """Delay comparison.
 
     Two-alternative forced choice task in which the subject
@@ -281,13 +279,17 @@ class _DMFamily(ngym.TrialEnv):
         else:
             periods = ["fixation", "stimulus", "decision"]
         self.add_period(periods)
+        if not self.delaycomparison:
+            trial["stim_period"] = self._duration["stimulus"]
 
-        self.add_ob(1, where="fixation")
+        self.add_ob(1, period="fixation", where="fixation")
         self.set_ob(0, "decision")
         if self.delaycomparison:
-            self.add_randn(0, self.sigma, ["stim1", "stim2"])
+            self.add_randn(0, self.sigma, period=["stim1", "stim2"], where="stimulus_mod1")
+            self.add_randn(0, self.sigma, period=["stim1", "stim2"], where="stimulus_mod2")
         else:
-            self.add_randn(0, self.sigma, ["stimulus"])
+            self.add_randn(0, self.sigma, period="stimulus", where="stimulus_mod1")
+            self.add_randn(0, self.sigma, period="stimulus", where="stimulus_mod2")
 
         coh1, coh2 = 0, 0
         if self.stim_mod1:
@@ -330,7 +332,7 @@ class _DMFamily(ngym.TrialEnv):
         return ob, reward, truncated, terminated, {"new_trial": new_trial, "gt": gt}
 
 
-class _DelayMatch1DResponse(ngym.TrialEnv):
+class _DelayMatch1DResponse(TrialEnv):
     """Delay match-to-sample or category task.
 
     A sample stimulus is followed by a delay and test. Agents are required
@@ -434,11 +436,11 @@ class _DelayMatch1DResponse(ngym.TrialEnv):
         # Periods
         self.add_period(["fixation", "sample", "delay", "test", "decision"])
 
-        self.add_ob(1, where="fixation")
+        self.add_ob(1, period="fixation", where="fixation")
         self.set_ob(0, "decision", where="fixation")
         self.add_ob(stim_sample, "sample", where="stimulus")
         self.add_ob(stim_test, "test", where="stimulus")
-        self.add_randn(0, self.sigma, ["sample", "test"], where="stimulus")
+        self.add_randn(0, self.sigma, period=["sample", "test"], where="stimulus")
 
         if (ground_truth == "match" and self.matchgo) or (ground_truth == "non-match" and not self.matchgo):
             self.set_groundtruth(i_test_theta, period="decision", where="choice")
@@ -527,7 +529,21 @@ def _dm_kwargs():
 
 def dm1(**kwargs):
     env_kwargs = _dm_kwargs()
-    env_kwargs.update({"w_mod": (1, 1), "stim_mod": (True, False)})
+    if env_kwargs["delaycomparison"]:
+        timing = {
+            "fixation": ("uniform", (200, 500)),
+            "stim1": 500,
+            "delay": 1000,
+            "stim2": 500,
+            "decision": 200,
+        }
+    else:
+        timing = {
+            "fixation": ("uniform", (200, 500)),
+            "stimulus": ("choice", [200, 400, 600]),
+            "decision": 200,
+        }
+    env_kwargs.update({"timing": timing, "w_mod": (1, 1), "stim_mod": (True, False)})
     env_kwargs.update(kwargs)
     return _DMFamily(**env_kwargs)
 

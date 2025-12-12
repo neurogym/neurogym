@@ -1,4 +1,5 @@
 import contextlib
+import warnings
 from typing import Any, NoReturn
 
 import gymnasium as gym
@@ -23,9 +24,9 @@ def env_string(env, short=False):
     metadata = env.metadata
     docstring = env.__doc__
     string += f"### {type(env).__name__}\n"
-    paper_name = metadata.get("paper_name", None) or "Missing paper name"
+    paper_name = metadata.get("paper_name") or "Missing paper name"
     paper_name = _clean_string(paper_name)
-    paper_link = metadata.get("paper_link", None)
+    paper_link = metadata.get("paper_link")
     string += f"Doc: {docstring}\n"
     string += "Reference paper \n"
     if paper_link is None:
@@ -80,7 +81,14 @@ class BaseEnv(gym.Env):
         return [seed]
 
 
-class TrialEnv(BaseEnv):
+class EnvMeta(type):
+    def __call__(cls, *args, **kwargs):
+        new_obj = type.__call__(cls, *args, **kwargs)
+        new_obj._post_init()  # noqa: SLF001
+        return new_obj
+
+
+class TrialEnv(BaseEnv, metaclass=EnvMeta):
     """The main Neurogym class for trial-based envs."""
 
     def __init__(self, dt=100, num_trials_before_reset=10000000, r_tmax=0) -> None:
@@ -109,6 +117,15 @@ class TrialEnv(BaseEnv):
     def __str__(self) -> Any:
         """Information about task."""
         return env_string(self, short=True)
+
+    def _post_init(
+        self,
+        allow_empty_timing: bool = False,
+    ):
+        """Perform sanity checks."""
+        if not allow_empty_timing and len(self.timing) == 0:
+            msg = "The 'timing' dictionary cannot be empty."
+            raise AttributeError(msg)
 
     def _new_trial(self, **kwargs) -> NoReturn:
         """Private interface for starting a new trial.
@@ -463,6 +480,58 @@ class TrialEnv(BaseEnv):
     @property
     def gt_now(self):
         return self.gt[self.t_ind]
+
+    def trial_length_stats(self, num_trials: int = 10000) -> dict:
+        """Calculate statistics about trial lengths.
+
+        Args:
+            num_trials (int, optional): Number of trials to sample. Defaults to 10000.
+
+        Returns:
+            dict: Contains 'mean', 'std', 'percentile_95', and 'max' as floats.
+        """
+        # For environments with very simple timing (all fixed durations),
+        # we can calculate exactly without sampling
+        if self.timing and all(isinstance(timing, int | float) for timing in self.timing.values()):
+            fixed_length = int(sum(self.timing.values()) / self.dt)
+            return {
+                "mean": fixed_length,
+                "std": 0,
+                "percentile_95": fixed_length,
+                "max": fixed_length,
+            }
+
+        # For more complex environments, we sample trials
+        trial_lengths_list = []
+
+        # Store current RNG state to restore later
+        rng_state = self.rng.get_state()
+
+        # Sample trials
+        for _ in range(num_trials):
+            self.new_trial()
+            if hasattr(self, "ob") and self.ob is not None:
+                trial_lengths_list.append(self.ob.shape[0])
+
+        # Restore RNG state
+        self.rng.set_state(rng_state)
+
+        # Calculate statistics from sampled trials
+        if len(trial_lengths_list) == 0:
+            warnings.warn("No trials were sampled. Returning default values.", stacklevel=2)
+            return {
+                "mean": 0,
+                "std": 0,
+                "percentile_95": 0,
+                "max": 0,
+            }
+        trial_lengths = np.array(trial_lengths_list)
+        return {
+            "mean": round(np.mean(trial_lengths), 3),
+            "std": round(np.std(trial_lengths), 3),
+            "percentile_95": round(np.percentile(trial_lengths, 95), 3),
+            "max": round(np.max(trial_lengths), 3),
+        }
 
 
 class TrialWrapper(gym.Wrapper):

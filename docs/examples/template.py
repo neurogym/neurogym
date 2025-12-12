@@ -2,11 +2,11 @@
 
 import numpy as np
 
-import neurogym as ngym
 from neurogym import spaces
+from neurogym.core import TrialEnv
 
 
-class YourTask(ngym.TrialEnv):
+class YourTask(TrialEnv):
     def __init__(self, dt=100, rewards=None, timing=None, sigma=1) -> None:
         super().__init__(dt=dt)
         # Possible decisions at the end of the trial
@@ -45,7 +45,7 @@ class YourTask(ngym.TrialEnv):
             set trial: a dictionary of trial information
             run self.add_period():
                 will add time periods to the trial
-                accesible through dict self.start_t and self.end_t
+                accessible through dict self.start_t and self.end_t
             run self.add_ob():
                 will add observation to np array self.ob
             run self.set_groundtruth():
@@ -115,12 +115,14 @@ class YourTask(ngym.TrialEnv):
 
 
 if __name__ == "__main__":
+    from neurogym.utils.logging import logger
+
     # Instantiate the task
     env = YourTask()
     trial = env.new_trial()
-    print("Trial info", trial)
-    print("Trial observation shape", env.ob.shape)
-    print("Trial action shape", env.gt.shape)
+    logger.info(f"Trial info: {trial}")
+    logger.info(f"Trial observation shape: {env.ob.shape}")
+    logger.info(f"Trial action shape: {env.gt.shape}")
     env.reset()
     ob, reward, terminated, truncated, info = env.step(env.action_space.sample())
-    print("Single time step observation shape", ob.shape)
+    logger.info(f"Single time step observation shape: {ob.shape}")

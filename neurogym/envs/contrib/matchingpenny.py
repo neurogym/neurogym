@@ -1,10 +1,11 @@
 import numpy as np
-from gymnasium import spaces
 
-import neurogym as ngym
+from neurogym.core import TrialEnv
+from neurogym.utils import spaces
+from neurogym.utils.logging import logger
 
 
-class MatchingPenny(ngym.TrialEnv):
+class MatchingPenny(TrialEnv):
     """Matching penny task.
 
     The agent is rewarded when it selects the same target as the computer.
@@ -31,7 +32,7 @@ class MatchingPenny(ngym.TrialEnv):
     ) -> None:
         super().__init__(dt=dt)
         if timing is not None:
-            print("Warning: Matching-Penny task does not require timing variable.")
+            logger.warning("Matching-Penny task does not require timing variable.")
         # TODO: remain to be carefully tested
         # Opponent Type
         self.opponent_type = opponent_type
@@ -64,8 +65,7 @@ class MatchingPenny(ngym.TrialEnv):
         elif self.opponent_type == "mean_action":
             opponent_action = 1 * (not np.round(self.mean_action))
         else:
-            ot = self.opponent_type
-            msg = f"Unknown opponent type {ot}."
+            msg = f"Unknown opponent type {self.opponent_type}."
             raise ValueError(msg)
 
         trial = {"opponent_action": opponent_action}
@@ -91,8 +91,3 @@ class MatchingPenny(ngym.TrialEnv):
 
         info = {"new_trial": True, "gt": self.gt}
         return obs, reward, terminated, truncated, info
-
-
-if __name__ == "__main__":
-    env = MatchingPenny(opponent_type="mean_action")
-    ngym.utils.plot_env(env, num_steps=100)  # , def_act=0)

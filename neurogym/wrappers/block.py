@@ -1,15 +1,19 @@
 from typing import Any
 
 import numpy as np
-from gymnasium import spaces
 
-from neurogym.core import TrialWrapper
+from neurogym.core import TrialEnv, TrialWrapper
+from neurogym.utils import spaces
 
 
 class RandomGroundTruth(TrialWrapper):
     # TODO: A better name?
 
-    def __init__(self, env, p=None) -> None:
+    def __init__(
+        self,
+        env: TrialEnv,
+        p: np.ndarray | None = None,
+    ) -> None:
         super().__init__(env)
         try:
             self.n_ch = len(self.choices)  # max num of choices
@@ -35,7 +39,7 @@ class ScheduleAttr(TrialWrapper):
         schedule:
     """
 
-    def __init__(self, env, schedule, attr_list) -> None:
+    def __init__(self, env: TrialEnv, schedule, attr_list) -> None:
         super().__init__(env)
         self.schedule = schedule
         self.attr_list = attr_list
@@ -77,7 +81,7 @@ class MultiEnvs(TrialWrapper):
     Args:
         envs: list of env object
         env_input: bool, if True, add scalar inputs indicating current
-            envinronment. default False.
+            environment. default False.
     """
 
     def __init__(self, envs, env_input=False) -> None:
@@ -94,7 +98,7 @@ class MultiEnvs(TrialWrapper):
                 msg = f"Env must have 1-D Box shape but got {env_shape}."
                 raise ValueError(msg)
             _have_equal_shape(envs)
-            self.observation_space: spaces.Box = spaces.Box(
+            self.observation_space = spaces.Box(
                 -np.inf,
                 np.inf,
                 shape=(env_shape[0] + len(self.envs),),
@@ -164,7 +168,7 @@ class ScheduleEnvs(TrialWrapper):
                 msg = f"Env must have 1-D Box shape but got {env_shape}."
                 raise ValueError(msg)
             _have_equal_shape(envs)
-            self.observation_space: spaces.Box = spaces.Box(
+            self.observation_space = spaces.Box(
                 -np.inf,
                 np.inf,
                 shape=(env_shape[0] + len(self.envs),),
@@ -251,7 +255,11 @@ class TrialHistoryV2(TrialWrapper):
             on the previous. Shape, num-choices x num-choices
     """
 
-    def __init__(self, env, probs=None) -> None:
+    def __init__(
+        self,
+        env: TrialEnv,
+        probs: np.ndarray | None = None,
+    ) -> None:
         super().__init__(env)
         try:
             self.n_ch = len(self.choices)  # max num of choices

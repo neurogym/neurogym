@@ -8,7 +8,6 @@ pydocstyle.convention = "google"
 select = ["ALL"]
 ignore = [
     # FIXME: these I still want to consider resolving
-    "T201",    # 86 print statements, consider leaving the test ones there for the time being?
     "PLR2004", # 40 comparisons against non-constant? # FIXME: consider giving actions names instead of numbers?
     # to be slowly updated while refactoring/updating code
     "ANN",     # 878 type annotations missing!
@@ -26,6 +25,8 @@ ignore = [
     "TD",     # TODO formatting
     "FIX",    # Resolve FIXME, TODO, XXX
     "EXE002", # Executable but no shebang
+    "COM812", # Recommended to ignore by Ruff itself
+    "UP038",  # Use X | Y instead of (X, Y) in isinstance()
     # Unneeded docstrings
     "D100",   # Missing module docstring
     "D104",   # Missing public package docstring
@@ -67,7 +68,6 @@ extend-safe-fixes = [
     "D103",   # Missing function docstring
     "SLF001", # Private member access
     "ANN401", # Function arguments annotated with too generic `Any` type
-    # "T201",   # Print statements
 ]
 "__init__.py" = ["F401"] # unused imports
 
