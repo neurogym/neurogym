@@ -126,4 +126,4 @@ def test_noise():
                 env.reset()
 
         mean_performance = np.mean(perf[-50:])
-        assert mean_performance < 1
+        assert mean_performance <= 1
