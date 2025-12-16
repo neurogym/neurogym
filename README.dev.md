@@ -333,7 +333,7 @@ This workflow checks that the [static typing](#static-typing) of the code base i
 3. On the right hand side, you can select the [version level update](#versioning) ("patch", "minor", or "major") and which branch to release from.
    - [Follow semantic versioning conventions](https://semver.org/)
    - Note that you cannot release from `main` (the default shown) using the automated workflow. To release from `main`
-     directly, you must [create the release manually](#manually-create-a-release).
+     directly, you must [create the release manually](#manually-creating-a-release).
 4. Visit [Actions](https://github.com/neurogym/neurogym/actions) tab to check whether everything went as expected.
    - NOTE: there are a few consecutive jobs in the workflow that can fail the release. If any of these fails, the
      release workflow is aborted and the following steps are
