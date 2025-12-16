@@ -179,7 +179,7 @@ config = Config.model_validate(config_dict)
 ### Examples
 
 NeuroGym is compatible with most packages that use gymnasium.
-In this [example](https://github.com/neurogym/neurogym/blob/main/docs/examples/example_neurogym_rl.ipynb) jupyter notebook we show how to train a neural network with RL algorithms using the [Stable-Baselines3](https://stable-baselines3.readthedocs.io/en/master/) toolbox.
+In this [example](https://github.com/neurogym/neurogym/blob/main/docs/examples/reinforcement_learning.ipynb) jupyter notebook we show how to train a neural network with RL algorithms using the [Stable-Baselines3](https://stable-baselines3.readthedocs.io/en/master/) toolbox.
 
 #### Vanilla RNN Support in RecurrentPPO
 
