@@ -19,7 +19,6 @@ def _custom_format(record: Record) -> str:
     Returns:
         A  Loguru formatting string.
     """
-
     # give custom color to log message
     color = record["extra"].get("color", "level")
     if color not in list(AnsiParser._foreground) + list(AnsiParser._background):  # noqa: SLF001
