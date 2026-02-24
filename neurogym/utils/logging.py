@@ -19,13 +19,11 @@ def _custom_format(record: Record) -> str:
     Returns:
         A  Loguru formatting string.
     """
-    message = record["message"]
-
     # give custom color to log message
     color = record["extra"].get("color", "level")
     if color not in list(AnsiParser._foreground) + list(AnsiParser._background):  # noqa: SLF001
         color = "level"
-    message = f"<{color}>{message}</{color}>"
+    message = f"<{color}>{{message}}</{color}>"
 
     # give custom style (bold, etc) to log message
     style = record["extra"].get("style", "level")
@@ -33,7 +31,7 @@ def _custom_format(record: Record) -> str:
         style = "level"
     message = f"<{style}>{message}</{style}>"
 
-    return f"<magenta>Neurogym</magenta> | <cyan>{record['time']:YYYY-MM-DD@HH:mm:ss}</cyan> | {message}\n"
+    return f"<magenta>Neurogym</magenta> | <cyan>{{time:YYYY-MM-DD@HH:mm:ss}}</cyan> | {message}\n"
 
 
 logger.remove()
