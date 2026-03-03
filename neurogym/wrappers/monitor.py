@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any
 import matplotlib.pyplot as plt
 import numpy as np
 from gymnasium import Wrapper
+from natsort import natsorted
 
 from natsort import natsorted
 

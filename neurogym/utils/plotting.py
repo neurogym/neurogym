@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from gymnasium import Env, make  # using ngym.make would lead to circular import
 from matplotlib import animation
+from natsort import natsorted
 
 from neurogym import _SB3_INSTALLED
 from neurogym.config.components.plot import PlotConfig
@@ -893,4 +894,4 @@ def put_together_files(folder: str) -> dict:
 
 def order_by_suffix(file_list: list[str]) -> list:
     sfx = [int(x[x.rfind("_") + 1 : x.rfind(".")]) for x in file_list]  # FIXME: use pathlib method to find extension
-    return [x for _, x in sorted(zip(sfx, file_list, strict=True))]
+    return [x for _, x in natsorted(zip(sfx, file_list, strict=True))]
