@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any
 import matplotlib.pyplot as plt
 import numpy as np
 from gymnasium import Wrapper
+from natsort import natsorted
 
 from neurogym import _SB3_INSTALLED
 from neurogym.config.base import LOCAL_DIR
@@ -401,7 +402,7 @@ class Monitor(Wrapper):
         Returns:
             matplotlib figure object
         """
-        files = sorted(self.save_dir.glob("*.npz"))
+        files = natsorted(self.save_dir.glob("*.npz"))
 
         if not files:
             logger.warning("No data files found matching pattern: *.npz")
