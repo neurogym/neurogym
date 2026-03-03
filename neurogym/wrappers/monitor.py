@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from gymnasium import Wrapper
 
+from natsort import natsorted
+
 from neurogym import _SB3_INSTALLED
 from neurogym.config.base import LOCAL_DIR
 from neurogym.config.config import Config
@@ -324,7 +326,7 @@ class Monitor(Wrapper):
         trial_count = 0
 
         # Run trials
-        while trial_count < num_trials:
+        while trial_count < num_trials + 1:
             if model is not None:
                 if _SB3_INSTALLED and isinstance(model.policy, RecurrentActorCriticPolicy):
                     action, states = model.predict(
@@ -372,10 +374,15 @@ class Monitor(Wrapper):
         reward_array = np.array(rewards)
         cum_reward_array = np.array(cum_rewards)
 
-        # Convert lists to numpy arrays for easier downstream analysis
+        # Convert lists to numpy arrays for easier downstream analysis.
+        # NOTE:
+        # The 'trial' entry is misaligned by 1, so we need to discard
+        # the last trial dictionary and the first value from all other elements.
         for key in self.data_eval:
             if key != "trial":
-                self.data_eval[key] = np.array(self.data_eval[key])
+                self.data_eval[key] = np.array(self.data_eval[key][1:])
+            else:
+                self.data_eval[key] = self.data_eval[key][:-1]
 
         return {
             "rewards": rewards,
@@ -401,7 +408,7 @@ class Monitor(Wrapper):
         Returns:
             matplotlib figure object
         """
-        files = sorted(self.save_dir.glob("*.npz"))
+        files = natsorted(self.save_dir.glob("*.npz"))
 
         if not files:
             logger.warning("No data files found matching pattern: *.npz")
@@ -506,7 +513,9 @@ class Monitor(Wrapper):
         )
 
         if save_fig:
-            save_path = self.config.local_dir / f"{self.config.env.name}_training_history.png"
+            # TODO: Add an option to provide a custom path.
+            # TODO: Add an option to select the file type (PNG, PDF, etc.).
+            save_path = self.save_dir / "training_history.pdf"
             plt.savefig(save_path, dpi=300, bbox_inches="tight")
             logger.info(f"Figure saved to {save_path}")
 
