@@ -506,7 +506,9 @@ class Monitor(Wrapper):
         )
 
         if save_fig:
-            save_path = self.config.local_dir / f"{self.config.env.name}_training_history.png"
+            # TODO: Add an option to provide a custom path.
+            # TODO: Add an option to select the file type (PNG, PDF, etc.).
+            save_path = self.save_dir / "training_history.pdf"
             plt.savefig(save_path, dpi=300, bbox_inches="tight")
             logger.info(f"Figure saved to {save_path}")
 
