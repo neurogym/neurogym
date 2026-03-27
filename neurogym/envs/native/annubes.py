@@ -127,7 +127,7 @@ class AnnubesEnv(TrialEnv):
             rng = np.random.default_rng(random_seed)
             self._random_seed = rng.integers(2**32)
         else:
-            self._random_seed = random_seed
+            self._random_seed = random_seed  # type: ignore[assignment]
         self._rng = np.random.default_rng(self._random_seed)
         self.frozen_seed = frozen_seed
 
