@@ -117,7 +117,8 @@ class IBL_Block(IBL):  # noqa: N801
         # ---------------------------------------------------------------------
         self.ind = self.num_tr % self.block_size
         if self.ind == 0:
-            self.block = self._rng.integers(0, 3)  # Choose 0, 1, or 2
+            # Choose 0, 1 or 2
+            self.block = self._rng.integers(0, 3)  # type: ignore[assignment]
             prob = self.probs[self.block]
             self.new_block(self.block_size, probs=prob)
 
