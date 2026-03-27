@@ -218,7 +218,7 @@ class Monitor(Wrapper):
             if save and collect_data:
                 # Create save path with pathlib for cross-platform compatibility
                 save_path = self.save_dir / f"trial_{self.num_tr}.npz"
-                np.savez(save_path, **self.data)
+                np.savez(save_path, **self.data)  # type: ignore[arg-type]
 
                 if self.config.monitor.verbose:
                     logger.info("--------------------")

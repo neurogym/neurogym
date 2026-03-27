@@ -7,6 +7,7 @@ import pytest
 from neurogym.config.config import Config
 from neurogym.core import TrialEnv
 from neurogym.utils import spaces
+from neurogym.utils.functions import iso_timestamp
 from neurogym.wrappers.monitor import Monitor
 
 
@@ -229,7 +230,8 @@ def test_plot_training_history(temp_folder: str):
     config.monitor.verbose = True
     config.monitor.plot.step = 5
 
-    monitor = Monitor(env, config)
+    save_dir = Path(temp_folder) / env.unwrapped.__class__.__name__ / iso_timestamp()
+    monitor = Monitor(env, config, save_dir=save_dir)
 
     monitor.reset()
     for _ in range(20):
@@ -243,5 +245,5 @@ def test_plot_training_history(temp_folder: str):
     assert fig is not None, "Plot was not created"
 
     # Check if plot file exists
-    plot_file = Path(temp_folder) / f"{env.unwrapped.__class__.__name__}_training_history.png"
+    plot_file = save_dir / "training_history.pdf"
     assert plot_file.exists(), "Plot file was not saved"
