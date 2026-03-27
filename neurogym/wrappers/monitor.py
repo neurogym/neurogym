@@ -185,6 +185,7 @@ class Monitor(Wrapper):
         Args:
             action: The action to take in the environment
             collect_data: If True, collect and save data
+            record: A toggle for recording activation traces.
 
         Returns:
             Tuple of (observation, reward, terminated, truncated, info)
@@ -343,7 +344,7 @@ class Monitor(Wrapper):
                 action = self.env.action_space.sample()
 
             # Use collect_data=False to avoid saving evaluation data
-            obs, reward, _, _, info = self.step(action, collect_data=False, record=trial_count > 0)
+            obs, reward, _, _, info = self.step(action, collect_data=False, record=trial_count < num_trials - 1)
             # Update episode_starts after each step
             episode_starts = np.array([False])
             cum_reward += reward
@@ -372,8 +373,11 @@ class Monitor(Wrapper):
                 episode_starts = np.array([True])
 
         # Calculate metrics
+        performances = performances[:-1]
         performance_array = np.array([p for p in performances if p != -1])
+        rewards = rewards[:-1]
         reward_array = np.array(rewards)
+        cum_rewards = cum_rewards[:-1]
         cum_reward_array = np.array(cum_rewards)
 
         # Convert lists to numpy arrays for easier downstream analysis.
@@ -547,7 +551,7 @@ class Monitor(Wrapper):
             name = layer.__class__.__name__
 
         # The total number of steps to record during each trial.
-        total_steps = int(self.unwrapped.tmax / self.unwrapped.dt)
+        total_steps = int(self.unwrapped.tmax / self.unwrapped.dt)  # type: ignore[attr-defined]
         steps = total_steps if steps is None else min(steps, total_steps)
 
         # Create an activation monitor
