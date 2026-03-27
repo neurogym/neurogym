@@ -18,17 +18,19 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
     "pydantic-settings",
     "loguru",
     "tqdm",
     "tomlkit",
-    "numpy==2.1.*",
+    "numpy==2.2.*",
     "gymnasium==0.29.*",
-    "matplotlib==3.9.*",
-    "scipy==1.14.*",
-    "natsort",
+    "matplotlib==3.10.*",
+    "scipy",
+    "natsort"
 ]
 description = "NeuroGym: Gymnasium-style Cognitive Neuroscience Tasks"
 keywords = [

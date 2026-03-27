@@ -47,7 +47,7 @@ jobs:
             echo "GitHub token is valid."
           fi
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Check if PR exists
         run: gh pr view ${{ github.ref_name }}
       - name: Check if PR base is main
@@ -69,7 +69,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           # token with admin privileges to override branch protection on main and dev
           token: ${{ secrets.GH_RELEASE }}
@@ -86,7 +86,7 @@ jobs:
           git branch -f ${{ github.ref_name }} origin/${{ github.ref_name }}
           git merge ${{ github.ref_name }} --no-ff --no-edit
       - name: Install Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Install bump-my-version
@@ -134,7 +134,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: main
       - name: Create GitHub release
@@ -154,7 +154,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: dev
           fetch-depth: 0
