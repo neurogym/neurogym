@@ -37,7 +37,9 @@ def test_activation_traces(n_trials: int = 10):
     n_traces = len(am.history["hidden"])
     hidden_shape = am.history["hidden"][1][0].shape
     batch_size, neuron_count = hidden_shape[0], hidden_shape[1]
-    expected_steps = int(mon.tmax / mon.dt)
+    expected_steps = int(mon.unwrapped.tmax / mon.unwrapped.dt)
+
+    print(f"==[ {am.history['hidden'][-1]}")
 
     assert n_traces == n_trials, f"Wrong number of recorded activation traces (expected {n_trials}, got {n_traces})"
     for hist_length in am.history["hidden"]:

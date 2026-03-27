@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any
 import matplotlib.pyplot as plt
 import numpy as np
 from gymnasium import Wrapper
-
 from natsort import natsorted
 
 from neurogym import _SB3_INSTALLED
@@ -173,7 +172,9 @@ class Monitor(Wrapper):
         self.cum_reward = 0
         return super().reset(seed=seed)
 
-    def step(self, action: Any, collect_data: bool = True) -> tuple[Any, float, bool, bool, dict[str, Any]]:
+    def step(
+        self, action: Any, collect_data: bool = True, record: bool = True
+    ) -> tuple[Any, float, bool, bool, dict[str, Any]]:
         """Execute one environment step.
 
         This method:
@@ -234,8 +235,9 @@ class Monitor(Wrapper):
                     self.t = 0
 
             # Start a new trial for all activation monitors.
-            for am in self.activations.values():
-                am.init_new_trial = True
+            if record:
+                for am in self.activations.values():
+                    am.init_new_trial = True
         return obs, rew, terminated, truncated, info
 
     def reset_data(self) -> None:
@@ -341,7 +343,7 @@ class Monitor(Wrapper):
                 action = self.env.action_space.sample()
 
             # Use collect_data=False to avoid saving evaluation data
-            obs, reward, _, _, info = self.step(action, collect_data=False)
+            obs, reward, _, _, info = self.step(action, collect_data=False, record=trial_count > 0)
             # Update episode_starts after each step
             episode_starts = np.array([False])
             cum_reward += reward
@@ -545,7 +547,7 @@ class Monitor(Wrapper):
             name = layer.__class__.__name__
 
         # The total number of steps to record during each trial.
-        total_steps = int(self.tmax / self.dt)
+        total_steps = int(self.unwrapped.tmax / self.unwrapped.dt)
         steps = total_steps if steps is None else min(steps, total_steps)
 
         # Create an activation monitor
