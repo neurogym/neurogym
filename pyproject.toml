@@ -30,6 +30,7 @@ dependencies = [
     "gymnasium==0.29.*",
     "matplotlib==3.10.*",
     "scipy",
+    "natsort"
 ]
 description = "NeuroGym: Gymnasium-style Cognitive Neuroscience Tasks"
 keywords = [
