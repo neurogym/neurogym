@@ -24,9 +24,9 @@ dependencies = [
     "loguru",
     "tqdm",
     "tomlkit",
-    "numpy==2.1.*",
+    "numpy==2.2.*",
     "gymnasium==0.29.*",
-    "matplotlib==3.9.*",
+    "matplotlib==3.10.*",
     "scipy",
 ]
 description = "NeuroGym: Gymnasium-style Cognitive Neuroscience Tasks"
