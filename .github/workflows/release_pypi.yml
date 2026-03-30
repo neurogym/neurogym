@@ -38,34 +38,51 @@ jobs:
         with:
           path: dist/*
 
-  upload_test_pypi:
-    needs: [build]
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: artifact
-          path: dist
-      - uses: pypa/gh-action-pypi-publish@v1.13.0
-        with:
-          user: __token__
-          password: ${{ secrets.TEST_PYPI_TOKEN_NEUROGYM }}
-          repository_url: https://test.pypi.org/legacy/
+  # TODO: Enable this and make it a requirement for the real PyPI
+  # upload_test_pypi:
+  #   needs:
+  #     - build
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+  #   environment:
+  #     name: testpypi
+  #     url: https://test.pypi.org/p/neurogym
+  #   permissions:
+  #     id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+  #   steps:
+  #     - name: Download all the dists
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: python-package-distributions
+  #         path: dist/
+  #     # Retrieve your distributions here.
+  #     # NOTE: Using a specific commit to avoid security issues caused by rogue tags
+  #     # This should be updated regularly.
+  #     - name: Publish package distributions to TestPyPI
+  #       uses: pypa/gh-action-pypi-publish@ed0c539
 
   upload_pypi:
-    needs: [build]
+    needs:
+      - build
+      # TODO: Enable this once the previous action is set up.
+      # - upload_test_pypi
     runs-on: ubuntu-latest
-    if: github.event_name == 'release' && github.event.action == 'published'
+    environment:
+      name: pypi
+      url: https://pypi.org/p/neurogym
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download all the dists
+        uses: actions/download-artifact@v4
         with:
-          name: artifact
-          path: dist
-      - uses: pypa/gh-action-pypi-publish@v1.13.0
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_TOKEN_NEUROGYM }}
+          name: python-package-distributions
+          path: dist/
+      # Retrieve your distributions here
+      # NOTE: Using a specific commit to avoid security issues caused by rogue tags.
+      # This should be updated regularly.
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@ed0c539
 
   deploy_docs:
     name: Deploy documentation
