@@ -325,68 +325,37 @@ This workflow checks that the [static typing](#static-typing) of the code base i
 
 ## Making a Release
 
-### Automated Release Workflow
+Neurogym release versions follow the [semantic versioning convention](https://semver.org/). Creating a release involves creating a new branch where the Neurogym version is increased,followed by a new tag matching the new version. Once the tag is created, an action is triggered automatically to push the built wheel to PyPI. The individual steps are outlined below.
 
-1. **IMP0RTANT:** Create a PR for the release branch, targeting the `main` branch. Ensure there are no conflicts and that all checks pass successfully. Release branches are typically: traditional [release branches](https://nvie.com/posts/a-successful-git-branching-model/#release-branches) (these are created from the `dev` branch), or [hotfix branches](https://nvie.com/posts/a-successful-git-branching-model/#hotfix-branches) (these are created directly from the `main` branch).
-   - if everything goes well, this PR will automatically be closed after the draft release is created.
-2. Navigate to [Draft Github Release](https://github.com/neurogym/neurogym/actions/workflows/release_github.yml) on the [Actions](https://github.com/neurogym/neurogym/actions) tab.
-3. On the right hand side, you can select the [version level update](#versioning) ("patch", "minor", or "major") and which branch to release from.
-   - [Follow semantic versioning conventions](https://semver.org/)
-   - Note that you cannot release from `main` (the default shown) using the automated workflow. To release from `main`
-     directly, you must [create the release manually](#manually-create-a-release).
-4. Visit [Actions](https://github.com/neurogym/neurogym/actions) tab to check whether everything went as expected.
-   - NOTE: there are a few consecutive jobs in the workflow that can fail the release. If any of these fails, the
-     release workflow is aborted and the following steps are
-     - If `Check Requirements` fails, then there is something wrong with the branch you are trying to release from. This
-       is likely either because `main` was selected as a release branch, or because some of the PR checks did ont pass.
-       - If you want to release despite actions not passing, a [manual release](#manually-creating-a-release) is required.
-     - if `Check GitHub token validity` fails, then the token has expired. See [steps below](#updating-the-token) to update this.
-     - If `Create Draft GitHub Release` fails, then there are likely merge conflicts with `main` that need to be
-       resolved first. No release draft is created and the PR is not closed. Coversely, if this
-       action is successful, then the release branch (including a version bump) have been merged into the remote `main`
-       branch.
-     - If `Remove PR branch` fails (after Create Draft GitHub Release is successful), then there are likely merge
-       conflicts with `dev` that are not conflicts with `main`. In this case, the draft release is created (and changes
-       were merged into the remote `main`) but the PR is not closed. Conflicts with `dev` need to be resolved with `dev` by the user.
-     - If all jobs succeed, then the draft release is created and the changes are merged into both remote `main` and `dev` without any problems and the associated PR is closed. Also, the release branch is deleted from the remote repository.
-5. Navigate to the [Releases](https://github.com/neurogym/neurogym/releases) tab and click on the newest draft
-   release that was just generated.
-6. Click on the edit (pencil) icon on the right side of the draft release.
-7. Check/adapt the release notes and make sure that everything is as expected.
-8. Check that "Set as the latest release is checked".
-9. Click green "Publish Release" button to convert the draft to a published release on GitHub.
-   - This will automatically trigger [another GitHub workflow](https://github.com/neurogym/neurogym/actions/workflows/release_pypi.yml) that will take care of publishing the package on PyPi.
+### Release Workflow
 
-#### Updating the Token
+1. Make sure you have all required developers tools installed `pip install -e .'[test]'`. Prepare the codebase for the release (e.g., removing the unnecessary dev files, fix minor bugs if necessary). Do this by ensuring all tests pass `pytest -v` and that linting (`ruff check`) and formatting (`ruff format --check`) conventions are adhered to.
 
-In order for the workflow above to be able to bypass the branch protection on `main` and `dev`, a token with admin privileges for the current repo is required. Below are instructions on how to create such a token.
-NOTE: the current token (associated to @DaniBodor) allowing to bypass branch protection will expire on 9 July 2025. To update the token do the following:
+2. Create a release branch. We recommend that you choose a name for the branch that indicates the intent to make a release and the version (e.g. `release-2.3.4`). The *source* branch should be:
+    - The `dev` branch for traditional [release branches](https://nvie.com/posts/a-successful-git-branching-model/#release-branches).
+    - The `main` branch for [hotfix branches](https://nvie.com/posts/a-successful-git-branching-model/#hotfix-branches).
 
-1. [Create a personal access token](https://github.com/settings/tokens/new) from a GitHub user account with admin
-   privileges for this repo.
-2. Check all the "repo" boxes and the "workflow" box, set an expiration date, and give the token a note.
-3. Click green "Generate token" button on the bottom
-4. Copy the token immediately, as it will not be visible again later.
-5. Navigate to the [secrets settings](https://github.com/neurogym/neurogym/settings/secrets/actions).
-   - Note that you need admin privileges to the current repo to access these settings.
-6. Edit the `GH_RELEASE` key giving your access token as the new value.
+3. Decide on the [version level increase](#versioning), following [semantic versioning conventions](https://semver.org/). Use [bump-my-version](https://github.com/callowayproject/bump-my-version) to update the version throughout the package:
 
-### Manually Creating a Release
+```sh
+bump-my-version bump <level> --commit --tag -vv
+```
 
-0. Make sure you have all required developers tools installed `pip install -e .'[test]'`.
-1. Create a `release-` branch from `main` (if there has been an hotfix) or `dev` (regular new production release).
-2. Prepare the branch for the release (e.g., removing the unnecessary dev files, fix minor bugs if necessary). Do this by ensuring all tests pass `pytest -v` and that linting (`ruff check`) and formatting (`ruff format --check`) conventions are adhered to.
-3. Decide on the [version level increase](#versioning), following [semantic versioning
-   conventions](https://semver.org/). Use [bump-my-version](https://github.com/callowayproject/bump-my-version):
-   `bump-my-version bump <level> --commit --tag -vv` to update the version throughout the package.
-4. Merge the release branch into `main` and `dev`.
-5. On the [Releases page](https://github.com/neurogym/neurogym/releases):
-   1. Click "Draft a new release"
-   2. By convention, use `v<version number>` as both the release title and as a tag for the release.
-   3. Click "Generate release notes" to automatically load release notes from merged PRs since the last release.
-   4. Adjust the notes as required.
-   5. Ensure that "Set as latest release" is checked and that both other boxes are unchecked.
-   6. Hit "Publish release".
-      - This will automatically trigger a [GitHub
-        workflow](https://github.com/neurogym/neurogym/actions/workflows/release.yml) that will take care of publishing
-        the package on PyPi.
+It is noteworthy that PyPI automatically recognises the version within `pyproject.toml`, but there are some strict conventions that the version string must follow. Please read the [versioning specification](https://peps.python.org/pep-0440/).
+
+<span style="color:red;">Important</span>: Note that the version string for PyPI ***does not have a leading `v`*** - it starts with a number. However, when creating the tag in the last step of this guide, please make sure that the version tag for the release starts with `v` followed by dot-separated numbers (e.g., `v2.3.4`). This will trigger the PyPI publishing workflow. Tags that do not match this pattern **will not trigger the PyPI publishing workflow**. This is a security measure against certain types of attacks based on tag tampering.
+
+4. Create a PR for the new release branch targeting the `main` branch. When you create the PR, wait for all the checks to complete. If everything goes well, you can proceed to the next step. Ideally, there should be no issues since the only thing we are changing at this stage is the version. If the check step fails, the issues causing the failure should be fixed in the source branch before proceeding.
+
+5. Merge the release branch into `main` and `dev`.
+
+6. On the [Releases page](https://github.com/neurogym/neurogym/releases):
+
+   - Click `Draft a new release`
+   - Use `v<version number>` (e.g., `v2.3.4`) as both the release title and as a tag for the release (should match the version you selected above in step `3.`).
+   - Click `Generate release notes` to automatically load release notes from merged PRs since the last release.
+   - Adjust the notes as required.
+   - Ensure that `Set as latest release` is checked and that both other boxes are unchecked.
+   - Hit `Publish release`.
+
+This will automatically trigger a [GitHub workflow](https://github.com/neurogym/neurogym/actions/workflows/release.yml) that will take care of publishing the package on PyPi. You can open the [Neurogym PyPI page](https://pypi.org/manage/project/neurogym/releases/) to verify that the new release has been published.

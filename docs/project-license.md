@@ -2,9 +2,9 @@
 
 **Apache License**
 
-Copyright 2020-2024, Manuel Molano, Guangyu Robert Yang, & contributors
+Copyright 2020-2024, Manuel Molano, Guangyu Robert Yang, Jorge Mejias & contributors
 
-Copyright 2024, Giulia Crocioni, Dani L. Bodor, The Netherlands eScience Center
+Copyright 2024-2026, Giulia Crocioni, Dani L. Bodor, Alexander Hadjiivanov, The Netherlands eScience Center
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
