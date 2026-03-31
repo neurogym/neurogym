@@ -57,7 +57,7 @@ jobs:
   #     # NOTE: Using a specific commit to avoid security issues caused by rogue tags
   #     # This should be updated regularly.
   #     - name: Publish package distributions to TestPyPI
-  #       uses: pypa/gh-action-pypi-publish@ed0c539
+  #       uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e
 
   upload_pypi:
     needs:
@@ -80,7 +80,7 @@ jobs:
       # NOTE: Using a specific commit to avoid security issues caused by rogue tags.
       # This should be updated regularly.
       - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@ed0c539
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e
 
   deploy_docs:
     name: Deploy documentation
