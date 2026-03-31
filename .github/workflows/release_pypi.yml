@@ -35,7 +35,8 @@ jobs:
         run: python3 -m build
       - uses: actions/upload-artifact@v4
         with:
-          path: dist/*
+          name: python-package-distributions
+          path: dist/
 
   # TODO: Enable this and make it a requirement for the real PyPI
   # upload_test_pypi:
