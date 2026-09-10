@@ -21,6 +21,11 @@ class ContextDecisionMaking(TrialEnv):
        by a context signal.
     Both modes use ring representation for encoding stimulus inputs and choices.
 
+    The fixation input stays high during fixation, stimulus and delay, then drops
+    at decision onset to signal when to respond. This cue does not change the
+    reward rules: nonzero actions during stimulus and delay are still ignored,
+    and ``abort`` applies only to the initial fixation period.
+
     Args:
         dt: Timestep of the environment in milliseconds.
         use_expl_context: If True, the context is explicit (signaled) and changes per trial.
@@ -153,8 +158,8 @@ class ContextDecisionMaking(TrialEnv):
         periods = ["fixation", "stimulus", "delay", "decision"]
         self.add_period(periods)
 
-        # Set observations based on context type
-        self.add_ob(1, period="fixation", where="fixation")
+        # Fixation offset provides the go cue, including with variable delays.
+        self.add_ob(1, period=["fixation", "stimulus", "delay"], where="fixation")
 
         self._set_observations(choice_1, choice_2, coh_1, coh_2)
         # Add context signals for explicit context
