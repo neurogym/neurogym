@@ -30,6 +30,7 @@ class Dataset:
         self,
         env: str | gym.Env,
         env_kwargs: dict[str, Any] | None = None,
+        seed: int | None = None,
         batch_size: int = 1,
         seq_len: int | None = None,
         max_batch: int | None = None,
@@ -49,7 +50,7 @@ class Dataset:
             self.envs = [make(env, **env_kwargs) for _ in range(batch_size)]
         for env_ in self.envs:
             env_.reset()
-        self.seed()
+        self.seed(seed)
 
         env = self.envs[0]
         self.env = env
